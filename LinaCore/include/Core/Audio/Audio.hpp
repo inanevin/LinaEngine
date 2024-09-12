@@ -42,11 +42,12 @@ namespace Lina
 		};
 
 		Audio(const String& path, StringID sid) : Resource(path, sid, GetTypeID<Audio>()){};
+		Audio(ResourceID id) : Resource(id){};
 		virtual ~Audio();
 
 		static constexpr uint32 VERSION = 0;
 
-		virtual void LoadFromFile(const char* path) override;
+		virtual void LoadFromFile(const String& path) override;
 		virtual void LoadFromStream(IStream& stream) override;
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void SetCustomMeta(IStream& stream) override

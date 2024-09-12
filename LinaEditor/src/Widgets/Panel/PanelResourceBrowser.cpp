@@ -28,15 +28,56 @@ SOFTWARE.
 
 #include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
 #include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
+#include "Editor/EditorLocale.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
+#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
+#include "Core/GUI/Widgets/Primitives/Button.hpp"
+#include "Core/GUI/Widgets/Primitives/InputField.hpp"
+#include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/Graphics/Resource/GUIWidget.hpp"
 
 namespace Lina::Editor
 {
 	void PanelResourceBrowser::Construct()
 	{
-		GUIWidget guiWidget(0, m_manager);
-		guiWidget.LoadFromFile("Resources/Editor/Widgets/ResourceBrowser.linaresource");
-		AddChild(&guiWidget.GetRoot());
+		DirectionalLayout* vertical = m_manager->Allocate<DirectionalLayout>();
+		vertical->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		vertical->GetProps().direction			= DirectionOrientation::Vertical;
+		vertical->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
+		vertical->GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent);
+		AddChild(vertical);
+
+		DirectionalLayout* header = m_manager->Allocate<DirectionalLayout>();
+		header->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+		header->SetAlignedPosX(0.0f);
+		header->SetAlignedSizeX(1.0f);
+		header->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		header->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
+		vertical->AddChild(header);
+
+		Button* importButton = WidgetUtility::BuildIconTextButton(this, ICON_PLUS, Locale::GetStr(LocaleStr::Import));
+		importButton->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_ALIGN_X);
+		importButton->SetAlignedPosY(0.0f);
+		importButton->SetAlignedSize(Vector2(0.3f, 1.0f));
+		header->AddChild(importButton);
+
+		InputField* searchField = m_manager->Allocate<InputField>();
+		searchField->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		searchField->SetAlignedPosY(0.0f);
+		searchField->SetAlignedSize(Vector2(0.0, 1.0f));
+		searchField->GetProps().usePlaceHolder	= true;
+		searchField->GetProps().placeHolderText = Locale::GetStr(LocaleStr::Search);
+		header->AddChild(searchField);
+
+		ResourceDirectoryBrowser* dirBrowser = m_manager->Allocate<ResourceDirectoryBrowser>();
+		dirBrowser->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		dirBrowser->SetAlignedPosX(0.0f);
+		dirBrowser->SetAlignedSize(Vector2(1.0f, 0.0f));
+		vertical->AddChild(dirBrowser);
+
+		searchField->GetProps().onEdited = [dirBrowser](const String& str) {
+			// TODO: Update search string for directory browser.
+			dirBrowser->RefreshDirectory();
+		};
 	}
 } // namespace Lina::Editor

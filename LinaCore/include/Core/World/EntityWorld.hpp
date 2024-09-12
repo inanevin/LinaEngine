@@ -96,7 +96,7 @@ namespace Lina
 		void		 DestroyEntity(Entity* e);
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
-		virtual void LoadFromFile(const char* path) override;
+		virtual void LoadFromFile(const String& path) override;
 		void		 AddListener(EntityWorldListener* listener);
 		void		 RemoveListener(EntityWorldListener* listener);
 		void		 PreTick();

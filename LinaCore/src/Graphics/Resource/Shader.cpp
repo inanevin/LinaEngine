@@ -123,7 +123,7 @@ namespace Lina
 		}
 	}
 
-	void Shader::LoadFromFile(const char* path)
+	void Shader::LoadFromFile(const String& path)
 	{
 		LINAGX_MAP<LinaGX::ShaderStage, LinaGX::ShaderCompileData> data;
 		LINAGX_MAP<LinaGX::ShaderStage, String>					   blocks;

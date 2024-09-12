@@ -113,16 +113,16 @@ namespace Lina
 			ProcessNode(lgxChild, node);
 	}
 
-	void Model::LoadFromFile(const char* path)
+	void Model::LoadFromFile(const String& path)
 	{
 		const String	  ext		= FileSystem::GetFileExtension(path);
 		LinaGX::ModelData modelData = {};
 
 		bool success = false;
 		if (ext.compare("glb") == 0)
-			success = LinaGX::LoadGLTFBinary(path, modelData);
+			success = LinaGX::LoadGLTFBinary(path.c_str(), modelData);
 		else
-			success = LinaGX::LoadGLTFASCII(path, modelData);
+			success = LinaGX::LoadGLTFASCII(path.c_str(), modelData);
 
 		m_materials.resize(modelData.allMaterials.size());
 

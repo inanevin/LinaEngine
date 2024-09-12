@@ -159,9 +159,9 @@ namespace Lina
 		}
 	}
 
-	void EntityWorld::LoadFromFile(const char* path)
+	void EntityWorld::LoadFromFile(const String& path)
 	{
-		IStream stream = Serialization::LoadFromFile(path);
+		IStream stream = Serialization::LoadFromFile(path.c_str());
 		if (stream.GetDataRaw() != nullptr)
 			LoadFromStream(stream);
 		stream.Destroy();

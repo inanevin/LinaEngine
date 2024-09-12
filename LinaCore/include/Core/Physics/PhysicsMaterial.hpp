@@ -42,7 +42,7 @@ namespace Lina
 		PhysicsMaterial(ResourceID id) : Resource(id){};
 		~PhysicsMaterial() = default;
 
-		virtual void LoadFromFile(const char* path) override;
+		virtual void LoadFromFile(const String& path) override;
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
 

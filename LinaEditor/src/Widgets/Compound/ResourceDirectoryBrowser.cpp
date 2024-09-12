@@ -41,8 +41,10 @@ SOFTWARE.
 #include "Core/Graphics/Resource/GUIWidget.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
+#include "Core/Graphics/Resource/TextureSampler.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Physics/PhysicsMaterial.hpp"
+#include "Core/Platform/PlatformProcess.hpp"
 
 namespace Lina::Editor
 {
@@ -159,6 +161,7 @@ namespace Lina::Editor
 		bool duplicateDisabled = false;
 		bool favDisabled	   = false;
 		bool alreadyInFav	   = false;
+		bool importDisabled	   = false;
 
 		if (m_controller->IsItemSelected(m_controller->GetItem(&root)))
 		{
@@ -174,12 +177,19 @@ namespace Lina::Editor
 			deleteDisabled	  = true;
 			duplicateDisabled = true;
 			favDisabled		  = true;
+			importDisabled	  = true;
 		}
 
 		if (m_controller->GetSelectedItems().size() > 1)
 		{
 			createDisabled = true;
 			renameDisabled = true;
+			importDisabled = true;
+		}
+
+		if (m_controller->GetSelectedItems().empty() && !m_controller->GetSelectedUserData<ResourceDirectory>().front()->isFolder)
+		{
+			importDisabled = true;
 		}
 
 		if (sid == 0)
@@ -189,6 +199,15 @@ namespace Lina::Editor
 				.altText	 = "CTRL + R",
 				.hasDropdown = false,
 				.isDisabled	 = renameDisabled,
+				.userData	 = userData,
+			});
+
+			outData.push_back(FileMenuItem::Data{.isDivider = true});
+
+			outData.push_back(FileMenuItem::Data{
+				.text		 = Locale::GetStr(LocaleStr::Import),
+				.hasDropdown = false,
+				.isDisabled	 = importDisabled,
 				.userData	 = userData,
 			});
 
@@ -231,6 +250,7 @@ namespace Lina::Editor
 			outData = {
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Folder), .userData = userData},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Shader), .dropdownIcon = ICON_CHEVRON_RIGHT, .hasDropdown = true, .userData = userData},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Sampler), .userData = userData},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Material), .userData = userData},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::PhysicsMaterial), .userData = userData},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::World), .userData = userData},
@@ -281,6 +301,21 @@ namespace Lina::Editor
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Duplicate)))
 		{
 			RequestDuplicate(roots);
+			return true;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::Import)))
+		{
+			const Vector<String> files = PlatformProcess::OpenDialog({
+				.title				   = Locale::GetStr(LocaleStr::Import),
+				.primaryButton		   = Locale::GetStr(LocaleStr::Import),
+				.extensionsDescription = "",
+				.extensions			   = {"png", "jpg", "mp3", "glb", "gltf", "otf", "ttf", "linaresource"},
+				.mode				   = PlatformProcess::DialogMode::SelectFile,
+				.multiSelection		   = true,
+			});
+			m_editor->GetResourcePipeline().ImportResources(selection.front(), files);
+			RefreshDirectory();
 			return true;
 		}
 
@@ -339,6 +374,15 @@ namespace Lina::Editor
 				.isFolder	 = false,
 				.resourceID	 = m_editor->GetResourcePipeline().SaveNewResource(GetTypeID<PhysicsMaterial>(), 0),
 				.resourceTID = GetTypeID<PhysicsMaterial>(),
+			});
+		}
+		else if (sid == TO_SID(Locale::GetStr(LocaleStr::Sampler)))
+		{
+			newCreated = front->CreateChild({
+				.name		 = "TextureSampler",
+				.isFolder	 = false,
+				.resourceID	 = m_editor->GetResourcePipeline().SaveNewResource(GetTypeID<TextureSampler>(), 0),
+				.resourceTID = GetTypeID<TextureSampler>(),
 			});
 		}
 		else if (sid == TO_SID(Locale::GetStr(LocaleStr::DeferredShader)))

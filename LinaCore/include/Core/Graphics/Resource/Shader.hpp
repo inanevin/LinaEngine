@@ -82,7 +82,7 @@ namespace Lina
 		Shader(ResourceID id) : Resource(id){};
 		virtual ~Shader();
 
-		virtual void LoadFromFile(const char* path) override;
+		virtual void LoadFromFile(const String& path) override;
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
 		virtual void SetCustomMeta(IStream& stream) override

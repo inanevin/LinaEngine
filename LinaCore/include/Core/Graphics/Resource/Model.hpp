@@ -53,7 +53,7 @@ namespace Lina
 		Model(ResourceID id) : Resource(id){};
 		virtual ~Model();
 
-		virtual void LoadFromFile(const char* path) override;
+		virtual void LoadFromFile(const String& path) override;
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
 		void		 UploadNodes(MeshManager& meshManager);

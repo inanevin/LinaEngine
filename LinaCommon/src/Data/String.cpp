@@ -180,6 +180,19 @@ namespace Lina
 		}
 	}
 
+	uint64 UtilStr::StringToBigInt(const String& str)
+	{
+		try
+		{
+			return static_cast<uint64>(std::stoll(str));
+		}
+		catch (const std::exception& e)
+		{
+			LINA_ERR("Exception: StringToInt() string: {0} - {1}", str, e.what());
+			return 0;
+		}
+	}
+
 	String UtilStr::RemoveAllDotsExceptFirst(const String& str)
 	{
 		String		result = str;

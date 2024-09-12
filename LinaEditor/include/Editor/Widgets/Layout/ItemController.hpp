@@ -78,23 +78,6 @@ namespace Lina::Editor
 			}
 		};
 
-		virtual void			Construct() override;
-		virtual void			Destruct() override;
-		virtual void			Initialize() override;
-		virtual void			PreTick() override;
-		virtual void			OnGrabbedControls(bool isForward, Widget* prevControls) override;
-		virtual Widget*			GetNextControls() override;
-		virtual Widget*			GetPrevControls() override;
-		virtual bool			OnKey(uint32 key, int32 scancode, LinaGX::InputAction act) override;
-		virtual bool			OnMouse(uint32 button, LinaGX::InputAction act) override;
-		virtual void			OnPayloadStarted(PayloadType type, Widget* payload) override;
-		virtual void			OnPayloadEnded(PayloadType type, Widget* payload) override;
-		virtual bool			OnPayloadDropped(PayloadType type, Widget* payload) override;
-		virtual LinaGX::Window* OnPayloadGetWindow() override
-		{
-			return m_lgxWindow;
-		}
-
 		void	AddItem(Widget* widget);
 		void	ClearItems();
 		void	SetFocus(bool isFocused);
@@ -104,18 +87,6 @@ namespace Lina::Editor
 		Widget* GetItem(void* userdata);
 		void	UnselectAll();
 		void	MakeVisibleRecursively(Widget* w);
-
-		virtual void SaveToStream(OStream& stream) const override
-		{
-			Widget::SaveToStream(stream);
-			stream << m_props;
-		}
-
-		virtual void LoadFromStream(IStream& stream) override
-		{
-			Widget::LoadFromStream(stream);
-			stream >> m_props;
-		}
 
 		inline Properties& GetProps()
 		{
@@ -143,6 +114,37 @@ namespace Lina::Editor
 		inline bool GetIsFocused() const
 		{
 			return m_isFocused;
+		}
+
+	protected:
+		virtual void	Construct() override;
+		virtual void	Destruct() override;
+		virtual void	Initialize() override;
+		virtual void	PreTick() override;
+		virtual void	OnGrabbedControls(bool isForward, Widget* prevControls) override;
+		virtual Widget* GetNextControls() override;
+		virtual Widget* GetPrevControls() override;
+		virtual bool	OnKey(uint32 key, int32 scancode, LinaGX::InputAction act) override;
+		virtual bool	OnMouse(uint32 button, LinaGX::InputAction act) override;
+		virtual void	OnPayloadStarted(PayloadType type, Widget* payload) override;
+		virtual void	OnPayloadEnded(PayloadType type, Widget* payload) override;
+		virtual bool	OnPayloadDropped(PayloadType type, Widget* payload) override;
+
+		virtual LinaGX::Window* OnPayloadGetWindow() override
+		{
+			return m_lgxWindow;
+		}
+
+		virtual void SaveToStream(OStream& stream) const override
+		{
+			Widget::SaveToStream(stream);
+			stream << m_props;
+		}
+
+		virtual void LoadFromStream(IStream& stream) override
+		{
+			Widget::LoadFromStream(stream);
+			stream >> m_props;
 		}
 
 	private:

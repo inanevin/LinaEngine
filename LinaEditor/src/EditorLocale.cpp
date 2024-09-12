@@ -100,6 +100,7 @@ namespace Lina::Editor
 		{LocaleStr::Material, "Material"},
 		{LocaleStr::PhysicsMaterial, "Physics Material"},
 		{LocaleStr::Shader, "Shader"},
+		{LocaleStr::Sampler, "Texture Sampler"},
 		{LocaleStr::DeferredShader, "Deferred Shader"},
 		{LocaleStr::ForwardShader, "Forward Shader"},
 		{LocaleStr::LightingShader, "Lighting Shader"},
@@ -128,6 +129,7 @@ namespace Lina::Editor
 		{LocaleStr::Both, "Both"},
 		{LocaleStr::Export, "Export"},
 		{LocaleStr::Refresh, "Refresh"},
+		{LocaleStr::ImportingResources, "Importing resources"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

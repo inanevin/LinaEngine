@@ -40,10 +40,12 @@ namespace Lina
 		static constexpr uint32 VERSION = 0;
 
 		TextureSampler(const String& path, StringID sid) : Resource(path, sid, GetTypeID<TextureSampler>()){};
+		TextureSampler(ResourceID id) : Resource(id){};
 		virtual ~TextureSampler();
 
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
+		virtual void LoadFromFile(const String& path) override;
 		void		 DestroyHW();
 		void		 GenerateHW();
 		void		 GenerateHW(const LinaGX::SamplerDesc& desc);

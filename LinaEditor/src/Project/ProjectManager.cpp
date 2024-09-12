@@ -126,6 +126,13 @@ namespace Lina::Editor
 		m_currentProject->SaveToFile();
 	}
 
+	ResourceID ProjectManager::ConsumeResourceID()
+	{
+		const ResourceID id = m_currentProject->ConsumeResourceID();
+		SaveProjectChanges();
+		return id;
+	}
+
 	void ProjectManager::AddListener(ProjectManagerListener* listener)
 	{
 		m_listeners.push_back(listener);

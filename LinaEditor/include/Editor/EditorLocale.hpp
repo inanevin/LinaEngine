@@ -102,6 +102,7 @@ namespace Lina::Editor
 		Folder,
 		Material,
 		PhysicsMaterial,
+		Sampler,
 		Shader,
 		DeferredShader,
 		ForwardShader,
@@ -131,6 +132,7 @@ namespace Lina::Editor
 		Both,
 		Export,
 		Refresh,
+		ImportingResources,
 	};
 
 	class Locale

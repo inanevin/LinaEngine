@@ -28,6 +28,8 @@ SOFTWARE.
 
 #pragma once
 
+#include "Core/Resources/CommonResources.hpp"
+
 namespace Lina
 {
 	class ProjectData;
@@ -49,10 +51,10 @@ namespace Lina::Editor
 		void Initialize(Editor* editor);
 		void Shutdown();
 
-		void OpenPopupProjectSelector(bool canCancel, bool openCreateFirst = true);
-		void OpenProject(const String& projectFile);
-		void SaveProjectChanges();
-		void CloseCurrentProject();
+		void	   OpenPopupProjectSelector(bool canCancel, bool openCreateFirst = true);
+		void	   OpenProject(const String& projectFile);
+		void	   SaveProjectChanges();
+		ResourceID ConsumeResourceID();
 
 		void AddListener(ProjectManagerListener* listener);
 		void RemoveListener(ProjectManagerListener* listener);

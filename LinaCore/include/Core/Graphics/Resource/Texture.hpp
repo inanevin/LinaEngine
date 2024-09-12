@@ -61,7 +61,7 @@ namespace Lina
 		virtual ~Texture();
 
 		virtual void SaveToStream(OStream& stream) const override;
-		virtual void LoadFromFile(const char* path) override;
+		virtual void LoadFromFile(const String& path) override;
 		virtual void LoadFromStream(IStream& stream) override;
 		void		 LoadFromBuffer(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::ImageChannelMask channelMask, LinaGX::Format format, bool generateMipMaps = false);
 

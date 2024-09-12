@@ -33,9 +33,9 @@ SOFTWARE.
 namespace Lina
 {
 
-	void PhysicsMaterial::LoadFromFile(const char* path)
+	void PhysicsMaterial::LoadFromFile(const String& path)
 	{
-		IStream stream = Serialization::LoadFromFile(path);
+		IStream stream = Serialization::LoadFromFile(path.c_str());
 
 		if (stream.GetDataRaw() != nullptr)
 			LoadFromStream(stream);

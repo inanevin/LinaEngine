@@ -50,7 +50,7 @@ namespace Lina
 		Resource(ResourceID id) : m_id(id){};
 		virtual ~Resource() = default;
 
-		virtual void LoadFromFile(const char* path){};
+		virtual void LoadFromFile(const String& path){};
 		virtual void LoadFromStream(IStream& stream){};
 		virtual void SaveToStream(OStream& stream) const {};
 		virtual void SetCustomMeta(IStream& stream){};

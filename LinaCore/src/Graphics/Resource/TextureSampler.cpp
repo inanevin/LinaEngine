@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/TextureSampler.hpp"
 #include "Core/Graphics/GfxManager.hpp"
 #include "Common/System/System.hpp"
+#include "Common/Serialization/Serialization.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 
 namespace Lina
@@ -69,6 +70,15 @@ namespace Lina
 		m_samplerDesc.mipmapMode = static_cast<LinaGX::MipmapMode>(mipmapMode);
 	}
 
+	void TextureSampler::LoadFromFile(const String& path)
+	{
+		IStream stream = Serialization::LoadFromFile(path.c_str());
+
+		if (stream.GetDataRaw() != nullptr)
+			LoadFromStream(stream);
+
+		stream.Destroy();
+	}
 	void TextureSampler::GenerateHW()
 	{
 		m_samplerDesc.debugName = m_path.c_str();

@@ -71,8 +71,7 @@ namespace Lina::Editor
 
 		virtual void Construct() override;
 		virtual void Initialize() override;
-		virtual bool OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData) override;
-		virtual void OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
+		void		 RefreshDirectory();
 
 		inline Properties& GetProps()
 		{
@@ -83,6 +82,10 @@ namespace Lina::Editor
 		{
 			return m_controller;
 		}
+
+	protected:
+		virtual bool OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData) override;
+		virtual void OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
 
 		virtual void SaveToStream(OStream& stream) const override
 		{
@@ -97,7 +100,6 @@ namespace Lina::Editor
 		}
 
 	private:
-		void RefreshDirectory();
 		void AddItemForDirectory(ResourceDirectory* dir, float margin);
 		void RequestRename(ResourceDirectory* dir);
 		void RequestDelete(Vector<ResourceDirectory*> dirs);

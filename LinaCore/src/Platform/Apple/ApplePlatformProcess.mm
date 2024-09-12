@@ -212,8 +212,10 @@ namespace Lina
 		}
 	}
 
-	String PlatformProcess::OpenDialog(const PlatformProcess::DialogProperties& props)
+	Vector<String> PlatformProcess::OpenDialog(const PlatformProcess::DialogProperties& props)
 	{
+		Vector<String> retUrls;
+
 		@autoreleasepool
 		{
 			NSOpenPanel* panel = [NSOpenPanel openPanel];
@@ -241,6 +243,7 @@ namespace Lina
 			{
 				[panel setCanChooseFiles:YES];
 				[panel setCanChooseDirectories:NO];
+				[panel setAllowsMultipleSelection:props.multiSelection];
 
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 110000 // macOS 11.0 or later
 				NSMutableArray<UTType*>* types = [[NSMutableArray alloc] init];
@@ -257,13 +260,20 @@ namespace Lina
 
 			if ([panel runModal] == NSModalResponseOK)
 			{
-				NSURL* url = [[panel URLs] firstObject];
-				if (url != nil)
+				for (NSURL* url in [panel URLs])
 				{
-					return [[url path] UTF8String];
+					if (url == nil)
+						continue;
+
+					retUrls.push_back([[url path] UTF8String]);
 				}
+				// NSURL* url = [[panel URLs] firstObject];
+				// if (url != nil)
+				// {
+				// 	return [[url path] UTF8String];
+				// }
 			}
-			return "";
+			return retUrls;
 		}
 	}
 

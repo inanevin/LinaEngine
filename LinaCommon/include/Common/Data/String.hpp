@@ -51,6 +51,7 @@ namespace Lina
 		static String		  ReplaceAll(const String& str, const String& toReplace, const String& replacement);
 		static float		  StringToFloat(const String& str, uint32& outDecimals);
 		static int			  StringToInt(const String& str);
+		static uint64		  StringToBigInt(const String& str);
 		static String		  GetUntilFirstOf(const String& str);
 		static char*		  WCharToChar(const wchar_t* wch);
 		static const wchar_t* CharToWChar(const char* ch);

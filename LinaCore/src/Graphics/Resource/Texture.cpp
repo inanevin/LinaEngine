@@ -108,12 +108,12 @@ namespace Lina
 		m_meta.format	  = format;
 	}
 
-	void Texture::LoadFromFile(const char* path)
+	void Texture::LoadFromFile(const String& path)
 	{
 		DestroySW();
 
 		LinaGX::TextureBuffer outBuffer = {};
-		LinaGX::LoadImageFromFile(path, outBuffer, m_meta.channelMask);
+		LinaGX::LoadImageFromFile(path.c_str(), outBuffer, m_meta.channelMask);
 		m_bytesPerPixel = outBuffer.bytesPerPixel;
 		LINA_ASSERT(outBuffer.pixels != nullptr, "Failed loading texture! {0}", path);
 

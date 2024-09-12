@@ -100,9 +100,9 @@ namespace Lina
 		m_properties = m_shader->GetProperties();
 	}
 
-	void Material::LoadFromFile(const char* path)
+	void Material::LoadFromFile(const String& path)
 	{
-		IStream stream = Serialization::LoadFromFile(path);
+		IStream stream = Serialization::LoadFromFile(path.c_str());
 
 		if (stream.GetDataRaw() != nullptr)
 			LoadFromStream(stream);

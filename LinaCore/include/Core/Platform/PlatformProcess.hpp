@@ -50,15 +50,16 @@ namespace Lina
 			String		   primaryButton		 = "";
 			String		   extensionsDescription = "";
 			Vector<String> extensions; // no dots
-			DialogMode	   mode = DialogMode::SelectDirectory;
+			DialogMode	   mode			  = DialogMode::SelectDirectory;
+			bool		   multiSelection = false;
 		};
 
-		static void	  LoadPlugin(const char* name, EngineInterface* engInterface, SystemEventDispatcher* dispatcher);
-		static void	  UnloadPlugin(void* handle);
-		static void	  CopyToClipboard(const char* str);
-		static bool	  TryGetStringFromClipboard(String& outStr);
-		static String OpenDialog(const DialogProperties& properties);
-		static String SaveDialog(const DialogProperties& properties);
-		static void	  OpenURL(const String& url);
+		static void			  LoadPlugin(const char* name, EngineInterface* engInterface, SystemEventDispatcher* dispatcher);
+		static void			  UnloadPlugin(void* handle);
+		static void			  CopyToClipboard(const char* str);
+		static bool			  TryGetStringFromClipboard(String& outStr);
+		static Vector<String> OpenDialog(const DialogProperties& properties);
+		static String		  SaveDialog(const DialogProperties& properties);
+		static void			  OpenURL(const String& url);
 	};
 } // namespace Lina

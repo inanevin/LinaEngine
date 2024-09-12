@@ -34,6 +34,7 @@ SOFTWARE.
 
 namespace Lina
 {
+	class Button;
 	class DirectionalLayout;
 	class Widget;
 	class WidgetManager;

@@ -50,7 +50,7 @@ namespace Lina
 	{
 	}
 
-	void Audio::LoadFromFile(const char* path)
+	void Audio::LoadFromFile(const String& path)
 	{
 	}
 

@@ -65,11 +65,12 @@ namespace Lina
 		static constexpr uint32 VERSION = 0;
 
 		Font(const String& path, StringID sid) : Resource(path, sid, GetTypeID<Font>()){};
+		Font(ResourceID id) : Resource(id){};
 		virtual ~Font();
 
 		void				GenerateHW(LinaVG::Text& lvgText);
 		LinaVG::LinaVGFont* GetLinaVGFont(float dpiScale);
-		virtual void		LoadFromFile(const char* path) override;
+		virtual void		LoadFromFile(const String& path) override;
 		virtual void		LoadFromStream(IStream& stream) override;
 		virtual void		SaveToStream(OStream& stream) const override;
 

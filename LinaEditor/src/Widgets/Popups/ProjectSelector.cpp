@@ -168,13 +168,14 @@ namespace Lina::Editor
 			}
 			else
 			{
-				location = PlatformProcess::OpenDialog({
+				Vector<String> loc = PlatformProcess::OpenDialog({
 					.title				   = dialogTitle,
 					.primaryButton		   = Locale::GetStr(LocaleStr::Open),
 					.extensionsDescription = Locale::GetStr(LocaleStr::LinaProjectFile),
 					.extensions			   = {"linaproject"},
 					.mode				   = PlatformProcess::DialogMode::SelectFile,
 				});
+				location		   = loc[0];
 			}
 
 			location = FileSystem::FixPath(location);

@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Core/Resources/CommonResources.hpp"
+#include "Common/Data/CommonData.hpp"
 
 namespace Lina
 {
@@ -42,21 +43,31 @@ namespace Lina::Editor
 	class ResourcePipeline
 	{
 	public:
-		void	   Initialize(Editor* editor);
-		ResourceID SaveNewResource(TypeID tid, uint32 subType = 0);
-		void	   SaveResource(Resource* res);
+		void Initialize(Editor* editor);
 
+		/// For creating and saving user-made resources, such as GUIWidget, EntityWorld, Material etc.
+		ResourceID SaveNewResource(TypeID tid, uint32 subType = 0);
+
+		/// Save resource to its supposed path by its id.
+		void SaveResource(Resource* res);
+
+		/// For importing external resources, such as textures, models, materials etc.
+		void ImportResources(ResourceDirectory* src, const Vector<String>& absPaths);
+
+		/// Load a resource from a directory, not meant to be used by runtime but for editor inspecting/editing purposes.
 		template <typename T> T* OpenResource(ResourceID resourceID, void* subdata = nullptr)
 		{
 			return static_cast<T*>(OpenResource(GetTypeID<T>(), resourceID, subdata));
 		}
 
+		/// Delete an opened resource, save first.
 		template <typename T> void CloseAndSaveResource(T* resource)
 		{
 			SaveResource(resource);
 			delete resource;
 		}
 
+		/// Delete an opened resource.
 		template <typename T> void CloseResource(T* resource)
 		{
 			delete resource;
@@ -70,7 +81,8 @@ namespace Lina::Editor
 		void* OpenResource(TypeID tid, ResourceID resourceID, void* subdata);
 
 	private:
-		Editor* m_editor = nullptr;
+		Editor*		   m_editor					= nullptr;
+		Atomic<uint32> m_importedResourcesCount = 0;
 	};
 
 } // namespace Lina::Editor

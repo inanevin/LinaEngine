@@ -104,10 +104,10 @@ namespace Lina
 		}
 	}
 
-	void Font::LoadFromFile(const char* path)
+	void Font::LoadFromFile(const String& path)
 	{
 		// Populate if not existing.
-		FileSystem::ReadFileContentsToVector(path, m_file);
+		FileSystem::ReadFileContentsToVector(path.c_str(), m_file);
 	}
 
 	void Font::LoadFromStream(IStream& stream)
