@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Editor/Resources/ResourcePipeline.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/EditorLocale.hpp"
+#include "Editor/IO/ThumbnailGenerator.hpp"
 
 #include "Common/System/System.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
@@ -279,33 +280,51 @@ namespace Lina::Editor
 			ResourceDirectory* dir	= newChildren.at(i);
 			const ResourceID   id	= dir->resourceID;
 
+			LinaGX::TextureBuffer thumbnail = {};
+
 			if (dir->resourceTID == GetTypeID<Texture>())
 			{
 				Texture txt(id);
 				txt.LoadFromFile(path);
 				txt.SaveToFileAsBinary(GetResourcePath(id));
+				thumbnail = ThumbnailGenerator::GenerateThumbnail(&txt);
 			}
 			else if (dir->resourceTID == GetTypeID<Font>())
 			{
 				Font font(id);
 				font.LoadFromFile(path);
 				font.SaveToFileAsBinary(GetResourcePath(id));
+				thumbnail = ThumbnailGenerator::GenerateThumbnail(&font);
 			}
 			else if (dir->resourceTID == GetTypeID<Audio>())
 			{
 				Audio aud(id);
 				aud.LoadFromFile(path);
 				aud.SaveToFileAsBinary(GetResourcePath(id));
+				thumbnail = ThumbnailGenerator::GenerateThumbnail(&aud);
 			}
 			else if (dir->resourceTID == GetTypeID<Model>())
 			{
 				Model model(id);
 				model.LoadFromFile(path);
 				model.SaveToFileAsBinary(GetResourcePath(id));
+				thumbnail = ThumbnailGenerator::GenerateThumbnail(&model);
 			}
+
+			if (thumbnail.pixels != nullptr)
+			{
+				OStream stream;
+				stream << thumbnail.width << thumbnail.height << thumbnail.bytesPerPixel;
+				stream.WriteRaw(thumbnail.pixels, thumbnail.width * thumbnail.height * thumbnail.bytesPerPixel);
+				delete[] thumbnail.pixels;
+				dir->thumbnailBuffer	  = RawStream(stream);
+				dir->_thumbnailAtlasImage = m_editor->GetAtlasManager().AddImageToAtlas(thumbnail.pixels, Vector2ui(thumbnail.width, thumbnail.height), thumbnail.bytesPerPixel);
+			}
+
 			m_importedResourcesCount.fetch_add(1);
 		});
 
 		m_editor->GetSystem()->GetMainExecutor()->RunAndWait(tf);
+		m_editor->GetProjectManager().SaveProjectChanges();
 	}
 } // namespace Lina::Editor

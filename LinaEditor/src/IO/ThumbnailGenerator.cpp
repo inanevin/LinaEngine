@@ -175,6 +175,180 @@ namespace Lina::Editor
 		}
 	}
 
+	LinaGX::TextureBuffer ThumbnailGenerator::GenerateThumbnail(Texture* texture)
+	{
+		LinaGX::TextureBuffer resizedBuffer;
+
+		const Vector<LinaGX::TextureBuffer>& allLevels = texture->GetAllLevels();
+		const LinaGX::TextureBuffer&		 image	   = allLevels.at(0);
+		if (image.pixels != nullptr)
+		{
+			const float max	   = static_cast<float>(Math::Max(image.width, image.height));
+			const float min	   = static_cast<float>(Math::Min(image.width, image.height));
+			const float aspect = max / min;
+
+			uint32 width  = RESOURCE_THUMBNAIL_SIZE;
+			uint32 height = RESOURCE_THUMBNAIL_SIZE;
+
+			if (image.width > image.height)
+				height = static_cast<uint32>(static_cast<float>(width) / aspect);
+			else
+				width = static_cast<uint32>(static_cast<float>(height) / aspect);
+
+			resizedBuffer = {
+				.pixels		   = new uint8[width * height * image.bytesPerPixel],
+				.width		   = width,
+				.height		   = height,
+				.bytesPerPixel = image.bytesPerPixel,
+			};
+
+			if (LinaGX::ResizeBuffer(image, resizedBuffer, width, height, LinaGX::MipmapFilter::Default, LinaGX::ImageChannelMask::RGBA, true))
+			{
+			}
+			else
+			{
+				LINA_ERR("Thumbnail Generator: Failed resizing image for thumbnail!");
+			}
+		}
+		return resizedBuffer;
+	}
+
+	LinaGX::TextureBuffer ThumbnailGenerator::GenerateThumbnail(Audio* audio)
+	{
+		LinaGX::TextureBuffer buffer;
+		return buffer;
+	}
+
+	LinaGX::TextureBuffer ThumbnailGenerator::GenerateThumbnail(Model* model)
+	{
+		LinaGX::TextureBuffer buffer;
+		return buffer;
+	}
+
+	LinaGX::TextureBuffer ThumbnailGenerator::GenerateThumbnail(Font* font, const String& absPath)
+	{
+		LinaGX::TextureBuffer thumbnailBuffer;
+
+		auto loadGlyph = [](FT_Face face, uint32 code, uint32& width, uint32& height) -> unsigned char* {
+			auto index = FT_Get_Char_Index(face, code);
+
+			if (index == 0)
+			{
+				LINA_ERR("FileManager: Failed finding font char index for thumbnail!");
+				return nullptr;
+			}
+
+			int err = FT_Load_Glyph(face, index, FT_LOAD_DEFAULT);
+			if (err)
+			{
+				LINA_ERR("FileManager: Failed loading font glyph for thumbnail!");
+				return nullptr;
+			}
+
+			FT_GlyphSlot slot = face->glyph;
+			err				  = FT_Render_Glyph(slot, FT_RENDER_MODE_NORMAL);
+
+			if (err)
+			{
+				LINA_ERR("FileManager: Failed rendering font glyph for thumbnail!");
+				return nullptr;
+			}
+
+			const unsigned int glyphWidth = slot->bitmap.width;
+			const unsigned int glyphRows  = slot->bitmap.rows;
+			const size_t	   bufSize	  = static_cast<size_t>(glyphWidth * glyphRows);
+
+			width  = glyphWidth;
+			height = glyphRows;
+
+			unsigned char* buffer = nullptr;
+			if (slot->bitmap.buffer != nullptr)
+			{
+				buffer = (unsigned char*)MALLOC(bufSize);
+
+				if (buffer != 0)
+					MEMCPY(buffer, slot->bitmap.buffer, bufSize);
+			}
+
+			return buffer;
+		};
+
+		FT_Face face;
+		if (FT_New_Face(LinaVG::g_ftLib, absPath.c_str(), 0, &face))
+		{
+			LINA_ERR("FileManager: Failed creating new font face for thumbnail!");
+			return;
+		}
+
+		FT_Error err = FT_Set_Pixel_Sizes(face, 0, RESOURCE_THUMBNAIL_SIZE / 2);
+
+		if (err)
+		{
+			LINA_ERR("FileManager: Failed setting font pixel sizes for thumbnail!");
+			return;
+		}
+
+		err = FT_Select_Charmap(face, ft_encoding_unicode);
+
+		if (err)
+		{
+			LINA_ERR("FileManager: Failed selecting font charmap for thumbnail!");
+			return;
+		}
+
+		uint32		   glyphW1 = 0;
+		uint32		   glyphW2 = 0;
+		uint32		   glyphH1 = 0;
+		uint32		   glyphH2 = 0;
+		unsigned char* buffer  = loadGlyph(face, 65, glyphW1, glyphH1); // A
+		unsigned char* buffer2 = loadGlyph(face, 97, glyphW2, glyphH2); // a
+
+		if (buffer != nullptr && buffer2 != nullptr)
+		{
+			LinaGX::TextureBuffer glyphBuffer1 = {
+				.pixels		   = reinterpret_cast<uint8*>(buffer),
+				.width		   = glyphW1,
+				.height		   = glyphH1,
+				.bytesPerPixel = 1,
+			};
+
+			LinaGX::TextureBuffer glyphBuffer2 = {
+				.pixels		   = reinterpret_cast<uint8*>(buffer2),
+				.width		   = glyphW2,
+				.height		   = glyphH2,
+				.bytesPerPixel = 1,
+			};
+
+			thumbnailBuffer = {
+				.pixels		   = new uint8[RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE],
+				.width		   = RESOURCE_THUMBNAIL_SIZE,
+				.height		   = RESOURCE_THUMBNAIL_SIZE,
+				.bytesPerPixel = 1,
+			};
+
+			MEMSET(thumbnailBuffer.pixels, 0, RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE);
+
+			const uint32 widthTotal = glyphW1 + glyphW2;
+			const uint32 startX1	= RESOURCE_THUMBNAIL_SIZE / 2 - (widthTotal / 2);
+			const uint32 startY1	= RESOURCE_THUMBNAIL_SIZE / 2 - (glyphH1 / 2);
+			LinaGX::WriteToBuffer(thumbnailBuffer, glyphBuffer1, startX1, startY1);
+
+			const uint32 startX2 = startX1 + glyphW1 + 1;
+			const uint32 startY2 = RESOURCE_THUMBNAIL_SIZE / 2 - (glyphH2 / 2);
+			LinaGX::WriteToBuffer(thumbnailBuffer, glyphBuffer2, startX2, startY2);
+		}
+
+		if (buffer)
+			FREE(buffer);
+
+		if (buffer2)
+			FREE(buffer2);
+
+		FT_Done_Face(face);
+
+		return thumbnailBuffer;
+	}
+
 	void ThumbnailGenerator::GenerateThumbTexture(DirectoryItem* item, const String& thumbPath)
 	{
 		LinaGX::TextureBuffer image;
@@ -229,135 +403,6 @@ namespace Lina::Editor
 
 	void ThumbnailGenerator::GenerateThumbFont(DirectoryItem* item, const String& thumbPath)
 	{
-		Taskflow tf;
-
-		auto loadGlyph = [](FT_Face face, uint32 code, uint32& width, uint32& height) -> unsigned char* {
-			auto index = FT_Get_Char_Index(face, code);
-
-			if (index == 0)
-			{
-				LINA_ERR("FileManager: Failed finding font char index for thumbnail!");
-				return nullptr;
-			}
-
-			int err = FT_Load_Glyph(face, index, FT_LOAD_DEFAULT);
-			if (err)
-			{
-				LINA_ERR("FileManager: Failed loading font glyph for thumbnail!");
-				return nullptr;
-			}
-
-			FT_GlyphSlot slot = face->glyph;
-			err				  = FT_Render_Glyph(slot, FT_RENDER_MODE_NORMAL);
-
-			if (err)
-			{
-				LINA_ERR("FileManager: Failed rendering font glyph for thumbnail!");
-				return nullptr;
-			}
-
-			const unsigned int glyphWidth = slot->bitmap.width;
-			const unsigned int glyphRows  = slot->bitmap.rows;
-			const size_t	   bufSize	  = static_cast<size_t>(glyphWidth * glyphRows);
-
-			width  = glyphWidth;
-			height = glyphRows;
-
-			unsigned char* buffer = nullptr;
-			if (slot->bitmap.buffer != nullptr)
-			{
-				buffer = (unsigned char*)MALLOC(bufSize);
-
-				if (buffer != 0)
-					MEMCPY(buffer, slot->bitmap.buffer, bufSize);
-			}
-
-			return buffer;
-		};
-
-		FT_Face face;
-		if (FT_New_Face(LinaVG::g_ftLib, item->absolutePath.c_str(), 0, &face))
-		{
-			LINA_ERR("FileManager: Failed creating new font face for thumbnail!");
-			return;
-		}
-
-		FT_Error err = FT_Set_Pixel_Sizes(face, 0, RESOURCE_THUMBNAIL_SIZE / 2);
-
-		if (err)
-		{
-			LINA_ERR("FileManager: Failed setting font pixel sizes for thumbnail!");
-			return;
-		}
-
-		err = FT_Select_Charmap(face, ft_encoding_unicode);
-
-		if (err)
-		{
-			LINA_ERR("FileManager: Failed selecting font charmap for thumbnail!");
-			return;
-		}
-
-		uint32		   glyphW1 = 0;
-		uint32		   glyphW2 = 0;
-		uint32		   glyphH1 = 0;
-		uint32		   glyphH2 = 0;
-		unsigned char* buffer  = loadGlyph(face, 65, glyphW1, glyphH1); // A
-		unsigned char* buffer2 = loadGlyph(face, 97, glyphW2, glyphH2); // a
-
-		if (buffer != nullptr && buffer2 != nullptr)
-		{
-			LinaGX::TextureBuffer glyphBuffer1 = {
-				.pixels		   = reinterpret_cast<uint8*>(buffer),
-				.width		   = glyphW1,
-				.height		   = glyphH1,
-				.bytesPerPixel = 1,
-			};
-
-			LinaGX::TextureBuffer glyphBuffer2 = {
-				.pixels		   = reinterpret_cast<uint8*>(buffer2),
-				.width		   = glyphW2,
-				.height		   = glyphH2,
-				.bytesPerPixel = 1,
-			};
-
-			LinaGX::TextureBuffer thumbnailBuffer = {
-				.pixels		   = new uint8[RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE],
-				.width		   = RESOURCE_THUMBNAIL_SIZE,
-				.height		   = RESOURCE_THUMBNAIL_SIZE,
-				.bytesPerPixel = 1,
-			};
-
-			MEMSET(thumbnailBuffer.pixels, 0, RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE);
-
-			const uint32 widthTotal = glyphW1 + glyphW2;
-			const uint32 startX1	= RESOURCE_THUMBNAIL_SIZE / 2 - (widthTotal / 2);
-			const uint32 startY1	= RESOURCE_THUMBNAIL_SIZE / 2 - (glyphH1 / 2);
-			LinaGX::WriteToBuffer(thumbnailBuffer, glyphBuffer1, startX1, startY1);
-
-			const uint32 startX2 = startX1 + glyphW1 + 1;
-			const uint32 startY2 = RESOURCE_THUMBNAIL_SIZE / 2 - (glyphH2 / 2);
-			LinaGX::WriteToBuffer(thumbnailBuffer, glyphBuffer2, startX2, startY2);
-
-			OStream stream;
-			stream << item->lastModifiedDate;
-			stream << thumbnailBuffer.width << thumbnailBuffer.height << thumbnailBuffer.bytesPerPixel;
-			stream.WriteRaw(thumbnailBuffer.pixels, thumbnailBuffer.width * thumbnailBuffer.height * 1);
-			Serialization::SaveToFile(thumbPath.c_str(), stream);
-			stream.Destroy();
-
-			TextureAtlasImage* atlas = m_editor->GetAtlasManager().AddImageToAtlas(thumbnailBuffer.pixels, Vector2ui(thumbnailBuffer.width, thumbnailBuffer.height), thumbnailBuffer.bytesPerPixel);
-			m_atlases.try_emplace(item, atlas);
-			delete[] thumbnailBuffer.pixels;
-		}
-
-		if (buffer)
-			FREE(buffer);
-
-		if (buffer2)
-			FREE(buffer2);
-
-		FT_Done_Face(face);
 	}
 
 	void ThumbnailGenerator::GenerateThumbMaterial(DirectoryItem* item, const String& thumbPath)

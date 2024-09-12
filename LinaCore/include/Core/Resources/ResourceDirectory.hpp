@@ -29,11 +29,13 @@ SOFTWARE.
 #pragma once
 
 #include "CommonResources.hpp"
+#include "Common/Data/Streams.hpp"
 
 namespace Lina
 {
 	class OStream;
 	class IStream;
+	struct TextureAtlasImage;
 
 	struct ResourceDirectory
 	{
@@ -46,6 +48,8 @@ namespace Lina
 		TypeID					   resourceTID = 0;
 		Vector<ResourceDirectory*> children;
 		ResourceDirectory*		   parent = nullptr;
+		RawStream				   thumbnailBuffer;
+		TextureAtlasImage*		   _thumbnailAtlasImage = nullptr;
 
 		void SaveToStream(OStream& stream);
 		void LoadFromStream(IStream& stream);

@@ -40,6 +40,9 @@ namespace Lina
 	class JobExecutor;
 	class WorldRenderer;
 	class GfxManager;
+	class Font;
+	class Model;
+	class Audio;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -68,6 +71,11 @@ namespace Lina::Editor
 		ThumbnailGenerator() = delete;
 		ThumbnailGenerator(Editor* editor, JobExecutor* executor, DirectoryItem* item, bool isRecursive);
 		~ThumbnailGenerator();
+
+		static LinaGX::TextureBuffer GenerateThumbnail(Texture* texture);
+		static LinaGX::TextureBuffer GenerateThumbnail(Model* model);
+		static LinaGX::TextureBuffer GenerateThumbnail(Audio* audio);
+		static LinaGX::TextureBuffer GenerateThumbnail(Font* font, const String& absPath);
 
 		inline Status GetStatus() const
 		{

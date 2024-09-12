@@ -39,6 +39,7 @@ namespace Lina
 		stream << resourceID;
 		stream << resourceTID;
 		stream << children;
+		stream << thumbnailBuffer;
 	}
 
 	void ResourceDirectory::LoadFromStream(IStream& stream)
@@ -50,6 +51,7 @@ namespace Lina
 		stream >> resourceID;
 		stream >> resourceTID;
 		stream >> children;
+		stream >> thumbnailBuffer;
 		for (ResourceDirectory* c : children)
 			c->parent = this;
 		SortChildren();
