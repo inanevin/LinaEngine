@@ -226,7 +226,9 @@ namespace Lina::Editor
 		// Verify the paths, create resource directory for each verified path.
 		Vector<String> validPaths;
 		validPaths.reserve(absPaths.size());
-		const size_t currentChildSz = src->children.size();
+		Vector<ResourceDirectory*> newChildren;
+		newChildren.reserve(absPaths.size());
+
 		for (const String& str : absPaths)
 		{
 			if (!FileSystem::FileOrPathExists(str))
@@ -249,12 +251,13 @@ namespace Lina::Editor
 
 			validPaths.push_back(str);
 
-			src->CreateChild({
+			ResourceDirectory* child = src->CreateChild({
 				.isFolder	 = false,
 				.resourceID	 = m_editor->GetProjectManager().GetProjectData()->ConsumeResourceID(),
 				.resourceTID = resourceTID,
 				.name		 = FileSystem::GetFilenameOnlyFromPath(str),
 			});
+			newChildren.push_back(child);
 		}
 		m_editor->GetProjectManager().SaveProjectChanges();
 
@@ -273,7 +276,7 @@ namespace Lina::Editor
 		Taskflow tf;
 		tf.for_each_index(0, static_cast<int>(validPaths.size()), 1, [&](int i) {
 			const String&	   path = validPaths.at(i);
-			ResourceDirectory* dir	= src->children.at(currentChildSz + i);
+			ResourceDirectory* dir	= newChildren.at(i);
 			const ResourceID   id	= dir->resourceID;
 
 			if (dir->resourceTID == GetTypeID<Texture>())
