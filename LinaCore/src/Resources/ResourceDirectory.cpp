@@ -31,6 +31,11 @@ SOFTWARE.
 namespace Lina
 {
 
+	ResourceDirectory::~ResourceDirectory()
+	{
+		thumbnailBuffer.Destroy();
+	}
+
 	void ResourceDirectory::SaveToStream(OStream& stream)
 	{
 		stream << VERSION;
@@ -72,27 +77,17 @@ namespace Lina
 		SortChildren();
 	}
 
-	void ResourceDirectory::DestroyChild(ResourceDirectory* dir)
+	void ResourceDirectory::RemoveChild(ResourceDirectory* dir)
 	{
 		auto it = linatl::find_if(children.begin(), children.end(), [dir](ResourceDirectory* c) -> bool { return c == dir; });
 		children.erase(it);
-		delete dir;
 		SortChildren();
 	}
 
-	ResourceDirectory* ResourceDirectory::Duplicate()
+	void ResourceDirectory::DestroyChild(ResourceDirectory* dir)
 	{
-		ResourceDirectory* d = new ResourceDirectory();
-		*d					 = *this;
-		d->children.clear();
-
-		for (ResourceDirectory* child : children)
-		{
-			ResourceDirectory* dupChild = child->Duplicate();
-			d->AddChild(dupChild);
-		}
-
-		return d;
+		RemoveChild(dir);
+		delete dir;
 	}
 
 	void ResourceDirectory::SortChildren()

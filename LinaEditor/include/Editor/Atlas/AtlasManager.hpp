@@ -52,7 +52,8 @@ namespace Lina::Editor
 		TextureAtlasImage* GetImageFromAtlas(StringID atlas, StringID image);
 
 	private:
-		Editor*							 m_editor = nullptr;
+		Atomic<bool>					 m_atlasPoolDirty = false;
+		Editor*							 m_editor		  = nullptr;
 		Vector<TextureAtlas*>			 m_atlasPool;
 		HashMap<StringID, TextureAtlas*> m_customAtlases;
 		Mutex							 m_mtx;

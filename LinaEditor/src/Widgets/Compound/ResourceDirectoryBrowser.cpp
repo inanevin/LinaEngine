@@ -97,6 +97,27 @@ namespace Lina::Editor
 		controller->GetProps().onInteract = []() {
 
 		};
+        
+        controller->GetProps().payloadType = PayloadType::Resource;
+        controller->GetProps().onCreatePayload = [this](void* ud) {
+            Widget*        root   = m_editor->GetWindowPanelManager().GetPayloadRoot();
+            ResourceDirectory* dir = static_cast<ResourceDirectory*>(ud);
+            Text*        t       = root->GetWidgetManager()->Allocate<Text>();
+            t->GetProps().text = dir->name;
+            t->Initialize();
+            m_payloadItem = dir;
+            Editor::Get()->GetWindowPanelManager().CreatePayload(t, PayloadType::Resource, t->GetSize());
+        };
+        
+        controller->GetProps().onPayloadAccepted = [this](void* ud) {
+            DropPayload(static_cast<ResourceDirectory*>(ud));
+        };
+        
+        controller->GetProps().onCheckCanCreatePayload = [this](void* ud) {
+            ResourceDirectory* dir = static_cast<ResourceDirectory*>(ud);
+            ResourceDirectory* root = &m_editor->GetProjectManager().GetProjectData()->GetResourceRoot();
+            return dir != root;
+        };
 
 		controller->GetProps().onDuplicate = [this]() {
 			Vector<ResourceDirectory*> selection = m_controller->GetSelectedUserData<ResourceDirectory>();
@@ -141,7 +162,8 @@ namespace Lina::Editor
 			}
 			else
 			{
-				Widget* w = CommonWidgets::BuildTexturedListItem(this, child, margin, m_editor->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "FileShaderSmall"_hs), child->name, true);
+                TextureAtlasImage* img = child->_thumbnailAtlasImage ? child->_thumbnailAtlasImage : m_editor->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "FileShaderSmall"_hs);
+				Widget* w = CommonWidgets::BuildTexturedListItem(this, child, margin, img, child->name, true);
 				m_controller->GetItem(dir)->GetParent()->AddChild(w);
 				m_controller->AddItem(w);
 			}
@@ -187,7 +209,7 @@ namespace Lina::Editor
 			importDisabled = true;
 		}
 
-		if (m_controller->GetSelectedItems().empty() && !m_controller->GetSelectedUserData<ResourceDirectory>().front()->isFolder)
+		if (!m_controller->GetSelectedItems().empty() && !m_controller->GetSelectedUserData<ResourceDirectory>().front()->isFolder)
 		{
 			importDisabled = true;
 		}
@@ -421,6 +443,8 @@ namespace Lina::Editor
 				.resourceTID = GetTypeID<Shader>(),
 			});
 		}
+        else
+            return false;
 
 		m_editor->GetProjectManager().SaveProjectChanges();
 		RefreshDirectory();
@@ -481,10 +505,7 @@ namespace Lina::Editor
 	void ResourceDirectoryBrowser::RequestDuplicate(Vector<ResourceDirectory*> dirs)
 	{
 		for (ResourceDirectory* item : dirs)
-		{
-			// TODO: duplicate the resources.
-			item->parent->AddChild(item->Duplicate());
-		}
+            m_editor->GetResourcePipeline().DuplicateResource(item, item->parent);
 
 		RefreshDirectory();
 		m_editor->GetProjectManager().SaveProjectChanges();
@@ -493,11 +514,21 @@ namespace Lina::Editor
 	void ResourceDirectoryBrowser::DeleteItems(Vector<ResourceDirectory*> dirs)
 	{
 		for (ResourceDirectory* item : dirs)
-		{
-			// TODO: delete the resource.
 			item->parent->DestroyChild(item);
-		}
+        
 		RefreshDirectory();
 		m_editor->GetProjectManager().SaveProjectChanges();
 	}
+
+    void ResourceDirectoryBrowser::DropPayload(ResourceDirectory* target)
+    {
+        if(!target->isFolder)
+            return;
+        
+        ResourceDirectory* carry = m_payloadItem;
+        carry->parent->RemoveChild(carry);
+        target->AddChild(carry);
+        RefreshDirectory();
+        m_editor->GetProjectManager().SaveProjectChanges();
+    }
 } // namespace Lina::Editor

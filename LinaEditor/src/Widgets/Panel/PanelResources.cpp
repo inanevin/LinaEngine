@@ -1287,9 +1287,4 @@ namespace Lina::Editor
 		}
 	}
 
-	void PanelResources::OnFileManagerThumbnailsGenerated(DirectoryItem* src, bool wasRecursive)
-	{
-		RefreshFileBrowser();
-	}
-
 } // namespace Lina::Editor

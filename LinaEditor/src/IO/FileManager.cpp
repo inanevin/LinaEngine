@@ -55,29 +55,12 @@ namespace Lina::Editor
 
 	void FileManager::PreTick()
 	{
-		for (Vector<ThumbnailGenerator*>::iterator it = m_thumbnailGenerators.begin(); it != m_thumbnailGenerators.end();)
-		{
-			ThumbnailGenerator* generator = *it;
-			if (generator->GetStatus() == ThumbnailGenerator::Status::Done)
-			{
-				for (FileManagerListener* l : m_listeners)
-					l->OnFileManagerThumbnailsGenerated(generator->GetRootItem(), generator->GetIsRecursive());
-
-				delete generator;
-				it = m_thumbnailGenerators.erase(it);
-			}
-			else
-				++it;
-		}
 	}
 
 	void FileManager::Shutdown()
 	{
 		m_editor->GetProjectManager().RemoveListener(this);
 
-		for (ThumbnailGenerator* gen : m_thumbnailGenerators)
-			delete gen;
-		m_thumbnailGenerators.clear();
 		ClearResources();
 	}
 
@@ -195,11 +178,6 @@ namespace Lina::Editor
 			ScanItemRecursively(c);
 	}
 
-	void FileManager::GenerateThumbnails(DirectoryItem* root, bool recursive)
-	{
-		m_thumbnailGenerators.push_back(new ThumbnailGenerator(m_editor, &m_executor, root, recursive));
-	}
-
 	void FileManager::OnProjectOpened(ProjectData* data)
 	{
 		SetProjectDirectory(FileSystem::GetFilePath(data->GetPath()));
@@ -219,8 +197,6 @@ namespace Lina::Editor
 		m_root->isDirectory = true;
 		FillPathInformation(m_root, resDir);
 		ScanItem(m_root);
-
-		m_thumbnailGenerators.push_back(new ThumbnailGenerator(m_editor, &m_executor, m_root, true));
 	}
 
 	void FileManager::ClearDirectory(DirectoryItem* item)

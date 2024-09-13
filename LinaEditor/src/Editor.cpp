@@ -384,6 +384,7 @@ namespace Lina::Editor
 		m_windowPanelManager.PreTick();
 		m_fileManager.PreTick();
 		m_editorRenderer.PreTick();
+		m_atlasManager.RefreshDirtyAtlases();
 	}
 
 	void Editor::Tick(float delta)

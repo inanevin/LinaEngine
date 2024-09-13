@@ -35,11 +35,6 @@ SOFTWARE.
 
 namespace Lina
 {
-	class Buffer;
-	struct TextureAtlasImage;
-	class JobExecutor;
-	class WorldRenderer;
-	class GfxManager;
 	class Font;
 	class Model;
 	class Audio;
@@ -48,71 +43,15 @@ namespace Lina
 namespace Lina::Editor
 {
 	class Editor;
-	struct DirectoryItem;
 
 	class ThumbnailGenerator
 	{
-	private:
-		struct RequestBatch
-		{
-			uint32													 totalCount		= 0;
-			Atomic<uint32>											 generatedCount = 0;
-			Vector<DirectoryItem*>									 requests;
-			ParallelHashMapMutex<DirectoryItem*, TextureAtlasImage*> atlases;
-		};
 
 	public:
-		enum class Status
-		{
-			Working,
-			Done,
-		};
-
-		ThumbnailGenerator() = delete;
-		ThumbnailGenerator(Editor* editor, JobExecutor* executor, DirectoryItem* item, bool isRecursive);
-		~ThumbnailGenerator();
-
 		static LinaGX::TextureBuffer GenerateThumbnail(Texture* texture);
 		static LinaGX::TextureBuffer GenerateThumbnail(Model* model);
 		static LinaGX::TextureBuffer GenerateThumbnail(Audio* audio);
-		static LinaGX::TextureBuffer GenerateThumbnail(Font* font, const String& absPath);
-
-		inline Status GetStatus() const
-		{
-			return m_status;
-		}
-
-		inline DirectoryItem* GetRootItem() const
-		{
-			return m_rootItem;
-		}
-
-		inline bool GetIsRecursive() const
-		{
-			return m_isRecursive;
-		}
-
-	private:
-		void CollectItems(DirectoryItem* item, bool isRecursive);
-		void GenerateThumbTexture(DirectoryItem* item, const String& thumbPath);
-		void GenerateThumbFont(DirectoryItem* item, const String& thumbPath);
-		void GenerateThumbMaterial(DirectoryItem* item, const String& thumbPath);
-		void GenerateThumbModel(DirectoryItem* item, const String& thumbPath);
-
-	private:
-		ResourceManagerV2*										 m_rm		  = nullptr;
-		GfxManager*												 m_gfxManager = nullptr;
-		Vector<DirectoryItem*>									 m_thumbnailItems;
-		uint32													 m_totalCount	  = 0;
-		Atomic<uint32>											 m_generatedCount = 0;
-		ParallelHashMapMutex<DirectoryItem*, TextureAtlasImage*> m_atlases;
-
-		JobExecutor*   m_executor;
-		Editor*		   m_editor = nullptr;
-		Atomic<Status> m_status = Status::Working;
-		Future<void>   m_future;
-		bool		   m_isRecursive = false;
-		DirectoryItem* m_rootItem	 = nullptr;
+		static LinaGX::TextureBuffer GenerateThumbnailFont(const String& absPath);
 	};
 
 } // namespace Lina::Editor

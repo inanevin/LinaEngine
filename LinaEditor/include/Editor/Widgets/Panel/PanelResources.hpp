@@ -78,7 +78,6 @@ namespace Lina::Editor
 	protected:
 		virtual bool OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData) override;
 		virtual void OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
-		virtual void OnFileManagerThumbnailsGenerated(DirectoryItem* src, bool wasRecursive) override;
 		virtual void LoadLayoutFromStream(IStream& stream) override;
 		virtual void SaveLayoutToStream(OStream& stream) override;
 

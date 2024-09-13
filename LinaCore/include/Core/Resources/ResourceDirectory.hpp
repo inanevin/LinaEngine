@@ -41,6 +41,8 @@ namespace Lina
 	{
 		static constexpr uint32 VERSION = 0;
 
+		~ResourceDirectory();
+
 		String					   name		   = "";
 		bool					   isFolder	   = false;
 		bool					   unfolded	   = false;
@@ -58,7 +60,7 @@ namespace Lina
 		ResourceDirectory* CreateChild(ResourceDirectory desc);
 		void			   DestroyChild(ResourceDirectory* dir);
 		void			   AddChild(ResourceDirectory* dir);
-		ResourceDirectory* Duplicate();
+		void			   RemoveChild(ResourceDirectory* dir);
 		void			   SortChildren();
 	};
 } // namespace Lina

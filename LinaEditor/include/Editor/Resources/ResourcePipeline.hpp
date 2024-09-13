@@ -75,10 +75,12 @@ namespace Lina::Editor
 
 		String GetResourceDirectory();
 		String GetResourcePath(ResourceID id);
+		void   DuplicateResource(ResourceDirectory* directory, ResourceDirectory* newParent);
 
 	private:
 		void  VerifyResources(ResourceDirectory* dir);
 		void* OpenResource(TypeID tid, ResourceID resourceID, void* subdata);
+		void  GenerateThumbnailAtlases(ResourceDirectory* dir);
 
 	private:
 		Editor*		   m_editor					= nullptr;

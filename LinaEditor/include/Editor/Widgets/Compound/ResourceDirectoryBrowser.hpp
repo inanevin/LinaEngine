@@ -35,7 +35,7 @@ SOFTWARE.
 namespace Lina
 {
 	class DirectionalLayout;
-	class ResourceDirectory;
+	struct ResourceDirectory;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -105,12 +105,14 @@ namespace Lina::Editor
 		void RequestDelete(Vector<ResourceDirectory*> dirs);
 		void RequestDuplicate(Vector<ResourceDirectory*> dirs);
 		void DeleteItems(Vector<ResourceDirectory*> dirs);
+		void DropPayload(ResourceDirectory* target);
 
 	private:
 		Properties		   m_props;
-		ItemController*	   m_controller = nullptr;
-		DirectionalLayout* m_layout		= nullptr;
-		Editor*			   m_editor		= nullptr;
+		ItemController*	   m_controller	 = nullptr;
+		DirectionalLayout* m_layout		 = nullptr;
+		Editor*			   m_editor		 = nullptr;
+		ResourceDirectory* m_payloadItem = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(ResourceDirectoryBrowser, Editor)

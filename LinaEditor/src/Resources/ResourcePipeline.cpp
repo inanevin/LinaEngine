@@ -79,6 +79,8 @@ namespace Lina::Editor
 			if (found == nullptr)
 				FileSystem::DeleteFileInPath(file);
 		}
+
+		GenerateThumbnailAtlases(root);
 	}
 
 	void ResourcePipeline::VerifyResources(ResourceDirectory* dir)
@@ -101,6 +103,28 @@ namespace Lina::Editor
 
 		for (ResourceDirectory* d : killList)
 			dir->DestroyChild(d);
+	}
+
+	void ResourcePipeline::GenerateThumbnailAtlases(ResourceDirectory* dir)
+	{
+		if (!dir->isFolder && !dir->thumbnailBuffer.IsEmpty())
+		{
+			IStream stream;
+			stream.Create(dir->thumbnailBuffer.GetRaw(), dir->thumbnailBuffer.GetSize());
+			uint32 width = 0, height = 0, bytesPerPixel = 0;
+			stream >> width;
+			stream >> height;
+			stream >> bytesPerPixel;
+			const size_t sz		   = static_cast<size_t>(width * height * bytesPerPixel);
+			Span<uint8>	 thumbData = {new uint8[sz], sz};
+			stream.ReadToRaw(thumbData);
+			stream.Destroy();
+			dir->_thumbnailAtlasImage = m_editor->GetAtlasManager().AddImageToAtlas(thumbData.data(), Vector2ui(width, height), bytesPerPixel);
+			delete[] thumbData.data();
+		}
+
+		for (ResourceDirectory* c : dir->children)
+			GenerateThumbnailAtlases(c);
 	}
 
 	ResourceID ResourcePipeline::SaveNewResource(TypeID tid, uint32 subType)
@@ -202,6 +226,42 @@ namespace Lina::Editor
 			samp->LoadFromFile(path);
 			ptr = samp;
 		}
+		else if (tid == GetTypeID<Texture>())
+		{
+			Texture* txt	= new Texture(0);
+			IStream	 stream = Serialization::LoadFromFile(path.c_str());
+			txt->LoadFromStream(stream);
+			stream.Destroy();
+			ptr = txt;
+		}
+		else if (tid == GetTypeID<Font>())
+		{
+			Font*	fnt	   = new Font(0);
+			IStream stream = Serialization::LoadFromFile(path.c_str());
+			fnt->LoadFromStream(stream);
+			stream.Destroy();
+			ptr = fnt;
+		}
+		else if (tid == GetTypeID<Model>())
+		{
+			Model*	model  = new Model(0);
+			IStream stream = Serialization::LoadFromFile(path.c_str());
+			model->LoadFromStream(stream);
+			stream.Destroy();
+			ptr = model;
+		}
+		else if (tid == GetTypeID<Audio>())
+		{
+			Audio*	aud	   = new Audio(0);
+			IStream stream = Serialization::LoadFromFile(path.c_str());
+			aud->LoadFromStream(stream);
+			stream.Destroy();
+			ptr = aud;
+		}
+		else
+		{
+			LINA_ASSERT(false, "");
+		}
 
 		return ptr;
 	}
@@ -294,7 +354,7 @@ namespace Lina::Editor
 				Font font(id);
 				font.LoadFromFile(path);
 				font.SaveToFileAsBinary(GetResourcePath(id));
-				thumbnail = ThumbnailGenerator::GenerateThumbnail(&font);
+				thumbnail = ThumbnailGenerator::GenerateThumbnailFont(path);
 			}
 			else if (dir->resourceTID == GetTypeID<Audio>())
 			{
@@ -316,9 +376,10 @@ namespace Lina::Editor
 				OStream stream;
 				stream << thumbnail.width << thumbnail.height << thumbnail.bytesPerPixel;
 				stream.WriteRaw(thumbnail.pixels, thumbnail.width * thumbnail.height * thumbnail.bytesPerPixel);
-				delete[] thumbnail.pixels;
-				dir->thumbnailBuffer	  = RawStream(stream);
 				dir->_thumbnailAtlasImage = m_editor->GetAtlasManager().AddImageToAtlas(thumbnail.pixels, Vector2ui(thumbnail.width, thumbnail.height), thumbnail.bytesPerPixel);
+				dir->thumbnailBuffer.Create(stream);
+				delete[] thumbnail.pixels;
+				stream.Destroy();
 			}
 
 			m_importedResourcesCount.fetch_add(1);
@@ -326,5 +387,37 @@ namespace Lina::Editor
 
 		m_editor->GetSystem()->GetMainExecutor()->RunAndWait(tf);
 		m_editor->GetProjectManager().SaveProjectChanges();
+	}
+
+	void ResourcePipeline::DuplicateResource(ResourceDirectory* directory, ResourceDirectory* newParent)
+	{
+		ResourceDirectory* dup = new ResourceDirectory();
+		*dup				   = *directory;
+		dup->children.clear();
+		newParent->AddChild(dup);
+
+		if (!directory->isFolder)
+		{
+			const String	 path		= GetResourcePath(directory->resourceID);
+			const String	 duplicated = FileSystem::Duplicate(path);
+			const ResourceID newID		= m_editor->GetProjectManager().ConsumeResourceID();
+			dup->resourceID				= newID;
+			FileSystem::ChangeDirectoryName(duplicated, GetResourcePath(newID));
+			Resource* res = static_cast<Resource*>(OpenResource(directory->resourceTID, newID, nullptr));
+			res->SetID(newID);
+			CloseAndSaveResource(res);
+
+			if (!directory->thumbnailBuffer.IsEmpty())
+			{
+				dup->thumbnailBuffer = RawStream();
+				dup->thumbnailBuffer.Create(directory->thumbnailBuffer.GetRaw(), directory->thumbnailBuffer.GetSize());
+				GenerateThumbnailAtlases(dup);
+			}
+		}
+
+		for (ResourceDirectory* c : directory->children)
+		{
+			DuplicateResource(c, dup);
+		}
 	}
 } // namespace Lina::Editor

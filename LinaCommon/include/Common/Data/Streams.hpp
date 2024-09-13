@@ -435,14 +435,15 @@ namespace Lina
 	{
 	public:
 		RawStream() : m_data({}){};
-		RawStream(const Span<uint8>& sp);
-		RawStream(uint8* data, size_t size);
-		RawStream(OStream& stream);
+		RawStream(const RawStream& other) = delete;
 
 		~RawStream()
 		{
-			Destroy();
 		}
+
+		void Create(OStream& stream);
+		void Create(const Span<uint8>& sp);
+		void Create(uint8* data, size_t size);
 		void Destroy();
 
 		inline Span<uint8> GetSpan()

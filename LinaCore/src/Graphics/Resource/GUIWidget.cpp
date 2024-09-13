@@ -39,6 +39,8 @@ namespace Lina
 
 	GUIWidget::GUIWidget(ResourceID id, void* subdata) : Resource(id)
 	{
+		if (subdata == nullptr)
+			return;
 		WidgetManager* wm = static_cast<WidgetManager*>(subdata);
 		m_root.SetWidgetManager(wm);
 	};

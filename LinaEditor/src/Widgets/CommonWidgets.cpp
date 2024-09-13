@@ -452,7 +452,7 @@ namespace Lina::Editor
 		bg->GetWidgetProps().drawBackground	  = true;
 		bg->GetWidgetProps().textureAtlas	  = img;
 		bg->GetWidgetProps().outlineThickness = 0.0f;
-		bg->GetWidgetProps().rounding		  = 2.0f;
+		bg->GetWidgetProps().rounding		  = 0.0f;
 		bg->GetWidgetProps().colorBackground  = Color::White;
 		layout->AddChild(bg);
 

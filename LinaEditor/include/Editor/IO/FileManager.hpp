@@ -42,7 +42,6 @@ namespace Lina::Editor
 	class FileManagerListener
 	{
 	public:
-		virtual void OnFileManagerThumbnailsGenerated(DirectoryItem* src, bool wasRecursive){};
 	};
 
 	class FileManager : public ProjectManagerListener
@@ -61,7 +60,6 @@ namespace Lina::Editor
 		void		   RemoveListener(FileManagerListener* list);
 		void		   ScanItem(DirectoryItem* item);
 		void		   ScanItemRecursively(DirectoryItem* item);
-		void		   GenerateThumbnails(DirectoryItem* root, bool recursive);
 
 		virtual void OnProjectOpened(ProjectData* data) override;
 
@@ -89,7 +87,6 @@ namespace Lina::Editor
 		AllocatorBucket<DirectoryItem, 200> m_itemBucket;
 		DirectoryItem*						m_root = nullptr;
 		JobExecutor							m_executor;
-		Vector<ThumbnailGenerator*>			m_thumbnailGenerators;
 		Vector<FileManagerListener*>		m_listeners;
 	};
 

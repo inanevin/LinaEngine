@@ -56,6 +56,11 @@ namespace Lina
 		virtual void SetCustomMeta(IStream& stream){};
 		void		 SaveToFileAsBinary(const String& path);
 
+		inline void SetID(ResourceID id)
+		{
+			m_id = id;
+		}
+
 		inline const String& GetPath() const
 		{
 			return m_path;
