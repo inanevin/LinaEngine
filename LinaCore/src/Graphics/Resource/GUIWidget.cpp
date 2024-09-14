@@ -57,16 +57,16 @@ namespace Lina
 
 	void GUIWidget::SaveToStream(OStream& stream) const
 	{
+		Resource::SaveToStream(stream);
 		stream << VERSION;
-		stream << m_id;
 		stream << m_root;
 	}
 
 	void GUIWidget::LoadFromStream(IStream& stream)
 	{
+		Resource::LoadFromStream(stream);
 		uint32 version = 0;
 		stream >> version;
-		stream >> m_id;
 		stream >> m_root;
 	}
 

@@ -134,9 +134,10 @@ namespace Lina
 
 	void Texture::LoadFromStream(IStream& stream)
 	{
+		Resource::LoadFromStream(stream);
+
 		uint32 version = 0;
 		stream >> version;
-		stream >> m_id;
 		stream >> m_meta;
 		DestroySW();
 
@@ -172,8 +173,9 @@ namespace Lina
 
 	void Texture::SaveToStream(OStream& stream) const
 	{
+		Resource::SaveToStream(stream);
+
 		stream << VERSION;
-		stream << m_id;
 		stream << m_meta;
 		stream << m_bytesPerPixel;
 

@@ -46,8 +46,8 @@ namespace Lina::Editor
 		m_guiBackend.Initialize(&m_editor->GetResourceManagerV2(), &m_uploadQueue);
 		m_lgx				= GfxManager::GetLGX();
 		m_resourceManagerV2 = &editor->GetResourceManagerV2();
-		m_guiSampler		= m_resourceManagerV2->CreateResource<TextureSampler>("EditorRendererGUISampler", "EditorRendererGUISampler"_hs);
-		m_guiTextSampler	= m_resourceManagerV2->CreateResource<TextureSampler>("EditorRendererGUITextSampler", "EditorRendererGUITextSampler"_hs);
+		m_guiSampler		= m_resourceManagerV2->CreateResource<TextureSampler>(m_resourceManagerV2->ConsumeResourceID(), "EditorRendererGUISampler");
+		m_guiTextSampler	= m_resourceManagerV2->CreateResource<TextureSampler>(m_resourceManagerV2->ConsumeResourceID(), "EditorRendererGUITextSampler");
 
 		LinaGX::SamplerDesc samplerData = {};
 		samplerData.minFilter			= LinaGX::Filter::Anisotropic;

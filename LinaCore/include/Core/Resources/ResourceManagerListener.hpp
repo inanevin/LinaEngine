@@ -34,15 +34,14 @@ SOFTWARE.
 namespace Lina
 {
 	struct ResourceIdentifier;
+	struct ResourceDef;
 	class Resource;
 
 	class ResourceManagerListener
 	{
 	public:
-		virtual void OnResourceLoadStarted(int32 taskID, const Vector<ResourceIdentifier>& idents){};
+		virtual void OnResourceLoadStarted(int32 taskID, const Vector<ResourceDef>& idents){};
 		virtual void OnResourceLoadEnded(int32 taskID, const Vector<Resource*>& resources){};
-		virtual void OnResourceLoaded(int32 taskID, const ResourceIdentifier& ident){};
-		virtual void OnManagerLock(uint32 lockCount){};
-		virtual void OnManagerUnlock(uint32 lockCount){};
+		virtual void OnResourceLoaded(int32 taskID, const ResourceDef& ident){};
 	};
 } // namespace Lina

@@ -49,7 +49,7 @@ namespace Lina::Editor
 		DockArea* area = m_manager->Allocate<DockArea>("DockArea");
 		area->SetAlignedPos(Vector2::Zero);
 		area->SetAlignedSize(Vector2::One);
-		area->AddPanel(PanelFactory::CreatePanel(area, PanelType::Resources, 0));
+		area->AddPanel(PanelFactory::CreatePanel(area, PanelType::ResourceBrowser, 0));
 		AddChild(area);
 	}
 

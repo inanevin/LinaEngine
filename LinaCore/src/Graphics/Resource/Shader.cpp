@@ -158,8 +158,8 @@ namespace Lina
 
 	void Shader::SaveToStream(OStream& stream) const
 	{
+        Resource::SaveToStream(stream);
 		stream << VERSION;
-		stream << m_id;
 		stream << m_meta;
 
 		const uint32 size = static_cast<uint32>(m_outCompiledBlobs.size());
@@ -179,9 +179,9 @@ namespace Lina
 
 	void Shader::LoadFromStream(IStream& stream)
 	{
+        Resource::LoadFromStream(stream);
 		uint32 version = 0;
 		stream >> version;
-		stream >> m_id;
 		stream >> m_meta;
 
 		uint32 size = 0;

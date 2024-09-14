@@ -33,7 +33,7 @@ SOFTWARE.
 #include "Editor/Widgets/Docking/DockBorder.hpp"
 #include "Editor/Widgets/Panel/Panel.hpp"
 #include "Editor/Widgets/Panel/PanelFactory.hpp"
-#include "Editor/Widgets/Panel/PanelResources.hpp"
+#include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
 #include "Editor/Graphics/SurfaceRenderer.hpp"
 #include "Common/System/System.hpp"
 #include "Core/Graphics/GfxManager.hpp"
@@ -95,10 +95,10 @@ namespace Lina::Editor
 
 		// Resources
 		OStream resExtra;
-		PanelResources::SaveLayoutDefaults(resExtra);
+		PanelResourceBrowser::SaveLayoutDefaults(resExtra);
 
 		PanelData panelRes = {
-			.panelType = PanelType::Resources,
+			.panelType = PanelType::ResourceBrowser,
 		};
 		resExtra.WriteTo(panelRes.layoutData);
 		resExtra.Destroy();

@@ -112,8 +112,8 @@ namespace Lina
 
 	void Material::SaveToStream(OStream& stream) const
 	{
+		Resource::SaveToStream(stream);
 		stream << VERSION;
-		stream << m_id;
 		stream << m_shaderSID;
 		stream << m_shaderPath;
 		stream << m_properties;
@@ -121,9 +121,9 @@ namespace Lina
 
 	void Material::LoadFromStream(IStream& stream)
 	{
+		Resource::LoadFromStream(stream);
 		uint32 version = 0;
 		stream >> version;
-		stream >> m_id;
 		stream >> m_shaderSID;
 		stream >> m_shaderPath;
 		stream >> m_properties;

@@ -32,13 +32,13 @@ SOFTWARE.
 
 namespace Lina
 {
-	TextureAtlas::TextureAtlas(StringID uniqueID, ResourceManagerV2* rm, const Vector2ui& sz, uint32 bytesPerPixel, LinaGX::Format format) : m_size(sz), m_bytesPerPixel(bytesPerPixel), m_textureFormat(format), m_resourceManagerV2(rm)
+	TextureAtlas::TextureAtlas(ResourceManagerV2* rm, const Vector2ui& sz, uint32 bytesPerPixel, LinaGX::Format format) : m_size(sz), m_bytesPerPixel(bytesPerPixel), m_textureFormat(format), m_resourceManagerV2(rm)
 	{
 		const size_t dataSize = static_cast<size_t>(static_cast<size_t>(sz.x * sz.y * bytesPerPixel));
 		uint8*		 data	  = new uint8[dataSize];
 		m_data				  = {data, dataSize};
 		MEMSET(m_data.data(), 0, dataSize);
-		m_rawTexture = m_resourceManagerV2->CreateResource<Texture>("TextureAtlasRawTexture", uniqueID);
+		m_rawTexture = m_resourceManagerV2->CreateResource<Texture>(m_resourceManagerV2->ConsumeResourceID(), "TextureAtlasRawTexture");
 		m_isDirty	 = true;
 	}
 

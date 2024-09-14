@@ -50,6 +50,8 @@ namespace Lina
 		~ResourceManagerV2(){};
 
 		void LoadResourcesFromFile(ApplicationDelegate* delegate, int32 taskID, const Vector<ResourceIdentifier>& identifiers, const String& cachePath = "", const String& projectPath = "");
+		void LoadResourcesFromFile(ApplicationDelegate* delegate, const Vector<ResourceDef>& resourceDef, const String& cachePath, int32 taskID);
+
 		void Poll();
 		void WaitForAll();
 		void AddListener(ResourceManagerListener* listener);
@@ -67,31 +69,39 @@ namespace Lina
 			return cache;
 		}
 
-		template <typename T> T* GetResource(StringID sid)
+		template <typename T> T* GetResource(ResourceID id)
 		{
-			return static_cast<T*>(GetCache<T>()->Get(sid));
+			return static_cast<T*>(GetCache<T>()->Get(id));
 		}
 
-		template <typename T> T* CreateResource(const String& path, StringID sid)
+		template <typename T> T* CreateResource(ResourceID id, const String& name = "")
 		{
-			T* res = static_cast<T*>(GetCache<T>()->Create(path, sid));
+			T* res = static_cast<T*>(GetCache<T>()->Create(id, name));
 			return res;
 		}
 
-		template <typename T> void DestroyResource(StringID sid)
+		template <typename T> void DestroyResource(ResourceID id)
 		{
-			GetCache<T>()->Destroy(sid);
+			GetCache<T>()->Destroy(id);
 		}
 
 		template <typename T> void DestroyResource(T* res)
 		{
-			GetCache<T>()->Destroy(res->GetSID());
+			GetCache<T>()->Destroy(res->GetID());
+		}
+
+		inline ResourceID ConsumeResourceID()
+		{
+			const ResourceID id = m_customResourceID;
+			m_customResourceID++;
+			return id;
 		}
 
 	private:
 		void DispatchLoadTaskEvent(ResourceLoadTask* task);
 
 	private:
+		ResourceID							m_customResourceID = RESOURCE_ID_CUSTOM_SPACE;
 		Vector<ResourceLoadTask*>			m_loadTasks;
 		JobExecutor							m_executor;
 		HashMap<TypeID, ResourceCacheBase*> m_caches;

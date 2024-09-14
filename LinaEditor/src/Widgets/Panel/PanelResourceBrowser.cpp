@@ -80,4 +80,8 @@ namespace Lina::Editor
 			dirBrowser->RefreshDirectory();
 		};
 	}
+
+	void PanelResourceBrowser::SaveLayoutDefaults(OStream& stream)
+	{
+	}
 } // namespace Lina::Editor

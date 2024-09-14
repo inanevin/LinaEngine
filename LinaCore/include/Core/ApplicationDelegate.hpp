@@ -63,7 +63,7 @@ namespace Lina
 		virtual void OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size){};
 
 		// Resources
-		virtual bool FillResourceCustomMeta(StringID sid, OStream& stream)
+		virtual bool FillResourceCustomMeta(ResourceID id, OStream& stream)
 		{
 			return false;
 		};

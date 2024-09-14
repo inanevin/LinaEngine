@@ -38,7 +38,7 @@ namespace Lina
 
 	public:
 		GUIWidget(const String& path, StringID sid) : Resource(path, sid, GetTypeID<GUIWidget>()){};
-		GUIWidget(ResourceID id = 0) : Resource(id){};
+		GUIWidget(ResourceID id = 0, const String& name = "") : Resource(id, name){};
 		GUIWidget(ResourceID id, void* subdata);
 
 		static constexpr uint32 VERSION = 0;

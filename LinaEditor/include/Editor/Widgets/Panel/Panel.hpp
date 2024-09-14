@@ -75,7 +75,7 @@ namespace Lina::Editor
 		}
 
 	protected:
-		PanelType m_panelType  = PanelType::Resources;
+		PanelType m_panelType  = PanelType::ResourceBrowser;
 		StringID  m_subData	   = 0;
 		Bitmask32 m_panelFlags = 0;
 	};

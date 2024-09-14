@@ -45,15 +45,15 @@ namespace Lina
 
 	void PhysicsMaterial::LoadFromStream(IStream& stream)
 	{
+		Resource::LoadFromStream(stream);
 		uint32 version = 0;
 		stream >> version;
-		stream >> m_id;
 	}
 
 	void PhysicsMaterial::SaveToStream(OStream& stream) const
 	{
+		Resource::SaveToStream(stream);
 		stream << VERSION;
-		stream << m_id;
 	}
 
 } // namespace Lina

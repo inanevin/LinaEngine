@@ -89,7 +89,7 @@ namespace Lina
 	{
 		const String name		 = "GUI Backend Font Texture " + TO_STRING(m_fontTextures.size());
 		FontTexture	 fontTexture = {
-			 .texture = m_resourceManagerV2->CreateResource<Texture>(name, TO_SID(name)),
+			 .texture = m_resourceManagerV2->CreateResource<Texture>(m_resourceManagerV2->ConsumeResourceID(), name),
 			 .width	  = width,
 			 .height  = height,
 		 };

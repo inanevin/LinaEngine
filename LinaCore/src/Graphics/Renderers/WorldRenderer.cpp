@@ -71,7 +71,7 @@ namespace Lina
 		m_size				= viewSize;
 		m_resourceManagerV2 = &world->GetResourceManagerV2();
 		m_resourceManagerV2->AddListener(this);
-		m_gBufSampler					= m_resourceManagerV2->CreateResource<TextureSampler>("GBufSampler", "GBufSampler"_hs);
+		m_gBufSampler					= m_resourceManagerV2->CreateResource<TextureSampler>(m_resourceManagerV2->ConsumeResourceID(), "World Renderer GBuf Sampler");
 		LinaGX::SamplerDesc gBufSampler = {};
 		m_gBufSampler->GenerateHW(gBufSampler);
 		m_lgx = GfxManager::GetLGX();
@@ -231,16 +231,11 @@ namespace Lina
 		{
 			auto& data = m_pfd[i];
 
-			const String name0		= "WorldRenderer: GBufAlbedo" + TO_STRING(i);
-			const String name1		= "WorldRenderer: GBufPosition" + TO_STRING(i);
-			const String name2		= "WorldRenderer: GBufNormal" + TO_STRING(i);
-			const String name3		= "WorldRenderer: GBufDepth" + TO_STRING(i);
-			const String name4		= "WorldRenderer: GBufLightingPass" + TO_STRING(i);
-			data.gBufAlbedo			= m_resourceManagerV2->CreateResource<Texture>(name0, TO_SID(name0));
-			data.gBufPosition		= m_resourceManagerV2->CreateResource<Texture>(name1, TO_SID(name1));
-			data.gBufNormal			= m_resourceManagerV2->CreateResource<Texture>(name2, TO_SID(name2));
-			data.gBufDepth			= m_resourceManagerV2->CreateResource<Texture>(name3, TO_SID(name3));
-			data.lightingPassOutput = m_resourceManagerV2->CreateResource<Texture>(name4, TO_SID(name4));
+			data.gBufAlbedo			= m_resourceManagerV2->CreateResource<Texture>(m_resourceManagerV2->ConsumeResourceID(), "WorldRenderer: GBufAlbedo");
+			data.gBufPosition		= m_resourceManagerV2->CreateResource<Texture>(m_resourceManagerV2->ConsumeResourceID(), "WorldRenderer: GBufPosition");
+			data.gBufNormal			= m_resourceManagerV2->CreateResource<Texture>(m_resourceManagerV2->ConsumeResourceID(), "WorldRenderer: GBufNormal");
+			data.gBufDepth			= m_resourceManagerV2->CreateResource<Texture>(m_resourceManagerV2->ConsumeResourceID(), "WorldRenderer: GBufDepth");
+			data.lightingPassOutput = m_resourceManagerV2->CreateResource<Texture>(m_resourceManagerV2->ConsumeResourceID(), "WorldRenderer: GBufLightingPass");
 
 			data.gBufAlbedo->GenerateHWFromDesc(rtDesc);
 			data.gBufPosition->GenerateHWFromDesc(rtDesc);

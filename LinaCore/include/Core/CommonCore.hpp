@@ -29,13 +29,9 @@ SOFTWARE.
 #pragma once
 
 #include "Common/StringID.hpp"
+#include "Core/Resources/CommonResources.hpp"
 
 namespace Lina
 {
-
-#define DEFAULT_FONT_PATH	   "Resources/Core/Fonts/Roboto-Regular.ttf"
-#define DEFAULT_FONT_SID	   "Resources/Core/Fonts/Roboto-Regular.ttf"_hs
-#define DEFAULT_FONT_BOLD_PATH "Resources/Core/Fonts/Roboto-Bold.ttf"
-#define DEFAULT_FONT_BOLD_SID  "Resources/Core/Fonts/Roboto-Bold.ttf"_hs
 
 } // namespace Lina

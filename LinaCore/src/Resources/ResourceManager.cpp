@@ -73,8 +73,73 @@ namespace Lina
 		m_loadTasks.clear();
 	}
 
+	void ResourceManagerV2::LoadResourcesFromFile(ApplicationDelegate* delegate, const Vector<ResourceDef>& resourceDefs, const String& cachePath, int32 taskID)
+	{
+		for (ResourceManagerListener* listener : m_listeners)
+			listener->OnResourceLoadStarted(taskID, resourceDefs);
+
+		for (const ResourceDef& def : resourceDefs)
+		{
+			auto			   it	 = m_caches.find(def.tid);
+			ResourceCacheBase* cache = nullptr;
+			if (it == m_caches.end())
+			{
+				MetaType& type	  = ReflectionSystem::Get().Resolve(def.tid);
+				void*	  ptr	  = type.GetFunction<void*()>("CreateResourceCache"_hs)();
+				cache			  = static_cast<ResourceCacheBase*>(ptr);
+				m_caches[def.tid] = cache;
+			}
+			else
+				cache = it->second;
+
+			cache->Create(def.id, def.name);
+		}
+
+		ResourceLoadTask* loadTask = new ResourceLoadTask();
+		loadTask->id			   = taskID;
+		loadTask->identifiers	   = resourceDefs;
+		loadTask->startTime		   = PlatformTime::GetCPUCycles();
+		loadTask->resources.resize(resourceDefs.size());
+		m_loadTasks.push_back(loadTask);
+
+		for (const ResourceDef& def : resourceDefs)
+		{
+			loadTask->tf.emplace([delegate, def, this, loadTask, cachePath, taskID]() {
+				auto&	  cache			 = m_caches.at(def.tid);
+				Resource* res			 = cache->Get(def.id);
+				loadTask->resources[idx] = res;
+
+				// Some resources have preliminary/initial metadata.
+				OStream metaStream;
+				if (delegate->FillResourceCustomMeta(def.id, metaStream))
+				{
+					IStream in;
+					in.Create(metaStream.GetDataRaw(), metaStream.GetCurrentSize());
+					res->SetCustomMeta(in);
+					in.Destroy();
+				}
+				metaStream.Destroy();
+
+				const String resourcePath = cachePath + "/Resource_" + TO_STRING(def.id) + ".linaresource";
+				IStream		 stream		  = Serialization::LoadFromFile(resourcePath);
+				res->LoadFromStream(stream);
+				stream.Destroy();
+
+				LINA_TRACE("[Resource] -> Loaded resource: {0}", def.id);
+				for (ResourceManagerListener* listener : m_listeners)
+					listener->OnResourceLoaded(taskID, def);
+			});
+		}
+
+		m_executor.Run(loadTask->tf, [loadTask, this]() {
+			loadTask->isCompleted.store(true);
+			loadTask->endTime = PlatformTime::GetCPUCycles();
+		});
+	}
+
 	void ResourceManagerV2::LoadResourcesFromFile(ApplicationDelegate* delegate, int32 taskID, const Vector<ResourceIdentifier>& identifiers, const String& cachePath, const String& projectPath)
 	{
+		/*
 		Vector<ResourceIdentifier> idents = identifiers;
 
 		for (auto& ident : idents)
@@ -174,6 +239,7 @@ namespace Lina
 			loadTask->isCompleted.store(true);
 			loadTask->endTime = PlatformTime::GetCPUCycles();
 		});
+		 */
 	}
 
 	void ResourceManagerV2::Poll()

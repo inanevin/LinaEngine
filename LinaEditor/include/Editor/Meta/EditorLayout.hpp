@@ -49,7 +49,7 @@ namespace Lina::Editor
 
 		struct PanelData
 		{
-			PanelType	panelType  = PanelType::Resources;
+			PanelType	panelType  = PanelType::ResourceBrowser;
 			StringID	subData	   = 0;
 			Span<uint8> layoutData = {};
 

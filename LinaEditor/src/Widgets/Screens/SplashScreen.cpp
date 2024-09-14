@@ -125,15 +125,15 @@ namespace Lina::Editor
 		m_loadingInfo->Draw();
 	}
 
-	void SplashScreen::OnResourceLoadStarted(int32 taskID, const Vector<ResourceIdentifier>& idents)
+	void SplashScreen::OnResourceLoadStarted(int32 taskID, const Vector<ResourceDef>& idents)
 	{
 		m_totalResourceSize = static_cast<uint32>(idents.size());
 	}
 
-	void SplashScreen::OnResourceLoaded(int32 taskID, const ResourceIdentifier& ident)
+	void SplashScreen::OnResourceLoaded(int32 taskID, const ResourceDef& ident)
 	{
 		LOCK_GUARD(m_loadMtx);
-		m_loadingInfo->GetProps().text = ident.relativePath;
+		m_loadingInfo->GetProps().text = TO_STRING(ident.id);
 		m_loadingInfo->CalculateTextSize();
 		m_loadedResourceCount++;
 	}

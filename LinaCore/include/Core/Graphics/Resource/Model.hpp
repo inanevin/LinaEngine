@@ -50,7 +50,7 @@ namespace Lina
 		static constexpr uint32 VERSION = 0;
 
 		Model(const String& path, StringID sid) : Resource(path, sid, GetTypeID<Model>()){};
-		Model(ResourceID id) : Resource(id){};
+		Model(ResourceID id, const String& name) : Resource(id, name){};
 		virtual ~Model();
 
 		virtual void LoadFromFile(const String& path) override;

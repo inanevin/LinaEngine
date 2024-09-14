@@ -51,6 +51,8 @@ namespace Lina::Editor
 
 		virtual void Construct() override;
 
+		static void SaveLayoutDefaults(OStream& stream);
+
 	private:
 		Editor*		  m_editor		 = nullptr;
 		WorldManager* m_worldManager = nullptr;

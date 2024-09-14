@@ -74,9 +74,9 @@ namespace Lina::Editor
 {
 	Editor* Editor::s_editor = nullptr;
 
-	bool Editor::FillResourceCustomMeta(StringID sid, OStream& stream)
+	bool Editor::FillResourceCustomMeta(ResourceID id, OStream& stream)
 	{
-		if (sid == DEFAULT_FONT_SID || sid == DEFAULT_FONT_BOLD_SID)
+		if (id == DEFAULT_FONT_ID || id == DEFAULT_FONT_BOLD_ID)
 		{
 			Font::Metadata customMeta = {
 				.points = {{.size = 14, .dpiLimit = 1.0f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 14, .dpiLimit = 10.0f}},
@@ -87,7 +87,7 @@ namespace Lina::Editor
 			return true;
 		}
 
-		if (sid == BIG_FONT_SID)
+		if (id == BIG_FONT_ID)
 		{
 			Font::Metadata customMeta = {
 				.points = {{.size = 20, .dpiLimit = 10.1f}, {.size = 20, .dpiLimit = 1.8f}, {.size = 20, .dpiLimit = 10.0f}},
@@ -108,7 +108,7 @@ namespace Lina::Editor
 			return true;
 		}
 
-		if (sid == DEFAULT_SHADER_GUI_SID)
+		if (sid == DEFAULT_SHADER_GUI_ID)
 		{
 			Shader::Metadata meta;
 

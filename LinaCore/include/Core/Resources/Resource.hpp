@@ -47,12 +47,18 @@ namespace Lina
 	{
 	public:
 		Resource(const String& path, StringID sid, TypeID tid) : m_path(path), m_sid(sid), m_tid(tid){};
-		Resource(ResourceID id) : m_id(id){};
+		Resource(ResourceID id, const String& name = "") : m_id(id), m_name(name){};
 		virtual ~Resource() = default;
 
 		virtual void LoadFromFile(const String& path){};
-		virtual void LoadFromStream(IStream& stream){};
-		virtual void SaveToStream(OStream& stream) const {};
+		virtual void LoadFromStream(IStream& stream)
+		{
+			stream >> m_id >> m_name;
+		};
+		virtual void SaveToStream(OStream& stream) const
+		{
+			stream << m_id << m_name;
+		};
 		virtual void SetCustomMeta(IStream& stream){};
 		void		 SaveToFileAsBinary(const String& path);
 
@@ -100,6 +106,7 @@ namespace Lina
 		}
 
 	protected:
+		String	   m_name  = "";
 		ResourceID m_id	   = 0;
 		String	   m_path  = "";
 		TypeID	   m_tid   = 0;

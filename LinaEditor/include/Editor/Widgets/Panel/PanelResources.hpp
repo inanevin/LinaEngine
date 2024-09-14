@@ -62,7 +62,7 @@ namespace Lina::Editor
 		static constexpr float MIN_CONTENTS_SIZE   = 4.0f;
 		static constexpr float LIST_CONTENTS_LIMIT = 4.25f;
 
-		PanelResources() : Panel(PanelType::Resources, 0){};
+		PanelResources() : Panel(PanelType::ResourceBrowser, 0){};
 		virtual ~PanelResources() = default;
 
 		virtual void Initialize() override;

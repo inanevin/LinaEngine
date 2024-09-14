@@ -42,7 +42,7 @@ namespace Lina
 		};
 
 		Audio(const String& path, StringID sid) : Resource(path, sid, GetTypeID<Audio>()){};
-		Audio(ResourceID id) : Resource(id){};
+		Audio(ResourceID id, const String& name) : Resource(id, name){};
 		virtual ~Audio();
 
 		static constexpr uint32 VERSION = 0;

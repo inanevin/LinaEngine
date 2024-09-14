@@ -89,7 +89,7 @@ namespace Lina
 
 		EntityWorld(const EntityWorld& other) = delete;
 		EntityWorld(const String& path = "", StringID sid = 0);
-		EntityWorld(ResourceID id) : Resource(id), m_physicsWorld(this){};
+		EntityWorld(ResourceID id, const String& name) : Resource(id, name), m_physicsWorld(this){};
 		~EntityWorld();
 
 		Entity*		 CreateEntity(const String& name);

@@ -28,17 +28,22 @@ SOFTWARE.
 
 #pragma once
 
+#include "Core/Resources/CommonResources.hpp"
+
 namespace Lina::Editor
 {
 
-#define ALT_FONT_PATH	   "Resources/Editor/Fonts/Play-Regular.ttf"
-#define ALT_FONT_SID	   "Resources/Editor/Fonts/Play-Regular.ttf"_hs
-#define ALT_FONT_BOLD_PATH "Resources/Editor/Fonts/Play-Bold.ttf"
-#define ALT_FONT_BOLD_SID  "Resources/Editor/Fonts/Play-Bold.ttf"_hs
-#define BIG_FONT_PATH	   "Resources/Editor/Fonts/Play-Big.ttf"
-#define BIG_FONT_SID	   "Resources/Editor/Fonts/Play-Big.ttf"_hs
-#define ICON_FONT_PATH	   "Resources/Editor/Fonts/EditorIcons.ttf"
-#define ICON_FONT_SID	   "Resources/Editor/Fonts/EditorIcons.ttf"_hs
+#define BIG_FONT_PATH  "Resources/Editor/Fonts/Play-Big.ttf"
+#define ICON_FONT_PATH "Resources/Editor/Fonts/EditorIcons.ttf"
+
+#define RESOURCE_ID_EDITOR_SPACE RESOURCE_ID_ENGINE_SPACE + 100
+
+#define DEFAULT_FONT_ID		 RESOURCE_ID_ENGINE_SPACE + 100
+#define DEFAULT_FONT_BOLD_ID RESOURCE_ID_ENGINE_SPACE + 1
+#define ALT_FONT_SID		 RESOURCE_ID_ENGINE_SPACE + 2
+#define ALT_FONT_BOLD_SID	 RESOURCE_ID_ENGINE_SPACE + 3
+#define BIG_FONT_SID		 RESOURCE_ID_EDITOR_SPACE
+#define ICON_FONT_SID		 RESOURCE_ID_EDITOR_SPACE + 1
 
 #define ICON_LINA_LOGO			 "\u0041"
 #define ICON_CHECK				 "\u0042"
@@ -92,7 +97,6 @@ namespace Lina::Editor
 	enum class PanelType
 	{
 		Entities,
-		Resources,
 		Performance,
 		World,
 		WidgetEditor,

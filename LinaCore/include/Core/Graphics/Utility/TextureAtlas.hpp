@@ -52,7 +52,7 @@ namespace Lina
 	class TextureAtlas
 	{
 	public:
-		TextureAtlas(StringID uniqueID, ResourceManagerV2* rm, const Vector2ui& sz, uint32 bytesPerPixel, LinaGX::Format format);
+		TextureAtlas(ResourceManagerV2* rm, const Vector2ui& sz, uint32 bytesPerPixel, LinaGX::Format format);
 		~TextureAtlas();
 		TextureAtlasImage* AddImage(uint8* data, const Vector2ui& size, StringID sid = 0);
 		TextureAtlasImage* GetImage(StringID sid);

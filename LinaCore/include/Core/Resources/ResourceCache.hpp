@@ -49,9 +49,9 @@ namespace Lina
 		ResourceCacheBase(){};
 		virtual ~ResourceCacheBase() = default;
 
-		virtual Resource* Create(const String& path, StringID sid) = 0;
-		virtual Resource* Get(StringID sid) const				   = 0;
-		virtual void	  Destroy(StringID sid)					   = 0;
+		virtual Resource* Create(ResourceID id, const String& name) = 0;
+		virtual Resource* Get(ResourceID id) const					= 0;
+		virtual void	  Destroy(ResourceID id)					= 0;
 
 		inline PackageType GetPackageType() const
 		{
@@ -80,31 +80,31 @@ namespace Lina
 			return m_resourceBucket.GetActiveItemCount();
 		}
 
-		virtual Resource* Create(const String& path, StringID sid) override
+		virtual Resource* Create(ResourceID id, const String& name) override
 		{
-			if (m_resources.find(sid) != m_resources.end())
+			if (m_resources.find(id) != m_resources.end())
 			{
 				LINA_WARN("[Resource Cache] -> Can't create resource as it already exists.");
 				return nullptr;
 			}
 
-			T* res			 = m_resourceBucket.Allocate(path, sid);
-			m_resources[sid] = res;
+			T* res			= m_resourceBucket.Allocate(id, name);
+			m_resources[id] = res;
 			return res;
 		}
 
-		virtual void Destroy(StringID sid) override
+		virtual void Destroy(ResourceID id) override
 		{
-			auto it = m_resources.find(sid);
+			auto it = m_resources.find(id);
 			LINA_ASSERT(it != m_resources.end(), "");
 			T* res = static_cast<T*>(it->second);
 			m_resourceBucket.Free(res);
 			m_resources.erase(it);
 		}
 
-		virtual Resource* Get(StringID sid) const override
+		virtual Resource* Get(ResourceID id) const override
 		{
-			return m_resources.at(sid);
+			return m_resources.at(id);
 		}
 
 		void View(Delegate<bool(T* res, uint32 index)>&& callback)
@@ -122,7 +122,7 @@ namespace Lina
 
 	private:
 		AllocatorBucket<T, 250> m_resourceBucket;
-		HashMap<StringID, T*>	m_resources;
+		HashMap<ResourceID, T*> m_resources;
 	};
 
 } // namespace Lina

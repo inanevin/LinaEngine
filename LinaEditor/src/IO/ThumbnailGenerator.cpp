@@ -93,6 +93,7 @@ namespace Lina::Editor
 
 	LinaGX::TextureBuffer ThumbnailGenerator::GenerateThumbnail(Model* model)
 	{
+		/*
 		// Snapshot buffer
 		Buffer buffer;
 		buffer.Create(LinaGX::ResourceTypeHint::TH_ReadbackDest, RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE * 4, "Snapshot", true);
@@ -167,6 +168,8 @@ namespace Lina::Editor
 		delete renderer;
 		delete world;
 		return retBuffer;
+		 */
+		return {};
 	}
 
 	LinaGX::TextureBuffer ThumbnailGenerator::GenerateThumbnailFont(const String& absPath)

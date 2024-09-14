@@ -294,7 +294,7 @@ namespace Lina::Editor
 		Vector<ResourceDirectory*> selection = m_controller->GetSelectedUserData<ResourceDirectory>();
 
 		if (selection.empty())
-			return false;
+			selection.push_back(&root);
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Rename)))
 		{

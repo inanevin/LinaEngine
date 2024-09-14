@@ -37,6 +37,9 @@ namespace Lina
 	class Resource;
 
 	typedef uint64 ResourceID;
+#define RESOURCE_ID_ENGINE_SPACE UINT64_MAX - 11000
+#define RESOURCE_ID_CUSTOM_SPACE UINT64_MAX - 10000
+#define RESOURCE_ID_MAX			 RESOURCE_ID_CUSTOM_SPACE - 1
 
 	enum class PackageType
 	{
@@ -59,14 +62,21 @@ namespace Lina
 		void	 LoadFromStream(IStream& stream);
 	};
 
+	struct ResourceDef
+	{
+		ResourceID id	= 0;
+		TypeID	   tid	= 0;
+		String	   name = "";
+	};
+
 	struct ResourceLoadTask
 	{
-		Taskflow				   tf;
-		Vector<ResourceIdentifier> identifiers;
-		Vector<Resource*>		   resources;
-		Atomic<bool>			   isCompleted = false;
-		int32					   id		   = 0;
-		uint64					   startTime   = 0;
-		uint64					   endTime	   = 0;
+		Taskflow			tf;
+		Vector<ResourceDef> identifiers;
+		Vector<Resource*>	resources;
+		Atomic<bool>		isCompleted = false;
+		int32				id			= 0;
+		uint64				startTime	= 0;
+		uint64				endTime		= 0;
 	};
 } // namespace Lina

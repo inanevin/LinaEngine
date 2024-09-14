@@ -57,7 +57,7 @@ namespace Lina
 		static constexpr uint32 VERSION = 0;
 
 		Texture(const String& path, StringID sid) : Resource(path, sid, GetTypeID<Texture>()){};
-		Texture(ResourceID id) : Resource(id){};
+		Texture(ResourceID id, const String& name) : Resource(id, name){};
 		virtual ~Texture();
 
 		virtual void SaveToStream(OStream& stream) const override;
