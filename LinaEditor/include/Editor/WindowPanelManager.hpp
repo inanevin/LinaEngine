@@ -81,12 +81,12 @@ namespace Lina::Editor
 		Vector2ui		size		 = Vector2ui::Zero;
 	};
 
-    struct WindowPanelInfo
-    {
-        Vector2i position = Vector2i::Zero;
-        Vector2ui size = Vector2ui::Zero;
-        ResourceID subdata = 0;
-    };
+	struct WindowPanelInfo
+	{
+		Vector2i   position = Vector2i::Zero;
+		Vector2ui  size		= Vector2ui::Zero;
+		ResourceID subdata	= 0;
+	};
 
 	class WindowPanelManager
 	{
@@ -141,7 +141,7 @@ namespace Lina::Editor
 		HashMap<LinaGX::Window*, SurfaceRenderer*> m_surfaceRenderers;
 		PayloadRequest							   m_payloadRequest;
 		StringID								   m_subWindowCounter = 0;
-		HashMap<PanelType, WindowPanelInfo>			   m_windowPanelInfos;
+		HashMap<PanelType, WindowPanelInfo>		   m_windowPanelInfos;
 	};
 
 } // namespace Lina::Editor

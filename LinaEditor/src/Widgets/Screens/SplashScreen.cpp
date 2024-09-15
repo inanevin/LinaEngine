@@ -133,7 +133,7 @@ namespace Lina::Editor
 	void SplashScreen::OnResourceLoaded(int32 taskID, const ResourceDef& ident)
 	{
 		LOCK_GUARD(m_loadMtx);
-        m_loadingInfo->GetProps().text = ident.name;
+		m_loadingInfo->GetProps().text = ident.name;
 		m_loadingInfo->CalculateTextSize();
 		m_loadedResourceCount++;
 	}

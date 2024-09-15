@@ -69,7 +69,7 @@ namespace Lina
 
 	void WidgetComponent::SetMaterial(ResourceID id)
 	{
-		m_material.id = id;
+		m_material.id  = id;
 		m_material.raw = m_resourceManager->GetResource<Material>(id);
 	}
 

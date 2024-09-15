@@ -61,7 +61,7 @@ namespace Lina::Editor
 
 		inline void SetLastWorldID(ResourceID id)
 		{
-            m_lastWorldID = id;
+			m_lastWorldID = id;
 		}
 
 		inline EditorLayout& GetLayout()
@@ -70,9 +70,9 @@ namespace Lina::Editor
 		}
 
 	private:
-		String		 m_lastProjectPath	= "";
-        ResourceID m_lastWorldID = 0;
-		EditorLayout m_layout			= {};
+		String		 m_lastProjectPath = "";
+		ResourceID	 m_lastWorldID	   = 0;
+		EditorLayout m_layout		   = {};
 	};
 
 } // namespace Lina::Editor

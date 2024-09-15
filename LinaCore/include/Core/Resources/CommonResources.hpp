@@ -53,12 +53,11 @@ namespace Lina
 	{
 	};
 
-
 	struct ResourceDef
 	{
 		ResourceID id	= 0;
 		String	   name = "";
-        TypeID     tid    = 0;
+		TypeID	   tid	= 0;
 	};
 
 	struct ResourceLoadTask

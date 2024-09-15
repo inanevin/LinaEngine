@@ -57,13 +57,13 @@ namespace Lina
 		outRelative			  = absPath.substr(baseSz, absPath.size());
 	}
 
-    String ProjectData::GetResourceDirectory()
-    {
-        return FileSystem::GetFilePath(GetPath()) + "_LinaResourceCache/";
-    }
-    
-    String ProjectData::GetResourcePath(ResourceID id)
-    {
-        return GetResourceDirectory() + "Resource_" + TO_STRING(id) + ".linaresource";
-    }
+	String ProjectData::GetResourceDirectory()
+	{
+		return FileSystem::GetFilePath(GetPath()) + "_LinaResourceCache/";
+	}
+
+	String ProjectData::GetResourcePath(ResourceID id)
+	{
+		return GetResourceDirectory() + "Resource_" + TO_STRING(id) + ".linaresource";
+	}
 } // namespace Lina

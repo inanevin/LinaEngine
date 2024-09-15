@@ -32,8 +32,8 @@ SOFTWARE.
 
 namespace Lina
 {
-class Texture;
-class DirectionalLayout;
+	class Texture;
+	class DirectionalLayout;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -42,40 +42,41 @@ namespace Lina::Editor
 	class PanelTextureViewer : public Panel
 	{
 	public:
-        PanelTextureViewer() : Panel(PanelType::TextureViewer, 0){};
+		PanelTextureViewer() : Panel(PanelType::TextureViewer, 0){};
 		virtual ~PanelTextureViewer() = default;
 
-        virtual void Construct() override;
-        virtual void Initialize() override;
+		virtual void Construct() override;
+		virtual void Initialize() override;
 		virtual void Destruct() override;
 
-        virtual void SaveLayoutToStream(OStream& stream) override;
-        virtual void LoadLayoutFromStream(IStream& stream) override;
+		virtual void SaveLayoutToStream(OStream& stream) override;
+		virtual void LoadLayoutFromStream(IStream& stream) override;
+
 	private:
-        LINA_REFLECTION_ACCESS(PanelTextureViewer);
-        
-        bool m_category = true;
-        String m_textureName = "";
-        String m_textureSize = "";
-        bool m_displayChannelsR = true;
-        bool m_displayChannelsG = true;
-        bool m_displayChannelsB = true;
-        bool m_displayChannelsA = true;
-        
-        Widget* m_texturePanel = nullptr;
-		Editor*		  m_editor		 = nullptr;
-        Texture* m_texture = nullptr;
-        DirectionalLayout* m_inspector = nullptr;
+		LINA_REFLECTION_ACCESS(PanelTextureViewer);
+
+		bool   m_category		  = true;
+		String m_textureName	  = "";
+		String m_textureSize	  = "";
+		bool   m_displayChannelsR = true;
+		bool   m_displayChannelsG = true;
+		bool   m_displayChannelsB = true;
+		bool   m_displayChannelsA = true;
+
+		Widget*			   m_texturePanel = nullptr;
+		Editor*			   m_editor		  = nullptr;
+		Texture*		   m_texture	  = nullptr;
+		DirectionalLayout* m_inspector	  = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(PanelTextureViewer, Hidden)
-    LINA_FIELD(PanelTextureViewer, m_category, "Info", "Category", 0)
-    LINA_FIELD(PanelTextureViewer, m_textureName, "Texture Name", "Label", 0)
-    LINA_FIELD(PanelTextureViewer, m_textureSize, "Texture Size", "Label", 0)
-    LINA_FIELD(PanelTextureViewer, m_displayChannelsR, "Display R", "bool", 0)
-    LINA_FIELD(PanelTextureViewer, m_displayChannelsG, "Display G", "bool", 0)
-    LINA_FIELD(PanelTextureViewer, m_displayChannelsB, "Display B", "bool", 0)
-    LINA_FIELD(PanelTextureViewer, m_displayChannelsA, "Display A", "bool", 0)
-    LINA_CLASS_END(PanelTextureViewer)
+	LINA_FIELD(PanelTextureViewer, m_category, "Info", "Category", 0)
+	LINA_FIELD(PanelTextureViewer, m_textureName, "Texture Name", "Label", 0)
+	LINA_FIELD(PanelTextureViewer, m_textureSize, "Texture Size", "Label", 0)
+	LINA_FIELD(PanelTextureViewer, m_displayChannelsR, "Display R", "bool", 0)
+	LINA_FIELD(PanelTextureViewer, m_displayChannelsG, "Display G", "bool", 0)
+	LINA_FIELD(PanelTextureViewer, m_displayChannelsB, "Display B", "bool", 0)
+	LINA_FIELD(PanelTextureViewer, m_displayChannelsA, "Display A", "bool", 0)
+	LINA_CLASS_END(PanelTextureViewer)
 
 } // namespace Lina::Editor

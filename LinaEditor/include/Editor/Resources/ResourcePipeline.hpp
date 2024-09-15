@@ -34,8 +34,8 @@ SOFTWARE.
 namespace Lina
 {
 	class ResourceDirectory;
-class ResourceManagerV2;
-}
+	class ResourceManagerV2;
+} // namespace Lina
 namespace Lina::Editor
 {
 
@@ -52,11 +52,11 @@ namespace Lina::Editor
 		/// For importing external resources, such as textures, models, materials etc.
 		void ImportResources(ResourceDirectory* src, const Vector<String>& absPaths);
 
-        void DuplicateResource(ResourceManagerV2* resMan, ResourceDirectory* directory, ResourceDirectory* newParent);
-		
+		void DuplicateResource(ResourceManagerV2* resMan, ResourceDirectory* directory, ResourceDirectory* newParent);
+
 	private:
-		void  VerifyResources(ResourceDirectory* dir);
-		void  GenerateThumbnailAtlases(ResourceDirectory* dir);
+		void VerifyResources(ResourceDirectory* dir);
+		void GenerateThumbnailAtlases(ResourceDirectory* dir);
 
 	private:
 		Editor*		   m_editor					= nullptr;

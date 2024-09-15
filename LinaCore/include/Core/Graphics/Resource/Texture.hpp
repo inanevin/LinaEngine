@@ -43,7 +43,7 @@ namespace Lina
 	public:
 		struct Metadata
 		{
-            bool _category = true;
+			bool					 _category		 = true;
 			LinaGX::Format			 format			 = LinaGX::Format::R8G8B8A8_SRGB;
 			LinaGX::MipmapMode		 mipmapMode		 = LinaGX::MipmapMode::Linear;
 			LinaGX::MipmapFilter	 mipFilter		 = LinaGX::MipmapFilter::Mitchell;
@@ -98,11 +98,11 @@ namespace Lina
 		{
 			return m_meta;
 		}
-        
-        inline Metadata& GetMeta()
-        {
-            return m_meta;
-        }
+
+		inline Metadata& GetMeta()
+		{
+			return m_meta;
+		}
 
 		inline void SetBindlessIndex(uint32 bindless)
 		{
@@ -129,17 +129,16 @@ namespace Lina
 	LINA_RESOURCE_BEGIN(Texture);
 	LINA_CLASS_END(Texture);
 
-
-LINA_CLASS_BEGIN(TextureMeta)
-LINA_FIELD(Texture::Metadata, _category, "Texture", "Category", 0)
-LINA_FIELD(Texture::Metadata, format, "Format", "enum", GetTypeID<LinaGX::Format>())
-LINA_FIELD(Texture::Metadata, isLinear, "Is Linear", "bool", 0)
-LINA_FIELD(Texture::Metadata, channelMask, "Channels", "enum", GetTypeID<LinaGX::ImageChannelMask>())
-LINA_FIELD(Texture::Metadata, generateMipmaps, "Generate Mipmaps", "bool", 0)
-LINA_FIELD(Texture::Metadata, mipmapMode, "Mipmap Mode", "enum", GetTypeID<LinaGX::MipmapMode>())
-LINA_FIELD(Texture::Metadata, mipFilter, "Mipmap Filter", "enum", GetTypeID<LinaGX::MipmapFilter>())
-LINA_FIELD_DEPENDENCY_POS(Texture::Metadata, mipmapMode, "generateMipmaps", 1)
-LINA_FIELD_DEPENDENCY_POS(Texture::Metadata, mipFilter, "generateMipmaps", 1)
-LINA_CLASS_END(TextureMeta)
+	LINA_CLASS_BEGIN(TextureMeta)
+	LINA_FIELD(Texture::Metadata, _category, "Texture", "Category", 0)
+	LINA_FIELD(Texture::Metadata, format, "Format", "enum", GetTypeID<LinaGX::Format>())
+	LINA_FIELD(Texture::Metadata, isLinear, "Is Linear", "bool", 0)
+	LINA_FIELD(Texture::Metadata, channelMask, "Channels", "enum", GetTypeID<LinaGX::ImageChannelMask>())
+	LINA_FIELD(Texture::Metadata, generateMipmaps, "Generate Mipmaps", "bool", 0)
+	LINA_FIELD(Texture::Metadata, mipmapMode, "Mipmap Mode", "enum", GetTypeID<LinaGX::MipmapMode>())
+	LINA_FIELD(Texture::Metadata, mipFilter, "Mipmap Filter", "enum", GetTypeID<LinaGX::MipmapFilter>())
+	LINA_FIELD_DEPENDENCY_POS(Texture::Metadata, mipmapMode, "generateMipmaps", 1)
+	LINA_FIELD_DEPENDENCY_POS(Texture::Metadata, mipFilter, "generateMipmaps", 1)
+	LINA_CLASS_END(TextureMeta)
 
 } // namespace Lina

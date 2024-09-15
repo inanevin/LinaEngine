@@ -46,7 +46,7 @@ namespace Lina
 	class Resource
 	{
 	public:
-		Resource(ResourceID id, TypeID tid, const String& name) : m_id(id), m_tid(tid), m_name(name) {};
+		Resource(ResourceID id, TypeID tid, const String& name) : m_id(id), m_tid(tid), m_name(name){};
 		virtual ~Resource() = default;
 
 		virtual void LoadFromFile(const String& path){};
@@ -65,11 +65,11 @@ namespace Lina
 		{
 			m_id = id;
 		}
-        
-        inline void SetName(const String& name)
-        {
-            m_name = name;
-        }
+
+		inline void SetName(const String& name)
+		{
+			m_name = name;
+		}
 
 		inline TypeID GetTID() const
 		{
@@ -80,27 +80,27 @@ namespace Lina
 		{
 			return m_id;
 		}
-        
-        inline const String& GetName() const
-        {
-            return m_name;
-        }
-        
-        virtual void SetSubdata(void* data) {};
+
+		inline const String& GetName() const
+		{
+			return m_name;
+		}
+
+		virtual void SetSubdata(void* data){};
 
 	protected:
 		template <typename U> friend class ResourceCache;
 
 	protected:
-		String	   m_name  = "";
-		ResourceID m_id	   = 0;
-		TypeID	   m_tid   = 0;
+		String	   m_name = "";
+		ResourceID m_id	  = 0;
+		TypeID	   m_tid  = 0;
 	};
 
 	template <typename T> struct ResRef
 	{
-		T*		 raw = nullptr;
-		ResourceID id = 0;
+		T*		   raw = nullptr;
+		ResourceID id  = 0;
 
 		void SaveToStream(OStream& stream) const
 		{

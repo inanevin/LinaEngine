@@ -42,7 +42,6 @@ namespace Lina
 {
 #define ENTITY_VEC_SIZE_CHUNK 2000
 
-
 	EntityWorld::~EntityWorld()
 	{
 		m_resourceManagerV2.Shutdown();

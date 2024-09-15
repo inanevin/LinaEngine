@@ -74,15 +74,15 @@ namespace Lina::Editor
 			return m_panelFlags;
 		}
 
-        inline ResourceID SetSubdata(ResourceID data)
-        {
-            m_subData = data;
-        }
-        
+		inline ResourceID SetSubdata(ResourceID data)
+		{
+			m_subData = data;
+		}
+
 	protected:
-		PanelType m_panelType  = PanelType::ResourceBrowser;
-		ResourceID  m_subData	   = 0;
-		Bitmask32 m_panelFlags = 0;
+		PanelType  m_panelType	= PanelType::ResourceBrowser;
+		ResourceID m_subData	= 0;
+		Bitmask32  m_panelFlags = 0;
 	};
 
 	LINA_WIDGET_BEGIN(Panel, Hidden)

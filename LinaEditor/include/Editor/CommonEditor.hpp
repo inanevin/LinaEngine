@@ -33,22 +33,21 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-#define BIG_FONT_PATH  "Resources/Editor/Fonts/Play-Big.ttf"
-#define ICON_FONT_PATH "Resources/Editor/Fonts/EditorIcons.ttf"
-#define EDITOR_GUI_SHADER "Resources/Editor/Shaders/GUI/EditorGUI.linashader"
-#define EDITOR_LINES_SHADER "Resources/Editor/Shaders/Lines.linashader"
+#define BIG_FONT_PATH		   "Resources/Editor/Fonts/Play-Big.ttf"
+#define ICON_FONT_PATH		   "Resources/Editor/Fonts/EditorIcons.ttf"
+#define EDITOR_GUI_SHADER	   "Resources/Editor/Shaders/GUI/EditorGUI.linashader"
+#define EDITOR_LINES_SHADER	   "Resources/Editor/Shaders/Lines.linashader"
 #define EDITOR_LINA_LOGO_TITLE "Resources/Editor/Textures/LinaLogoTitle.png"
-#define EDITOR_CHECKERED "Resources/Editor/Textures/Checkered.png"
+#define EDITOR_CHECKERED	   "Resources/Editor/Textures/Checkered.png"
 
 #define RESOURCE_ID_EDITOR_SPACE RESOURCE_ID_ENGINE_SPACE + 100
 
-#define BIG_FONT_ID		     RESOURCE_ID_EDITOR_SPACE
-#define ICON_FONT_ID         RESOURCE_ID_EDITOR_SPACE + 1
-#define EDITOR_GUI_SHADER_ID		 RESOURCE_ID_EDITOR_SPACE + 2
-#define EDITOR_LINES_SHADER_ID RESOURCE_ID_EDITOR_SPACE + 3
+#define BIG_FONT_ID				  RESOURCE_ID_EDITOR_SPACE
+#define ICON_FONT_ID			  RESOURCE_ID_EDITOR_SPACE + 1
+#define EDITOR_GUI_SHADER_ID	  RESOURCE_ID_EDITOR_SPACE + 2
+#define EDITOR_LINES_SHADER_ID	  RESOURCE_ID_EDITOR_SPACE + 3
 #define EDITOR_LINA_LOGO_TITLE_ID RESOURCE_ID_EDITOR_SPACE + 4
-#define EDITOR_CHECKERED_ID RESOURCE_ID_EDITOR_SPACE + 5
-
+#define EDITOR_CHECKERED_ID		  RESOURCE_ID_EDITOR_SPACE + 5
 
 #define ICON_LINA_LOGO			 "\u0041"
 #define ICON_CHECK				 "\u0042"
@@ -107,10 +106,10 @@ namespace Lina::Editor
 		WidgetEditor,
 		ColorWheel,
 		ResourceBrowser,
-        TextureViewer,
-        FontViewer,
-        AudioViewer,
-        ModelViewer,
+		TextureViewer,
+		FontViewer,
+		AudioViewer,
+		ModelViewer,
 	};
 
 	enum class PayloadType

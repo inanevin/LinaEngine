@@ -34,6 +34,6 @@ namespace Lina::Editor
 {
 	void Panel::Destruct()
 	{
-        Editor::Get()->GetWindowPanelManager().StorePanelWindowInfo(this);
+		Editor::Get()->GetWindowPanelManager().StorePanelWindowInfo(this);
 	}
 } // namespace Lina::Editor
