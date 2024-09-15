@@ -406,7 +406,7 @@ namespace Lina::Editor
 		txt->SetUserData(userdata);
 
 		if (boldText)
-			txt->GetProps().font = DEFAULT_FONT_BOLD_SID;
+			txt->GetProps().font = DEFAULT_FONT_BOLD_ID;
 		layout->AddChild(txt);
 		fold->Initialize();
 		return fold;
@@ -949,7 +949,7 @@ namespace Lina::Editor
 
 	} // namespace
 
-	void CommonWidgets::RefreshVector(Widget* owningFold, FieldBase* field, void* vectorPtr, MetaType* meta, StringID subTypeSid, int32 elementIndex)
+	void CommonWidgets::RefreshVector(Widget* owningFold, FieldBase* field, void* vectorPtr, MetaType* meta, StringID subTypeSid, int32 elementIndex, Delegate<void(const MetaType& meta, FieldBase* field)> onFieldChanged)
 	{
 		FoldLayout* fold		   = static_cast<FoldLayout*>(owningFold);
 		Widget*		foldFirstChild = fold->GetChildren().front();
@@ -963,7 +963,7 @@ namespace Lina::Editor
 		for (int32 j = 0; j < vs; j++)
 		{
 			void*	element	 = field->GetFunction<void*(void*, int32)>("GetElementAddr"_hs)(vectorPtr, j);
-			Widget* subField = BuildField(fold, TO_STRING(j), element, *meta, field, subTypeSid, j);
+			Widget* subField = BuildField(fold, TO_STRING(j), element, *meta, field, subTypeSid, onFieldChanged, j);
 			fold->AddChild(subField);
 
 			Button* duplicate = fold->GetWidgetManager()->Allocate<Button>();
@@ -971,9 +971,9 @@ namespace Lina::Editor
 			duplicate->SetAlignedPosY(0.0f);
 			duplicate->SetAlignedSizeY(1.0f);
 			duplicate->CreateIcon(ICON_COPY);
-			duplicate->GetProps().onClicked = [fold, field, vectorPtr, meta, subTypeSid, elementIndex]() {
+			duplicate->GetProps().onClicked = [fold, field, vectorPtr, meta, subTypeSid, elementIndex, onFieldChanged]() {
 				field->GetFunction<void(void*, int32)>("DuplicateElement"_hs)(vectorPtr, elementIndex);
-				RefreshVector(fold, field, vectorPtr, meta, subTypeSid, elementIndex);
+				RefreshVector(fold, field, vectorPtr, meta, subTypeSid, elementIndex, onFieldChanged);
 			};
 			subField->GetChildren().back()->AddChild(duplicate);
 
@@ -982,15 +982,15 @@ namespace Lina::Editor
 			remove->SetAlignedPosY(0.0f);
 			remove->SetAlignedSizeY(1.0f);
 			remove->CreateIcon(ICON_MINUS);
-			remove->GetProps().onClicked = [fold, field, vectorPtr, meta, subTypeSid, elementIndex]() {
+			remove->GetProps().onClicked = [fold, field, vectorPtr, meta, subTypeSid, elementIndex, onFieldChanged]() {
 				field->GetFunction<void(void*, int32)>("RemoveElement"_hs)(vectorPtr, elementIndex);
-				RefreshVector(fold, field, vectorPtr, meta, subTypeSid, elementIndex);
+				RefreshVector(fold, field, vectorPtr, meta, subTypeSid, elementIndex, onFieldChanged);
 			};
 			subField->GetChildren().back()->AddChild(remove);
 		}
 	}
 
-	Widget* CommonWidgets::BuildField(Widget* src, const String& title, void* memberVariablePtr, MetaType& metaType, FieldBase* field, StringID fieldType, int32 vectorElementIndex)
+	Widget* CommonWidgets::BuildField(Widget* src, const String& title, void* memberVariablePtr, MetaType& metaType, FieldBase* field, StringID fieldType, Delegate<void(const MetaType& meta, FieldBase* field)> onFieldChanged, int32 vectorElementIndex)
 	{
 		WidgetManager* wm = src->GetWidgetManager();
 
@@ -1027,13 +1027,15 @@ namespace Lina::Editor
 			stepFloat		   = UtilStr::StringToFloat(step, outDecimals);
 		}
 
-		auto getValueField = [wm, hasLimits, minFloat, maxFloat, stepFloat](void* ptr, uint8 bits, bool isInt = false, bool isUnsigned = false) -> InputField* {
+		auto getValueField = [wm, hasLimits, minFloat, maxFloat, stepFloat, onFieldChanged, &metaType, field](void* ptr, uint8 bits, bool isInt = false, bool isUnsigned = false) -> InputField* {
 			InputField* inp = wm->Allocate<InputField>();
 			inp->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 			inp->SetAlignedSize(Vector2(0.0f, 1.0f));
 			inp->SetAlignedPosY(0.0f);
 			inp->GetProps().isNumberField = true;
 			inp->GetProps().clampNumber	  = true;
+
+			inp->GetProps().onEditEnd = [onFieldChanged, field, &metaType](const String& str) { onFieldChanged(metaType, field); };
 
 			if (hasLimits)
 			{
@@ -1091,7 +1093,7 @@ namespace Lina::Editor
 			return inp;
 		};
 
-		auto buildResField = [wm, src](TypeID resType) -> Button* {
+		auto buildResField = [wm, src, onFieldChanged, &metaType, field](TypeID resType) -> Button* {
 			Button* btn								= wm->Allocate<Button>();
 			btn->GetWidgetProps().childMargins.left = Theme::GetDef().baseIndent;
 			btn->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
@@ -1100,17 +1102,27 @@ namespace Lina::Editor
 			btn->SetAlignedPosY(0.0f);
 			btn->GetText()->GetProps().text = "Resource";
 			btn->GetText()->SetAlignedPosX(0.0f);
-			btn->GetProps().onClicked = [src, resType]() {
-				ThrowResourceSelector(src, resType, [](ResourceDirectory* dir) {
-
-				});
-			};
+			btn->GetProps().onClicked = [src, resType, onFieldChanged, &metaType, field]() { ThrowResourceSelector(src, resType, [onFieldChanged, &metaType, field](ResourceDirectory* dir) { onFieldChanged(metaType, field); }); };
 			return btn;
 		};
 
 		if (fieldType == "Font"_hs)
 		{
 			rightSide->AddChild(buildResField(GetTypeID<Font>()));
+		}
+		else if (fieldType == "Texture"_hs)
+		{
+			rightSide->AddChild(buildResField(GetTypeID<Texture>()));
+		}
+		else if (fieldType == "Label"_hs)
+		{
+			String* str = reflectionValue.CastPtr<String>();
+			Text*	txt = wm->Allocate<Text>();
+			txt->GetFlags().Set(WF_POS_ALIGN_Y);
+			txt->SetAlignedPosY(0.5f);
+			txt->SetAnchorY(Anchor::Center);
+			txt->GetProps().text = *str;
+			rightSide->AddChild(txt);
 		}
 		else if (fieldType == "Vector"_hs)
 		{
@@ -1130,10 +1142,10 @@ namespace Lina::Editor
 			newElem->SetAlignedPosY(0.0f);
 			newElem->SetAlignedSizeY(1.0f);
 			newElem->CreateIcon(ICON_PLUS);
-			newElem->GetProps().onClicked = [src, &metaType, field, subTypeSid, fieldLayout, vectorPtr]() {
+			newElem->GetProps().onClicked = [src, &metaType, field, subTypeSid, fieldLayout, vectorPtr, onFieldChanged]() {
 				const uint32 vs = field->GetFunction<uint32(void*)>("GetVectorSize"_hs)(vectorPtr);
 				field->GetFunction<void(void*)>("AddNewElement"_hs)(vectorPtr);
-				CommonWidgets::RefreshVector(fieldLayout, field, vectorPtr, &metaType, subTypeSid, -1);
+				CommonWidgets::RefreshVector(fieldLayout, field, vectorPtr, &metaType, subTypeSid, -1, onFieldChanged);
 			};
 			rightSide->AddChild(newElem);
 
@@ -1142,12 +1154,12 @@ namespace Lina::Editor
 			clear->SetAlignedPosY(0.0f);
 			clear->SetAlignedSizeY(1.0f);
 			clear->CreateIcon(ICON_TRASH);
-			clear->GetProps().onClicked = [src, &metaType, field, subTypeSid, fieldLayout, vectorPtr]() {
+			clear->GetProps().onClicked = [src, &metaType, field, subTypeSid, fieldLayout, vectorPtr, onFieldChanged]() {
 				field->GetFunction<void(void*)>("ClearVector"_hs)(vectorPtr);
-				CommonWidgets::RefreshVector(fieldLayout, field, vectorPtr, &metaType, subTypeSid, -1);
+				CommonWidgets::RefreshVector(fieldLayout, field, vectorPtr, &metaType, subTypeSid, -1, onFieldChanged);
 			};
 
-			RefreshVector(fieldLayout, field, vectorPtr, &metaType, subTypeSid, -1);
+			RefreshVector(fieldLayout, field, vectorPtr, &metaType, subTypeSid, -1, onFieldChanged);
 			rightSide->AddChild(clear);
 		}
 		else if (fieldType == "Bitmask32"_hs)
@@ -1166,7 +1178,7 @@ namespace Lina::Editor
 			PropertyCache<String>* cache   = subType.GetPropertyCacheManager().GetPropertyCache<String>();
 			Vector<String>		   values  = cache->GetSortedVector();
 
-			dd->GetProps().onSelected = [mask, dd](int32 item) -> bool {
+			dd->GetProps().onSelected = [mask, dd, onFieldChanged, &metaType, field](int32 item) -> bool {
 				const uint32 bmVal = 1 << item;
 
 				if (mask->IsSet(bmVal))
@@ -1176,6 +1188,8 @@ namespace Lina::Editor
 
 				dd->GetText()->GetProps().text = TO_STRING(mask->GetValue());
 				dd->GetText()->CalculateTextSize();
+
+				onFieldChanged(metaType, field);
 
 				return mask->IsSet(bmVal);
 			};
@@ -1206,8 +1220,9 @@ namespace Lina::Editor
 			Vector<String>		   values  = cache->GetSortedVector();
 
 			int32* enumVal			  = reflectionValue.CastPtr<int32>();
-			dd->GetProps().onSelected = [enumVal](int32 item) -> bool {
+			dd->GetProps().onSelected = [enumVal, onFieldChanged, &metaType, field](int32 item) -> bool {
 				*enumVal = item;
+				onFieldChanged(metaType, field);
 				return true;
 			};
 
@@ -1318,10 +1333,11 @@ namespace Lina::Editor
 			cf->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 			cf->SetAlignedSize(Vector2(0.0f, 1.0f));
 			cf->SetAlignedPosY(0.0f);
-			cf->GetProps().backgroundTexture = Editor::Get()->GetResourceManagerV2().GetResource<Texture>("Resources/Editor/Textures/Checkered.png"_hs);
+			cf->GetProps().backgroundTexture = Editor::Get()->GetResourceManagerV2().GetResource<Texture>(EDITOR_CHECKERED_ID);
 			cf->GetProps().value			 = col;
-			cf->GetProps().onClicked		 = [cf, col, src]() {
-				PanelColorWheel* panel = static_cast<PanelColorWheel*>(Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::ColorWheel, 0, src));
+			cf->GetProps().onClicked		 = [cf, col, src, &metaType, field, onFieldChanged]() {
+				PanelColorWheel* panel						 = static_cast<PanelColorWheel*>(Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::ColorWheel, 0, src));
+				panel->GetWheel()->GetProps().onValueChanged = [&metaType, field, onFieldChanged](const Color& col) { onFieldChanged(metaType, field); };
 				panel->SetTarget(col);
 			};
 			rightSide->AddChild(cf);
@@ -1329,7 +1345,7 @@ namespace Lina::Editor
 		else if (fieldType == "ColorGrad"_hs)
 		{
 			ColorGrad* col = reflectionValue.CastPtr<ColorGrad>();
-			rightSide->AddChild(BuildColorGradSlider(src, col));
+			rightSide->AddChild(BuildColorGradSlider(src, col, metaType, field, onFieldChanged));
 		}
 		else if (fieldType == "String"_hs)
 		{
@@ -1339,7 +1355,10 @@ namespace Lina::Editor
 			inp->SetAlignedSize(Vector2(0.0f, 1.0f));
 			inp->SetAlignedPosY(0.0f);
 			inp->GetText()->GetProps().text = *strVal;
-			inp->GetProps().onEditEnd		= [strVal](const String& str) { *strVal = str; };
+			inp->GetProps().onEditEnd		= [strVal, onFieldChanged, &metaType, field](const String& str) {
+				  *strVal = str;
+				  onFieldChanged(metaType, field);
+			};
 			rightSide->AddChild(inp);
 		}
 		else if (fieldType == "bool"_hs)
@@ -1353,7 +1372,7 @@ namespace Lina::Editor
 			cb->GetProps().value		   = bval;
 			cb->GetIcon()->GetProps().icon = ICON_CHECK;
 			cb->GetIcon()->CalculateIconSize();
-
+			cb->GetProps().onValueChanged = [onFieldChanged, &metaType, field](bool v) { onFieldChanged(metaType, field); };
 			rightSide->AddChild(cb);
 		}
 		else if (fieldType == "uint32"_hs)
@@ -1403,7 +1422,7 @@ namespace Lina::Editor
 		return fieldLayout;
 	}
 
-	Widget* CommonWidgets::BuildColorGradSlider(Widget* src, ColorGrad* color)
+	Widget* CommonWidgets::BuildColorGradSlider(Widget* src, ColorGrad* color, MetaType& metaType, FieldBase* field, Delegate<void(const MetaType& meta, FieldBase* field)> onFieldChanged)
 	{
 		WidgetManager*	   wm	  = src->GetWidgetManager();
 		DirectionalLayout* layout = wm->Allocate<DirectionalLayout>();
@@ -1418,9 +1437,10 @@ namespace Lina::Editor
 		startButton->SetAlignedSizeY(1.0f);
 		startButton->CreateIcon(ICON_PALETTE);
 		startButton->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::StartColor);
-		startButton->GetProps().onClicked	  = [src, color]() {
+		startButton->GetProps().onClicked	  = [src, color, onFieldChanged, &metaType, field]() {
 			PanelColorWheel* panel = static_cast<PanelColorWheel*>(Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::ColorWheel, 0, src));
 			panel->SetTarget(&color->start);
+			panel->GetWheel()->GetProps().onValueChanged = [color, onFieldChanged, &metaType, field](const Color& col) { onFieldChanged(metaType, field); };
 		};
 		layout->AddChild(startButton);
 
@@ -1430,10 +1450,13 @@ namespace Lina::Editor
 		middleButton->SetAlignedSizeY(1.0f);
 		middleButton->CreateIcon(ICON_PALETTE);
 		middleButton->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::Both);
-		middleButton->GetProps().onClicked	   = [src, color]() {
+		middleButton->GetProps().onClicked	   = [src, color, onFieldChanged, &metaType, field]() {
 			PanelColorWheel* panel = static_cast<PanelColorWheel*>(Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::ColorWheel, 0, src));
 			panel->SetTarget(&color->start);
-			panel->GetWheel()->GetProps().onValueChanged = [color](const Color& col) { color->start = color->end = col; };
+			panel->GetWheel()->GetProps().onValueChanged = [color, onFieldChanged, &metaType, field](const Color& col) {
+				color->start = color->end = col;
+				onFieldChanged(metaType, field);
+			};
 		};
 		layout->AddChild(middleButton);
 
@@ -1443,8 +1466,9 @@ namespace Lina::Editor
 		endButton->SetAlignedSizeY(1.0f);
 		endButton->CreateIcon(ICON_PALETTE);
 		endButton->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::EndColor);
-		endButton->GetProps().onClicked		= [src, color]() {
-			PanelColorWheel* panel = static_cast<PanelColorWheel*>(Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::ColorWheel, 0, src));
+		endButton->GetProps().onClicked		= [src, color, onFieldChanged, &metaType, field]() {
+			PanelColorWheel* panel						 = static_cast<PanelColorWheel*>(Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::ColorWheel, 0, src));
+			panel->GetWheel()->GetProps().onValueChanged = [color, onFieldChanged, &metaType, field](const Color& col) { onFieldChanged(metaType, field); };
 			panel->SetTarget(&color->end);
 		};
 		layout->AddChild(endButton);
@@ -1455,14 +1479,14 @@ namespace Lina::Editor
 		cf->SetAlignedPosY(0.0f);
 		cf->GetProps().gradValue		 = color;
 		cf->GetProps().disableInput		 = true;
-		cf->GetProps().backgroundTexture = Editor::Get()->GetResourceManagerV2().GetResource<Texture>("Resources/Editor/Textures/Checkered.png"_hs);
+		cf->GetProps().backgroundTexture = Editor::Get()->GetResourceManagerV2().GetResource<Texture>(EDITOR_CHECKERED_ID);
 		layout->AddChild(cf);
 
 		layout->Initialize();
 		return layout;
 	}
 
-	void CommonWidgets::BuildWidgetReflection(Widget* owner, void* obj, MetaType& meta)
+	void CommonWidgets::BuildClassReflection(Widget* owner, void* obj, MetaType& meta, Delegate<void(const MetaType& meta, FieldBase* field)> onFieldChanged)
 	{
 		WidgetManager* wm = owner->GetWidgetManager();
 
@@ -1488,12 +1512,12 @@ namespace Lina::Editor
 			if (type == "Class"_hs)
 			{
 				const TypeID subType = field->GetProperty<TypeID>("SubType"_hs);
-				BuildWidgetReflection(owner, memberVariable, ReflectionSystem::Get().Resolve(subType));
+				BuildClassReflection(owner, memberVariable, ReflectionSystem::Get().Resolve(subType), onFieldChanged);
 				continue;
 			}
 			const StringID fieldType = field->GetProperty<StringID>("Type"_hs);
 
-			Widget* fieldWidget = BuildField(owner, title, memberVariable, meta, field, fieldType);
+			Widget* fieldWidget = BuildField(owner, title, memberVariable, meta, field, fieldType, onFieldChanged);
 			lastParent->AddChild(fieldWidget);
 		}
 
@@ -1560,10 +1584,9 @@ namespace Lina::Editor
 		bw->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		bw->SetAlignedPosX(0.0f);
 		bw->SetAlignedSize(Vector2(1.0f, 0.0f));
-		bw->GetProps().itemTypeIDFilter				   = 0;
+		bw->GetProps().itemTypeIDFilter				   = resourceType;
 		bw->GetItemController()->GetProps().onInteract = [bw, layout, resourceType, onSelected, wm]() {
 			ResourceDirectory* selection = bw->GetItemController()->GetSelectedUserData<ResourceDirectory>().front();
-
 			if (!selection->isFolder && selection->resourceTID == resourceType)
 			{
 				wm->SetForegroundDim(0.0f);

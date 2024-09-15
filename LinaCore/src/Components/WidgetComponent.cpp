@@ -67,13 +67,13 @@ namespace Lina
 		// m_guiRenderer.Tick(delta, m_canvasSize);
 	}
 
-	void WidgetComponent::SetMaterial(StringID sid)
+	void WidgetComponent::SetMaterial(ResourceID id)
 	{
-		m_material.sid = sid;
-		m_material.raw = m_resourceManager->GetResource<Material>(sid);
+		m_material.id = id;
+		m_material.raw = m_resourceManager->GetResource<Material>(id);
 	}
 
-	void WidgetComponent::SetWidget(StringID sid)
+	void WidgetComponent::SetWidget(ResourceID id)
 	{
 		// m_targetWidget.sid = sid;
 		// m_targetWidget.raw = m_resourceManager->GetResource<GUIWidget>(sid);

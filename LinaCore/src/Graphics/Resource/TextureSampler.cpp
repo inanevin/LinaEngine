@@ -81,7 +81,7 @@ namespace Lina
 	}
 	void TextureSampler::GenerateHW()
 	{
-		m_samplerDesc.debugName = m_path.c_str();
+		m_samplerDesc.debugName = m_name.c_str();
 		m_gpuHandle				= GfxManager::GetLGX()->CreateSampler(m_samplerDesc);
 		m_hwExists				= true;
 	}

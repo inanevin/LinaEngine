@@ -69,12 +69,12 @@ namespace Lina::Editor
 		if (w == nullptr)
 			return;
 
-		CommonWidgets::BuildWidgetReflection(m_layout, w, ReflectionSystem::Get().Resolve<Widget>());
+		CommonWidgets::BuildClassReflection(m_layout, w, ReflectionSystem::Get().Resolve<Widget>(), [](const MetaType& meta, FieldBase* field) {});
 
 		if (w->GetTID() != GetTypeID<Widget>() && w->GetTID() != 0)
 		{
 			const TypeID subTid = w->GetTID();
-			CommonWidgets::BuildWidgetReflection(m_layout, w, ReflectionSystem::Get().Resolve(subTid));
+			CommonWidgets::BuildClassReflection(m_layout, w, ReflectionSystem::Get().Resolve(subTid), [](const MetaType& meta, FieldBase* field) {});
 		}
 
 		m_layout->Initialize();

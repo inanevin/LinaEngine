@@ -204,7 +204,7 @@ namespace Lina::Editor
 		if (loadedWorld != m_currentWorld)
 		{
 			m_currentWorld					 = loadedWorld;
-			m_worldNameText->GetProps().text = FileSystem::GetFilenameOnlyFromPath(m_currentWorld->GetPath());
+			m_worldNameText->GetProps().text = FileSystem::GetFilenameOnlyFromPath(m_currentWorld->GetName());
 			m_worldNameText->CalculateTextSize();
 		}
 

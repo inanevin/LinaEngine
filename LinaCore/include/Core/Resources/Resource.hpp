@@ -46,8 +46,7 @@ namespace Lina
 	class Resource
 	{
 	public:
-		Resource(const String& path, StringID sid, TypeID tid) : m_path(path), m_sid(sid), m_tid(tid){};
-		Resource(ResourceID id, const String& name = "") : m_id(id), m_name(name){};
+		Resource(ResourceID id, TypeID tid, const String& name) : m_id(id), m_tid(tid), m_name(name) {};
 		virtual ~Resource() = default;
 
 		virtual void LoadFromFile(const String& path){};
@@ -66,16 +65,11 @@ namespace Lina
 		{
 			m_id = id;
 		}
-
-		inline const String& GetPath() const
-		{
-			return m_path;
-		}
-
-		inline StringID GetSID() const
-		{
-			return m_sid;
-		}
+        
+        inline void SetName(const String& name)
+        {
+            m_name = name;
+        }
 
 		inline TypeID GetTID() const
 		{
@@ -86,47 +80,36 @@ namespace Lina
 		{
 			return m_id;
 		}
+        
+        inline const String& GetName() const
+        {
+            return m_name;
+        }
+        
+        virtual void SetSubdata(void* data) {};
 
 	protected:
 		template <typename U> friend class ResourceCache;
 
-		inline void SetPath(const String& path)
-		{
-			m_path = path;
-		}
-
-		inline void SetSID(StringID sid)
-		{
-			m_sid = sid;
-		}
-
-		inline void SetTID(TypeID tid)
-		{
-			m_tid = tid;
-		}
-
 	protected:
 		String	   m_name  = "";
 		ResourceID m_id	   = 0;
-		String	   m_path  = "";
 		TypeID	   m_tid   = 0;
-		StringID   m_sid   = 0;
-		Bitmask32  m_flags = 0;
 	};
 
 	template <typename T> struct ResRef
 	{
 		T*		 raw = nullptr;
-		StringID sid = 0;
+		ResourceID id = 0;
 
 		void SaveToStream(OStream& stream) const
 		{
-			stream << sid;
+			stream << id;
 		};
 
 		void LoadFromStream(IStream& stream)
 		{
-			stream >> sid;
+			stream >> id;
 		};
 	};
 

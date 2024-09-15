@@ -40,7 +40,7 @@ namespace Lina::Editor
 	{
 		m_gfxManager = Editor::Get()->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 		// m_rm		  = Editor::Get()->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		// m_shaderLines = m_rm->GetResource<Shader>("Resources/Editor/Shaders/Lines.linashader"_hs);
+		// m_shaderLines = m_rm->GetResource<Shader>(EDITOR_LINES_SHADER_ID);
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{

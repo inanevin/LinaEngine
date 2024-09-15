@@ -49,6 +49,7 @@ namespace LinaGX
 {
 	class Window;
 }
+
 namespace Lina::Editor
 {
 	class GenericPopup;
@@ -79,11 +80,11 @@ namespace Lina::Editor
 		static Widget* BuildDirectoryItemGridView(Widget* src, DirectoryItem* item, const Vector2& itemSize);
 
 		static Widget*	   BuildFieldLayout(Widget* src, uint32 dependencies, const String& title, bool isFoldLayout);
-		static Widget*	   BuildField(Widget* src, const String& title, void* memberVariablePtr, MetaType& metaType, FieldBase* field, StringID fieldType, int32 vectorElementIndex = -1);
+		static Widget*	   BuildField(Widget* src, const String& title, void* memberVariablePtr, MetaType& metaType, FieldBase* field, StringID fieldType, Delegate<void(const MetaType& meta, FieldBase* field)> onFieldChanged, int32 vectorElementIndex = -1);
 		static FoldLayout* BuildFoldTitle(Widget* src, const String& title, bool* foldValue);
-		static Widget*	   BuildColorGradSlider(Widget* src, ColorGrad* color);
-		static void		   BuildWidgetReflection(Widget* owner, void* obj, MetaType& meta);
-		static void		   RefreshVector(Widget* owningFold, FieldBase* field, void* vectorPtr, MetaType* meta, StringID subTypeSid, int32 elementIndex);
+		static Widget*	   BuildColorGradSlider(Widget* src, ColorGrad* color, MetaType& meta, FieldBase* field, Delegate<void(const MetaType& meta, FieldBase* field)> onFieldChanged);
+		static void		   BuildClassReflection(Widget* owner, void* obj, MetaType& meta, Delegate<void(const MetaType& meta, FieldBase* field)> onFieldChanged);
+		static void		   RefreshVector(Widget* owningFold, FieldBase* field, void* vectorPtr, MetaType* meta, StringID subTypeSid, int32 elementIndex, Delegate<void(const MetaType& meta, FieldBase* field)> onFieldChanged);
 
 		static Widget* ThrowResourceSelector(Widget* src, TypeID reosurceType, Delegate<void(ResourceDirectory*)>&& onSelected);
 

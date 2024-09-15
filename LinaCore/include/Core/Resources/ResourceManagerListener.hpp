@@ -33,7 +33,6 @@ SOFTWARE.
 
 namespace Lina
 {
-	struct ResourceIdentifier;
 	struct ResourceDef;
 	class Resource;
 
@@ -43,5 +42,7 @@ namespace Lina
 		virtual void OnResourceLoadStarted(int32 taskID, const Vector<ResourceDef>& idents){};
 		virtual void OnResourceLoadEnded(int32 taskID, const Vector<Resource*>& resources){};
 		virtual void OnResourceLoaded(int32 taskID, const ResourceDef& ident){};
+        virtual void OnResourcePreUnloaded(const Vector<Resource*>& resources) {};
+        virtual void OnResourceUnloaded(const Vector<ResourceDef>& defs) {};
 	};
 } // namespace Lina

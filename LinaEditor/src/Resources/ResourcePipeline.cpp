@@ -49,22 +49,23 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-
 	void ResourcePipeline::Initialize(Editor* editor)
 	{
 		m_editor = editor;
+        
+        ProjectData* projectData = m_editor->GetProjectManager().GetProjectData();
 
-		if (!FileSystem::FileOrPathExists(GetResourceDirectory()))
-			FileSystem::CreateFolderInPath(GetResourceDirectory());
+		if (!FileSystem::FileOrPathExists(projectData->GetResourceDirectory()))
+			FileSystem::CreateFolderInPath(projectData->GetResourceDirectory());
 
 		// Check if the actual resource file for a ResourceDirectory in the project exists, if not delete the directory.
-		ResourceDirectory* root = &m_editor->GetProjectManager().GetProjectData()->GetResourceRoot();
+		ResourceDirectory* root = &projectData->GetResourceRoot();
 		VerifyResources(root);
 		m_editor->GetProjectManager().SaveProjectChanges();
 
 		// Go through all the resource files in the cache directory.
 		// If the equivalent resource is not included in/used by the project delete the file to prevent littering.
-		const String   resDir = GetResourceDirectory();
+		const String   resDir = projectData->GetResourceDirectory();
 		Vector<String> files;
 		FileSystem::GetFilesInDirectory(resDir, files);
 		for (const String& file : files)
@@ -85,13 +86,15 @@ namespace Lina::Editor
 
 	void ResourcePipeline::VerifyResources(ResourceDirectory* dir)
 	{
+        ProjectData* projectData = m_editor->GetProjectManager().GetProjectData();
+
 		Vector<ResourceDirectory*> killList;
 
 		for (ResourceDirectory* c : dir->children)
 		{
 			if (!c->isFolder)
 			{
-				const String path = GetResourcePath(c->resourceID);
+				const String path = projectData->GetResourcePath(c->resourceID);
 				if (!FileSystem::FileOrPathExists(path))
 				{
 					killList.push_back(c);
@@ -130,8 +133,9 @@ namespace Lina::Editor
 	ResourceID ResourcePipeline::SaveNewResource(TypeID tid, uint32 subType)
 	{
 		const ResourceID id = m_editor->GetProjectManager().ConsumeResourceID();
-
-		const String path = GetResourcePath(id);
+        ProjectData* projectData = m_editor->GetProjectManager().GetProjectData();
+		const String path = projectData->GetResourcePath(id);
+        
 		if (tid == GetTypeID<GUIWidget>())
 		{
 			GUIWidget w(id);
@@ -140,22 +144,22 @@ namespace Lina::Editor
 		}
 		else if (tid == GetTypeID<Material>())
 		{
-			Material mat(id);
+			Material mat(id, "");
 			mat.SaveToFileAsBinary(path);
 		}
 		else if (tid == GetTypeID<EntityWorld>())
 		{
-			EntityWorld world(id);
+			EntityWorld world(id, "");
 			world.SaveToFileAsBinary(path);
 		}
 		else if (tid == GetTypeID<TextureSampler>())
 		{
-			TextureSampler sampler(id);
+			TextureSampler sampler(id, "");
 			sampler.SaveToFileAsBinary(path);
 		}
 		else if (tid == GetTypeID<Shader>())
 		{
-			Shader shader(id);
+			Shader shader(id, "");
 
 			// Load default text.
 			if (subType == 0)
@@ -174,112 +178,11 @@ namespace Lina::Editor
 		}
 		else if (tid == GetTypeID<PhysicsMaterial>())
 		{
-			PhysicsMaterial mat(id);
+			PhysicsMaterial mat(id, "");
 			mat.SaveToFileAsBinary(path);
 		}
 
 		return id;
-	}
-
-	void* ResourcePipeline::OpenResource(TypeID tid, ResourceID resourceID, void* subdata)
-	{
-		void* ptr = nullptr;
-
-		const String path = GetResourceDirectory() + "Resource_" + TO_STRING(resourceID) + ".linaresource";
-
-		if (!FileSystem::FileOrPathExists(path))
-			return nullptr;
-
-		if (tid == GetTypeID<GUIWidget>())
-		{
-			GUIWidget* w = new GUIWidget(0, subdata);
-			w->LoadFromFile(path);
-			ptr = w;
-		}
-		else if (tid == GetTypeID<Material>())
-		{
-			Material* m = new Material(0);
-			m->LoadFromFile(path);
-			ptr = m;
-		}
-		else if (tid == GetTypeID<EntityWorld>())
-		{
-			EntityWorld* w = new EntityWorld(0);
-			w->LoadFromFile(path);
-			ptr = w;
-		}
-		else if (tid == GetTypeID<Shader>())
-		{
-			Shader* s = new Shader(0);
-			s->LoadFromFile(path);
-			ptr = s;
-		}
-		else if (tid == GetTypeID<PhysicsMaterial>())
-		{
-			PhysicsMaterial* mat = new PhysicsMaterial(0);
-			mat->LoadFromFile(path);
-			ptr = mat;
-		}
-		else if (tid == GetTypeID<TextureSampler>())
-		{
-			TextureSampler* samp = new TextureSampler(0);
-			samp->LoadFromFile(path);
-			ptr = samp;
-		}
-		else if (tid == GetTypeID<Texture>())
-		{
-			Texture* txt	= new Texture(0);
-			IStream	 stream = Serialization::LoadFromFile(path.c_str());
-			txt->LoadFromStream(stream);
-			stream.Destroy();
-			ptr = txt;
-		}
-		else if (tid == GetTypeID<Font>())
-		{
-			Font*	fnt	   = new Font(0);
-			IStream stream = Serialization::LoadFromFile(path.c_str());
-			fnt->LoadFromStream(stream);
-			stream.Destroy();
-			ptr = fnt;
-		}
-		else if (tid == GetTypeID<Model>())
-		{
-			Model*	model  = new Model(0);
-			IStream stream = Serialization::LoadFromFile(path.c_str());
-			model->LoadFromStream(stream);
-			stream.Destroy();
-			ptr = model;
-		}
-		else if (tid == GetTypeID<Audio>())
-		{
-			Audio*	aud	   = new Audio(0);
-			IStream stream = Serialization::LoadFromFile(path.c_str());
-			aud->LoadFromStream(stream);
-			stream.Destroy();
-			ptr = aud;
-		}
-		else
-		{
-			LINA_ASSERT(false, "");
-		}
-
-		return ptr;
-	}
-
-	void ResourcePipeline::SaveResource(Resource* res)
-	{
-		res->SaveToFileAsBinary(GetResourcePath(res->GetID()).c_str());
-	}
-
-	String ResourcePipeline::GetResourceDirectory()
-	{
-		const String project = m_editor->GetProjectManager().GetProjectData()->GetPath();
-		return FileSystem::GetFilePath(project) + "_LinaResourceCache/";
-	}
-
-	String ResourcePipeline::GetResourcePath(ResourceID id)
-	{
-		return GetResourceDirectory() + "Resource_" + TO_STRING(id) + ".linaresource";
 	}
 
 	void ResourcePipeline::ImportResources(ResourceDirectory* src, const Vector<String>& absPaths)
@@ -316,7 +219,7 @@ namespace Lina::Editor
 				.isFolder	 = false,
 				.resourceID	 = m_editor->GetProjectManager().GetProjectData()->ConsumeResourceID(),
 				.resourceTID = resourceTID,
-				.name		 = FileSystem::GetFilenameOnlyFromPath(str),
+				.name		 = FileSystem::GetFilenameOnlyFromPath(str) + "." + FileSystem::GetFileExtension(str),
 			});
 			newChildren.push_back(child);
 		}
@@ -333,6 +236,8 @@ namespace Lina::Editor
 		};
 		m_editor->GetWindowPanelManager().GetNotificationDisplayer(m_editor->GetWindowPanelManager().GetMainWindow())->AddNotification(notification);
 
+        ProjectData* projectData = m_editor->GetProjectManager().GetProjectData();
+
 		// Import resources in parallel.
 		Taskflow tf;
 		tf.for_each_index(0, static_cast<int>(validPaths.size()), 1, [&](int i) {
@@ -344,30 +249,30 @@ namespace Lina::Editor
 
 			if (dir->resourceTID == GetTypeID<Texture>())
 			{
-				Texture txt(id);
+				Texture txt(id, dir->name);
 				txt.LoadFromFile(path);
-				txt.SaveToFileAsBinary(GetResourcePath(id));
+				txt.SaveToFileAsBinary(projectData->GetResourcePath(id));
 				thumbnail = ThumbnailGenerator::GenerateThumbnail(&txt);
 			}
 			else if (dir->resourceTID == GetTypeID<Font>())
 			{
-				Font font(id);
+                Font font(id,  dir->name);
 				font.LoadFromFile(path);
-				font.SaveToFileAsBinary(GetResourcePath(id));
+				font.SaveToFileAsBinary(projectData->GetResourcePath(id));
 				thumbnail = ThumbnailGenerator::GenerateThumbnailFont(path);
 			}
 			else if (dir->resourceTID == GetTypeID<Audio>())
 			{
-				Audio aud(id);
+                Audio aud(id,  dir->name);
 				aud.LoadFromFile(path);
-				aud.SaveToFileAsBinary(GetResourcePath(id));
+				aud.SaveToFileAsBinary(projectData->GetResourcePath(id));
 				thumbnail = ThumbnailGenerator::GenerateThumbnail(&aud);
 			}
 			else if (dir->resourceTID == GetTypeID<Model>())
 			{
-				Model model(id);
+                Model model(id, dir->name);
 				model.LoadFromFile(path);
-				model.SaveToFileAsBinary(GetResourcePath(id));
+				model.SaveToFileAsBinary(projectData->GetResourcePath(id));
 				thumbnail = ThumbnailGenerator::GenerateThumbnail(&model);
 			}
 
@@ -389,35 +294,38 @@ namespace Lina::Editor
 		m_editor->GetProjectManager().SaveProjectChanges();
 	}
 
-	void ResourcePipeline::DuplicateResource(ResourceDirectory* directory, ResourceDirectory* newParent)
-	{
-		ResourceDirectory* dup = new ResourceDirectory();
-		*dup				   = *directory;
-		dup->children.clear();
-		newParent->AddChild(dup);
+    void ResourcePipeline::DuplicateResource(ResourceManagerV2* resourceManager, ResourceDirectory *directory, ResourceDirectory *newParent)
+    {
+        ResourceDirectory* dup = new ResourceDirectory();
+        *dup                   = *directory;
+        dup->children.clear();
+        newParent->AddChild(dup);
 
-		if (!directory->isFolder)
-		{
-			const String	 path		= GetResourcePath(directory->resourceID);
-			const String	 duplicated = FileSystem::Duplicate(path);
-			const ResourceID newID		= m_editor->GetProjectManager().ConsumeResourceID();
-			dup->resourceID				= newID;
-			FileSystem::ChangeDirectoryName(duplicated, GetResourcePath(newID));
-			Resource* res = static_cast<Resource*>(OpenResource(directory->resourceTID, newID, nullptr));
-			res->SetID(newID);
-			CloseAndSaveResource(res);
+        if (!directory->isFolder)
+        {
+            ProjectData* projectData = m_editor->GetProjectManager().GetProjectData();
+            const String     path        = projectData->GetResourcePath(directory->resourceID);
+            const String     duplicated = FileSystem::Duplicate(path);
+            const ResourceID newID        = m_editor->GetProjectManager().ConsumeResourceID();
+            dup->resourceID                = newID;
+            FileSystem::ChangeDirectoryName(duplicated, projectData->GetResourcePath(newID));
+            
+            Resource* res = static_cast<Resource*>(resourceManager->OpenResource(projectData, directory->resourceTID, newID, nullptr));
+            res->SetID(newID);
+            resourceManager->CloseResource(projectData, res, true);
 
-			if (!directory->thumbnailBuffer.IsEmpty())
-			{
-				dup->thumbnailBuffer = RawStream();
-				dup->thumbnailBuffer.Create(directory->thumbnailBuffer.GetRaw(), directory->thumbnailBuffer.GetSize());
-				GenerateThumbnailAtlases(dup);
-			}
-		}
+            if (!directory->thumbnailBuffer.IsEmpty())
+            {
+                dup->thumbnailBuffer = RawStream();
+                dup->thumbnailBuffer.Create(directory->thumbnailBuffer.GetRaw(), directory->thumbnailBuffer.GetSize());
+                GenerateThumbnailAtlases(dup);
+            }
+        }
 
-		for (ResourceDirectory* c : directory->children)
-		{
-			DuplicateResource(c, dup);
-		}
-	}
+        for (ResourceDirectory* c : directory->children)
+        {
+            DuplicateResource(resourceManager, c, dup);
+        }
+    }
+
 } // namespace Lina::Editor

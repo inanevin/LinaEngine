@@ -39,8 +39,7 @@ namespace Lina
 	public:
 		static constexpr uint32 VERSION = 0;
 
-		TextureSampler(const String& path, StringID sid) : Resource(path, sid, GetTypeID<TextureSampler>()){};
-		TextureSampler(ResourceID id, const String& name) : Resource(id, name){};
+		TextureSampler(ResourceID id, const String& name) : Resource(id, GetTypeID<TextureSampler>(), name){};
 		virtual ~TextureSampler();
 
 		virtual void SaveToStream(OStream& stream) const override;

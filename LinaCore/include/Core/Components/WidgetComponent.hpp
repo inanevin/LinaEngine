@@ -46,8 +46,8 @@ namespace Lina
 		virtual void PreTick() override;
 		virtual void Tick(float delta) override;
 
-		void SetWidget(StringID sid);
-		void SetMaterial(StringID sid);
+		void SetWidget(ResourceID id);
+		void SetMaterial(ResourceID id);
 
 		virtual TypeID GetComponentType() override
 		{

@@ -31,15 +31,4 @@ SOFTWARE.
 namespace Lina
 {
 
-	void ResourceIdentifier::SaveToStream(OStream& stream) const
-	{
-		stream << relativePath;
-		stream << tid << sid;
-	}
-
-	void ResourceIdentifier::LoadFromStream(IStream& stream)
-	{
-		stream >> relativePath;
-		stream >> tid >> sid;
-	}
 } // namespace Lina

@@ -41,7 +41,7 @@ namespace Lina::Editor
 		uint32 version = 0;
 		in >> version;
 		in >> m_lastProjectPath;
-		in >> m_lastWorldAbsPath;
+		in >> m_lastWorldID;
 		in >> m_layout;
 	}
 
@@ -49,7 +49,7 @@ namespace Lina::Editor
 	{
 		out << VERSION;
 		out << m_lastProjectPath;
-		out << m_lastWorldAbsPath;
+		out << m_lastWorldID;
 		out << m_layout;
 	}
 } // namespace Lina::Editor

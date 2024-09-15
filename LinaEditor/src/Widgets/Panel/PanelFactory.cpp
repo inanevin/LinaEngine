@@ -33,12 +33,13 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelWidgetEditor.hpp"
 #include "Editor/Widgets/Panel/PanelColorWheel.hpp"
 #include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
+#include "Editor/Widgets/Panel/PanelTextureViewer.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 
 namespace Lina::Editor
 {
 
-	Panel* PanelFactory::CreatePanel(Widget* source, PanelType type, StringID subData)
+	Panel* PanelFactory::CreatePanel(Widget* source, PanelType type, ResourceID subData)
 	{
 		Panel* panel = nullptr;
 
@@ -62,6 +63,9 @@ namespace Lina::Editor
 		case PanelType::ColorWheel:
 			panel = source->GetWidgetManager()->Allocate<PanelColorWheel>("Color Wheel");
 			break;
+		case PanelType::TextureViewer:
+			panel = source->GetWidgetManager()->Allocate<PanelTextureViewer>("Texture");
+			break;
 		default:
 			break;
 		}
@@ -76,7 +80,7 @@ namespace Lina::Editor
 		panel->GetWidgetProps().dropshadow.isInner	 = true;
 		panel->GetWidgetProps().dropshadow.color.w	 = 0.25f;
 		panel->GetWidgetProps().dropshadow.steps	 = 8;
-
+		panel->SetSubdata(subData);
 		panel->Initialize();
 		return panel;
 	}

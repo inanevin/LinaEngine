@@ -39,7 +39,7 @@ namespace Lina
 	public:
 		static constexpr uint32 VERSION = 0;
 
-		PhysicsMaterial(ResourceID id, const String& name) : Resource(id, name){};
+		PhysicsMaterial(ResourceID id, const String& name) : Resource(id, GetTypeID<PhysicsMaterial>(), name){};
 		~PhysicsMaterial() = default;
 
 		virtual void LoadFromFile(const String& path) override;

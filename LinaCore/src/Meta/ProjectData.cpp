@@ -56,4 +56,14 @@ namespace Lina
 		const size_t baseSz	  = basePath.size();
 		outRelative			  = absPath.substr(baseSz, absPath.size());
 	}
+
+    String ProjectData::GetResourceDirectory()
+    {
+        return FileSystem::GetFilePath(GetPath()) + "_LinaResourceCache/";
+    }
+    
+    String ProjectData::GetResourcePath(ResourceID id)
+    {
+        return GetResourceDirectory() + "Resource_" + TO_STRING(id) + ".linaresource";
+    }
 } // namespace Lina

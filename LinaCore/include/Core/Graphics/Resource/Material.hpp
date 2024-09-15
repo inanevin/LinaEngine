@@ -70,8 +70,7 @@ namespace Lina
 			void			 LoadFromStream(IStream& stream);
 		};
 
-		Material(const String& path, StringID sid) : Resource(path, sid, GetTypeID<Material>()){};
-		Material(ResourceID id, const String& name) : Resource(id, name){};
+		Material(ResourceID id, const String& name) : Resource(id, GetTypeID<Material>(), name){};
 		virtual ~Material();
 		virtual void LoadFromFile(const String& path) override;
 		virtual void SaveToStream(OStream& stream) const override;
@@ -93,14 +92,9 @@ namespace Lina
 			m_propsDirty = true;
 		}
 
-		inline const String& GetShaderPath() const
+		inline ResourceID GetShaderID() const
 		{
-			return m_shaderPath;
-		}
-
-		inline StringID GetShaderSID() const
-		{
-			return m_shaderSID;
+			return m_shaderID;
 		}
 
 		inline uint32 GetBindlessBytePadding() const
@@ -110,9 +104,8 @@ namespace Lina
 
 	private:
 		ALLOCATOR_BUCKET_MEM;
-		Shader*				   m_shader		= nullptr;
-		StringID			   m_shaderSID	= 0;
-		String				   m_shaderPath = "";
+		Shader*				   m_shader	  = nullptr;
+		ResourceID			   m_shaderID = 0;
 		DescriptorAllocation   m_descriptorSetContainer[FRAMES_IN_FLIGHT];
 		size_t				   m_bindlessBytePadding = 0;
 		bool				   m_propsDirty			 = false;

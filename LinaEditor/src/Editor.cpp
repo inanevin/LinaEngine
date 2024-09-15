@@ -97,18 +97,9 @@ namespace Lina::Editor
 			stream << customMeta;
 			return true;
 		};
-
 		// NOTE: 160, 380 is the glyph range for nunito sans
 
-		if (sid == DEFAULT_TEXTURE_LINALOGO)
-		{
-			Texture::Metadata meta = {};
-
-			stream << meta;
-			return true;
-		}
-
-		if (sid == DEFAULT_SHADER_GUI_ID)
+		if (id == DEFAULT_SHADER_GUI_ID)
 		{
 			Shader::Metadata meta;
 
@@ -138,7 +129,7 @@ namespace Lina::Editor
 			return true;
 		}
 
-		if (sid == "Resources/Editor/Shaders/GUI/EditorGUI.linashader"_hs)
+		if (id == EDITOR_GUI_SHADER_ID)
 		{
 			Shader::Metadata meta;
 
@@ -158,7 +149,7 @@ namespace Lina::Editor
 			return true;
 		}
 
-		if (sid == DEFAULT_SHADER_GUI3D_SID)
+		if (id == DEFAULT_SHADER_GUI3D_ID)
 		{
 			Shader::Metadata meta;
 
@@ -183,7 +174,7 @@ namespace Lina::Editor
 			return true;
 		}
 
-		if (sid == DEFAULT_SHADER_OBJECT_SID)
+		if (id == DEFAULT_SHADER_OBJECT_ID)
 		{
 			Shader::Metadata meta;
 			meta.variants["RenderTarget"_hs] = ShaderVariant{
@@ -202,7 +193,7 @@ namespace Lina::Editor
 			return true;
 		}
 
-		if (sid == DEFAULT_SHADER_DEFERRED_LIGHTING_SID)
+		if (id == DEFAULT_SHADER_DEFERRED_LIGHTING_ID)
 		{
 			Shader::Metadata meta;
 			meta.variants["RenderTarget"_hs] = ShaderVariant{
@@ -220,7 +211,7 @@ namespace Lina::Editor
 			return true;
 		}
 
-		if (sid == DEFAULT_SHADER_SKY_SID)
+		if (id == DEFAULT_SHADER_SKY_ID)
 		{
 			Shader::Metadata meta;
 			meta.variants["RenderTarget"_hs] = ShaderVariant{
@@ -242,7 +233,7 @@ namespace Lina::Editor
 			return true;
 		}
 
-		if (sid == ICON_FONT_SID)
+		if (id == ICON_FONT_ID)
 		{
 			Font::Metadata customMeta = {
 				.points = {{.size = 32, .dpiLimit = 10.0f}},
@@ -252,7 +243,7 @@ namespace Lina::Editor
 			return true;
 		}
 
-		if (sid == ALT_FONT_SID || sid == ALT_FONT_BOLD_SID)
+		if (id == DEFAULT_ALT_FONT_ID || id == DEFAULT_ALT_FONT_BOLD_ID)
 		{
 			Font::Metadata customMeta = {
 				.points = {{.size = 14, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
@@ -262,7 +253,7 @@ namespace Lina::Editor
 			return true;
 		}
 
-		if (sid == "Resources/Editor/Shaders/Lines.linashader"_hs)
+		if (id == EDITOR_LINES_SHADER_ID)
 		{
 			Shader::Metadata meta;
 			meta.variants["RenderTarget"_hs] = ShaderVariant{
@@ -292,22 +283,22 @@ namespace Lina::Editor
 		if (!FileSystem::FileOrPathExists(metacachePath))
 			FileSystem::CreateFolderInPath(metacachePath);
 
-		Vector<ResourceIdentifier> priorityResources;
-		priorityResources.push_back({"Resources/Editor/Shaders/GUI/EditorGUI.linashader", GetTypeID<Shader>()});
-		priorityResources.push_back({"Resources/Editor/Textures/LinaLogoTitle.png", GetTypeID<Texture>()});
-		priorityResources.push_back({ICON_FONT_PATH, GetTypeID<Font>()});
-		priorityResources.push_back({DEFAULT_FONT_PATH, GetTypeID<Font>()});
-		priorityResources.push_back({DEFAULT_FONT_BOLD_PATH, GetTypeID<Font>()});
-		m_resourceManagerV2.LoadResourcesFromFile(this, 0, priorityResources, FileManager::GetMetacachePath());
+		Vector<ResourceDef> priorityResources;
+		priorityResources.push_back({EDITOR_GUI_SHADER_ID, EDITOR_GUI_SHADER, GetTypeID<Shader>()});
+		priorityResources.push_back({EDITOR_LINA_LOGO_TITLE_ID, EDITOR_LINA_LOGO_TITLE, GetTypeID<Texture>()});
+		priorityResources.push_back({ICON_FONT_ID, ICON_FONT_PATH, GetTypeID<Font>()});
+		priorityResources.push_back({DEFAULT_FONT_ID, DEFAULT_FONT_PATH, GetTypeID<Font>()});
+		priorityResources.push_back({DEFAULT_FONT_BOLD_ID, DEFAULT_FONT_BOLD_PATH, GetTypeID<Font>()});
+		m_resourceManagerV2.LoadResourcesFromFile(this, nullptr, priorityResources, 0);
 		m_resourceManagerV2.WaitForAll();
 	}
 
 	void Editor::Initialize()
 	{
 		s_editor							  = this;
-		Theme::GetDef().iconFont			  = ICON_FONT_SID;
-		Theme::GetDef().defaultFont			  = DEFAULT_FONT_SID;
-		Theme::GetDef().altFont				  = ALT_FONT_BOLD_SID;
+		Theme::GetDef().iconFont			  = ICON_FONT_ID;
+		Theme::GetDef().defaultFont			  = DEFAULT_FONT_ID;
+		Theme::GetDef().altFont				  = DEFAULT_ALT_FONT_BOLD_ID;
 		Theme::GetDef().iconDropdown		  = ICON_ARROW_DOWN;
 		Theme::GetDef().iconCircleFilled	  = ICON_CIRCLE_FILLED;
 		Theme::GetDef().iconSliderHandle	  = ICON_CIRCLE_FILLED;
@@ -342,29 +333,13 @@ namespace Lina::Editor
 		else
 			m_settings.SaveToFile();
 
-		Vector<ResourceIdentifier> priorityResources;
-		priorityResources.push_back({"Resources/Editor/Shaders/Lines.linashader", GetTypeID<Shader>()});
-		priorityResources.push_back({"Resources/Editor/Textures/Checkered.png", GetTypeID<Texture>()});
-		priorityResources.push_back({ALT_FONT_PATH, GetTypeID<Font>()});
-		priorityResources.push_back({ALT_FONT_BOLD_PATH, GetTypeID<Font>()});
-		priorityResources.push_back({BIG_FONT_PATH, GetTypeID<Font>()});
-		m_resourceManagerV2.LoadResourcesFromFile(this, RLID_CORE_RES, priorityResources, FileManager::GetMetacachePath());
-
-		// Async load core resources.
-		// Vector<ResourceIdentifier> list;
-		// const String			   fullPathBase = FileSystem::GetRunningDirectory() + "/";
-		// list.push_back({fullPathBase + DEFAULT_SHADER_DEFERRED_LIGHTING_PATH, DEFAULT_SHADER_DEFERRED_LIGHTING_PATH, // GetTypeID<Shader>()});
-		// list.push_back({fullPathBase + "Resources/Core/Models/Plane.glb", "Resources/Core/Models/Plane.glb", GetTypeID<Model>()});
-		// list.push_back({fullPathBase + "Resources/Core/Models/Cube.glb", "Resources/Core/Models/Cube.glb", GetTypeID<Model>()});
-		// list.push_back({fullPathBase + "Resources/Core/Models/Sphere.glb", "Resources/Core/Models/Sphere.glb", GetTypeID<Model>()});
-		// list.push_back({fullPathBase + "Resources/Core/Models/SkyCube.glb", "Resources/Core/Models/SkyCube.glb", GetTypeID<Model>()});
-		// list.push_back({fullPathBase + ALT_FONT_PATH, ALT_FONT_PATH, GetTypeID<Font>()});
-		// list.push_back({fullPathBase + BIG_FONT_PATH, BIG_FONT_PATH, GetTypeID<Font>()});
-		// list.push_back({fullPathBase + ALT_FONT_BOLD_PATH, ALT_FONT_BOLD_PATH, GetTypeID<Font>()});
-		// list.push_back({fullPathBase + "Resources/Editor/Textures/LinaLogoTitleHorizontal.png", // "Resources/Editor/Textures/LinaLogoTitleHorizontal.png", GetTypeID<Texture>()});
-		// list.push_back({fullPathBase + "Resources/Editor/Shaders/Lines.linashader", "Resources/Editor/Shaders/Lines.linashader", // GetTypeID<Shader>()});
-		// m_rm->LoadResourcesFromFile(RLID_CORE_RES, list, metacachePath);
-		// m_coreResourcesOK = true;
+		Vector<ResourceDef> priorityResources;
+		priorityResources.push_back({EDITOR_LINES_SHADER_ID, EDITOR_LINES_SHADER, GetTypeID<Shader>()});
+		priorityResources.push_back({EDITOR_CHECKERED_ID, EDITOR_CHECKERED, GetTypeID<Texture>()});
+		priorityResources.push_back({DEFAULT_ALT_FONT_ID, DEFAULT_ALT_FONT_PATH, GetTypeID<Font>()});
+		priorityResources.push_back({DEFAULT_ALT_FONT_BOLD_ID, DEFAULT_ALT_FONT_BOLD_PATH, GetTypeID<Font>()});
+		priorityResources.push_back({BIG_FONT_ID, BIG_FONT_PATH, GetTypeID<Font>()});
+		m_resourceManagerV2.LoadResourcesFromFile(this, nullptr, priorityResources, RLID_CORE_RES);
 	}
 
 	void Editor::OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size)
@@ -451,7 +426,7 @@ namespace Lina::Editor
 	{
 		auto* loadedWorld = m_app->GetSystem()->CastSubsystem<WorldManager>(SubsystemType::WorldManager)->GetMainWorld();
 		if (loadedWorld)
-			m_settings.SetLastWorldAbsPath(loadedWorld->GetPath());
+			m_settings.SetLastWorldID(loadedWorld->GetID());
 
 		m_settings.GetLayout().StoreLayout();
 		m_settings.SaveToFile();

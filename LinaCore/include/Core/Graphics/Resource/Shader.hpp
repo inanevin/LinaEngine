@@ -78,8 +78,7 @@ namespace Lina
 	public:
 		static constexpr uint32 VERSION = 0;
 
-		Shader(const String& path, StringID sid) : Resource(path, sid, GetTypeID<Shader>()){};
-		Shader(ResourceID id, const String& name) : Resource(id, name){};
+		Shader(ResourceID id, const String& name) : Resource(id, GetTypeID<Shader>(), name){};
 		virtual ~Shader();
 
 		virtual void LoadFromFile(const String& path) override;

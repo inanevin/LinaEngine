@@ -68,28 +68,27 @@ namespace Lina
 			void LoadFromStream(IStream& stream, ResourceManagerV2* rm)
 			{
 				stream >> skyMaterial >> lightingMaterial;
-				skyMaterial.raw		 = rm->GetResource<Material>(skyMaterial.sid);
-				lightingMaterial.raw = rm->GetResource<Material>(lightingMaterial.sid);
+				skyMaterial.raw		 = rm->GetResource<Material>(skyMaterial.id);
+				lightingMaterial.raw = rm->GetResource<Material>(lightingMaterial.id);
 			}
 
 			inline void SetSkyMaterial(Material* mat)
 			{
 				skyMaterial.raw = mat;
-				skyMaterial.sid = mat->GetSID();
+				skyMaterial.id	= mat->GetID();
 			}
 
 			inline void SetLightingMaterial(Material* mat)
 			{
 				lightingMaterial.raw = mat;
-				lightingMaterial.sid = mat->GetSID();
+				lightingMaterial.id	 = mat->GetID();
 			}
 		};
 
 		static constexpr uint32 VERSION = 0;
 
 		EntityWorld(const EntityWorld& other) = delete;
-		EntityWorld(const String& path = "", StringID sid = 0);
-		EntityWorld(ResourceID id, const String& name) : Resource(id, name), m_physicsWorld(this){};
+		EntityWorld(ResourceID id, const String& name) : Resource(id, GetTypeID<EntityWorld>(), name), m_physicsWorld(this){};
 		~EntityWorld();
 
 		Entity*		 CreateEntity(const String& name);

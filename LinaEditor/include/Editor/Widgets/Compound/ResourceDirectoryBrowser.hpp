@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Core/GUI/Widgets/Compound/FileMenu.hpp"
 #include "Common/Data/Vector.hpp"
+#include "Editor/Project/ProjectManager.hpp"
 
 namespace Lina
 {
@@ -48,7 +49,7 @@ namespace Lina::Editor
 	{
 	};
 
-	class ResourceDirectoryBrowser : public Widget, public FileMenuListener
+	class ResourceDirectoryBrowser : public Widget, public FileMenuListener, public ProjectManagerListener
 	{
 	public:
 		ResourceDirectoryBrowser()			= default;
@@ -70,6 +71,7 @@ namespace Lina::Editor
 		};
 
 		virtual void Construct() override;
+		virtual void Destruct() override;
 		virtual void Initialize() override;
 		void		 RefreshDirectory();
 
@@ -86,6 +88,7 @@ namespace Lina::Editor
 	protected:
 		virtual bool OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData) override;
 		virtual void OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
+		virtual void OnProjectOpened(ProjectData* data) override;
 
 		virtual void SaveToStream(OStream& stream) const override
 		{

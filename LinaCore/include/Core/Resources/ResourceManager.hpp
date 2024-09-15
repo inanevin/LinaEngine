@@ -42,6 +42,7 @@ namespace Lina
 	class GfxManager;
 	class ResourceManagerListener;
 	class ProjectData;
+	struct ResourceDirectory;
 
 	class ResourceManagerV2
 	{
@@ -49,14 +50,23 @@ namespace Lina
 		ResourceManagerV2(){};
 		~ResourceManagerV2(){};
 
-		void LoadResourcesFromFile(ApplicationDelegate* delegate, int32 taskID, const Vector<ResourceIdentifier>& identifiers, const String& cachePath = "", const String& projectPath = "");
-		void LoadResourcesFromFile(ApplicationDelegate* delegate, const Vector<ResourceDef>& resourceDef, const String& cachePath, int32 taskID);
+		void LoadResourcesFromFile(ApplicationDelegate* delegate, ProjectData* project, const Vector<ResourceDef>& resourceDef, int32 taskID);
+		void UnloadResources(const Vector<Resource*>& resources);
 
 		void Poll();
 		void WaitForAll();
 		void AddListener(ResourceManagerListener* listener);
 		void RemoveListener(ResourceManagerListener* listener);
 		void Shutdown();
+
+		Resource* OpenResource(ProjectData* project, TypeID typeID, ResourceID resourceID, void* subdata);
+		void	  CloseResource(ProjectData* project, Resource* res, bool save);
+		void	  SaveResource(ProjectData* project, Resource* res);
+
+		template <typename T> T* OpenResource(ProjectData* project, ResourceID id, void* subdata)
+		{
+			return static_cast<T*>(OpenResource(project, GetTypeID<T>(), id, subdata));
+		}
 
 		template <typename T> ResourceCache<T>* GetCache()
 		{
@@ -98,7 +108,8 @@ namespace Lina
 		}
 
 	private:
-		void DispatchLoadTaskEvent(ResourceLoadTask* task);
+		void			   DispatchLoadTaskEvent(ResourceLoadTask* task);
+		ResourceCacheBase* GetCache(TypeID tid);
 
 	private:
 		ResourceID							m_customResourceID = RESOURCE_ID_CUSTOM_SPACE;

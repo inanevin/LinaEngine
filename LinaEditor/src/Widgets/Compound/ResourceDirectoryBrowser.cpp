@@ -41,6 +41,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/GUIWidget.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
+#include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Resource/TextureSampler.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Physics/PhysicsMaterial.hpp"
@@ -94,8 +95,18 @@ namespace Lina::Editor
 			RequestDelete(selection);
 		};
 
-		controller->GetProps().onInteract = []() {
+		controller->GetProps().onInteract = [this]() {
+			Vector<ResourceDirectory*> selection = m_controller->GetSelectedUserData<ResourceDirectory>();
 
+			ResourceDirectory* item = selection.front();
+
+			if (item->isFolder)
+				return;
+
+			if (item->resourceTID == GetTypeID<Texture>())
+			{
+				m_editor->GetWindowPanelManager().OpenPanel(PanelType::TextureViewer, item->resourceID, this);
+			}
 		};
 
 		controller->GetProps().payloadType	   = PayloadType::Resource;
@@ -127,6 +138,12 @@ namespace Lina::Editor
 	{
 		Widget::Initialize();
 		RefreshDirectory();
+		m_editor->GetProjectManager().AddListener(this);
+	}
+
+	void ResourceDirectoryBrowser::Destruct()
+	{
+		m_editor->GetProjectManager().RemoveListener(this);
 	}
 
 	void ResourceDirectoryBrowser::RefreshDirectory()
@@ -151,6 +168,9 @@ namespace Lina::Editor
 	{
 		for (ResourceDirectory* child : dir->children)
 		{
+			if (m_props.itemTypeIDFilter != 0 && !child->isFolder && m_props.itemTypeIDFilter != child->resourceTID)
+				continue;
+
 			if (child->isFolder)
 			{
 				Widget* w = CommonWidgets::BuildDefaultFoldItem(this, child, margin, ICON_FOLDER, Theme::GetDef().foreground0, child->name, !child->children.empty(), &child->unfolded);
@@ -503,7 +523,7 @@ namespace Lina::Editor
 	void ResourceDirectoryBrowser::RequestDuplicate(Vector<ResourceDirectory*> dirs)
 	{
 		for (ResourceDirectory* item : dirs)
-			m_editor->GetResourcePipeline().DuplicateResource(item, item->parent);
+			m_editor->GetResourcePipeline().DuplicateResource(&m_editor->GetResourceManagerV2(), item, item->parent);
 
 		RefreshDirectory();
 		m_editor->GetProjectManager().SaveProjectChanges();
@@ -528,5 +548,10 @@ namespace Lina::Editor
 		target->AddChild(carry);
 		RefreshDirectory();
 		m_editor->GetProjectManager().SaveProjectChanges();
+	}
+
+	void ResourceDirectoryBrowser::OnProjectOpened(ProjectData* data)
+	{
+		RefreshDirectory();
 	}
 } // namespace Lina::Editor

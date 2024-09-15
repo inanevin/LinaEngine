@@ -54,7 +54,7 @@ namespace Lina::Editor
 		m_resourceManagerV2 = &m_editor->GetResourceManagerV2();
 		m_lgx				= GfxManager::GetLGX();
 		m_size				= m_window->GetSize();
-		m_guiShader			= m_resourceManagerV2->GetResource<Shader>("Resources/Editor/Shaders/GUI/EditorGUI.linashader"_hs);
+		m_guiShader			= m_resourceManagerV2->GetResource<Shader>(EDITOR_GUI_SHADER_ID);
 
 		// Swapchain
 		const auto monitorSize = window->GetMonitorSize();

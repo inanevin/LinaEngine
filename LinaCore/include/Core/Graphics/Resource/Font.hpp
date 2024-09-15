@@ -64,8 +64,7 @@ namespace Lina
 
 		static constexpr uint32 VERSION = 0;
 
-		Font(const String& path, StringID sid) : Resource(path, sid, GetTypeID<Font>()){};
-		Font(ResourceID id, const String& name) : Resource(id, name){};
+		Font(ResourceID id, const String& name) : Resource(id, GetTypeID<Font>(), name){};
 		virtual ~Font();
 
 		void				GenerateHW(LinaVG::Text& lvgText);

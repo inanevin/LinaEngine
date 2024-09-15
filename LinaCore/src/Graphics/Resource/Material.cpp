@@ -90,9 +90,8 @@ namespace Lina
 
 	void Material::SetShader(Shader* shader)
 	{
-		m_shader	 = shader;
-		m_shaderSID	 = shader->GetSID();
-		m_shaderPath = shader->GetPath();
+		m_shader   = shader;
+		m_shaderID = shader->GetID();
 	}
 
 	void Material::ResetProperties()
@@ -114,8 +113,7 @@ namespace Lina
 	{
 		Resource::SaveToStream(stream);
 		stream << VERSION;
-		stream << m_shaderSID;
-		stream << m_shaderPath;
+		stream << m_shaderID;
 		stream << m_properties;
 	}
 
@@ -124,15 +122,14 @@ namespace Lina
 		Resource::LoadFromStream(stream);
 		uint32 version = 0;
 		stream >> version;
-		stream >> m_shaderSID;
-		stream >> m_shaderPath;
+		stream >> m_shaderID;
 		stream >> m_properties;
 	}
 
 	Shader* Material::GetShader(ResourceManagerV2* rm)
 	{
 		if (m_shader == nullptr)
-			m_shader = rm->GetResource<Shader>(m_shaderSID);
+			m_shader = rm->GetResource<Shader>(m_shaderID);
 
 		return m_shader;
 	}

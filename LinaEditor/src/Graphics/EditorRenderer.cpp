@@ -277,6 +277,21 @@ namespace Lina::Editor
 		m_surfaceRenderers.erase(linatl::find_if(m_surfaceRenderers.begin(), m_surfaceRenderers.end(), [sr](SurfaceRenderer* rend) -> bool { return sr == rend; }));
 	}
 
+    void EditorRenderer::OnResourceUnloaded(const Vector<ResourceDef> &resources)
+    {
+        bool bindlessDirty      = false;
+        
+        for(const ResourceDef& def : resources)
+        {
+            if(def.tid == GetTypeID<Texture>() || def.tid == GetTypeID<TextureSampler>() || def.tid == GetTypeID<Material>())
+                bindlessDirty = true;
+        }
+        
+        if(bindlessDirty)
+            MarkBindlessDirty();
+        
+    }
+
 	void EditorRenderer::OnResourceLoadEnded(int32 taskID, const Vector<Resource*>& resources)
 	{
 		bool bindlessDirty = false;
@@ -310,10 +325,7 @@ namespace Lina::Editor
 		}
 
 		if (bindlessDirty)
-		{
-			for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-				m_pfd[i].bindlessDirty = true;
-		}
+            MarkBindlessDirty();
 	}
 
 	void EditorRenderer::BumpAndSendTransfers(uint32 frameIndex)

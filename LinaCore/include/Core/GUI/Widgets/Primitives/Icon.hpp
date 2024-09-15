@@ -50,7 +50,7 @@ namespace Lina
 			bool			 _fold = false;
 			Delegate<void()> onClicked;
 			String			 icon					= "";
-			StringID		 font					= Theme::GetDef().iconFont;
+			ResourceID		 font					= Theme::GetDef().iconFont;
 			ColorGrad		 color					= Theme::GetDef().foreground0;
 			Color			 colorHovered			= Theme::GetDef().foreground0;
 			Color			 colorPressed			= Theme::GetDef().foreground0;

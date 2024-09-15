@@ -149,9 +149,7 @@ namespace Lina::Editor
 		btnLoad->SetAlignedPosY(0.5f);
 		btnLoad->SetAnchorY(Anchor::Center);
 		btnLoad->SetAlignedSizeY(1.0f);
-		btnLoad->GetProps().onClicked = [this]() {
-			CommonWidgets::ThrowResourceSelector(this, GetTypeID<GUIWidget>(), [this](ResourceDirectory* dir) { CheckSaveCurrent([this, dir]() { OpenWidget(dir->resourceID); }); });
-		};
+		btnLoad->GetProps().onClicked = [this]() { CommonWidgets::ThrowResourceSelector(this, GetTypeID<GUIWidget>(), [this](ResourceDirectory* dir) { CheckSaveCurrent([this, dir]() { OpenWidget(dir->resourceID); }); }); };
 		buttons->AddChild(btnLoad);
 
 		Button* btnSave = WidgetUtility::BuildIconTextButton(this, ICON_SAVE, Locale::GetStr(LocaleStr::Save));
@@ -161,7 +159,7 @@ namespace Lina::Editor
 		btnSave->SetAlignedSizeY(1.0f);
 		btnSave->GetProps().onClicked = [this]() {
 			if (m_currentWidget)
-				m_editor->GetResourcePipeline().SaveResource(m_currentWidget);
+				m_editor->GetResourceManagerV2().SaveResource(m_editor->GetProjectManager().GetProjectData(), m_currentWidget);
 		};
 		buttons->AddChild(btnSave);
 
@@ -667,7 +665,7 @@ namespace Lina::Editor
 	void PanelWidgetEditor::OpenWidget(ResourceID id)
 	{
 		m_propertiesArea->Refresh(nullptr);
-		m_currentWidget = m_editor->GetResourcePipeline().OpenResource<GUIWidget>(id, (void*)m_manager);
+		m_currentWidget = m_editor->GetResourceManagerV2().OpenResource<GUIWidget>(m_editor->GetProjectManager().GetProjectData(), id, (void*)m_manager);
 
 		RefreshHierarchy();
 
@@ -687,9 +685,9 @@ namespace Lina::Editor
 	void PanelWidgetEditor::CloseCurrent(bool save)
 	{
 		if (save)
-			m_editor->GetResourcePipeline().CloseAndSaveResource<GUIWidget>(m_currentWidget);
+			m_editor->GetResourceManagerV2().CloseResource(m_editor->GetProjectManager().GetProjectData(), m_currentWidget, true);
 		else
-			m_editor->GetResourcePipeline().CloseResource<GUIWidget>(m_currentWidget);
+			m_editor->GetResourceManagerV2().CloseResource(m_editor->GetProjectManager().GetProjectData(), m_currentWidget, false);
 
 		m_gridParent->RemoveChild(&m_currentWidget->GetRoot());
 	}

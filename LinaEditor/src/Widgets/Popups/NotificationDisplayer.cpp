@@ -195,7 +195,7 @@ namespace Lina::Editor
 			text->SetAlignedPos(0.0f);
 			text->GetProps().text = desc.title;
 			text->SetAnchorY(Anchor::Center);
-			text->GetProps().font = BIG_FONT_SID;
+			text->GetProps().font = BIG_FONT_ID;
 			progressContainer->AddChild(text);
 
 			Slider* slider = m_manager->Allocate<Slider>("Slider");
@@ -219,7 +219,7 @@ namespace Lina::Editor
 			text->GetFlags().Set(WF_POS_ALIGN_Y);
 			text->SetAlignedPosY(0.5f);
 			text->SetAnchorY(Anchor::Center);
-			text->GetProps().font = BIG_FONT_SID;
+			text->GetProps().font = BIG_FONT_ID;
 			notification->AddChild(text);
 		}
 
@@ -227,7 +227,7 @@ namespace Lina::Editor
 		{
 			Button* button					   = m_manager->Allocate<Button>("Button");
 			button->GetText()->GetProps().text = desc.buttonText;
-			button->GetText()->GetProps().font = BIG_FONT_SID;
+			button->GetText()->GetProps().font = BIG_FONT_ID;
 			button->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_SIZE_X_TOTAL_CHILDREN);
 			button->SetAlignedPosY(0.5f);
 			button->SetAnchorY(Anchor::Center);

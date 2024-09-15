@@ -53,11 +53,11 @@ namespace Lina
 		stream >> m_model >> m_material >> m_meshIndex;
 	}
 
-	void MeshComponent::SetMesh(StringID sid, uint32 meshIndex)
+	void MeshComponent::SetMesh(ResourceID id, uint32 meshIndex)
 	{
 		m_entity->RemoveAABB(m_usedLocalAABB);
-		m_model.sid		= sid;
-		m_model.raw		= m_resourceManager->GetResource<Model>(m_model.sid);
+		m_model.id		= id;
+		m_model.raw		= m_resourceManager->GetResource<Model>(m_model.id);
 		m_meshIndex		= meshIndex;
 		m_mesh			= m_model.raw->GetMesh(m_meshIndex);
 		m_usedLocalAABB = m_mesh->GetAABB();
@@ -67,7 +67,7 @@ namespace Lina
 	void MeshComponent::SetMesh(Model* model, uint32 meshIndex)
 	{
 		m_entity->RemoveAABB(m_usedLocalAABB);
-		m_model.sid		= model->GetSID();
+        m_model.id		= model->GetID();
 		m_model.raw		= model;
 		m_meshIndex		= meshIndex;
 		m_mesh			= m_model.raw->GetMesh(m_meshIndex);
@@ -75,15 +75,15 @@ namespace Lina
 		m_entity->AddAABB(m_usedLocalAABB);
 	}
 
-	void MeshComponent::SetMaterial(StringID sid)
+	void MeshComponent::SetMaterial(ResourceID id)
 	{
-		m_material.sid = sid;
-		m_material.raw = m_resourceManager->GetResource<Material>(m_material.sid);
+		m_material.id = id;
+		m_material.raw = m_resourceManager->GetResource<Material>(m_material.id);
 	}
 
 	void MeshComponent::SetMaterial(Material* mat)
 	{
-		m_material.sid = mat->GetSID();
+        m_material.id = mat->GetID();
 		m_material.raw = mat;
 	}
 

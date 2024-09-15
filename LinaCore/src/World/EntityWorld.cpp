@@ -42,10 +42,6 @@ namespace Lina
 {
 #define ENTITY_VEC_SIZE_CHUNK 2000
 
-	EntityWorld::EntityWorld(const String& path, StringID sid)
-		: Resource(path, sid, GetTypeID<EntityWorld>()), m_physicsWorld(this){
-
-														 };
 
 	EntityWorld::~EntityWorld()
 	{

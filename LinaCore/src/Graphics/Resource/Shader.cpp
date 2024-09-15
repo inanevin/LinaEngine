@@ -149,7 +149,7 @@ namespace Lina
 
 		if (!success)
 		{
-			LINA_ERR("Shader: Failed compiling shader! {0}", m_path);
+			LINA_ERR("Shader: Failed compiling shader! {0}", m_name);
 		}
 
 		if (m_meta.variants.empty())
@@ -158,7 +158,7 @@ namespace Lina
 
 	void Shader::SaveToStream(OStream& stream) const
 	{
-        Resource::SaveToStream(stream);
+		Resource::SaveToStream(stream);
 		stream << VERSION;
 		stream << m_meta;
 
@@ -179,7 +179,7 @@ namespace Lina
 
 	void Shader::LoadFromStream(IStream& stream)
 	{
-        Resource::LoadFromStream(stream);
+		Resource::LoadFromStream(stream);
 		uint32 version = 0;
 		stream >> version;
 		stream >> m_meta;
@@ -279,7 +279,7 @@ namespace Lina
 				.depthBiasSlope			 = variant.depthBiasSlope,
 				.drawIndirectEnabled	 = m_meta.drawIndirectEnabled,
 				.useCustomPipelineLayout = false,
-				.debugName				 = m_path.c_str(),
+				.debugName				 = m_name.c_str(),
 			});
 		}
 

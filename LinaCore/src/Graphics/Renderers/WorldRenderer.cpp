@@ -685,7 +685,7 @@ namespace Lina
 
 		Vector<WidgetComponent*> widgets = m_widgetComponents;
 
-		linatl::sort(widgets.begin(), widgets.end(), [](WidgetComponent* c1, WidgetComponent* c2) -> bool { return c1->GetMaterial()->GetShaderSID() < c2->GetMaterial()->GetShaderSID(); });
+		linatl::sort(widgets.begin(), widgets.end(), [](WidgetComponent* c1, WidgetComponent* c2) -> bool { return c1->GetMaterial()->GetShaderID() < c2->GetMaterial()->GetShaderID(); });
 
 		Shader* lastBoundWidgetShader = nullptr;
 
@@ -812,6 +812,29 @@ namespace Lina
 		return currentFrame.copySemaphore.GetValue();
 	}
 
+	void WorldRenderer::OnResourceUnloaded(const Vector<ResourceDef>& resources)
+	{
+		bool bindlessDirty	  = false;
+		bool meshManagerDirty = false;
+
+		for (const ResourceDef& def : resources)
+		{
+			if (def.tid == GetTypeID<Texture>() || def.tid == GetTypeID<TextureSampler>() || def.tid == GetTypeID<Material>())
+				bindlessDirty = true;
+
+			if (def.tid == GetTypeID<Model>())
+				meshManagerDirty = true;
+		}
+
+		if (bindlessDirty)
+			MarkBindlessDirty();
+
+		if (meshManagerDirty)
+		{
+			// TODO:
+		}
+	}
+
 	void WorldRenderer::OnResourceLoadEnded(int32 taskID, const Vector<Resource*>& resources)
 	{
 		bool bindlessDirty	  = false;
@@ -840,7 +863,7 @@ namespace Lina
 			else if (res->GetTID() == GetTypeID<Material>())
 			{
 				Material* mat = static_cast<Material*>(res);
-				mat->SetShader(m_resourceManagerV2->GetResource<Shader>(mat->GetShaderSID()));
+				mat->SetShader(m_resourceManagerV2->GetResource<Shader>(mat->GetShaderID()));
 				bindlessDirty = true;
 			}
 			else if (res->GetTID() == GetTypeID<Font>())
@@ -862,10 +885,7 @@ namespace Lina
 		}
 
 		if (bindlessDirty)
-		{
-			for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-				m_pfd[i].bindlessDirty = true;
-		}
+			MarkBindlessDirty();
 
 		if (meshManagerDirty)
 		{

@@ -79,6 +79,7 @@ namespace Lina::Editor
 		void RemoveSurfaceRenderer(SurfaceRenderer* sr);
 
 		virtual void OnResourceLoadEnded(int32 taskID, const Vector<Resource*>& resources) override;
+		virtual void OnResourceUnloaded(const Vector<ResourceDef>& resources) override;
 
 		inline GUIBackend& GetGUIBackend()
 		{

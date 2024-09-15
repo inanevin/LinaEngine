@@ -111,6 +111,7 @@ namespace Lina
 		void Resize(const Vector2ui& newSize);
 
 		virtual void OnResourceLoadEnded(int32 taskID, const Vector<Resource*>& resources) override;
+		virtual void OnResourceUnloaded(const Vector<ResourceDef>& resources) override;
 		virtual void OnComponentAdded(Component* c) override;
 		virtual void OnComponentRemoved(Component* c) override;
 

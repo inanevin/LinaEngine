@@ -219,7 +219,7 @@ namespace Lina
 			.width	   = m_allLevels[0].width,
 			.height	   = m_allLevels[0].height,
 			.mipLevels = static_cast<uint32>(m_allLevels.size()),
-			.debugName = m_path.c_str(),
+			.debugName = m_name.c_str(),
 		};
 		m_gpuHandle		  = GfxManager::GetLGX()->CreateTexture(desc);
 		m_gpuHandleExists = true;

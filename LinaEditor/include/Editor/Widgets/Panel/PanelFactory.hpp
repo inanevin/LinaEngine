@@ -41,7 +41,7 @@ namespace Lina::Editor
 	class PanelFactory
 	{
 	public:
-		static Panel* CreatePanel(Widget* source, PanelType type, StringID subData);
+		static Panel* CreatePanel(Widget* source, PanelType type, ResourceID subData);
 
 	private:
 	};

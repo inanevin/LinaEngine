@@ -45,9 +45,9 @@ namespace Lina
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
 
-		void SetMesh(StringID model, uint32 meshIndex);
+		void SetMesh(ResourceID model, uint32 meshIndex);
 		void SetMesh(Model* model, uint32 meshIndex);
-		void SetMaterial(StringID sid);
+		void SetMaterial(ResourceID id);
 		void SetMaterial(Material* mat);
 
 		virtual TypeID GetComponentType() override

@@ -54,14 +54,14 @@ namespace Lina::Editor
 			m_lastProjectPath = path;
 		}
 
-		inline const String& GetLastWorldAbsPath() const
+		inline ResourceID GetLastWorldID() const
 		{
-			return m_lastWorldAbsPath;
+			return m_lastWorldID;
 		}
 
-		inline void SetLastWorldAbsPath(const String& path)
+		inline void SetLastWorldID(ResourceID id)
 		{
-			m_lastWorldAbsPath = path;
+            m_lastWorldID = id;
 		}
 
 		inline EditorLayout& GetLayout()
@@ -71,7 +71,7 @@ namespace Lina::Editor
 
 	private:
 		String		 m_lastProjectPath	= "";
-		String		 m_lastWorldAbsPath = "";
+        ResourceID m_lastWorldID = 0;
 		EditorLayout m_layout			= {};
 	};
 

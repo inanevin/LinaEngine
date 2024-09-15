@@ -41,8 +41,7 @@ namespace Lina
 			void LoadFromStream(IStream& in);
 		};
 
-		Audio(const String& path, StringID sid) : Resource(path, sid, GetTypeID<Audio>()){};
-		Audio(ResourceID id, const String& name) : Resource(id, name){};
+		Audio(ResourceID id, const String& name) : Resource(id, GetTypeID<Audio>(), name){};
 		virtual ~Audio();
 
 		static constexpr uint32 VERSION = 0;

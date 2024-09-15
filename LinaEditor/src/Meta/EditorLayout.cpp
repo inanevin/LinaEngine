@@ -82,47 +82,48 @@ namespace Lina::Editor
 		// Entities
 		wl.dockWidgets.push_back({
 			.alignedPos	 = Vector2::Zero,
-			.alignedSize = Vector2(0.25f, 0.75f),
+			.alignedSize = Vector2(0.25f, 0.6f),
 			.panels		 = {{.panelType = PanelType::Entities}},
+		});
+
+		// Resource directory browser
+		wl.dockWidgets.push_back({
+			.alignedPos	 = Vector2(0.0f, 0.6f),
+			.alignedSize = Vector2(0.25f, 0.4f),
+			.panels		 = {{.panelType = PanelType::ResourceBrowser}},
 		});
 
 		// World
 		wl.dockWidgets.push_back({
 			.alignedPos	 = Vector2(0.25f, 0.0f),
-			.alignedSize = Vector2(0.75f, 0.75f),
+			.alignedSize = Vector2(0.75f, 1.0f),
 			.panels		 = {{.panelType = PanelType::World}},
 		});
 
-		// Resources
+		/*
 		OStream resExtra;
 		PanelResourceBrowser::SaveLayoutDefaults(resExtra);
-
 		PanelData panelRes = {
 			.panelType = PanelType::ResourceBrowser,
 		};
 		resExtra.WriteTo(panelRes.layoutData);
 		resExtra.Destroy();
+		 */
 
+		// Border: Entities | Resources
 		wl.dockWidgets.push_back({
-			.alignedPos	 = Vector2(0.0f, 0.75f),
-			.alignedSize = Vector2(1.0f, 0.25f),
-			.panels		 = {panelRes},
-		});
-
-		// Border: Entities | World
-		wl.dockWidgets.push_back({
-			.alignedPos	  = Vector2(0.25f, 0.0f),
-			.alignedSize  = Vector2(0.0f, 0.75f),
-			.isBorder	  = true,
-			.isHorizontal = false,
-		});
-
-		// Border: Upper | Resources
-		wl.dockWidgets.push_back({
-			.alignedPos	  = Vector2(0.0f, 0.75f),
-			.alignedSize  = Vector2(1.0f, 0.0f),
+			.alignedPos	  = Vector2(0.0, 0.6f),
+			.alignedSize  = Vector2(0.25f, 0.0f),
 			.isBorder	  = true,
 			.isHorizontal = true,
+		});
+
+		// Border: Left | Right
+		wl.dockWidgets.push_back({
+			.alignedPos	  = Vector2(0.25f, 0.0f),
+			.alignedSize  = Vector2(0.0f, 1.0f),
+			.isBorder	  = true,
+			.isHorizontal = false,
 		});
 
 		m_windows.push_back(wl);

@@ -37,13 +37,13 @@ namespace Lina
 	{
 	}
 
-	GUIWidget::GUIWidget(ResourceID id, void* subdata) : Resource(id)
+	void GUIWidget::SetSubdata(void* subdata)
 	{
 		if (subdata == nullptr)
 			return;
 		WidgetManager* wm = static_cast<WidgetManager*>(subdata);
 		m_root.SetWidgetManager(wm);
-	};
+	}
 
 	void GUIWidget::LoadFromFile(const String& path)
 	{

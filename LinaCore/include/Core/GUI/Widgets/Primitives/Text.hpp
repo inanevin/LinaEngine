@@ -46,7 +46,7 @@ namespace Lina
 		{
 			Delegate<void()>	  onClicked;
 			String				  text						= "";
-			StringID			  font						= Theme::GetDef().defaultFont;
+			ResourceID			  font						= Theme::GetDef().defaultFont;
 			ColorGrad			  color						= Theme::GetDef().foreground0;
 			Color				  colorDisabled				= Theme::GetDef().silent1;
 			LinaVG::TextAlignment alignment					= LinaVG::TextAlignment::Left;

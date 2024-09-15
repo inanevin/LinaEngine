@@ -52,6 +52,8 @@ namespace Lina
 		virtual void SaveToStream(OStream& out) override;
 		virtual void LoadFromStream(IStream& in) override;
 		void		 ToRelativePath(const String& absPath, String& outRelative);
+		String		 GetResourceDirectory();
+		String		 GetResourcePath(ResourceID id);
 
 		inline void SetProjectName(const String& name)
 		{

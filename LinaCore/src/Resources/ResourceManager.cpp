@@ -73,26 +73,14 @@ namespace Lina
 		m_loadTasks.clear();
 	}
 
-	void ResourceManagerV2::LoadResourcesFromFile(ApplicationDelegate* delegate, const Vector<ResourceDef>& resourceDefs, const String& cachePath, int32 taskID)
+	void ResourceManagerV2::LoadResourcesFromFile(ApplicationDelegate* delegate, ProjectData* project, const Vector<ResourceDef>& resourceDefs, int32 taskID)
 	{
 		for (ResourceManagerListener* listener : m_listeners)
 			listener->OnResourceLoadStarted(taskID, resourceDefs);
 
 		for (const ResourceDef& def : resourceDefs)
 		{
-			auto			   it	 = m_caches.find(def.tid);
-			ResourceCacheBase* cache = nullptr;
-			if (it == m_caches.end())
-			{
-				MetaType& type	  = ReflectionSystem::Get().Resolve(def.tid);
-				void*	  ptr	  = type.GetFunction<void*()>("CreateResourceCache"_hs)();
-				cache			  = static_cast<ResourceCacheBase*>(ptr);
-				m_caches[def.tid] = cache;
-			}
-			else
-				cache = it->second;
-
-			cache->Create(def.id, def.name);
+			GetCache(def.tid)->Create(def.id, def.name);
 		}
 
 		ResourceLoadTask* loadTask = new ResourceLoadTask();
@@ -102,9 +90,10 @@ namespace Lina
 		loadTask->resources.resize(resourceDefs.size());
 		m_loadTasks.push_back(loadTask);
 
+		uint32 idx = 0;
 		for (const ResourceDef& def : resourceDefs)
 		{
-			loadTask->tf.emplace([delegate, def, this, loadTask, cachePath, taskID]() {
+			loadTask->tf.emplace([delegate, idx, def, this, loadTask, taskID, project]() {
 				auto&	  cache			 = m_caches.at(def.tid);
 				Resource* res			 = cache->Get(def.id);
 				loadTask->resources[idx] = res;
@@ -120,116 +109,22 @@ namespace Lina
 				}
 				metaStream.Destroy();
 
-				const String resourcePath = cachePath + "/Resource_" + TO_STRING(def.id) + ".linaresource";
-				IStream		 stream		  = Serialization::LoadFromFile(resourcePath);
-				res->LoadFromStream(stream);
-				stream.Destroy();
+				if (project == nullptr)
+				{
+					res->LoadFromFile(def.name);
+					res->SetID(def.id);
+					res->SetName(def.name);
+				}
+				else
+				{
+					IStream stream = Serialization::LoadFromFile(project->GetResourcePath(def.id).c_str());
+					res->LoadFromStream(stream);
+					stream.Destroy();
+				}
 
-				LINA_TRACE("[Resource] -> Loaded resource: {0}", def.id);
+				LINA_TRACE("[Resource] -> Loaded resource: {0}", def.name);
 				for (ResourceManagerListener* listener : m_listeners)
 					listener->OnResourceLoaded(taskID, def);
-			});
-		}
-
-		m_executor.Run(loadTask->tf, [loadTask, this]() {
-			loadTask->isCompleted.store(true);
-			loadTask->endTime = PlatformTime::GetCPUCycles();
-		});
-	}
-
-	void ResourceManagerV2::LoadResourcesFromFile(ApplicationDelegate* delegate, int32 taskID, const Vector<ResourceIdentifier>& identifiers, const String& cachePath, const String& projectPath)
-	{
-		/*
-		Vector<ResourceIdentifier> idents = identifiers;
-
-		for (auto& ident : idents)
-		{
-			ident.sid				 = TO_SID(ident.relativePath);
-			auto			   it	 = m_caches.find(ident.tid);
-			ResourceCacheBase* cache = nullptr;
-			if (it == m_caches.end())
-			{
-				MetaType& type		= ReflectionSystem::Get().Resolve(ident.tid);
-				void*	  ptr		= type.GetFunction<void*()>("CreateResourceCache"_hs)();
-				cache				= static_cast<ResourceCacheBase*>(ptr);
-				m_caches[ident.tid] = cache;
-			}
-			else
-				cache = it->second;
-			cache->Create(ident.relativePath, ident.sid);
-		}
-
-		for (ResourceManagerListener* listener : m_listeners)
-			listener->OnResourceLoadStarted(taskID, idents);
-
-		ResourceLoadTask* loadTask = new ResourceLoadTask();
-		loadTask->id			   = taskID;
-		loadTask->identifiers	   = idents;
-		loadTask->startTime		   = PlatformTime::GetCPUCycles();
-		loadTask->resources.resize(idents.size());
-		m_loadTasks.push_back(loadTask);
-
-		uint32 idx = 0;
-
-		for (const auto& ident : idents)
-		{
-			loadTask->tf.emplace([idx, delegate, projectPath, ident, this, loadTask, cachePath, taskID]() {
-				auto&	  cache			 = m_caches.at(ident.tid);
-				Resource* res			 = cache->Get(ident.sid);
-				loadTask->resources[idx] = res;
-
-				String fullPath = FileSystem::GetRunningDirectory() + "/" + ident.relativePath;
-				if (!FileSystem::FileOrPathExists(fullPath))
-					fullPath = projectPath + "/" + ident.relativePath;
-
-				const String metacachePath = cachePath + TO_STRING(TO_SID(fullPath)) + ".linameta";
-				const bool	 exists		   = !cachePath.empty() && FileSystem::FileOrPathExists(metacachePath);
-
-				const StringID lastModifiedDate = TO_SID(FileSystem::GetLastModifiedDate(fullPath));
-
-				if (exists)
-				{
-					IStream	 input				 = Serialization::LoadFromFile(metacachePath.c_str());
-					StringID lastModifiedInCache = 0;
-					input >> lastModifiedInCache;
-
-					if (lastModifiedInCache == lastModifiedDate)
-					{
-						res->LoadFromStream(input);
-						input.Destroy();
-						LINA_TRACE("[Resource] -> Loaded resource: {0}", ident.relativePath);
-						for (ResourceManagerListener* listener : m_listeners)
-							listener->OnResourceLoaded(taskID, ident);
-						return;
-					}
-					else
-					{
-						input.Destroy();
-					}
-				}
-
-				// Some resources have preliminary/initial metadata.
-				OStream metaStream;
-				if (delegate->FillResourceCustomMeta(ident.sid, metaStream))
-				{
-					IStream in;
-					in.Create(metaStream.GetDataRaw(), metaStream.GetCurrentSize());
-					res->SetCustomMeta(in);
-					in.Destroy();
-				}
-				metaStream.Destroy();
-
-				res->LoadFromFile(fullPath.c_str());
-
-				OStream metastream;
-				metastream << lastModifiedDate;
-				res->SaveToStream(metastream);
-				Serialization::SaveToFile(metacachePath.c_str(), metastream);
-				metastream.Destroy();
-
-				LINA_TRACE("[Resource] -> Loaded resource: {0}", ident.relativePath);
-				for (ResourceManagerListener* listener : m_listeners)
-					listener->OnResourceLoaded(taskID, ident);
 			});
 
 			idx++;
@@ -239,7 +134,28 @@ namespace Lina
 			loadTask->isCompleted.store(true);
 			loadTask->endTime = PlatformTime::GetCPUCycles();
 		});
-		 */
+	}
+
+	void ResourceManagerV2::UnloadResources(const Vector<Resource*>& resources)
+	{
+		for (ResourceManagerListener* listener : m_listeners)
+			listener->OnResourcePreUnloaded(resources);
+
+		Vector<ResourceDef> defs;
+		for (Resource* res : resources)
+		{
+			defs.push_back({
+				.id	  = res->GetID(),
+				.name = res->GetName(),
+				.tid  = res->GetTID(),
+			});
+
+			ResourceCacheBase* cache = GetCache(res->GetTID());
+			cache->Destroy(res->GetID());
+		}
+
+		for (ResourceManagerListener* listener : m_listeners)
+			listener->OnResourceUnloaded(defs);
 	}
 
 	void ResourceManagerV2::Poll()
@@ -263,6 +179,52 @@ namespace Lina
 		LINA_TRACE("[Resource Manager] -> Load task complete: {0} seconds", PlatformTime::GetDeltaSeconds64(task->startTime, task->endTime));
 		for (ResourceManagerListener* listener : m_listeners)
 			listener->OnResourceLoadEnded(task->id, task->resources);
+	}
+
+	Resource* ResourceManagerV2::OpenResource(ProjectData* project, TypeID typeID, ResourceID resourceID, void* subdata)
+	{
+		const String path = project->GetResourcePath(resourceID);
+		if (!FileSystem::FileOrPathExists(path))
+			return nullptr;
+
+		ResourceCacheBase* cache = GetCache(typeID);
+		Resource*		   res	 = cache->Create(resourceID, "");
+		res->SetSubdata(subdata);
+		IStream stream = Serialization::LoadFromFile(path.c_str());
+		res->LoadFromStream(stream);
+		stream.Destroy();
+		return res;
+	}
+
+	void ResourceManagerV2::CloseResource(ProjectData* project, Resource* res, bool save)
+	{
+		ResourceCacheBase* cache = GetCache(res->GetTID());
+		if (save)
+			res->SaveToFileAsBinary(project->GetResourcePath(res->GetID()).c_str());
+
+		cache->Destroy(res->GetID());
+	}
+
+	ResourceCacheBase* ResourceManagerV2::GetCache(TypeID tid)
+	{
+		auto			   it	 = m_caches.find(tid);
+		ResourceCacheBase* cache = nullptr;
+		if (it == m_caches.end())
+		{
+			MetaType& type = ReflectionSystem::Get().Resolve(tid);
+			void*	  ptr  = type.GetFunction<void*()>("CreateResourceCache"_hs)();
+			cache		   = static_cast<ResourceCacheBase*>(ptr);
+			m_caches[tid]  = cache;
+		}
+		else
+			cache = it->second;
+
+		return cache;
+	}
+
+	void ResourceManagerV2::SaveResource(ProjectData* project, Resource* res)
+	{
+		res->SaveToFileAsBinary(project->GetResourcePath(res->GetID()).c_str());
 	}
 
 } // namespace Lina

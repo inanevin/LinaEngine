@@ -52,7 +52,7 @@ namespace Lina::Editor
 	{
 	public:
 		Panel() = default;
-		Panel(PanelType type, StringID subData, uint32 flags = 0) : m_panelType(type), m_subData(subData), m_panelFlags(flags), Widget(){};
+		Panel(PanelType type, ResourceID subData, uint32 flags = 0) : m_panelType(type), m_subData(subData), m_panelFlags(flags), Widget(){};
 		virtual ~Panel() = default;
 
 		virtual void SaveLayoutToStream(OStream& stream){};
@@ -64,7 +64,7 @@ namespace Lina::Editor
 			return m_panelType;
 		}
 
-		inline StringID GetSubData() const
+		inline ResourceID GetSubData() const
 		{
 			return m_subData;
 		}
@@ -74,9 +74,14 @@ namespace Lina::Editor
 			return m_panelFlags;
 		}
 
+        inline ResourceID SetSubdata(ResourceID data)
+        {
+            m_subData = data;
+        }
+        
 	protected:
 		PanelType m_panelType  = PanelType::ResourceBrowser;
-		StringID  m_subData	   = 0;
+		ResourceID  m_subData	   = 0;
 		Bitmask32 m_panelFlags = 0;
 	};
 

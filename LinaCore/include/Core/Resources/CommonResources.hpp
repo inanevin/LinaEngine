@@ -53,20 +53,12 @@ namespace Lina
 	{
 	};
 
-	struct ResourceIdentifier
-	{
-		String	 relativePath = "";
-		TypeID	 tid		  = 0;
-		StringID sid		  = 0;
-		void	 SaveToStream(OStream& stream) const;
-		void	 LoadFromStream(IStream& stream);
-	};
 
 	struct ResourceDef
 	{
 		ResourceID id	= 0;
-		TypeID	   tid	= 0;
 		String	   name = "";
+        TypeID     tid    = 0;
 	};
 
 	struct ResourceLoadTask
