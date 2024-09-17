@@ -184,12 +184,12 @@ namespace Lina::Editor
 			dd->GetText()->GetProps().text = "None";
 			dd->GetProps().onAddItems	   = [&](Popup* popup) {
 				 for (int32 i = 0; i < 3; i++)
-                     popup->AddToggleItem(dummyDropdownItems[i], i == selectedDropdownItem, i);
+					 popup->AddToggleItem(dummyDropdownItems[i], i == selectedDropdownItem, i);
 			};
 
 			dd->GetProps().onSelected = [&](int32 selected, String& outNewTitle) -> bool {
 				selectedDropdownItem = selected;
-                outNewTitle = dummyDropdownItems[selected];
+				outNewTitle			 = dummyDropdownItems[selected];
 				return true;
 			};
 
