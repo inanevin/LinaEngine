@@ -79,7 +79,7 @@ namespace Lina::Editor
 		static Widget* BuildDirectoryItemListView(Widget* src, DirectoryItem* item);
 		static Widget* BuildDirectoryItemGridView(Widget* src, DirectoryItem* item, const Vector2& itemSize);
 
-		static Widget*	   BuildFieldLayout(Widget* src, uint32 dependencies, const String& title, bool isFoldLayout);
+		static Widget*	   BuildFieldLayout(Widget* src, uint32 dependencies, const String& title, bool isFoldLayout, bool addTitle = true);
 		static Widget*	   BuildField(Widget* src, const String& title, void* memberVariablePtr, MetaType& metaType, FieldBase* field, StringID fieldType, Delegate<void(const MetaType& meta, FieldBase* field)> onFieldChanged, int32 vectorElementIndex = -1);
 		static FoldLayout* BuildFoldTitle(Widget* src, const String& title, bool* foldValue);
 		static Widget*	   BuildColorGradSlider(Widget* src, ColorGrad* color, MetaType& meta, FieldBase* field, Delegate<void(const MetaType& meta, FieldBase* field)> onFieldChanged);

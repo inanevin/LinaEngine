@@ -853,7 +853,7 @@ namespace Lina::Editor
 		return fold;
 	}
 
-	Widget* CommonWidgets::BuildFieldLayout(Widget* src, uint32 dependencies, const String& title, bool isFoldLayout)
+	Widget* CommonWidgets::BuildFieldLayout(Widget* src, uint32 dependencies, const String& title, bool isFoldLayout, bool addTitle)
 	{
 		WidgetManager* wm = src->GetWidgetManager();
 
@@ -908,12 +908,15 @@ namespace Lina::Editor
 			fold->GetProps().onFoldChanged = [icn](bool unfolded) { icn->GetProps().icon = unfolded ? ICON_CHEVRON_DOWN : ICON_CHEVRON_RIGHT; };
 		}
 
-		Text* txt			 = wm->Allocate<Text>("FieldTitle");
-		txt->GetProps().text = title;
-		txt->GetFlags().Set(WF_POS_ALIGN_Y);
-		txt->SetAlignedPosY(0.5f);
-		txt->SetAnchorY(Anchor::Center);
-		layout->AddChild(txt);
+		if (addTitle)
+		{
+			Text* txt			 = wm->Allocate<Text>("FieldTitle");
+			txt->GetProps().text = title;
+			txt->GetFlags().Set(WF_POS_ALIGN_Y);
+			txt->SetAlignedPosY(0.5f);
+			txt->SetAnchorY(Anchor::Center);
+			layout->AddChild(txt);
+		}
 
 		return isFoldLayout ? static_cast<Widget*>(fold) : static_cast<Widget*>(layout);
 	}
@@ -1009,22 +1012,17 @@ namespace Lina::Editor
 		rightSide->SetAlignedSizeY(1.0f);
 		rightSide->GetProps().mode = DirectionalLayout::Mode::EqualSizes;
 		rightSide->SetAnchorX(Anchor::End);
+		rightSide->GetWidgetProps().debugName = title;
 		layout->AddChild(rightSide);
 
-		bool   hasLimits = false;
-		String min = "", max = "", step = "";
-		float  minFloat = 0.0f, maxFloat = 0.0f, stepFloat = 0.0f;
-		if (field->HasProperty<String>("Min"_hs))
+		bool  hasLimits = false;
+		float minFloat = 0.0f, maxFloat = 0.0f, stepFloat = 0.0f;
+		if (field->HasProperty<float>("Min"_hs))
 		{
-			min		  = field->GetProperty<String>("Min"_hs);
-			max		  = field->GetProperty<String>("Max"_hs);
-			step	  = field->GetProperty<String>("Step"_hs);
+			minFloat  = field->GetProperty<float>("Min"_hs);
+			maxFloat  = field->GetProperty<float>("Max"_hs);
+			stepFloat = field->GetProperty<float>("Step"_hs);
 			hasLimits = true;
-
-			uint32 outDecimals = 0;
-			minFloat		   = UtilStr::StringToFloat(min, outDecimals);
-			maxFloat		   = UtilStr::StringToFloat(max, outDecimals);
-			stepFloat		   = UtilStr::StringToFloat(step, outDecimals);
 		}
 
 		auto getValueField = [wm, hasLimits, minFloat, maxFloat, stepFloat, onFieldChanged, &metaType, field](void* ptr, uint8 bits, bool isInt = false, bool isUnsigned = false) -> InputField* {
@@ -1035,7 +1033,8 @@ namespace Lina::Editor
 			inp->GetProps().isNumberField = true;
 			inp->GetProps().clampNumber	  = true;
 
-			inp->GetProps().onEditEnd = [onFieldChanged, field, &metaType](const String& str) { onFieldChanged(metaType, field); };
+			inp->GetProps().onEditEnd	   = [onFieldChanged, field, &metaType](const String& str) { onFieldChanged(metaType, field); };
+			inp->GetProps().onValueChanged = [onFieldChanged, field, &metaType](float val) { onFieldChanged(metaType, field); };
 
 			if (hasLimits)
 			{
@@ -1061,13 +1060,13 @@ namespace Lina::Editor
 				popup->GetProps().selectedIcon = ICON_CIRCLE_FILLED;
 				popup->SetPos(inp->GetPos());
 				popup->AddTitleItem("Theme::");
-				popup->AddToggleItem("Theme:BaseIndent", false);
-				popup->AddToggleItem("Theme:BaseIndentInner", false);
-				popup->AddToggleItem("Theme:BaseItemHeight", false);
-				popup->AddToggleItem("Theme:BaseRounding", false);
-				popup->AddToggleItem("Theme:BaseOutlineThickness", false);
-				popup->AddToggleItem("Theme:BaseBorderThickness", false);
-				popup->GetProps().onSelectedItem = [inp](uint32 idx, void* ud) {
+				popup->AddToggleItem("Theme:BaseIndent", false, 0);
+				popup->AddToggleItem("Theme:BaseIndentInner", false, 1);
+				popup->AddToggleItem("Theme:BaseItemHeight", false, 2);
+				popup->AddToggleItem("Theme:BaseRounding", false, 3);
+				popup->AddToggleItem("Theme:BaseOutlineThickness", false, 4);
+				popup->AddToggleItem("Theme:BaseBorderThickness", false, 5);
+				popup->GetProps().onSelectedItem = [inp](int32 idx, void* ud) {
 					float val = 0.0f;
 
 					if (idx == 0)
@@ -1114,7 +1113,7 @@ namespace Lina::Editor
 		{
 			rightSide->AddChild(buildResField(GetTypeID<Texture>()));
 		}
-		else if (fieldType == "Label"_hs)
+		else if (fieldType == "Info"_hs)
 		{
 			String* str = reflectionValue.CastPtr<String>();
 			Text*	txt = wm->Allocate<Text>();
@@ -1169,16 +1168,15 @@ namespace Lina::Editor
 			dd->SetAlignedSize(Vector2(0.0f, 1.0f));
 			dd->SetAlignedPosY(0.0f);
 
-			Bitmask32* mask					  = reflectionValue.CastPtr<Bitmask32>();
-			dd->GetProps().closeOnSelect	  = false;
-			dd->GetProps().switchTextOnSelect = false;
-			dd->GetText()->GetProps().text	  = TO_STRING(mask->GetValue());
+			Bitmask32* mask				   = reflectionValue.CastPtr<Bitmask32>();
+			dd->GetProps().closeOnSelect   = false;
+			dd->GetText()->GetProps().text = TO_STRING(mask->GetValue());
 
 			MetaType&			   subType = ReflectionSystem::Get().Resolve(field->GetProperty<TypeID>("SubType"_hs));
 			PropertyCache<String>* cache   = subType.GetPropertyCacheManager().GetPropertyCache<String>();
 			Vector<String>		   values  = cache->GetSortedVector();
 
-			dd->GetProps().onSelected = [mask, dd, onFieldChanged, &metaType, field](int32 item) -> bool {
+			dd->GetProps().onSelected = [mask, dd, onFieldChanged, &metaType, field](int32 item, String& outNewTitle) -> bool {
 				const uint32 bmVal = 1 << item;
 
 				if (mask->IsSet(bmVal))
@@ -1186,23 +1184,17 @@ namespace Lina::Editor
 				else
 					mask->Set(bmVal);
 
-				dd->GetText()->GetProps().text = TO_STRING(mask->GetValue());
-				dd->GetText()->CalculateTextSize();
+				outNewTitle = TO_STRING(mask->GetValue());
 
 				onFieldChanged(metaType, field);
 
 				return mask->IsSet(bmVal);
 			};
 
-			dd->GetProps().onAddItems = [values, mask](Vector<String>& outItems, Vector<int32>& outSelected) {
+			dd->GetProps().onAddItems = [values, mask](Popup* popup) {
 				const int32 sz = static_cast<int32>(values.size());
 				for (int32 i = 0; i < sz; i++)
-				{
-					outItems.push_back(values[i]);
-					const uint32 bmVal = 1 << (i);
-					if (mask->IsSet(bmVal))
-						outSelected.push_back(i);
-				}
+					popup->AddToggleItem(values[i], mask->IsSet(1 << i), i);
 			};
 
 			rightSide->AddChild(dd);
@@ -1219,18 +1211,32 @@ namespace Lina::Editor
 			PropertyCache<String>* cache   = subType.GetPropertyCacheManager().GetPropertyCache<String>();
 			Vector<String>		   values  = cache->GetSortedVector();
 
-			int32* enumVal			  = reflectionValue.CastPtr<int32>();
-			dd->GetProps().onSelected = [enumVal, onFieldChanged, &metaType, field](int32 item) -> bool {
-				*enumVal = item;
+			int32* enumVal = reflectionValue.CastPtr<int32>();
+
+			Vector<uint32> onlyShow = {};
+			if (field->HasProperty<Vector<uint32>>("OnlyShow"_hs))
+				onlyShow = field->GetProperty<Vector<uint32>>("OnlyShow"_hs);
+
+			dd->GetProps().onSelected = [enumVal, onFieldChanged, &metaType, field, values](int32 item, String& outNewTitle) -> bool {
+				*enumVal	= item;
+				outNewTitle = values[item];
 				onFieldChanged(metaType, field);
 				return true;
 			};
 
-			dd->GetProps().onAddItems = [values, enumVal](Vector<String>& outItems, Vector<int32>& outSelected) {
+			dd->GetProps().onAddItems = [values, enumVal, onlyShow](Popup* popup) {
 				const int32 sz = static_cast<int32>(values.size());
 				for (int32 i = 0; i < sz; i++)
-					outItems.push_back(values[i]);
-				outSelected.push_back(*enumVal);
+				{
+					if (!onlyShow.empty())
+					{
+						auto it = linatl::find_if(onlyShow.begin(), onlyShow.end(), [i](uint32 val) -> bool { return static_cast<uint32>(i) == val; });
+						if (it != onlyShow.end())
+							popup->AddToggleItem(values[i], i == *enumVal, i);
+					}
+					else
+						popup->AddToggleItem(values[i], i == *enumVal, i);
+				}
 			};
 
 			dd->GetText()->GetProps().text = values[*enumVal];

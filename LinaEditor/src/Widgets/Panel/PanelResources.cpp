@@ -186,9 +186,9 @@ namespace Lina::Editor
 			popup->GetProps().selectedIcon = ICON_CIRCLE_FILLED;
 			popup->SetPos(sort->GetPos());
 			popup->AddTitleItem(Locale::GetStr(LocaleStr::ContentSorting));
-			popup->AddToggleItem(Locale::GetStr(LocaleStr::Alphabetical), m_contentSorting == ContentSorting::Alphabetical);
-			popup->AddToggleItem(Locale::GetStr(LocaleStr::TypeBased), m_contentSorting == ContentSorting::TypeBased);
-			popup->GetProps().onSelectedItem = [this](uint32 idx, void* ud) {
+			popup->AddToggleItem(Locale::GetStr(LocaleStr::Alphabetical), m_contentSorting == ContentSorting::Alphabetical, 0);
+			popup->AddToggleItem(Locale::GetStr(LocaleStr::TypeBased), m_contentSorting == ContentSorting::TypeBased, 1);
+			popup->GetProps().onSelectedItem = [this](int32 idx, void* ud) {
 				m_contentSorting = static_cast<ContentSorting>(idx);
 
 				if (m_viewDirectory)

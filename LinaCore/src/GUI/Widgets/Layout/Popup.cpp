@@ -78,7 +78,7 @@ namespace Lina
 
 		if (m_tween.GetIsCompleted() && m_targetScroll != -1)
 		{
-			m_scroll->ScrollToChild(m_items[m_targetScroll]);
+			m_scroll->ScrollToChild(m_items[m_targetScroll].layout);
 			m_targetScroll = -1;
 		}
 
@@ -93,6 +93,7 @@ namespace Lina
 		float totalHeight = 0.0f;
 		for (Widget* c : m_background->GetChildren())
 		{
+
 			totalHeight += c->GetFixedSizeY();
 		}
 
@@ -104,8 +105,9 @@ namespace Lina
 	{
 		m_tween.Tick(delta);
 
-		for (DirectionalLayout* l : m_items)
+		for (const PopupItem& it : m_items)
 		{
+			DirectionalLayout* l					  = it.layout;
 			l->GetWidgetProps().colorBackground.start = Math::Lerp(l->GetWidgetProps().colorBackground.start, l->GetIsHovered() ? Theme::GetDef().accentPrimary0 : Color(0.0f, 0.0f, 0.0f, 0.0f), delta * 20.0f);
 			l->GetWidgetProps().colorBackground.end	  = Math::Lerp(l->GetWidgetProps().colorBackground.end, l->GetIsHovered() ? Theme::GetDef().accentPrimary1 : Color(0.0f, 0.0f, 0.0f, 0.0f), delta * 20.0f);
 		}
@@ -116,17 +118,17 @@ namespace Lina
 		if (button != LINAGX_MOUSE_0 || act != LinaGX::InputAction::Pressed)
 			return false;
 
-		uint32 idx = 0;
+		int32 idx = 0;
 
 		if (m_scroll->GetIsBarVisible() && m_scroll->IsBarHovered())
 			return false;
 
-		for (DirectionalLayout* l : m_items)
+		for (const PopupItem& it : m_items)
 		{
-			if (l->GetIsHovered())
+			if (it.layout->GetIsHovered())
 			{
 				if (m_props.onSelectedItem)
-					m_props.onSelectedItem(idx, l->GetUserData());
+					m_props.onSelectedItem(it.outIndex == -1 ? idx : it.outIndex, it.layout->GetUserData());
 
 				if (m_props.closeOnSelect)
 					m_manager->AddToKillList(this);
@@ -169,10 +171,15 @@ namespace Lina
 
 	void Popup::SwitchToggleItem(int32 item, bool on)
 	{
-		Icon* icn			  = Widget::GetWidgetOfType<Icon>(m_items[item]);
+		auto it = linatl::find_if(m_items.begin(), m_items.end(), [item](const PopupItem& it) -> bool { return item == it.outIndex; });
+		if (it == m_items.end())
+			return;
+
+		Icon* icn			  = Widget::GetWidgetOfType<Icon>(it->layout);
 		icn->GetProps().color = on ? Theme::GetDef().accentPrimary1 : Theme::GetDef().foreground0;
 	}
-	void Popup::AddToggleItem(const String& title, bool isSelected, void* userData, float heightMultiplier)
+
+	void Popup::AddToggleItem(const String& title, bool isSelected, int32 outIndex, void* userData, float heightMultiplier)
 	{
 		DirectionalLayout* layout	 = m_manager->Allocate<DirectionalLayout>("Layout");
 		layout->GetProps().direction = DirectionOrientation::Horizontal;
@@ -187,7 +194,7 @@ namespace Lina
 		layout->GetWidgetProps().outlineThickness = 0.0f;
 		layout->GetWidgetProps().colorBackground  = Color(0.0f, 0.0f, 0.0f, 0.0f);
 		layout->SetUserData(userData);
-		m_items.push_back(layout);
+		m_items.push_back({layout, outIndex});
 
 		float totalSize = layout->GetWidgetProps().childMargins.left + layout->GetWidgetProps().childMargins.right;
 
@@ -223,16 +230,15 @@ namespace Lina
 		m_background->AddChild(shape);
 
 		m_maxItemWidth = Math::Max(m_maxItemWidth, totalSize);
-		m_totalItemHeight += layout->GetFixedSizeY();
 	}
 
 	void Popup::ScrollToItem(void* userData)
 	{
-		for (DirectionalLayout* l : m_items)
+		for (const PopupItem& item : m_items)
 		{
-			if (l->GetUserData() == userData)
+			if (item.layout->GetUserData() == userData)
 			{
-				m_scroll->ScrollToChild(l);
+				m_scroll->ScrollToChild(item.layout);
 				break;
 			}
 		}

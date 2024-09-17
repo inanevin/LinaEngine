@@ -245,14 +245,28 @@ namespace Lina
 				if (m_widgetProps.fitTexture)
 				{
 					const Vector2 txtSize = m_widgetProps.textureAtlas ? Vector2(static_cast<float>(m_widgetProps.textureAtlas->rectUV.size.x), static_cast<float>(m_widgetProps.textureAtlas->rectUV.size.y)) : m_widgetProps.rawTexture->GetSizeF();
-					const float	  max	  = Math::Max(txtSize.x, txtSize.y);
-					const float	  min	  = Math::Min(txtSize.x, txtSize.y);
-					const float	  aspect  = max / min;
+					// const float	  max	  = Math::Max(txtSize.x, txtSize.y);
+					// const float	  min	  = Math::Min(txtSize.x, txtSize.y);
+					// const float	  aspect  = txtSize.x / txtSize.y;
 
-					if (txtSize.x > txtSize.y)
-						size.y = size.x / aspect;
+					const float widgetAspect  = sz.x / sz.y;
+					const float textureAspect = txtSize.x / txtSize.y;
+
+					Vector2 scaledSize = Vector2::Zero;
+
+					if (widgetAspect > textureAspect)
+						scaledSize = Vector2(sz.y * textureAspect, sz.y);
 					else
-						size.x = size.y / aspect;
+						scaledSize = Vector2(sz.x, sz.x / textureAspect);
+
+					const Vector2 off = (sz - scaledSize) * 0.5f;
+					min				  = min + off;
+					max				  = min + scaledSize;
+
+					// if (txtSize.x > txtSize.y)
+					//	size.y = size.x / aspect;
+					// else
+					//	size.x = size.y / aspect;
 				}
 
 				if (m_widgetProps.rawTexture != nullptr)
@@ -260,12 +274,14 @@ namespace Lina
 					if (m_widgetProps.rawTexture->GetMeta().format == LinaGX::Format::R8_UNORM)
 						opts.color.start.w = opts.color.end.w = GUI_IS_SINGLE_CHANNEL;
 					opts.textureHandle = m_widgetProps.rawTexture->GetBindlessIndex() + 1;
+					opts.userData	   = m_widgetProps.textureUserData;
 					textureSize		   = m_widgetProps.rawTexture->GetSizeF();
 				}
 				else if (m_widgetProps.textureAtlas != nullptr)
 				{
 					if (m_widgetProps.textureAtlas->atlas->GetRaw()->GetMeta().format == LinaGX::Format::R8_UNORM)
 						opts.color.start.w = opts.color.end.w = GUI_IS_SINGLE_CHANNEL;
+					opts.userData		 = m_widgetProps.textureUserData;
 					opts.textureHandle	 = m_widgetProps.textureAtlas->atlas->GetRaw()->GetBindlessIndex() + 1;
 					opts.textureUVOffset = m_widgetProps.textureAtlas->rectUV.pos.AsLVG();
 					textureTiling *= m_widgetProps.textureAtlas->rectUV.size;
@@ -281,19 +297,19 @@ namespace Lina
 
 				opts.textureUVTiling = textureTiling.AsLVG();
 
-				if (size.x < sz.x)
-				{
-					const float diff = sz.x - size.x;
-					min.x += diff * 0.5f;
-					max.x -= diff * 0.5f;
-				}
-
-				if (size.y < sz.y)
-				{
-					const float diff = sz.y - size.y;
-					min.y += diff * 0.5f;
-					max.y -= diff * 0.5f;
-				}
+				// if (size.x < sz.x)
+				// {
+				//     const float diff = sz.x - size.x;
+				//     min.x += diff * 0.5f;
+				//     max.x -= diff * 0.5f;
+				// }
+				//
+				// if (size.y < sz.y)
+				// {
+				//     const float diff = sz.y - size.y;
+				//     min.y += diff * 0.5f;
+				//     max.y -= diff * 0.5f;
+				// }
 			}
 
 			if (m_widgetProps.interpolateColor)
@@ -611,6 +627,22 @@ namespace Lina
 				return c;
 
 			Widget* found = c->FindChildWithUserdata(ud);
+
+			if (found)
+				return found;
+		}
+
+		return nullptr;
+	}
+
+	Widget* Widget::FindChildWithDebugName(const String& dbgName)
+	{
+		for (Widget* c : m_children)
+		{
+			if (c->GetWidgetProps().debugName.compare(dbgName) == 0)
+				return c;
+
+			Widget* found = c->FindChildWithDebugName(dbgName);
 
 			if (found)
 				return found;

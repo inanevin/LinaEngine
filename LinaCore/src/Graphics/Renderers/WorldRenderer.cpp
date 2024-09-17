@@ -846,7 +846,7 @@ namespace Lina
 			{
 				Texture* txt = static_cast<Texture*>(res);
 				txt->GenerateHW();
-				txt->AddToUploadQueue(m_globalUploadQueue);
+				txt->AddToUploadQueue(m_globalUploadQueue, true);
 				bindlessDirty = true;
 			}
 			else if (res->GetTID() == GetTypeID<TextureSampler>())

@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Core/GUI/Theme.hpp"
 #include "Common/System/System.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
+#include "Core/GUI/Widgets/Layout/Popup.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
@@ -181,14 +182,14 @@ namespace Lina::Editor
 			Dropdown* dd = m_manager->Allocate<Dropdown>("Dropdown");
 
 			dd->GetText()->GetProps().text = "None";
-			dd->GetProps().onAddItems	   = [](Vector<String>& outItems, Vector<int32>& outSelectedItems) {
-				 outSelectedItems.push_back(selectedDropdownItem);
+			dd->GetProps().onAddItems	   = [&](Popup* popup) {
 				 for (int32 i = 0; i < 3; i++)
-					 outItems.push_back(dummyDropdownItems[i]);
+                     popup->AddToggleItem(dummyDropdownItems[i], i == selectedDropdownItem, i);
 			};
 
-			dd->GetProps().onSelected = [](int32 selected) -> bool {
+			dd->GetProps().onSelected = [&](int32 selected, String& outNewTitle) -> bool {
 				selectedDropdownItem = selected;
+                outNewTitle = dummyDropdownItems[selected];
 				return true;
 			};
 

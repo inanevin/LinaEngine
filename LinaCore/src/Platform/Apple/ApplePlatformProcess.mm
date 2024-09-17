@@ -133,7 +133,6 @@ int main(int argc, char* argv[])
 				}
 			} while (ev);
 			linaApp->Poll();
-
 			linaApp->PreTick();
 			linaApp->Tick();
 		}

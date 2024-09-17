@@ -212,11 +212,12 @@ namespace Lina
 #define LINA_FIELD_DEPENDENCY_NEG(ClassName, FieldName, Dependency, Value) Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddNegativeDependency(TO_SIDC(Dependency), Value);
 
 #define LINA_FIELD_LIMITS(ClassName, FieldName, MIN, MAX, STEP)                                                                                                                                                                                                    \
-	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Min"), MIN);                                                                                                                               \
-	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Max"), MAX);                                                                                                                               \
-	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Step"), STEP);
+	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<float>(Lina::TO_SIDC("Min"), MIN);                                                                                                                                      \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<float>(Lina::TO_SIDC("Max"), MAX);                                                                                                                                      \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<float>(Lina::TO_SIDC("Step"), STEP);
 
-#define LINA_PROPERTY_STRING(ClassName, PropertySID, VALUE) Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>(PropertySID, VALUE);
+#define LINA_PROPERTY_STRING(ClassName, PropertySID, VALUE)							 Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>(PropertySID, VALUE);
+#define LINA_FIELD_PROPERTY(ClassName, FieldName, PropertyType, PropertyName, Value) Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<PropertyType>(Lina::TO_SIDC(PropertyName), Value);
 
 #define LINA_REFLECTION_ACCESS(ClassName) friend class ClassName##_Reflected;
 
@@ -269,42 +270,42 @@ namespace Lina
 	LINA_PROPERTY_STRING(LinaGX::Format, 20, "R16_SFLOAT")
 
 	LINA_PROPERTY_STRING(LinaGX::Format, 21, "R16G16_SINT")
-	LINA_PROPERTY_STRING(LinaGX::Format, 21, "R16G16_UINT")
-	LINA_PROPERTY_STRING(LinaGX::Format, 22, "R16G16_UNORM")
-	LINA_PROPERTY_STRING(LinaGX::Format, 23, "R16G16_SNORM")
-	LINA_PROPERTY_STRING(LinaGX::Format, 24, "R16G16_SFLOAT")
+	LINA_PROPERTY_STRING(LinaGX::Format, 22, "R16G16_UINT")
+	LINA_PROPERTY_STRING(LinaGX::Format, 23, "R16G16_UNORM")
+	LINA_PROPERTY_STRING(LinaGX::Format, 24, "R16G16_SNORM")
+	LINA_PROPERTY_STRING(LinaGX::Format, 25, "R16G16_SFLOAT")
 
-	LINA_PROPERTY_STRING(LinaGX::Format, 25, "R16G16B16A16_SINT")
-	LINA_PROPERTY_STRING(LinaGX::Format, 26, "R16G16B16A16_UINT")
-	LINA_PROPERTY_STRING(LinaGX::Format, 27, "R16G16B16A16_UNORM")
-	LINA_PROPERTY_STRING(LinaGX::Format, 28, "R16G16B16A16_SNORM")
-	LINA_PROPERTY_STRING(LinaGX::Format, 29, "R16G16B16A16_SFLOAT")
+	LINA_PROPERTY_STRING(LinaGX::Format, 26, "R16G16B16A16_SINT")
+	LINA_PROPERTY_STRING(LinaGX::Format, 27, "R16G16B16A16_UINT")
+	LINA_PROPERTY_STRING(LinaGX::Format, 28, "R16G16B16A16_UNORM")
+	LINA_PROPERTY_STRING(LinaGX::Format, 29, "R16G16B16A16_SNORM")
+	LINA_PROPERTY_STRING(LinaGX::Format, 30, "R16G16B16A16_SFLOAT")
 
-	LINA_PROPERTY_STRING(LinaGX::Format, 30, "R32_SINT")
-	LINA_PROPERTY_STRING(LinaGX::Format, 31, "R32_UINT")
-	LINA_PROPERTY_STRING(LinaGX::Format, 32, "R32_SFLOAT")
+	LINA_PROPERTY_STRING(LinaGX::Format, 31, "R32_SINT")
+	LINA_PROPERTY_STRING(LinaGX::Format, 32, "R32_UINT")
+	LINA_PROPERTY_STRING(LinaGX::Format, 33, "R32_SFLOAT")
 
-	LINA_PROPERTY_STRING(LinaGX::Format, 33, "R32G32_SINT")
-	LINA_PROPERTY_STRING(LinaGX::Format, 34, "R32G32_UINT")
-	LINA_PROPERTY_STRING(LinaGX::Format, 35, "R32G32_SFLOAT")
+	LINA_PROPERTY_STRING(LinaGX::Format, 34, "R32G32_SINT")
+	LINA_PROPERTY_STRING(LinaGX::Format, 35, "R32G32_UINT")
+	LINA_PROPERTY_STRING(LinaGX::Format, 36, "R32G32_SFLOAT")
 
-	LINA_PROPERTY_STRING(LinaGX::Format, 36, "R32G32B32_SFLOAT")
-	LINA_PROPERTY_STRING(LinaGX::Format, 37, "R32G32B32_SINT")
-	LINA_PROPERTY_STRING(LinaGX::Format, 38, "R32G32B32_UINT")
+	LINA_PROPERTY_STRING(LinaGX::Format, 37, "R32G32B32_SFLOAT")
+	LINA_PROPERTY_STRING(LinaGX::Format, 38, "R32G32B32_SINT")
+	LINA_PROPERTY_STRING(LinaGX::Format, 39, "R32G32B32_UINT")
 
-	LINA_PROPERTY_STRING(LinaGX::Format, 39, "R32G32B32A32_SINT")
-	LINA_PROPERTY_STRING(LinaGX::Format, 40, "R32G32B32A32_UINT")
-	LINA_PROPERTY_STRING(LinaGX::Format, 41, "R32G32B32A32_SFLOAT")
+	LINA_PROPERTY_STRING(LinaGX::Format, 40, "R32G32B32A32_SINT")
+	LINA_PROPERTY_STRING(LinaGX::Format, 41, "R32G32B32A32_UINT")
+	LINA_PROPERTY_STRING(LinaGX::Format, 42, "R32G32B32A32_SFLOAT")
 
-	LINA_PROPERTY_STRING(LinaGX::Format, 42, "D32_SFLOAT")
-	LINA_PROPERTY_STRING(LinaGX::Format, 43, "D24_UNORM_S8_UINT")
-	LINA_PROPERTY_STRING(LinaGX::Format, 44, "D16_UNORM")
+	LINA_PROPERTY_STRING(LinaGX::Format, 43, "D32_SFLOAT")
+	LINA_PROPERTY_STRING(LinaGX::Format, 44, "D24_UNORM_S8_UINT")
+	LINA_PROPERTY_STRING(LinaGX::Format, 45, "D16_UNORM")
 
-	LINA_PROPERTY_STRING(LinaGX::Format, 45, "R11G11B10_SFLOAT")
-	LINA_PROPERTY_STRING(LinaGX::Format, 46, "R10G0B10A2_INT")
-	LINA_PROPERTY_STRING(LinaGX::Format, 47, "BC3_BLOCK_SRGB")
-	LINA_PROPERTY_STRING(LinaGX::Format, 48, "BC3_BLOCK_UNORM")
-	LINA_PROPERTY_STRING(LinaGX::Format, 49, "R11G11B10_SFLOAT")
+	LINA_PROPERTY_STRING(LinaGX::Format, 46, "R11G11B10_SFLOAT")
+	LINA_PROPERTY_STRING(LinaGX::Format, 47, "R10G0B10A2_INT")
+	LINA_PROPERTY_STRING(LinaGX::Format, 48, "BC3_BLOCK_SRGB")
+	LINA_PROPERTY_STRING(LinaGX::Format, 49, "BC3_BLOCK_UNORM")
+	LINA_PROPERTY_STRING(LinaGX::Format, 50, "R11G11B10_SFLOAT")
 
 	LINA_CLASS_END(LinaGXFormat)
 
@@ -327,12 +328,5 @@ namespace Lina
 	LINA_PROPERTY_STRING(LinaGX::Filter, 1, "Nearest")
 	LINA_PROPERTY_STRING(LinaGX::Filter, 2, "Linear")
 	LINA_CLASS_END(LinaGXFilter)
-
-	LINA_CLASS_BEGIN(LinaGXImageChannelMask)
-	LINA_PROPERTY_STRING(LinaGX::ImageChannelMask, 0, "G")
-	LINA_PROPERTY_STRING(LinaGX::ImageChannelMask, 1, "GA")
-	LINA_PROPERTY_STRING(LinaGX::ImageChannelMask, 2, "RGB")
-	LINA_PROPERTY_STRING(LinaGX::ImageChannelMask, 3, "RGBA")
-	LINA_CLASS_END(LinaGXImageChannelMask)
 
 } // namespace Lina

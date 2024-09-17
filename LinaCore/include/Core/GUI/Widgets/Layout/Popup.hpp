@@ -39,16 +39,22 @@ namespace Lina
 	class Popup : public Widget
 	{
 	public:
+		struct PopupItem
+		{
+			DirectionalLayout* layout	= nullptr;
+			int32			   outIndex = -1;
+		};
+
 		Popup()			 = default;
 		virtual ~Popup() = default;
 
 		struct Properties
 		{
-			float										 maxSizeY	   = Theme::GetDef().baseItemHeight * 10;
-			bool										 useFixedSizeX = false;
-			bool										 closeOnSelect = true;
-			String										 selectedIcon  = Theme::GetDef().iconCircleFilled;
-			Delegate<void(uint32 index, void* userData)> onSelectedItem;
+			float										maxSizeY	  = Theme::GetDef().baseItemHeight * 10;
+			bool										useFixedSizeX = false;
+			bool										closeOnSelect = true;
+			String										selectedIcon  = Theme::GetDef().iconCircleFilled;
+			Delegate<void(int32 index, void* userData)> onSelectedItem;
 
 			void SaveToStream(OStream& stream) const
 			{
@@ -70,7 +76,7 @@ namespace Lina
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
 		void AddTitleItem(const String& title, float heightMultiplier = 1.5f);
-		void AddToggleItem(const String& title, bool isSelected, void* userData = nullptr, float heightMultiplier = 1.5f);
+		void AddToggleItem(const String& title, bool isSelected, int32 outIndex, void* userData = nullptr, float heightMultiplier = 1.5f);
 		void AddCustomItem(Widget* w);
 		void ScrollToItem(void* userData);
 		void SwitchToggleItem(int32 item, bool on);
@@ -107,14 +113,13 @@ namespace Lina
 		}
 
 	private:
-		Properties				   m_props			 = {};
-		DirectionalLayout*		   m_background		 = nullptr;
-		ScrollArea*				   m_scroll			 = nullptr;
-		Tween					   m_tween			 = {};
-		Vector<DirectionalLayout*> m_items			 = {};
-		float					   m_maxItemWidth	 = 0.0f;
-		float					   m_totalItemHeight = 0.0f;
-		int32					   m_targetScroll	 = -1;
+		Properties		   m_props		  = {};
+		DirectionalLayout* m_background	  = nullptr;
+		ScrollArea*		   m_scroll		  = nullptr;
+		Tween			   m_tween		  = {};
+		Vector<PopupItem>  m_items		  = {};
+		float			   m_maxItemWidth = 0.0f;
+		int32			   m_targetScroll = -1;
 	};
 
 	LINA_WIDGET_BEGIN(Popup, Hidden)

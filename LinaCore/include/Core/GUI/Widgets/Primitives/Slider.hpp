@@ -134,6 +134,6 @@ namespace Lina
 	LINA_FIELD(Slider::Properties, maxValue, "Max Value", "float", 0)
 	LINA_FIELD(Slider::Properties, step, "Step", "float", 0)
 	LINA_FIELD(Slider::Properties, crossAxisPercentage, "Cross-axis Percentage", "float", 0)
-	LINA_FIELD_LIMITS(Slider::Properties, crossAxisPercentage, "0.0", "1.0", "0.1")
+	LINA_FIELD_LIMITS(Slider::Properties, crossAxisPercentage, 0.0f, 1.0f, 0.1f)
 	LINA_CLASS_END(SliderProperties)
 } // namespace Lina

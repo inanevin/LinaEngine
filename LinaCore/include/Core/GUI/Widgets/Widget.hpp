@@ -139,6 +139,7 @@ namespace Lina
 		float				 outlineThickness			 = Theme::GetDef().baseOutlineThickness;
 		float				 rounding					 = 0.0f;
 		float				 childPadding				 = 0.0f;
+		void*				 textureUserData			 = nullptr;
 		int32				 drawOrderIncrement			 = 0;
 		String				 tooltip					 = "";
 		String				 debugName					 = "";
@@ -234,6 +235,7 @@ namespace Lina
 		Vector2 GetMonitorSize();
 		Vector2 GetWindowPos();
 		Widget* FindChildWithUserdata(void* ud);
+		Widget* FindChildWithDebugName(const String& name);
 		Widget* FindDeepestHovered();
 
 		bool IsWidgetInHierarchy(Widget* widget);
@@ -535,9 +537,9 @@ namespace Lina
 	LINA_FIELD(Widget, m_categoryGeneral, "General Properties", "Category", 0);
 	LINA_FIELD(Widget, m_flags, "Flags", "Bitmask32", GetTypeID<WidgetFlags>())
 	LINA_FIELD(Widget, m_alignedPos, "Aligned Position", "Vector2", 0)
-	LINA_FIELD_LIMITS(Widget, m_alignedPos, "0.0f", "1.0f", "0.1f")
+	LINA_FIELD_LIMITS(Widget, m_alignedPos, 0.0f, 1.0f, 0.1f)
 	LINA_FIELD(Widget, m_alignedSize, "Aligned Size", "Vector2", 0)
-	LINA_FIELD_LIMITS(Widget, m_alignedSize, "0.0f", "1.0f", "0.1f")
+	LINA_FIELD_LIMITS(Widget, m_alignedSize, 0.0f, 1.0f, 0.1f)
 	LINA_FIELD(Widget, m_fixedSize, "Fixed Size", "Vector2", 0)
 	LINA_FIELD(Widget, m_anchorX, "Anchor X", "enum", GetTypeID<Anchor>())
 	LINA_FIELD(Widget, m_anchorY, "Anchor Y", "enum", GetTypeID<Anchor>())

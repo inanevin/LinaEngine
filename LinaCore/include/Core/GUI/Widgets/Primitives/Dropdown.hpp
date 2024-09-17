@@ -36,6 +36,7 @@ namespace Lina
 	class Icon;
 	class Text;
 	class DirectionalLayout;
+	class Popup;
 
 	class Dropdown : public Widget
 	{
@@ -47,26 +48,23 @@ namespace Lina
 
 		struct Properties
 		{
-			bool																	 _fold = false;
-			Delegate<bool(int32)>													 onSelected;
-			Delegate<void(Vector<String>& outItems, Vector<int32>& outSelectedItem)> onAddItems;
+			bool									   _fold = false;
+			Delegate<bool(int32, String& outNewTitle)> onSelected;
+			Delegate<void(Popup* popup)>			   onAddItems;
 
-			float horizontalIndent	 = Theme::GetDef().baseIndentInner;
-			bool  closeOnSelect		 = true;
-			bool  switchTextOnSelect = true;
+			float horizontalIndent = Theme::GetDef().baseIndentInner;
+			bool  closeOnSelect	   = true;
 
 			void SaveToStream(OStream& stream) const
 			{
 				stream << horizontalIndent;
 				stream << closeOnSelect;
-				stream << switchTextOnSelect;
 			}
 
 			void LoadFromStream(IStream& stream)
 			{
 				stream >> horizontalIndent;
 				stream >> closeOnSelect;
-				stream >> switchTextOnSelect;
 			}
 		};
 
@@ -121,7 +119,6 @@ namespace Lina
 	LINA_CLASS_BEGIN(DropdownProperties)
 	LINA_FIELD(Dropdown::Properties, _fold, "Dropdown", "Category", 0)
 	LINA_FIELD(Dropdown::Properties, closeOnSelect, "Close On Select", "bool", 0)
-	LINA_FIELD(Dropdown::Properties, switchTextOnSelect, "Switch Text Select", "bool", 0)
 	LINA_FIELD(Dropdown::Properties, horizontalIndent, "Horizontal Indent", "float", 0)
 	LINA_CLASS_END(DropdownProperties)
 

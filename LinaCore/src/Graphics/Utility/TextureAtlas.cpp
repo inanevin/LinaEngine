@@ -38,8 +38,10 @@ namespace Lina
 		uint8*		 data	  = new uint8[dataSize];
 		m_data				  = {data, dataSize};
 		MEMSET(m_data.data(), 0, dataSize);
-		m_rawTexture = m_resourceManagerV2->CreateResource<Texture>(m_resourceManagerV2->ConsumeResourceID(), "TextureAtlasRawTexture");
-		m_isDirty	 = true;
+		m_rawTexture							= m_resourceManagerV2->CreateResource<Texture>(m_resourceManagerV2->ConsumeResourceID(), "TextureAtlasRawTexture");
+		m_rawTexture->GetMeta().format			= m_textureFormat;
+		m_rawTexture->GetMeta().generateMipmaps = true;
+		m_isDirty								= true;
 	}
 
 	TextureAtlas::~TextureAtlas()
@@ -138,11 +140,11 @@ namespace Lina
 			return;
 
 		m_isDirty = false;
-		m_rawTexture->LoadFromBuffer(m_data.data(), m_size.x, m_size.y, m_bytesPerPixel, m_bytesPerPixel == 1 ? LinaGX::ImageChannelMask::G : LinaGX::ImageChannelMask::RGBA, m_textureFormat, true);
+		m_rawTexture->LoadFromBuffer(m_data.data(), m_size.x, m_size.y, m_bytesPerPixel);
 
 		if (!m_rawTexture->IsGPUValid())
 			m_rawTexture->GenerateHW();
 
-		m_rawTexture->AddToUploadQueue(queue);
+		m_rawTexture->AddToUploadQueue(queue, true);
 	}
 } // namespace Lina

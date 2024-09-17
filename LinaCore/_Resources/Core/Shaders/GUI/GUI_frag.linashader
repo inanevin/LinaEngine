@@ -59,16 +59,25 @@ void main()
    {
       // Textured
       // floatPack1 = uvMultiply, uvShift
-      // floatPack2 = isAABuffer, isSingleChannel,0,bufferType
-      // color1 = textureIndex, samplerIndex
+      // floatPack2 = isAABuffer, isSingleChannel,channelBitmask,bufferType
+      // color2 = textureIndex, samplerIndex, lodLevel
        int textureIndex = int(material.color2.r);
        int samplerIndex = int(material.color2.g);
-       vec4 col = texture(sampler2D(LINA_TEXTURES[textureIndex], LINA_SAMPLERS[samplerIndex]), inUV * material.floatPack1.rg + material.floatPack1.ba);
+       int lodLevel = int(material.color2.b);
+
+       vec4 col = textureLod(sampler2D(LINA_TEXTURES[textureIndex], LINA_SAMPLERS[samplerIndex]), 
+                      inUV * material.floatPack1.rg + material.floatPack1.ba, 
+                      lodLevel);
        float alpha = inCol.a * material.floatPack2.r + col.a * (1.0f - material.floatPack2.r);
        outFragColor = vec4(col.rgb, alpha) * material.color1; 
 
        if(int(material.floatPack2.g) == 1)
           outFragColor = vec4(col.r) * material.color1;
+
+       int channelBitmask = int(material.floatPack2.b);
+       outFragColor.r *= (channelBitmask & (1 << 0)) != 0 ? 1.0 : 0.0; // R channel
+       outFragColor.g *= (channelBitmask & (1 << 1)) != 0 ? 1.0 : 0.0; // G channel
+       outFragColor.b *= (channelBitmask & (1 << 2)) != 0 ? 1.0 : 0.0; // B channel
    }
    else if(bufferType == 3)
    {

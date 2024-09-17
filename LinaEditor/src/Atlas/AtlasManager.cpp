@@ -106,7 +106,7 @@ namespace Lina::Editor
 			for (const String& file : files)
 			{
 				LinaGX::TextureBuffer buffer;
-				LinaGX::LoadImageFromFile(file.c_str(), buffer);
+				LinaGX::LoadImageFromFile(file.c_str(), buffer, 4);
 
 				if (buffer.pixels == nullptr)
 					continue;

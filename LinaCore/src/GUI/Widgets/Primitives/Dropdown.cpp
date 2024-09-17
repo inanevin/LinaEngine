@@ -84,41 +84,43 @@ namespace Lina
 	void Dropdown::CreatePopup()
 	{
 
-		Vector<String> items;
-		Vector<int32>  selectedItems;
-		if (m_props.onAddItems)
-			m_props.onAddItems(items, selectedItems);
+		// Vector<String> items;
+		// Vector<int32>  selectedItems;
 
 		Popup* popup = m_manager->Allocate<Popup>("Popup");
 		popup->SetPos(GetPos() + Vector2(0.0f, GetSizeY()));
 		popup->GetProps().selectedIcon	= Theme::GetDef().iconCircleFilled;
 		popup->GetProps().closeOnSelect = m_props.closeOnSelect;
 
-		const int32 sz = static_cast<int32>(items.size());
-		for (int32 i = 0; i < sz; i++)
-		{
-			const auto& it	  = items[i];
-			auto		found = linatl::find_if(selectedItems.begin(), selectedItems.end(), [i](int32 itm) -> bool { return i == itm; });
-			popup->AddToggleItem(it, found != selectedItems.end(), nullptr);
-		}
+		if (m_props.onAddItems)
+			m_props.onAddItems(popup);
 
-		popup->GetProps().onSelectedItem = [this, items, popup](uint32 idx, void* ud) {
-			if (m_props.switchTextOnSelect)
-			{
-				m_text->GetProps().text = items[idx];
-				m_text->CalculateTextSize();
-			}
+		// const int32 sz = static_cast<int32>(items.size());
+		// for (int32 i = 0; i < sz; i++)
+		// {
+		// 	const auto& it	  = items[i];
+		// 	auto		found = linatl::find_if(selectedItems.begin(), selectedItems.end(), [i](int32 itm) -> bool { return i == itm; });
+		// 	popup->AddToggleItem(it, found != selectedItems.end(), nullptr, 1.5f, !it.empty());
+		// }
 
+		popup->GetProps().onSelectedItem = [this, popup](int32 idx, void* ud) {
 			if (m_props.onSelected)
 			{
-				const bool isOn = m_props.onSelected(idx);
+				String	   title = "";
+				const bool isOn	 = m_props.onSelected(idx, title);
 				popup->SwitchToggleItem(idx, isOn);
+
+				if (!title.empty())
+				{
+					m_text->GetProps().text = title;
+					m_text->CalculateTextSize();
+				}
 			}
 		};
 
 		popup->Initialize();
-		if (selectedItems.size() == 1 && selectedItems.front() != -1)
-			popup->ScrollToItem(selectedItems.front());
+		// if (selectedItems.size() == 1 && selectedItems.front() != -1)
+		// 	popup->ScrollToItem(selectedItems.front());
 
 		m_manager->AddToForeground(popup);
 		m_manager->GrabControls(popup);

@@ -87,6 +87,12 @@ namespace Lina
 		Max,
 	};
 
+	struct GUIRendererUserData
+	{
+		int32  channelMask = 1 << 0 | 1 << 1 | 1 << 2 | 1 << 3;
+		uint32 mipLevel	   = 0;
+	};
+
 	constexpr const char* RPTypeToString(RenderPassDescriptorType type)
 	{
 		switch (type)

@@ -85,6 +85,13 @@ namespace Lina::Editor
 
 	void DockArea::Destruct()
 	{
+		for (Panel* p : m_panels)
+		{
+			if (p == m_selectedPanel)
+				continue;
+
+			m_manager->Deallocate(p);
+		}
 		Editor::Get()->GetWindowPanelManager().RemovePayloadListener(this);
 	}
 

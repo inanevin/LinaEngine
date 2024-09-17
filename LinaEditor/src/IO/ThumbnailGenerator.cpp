@@ -77,7 +77,7 @@ namespace Lina::Editor
 			.bytesPerPixel = image.bytesPerPixel,
 		};
 
-		if (!LinaGX::ResizeBuffer(image, resizedBuffer, width, height, LinaGX::MipmapFilter::Default, LinaGX::ImageChannelMask::RGBA, true))
+		if (!LinaGX::ResizeBuffer(image, resizedBuffer, width, height, LinaGX::MipmapFilter::Default, image.bytesPerPixel, true))
 		{
 			LINA_ERR("Thumbnail Generator: Failed resizing image for thumbnail!");
 		}

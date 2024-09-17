@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Editor.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
+#include "Core/GUI/Widgets/Layout/Popup.hpp"
 #include "Core/GUI/Widgets/Primitives/ColorSlider.hpp"
 #include "Core/GUI/Widgets/Primitives/ColorWheel.hpp"
 #include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
@@ -302,44 +303,49 @@ namespace Lina::Editor
 		displayDropdown->SetAlignedSizeY(1.0f);
 		displayDropdown->SetAlignedPosY(0.0f);
 
-		displayDropdown->GetProps().onSelected = [this](int32 item) -> bool {
+		displayDropdown->GetProps().onSelected = [this](int32 item, String& outNewTitle) -> bool {
 			SwitchColorDisplay(static_cast<ColorDisplay>(item));
+			outNewTitle = COLOR_DISPLAY_VALUES[static_cast<ColorDisplay>(item)];
 			return true;
 		};
-		displayDropdown->GetProps().onAddItems = [this](Vector<String>& outItems, Vector<int32>& outSelected) {
+		displayDropdown->GetProps().onAddItems = [this](Popup* popup) {
 			for (int32 i = 0; i < static_cast<int32>(ColorDisplay::MAX); i++)
-				outItems.push_back(COLOR_DISPLAY_VALUES[static_cast<ColorDisplay>(i)]);
-			outSelected.push_back(static_cast<int32>(m_selectedDisplay));
+				popup->AddToggleItem(COLOR_DISPLAY_VALUES[static_cast<ColorDisplay>(i)], i == static_cast<int32>(m_selectedDisplay), i);
 		};
 
 		displayDropdown->GetText()->GetProps().text = COLOR_DISPLAY_VALUES[m_selectedDisplay];
 		displayDropdown->Initialize();
 		displayAndThemeRow->AddChild(displayDropdown);
 
+		const Vector<String> items = {"Background0",	"Background1",	  "Background2",	"Background3",	   "Background4", "Background5", "Foreground0",		 "Foreground1",			 "Silent0", "Silent1", "Silent2", "AccentPrimary0",
+									  "AccentPrimary1", "AccentPrimary2", "AccentPrimary3", "AccentSecondary", "AccentError", "AccentWarn",	 "OutlineColorBase", "OutlineColorControls", "Black"};
+
 		Dropdown* themeDropdown = m_manager->Allocate<Dropdown>("ThemeDropdown");
-		themeDropdown->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_Y | WF_POS_ALIGN_X | WF_SIZE_ALIGN_Y);
+		themeDropdown->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_Y | WF_POS_ALIGN_X | WF_SIZE_ALIGN_Y);
 		themeDropdown->SetFixedSizeX(baseItemHeight * 6);
 		themeDropdown->SetAlignedSizeY(1.0f);
 		themeDropdown->SetAlignedPosY(0.0f);
 		themeDropdown->SetAnchorX(Anchor::End);
 		themeDropdown->SetAlignedPosX(1.0f);
 		themeDropdown->GetText()->GetProps().text = Locale::GetStr(LocaleStr::ThemeColor);
-		themeDropdown->GetProps().onSelected	  = [this](int32 item) -> bool {
+		themeDropdown->GetProps().onSelected	  = [this, items](int32 item, String& outNewTitle) -> bool {
 			 const linatl::array<Color, 21> themeColors = {
 				 Theme::GetDef().background0,	 Theme::GetDef().background1,	  Theme::GetDef().background2, Theme::GetDef().background3, Theme::GetDef().background4,	  Theme::GetDef().background5,			Theme::GetDef().foreground0,
 				 Theme::GetDef().foreground1,	 Theme::GetDef().silent0,		  Theme::GetDef().silent1,	   Theme::GetDef().silent2,		Theme::GetDef().accentPrimary0,	  Theme::GetDef().accentPrimary1,		Theme::GetDef().accentPrimary2,
 				 Theme::GetDef().accentPrimary3, Theme::GetDef().accentSecondary, Theme::GetDef().accentError, Theme::GetDef().accentWarn,	Theme::GetDef().outlineColorBase, Theme::GetDef().outlineColorControls, Theme::GetDef().black,
 			 };
 
+			 outNewTitle	   = items[item];
 			 const Color color = themeColors[item];
 			 SetTargetColor(color);
 			 if (m_props.onValueChanged)
 				 m_props.onValueChanged(color);
 			 return true;
 		};
-		themeDropdown->GetProps().onAddItems = [this](Vector<String>& outItems, Vector<int32>& outSelected) {
-			outItems = {"Background0",	  "Background1",	"Background2",	  "Background3",	 "Background4", "Background5", "Foreground0",	   "Foreground1",		   "Silent0", "Silent1", "Silent2", "AccentPrimary0",
-						"AccentPrimary1", "AccentPrimary2", "AccentPrimary3", "AccentSecondary", "AccentError", "AccentWarn",  "OutlineColorBase", "OutlineColorControls", "Black"};
+		themeDropdown->GetProps().onAddItems = [this, items](Popup* popup) {
+			int32 idx = 0;
+			for (const String& item : items)
+				popup->AddToggleItem(item, false, idx++);
 		};
 		displayAndThemeRow->AddChild(themeDropdown);
 

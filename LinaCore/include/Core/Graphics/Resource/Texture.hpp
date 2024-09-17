@@ -43,13 +43,10 @@ namespace Lina
 	public:
 		struct Metadata
 		{
-			bool					 _category		 = true;
-			LinaGX::Format			 format			 = LinaGX::Format::R8G8B8A8_SRGB;
-			LinaGX::MipmapMode		 mipmapMode		 = LinaGX::MipmapMode::Linear;
-			LinaGX::MipmapFilter	 mipFilter		 = LinaGX::MipmapFilter::Mitchell;
-			LinaGX::ImageChannelMask channelMask	 = LinaGX::ImageChannelMask::RGBA;
-			bool					 isLinear		 = false;
-			bool					 generateMipmaps = true;
+			bool				 _category		 = true;
+			LinaGX::Format		 format			 = LinaGX::Format::R8G8B8A8_SRGB;
+			LinaGX::MipmapFilter mipFilter		 = LinaGX::MipmapFilter::Mitchell;
+			bool				 generateMipmaps = true;
 
 			void SaveToStream(OStream& out) const;
 			void LoadFromStream(IStream& in);
@@ -63,13 +60,13 @@ namespace Lina
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromFile(const String& path) override;
 		virtual void LoadFromStream(IStream& stream) override;
-		void		 LoadFromBuffer(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::ImageChannelMask channelMask, LinaGX::Format format, bool generateMipMaps = false);
+		void		 LoadFromBuffer(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel);
 
 		void	  GenerateHWFromDesc(const LinaGX::TextureDesc& desc);
 		void	  GenerateHW();
 		void	  DestroyHW();
 		void	  DestroySW();
-		void	  AddToUploadQueue(ResourceUploadQueue& queue);
+		void	  AddToUploadQueue(ResourceUploadQueue& queue, bool destroySW);
 		Vector2ui GetSize();
 		Vector2	  GetSizeF();
 		void	  OnUploadCompleted();
@@ -114,16 +111,25 @@ namespace Lina
 			return m_gpuHandleExists;
 		}
 
+		inline int32 GetImportedChannels() const
+		{
+			return m_importedChannels;
+		}
+
+	private:
+		uint32 GetChannels();
+
 	private:
 		ALLOCATOR_BUCKET_MEM;
 		Vector<LinaGX::TextureBuffer> m_allLevels;
-		uint32						  m_bindlessIndex	= 0;
-		uint32						  m_gpuHandle		= 0;
-		uint32						  m_bytesPerPixel	= 0;
-		Metadata					  m_meta			= {};
-		Vector2ui					  m_size			= Vector2ui::Zero;
-		bool						  m_useGlobalDelete = false;
-		bool						  m_gpuHandleExists = false;
+		uint32						  m_bindlessIndex	 = 0;
+		uint32						  m_gpuHandle		 = 0;
+		uint32						  m_bytesPerPixel	 = 0;
+		Metadata					  m_meta			 = {};
+		Vector2ui					  m_size			 = Vector2ui::Zero;
+		int32						  m_importedChannels = 0;
+		bool						  m_useGlobalDelete	 = false;
+		bool						  m_gpuHandleExists	 = false;
 	};
 
 	LINA_RESOURCE_BEGIN(Texture);
@@ -132,13 +138,14 @@ namespace Lina
 	LINA_CLASS_BEGIN(TextureMeta)
 	LINA_FIELD(Texture::Metadata, _category, "Texture", "Category", 0)
 	LINA_FIELD(Texture::Metadata, format, "Format", "enum", GetTypeID<LinaGX::Format>())
-	LINA_FIELD(Texture::Metadata, isLinear, "Is Linear", "bool", 0)
-	LINA_FIELD(Texture::Metadata, channelMask, "Channels", "enum", GetTypeID<LinaGX::ImageChannelMask>())
 	LINA_FIELD(Texture::Metadata, generateMipmaps, "Generate Mipmaps", "bool", 0)
-	LINA_FIELD(Texture::Metadata, mipmapMode, "Mipmap Mode", "enum", GetTypeID<LinaGX::MipmapMode>())
 	LINA_FIELD(Texture::Metadata, mipFilter, "Mipmap Filter", "enum", GetTypeID<LinaGX::MipmapFilter>())
-	LINA_FIELD_DEPENDENCY_POS(Texture::Metadata, mipmapMode, "generateMipmaps", 1)
 	LINA_FIELD_DEPENDENCY_POS(Texture::Metadata, mipFilter, "generateMipmaps", 1)
+	LINA_FIELD_PROPERTY(Texture::Metadata,
+						format,
+						Vector<uint32>,
+						"OnlyShow",
+						(Vector<uint32>{(uint32)LinaGX::Format::R8_UNORM, (uint32)LinaGX::Format::R8G8_SNORM, (uint32)LinaGX::Format::R16G16B16A16_SFLOAT, (uint32)LinaGX::Format::R8G8B8A8_UNORM, (uint32)LinaGX::Format::R8G8B8A8_SRGB}))
 	LINA_CLASS_END(TextureMeta)
 
 } // namespace Lina

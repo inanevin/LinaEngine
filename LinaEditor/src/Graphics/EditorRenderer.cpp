@@ -240,6 +240,9 @@ namespace Lina::Editor
 			}
 		}
 
+		if (streams.empty())
+			return;
+
 		m_lgx->SubmitCommandStreams({
 			.targetQueue	= m_lgx->GetPrimaryQueue(LinaGX::CommandType::Graphics),
 			.streams		= streams.data(),
@@ -301,7 +304,7 @@ namespace Lina::Editor
 			{
 				Texture* txt = static_cast<Texture*>(res);
 				txt->GenerateHW();
-				txt->AddToUploadQueue(m_uploadQueue);
+				txt->AddToUploadQueue(m_uploadQueue, false);
 				bindlessDirty = true;
 			}
 			else if (res->GetTID() == GetTypeID<TextureSampler>())

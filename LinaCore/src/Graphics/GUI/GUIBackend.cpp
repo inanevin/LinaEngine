@@ -72,12 +72,12 @@ namespace Lina
 	void GUIBackend::BufferEnded()
 	{
 		auto& ft = m_fontTextures[m_boundFontTexture];
-		ft.texture->LoadFromBuffer(ft.pixels, ft.width, ft.height, 1, LinaGX::ImageChannelMask::G, LinaGX::Format::R8_UNORM, true);
+		ft.texture->LoadFromBuffer(ft.pixels, ft.width, ft.height, 1);
 
 		if (!ft.texture->IsGPUValid())
 			ft.texture->GenerateHW();
 
-		ft.texture->AddToUploadQueue(*m_uploadQueue);
+		ft.texture->AddToUploadQueue(*m_uploadQueue, true);
 	}
 
 	void GUIBackend::BindFontTexture(LinaVG::BackendHandle texture)
@@ -93,7 +93,10 @@ namespace Lina
 			 .width	  = width,
 			 .height  = height,
 		 };
-		fontTexture.pixels = new uint8[width * height];
+
+		fontTexture.texture->GetMeta().format		   = LinaGX::Format::R8_UNORM;
+		fontTexture.texture->GetMeta().generateMipmaps = true;
+		fontTexture.pixels							   = new uint8[width * height];
 		memset(fontTexture.pixels, 0, width * height);
 
 		m_fontTextures.push_back(fontTexture);

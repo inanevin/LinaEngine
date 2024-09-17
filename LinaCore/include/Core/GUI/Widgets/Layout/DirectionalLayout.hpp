@@ -138,7 +138,7 @@ namespace Lina
 	LINA_FIELD(DirectionalLayout::Properties, colorBorderHovered, "Color Border Hovered", "Color", 0)
 	LINA_FIELD(DirectionalLayout::Properties, borderThickness, "Border Thickness", "float", 0)
 	LINA_FIELD(DirectionalLayout::Properties, borderMinSize, "Border Min Size", "float", 0)
-	LINA_FIELD_LIMITS(DirectionalLayout::Properties, borderMinSize, "0.0", "1.0f", "0.1f")
+	LINA_FIELD_LIMITS(DirectionalLayout::Properties, borderMinSize, 0.0f, 1.0f, 0.1f)
 	LINA_FIELD(DirectionalLayout::Properties, receiveInput, "Receive Input", "bool", 0)
 
 	LINA_FIELD_DEPENDENCY_POS(DirectionalLayout::Properties, colorBorder, "mode", 3)

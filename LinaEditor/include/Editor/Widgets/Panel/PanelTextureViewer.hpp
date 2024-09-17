@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Editor/Widgets/Panel/Panel.hpp"
+#include "Core/Graphics/CommonGraphics.hpp"
 
 namespace Lina
 {
@@ -61,22 +62,26 @@ namespace Lina::Editor
 		bool   m_displayChannelsR = true;
 		bool   m_displayChannelsG = true;
 		bool   m_displayChannelsB = true;
-		bool   m_displayChannelsA = true;
 
-		Widget*			   m_texturePanel = nullptr;
-		Editor*			   m_editor		  = nullptr;
-		Texture*		   m_texture	  = nullptr;
-		DirectionalLayout* m_inspector	  = nullptr;
+		GUIRendererUserData m_displayUserData;
+
+		Widget*				  m_texturePanel  = nullptr;
+		Editor*				  m_editor		  = nullptr;
+		Texture*			  m_texture		  = nullptr;
+		DirectionalLayout*	  m_inspector	  = nullptr;
+		uint32				  m_mipLevel	  = 0;
+		LinaGX::TextureBuffer m_textureBuffer = {};
 	};
 
 	LINA_WIDGET_BEGIN(PanelTextureViewer, Hidden)
 	LINA_FIELD(PanelTextureViewer, m_category, "Info", "Category", 0)
-	LINA_FIELD(PanelTextureViewer, m_textureName, "Texture Name", "Label", 0)
-	LINA_FIELD(PanelTextureViewer, m_textureSize, "Texture Size", "Label", 0)
+	LINA_FIELD(PanelTextureViewer, m_textureName, "Texture Name", "Info", 0)
+	LINA_FIELD(PanelTextureViewer, m_textureSize, "Texture Size", "Info", 0)
+	LINA_FIELD(PanelTextureViewer, m_mipLevel, "Mip Level", "uint32", 0)
 	LINA_FIELD(PanelTextureViewer, m_displayChannelsR, "Display R", "bool", 0)
 	LINA_FIELD(PanelTextureViewer, m_displayChannelsG, "Display G", "bool", 0)
 	LINA_FIELD(PanelTextureViewer, m_displayChannelsB, "Display B", "bool", 0)
-	LINA_FIELD(PanelTextureViewer, m_displayChannelsA, "Display A", "bool", 0)
+	LINA_FIELD_LIMITS(PanelTextureViewer, m_mipLevel, 0, 1, 1)
 	LINA_CLASS_END(PanelTextureViewer)
 
 } // namespace Lina::Editor
