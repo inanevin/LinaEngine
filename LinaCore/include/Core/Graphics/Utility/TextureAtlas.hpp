@@ -52,6 +52,17 @@ namespace Lina
 	class TextureAtlas
 	{
 	public:
+		struct Grid
+		{
+			Grid(const Vector2ui& pos, const Vector2ui& sz)
+			{
+				rect.pos  = pos;
+				rect.size = sz;
+			};
+
+			Rectui rect = {};
+		};
+
 		TextureAtlas(ResourceManagerV2* rm, const Vector2ui& sz, LinaGX::Format format);
 		~TextureAtlas();
 		TextureAtlasImage* AddImage(uint8* data, const Vector2ui& size, StringID sid = 0);
@@ -75,6 +86,7 @@ namespace Lina
 		}
 
 	private:
+		Vector<Grid*>			   m_availableGrids;
 		ResourceManagerV2*		   m_resourceManagerV2 = nullptr;
 		Vector2ui				   m_size			   = Vector2ui::Zero;
 		uint32					   m_bytesPerPixel	   = 4;

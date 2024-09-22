@@ -123,6 +123,7 @@ namespace Lina
 	{
 	public:
 		Rectui(){};
+		Rectui(const Vector2ui& p, const Vector2ui& s) : pos(p), size(s){};
 		Rectui(uint32 x, uint32 y, uint32 w, uint32 h) : pos(x, y), size(w, h){};
 		Vector2ui pos  = Vector2ui(0, 0);
 		Vector2ui size = Vector2ui(0, 0);

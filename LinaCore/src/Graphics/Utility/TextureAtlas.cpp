@@ -44,12 +44,18 @@ namespace Lina
 		m_rawTexture->GetMeta().format			= m_textureFormat;
 		m_rawTexture->GetMeta().generateMipmaps = true;
 		m_isDirty								= true;
+		m_availableGrids.push_back(new Grid(Vector2ui::Zero, sz));
 	}
 
 	TextureAtlas::~TextureAtlas()
 	{
 		for (auto* r : m_rects)
 			delete r;
+
+		for (Grid* g : m_availableGrids)
+			delete g;
+
+		m_availableGrids.clear();
 		m_rects.clear();
 
 		m_resourceManagerV2->DestroyResource(m_rawTexture);
@@ -64,49 +70,45 @@ namespace Lina
 			return nullptr;
 		}
 
-		for (uint32 y = 1; y <= m_size.y - size.y; ++y)
+		Vector<Grid*> aq = m_availableGrids;
+
+		for (Grid* grid : m_availableGrids)
 		{
-			for (uint32 x = 1; x <= m_size.x - size.x; ++x)
+			if (grid->rect.size.x <= size.x || grid->rect.size.y <= size.y)
+				continue;
+
+			TextureAtlasImage* img = new TextureAtlasImage();
+			img->rectCoords.pos	   = grid->rect.pos;
+			img->rectCoords.size   = size;
+			img->rectUV.pos		   = {static_cast<float>(img->rectCoords.pos.x) / static_cast<float>(m_size.x), static_cast<float>(img->rectCoords.size.y) / static_cast<float>(m_size.y)};
+			img->rectUV.size	   = {static_cast<float>(size.x) / static_cast<float>(m_size.x), static_cast<float>(size.y) / static_cast<float>(m_size.y)};
+			img->atlas			   = this;
+			img->sid			   = sid;
+			img->byteOffset		   = (img->rectCoords.pos.y * m_size.x + img->rectCoords.pos.x) * m_bytesPerPixel;
+
+			for (uint32 row = 0; row < size.y; ++row)
 			{
-
-				bool isFree = true;
-				for (TextureAtlasImage* rect : m_rects)
-				{
-					const Rectui& rectCoords = rect->rectCoords;
-
-					if (!(x + size.x <= rectCoords.pos.x || x >= rectCoords.pos.x + rectCoords.size.x || y + size.y <= rectCoords.pos.y || y >= rectCoords.pos.y + rectCoords.size.y))
-					{
-						isFree = false;
-						break;
-					}
-				}
-
-				if (isFree)
-				{
-					TextureAtlasImage* newRect = new TextureAtlasImage();
-					x += 1;
-					y += 1;
-
-					newRect->byteOffset		 = (y * m_size.x + x) * m_bytesPerPixel;
-					newRect->rectCoords.pos	 = {x, y};
-					newRect->rectCoords.size = size;
-					newRect->rectUV.pos		 = {static_cast<float>(x) / static_cast<float>(m_size.x), static_cast<float>(y) / static_cast<float>(m_size.y)};
-					newRect->rectUV.size	 = {static_cast<float>(size.x) / static_cast<float>(m_size.x), static_cast<float>(size.y) / static_cast<float>(m_size.y)};
-					newRect->atlas			 = this;
-					newRect->sid			 = sid;
-
-					for (uint32 row = 0; row < size.y; ++row)
-					{
-						uint8*		 dest = m_data.data() + newRect->byteOffset + row * m_size.x * m_bytesPerPixel;
-						const uint8* src  = data + row * size.x * m_bytesPerPixel;
-						MEMCPY(dest, src, size.x * m_bytesPerPixel);
-					}
-
-					m_isDirty = true;
-					m_rects.push_back(newRect);
-					return newRect;
-				}
+				uint8*		 dest = m_data.data() + img->byteOffset + row * m_size.x * m_bytesPerPixel;
+				const uint8* src  = data + row * size.x * m_bytesPerPixel;
+				MEMCPY(dest, src, size.x * m_bytesPerPixel);
 			}
+
+			const Vector2ui newGridRightPos	 = Vector2ui(grid->rect.pos.x + size.x, grid->rect.pos.y);
+			const Vector2ui newGridRightSize = Vector2ui(grid->rect.pos.x + grid->rect.size.x - newGridRightPos.x, size.y);
+			const Vector2ui newGridDownPos	 = Vector2ui(grid->rect.pos.x, grid->rect.pos.y + size.y);
+			const Vector2ui newGridDownSize	 = Vector2ui(grid->rect.size.x, grid->rect.pos.y + grid->rect.size.y - newGridDownPos.y);
+
+			Grid* newGridRight = new Grid(newGridRightPos, newGridRightSize);
+			Grid* newGridDown  = new Grid(newGridDownPos, newGridDownSize);
+
+			auto it = linatl::find_if(m_availableGrids.begin(), m_availableGrids.end(), [grid](Grid* g) -> bool { return g == grid; });
+			m_availableGrids.erase(it);
+			delete grid;
+
+			m_availableGrids.push_back(newGridRight);
+			m_availableGrids.push_back(newGridDown);
+			m_rects.push_back(img);
+			return img;
 		}
 
 		return nullptr;
@@ -128,6 +130,9 @@ namespace Lina
 
 		if (it != m_rects.end())
 		{
+			Grid* newGrid = new Grid(rect->rectCoords.pos, rect->rectCoords.size);
+			m_availableGrids.push_back(newGrid);
+
 			delete rect;
 			m_rects.erase(it);
 			return true;
