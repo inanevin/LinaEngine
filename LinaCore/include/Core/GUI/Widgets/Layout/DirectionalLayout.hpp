@@ -57,7 +57,6 @@ namespace Lina
 			float				 borderThickness	= Theme::GetDef().baseBorderThickness;
 			float				 borderMinSize		= 0.15f;
 			bool				 receiveInput		= false;
-			bool				 _category			= false;
 
 			Delegate<void()> onClicked;
 			Delegate<void()> onDoubleClicked;
@@ -127,19 +126,18 @@ namespace Lina
 	};
 
 	LINA_WIDGET_BEGIN(DirectionalLayout, Layout)
-	LINA_FIELD(DirectionalLayout, m_props, "Directional Layout Properties", "Class", GetTypeID<DirectionalLayout::Properties>())
+	LINA_FIELD(DirectionalLayout, m_props, "Directional Layout Properties", FieldType::UserClass, GetTypeID<DirectionalLayout::Properties>())
 	LINA_CLASS_END(DirectionalLayout)
 
 	LINA_CLASS_BEGIN(DirectionalLayoutProperties)
-	LINA_FIELD(DirectionalLayout::Properties, _category, "Directional Layout", "Category", 0)
-	LINA_FIELD(DirectionalLayout::Properties, direction, "Direction", "enum", GetTypeID<DirectionOrientation>())
-	LINA_FIELD(DirectionalLayout::Properties, mode, "Mode", "enum", GetTypeID<DirectionalLayout::Mode>())
-	LINA_FIELD(DirectionalLayout::Properties, colorBorder, "Color Border", "Color", 0)
-	LINA_FIELD(DirectionalLayout::Properties, colorBorderHovered, "Color Border Hovered", "Color", 0)
-	LINA_FIELD(DirectionalLayout::Properties, borderThickness, "Border Thickness", "float", 0)
-	LINA_FIELD(DirectionalLayout::Properties, borderMinSize, "Border Min Size", "float", 0)
+	LINA_FIELD(DirectionalLayout::Properties, direction, "Direction", FieldType::Enum, GetTypeID<DirectionOrientation>())
+	LINA_FIELD(DirectionalLayout::Properties, mode, "Mode", FieldType::Enum, GetTypeID<DirectionalLayout::Mode>())
+	LINA_FIELD(DirectionalLayout::Properties, colorBorder, "Color Border", FieldType::Color, 0)
+	LINA_FIELD(DirectionalLayout::Properties, colorBorderHovered, "Color Border Hovered", FieldType::Color, 0)
+	LINA_FIELD(DirectionalLayout::Properties, borderThickness, "Border Thickness", FieldType::Float, 0)
+	LINA_FIELD(DirectionalLayout::Properties, borderMinSize, "Border Min Size", FieldType::Float, 0)
 	LINA_FIELD_LIMITS(DirectionalLayout::Properties, borderMinSize, 0.0f, 1.0f, 0.1f)
-	LINA_FIELD(DirectionalLayout::Properties, receiveInput, "Receive Input", "bool", 0)
+	LINA_FIELD(DirectionalLayout::Properties, receiveInput, "Receive Input", FieldType::Boolean, 0)
 
 	LINA_FIELD_DEPENDENCY_POS(DirectionalLayout::Properties, colorBorder, "mode", 3)
 	LINA_FIELD_DEPENDENCY_POS(DirectionalLayout::Properties, colorBorderHovered, "mode", 3)

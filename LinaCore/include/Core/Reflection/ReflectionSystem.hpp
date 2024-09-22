@@ -300,7 +300,13 @@ namespace Lina
 		}
 		int32 _order = 0;
 
+		inline bool* GetFoldValuePtr()
+		{
+			return &m_foldValue;
+		}
+
 	private:
+		bool								m_foldValue = false;
 		HashMap<StringID, uint8>			m_positiveDependencies;
 		HashMap<StringID, uint8>			m_negativeDependencies;
 		HashMap<TypeID, FunctionCacheBase*> m_functionCaches;

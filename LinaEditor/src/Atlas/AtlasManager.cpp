@@ -36,14 +36,14 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	TextureAtlasImage* AtlasManager::AddImageToAtlas(uint8* data, const Vector2ui& size, uint32 bytesPerPixel)
+	TextureAtlasImage* AtlasManager::AddImageToAtlas(uint8* data, const Vector2ui& size, LinaGX::Format format)
 	{
 		LOCK_GUARD(m_mtx);
 		m_atlasPoolDirty.store(true);
 		TextureAtlasImage* rect = nullptr;
 		for (TextureAtlas* atlas : m_atlasPool)
 		{
-			if (atlas->GetBytesPerPixel() != bytesPerPixel)
+			if (atlas->GetFormat() != format)
 				continue;
 
 			rect = atlas->AddImage(data, size);
@@ -53,24 +53,9 @@ namespace Lina::Editor
 
 		if (rect == nullptr)
 		{
-			LinaGX::Format format = LinaGX::Format::R8_UNORM;
-
-			if (bytesPerPixel == 1)
-				format = LinaGX::Format::R8_UNORM;
-			else if (bytesPerPixel == 2)
-				format = LinaGX::Format::R8G8_SNORM;
-			else if (bytesPerPixel == 4)
-				format = LinaGX::Format::R8G8B8A8_SRGB;
-			else if (bytesPerPixel == 8)
-				format = LinaGX::Format::R16G16B16A16_UNORM;
-			else
-			{
-				LINA_ASSERT(false, "");
-			}
-
 			const String	atlasName = "AtlasManagerAtlas_" + TO_STRING(m_atlasPool.size());
 			const Vector2ui atlasSize = Vector2ui(Math::Max((uint32)1024, size.x), Math::Max((uint32)1024, size.y));
-			TextureAtlas*	atlas	  = new TextureAtlas(&m_editor->GetResourceManagerV2(), atlasSize, bytesPerPixel, format);
+			TextureAtlas*	atlas	  = new TextureAtlas(&m_editor->GetResourceManagerV2(), atlasSize, format);
 			m_atlasPool.push_back(atlas);
 			rect = atlas->AddImage(data, size);
 			LINA_ASSERT(rect != nullptr, "");
@@ -97,7 +82,7 @@ namespace Lina::Editor
 		m_editor = editor;
 
 		auto addAtlas = [&](const String& directory, StringID sid, const Vector2ui& sz) -> TextureAtlas* {
-			TextureAtlas* atlas	 = new TextureAtlas(&m_editor->GetResourceManagerV2(), sz, 4, LinaGX::Format::R8G8B8A8_SRGB);
+			TextureAtlas* atlas	 = new TextureAtlas(&m_editor->GetResourceManagerV2(), sz, LinaGX::Format::R8G8B8A8_SRGB);
 			m_customAtlases[sid] = atlas;
 
 			Vector<String> files;

@@ -42,7 +42,6 @@ namespace Lina
 		struct Properties
 		{
 			Delegate<void(bool)> onFoldChanged;
-			bool				 _category				= false;
 			bool				 doubleClickChangesFold = true;
 			bool				 lookForChevron			= true;
 			float				 marginIncrease			= Theme::GetDef().baseIndentInner;
@@ -97,17 +96,16 @@ namespace Lina
 	};
 
 	LINA_WIDGET_BEGIN(FoldLayout, Layout)
-	LINA_FIELD(FoldLayout, m_props, "", "Class", GetTypeID<FoldLayout::Properties>())
+	LINA_FIELD(FoldLayout, m_props, "", FieldType::UserClass, GetTypeID<FoldLayout::Properties>())
 	LINA_CLASS_END(FoldLayout)
 
 	LINA_CLASS_BEGIN(FoldLayoutProperties)
-	LINA_FIELD(FoldLayout::Properties, _category, "Fold Layout", "Category", 0)
-	LINA_FIELD(FoldLayout::Properties, doubleClickChangesFold, "Toggle With Double Click", "bool", 0)
-	LINA_FIELD(FoldLayout::Properties, lookForChevron, "Look For Chevron", "bool", 0)
-	LINA_FIELD(FoldLayout::Properties, useTween, "Use Tween", "bool", 0)
-	LINA_FIELD(FoldLayout::Properties, tweenPower, "Tween Power", "float", 0)
-	LINA_FIELD(FoldLayout::Properties, tweenDuration, "Tween Duration", "float", 0)
-	LINA_FIELD(FoldLayout::Properties, marginIncrease, "Margin Increase", "float", 0)
+	LINA_FIELD(FoldLayout::Properties, doubleClickChangesFold, "Toggle With Double Click", FieldType::Boolean, 0)
+	LINA_FIELD(FoldLayout::Properties, lookForChevron, "Look For Chevron", FieldType::Boolean, 0)
+	LINA_FIELD(FoldLayout::Properties, useTween, "Use Tween", FieldType::Boolean, 0)
+	LINA_FIELD(FoldLayout::Properties, tweenPower, "Tween Power", FieldType::Float, 0)
+	LINA_FIELD(FoldLayout::Properties, tweenDuration, "Tween Duration", FieldType::Float, 0)
+	LINA_FIELD(FoldLayout::Properties, marginIncrease, "Margin Increase", FieldType::Float, 0)
 	LINA_FIELD_DEPENDENCY_POS(FoldLayout::Properties, tweenPower, "useTween", 1)
 	LINA_FIELD_DEPENDENCY_POS(FoldLayout::Properties, tweenDuration, "useTween", 1)
 	LINA_CLASS_END(FoldLayoutProperties)

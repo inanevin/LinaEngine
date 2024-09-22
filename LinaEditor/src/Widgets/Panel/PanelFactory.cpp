@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelColorWheel.hpp"
 #include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
 #include "Editor/Widgets/Panel/PanelTextureViewer.hpp"
+#include "Editor/Widgets/Panel/PanelFontViewer.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 
 namespace Lina::Editor
@@ -66,7 +67,11 @@ namespace Lina::Editor
 		case PanelType::TextureViewer:
 			panel = source->GetWidgetManager()->Allocate<PanelTextureViewer>("Texture");
 			break;
+		case PanelType::FontViewer:
+			panel = source->GetWidgetManager()->Allocate<PanelFontViewer>("Font");
+			break;
 		default:
+			LINA_ASSERT(false, "");
 			break;
 		}
 

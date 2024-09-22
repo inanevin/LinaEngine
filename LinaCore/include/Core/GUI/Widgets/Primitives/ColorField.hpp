@@ -45,7 +45,6 @@ namespace Lina
 
 		struct Properties
 		{
-			bool			 _fold = false;
 			Delegate<void()> onClicked;
 			Color*			 value			   = nullptr;
 			ColorGrad*		 gradValue		   = nullptr;
@@ -92,13 +91,12 @@ namespace Lina
 	};
 
 	LINA_WIDGET_BEGIN(ColorField, Primitive)
-	LINA_FIELD(ColorField, m_props, "", "Class", GetTypeID<ColorField::Properties>());
+	LINA_FIELD(ColorField, m_props, "", FieldType::UserClass, GetTypeID<ColorField::Properties>());
 	LINA_CLASS_END(ColorField)
 
 	LINA_CLASS_BEGIN(ColorFieldProperties)
-	LINA_FIELD(ColorField::Properties, _fold, "Color Field", "Category", 0)
-	LINA_FIELD(ColorField::Properties, convertToLinear, "Convert to Linear", "bool", 0)
-	LINA_FIELD(ColorField::Properties, disableInput, "Disable Input", "bool", 0)
+	LINA_FIELD(ColorField::Properties, convertToLinear, "Convert to Linear", FieldType::Boolean, 0)
+	LINA_FIELD(ColorField::Properties, disableInput, "Disable Input", FieldType::Boolean, 0)
 	LINA_CLASS_END(ColorFieldProperties)
 
 } // namespace Lina

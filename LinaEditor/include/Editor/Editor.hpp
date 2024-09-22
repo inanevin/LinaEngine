@@ -83,7 +83,7 @@ namespace Lina::Editor
 		virtual void PreTick() override;
 		virtual void Tick(float delta) override;
 		virtual void PreShutdown() override;
-		virtual void Render(uint32 frameIndex) override;
+		virtual void Render() override;
 		virtual bool FillResourceCustomMeta(ResourceID id, OStream& stream) override;
 		virtual void OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size) override;
 

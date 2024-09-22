@@ -42,6 +42,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
+#include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Resource/TextureSampler.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Physics/PhysicsMaterial.hpp"
@@ -106,6 +107,10 @@ namespace Lina::Editor
 			if (item->resourceTID == GetTypeID<Texture>())
 			{
 				m_editor->GetWindowPanelManager().OpenPanel(PanelType::TextureViewer, item->resourceID, this);
+			}
+			else if (item->resourceTID == GetTypeID<Font>())
+			{
+				m_editor->GetWindowPanelManager().OpenPanel(PanelType::FontViewer, item->resourceID, this);
 			}
 		};
 
@@ -354,6 +359,10 @@ namespace Lina::Editor
 				.mode				   = PlatformProcess::DialogMode::SelectFile,
 				.multiSelection		   = true,
 			});
+
+			if (files.empty())
+				return true;
+
 			m_editor->GetResourcePipeline().ImportResources(selection.front(), files);
 			RefreshDirectory();
 			return true;
@@ -540,6 +549,9 @@ namespace Lina::Editor
 
 	void ResourceDirectoryBrowser::DropPayload(ResourceDirectory* target)
 	{
+		if (target == nullptr)
+			return;
+
 		if (!target->isFolder)
 			return;
 

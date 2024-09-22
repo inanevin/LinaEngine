@@ -416,7 +416,10 @@ namespace Lina
 
 	bool WidgetManager::PassKey(Widget* widget, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
 	{
-		if (!widget->GetIsDisabled() && widget->GetIsVisible() && !widget->GetFlags().IsSet(WF_HIDE) && widget->OnKey(keycode, scancode, inputAction) && !widget->GetFlags().IsSet(WF_KEY_PASSTHRU))
+		if (widget->GetFlags().IsSet(WF_HIDE))
+			return false;
+
+		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnKey(keycode, scancode, inputAction) && !widget->GetFlags().IsSet(WF_KEY_PASSTHRU))
 			return true;
 
 		for (auto* c : widget->GetChildren())
@@ -430,8 +433,10 @@ namespace Lina
 
 	bool WidgetManager::PassMouse(Widget* widget, uint32 button, LinaGX::InputAction inputAction)
 	{
+		if (widget->GetFlags().IsSet(WF_HIDE))
+			return false;
 
-		if (!widget->GetIsDisabled() && widget->GetIsVisible() && !widget->GetFlags().IsSet(WF_HIDE) && widget->OnMouse(button, inputAction) && !widget->GetFlags().IsSet(WF_MOUSE_PASSTHRU))
+		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnMouse(button, inputAction) && !widget->GetFlags().IsSet(WF_MOUSE_PASSTHRU))
 			return true;
 
 		for (auto* c : widget->GetChildren())
@@ -445,7 +450,10 @@ namespace Lina
 
 	bool WidgetManager::PassMouseWheel(Widget* widget, float amt)
 	{
-		if (!widget->GetIsDisabled() && widget->GetIsVisible() && !widget->GetFlags().IsSet(WF_HIDE) && widget->OnMouseWheel(amt) && !widget->GetFlags().IsSet(WF_MOUSE_PASSTHRU))
+		if (widget->GetFlags().IsSet(WF_HIDE))
+			return false;
+
+		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnMouseWheel(amt) && !widget->GetFlags().IsSet(WF_MOUSE_PASSTHRU))
 			return true;
 
 		for (auto* c : widget->GetChildren())
@@ -459,7 +467,10 @@ namespace Lina
 
 	bool WidgetManager::PassMousePos(Widget* widget, const Vector2& pos)
 	{
-		if (!widget->GetIsDisabled() && widget->GetIsVisible() && !widget->GetFlags().IsSet(WF_HIDE) && widget->OnMousePos(pos) && !widget->GetFlags().IsSet(WF_MOUSE_PASSTHRU))
+		if (widget->GetFlags().IsSet(WF_HIDE))
+			return false;
+
+		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnMousePos(pos) && !widget->GetFlags().IsSet(WF_MOUSE_PASSTHRU))
 			return true;
 
 		for (auto* c : widget->GetChildren())

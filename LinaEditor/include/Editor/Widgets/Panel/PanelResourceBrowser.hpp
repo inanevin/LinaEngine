@@ -42,6 +42,7 @@ namespace Lina
 
 namespace Lina::Editor
 {
+	class ResourceDirectoryBrowser;
 	class Editor;
 	class PanelResourceBrowser : public Panel
 	{
@@ -53,10 +54,16 @@ namespace Lina::Editor
 
 		static void SaveLayoutDefaults(OStream& stream);
 
+		ResourceDirectoryBrowser* GetBrowser() const
+		{
+			return m_resourceBrowser;
+		}
+
 	private:
-		Editor*		  m_editor		 = nullptr;
-		WorldManager* m_worldManager = nullptr;
-		EntityWorld*  m_world		 = nullptr;
+		Editor*					  m_editor			= nullptr;
+		WorldManager*			  m_worldManager	= nullptr;
+		EntityWorld*			  m_world			= nullptr;
+		ResourceDirectoryBrowser* m_resourceBrowser = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(PanelResourceBrowser, Hidden)

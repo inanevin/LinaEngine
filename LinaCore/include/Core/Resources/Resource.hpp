@@ -52,11 +52,11 @@ namespace Lina
 		virtual void LoadFromFile(const String& path){};
 		virtual void LoadFromStream(IStream& stream)
 		{
-			stream >> m_id >> m_name;
+			stream >> m_id >> m_name >> m_path;
 		};
 		virtual void SaveToStream(OStream& stream) const
 		{
-			stream << m_id << m_name;
+			stream << m_id << m_name << m_path;
 		};
 		virtual void SetCustomMeta(IStream& stream){};
 		void		 SaveToFileAsBinary(const String& path);
@@ -86,6 +86,16 @@ namespace Lina
 			return m_name;
 		}
 
+		inline void SetPath(const String& path)
+		{
+			m_path = path;
+		}
+
+		inline const String& GetPath() const
+		{
+			return m_path;
+		}
+
 		virtual void SetSubdata(void* data){};
 
 	protected:
@@ -93,6 +103,7 @@ namespace Lina
 
 	protected:
 		String	   m_name = "";
+		String	   m_path = "";
 		ResourceID m_id	  = 0;
 		TypeID	   m_tid  = 0;
 	};

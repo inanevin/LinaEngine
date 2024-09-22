@@ -40,7 +40,6 @@ namespace Lina
 
 		struct Properties
 		{
-			bool				 _fold				= false;
 			DirectionOrientation direction			= DirectionOrientation::Horizontal;
 			Color				 colorBarBackground = Theme::GetDef().background2;
 			ColorGrad			 colorBar			= {Theme::GetDef().accentPrimary1, Theme::GetDef().accentPrimary0};
@@ -129,17 +128,16 @@ namespace Lina
 	};
 
 	LINA_WIDGET_BEGIN(ScrollArea, Layout)
-	LINA_FIELD(ScrollArea, m_props, "", "Class", GetTypeID<ScrollArea::Properties>())
+	LINA_FIELD(ScrollArea, m_props, "", FieldType::UserClass, GetTypeID<ScrollArea::Properties>())
 	LINA_CLASS_END(ScrollArea)
 
 	LINA_CLASS_BEGIN(ScrollAreaProperties)
-	LINA_FIELD(ScrollArea::Properties, _fold, "Scroll Area", "Category", 0)
-	LINA_FIELD(ScrollArea::Properties, direction, "Direction", "enum", GetTypeID<DirectionOrientation>())
-	LINA_FIELD(ScrollArea::Properties, colorBarBackground, "Bar Background", "Color", 0)
-	LINA_FIELD(ScrollArea::Properties, colorBar, "Bar Color", "Color", 0)
-	LINA_FIELD(ScrollArea::Properties, colorHovered, "Bar Color Hovered", "Color", 0)
-	LINA_FIELD(ScrollArea::Properties, colorPressed, "Bar Color Pressed", "Color", 0)
-	LINA_FIELD(ScrollArea::Properties, barRounding, "Bar Rounding", "float", 0)
-	LINA_FIELD(ScrollArea::Properties, barThickness, "Bar Thickness", "float", 0)
+	LINA_FIELD(ScrollArea::Properties, direction, "Direction", FieldType::Enum, GetTypeID<DirectionOrientation>())
+	LINA_FIELD(ScrollArea::Properties, colorBarBackground, "Bar Background", FieldType::Color, 0)
+	LINA_FIELD(ScrollArea::Properties, colorBar, "Bar Color", FieldType::Color, 0)
+	LINA_FIELD(ScrollArea::Properties, colorHovered, "Bar Color Hovered", FieldType::Color, 0)
+	LINA_FIELD(ScrollArea::Properties, colorPressed, "Bar Color Pressed", FieldType::Color, 0)
+	LINA_FIELD(ScrollArea::Properties, barRounding, "Bar Rounding", FieldType::Float, 0)
+	LINA_FIELD(ScrollArea::Properties, barThickness, "Bar Thickness", FieldType::Float, 0)
 	LINA_CLASS_END(ScrollAreaProperties)
 } // namespace Lina

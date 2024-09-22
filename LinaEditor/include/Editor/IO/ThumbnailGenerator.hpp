@@ -48,10 +48,11 @@ namespace Lina::Editor
 	{
 
 	public:
+		static LinaGX::TextureBuffer GenerateThumbnailForResource(Resource* resource);
 		static LinaGX::TextureBuffer GenerateThumbnail(Texture* texture);
 		static LinaGX::TextureBuffer GenerateThumbnail(Model* model);
 		static LinaGX::TextureBuffer GenerateThumbnail(Audio* audio);
-		static LinaGX::TextureBuffer GenerateThumbnailFont(const String& absPath);
+		static LinaGX::TextureBuffer GenerateThumbnailForFont(const String& absPath);
 	};
 
 } // namespace Lina::Editor

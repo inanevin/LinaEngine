@@ -35,6 +35,8 @@ namespace Lina
 {
 	class Texture;
 	class DirectionalLayout;
+	class Button;
+	class Dropdown;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -54,33 +56,38 @@ namespace Lina::Editor
 		virtual void LoadLayoutFromStream(IStream& stream) override;
 
 	private:
+		void StoreBuffer();
+		void SetRuntimeDirty(bool isDirty);
+		void RegenTexture(const String& path);
+
+	private:
 		LINA_REFLECTION_ACCESS(PanelTextureViewer);
 
-		bool   m_category		  = true;
-		String m_textureName	  = "";
-		String m_textureSize	  = "";
-		bool   m_displayChannelsR = true;
-		bool   m_displayChannelsG = true;
-		bool   m_displayChannelsB = true;
+		bool m_generalInfoFold = true;
+		bool m_textureInfoFold = true;
+
+		String			m_textureName	  = "";
+		String			m_textureSize	  = "";
+		DisplayChannels m_displayChannels = DisplayChannels::RGBA;
 
 		GUIRendererUserData m_displayUserData;
 
-		Widget*				  m_texturePanel  = nullptr;
-		Editor*				  m_editor		  = nullptr;
-		Texture*			  m_texture		  = nullptr;
-		DirectionalLayout*	  m_inspector	  = nullptr;
-		uint32				  m_mipLevel	  = 0;
-		LinaGX::TextureBuffer m_textureBuffer = {};
+		Dropdown*			  m_formatDropdown		   = nullptr;
+		Button*				  m_saveButton			   = nullptr;
+		Widget*				  m_texturePanel		   = nullptr;
+		Editor*				  m_editor				   = nullptr;
+		Texture*			  m_texture				   = nullptr;
+		DirectionalLayout*	  m_inspector			   = nullptr;
+		uint32				  m_mipLevel			   = 0;
+		LinaGX::TextureBuffer m_textureBuffer		   = {};
+		bool				  m_containsRuntimeChanges = false;
 	};
 
 	LINA_WIDGET_BEGIN(PanelTextureViewer, Hidden)
-	LINA_FIELD(PanelTextureViewer, m_category, "Info", "Category", 0)
-	LINA_FIELD(PanelTextureViewer, m_textureName, "Texture Name", "Info", 0)
-	LINA_FIELD(PanelTextureViewer, m_textureSize, "Texture Size", "Info", 0)
-	LINA_FIELD(PanelTextureViewer, m_mipLevel, "Mip Level", "uint32", 0)
-	LINA_FIELD(PanelTextureViewer, m_displayChannelsR, "Display R", "bool", 0)
-	LINA_FIELD(PanelTextureViewer, m_displayChannelsG, "Display G", "bool", 0)
-	LINA_FIELD(PanelTextureViewer, m_displayChannelsB, "Display B", "bool", 0)
+	LINA_FIELD(PanelTextureViewer, m_textureName, "Texture Name", FieldType::StringFixed, 0)
+	LINA_FIELD(PanelTextureViewer, m_textureSize, "Texture Size", FieldType::StringFixed, 0)
+	LINA_FIELD(PanelTextureViewer, m_mipLevel, "Mip Level", FieldType::UInt32, 0)
+	LINA_FIELD(PanelTextureViewer, m_displayChannels, "Display Channels", FieldType::Enum, GetTypeID<DisplayChannels>())
 	LINA_FIELD_LIMITS(PanelTextureViewer, m_mipLevel, 0, 1, 1)
 	LINA_CLASS_END(PanelTextureViewer)
 

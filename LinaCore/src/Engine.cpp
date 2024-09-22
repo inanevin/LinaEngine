@@ -87,12 +87,10 @@ namespace Lina
 	void Engine::PreTick()
 	{
 		PROFILER_FUNCTION();
-
 		m_audioManager.PreTick();
 		m_worldManager.PreTick();
 		m_gfxManager.PreTick();
 		m_app->GetAppDelegate()->PreTick();
-
 		CalculateTime();
 	}
 
@@ -115,9 +113,7 @@ namespace Lina
 		auto audioJob = m_executor.Async([&]() { m_audioManager.Tick(deltaF); });
 
 		m_worldManager.Tick(deltaF);
-		m_gfxManager.Tick(deltaF);
 		m_app->GetAppDelegate()->Tick(deltaF);
-		m_gfxManager.Render();
 		audioJob.get();
 
 		// if (GfxManager::GetLGX()->GetInput().GetKeyDown(LINAGX_KEY_L))

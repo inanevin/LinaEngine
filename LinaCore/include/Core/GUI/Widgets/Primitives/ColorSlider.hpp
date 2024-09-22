@@ -46,8 +46,6 @@ namespace Lina
 
 		struct Properties
 		{
-			bool _fold = false;
-
 			Delegate<void(float)> onValueChanged;
 
 			Color	 colorLine		   = Theme::GetDef().foreground0;
@@ -102,17 +100,16 @@ namespace Lina
 	};
 
 	LINA_WIDGET_BEGIN(ColorSlider, Primitive)
-	LINA_FIELD(ColorSlider, m_props, "", "Class", GetTypeID<ColorSlider::Properties>());
+	LINA_FIELD(ColorSlider, m_props, "", FieldType::UserClass, GetTypeID<ColorSlider::Properties>());
 	LINA_CLASS_END(ColorSlider)
 
 	LINA_CLASS_BEGIN(ColorSliderProperties)
-	LINA_FIELD(ColorSlider::Properties, _fold, "Color Slider", "Category", 0)
-	LINA_FIELD(ColorSlider::Properties, colorLine, "Line Color", "Color", 0)
-	LINA_FIELD(ColorSlider::Properties, colorLineOutline, "Line Outline Color", "Color", 0)
-	LINA_FIELD(ColorSlider::Properties, isHueShift, "Is Hue Shift", "bool", 0)
-	LINA_FIELD(ColorSlider::Properties, minValue, "Min Value", "float", 0)
-	LINA_FIELD(ColorSlider::Properties, maxValue, "Max Value", "float", 0)
-	LINA_FIELD(ColorSlider::Properties, step, "Step", "float", 0)
+	LINA_FIELD(ColorSlider::Properties, colorLine, "Line Color", FieldType::Color, 0)
+	LINA_FIELD(ColorSlider::Properties, colorLineOutline, "Line Outline Color", FieldType::Color, 0)
+	LINA_FIELD(ColorSlider::Properties, isHueShift, "Is Hue Shift", FieldType::Boolean, 0)
+	LINA_FIELD(ColorSlider::Properties, minValue, "Min Value", FieldType::Float, 0)
+	LINA_FIELD(ColorSlider::Properties, maxValue, "Max Value", FieldType::Float, 0)
+	LINA_FIELD(ColorSlider::Properties, step, "Step", FieldType::Float, 0)
 	LINA_CLASS_END(ColorSliderProperties)
 
 } // namespace Lina

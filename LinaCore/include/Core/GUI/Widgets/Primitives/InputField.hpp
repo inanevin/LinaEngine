@@ -55,7 +55,6 @@ namespace Lina
 			Delegate<void()>			  onRightClick;
 			Delegate<void(float)>		  onValueChanged;
 
-			bool	  _fold				  = false;
 			Color	  colorHighlight	  = Theme::GetDef().accentPrimary1;
 			Color	  colorCaret		  = Theme::GetDef().foreground0;
 			ColorGrad colorNumberFill	  = {Theme::GetDef().accentPrimary1, Theme::GetDef().accentPrimary0};
@@ -207,28 +206,27 @@ namespace Lina
 	};
 
 	LINA_WIDGET_BEGIN(InputField, Primitive)
-	LINA_FIELD(InputField, m_props, "", "Class", GetTypeID<InputField::Properties>());
+	LINA_FIELD(InputField, m_props, "", FieldType::UserClass, GetTypeID<InputField::Properties>());
 	LINA_CLASS_END(InputField)
 
 	LINA_CLASS_BEGIN(InputFieldProperties)
-	LINA_FIELD(InputField::Properties, _fold, "Input Field", "Category", 0)
-	LINA_FIELD(InputField::Properties, usePlaceHolder, "Use Placeholder", "bool", 0)
-	LINA_FIELD(InputField::Properties, placeHolderText, "Placeholder", "String", 0)
-	LINA_FIELD(InputField::Properties, decimals, "Decimals", "uint32", 0)
-	LINA_FIELD(InputField::Properties, valueBits, "Bits", "uint8", 0)
-	LINA_FIELD(InputField::Properties, valueUnsigned, "Unsigned", "bool", 0)
-	LINA_FIELD(InputField::Properties, isNumberField, "Number Field", "bool", 0)
-	LINA_FIELD(InputField::Properties, disableNumberSlider, "Disable Slider", "bool", 0)
-	LINA_FIELD(InputField::Properties, clampNumber, "Clamp", "bool", 0)
-	LINA_FIELD(InputField::Properties, valueMin, "Min", "float", 0)
-	LINA_FIELD(InputField::Properties, valueMax, "Max", "float", 0)
-	LINA_FIELD(InputField::Properties, valueStep, "Step", "float", 0)
-	LINA_FIELD(InputField::Properties, colorHighlight, "Highlight Color", "Color", 0)
-	LINA_FIELD(InputField::Properties, colorCaret, "Caret Color", "Color", 0)
-	LINA_FIELD(InputField::Properties, colorNumberFill, "Fill Color", "ColorGrad", 0)
-	LINA_FIELD(InputField::Properties, colorPlaceHolder, "PlaceHolder Color", "Color", 0)
-	LINA_FIELD(InputField::Properties, outlineThickness, "Outline Thickness", "float", 0)
-	LINA_FIELD(InputField::Properties, horizontalIndent, "Horizontal Indent", "float", 0)
+	LINA_FIELD(InputField::Properties, usePlaceHolder, "Use Placeholder", FieldType::Boolean, 0)
+	LINA_FIELD(InputField::Properties, placeHolderText, "Placeholder", FieldType::String, 0)
+	LINA_FIELD(InputField::Properties, decimals, "Decimals", FieldType::UInt32, 0)
+	LINA_FIELD(InputField::Properties, valueBits, "Bits", FieldType::UInt8, 0)
+	LINA_FIELD(InputField::Properties, valueUnsigned, "Unsigned", FieldType::Boolean, 0)
+	LINA_FIELD(InputField::Properties, isNumberField, "Number Field", FieldType::Boolean, 0)
+	LINA_FIELD(InputField::Properties, disableNumberSlider, "Disable Slider", FieldType::Boolean, 0)
+	LINA_FIELD(InputField::Properties, clampNumber, "Clamp", FieldType::Boolean, 0)
+	LINA_FIELD(InputField::Properties, valueMin, "Min", FieldType::Float, 0)
+	LINA_FIELD(InputField::Properties, valueMax, "Max", FieldType::Float, 0)
+	LINA_FIELD(InputField::Properties, valueStep, "Step", FieldType::Float, 0)
+	LINA_FIELD(InputField::Properties, colorHighlight, "Highlight Color", FieldType::Color, 0)
+	LINA_FIELD(InputField::Properties, colorCaret, "Caret Color", FieldType::Color, 0)
+	LINA_FIELD(InputField::Properties, colorNumberFill, "Fill Color", FieldType::ColorGrad, 0)
+	LINA_FIELD(InputField::Properties, colorPlaceHolder, "PlaceHolder Color", FieldType::Color, 0)
+	LINA_FIELD(InputField::Properties, outlineThickness, "Outline Thickness", FieldType::Float, 0)
+	LINA_FIELD(InputField::Properties, horizontalIndent, "Horizontal Indent", FieldType::Float, 0)
 
 	LINA_FIELD_DEPENDENCY_POS(InputField::Properties, placeHolderText, "usePlaceHolder", 1)
 	LINA_FIELD_DEPENDENCY_POS(InputField::Properties, disableNumberSlider, "isNumberField", 1)

@@ -187,8 +187,12 @@ namespace Lina::Editor
 		pfd.bindlessDirty = false;
 	}
 
-	void EditorRenderer::Render(uint32 frameIndex)
+	void EditorRenderer::Render()
 	{
+		const uint32 frameIndex = m_lgx->GetCurrentFrameIndex();
+
+		m_lgx->StartFrame();
+
 		auto& pfd = m_pfd[frameIndex];
 
 		//  Taskflow tf;
@@ -258,6 +262,8 @@ namespace Lina::Editor
 			.swapchains		= swapchains.data(),
 			.swapchainCount = static_cast<uint32>(swapchains.size()),
 		});
+
+		m_lgx->EndFrame();
 	}
 
 	void EditorRenderer::AddWorldRenderer(WorldRenderer* wr)

@@ -59,7 +59,6 @@ namespace Lina
 			bool				  fetchWrapFromParent		= false;
 			bool				  wordWrap					= true;
 			bool				  delayOnClicked			= false;
-			bool				  _fold						= false;
 
 			void SaveToStream(OStream& stream) const
 			{
@@ -119,23 +118,22 @@ namespace Lina
 	};
 
 	LINA_WIDGET_BEGIN(Text, Primitive)
-	LINA_FIELD(Text, m_props, "Text Properties", "Class", GetTypeID<Text::Properties>());
+	LINA_FIELD(Text, m_props, "Text Properties", FieldType::UserClass, GetTypeID<Text::Properties>());
 	LINA_CLASS_END(Text)
 
 	LINA_CLASS_BEGIN(TextProperties)
-	LINA_FIELD(Text::Properties, _fold, "Text", "Category", 0)
-	LINA_FIELD(Text::Properties, text, "Text", "String", 0)
-	LINA_FIELD(Text::Properties, font, "Font", "Font", 0)
-	LINA_FIELD(Text::Properties, alignment, "Alignment", "enum", GetTypeID<LinaVG::TextAlignment>())
-	LINA_FIELD(Text::Properties, textScale, "Scale", "float", 0)
-	LINA_FIELD(Text::Properties, wrapWidth, "Wrap Width", "float", 0)
-	LINA_FIELD(Text::Properties, wordWrap, "Word Wrap", "bool", 0)
-	LINA_FIELD(Text::Properties, fetchWrapFromParent, "Fetch Wrap From Parent", "bool", 0)
-	LINA_FIELD(Text::Properties, isDynamic, "Is Dynamic", "bool", 0)
-	LINA_FIELD(Text::Properties, fetchCustomClipFromParent, "Clip From Parent", "bool", 0)
-	LINA_FIELD(Text::Properties, fetchCustomClipFromSelf, "Clip From Self", "bool", 0)
-	LINA_FIELD(Text::Properties, color, "Color", "ColorGrad", 0)
-	LINA_FIELD(Text::Properties, colorDisabled, "Color Disabled", "Color", 0)
+	LINA_FIELD(Text::Properties, text, "Text", FieldType::String, 0)
+	LINA_FIELD(Text::Properties, font, "Font", FieldType::Resource, 0)
+	LINA_FIELD(Text::Properties, alignment, "Alignment", FieldType::Enum, GetTypeID<LinaVG::TextAlignment>())
+	LINA_FIELD(Text::Properties, textScale, "Scale", FieldType::Float, 0)
+	LINA_FIELD(Text::Properties, wrapWidth, "Wrap Width", FieldType::Float, 0)
+	LINA_FIELD(Text::Properties, wordWrap, "Word Wrap", FieldType::Boolean, 0)
+	LINA_FIELD(Text::Properties, fetchWrapFromParent, "Fetch Wrap From Parent", FieldType::Boolean, 0)
+	LINA_FIELD(Text::Properties, isDynamic, "Is Dynamic", FieldType::Boolean, 0)
+	LINA_FIELD(Text::Properties, fetchCustomClipFromParent, "Clip From Parent", FieldType::Boolean, 0)
+	LINA_FIELD(Text::Properties, fetchCustomClipFromSelf, "Clip From Self", FieldType::Boolean, 0)
+	LINA_FIELD(Text::Properties, color, "Color", FieldType::ColorGrad, 0)
+	LINA_FIELD(Text::Properties, colorDisabled, "Color Disabled", FieldType::Color, 0)
 	LINA_CLASS_END(TextProperties)
 
 } // namespace Lina

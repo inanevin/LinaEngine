@@ -73,6 +73,11 @@ namespace Lina
 		virtual void		LoadFromStream(IStream& stream) override;
 		virtual void		SaveToStream(OStream& stream) const override;
 
+		inline Metadata& GetMeta()
+		{
+			return m_meta;
+		}
+
 		virtual void SetCustomMeta(IStream& stream) override
 		{
 			m_meta.LoadFromStream(stream);
@@ -88,4 +93,14 @@ namespace Lina
 
 	LINA_RESOURCE_BEGIN(Font);
 	LINA_CLASS_END(Font);
+
+	LINA_CLASS_BEGIN(FontPointRef)
+	LINA_FIELD(Font::FontPoint, size, "Size", FieldType::UInt32, 0)
+	LINA_FIELD(Font::FontPoint, dpiLimit, "DPI Limit", FieldType::Float, 0)
+	LINA_CLASS_END(FontPointRef)
+
+	LINA_CLASS_BEGIN(FontMeta)
+	LINA_FIELD(Font::Metadata, isSDF, "Is SDF", FieldType::Boolean, 0);
+	LINA_FIELD_VEC(Font::Metadata, points, "Points", FieldType::UserClass, Font::FontPoint, GetTypeID<Font::FontPoint>());
+	LINA_CLASS_END(FontMeta)
 } // namespace Lina

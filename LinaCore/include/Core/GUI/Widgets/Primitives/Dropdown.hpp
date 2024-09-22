@@ -48,7 +48,6 @@ namespace Lina
 
 		struct Properties
 		{
-			bool									   _fold = false;
 			Delegate<bool(int32, String& outNewTitle)> onSelected;
 			Delegate<void(Popup* popup)>			   onAddItems;
 
@@ -113,13 +112,12 @@ namespace Lina
 	};
 
 	LINA_WIDGET_BEGIN(Dropdown, Primitive)
-	LINA_FIELD(Dropdown, m_props, "", "Class", GetTypeID<Dropdown::Properties>());
+	LINA_FIELD(Dropdown, m_props, "", FieldType::UserClass, GetTypeID<Dropdown::Properties>());
 	LINA_CLASS_END(Dropdown)
 
 	LINA_CLASS_BEGIN(DropdownProperties)
-	LINA_FIELD(Dropdown::Properties, _fold, "Dropdown", "Category", 0)
-	LINA_FIELD(Dropdown::Properties, closeOnSelect, "Close On Select", "bool", 0)
-	LINA_FIELD(Dropdown::Properties, horizontalIndent, "Horizontal Indent", "float", 0)
+	LINA_FIELD(Dropdown::Properties, closeOnSelect, "Close On Select", FieldType::Boolean, 0)
+	LINA_FIELD(Dropdown::Properties, horizontalIndent, "Horizontal Indent", FieldType::Float, 0)
 	LINA_CLASS_END(DropdownProperties)
 
 } // namespace Lina

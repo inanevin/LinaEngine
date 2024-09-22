@@ -46,7 +46,6 @@ namespace Lina
 
 		struct Properties
 		{
-			bool  _fold			  = false;
 			float verticalPadding = Theme::GetDef().baseIndent;
 
 			void SaveToStream(OStream& stream) const
@@ -92,11 +91,10 @@ namespace Lina
 	};
 
 	LINA_WIDGET_BEGIN(GridLayout, Layout)
-	LINA_FIELD(GridLayout, m_props, "Properties", "Class", GetTypeID<GridLayout::Properties>())
+	LINA_FIELD(GridLayout, m_props, "Properties", FieldType::UserClass, GetTypeID<GridLayout::Properties>())
 	LINA_CLASS_END(GridLayout)
 
 	LINA_CLASS_BEGIN(GridLayoutProperties)
-	LINA_FIELD(GridLayout::Properties, _fold, "Grid Layout", "Category", 0)
-	LINA_FIELD(GridLayout::Properties, verticalPadding, "Vertical Padding", "float", 0)
+	LINA_FIELD(GridLayout::Properties, verticalPadding, "Vertical Padding", FieldType::Float, 0)
 	LINA_CLASS_END(GridLayoutProperties)
 } // namespace Lina

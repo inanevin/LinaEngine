@@ -40,7 +40,6 @@ namespace Lina
 	public:
 		struct Properties
 		{
-			bool				 _fold = false;
 			bool*				 value = nullptr;
 			Delegate<void(bool)> onValueChanged;
 
@@ -90,10 +89,9 @@ namespace Lina
 	};
 
 	LINA_WIDGET_BEGIN(Checkbox, Primitive)
-	LINA_FIELD(Checkbox, m_props, "", "Class", GetTypeID<Checkbox::Properties>());
+	LINA_FIELD(Checkbox, m_props, "", FieldType::UserClass, GetTypeID<Checkbox::Properties>());
 	LINA_CLASS_END(Checkbox)
 
 	LINA_CLASS_BEGIN(CheckboxProperties)
-	LINA_FIELD(Checkbox::Properties, _fold, "Checkbox", "Category", 0)
 	LINA_CLASS_END(CheckboxProperties)
 } // namespace Lina

@@ -122,7 +122,7 @@ namespace Lina::Editor
 			Span<uint8>	 thumbData = {new uint8[sz], sz};
 			stream.ReadToRaw(thumbData);
 			stream.Destroy();
-			dir->_thumbnailAtlasImage = m_editor->GetAtlasManager().AddImageToAtlas(thumbData.data(), Vector2ui(width, height), bytesPerPixel);
+			dir->_thumbnailAtlasImage = m_editor->GetAtlasManager().AddImageToAtlas(thumbData.data(), Vector2ui(width, height), bytesPerPixel == 1 ? LinaGX::Format::R8_UNORM : LinaGX::Format::R8G8B8A8_SRGB);
 			delete[] thumbData.data();
 		}
 
@@ -245,46 +245,37 @@ namespace Lina::Editor
 			ResourceDirectory* dir	= newChildren.at(i);
 			const ResourceID   id	= dir->resourceID;
 
-			LinaGX::TextureBuffer thumbnail = {};
-
 			if (dir->resourceTID == GetTypeID<Texture>())
 			{
 				Texture txt(id, dir->name);
+				txt.SetPath(path);
 				txt.LoadFromFile(path);
 				txt.SaveToFileAsBinary(projectData->GetResourcePath(id));
-				thumbnail = ThumbnailGenerator::GenerateThumbnail(&txt);
+				GenerateThumbnailForResource(dir, &txt);
 			}
 			else if (dir->resourceTID == GetTypeID<Font>())
 			{
 				Font font(id, dir->name);
+				font.SetPath(path);
 				font.LoadFromFile(path);
 				font.SaveToFileAsBinary(projectData->GetResourcePath(id));
-				thumbnail = ThumbnailGenerator::GenerateThumbnailFont(path);
+				GenerateThumbnailForResource(dir, &font);
 			}
 			else if (dir->resourceTID == GetTypeID<Audio>())
 			{
 				Audio aud(id, dir->name);
+				aud.SetPath(path);
 				aud.LoadFromFile(path);
 				aud.SaveToFileAsBinary(projectData->GetResourcePath(id));
-				thumbnail = ThumbnailGenerator::GenerateThumbnail(&aud);
+				GenerateThumbnailForResource(dir, &aud);
 			}
 			else if (dir->resourceTID == GetTypeID<Model>())
 			{
 				Model model(id, dir->name);
+				model.SetPath(path);
 				model.LoadFromFile(path);
 				model.SaveToFileAsBinary(projectData->GetResourcePath(id));
-				thumbnail = ThumbnailGenerator::GenerateThumbnail(&model);
-			}
-
-			if (thumbnail.pixels != nullptr)
-			{
-				OStream stream;
-				stream << thumbnail.width << thumbnail.height << thumbnail.bytesPerPixel;
-				stream.WriteRaw(thumbnail.pixels, thumbnail.width * thumbnail.height * thumbnail.bytesPerPixel);
-				dir->_thumbnailAtlasImage = m_editor->GetAtlasManager().AddImageToAtlas(thumbnail.pixels, Vector2ui(thumbnail.width, thumbnail.height), thumbnail.bytesPerPixel);
-				dir->thumbnailBuffer.Create(stream);
-				delete[] thumbnail.pixels;
-				stream.Destroy();
+				GenerateThumbnailForResource(dir, &model);
 			}
 
 			m_importedResourcesCount.fetch_add(1);
@@ -292,6 +283,34 @@ namespace Lina::Editor
 
 		m_editor->GetSystem()->GetMainExecutor()->RunAndWait(tf);
 		m_editor->GetProjectManager().SaveProjectChanges();
+	}
+
+	void ResourcePipeline::GenerateThumbnailForResource(ResourceDirectory* dir, Resource* resource)
+	{
+		const ResourceID id = dir->resourceID;
+
+		if (!dir->thumbnailBuffer.IsEmpty())
+			dir->thumbnailBuffer.Destroy();
+
+		if (dir->_thumbnailAtlasImage != nullptr)
+		{
+			m_editor->GetAtlasManager().RemoveImage(dir->_thumbnailAtlasImage);
+			dir->_thumbnailAtlasImage = nullptr;
+		}
+
+		LinaGX::TextureBuffer thumbnail = {};
+		thumbnail						= ThumbnailGenerator::GenerateThumbnailForResource(resource);
+
+		if (thumbnail.pixels != nullptr)
+		{
+			OStream stream;
+			stream << thumbnail.width << thumbnail.height << thumbnail.bytesPerPixel;
+			stream.WriteRaw(thumbnail.pixels, thumbnail.width * thumbnail.height * thumbnail.bytesPerPixel);
+			dir->_thumbnailAtlasImage = m_editor->GetAtlasManager().AddImageToAtlas(thumbnail.pixels, Vector2ui(thumbnail.width, thumbnail.height), thumbnail.bytesPerPixel == 1 ? LinaGX::Format::R8_UNORM : LinaGX::Format::R8G8B8A8_SRGB);
+			dir->thumbnailBuffer.Create(stream);
+			delete[] thumbnail.pixels;
+			stream.Destroy();
+		}
 	}
 
 	void ResourcePipeline::DuplicateResource(ResourceManagerV2* resourceManager, ResourceDirectory* directory, ResourceDirectory* newParent)

@@ -28,13 +28,15 @@ SOFTWARE.
 
 #include "Core/Graphics/Utility/TextureAtlas.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
+#include "Core/Graphics/CommonGraphics.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 
 namespace Lina
 {
-	TextureAtlas::TextureAtlas(ResourceManagerV2* rm, const Vector2ui& sz, uint32 bytesPerPixel, LinaGX::Format format) : m_size(sz), m_bytesPerPixel(bytesPerPixel), m_textureFormat(format), m_resourceManagerV2(rm)
+	TextureAtlas::TextureAtlas(ResourceManagerV2* rm, const Vector2ui& sz, LinaGX::Format format) : m_size(sz), m_textureFormat(format), m_resourceManagerV2(rm)
 	{
-		const size_t dataSize = static_cast<size_t>(static_cast<size_t>(sz.x * sz.y * bytesPerPixel));
+		m_bytesPerPixel		  = GetBytesPerPixelFromFormat(format);
+		const size_t dataSize = static_cast<size_t>(static_cast<size_t>(sz.x * sz.y * m_bytesPerPixel));
 		uint8*		 data	  = new uint8[dataSize];
 		m_data				  = {data, dataSize};
 		MEMSET(m_data.data(), 0, dataSize);

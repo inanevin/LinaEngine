@@ -52,15 +52,11 @@ namespace Lina
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void PreShutdown() override;
 		virtual void Shutdown() override;
-		virtual void PreTick() override;
 		virtual void OnWindowSizeChanged(LinaGX::Window* window, const LinaGX::LGXVector2ui&) override;
 
 		// Loop
-		void WaitForSwapchains();
 		void Join();
 		void Poll();
-		void Tick(float delta);
-		void Render(StringID pool = 0);
 
 		// Window
 		void			DestroyApplicationWindow(StringID sid);

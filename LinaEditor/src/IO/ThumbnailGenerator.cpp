@@ -52,32 +52,47 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+	LinaGX::TextureBuffer ThumbnailGenerator::GenerateThumbnailForResource(Resource* resource)
+	{
+		if (resource->GetTID() == GetTypeID<Texture>())
+			return GenerateThumbnail(static_cast<Texture*>(resource));
+
+		if (resource->GetTID() == GetTypeID<Model>())
+			return GenerateThumbnail(static_cast<Model*>(resource));
+
+		if (resource->GetTID() == GetTypeID<Audio>())
+			return GenerateThumbnail(static_cast<Audio*>(resource));
+
+		if (resource->GetTID() == GetTypeID<Font>())
+			return GenerateThumbnailForFont(static_cast<Font*>(resource)->GetPath());
+
+		return {};
+	}
 
 	LinaGX::TextureBuffer ThumbnailGenerator::GenerateThumbnail(Texture* texture)
 	{
-		LinaGX::TextureBuffer				 resizedBuffer;
-		const Vector<LinaGX::TextureBuffer>& allLevels = texture->GetAllLevels();
-		const LinaGX::TextureBuffer&		 image	   = allLevels.at(0);
-		const float							 max	   = static_cast<float>(Math::Max(image.width, image.height));
-		const float							 min	   = static_cast<float>(Math::Min(image.width, image.height));
-		const float							 aspect	   = max / min;
+		LinaGX::TextureBuffer buffer = {};
+		LinaGX::LoadImageFromFile(texture->GetPath().c_str(), buffer, 4, nullptr, true);
+
+		const float max	   = static_cast<float>(Math::Max(buffer.width, buffer.height));
+		const float min	   = static_cast<float>(Math::Min(buffer.width, buffer.height));
+		const float aspect = max / min;
 
 		uint32 width  = RESOURCE_THUMBNAIL_SIZE;
 		uint32 height = RESOURCE_THUMBNAIL_SIZE;
-
-		if (image.width > image.height)
+		if (buffer.width > buffer.height)
 			height = static_cast<uint32>(static_cast<float>(width) / aspect);
 		else
 			width = static_cast<uint32>(static_cast<float>(height) / aspect);
 
-		resizedBuffer = {
-			.pixels		   = new uint8[width * height * image.bytesPerPixel],
+		LinaGX::TextureBuffer resizedBuffer = {
+			.pixels		   = new uint8[width * height * 4],
 			.width		   = width,
 			.height		   = height,
-			.bytesPerPixel = image.bytesPerPixel,
+			.bytesPerPixel = 4,
 		};
 
-		if (!LinaGX::ResizeBuffer(image, resizedBuffer, width, height, LinaGX::MipmapFilter::Default, image.bytesPerPixel, true))
+		if (!LinaGX::ResizeBuffer(buffer, resizedBuffer, width, height, LinaGX::MipmapFilter::Default, 4, true))
 		{
 			LINA_ERR("Thumbnail Generator: Failed resizing image for thumbnail!");
 		}
@@ -172,7 +187,7 @@ namespace Lina::Editor
 		return {};
 	}
 
-	LinaGX::TextureBuffer ThumbnailGenerator::GenerateThumbnailFont(const String& absPath)
+	LinaGX::TextureBuffer ThumbnailGenerator::GenerateThumbnailForFont(const String& absPath)
 	{
 		LinaGX::TextureBuffer thumbnailBuffer;
 

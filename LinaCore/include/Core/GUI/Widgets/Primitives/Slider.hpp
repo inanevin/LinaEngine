@@ -49,7 +49,6 @@ namespace Lina
 
 		struct Properties
 		{
-			bool				 _fold				 = false;
 			DirectionOrientation direction			 = DirectionOrientation::Horizontal;
 			ColorGrad			 colorFill			 = {Theme::GetDef().accentPrimary1, Theme::GetDef().accentPrimary0};
 			float				 crossAxisPercentage = Theme::GetDef().baseSliderPerc;
@@ -123,17 +122,16 @@ namespace Lina
 	};
 
 	LINA_WIDGET_BEGIN(Slider, Primitive)
-	LINA_FIELD(Slider, m_props, "", "Class", GetTypeID<Slider::Properties>());
+	LINA_FIELD(Slider, m_props, "", FieldType::UserClass, GetTypeID<Slider::Properties>());
 	LINA_CLASS_END(Slider)
 
 	LINA_CLASS_BEGIN(SliderProperties)
-	LINA_FIELD(Slider::Properties, _fold, "Slider", "Category", 0)
-	LINA_FIELD(Slider::Properties, direction, "Direction", "enum", GetTypeID<DirectionOrientation>())
-	LINA_FIELD(Slider::Properties, colorFill, "Fill Color", "ColorGrad", 0)
-	LINA_FIELD(Slider::Properties, minValue, "Min Value", "float", 0)
-	LINA_FIELD(Slider::Properties, maxValue, "Max Value", "float", 0)
-	LINA_FIELD(Slider::Properties, step, "Step", "float", 0)
-	LINA_FIELD(Slider::Properties, crossAxisPercentage, "Cross-axis Percentage", "float", 0)
+	LINA_FIELD(Slider::Properties, direction, "Direction", FieldType::Enum, GetTypeID<DirectionOrientation>())
+	LINA_FIELD(Slider::Properties, colorFill, "Fill Color", FieldType::ColorGrad, 0)
+	LINA_FIELD(Slider::Properties, minValue, "Min Value", FieldType::Float, 0)
+	LINA_FIELD(Slider::Properties, maxValue, "Max Value", FieldType::Float, 0)
+	LINA_FIELD(Slider::Properties, step, "Step", FieldType::Float, 0)
+	LINA_FIELD(Slider::Properties, crossAxisPercentage, "Cross-axis Percentage", FieldType::Float, 0)
 	LINA_FIELD_LIMITS(Slider::Properties, crossAxisPercentage, 0.0f, 1.0f, 0.1f)
 	LINA_CLASS_END(SliderProperties)
 } // namespace Lina

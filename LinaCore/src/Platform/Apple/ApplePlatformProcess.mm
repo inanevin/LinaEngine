@@ -56,25 +56,22 @@ SOFTWARE.
 #endif
 
 CVDisplayLinkRef displayLink;
+// dispatch_semaphore_t renderSemaphore;
 
 CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp* inNow, const CVTimeStamp* inOutputTime, CVOptionFlags flagsIn, CVOptionFlags* flagsOut, void* displayLinkContext)
 {
-	Lina::Application* app = static_cast<Lina::Application*>(displayLinkContext);
-	app->PreTick();
-	app->Poll();
-	app->Tick();
+	Lina::Application* linaApp = (__bridge Lina::Application*)displayLinkContext;
+	dispatch_async(dispatch_get_main_queue(),
+				   ^{
 
-	if (app->GetExitRequested())
-	{
-		dispatch_async(dispatch_get_main_queue(), ^{
-		  [NSApp performSelectorOnMainThread:@selector(terminate:) withObject:nil waitUntilDone:NO];
-		});
-	}
+				   });
+
+	// dispatch_semaphore_signal(renderSemaphore);
 	return kCVReturnSuccess;
 }
 
 @interface										 AppDelegate : NSObject <NSApplicationDelegate>
-@property(assign) void*							 linaApp;
+@property(assign) void*							 myApp;
 @property(assign) Lina::SystemInitializationInfo initInfo;
 @end
 
@@ -86,6 +83,11 @@ CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp* in
 
 - (void)applicationDidFinishLaunching:(NSNotification*)aNotification
 {
+	/*
+	CVDisplayLinkCreateWithActiveCGDisplays(&displayLink);
+	CVDisplayLinkSetOutputCallback(displayLink, &DisplayLinkCallback, self.myApp);
+	CVDisplayLinkStart(displayLink);
+	*/
 }
 
 @end
@@ -103,45 +105,56 @@ namespace
 			// Handle error
 			NSLog(@"Failed to change working directory to: %@", parentDir);
 		}
+
+		NSApplication* app = [NSApplication sharedApplication];
+		[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+		[NSApp setPresentationOptions:NSApplicationPresentationDefault];
+		[NSApp activateIgnoringOtherApps:YES];
 	}
 } // namespace
 
 int main(int argc, char* argv[])
 {
-	NSApplication* app		   = [NSApplication sharedApplication];
-	AppDelegate*   appDelegate = [[AppDelegate alloc] init];
-	[app setDelegate:appDelegate];
-	[app finishLaunching];
-	[app activateIgnoringOtherApps:YES];
-
-	InitializeMacOSPlatform();
-
-	Lina::Application* linaApp = new Lina::Application();
-	linaApp->Initialize(Lina::Lina_GetInitInfo());
-	while (!linaApp->GetExitRequested())
+	@autoreleasepool
 	{
-		@autoreleasepool
+
+		NSApplication* app = [NSApplication sharedApplication];
+		InitializeMacOSPlatform();
+		AppDelegate* appDelegate = [[AppDelegate alloc] init];
+		[app setDelegate:appDelegate];
+		// renderSemaphore = dispatch_semaphore_create(0);
+
+		Lina::Application* linaApp = new Lina::Application();
+		linaApp->Initialize(Lina::Lina_GetInitInfo());
+		[appDelegate setMyApp:linaApp];
+
+		while (!linaApp->GetExitRequested())
 		{
-			NSEvent* ev;
-			do
+			@autoreleasepool
 			{
-				ev = [NSApp nextEventMatchingMask:NSEventMaskAny untilDate:nil inMode:NSDefaultRunLoopMode dequeue:YES];
-				if (ev)
+				NSEvent* ev;
+				do
 				{
-					// handle events here
-					[NSApp sendEvent:ev];
-				}
-			} while (ev);
-			linaApp->Poll();
-			linaApp->PreTick();
-			linaApp->Tick();
+					ev = [NSApp nextEventMatchingMask:NSEventMaskAny untilDate:nil inMode:NSDefaultRunLoopMode dequeue:YES];
+					if (ev)
+					{
+						// handle events here
+						[NSApp sendEvent:ev];
+						[NSApp updateWindows];
+					}
+				} while (ev);
+				linaApp->Poll();
+				linaApp->PreTick();
+				linaApp->Tick();
+				// dispatch_semaphore_wait(renderSemaphore, DISPATCH_TIME_FOREVER);
+				linaApp->Render();
+			}
 		}
+
+		linaApp->Shutdown();
+		delete linaApp;
+		[app terminate:nil];
 	}
-
-	linaApp->Shutdown();
-	delete linaApp;
-
-	[app terminate:nil];
 }
 
 namespace Lina

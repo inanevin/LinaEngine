@@ -367,9 +367,9 @@ namespace Lina::Editor
 		m_editorRenderer.Tick(delta);
 	}
 
-	void Editor::Render(uint32 frameIndex)
+	void Editor::Render()
 	{
-		m_editorRenderer.Render(frameIndex);
+		m_editorRenderer.Render();
 	}
 
 	void Editor::CoreResourcesLoaded()

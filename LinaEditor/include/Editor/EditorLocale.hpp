@@ -120,6 +120,7 @@ namespace Lina::Editor
 		Rename,
 		WidgetEditor,
 		Import,
+		ReImport,
 		New,
 		GUIWidget,
 		SelectWidget,
@@ -133,6 +134,9 @@ namespace Lina::Editor
 		Export,
 		Refresh,
 		ImportingResources,
+		ThisResourceNoLongerExists,
+		GenerateSDF,
+		General,
 	};
 
 	class Locale

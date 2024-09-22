@@ -42,7 +42,6 @@ namespace Lina
 	public:
 		struct Properties
 		{
-			bool			 _fold = false;
 			Delegate<void()> onClicked;
 			Delegate<void()> onHoverBegin;
 			Delegate<void()> onHoverEnd;
@@ -97,11 +96,10 @@ namespace Lina
 	};
 
 	LINA_WIDGET_BEGIN(Button, Primitive)
-	LINA_FIELD(Button, m_props, "", "Class", GetTypeID<Button::Properties>());
+	LINA_FIELD(Button, m_props, "", FieldType::UserClass, GetTypeID<Button::Properties>());
 	LINA_CLASS_END(Button)
 
 	LINA_CLASS_BEGIN(ButtonProperties)
-	LINA_FIELD(Button::Properties, _fold, "Button", "Category", 0)
 	LINA_CLASS_END(ButtonProperties)
 
 } // namespace Lina

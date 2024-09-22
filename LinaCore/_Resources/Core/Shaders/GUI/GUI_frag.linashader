@@ -74,10 +74,17 @@ void main()
        if(int(material.floatPack2.g) == 1)
           outFragColor = vec4(col.r) * material.color1;
 
-       int channelBitmask = int(material.floatPack2.b);
-       outFragColor.r *= (channelBitmask & (1 << 0)) != 0 ? 1.0 : 0.0; // R channel
-       outFragColor.g *= (channelBitmask & (1 << 1)) != 0 ? 1.0 : 0.0; // G channel
-       outFragColor.b *= (channelBitmask & (1 << 2)) != 0 ? 1.0 : 0.0; // B channel
+       int displayChannels = int(material.floatPack2.b);
+
+       if(displayChannels == 1)
+         outFragColor = vec4(outFragColor.r, outFragColor.r, outFragColor.r, 1.0);
+      else  if(displayChannels == 2)
+         outFragColor = vec4(outFragColor.g, outFragColor.g, outFragColor.g, 1.0);
+      else if(displayChannels == 3)
+         outFragColor = vec4(outFragColor.b, outFragColor.b, outFragColor.b, 1.0);
+      else  if(displayChannels == 4)
+         outFragColor = vec4(outFragColor.a, outFragColor.a, outFragColor.a, 1.0);
+
    }
    else if(bufferType == 3)
    {

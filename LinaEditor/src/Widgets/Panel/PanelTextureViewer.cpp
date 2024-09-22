@@ -29,18 +29,23 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelTextureViewer.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/EditorLocale.hpp"
+#include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
+#include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
 #include "Core/Meta/ProjectData.hpp"
 #include "Core/Platform/PlatformProcess.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
 #include "Core/GUI/Widgets/Layout/Popup.hpp"
+#include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
 #include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
+#include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
+#include "Common/FileSystem/FileSystem.hpp"
 
 namespace Lina::Editor
 {
@@ -111,6 +116,18 @@ namespace Lina::Editor
 
 		m_displayUserData = {};
 
+		if (!m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_subData))
+		{
+			Text* text = m_manager->Allocate<Text>("Info");
+			text->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+			text->SetAlignedPos(Vector2(0.5f, 0.5f));
+			text->SetAnchorX(Anchor::Center);
+			text->SetAnchorY(Anchor::Center);
+			text->GetProps().text = Locale::GetStr(LocaleStr::ThisResourceNoLongerExists);
+			m_texturePanel->AddChild(text);
+			return;
+		}
+
 		ResourceDef def = {
 			.id	 = m_subData,
 			.tid = GetTypeID<Texture>(),
@@ -127,49 +144,53 @@ namespace Lina::Editor
 		m_texturePanel->GetWidgetProps().textureUserData  = &m_displayUserData;
 		GetWidgetProps().debugName						  = "Texture: " + m_texture->GetName();
 
-		const LinaGX::TextureBuffer base = m_texture->GetAllLevels().front();
-
-		// Store initial buffer.
-		const size_t sz		   = static_cast<size_t>(base.width * base.height * base.bytesPerPixel);
-		m_textureBuffer		   = base;
-		m_textureBuffer.pixels = new uint8[sz];
-		MEMCPY(m_textureBuffer.pixels, base.pixels, sz);
+		StoreBuffer();
 
 		m_textureName = m_texture->GetName();
 		m_textureSize = TO_STRING(m_texture->GetSize().x) + " x " + TO_STRING(m_texture->GetSize().y);
-		CommonWidgets::BuildClassReflection(m_inspector, this, ReflectionSystem::Get().Resolve<PanelTextureViewer>(), [this](const MetaType& meta, FieldBase* field) {
-			m_displayUserData.channelMask = 0;
-			m_displayUserData.channelMask |= (1 << 0) * (int8)m_displayChannelsR;
-			m_displayUserData.channelMask |= (1 << 1) * (int8)m_displayChannelsG;
-			m_displayUserData.channelMask |= (1 << 2) * (int8)m_displayChannelsB;
-			m_displayUserData.mipLevel = m_mipLevel;
+
+		FoldLayout* generalFold = CommonWidgets::BuildFoldTitle(m_inspector, Locale::GetStr(LocaleStr::General), &m_generalInfoFold);
+		m_inspector->AddChild(generalFold);
+
+		CommonWidgets::BuildClassReflection(generalFold, this, ReflectionSystem::Get().Resolve<PanelTextureViewer>(), [this](const MetaType& meta, FieldBase* field) {
+			m_displayUserData.displayChannels = m_displayChannels;
+			m_displayUserData.mipLevel		  = m_mipLevel;
 		});
 
 		Widget*		mipField			 = m_inspector->FindChildWithDebugName("Mip Level")->GetChildren().front();
 		InputField* mipFieldInp			 = static_cast<InputField*>(mipField);
 		mipFieldInp->GetProps().valueMax = static_cast<float>(m_texture->GetAllLevels().size() - 1);
 
-		CommonWidgets::BuildClassReflection(m_inspector, &m_texture->GetMeta(), ReflectionSystem::Get().Resolve<Texture::Metadata>(), [this](const MetaType& meta, FieldBase* field) {
-			m_texture->DestroyHW();
-			m_texture->LoadFromBuffer(m_textureBuffer.pixels, m_textureBuffer.width, m_textureBuffer.height, m_textureBuffer.bytesPerPixel);
-			m_texture->GenerateHW();
-			m_texture->AddToUploadQueue(m_editor->GetEditorRenderer().GetUploadQueue(), false);
-			m_editor->GetEditorRenderer().MarkBindlessDirty();
+		FoldLayout* textureFold = CommonWidgets::BuildFoldTitle(m_inspector, "Texture", &m_textureInfoFold);
+		m_inspector->AddChild(textureFold);
+
+		CommonWidgets::BuildClassReflection(textureFold, &m_texture->GetMeta(), ReflectionSystem::Get().Resolve<Texture::Metadata>(), [this](const MetaType& meta, FieldBase* field) {
+			RegenTexture("");
+			SetRuntimeDirty(true);
 		});
 
-		Widget* saveLayout = CommonWidgets::BuildFieldLayout(this, 0, "", false, false);
-		m_inspector->GetChildren().front()->AddChild(saveLayout);
-		static_cast<DirectionalLayout*>(saveLayout)->GetProps().mode = DirectionalLayout::Mode::EqualSizes;
+		auto buildButtonLayout = [this]() -> Widget* {
+			DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>();
+			layout->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+			layout->SetAlignedPosX(0.0f);
+			layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+			layout->SetAlignedSizeX(1.0f);
+			layout->GetProps().mode						= DirectionalLayout::Mode::EqualSizes;
+			layout->GetProps().direction				= DirectionOrientation::Horizontal;
+			layout->GetWidgetProps().childMargins.left	= Theme::GetDef().baseIndent;
+			layout->GetWidgetProps().childMargins.right = Theme::GetDef().baseIndent;
+			layout->GetWidgetProps().childPadding		= Theme::GetDef().baseIndent;
+			return layout;
+		};
 
-		Button* save = WidgetUtility::BuildIconTextButton(this, ICON_SAVE, Locale::GetStr(LocaleStr::Save));
-		save->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
-		save->SetAlignedPosY(0.0f);
-		save->SetAlignedSizeY(1.0f);
-		save->SetFixedSizeX(Theme::GetDef().baseItemHeight * 4);
-		save->GetProps().onClicked = [this]() { m_resourceManager->SaveResource(m_editor->GetProjectManager().GetProjectData(), m_texture); };
-		saveLayout->AddChild(save);
+		Widget* buttonLayout1 = buildButtonLayout();
+		Widget* buttonLayout2 = buildButtonLayout();
+		generalFold->AddChild(buttonLayout1);
+		generalFold->AddChild(buttonLayout2);
+		static_cast<DirectionalLayout*>(buttonLayout1)->GetProps().mode = DirectionalLayout::Mode::EqualSizes;
+		static_cast<DirectionalLayout*>(buttonLayout2)->GetProps().mode = DirectionalLayout::Mode::EqualSizes;
 
-		Button* importButton = WidgetUtility::BuildIconTextButton(this, ICON_PLUS, Locale::GetStr(LocaleStr::Import));
+		Button* importButton = WidgetUtility::BuildIconTextButton(this, ICON_IMPORT, Locale::GetStr(LocaleStr::Import));
 		importButton->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
 		importButton->SetAlignedPosY(0.0f);
 		importButton->SetAlignedSizeY(1.0f);
@@ -182,40 +203,159 @@ namespace Lina::Editor
 				.extensions			   = {"png", "jpg"},
 				.mode				   = PlatformProcess::DialogMode::SelectFile,
 			});
-
 			if (paths.empty())
 				return;
 
-			m_texture->DestroyHW();
-			m_texture->LoadFromFile(paths.front());
-			m_texture->GenerateHW();
-			m_texture->AddToUploadQueue(m_editor->GetEditorRenderer().GetUploadQueue(), false);
-			m_editor->GetEditorRenderer().MarkBindlessDirty();
+			RegenTexture(paths.front());
+			StoreBuffer();
+			SetRuntimeDirty(true);
 		};
-		saveLayout->AddChild(importButton);
+		buttonLayout1->AddChild(importButton);
 
-		Widget*	  formatField			= m_inspector->FindChildWithDebugName("Format")->GetChildren().front();
-		Dropdown* formatdd				= static_cast<Dropdown*>(formatField);
+		Button* reimportButton = WidgetUtility::BuildIconTextButton(this, ICON_ROTATE, Locale::GetStr(LocaleStr::ReImport));
+		reimportButton->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
+		reimportButton->SetAlignedPosY(0.0f);
+		reimportButton->SetAlignedSizeY(1.0f);
+		reimportButton->SetFixedSizeX(Theme::GetDef().baseItemHeight * 4);
+		reimportButton->GetProps().onClicked = [this, reimportButton]() {
+			const String path = m_texture->GetPath();
+			if (!FileSystem::FileOrPathExists(path))
+			{
+				CommonWidgets::ThrowInfoTooltip(Locale::GetStr(LocaleStr::FileNotFound), LogLevel::Error, 3.0f, reimportButton);
+				return;
+			}
+			RegenTexture(path);
+			StoreBuffer();
+			SetRuntimeDirty(true);
+		};
+
+		buttonLayout1->AddChild(reimportButton);
+
+		Button* save = WidgetUtility::BuildIconTextButton(this, ICON_SAVE, Locale::GetStr(LocaleStr::Save));
+		save->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
+		save->SetAlignedPosY(0.0f);
+		save->SetAlignedSizeY(1.0f);
+		save->SetFixedSizeX(Theme::GetDef().baseItemHeight * 4);
+		save->GetProps().onClicked = [this]() {
+			if (m_containsRuntimeChanges)
+			{
+				m_resourceManager->SaveResource(m_editor->GetProjectManager().GetProjectData(), m_texture);
+				m_editor->GetResourcePipeline().GenerateThumbnailForResource(m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_texture->GetID()), m_texture);
+				DockArea* outDockArea = nullptr;
+				Panel*	  p			  = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::ResourceBrowser, 0, outDockArea);
+				if (p)
+					static_cast<PanelResourceBrowser*>(p)->GetBrowser()->RefreshDirectory();
+
+				SetRuntimeDirty(false);
+			}
+		};
+
+		m_saveButton = save;
+		buttonLayout2->AddChild(save);
+
+		Button* sdfButton = WidgetUtility::BuildIconTextButton(this, ICON_ICONS, Locale::GetStr(LocaleStr::GenerateSDF));
+		sdfButton->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
+		sdfButton->SetAlignedPosY(0.0f);
+		sdfButton->SetAlignedSizeY(1.0f);
+		sdfButton->SetFixedSizeX(Theme::GetDef().baseItemHeight * 4);
+		sdfButton->SetIsDisabled(true);
+		buttonLayout2->AddChild(sdfButton);
+
+		Widget*	  formatField				 = m_inspector->FindChildWithDebugName("Format")->GetChildren().front();
+		Dropdown* formatdd					 = static_cast<Dropdown*>(formatField);
+		m_formatDropdown					 = formatdd;
+		formatdd->GetText()->GetProps().text = ReflectionSystem::Get().Meta<LinaGX::Format>().GetProperty<String>(static_cast<StringID>(m_texture->GetMeta().format));
+		formatdd->GetText()->CalculateTextSize();
 		formatdd->GetProps().onAddItems = [this](Popup* p) {
 			const int32 ch = m_texture->GetImportedChannels();
 
 			if (ch == 1)
-				p->AddToggleItem("R8_UNORM", m_texture->GetMeta().format == LinaGX::Format::R8_UNORM, (int32)LinaGX::Format::R8_UNORM);
+			{
+				if (m_texture->GetBytesPerPixel() == 1)
+					p->AddToggleItem("R8_UNORM", m_texture->GetMeta().format == LinaGX::Format::R8_UNORM, (int32)LinaGX::Format::R8_UNORM);
+				else if (m_texture->GetBytesPerPixel() == 2)
+					p->AddToggleItem("R16_UNORM", m_texture->GetMeta().format == LinaGX::Format::R16_UNORM, (int32)LinaGX::Format::R16_UNORM);
+			}
 			else if (ch == 2)
-				p->AddToggleItem("R8G8_UNORM", m_texture->GetMeta().format == LinaGX::Format::R8G8_UNORM, (int32)LinaGX::Format::R8G8_UNORM);
+			{
+				if (m_texture->GetBytesPerPixel() == 2)
+					p->AddToggleItem("R8G8_UNORM", m_texture->GetMeta().format == LinaGX::Format::R8G8_UNORM, (int32)LinaGX::Format::R8G8_UNORM);
+				else if (m_texture->GetBytesPerPixel() == 4)
+					p->AddToggleItem("R16G16_UNORM", m_texture->GetMeta().format == LinaGX::Format::R16G16_UNORM, (int32)LinaGX::Format::R16G16_UNORM);
+			}
 			else
 			{
-				p->AddToggleItem("R8G8B8A8_UNORM", m_texture->GetMeta().format == LinaGX::Format::R8G8B8A8_UNORM, (int32)LinaGX::Format::R8G8B8A8_UNORM);
-				p->AddToggleItem("R8G8B8A8_SRGB", m_texture->GetMeta().format == LinaGX::Format::R8G8B8A8_SRGB, (int32)LinaGX::Format::R8G8B8A8_SRGB);
+				if (m_texture->GetBytesPerPixel() == 4)
+				{
+					p->AddToggleItem("R8G8B8A8_UNORM", m_texture->GetMeta().format == LinaGX::Format::R8G8B8A8_UNORM, (int32)LinaGX::Format::R8G8B8A8_UNORM);
+					p->AddToggleItem("R8G8B8A8_SRGB", m_texture->GetMeta().format == LinaGX::Format::R8G8B8A8_SRGB, (int32)LinaGX::Format::R8G8B8A8_SRGB);
+				}
+				else if (m_texture->GetBytesPerPixel() == 8)
+				{
+					p->AddToggleItem("R16G16B16A16_UNORM", m_texture->GetMeta().format == LinaGX::Format::R16G16B16A16_UNORM, (int32)LinaGX::Format::R16G16B16A16_UNORM);
+				}
 			}
 		};
 	}
 
 	void PanelTextureViewer::Destruct()
 	{
-		delete[] m_textureBuffer.pixels;
 		Panel::Destruct();
+		if (m_texture == nullptr)
+			return;
+
+		delete[] m_textureBuffer.pixels;
 		m_editor->GetResourceManagerV2().UnloadResources({m_texture});
+	}
+
+	void PanelTextureViewer::StoreBuffer()
+	{
+		if (m_textureBuffer.pixels != nullptr)
+			delete[] m_textureBuffer.pixels;
+
+		m_textureBuffer = {};
+
+		const LinaGX::TextureBuffer base = m_texture->GetAllLevels().front();
+
+		// Store initial buffer.
+		const size_t sz		   = static_cast<size_t>(base.width * base.height * base.bytesPerPixel);
+		m_textureBuffer		   = base;
+		m_textureBuffer.pixels = new uint8[sz];
+		MEMCPY(m_textureBuffer.pixels, base.pixels, sz);
+	}
+
+	void PanelTextureViewer::SetRuntimeDirty(bool isDirty)
+	{
+		m_containsRuntimeChanges = isDirty;
+
+		Text* txt = GetWidgetOfType<Text>(m_saveButton);
+
+		if (isDirty)
+			txt->GetProps().text = Locale::GetStr(LocaleStr::Save) + " *";
+		else
+			txt->GetProps().text = Locale::GetStr(LocaleStr::Save);
+
+		txt->CalculateTextSize();
+	}
+
+	void PanelTextureViewer::RegenTexture(const String& path)
+	{
+		m_texture->DestroyHW();
+
+		if (path.empty())
+			m_texture->LoadFromBuffer(m_textureBuffer.pixels, m_textureBuffer.width, m_textureBuffer.height, m_textureBuffer.bytesPerPixel);
+		else
+		{
+			m_texture->LoadFromFile(path);
+			m_texture->SetPath(path);
+		}
+
+		m_texture->GenerateHW();
+		m_texture->AddToUploadQueue(m_editor->GetEditorRenderer().GetUploadQueue(), false);
+		m_editor->GetEditorRenderer().MarkBindlessDirty();
+
+		m_formatDropdown->GetText()->GetProps().text = ReflectionSystem::Get().Meta<LinaGX::Format>().GetProperty<String>(static_cast<StringID>(m_texture->GetMeta().format));
+		m_formatDropdown->GetText()->CalculateTextSize();
 	}
 
 	void PanelTextureViewer::SaveLayoutToStream(OStream& stream)

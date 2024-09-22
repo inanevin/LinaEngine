@@ -74,6 +74,7 @@ namespace Lina::Editor
 		dirBrowser->SetAlignedPosX(0.0f);
 		dirBrowser->SetAlignedSize(Vector2(1.0f, 0.0f));
 		vertical->AddChild(dirBrowser);
+        m_resourceBrowser = dirBrowser;
 
 		searchField->GetProps().onEdited = [dirBrowser](const String& str) {
 			// TODO: Update search string for directory browser.

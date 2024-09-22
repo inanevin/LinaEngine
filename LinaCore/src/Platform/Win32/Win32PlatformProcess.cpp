@@ -87,9 +87,9 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 			DispatchMessage(&msg);
 		}
 		app->Poll();
-
 		app->PreTick();
 		app->Tick();
+		app->Render();
 	}
 
 	app->Shutdown();

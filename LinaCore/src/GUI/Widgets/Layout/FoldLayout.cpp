@@ -94,7 +94,7 @@ namespace Lina
 			if (idx != 0)
 			{
 				c->SetPosX(c->GetPosX() + tweenValue);
-				// c->SetIsDisabled(!m_unfolded);
+				c->SetIsDisabled(!m_unfolded);
 				c->SetVisible(m_unfolded);
 			}
 

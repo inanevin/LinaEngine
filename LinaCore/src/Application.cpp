@@ -48,35 +48,8 @@ SOFTWARE.
 
 namespace Lina
 {
-
-	struct Test
-	{
-		bool a;
-	};
-
-	enum TestEnum
-	{
-		AQBC,
-	};
-
-	enum class testEC
-	{
-		hehehe,
-	};
-
 	void Application::Initialize(const SystemInitializationInfo& initInfo)
 	{
-		OStream				  stream;
-		Test				  tt;
-		uint8				  u8 = 0;
-		Vector<uint8>		  vec;
-		HashMap<uint32, bool> aq;
-		String				  hehe;
-		testEC				  abc;
-		TestEnum			  abcd;
-
-		stream << abc << abcd;
-
 		int ab				 = 5;
 		m_appDelegate		 = initInfo.appDelegate;
 		m_appDelegate->m_app = this;
@@ -88,7 +61,6 @@ namespace Lina
 		SystemInfo::SetMainThreadID(SystemInfo::GetCurrentThreadID());
 		SetFixedTimestep(10000);
 		SetFixedTimestep(true);
-		// SetFrameCap(16667);
 		PROFILER_INIT;
 		PROFILER_REGISTER_THREAD("Main");
 
@@ -141,6 +113,12 @@ namespace Lina
 		// Yield-CPU check.
 		if (!SystemInfo::GetAppHasFocus())
 			PlatformTime::Sleep(0);
+	}
+
+	void Application::Render()
+	{
+		PROFILER_FUNCTION();
+		m_appDelegate->Render();
 	}
 
 	void Application::Shutdown()

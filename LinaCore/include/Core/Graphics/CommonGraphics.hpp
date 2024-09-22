@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Common/SizeDefinitions.hpp"
 #include "Core/Resources/CommonResources.hpp"
+#include "Core/Reflection/ClassReflection.hpp"
 
 namespace Lina
 {
@@ -87,10 +88,19 @@ namespace Lina
 		Max,
 	};
 
+	enum class DisplayChannels
+	{
+		RGBA,
+		R,
+		G,
+		B,
+		A
+	};
+
 	struct GUIRendererUserData
 	{
-		int32  channelMask = 1 << 0 | 1 << 1 | 1 << 2 | 1 << 3;
-		uint32 mipLevel	   = 0;
+		DisplayChannels displayChannels = DisplayChannels::RGBA;
+		uint32			mipLevel		= 0;
 	};
 
 	constexpr const char* RPTypeToString(RenderPassDescriptorType type)
@@ -108,6 +118,29 @@ namespace Lina
 		default:
 			return "Unknown";
 		}
+	}
+
+	constexpr uint32 GetBytesPerPixelFromFormat(LinaGX::Format format)
+	{
+		if (format == LinaGX::Format::R8_UNORM)
+			return 1;
+		if (format == LinaGX::Format::R16_UNORM)
+			return 2;
+
+		if (format == LinaGX::Format::R8G8_UNORM)
+			return 2;
+
+		if (format == LinaGX::Format::R16G16_UNORM)
+			return 4;
+
+		if (format == LinaGX::Format::R8G8B8A8_UNORM || format == LinaGX::Format::R8G8B8A8_SRGB)
+			return 4;
+
+		if (format == LinaGX::Format::R16G16B16A16_UNORM)
+			return 8;
+
+		LINA_ASSERT(false, "");
+		return 4;
 	}
 
 	class SemaphoreData
@@ -179,5 +212,13 @@ namespace Lina
 		Matrix4,
 		Texture2D,
 	};
+
+	LINA_CLASS_BEGIN(DisplayChannels)
+	LINA_PROPERTY_STRING(DisplayChannels, 0, "RGBA")
+	LINA_PROPERTY_STRING(DisplayChannels, 1, "R")
+	LINA_PROPERTY_STRING(DisplayChannels, 2, "G")
+	LINA_PROPERTY_STRING(DisplayChannels, 3, "B")
+	LINA_PROPERTY_STRING(DisplayChannels, 4, "A")
+	LINA_CLASS_END(DisplayChannels)
 
 } // namespace Lina

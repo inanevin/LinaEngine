@@ -71,7 +71,7 @@ namespace Lina::Editor
 		void PreTick();
 		void Tick(float delta);
 
-		void Render(uint32 frameIndex);
+		void Render();
 		void AddWorldRenderer(WorldRenderer* wr);
 		void RemoveWorldRenderer(WorldRenderer* wr);
 

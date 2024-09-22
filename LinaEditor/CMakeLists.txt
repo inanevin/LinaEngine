@@ -73,6 +73,7 @@ include/Editor/Widgets/Panel/PanelWidgetEditorProperties.hpp
 include/Editor/Widgets/Panel/PanelPerformance.hpp
 include/Editor/Widgets/Panel/PanelEntities.hpp
 include/Editor/Widgets/Panel/PanelTextureViewer.hpp
+include/Editor/Widgets/Panel/PanelFontViewer.hpp
 include/Editor/Widgets/Panel/PanelResourceBrowser.hpp
 include/Editor/Widgets/Panel/PanelColorWheel.hpp
 include/Editor/Widgets/Panel/PanelFactory.hpp
@@ -141,6 +142,7 @@ src/Widgets/Panel/PanelWidgetEditor.cpp
 src/Widgets/Panel/PanelWidgetEditorProperties.cpp
 src/Widgets/Panel/PanelEntities.cpp
 src/Widgets/Panel/PanelTextureViewer.cpp
+src/Widgets/Panel/PanelFontViewer.cpp
 src/Widgets/Panel/PanelResourceBrowser.cpp
 src/Widgets/Panel/PanelColorWheel.cpp
 src/Widgets/Panel/PanelFactory.cpp

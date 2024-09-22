@@ -55,6 +55,7 @@ namespace Lina::Editor
 		void DuplicateResource(ResourceManagerV2* resMan, ResourceDirectory* directory, ResourceDirectory* newParent);
 
 		void GenerateThumbnailAtlases(ResourceDirectory* dir);
+		void GenerateThumbnailForResource(ResourceDirectory* dir, Resource* resource);
 
 	private:
 		void VerifyResources(ResourceDirectory* dir);

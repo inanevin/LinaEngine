@@ -47,7 +47,6 @@ namespace Lina
 
 		struct Properties
 		{
-			bool			 _fold = false;
 			Delegate<void()> onClicked;
 			String			 icon					= "";
 			ResourceID		 font					= Theme::GetDef().iconFont;
@@ -125,28 +124,27 @@ namespace Lina
 	};
 
 	LINA_WIDGET_BEGIN(Icon, Primitive)
-	LINA_FIELD(Icon, m_props, "", "Class", GetTypeID<Icon::Properties>());
+	LINA_FIELD(Icon, m_props, "", FieldType::UserClass, GetTypeID<Icon::Properties>());
 	LINA_CLASS_END(Icon)
 
 	LINA_CLASS_BEGIN(IconProperties)
-	LINA_FIELD(Icon::Properties, _fold, "Icon", "Category", 0)
-	LINA_FIELD(Icon::Properties, icon, "Icon", "String", 0)
-	LINA_FIELD(Icon::Properties, font, "Font", "Font", 0)
-	LINA_FIELD(Icon::Properties, textScale, "Scale", "float", 0)
-	LINA_FIELD(Icon::Properties, isDynamic, "Dynamic", "bool", 0)
-	LINA_FIELD(Icon::Properties, enableHoverPressColors, "Enable Hover/Press Colors", "bool", 0)
-	LINA_FIELD(Icon::Properties, colorHovered, "Color Hovered", "Color", 0)
-	LINA_FIELD(Icon::Properties, colorPressed, "Color Pressed", "Color", 0)
-	LINA_FIELD(Icon::Properties, color, "Color", "ColorGrad", 0)
-	LINA_FIELD(Icon::Properties, colorDisabled, "Color Disabled", "Color", 0)
-	LINA_FIELD(Icon::Properties, customClip, "Custom Clip", "Rect", 0)
-	LINA_FIELD(Icon::Properties, dynamicSizeToParent, "Dynamic Size To Parent", "bool", 0)
-	LINA_FIELD(Icon::Properties, dynamicSizeScale, "Scale", "float", 0)
-	LINA_FIELD(Icon::Properties, sdfOutlineColor, "SDF Outline Color", "Color", 0)
-	LINA_FIELD(Icon::Properties, sdfThickness, "SDF Thickness", "float", 0)
-	LINA_FIELD(Icon::Properties, sdfSoftness, "SDF Softness", "float", 0)
-	LINA_FIELD(Icon::Properties, sdfOutlineThickness, "SDF Outline Thickness", "float", 0)
-	LINA_FIELD(Icon::Properties, sdfOutlineSoftness, "SDF Outline Softness", "float", 0)
+	LINA_FIELD(Icon::Properties, icon, "Icon", FieldType::String, 0)
+	LINA_FIELD(Icon::Properties, font, "Font", FieldType::Resource, 0)
+	LINA_FIELD(Icon::Properties, textScale, "Scale", FieldType::Float, 0)
+	LINA_FIELD(Icon::Properties, isDynamic, "Dynamic", FieldType::Boolean, 0)
+	LINA_FIELD(Icon::Properties, enableHoverPressColors, "Enable Hover/Press Colors", FieldType::Boolean, 0)
+	LINA_FIELD(Icon::Properties, colorHovered, "Color Hovered", FieldType::Color, 0)
+	LINA_FIELD(Icon::Properties, colorPressed, "Color Pressed", FieldType::Color, 0)
+	LINA_FIELD(Icon::Properties, color, "Color", FieldType::ColorGrad, 0)
+	LINA_FIELD(Icon::Properties, colorDisabled, "Color Disabled", FieldType::Color, 0)
+	LINA_FIELD(Icon::Properties, customClip, "Custom Clip", FieldType::Rect, 0)
+	LINA_FIELD(Icon::Properties, dynamicSizeToParent, "Dynamic Size To Parent", FieldType::Boolean, 0)
+	LINA_FIELD(Icon::Properties, dynamicSizeScale, "Scale", FieldType::Float, 0)
+	LINA_FIELD(Icon::Properties, sdfOutlineColor, "SDF Outline Color", FieldType::Color, 0)
+	LINA_FIELD(Icon::Properties, sdfThickness, "SDF Thickness", FieldType::Float, 0)
+	LINA_FIELD(Icon::Properties, sdfSoftness, "SDF Softness", FieldType::Float, 0)
+	LINA_FIELD(Icon::Properties, sdfOutlineThickness, "SDF Outline Thickness", FieldType::Float, 0)
+	LINA_FIELD(Icon::Properties, sdfOutlineSoftness, "SDF Outline Softness", FieldType::Float, 0)
 
 	LINA_FIELD_DEPENDENCY_POS(Icon::Properties, colorHovered, "enableHoverPressColors", 1)
 	LINA_FIELD_DEPENDENCY_POS(Icon::Properties, colorPressed, "enableHoverPressColors", 1)

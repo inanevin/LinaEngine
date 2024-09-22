@@ -122,6 +122,11 @@ namespace Lina::Editor
 				DestroySurfaceRenderer(window);
 				m_gfxManager->DestroyApplicationWindow(sid);
 				LinaGX::Window* top = m_gfxManager->GetLGX()->GetWindowManager().GetTopWindow();
+				if (top->GetSID() == PAYLOAD_WINDOW_SID)
+				{
+					m_gfxManager->GetLGX()->GetWindowManager().PopWindowFromList(PAYLOAD_WINDOW_SID);
+					top = m_gfxManager->GetLGX()->GetWindowManager().GetTopWindow();
+				}
 				if (top != nullptr)
 					top->BringToFront();
 			}
@@ -262,7 +267,7 @@ namespace Lina::Editor
 		Vector<DockArea*> primaryAreas;
 		Widget::GetWidgetsOfType<DockArea>(primaryAreas, m_primaryWidgetManager->GetRoot());
 		Panel* foundPanel = FindPanelFromDockAreas(type, primaryAreas, owningArea, subData);
-		if (foundPanel != nullptr)
+		if (foundPanel != nullptr && foundPanel->GetSubData() == subData)
 			return foundPanel;
 
 		for (auto* w : m_subWindows)
@@ -273,11 +278,11 @@ namespace Lina::Editor
 
 			foundPanel = FindPanelFromDockAreas(type, areas, owningArea, subData);
 
-			if (foundPanel != nullptr)
+			if (foundPanel != nullptr && foundPanel->GetSubData() == subData)
 				return foundPanel;
 		}
 
-		return nullptr;
+		return foundPanel;
 	}
 
 	Panel* WindowPanelManager::OpenPanel(PanelType type, ResourceID subData, Widget* requestingWidget)

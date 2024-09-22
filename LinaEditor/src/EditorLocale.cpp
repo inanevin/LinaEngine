@@ -117,6 +117,7 @@ namespace Lina::Editor
 		{LocaleStr::Rename, "Rename"},
 		{LocaleStr::WidgetEditor, "Widget Editor"},
 		{LocaleStr::Import, "Import"},
+		{LocaleStr::ReImport, "Reimport"},
 		{LocaleStr::New, "New"},
 		{LocaleStr::GUIWidget, "GUIWidget"},
 		{LocaleStr::SelectWidget, "Select: GUIWidget"},
@@ -130,6 +131,9 @@ namespace Lina::Editor
 		{LocaleStr::Export, "Export"},
 		{LocaleStr::Refresh, "Refresh"},
 		{LocaleStr::ImportingResources, "Importing resources"},
+		{LocaleStr::ThisResourceNoLongerExists, "This resource no longer exists :("},
+		{LocaleStr::GenerateSDF, "Generate SDF"},
+		{LocaleStr::General, "General"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

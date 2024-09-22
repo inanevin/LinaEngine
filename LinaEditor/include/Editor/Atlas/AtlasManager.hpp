@@ -31,6 +31,10 @@ SOFTWARE.
 #include "Common/Data/Vector.hpp"
 #include "Common/Data/Mutex.hpp"
 
+namespace LinaGX
+{
+	enum class Format;
+}
 namespace Lina
 {
 	class TextureAtlas;
@@ -47,7 +51,7 @@ namespace Lina::Editor
 		void			   Initialize(Editor* editor);
 		void			   Shutdown();
 		void			   RefreshDirtyAtlases();
-		TextureAtlasImage* AddImageToAtlas(uint8* data, const Vector2ui& size, uint32 bytesPerPixel);
+		TextureAtlasImage* AddImageToAtlas(uint8* data, const Vector2ui& size, LinaGX::Format format);
 		void			   RemoveImage(TextureAtlasImage* rect);
 		TextureAtlasImage* GetImageFromAtlas(StringID atlas, StringID image);
 

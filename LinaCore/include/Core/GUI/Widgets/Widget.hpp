@@ -105,16 +105,15 @@ namespace Lina
 
 	struct DropshadowProps
 	{
-		bool		categoryDropshadowProps = false;
-		bool		enabled					= false;
-		bool		isInner					= false;
-		float		margin					= 0.0f;
-		float		thickness				= Theme::GetDef().baseOutlineThickness;
-		float		rounding				= 0.0f;
-		int32		drawOrderIncrement		= 0;
-		uint32		steps					= 4;
-		Color		color					= Theme::GetDef().black;
-		Direction	direction				= Direction::Center;
+		bool		enabled			   = false;
+		bool		isInner			   = false;
+		float		margin			   = 0.0f;
+		float		thickness		   = Theme::GetDef().baseOutlineThickness;
+		float		rounding		   = 0.0f;
+		int32		drawOrderIncrement = 0;
+		uint32		steps			   = 4;
+		Color		color			   = Theme::GetDef().black;
+		Direction	direction		   = Direction::Center;
 		Vector<int> onlyRound;
 
 		virtual void SaveToStream(OStream& stream) const;
@@ -123,7 +122,6 @@ namespace Lina
 
 	struct WidgetProps
 	{
-		bool				 categoryWidgetProps		 = false;
 		bool				 clipChildren				 = false;
 		bool				 customClip					 = false;
 		bool				 drawBackground				 = false;
@@ -530,34 +528,31 @@ namespace Lina
 		void*						m_userData				= nullptr;
 		uint32						m_cacheIndex			= 0;
 		WidgetProps					m_widgetProps			= {};
-		bool						m_categoryGeneral		= false;
 	};
 
 	LINA_WIDGET_BEGIN(Widget, General)
-	LINA_FIELD(Widget, m_categoryGeneral, "General Properties", "Category", 0);
-	LINA_FIELD(Widget, m_flags, "Flags", "Bitmask32", GetTypeID<WidgetFlags>())
-	LINA_FIELD(Widget, m_alignedPos, "Aligned Position", "Vector2", 0)
+	LINA_FIELD(Widget, m_flags, "Flags", FieldType::Bitmask32, GetTypeID<WidgetFlags>())
+	LINA_FIELD(Widget, m_alignedPos, "Aligned Position", FieldType::Vector2, 0)
 	LINA_FIELD_LIMITS(Widget, m_alignedPos, 0.0f, 1.0f, 0.1f)
-	LINA_FIELD(Widget, m_alignedSize, "Aligned Size", "Vector2", 0)
+	LINA_FIELD(Widget, m_alignedSize, "Aligned Size", FieldType::Vector2, 0)
 	LINA_FIELD_LIMITS(Widget, m_alignedSize, 0.0f, 1.0f, 0.1f)
-	LINA_FIELD(Widget, m_fixedSize, "Fixed Size", "Vector2", 0)
-	LINA_FIELD(Widget, m_anchorX, "Anchor X", "enum", GetTypeID<Anchor>())
-	LINA_FIELD(Widget, m_anchorY, "Anchor Y", "enum", GetTypeID<Anchor>())
-	LINA_FIELD(Widget, m_widgetProps, "Widget Properties", "Class", GetTypeID<WidgetProps>())
+	LINA_FIELD(Widget, m_fixedSize, "Fixed Size", FieldType::Vector2, 0)
+	LINA_FIELD(Widget, m_anchorX, "Anchor X", FieldType::Enum, GetTypeID<Anchor>())
+	LINA_FIELD(Widget, m_anchorY, "Anchor Y", FieldType::Enum, GetTypeID<Anchor>())
+	LINA_FIELD(Widget, m_widgetProps, "Widget Properties", FieldType::UserClass, GetTypeID<WidgetProps>())
 	LINA_CLASS_END(Widget)
 
 	LINA_CLASS_BEGIN(DropshadowProps)
-	LINA_FIELD(DropshadowProps, categoryDropshadowProps, "Dropshadow Properties", "Category", 0);
-	LINA_FIELD(DropshadowProps, enabled, "Enabled", "bool", 0);
-	LINA_FIELD(DropshadowProps, isInner, "Is Inner", "bool", 0);
-	LINA_FIELD(DropshadowProps, margin, "Margin", "float", 0);
-	LINA_FIELD(DropshadowProps, thickness, "Thickness", "float", 0);
-	LINA_FIELD(DropshadowProps, rounding, "Rounding", "float", 0);
-	LINA_FIELD(DropshadowProps, drawOrderIncrement, "Draw Order Increment", "int32", 0);
-	LINA_FIELD(DropshadowProps, steps, "Steps", "uint32", 0);
-	LINA_FIELD(DropshadowProps, color, "Color", "Color", 0);
-	LINA_FIELD(DropshadowProps, direction, "Direction", "enum", GetTypeID<Direction>());
-	LINA_FIELD_VEC(DropshadowProps, onlyRound, "Only Round", int32);
+	LINA_FIELD(DropshadowProps, enabled, "Enabled", FieldType::Boolean, 0);
+	LINA_FIELD(DropshadowProps, isInner, "Is Inner", FieldType::Boolean, 0);
+	LINA_FIELD(DropshadowProps, margin, "Margin", FieldType::Float, 0);
+	LINA_FIELD(DropshadowProps, thickness, "Thickness", FieldType::Float, 0);
+	LINA_FIELD(DropshadowProps, rounding, "Rounding", FieldType::Float, 0);
+	LINA_FIELD(DropshadowProps, drawOrderIncrement, "Draw Order Increment", FieldType::Int32, 0);
+	LINA_FIELD(DropshadowProps, steps, "Steps", FieldType::UInt32, 0);
+	LINA_FIELD(DropshadowProps, color, "Color", FieldType::Color, 0);
+	LINA_FIELD(DropshadowProps, direction, "Direction", FieldType::Enum, GetTypeID<Direction>());
+	LINA_FIELD_VEC(DropshadowProps, onlyRound, "Only Round", FieldType::Int32, int32, 0);
 
 	LINA_FIELD_DEPENDENCY_POS(DropshadowProps, isInner, "enabled", 1);
 	LINA_FIELD_DEPENDENCY_POS(DropshadowProps, margin, "enabled", 1);
@@ -571,40 +566,39 @@ namespace Lina
 	LINA_CLASS_END(DropshadowProps)
 
 	LINA_CLASS_BEGIN(WidgetProps)
-	LINA_FIELD(WidgetProps, categoryWidgetProps, "Widget Properties", "Category", 0);
-	LINA_FIELD(WidgetProps, debugName, "Debug Name", "String", 0);
-	LINA_FIELD(WidgetProps, tooltip, "Tooltip", "String", 0);
-	LINA_FIELD(WidgetProps, drawOrderIncrement, "Draw Order Increment", "int32", 0);
-	LINA_FIELD(WidgetProps, clipChildren, "Clip Children", "bool", 0);
-	LINA_FIELD(WidgetProps, drawBackground, "Draw Background", "bool", 0);
-	LINA_FIELD(WidgetProps, backgroundIsCentralGradient, "Central Gradient", "bool", 0);
-	LINA_FIELD(WidgetProps, interpolateColor, "Interpolate Color", "bool", 0);
-	LINA_FIELD(WidgetProps, colorInterpolateSpeed, "Color Interpolate Speed", "float", 0);
-	LINA_FIELD(WidgetProps, colorBackgroundDirection, "Background Direction", "enum", GetTypeID<DirectionOrientation>());
-	LINA_FIELD(WidgetProps, colorBackground, "Background Color", "ColorGrad", 0);
-	LINA_FIELD(WidgetProps, colorOutline, "Outline Color", "ColorGrad", 0);
-	LINA_FIELD(WidgetProps, colorOutlineControls, "Outline Color in Control", "ColorGrad", 0);
-	LINA_FIELD(WidgetProps, colorDisabled, "Disabled Color", "ColorGrad", 0);
-	LINA_FIELD(WidgetProps, hoveredIsDifferentColor, "Use Hovered Color", "bool", 0);
-	LINA_FIELD(WidgetProps, colorHovered, "Hovered Color", "ColorGrad", 0);
-	LINA_FIELD(WidgetProps, pressedIsDifferentColor, "Use Pressed Color", "bool", 0);
-	LINA_FIELD(WidgetProps, colorPressed, "Pressed Color", "ColorGrad", 0);
-	LINA_FIELD(WidgetProps, outlineThickness, "Outline Thickness", "float", 0);
-	LINA_FIELD(WidgetProps, outlineIsInner, "Inner Outline", "bool", 0);
-	LINA_FIELD(WidgetProps, rounding, "Rounding", "float", 0);
-	LINA_FIELD(WidgetProps, fitTexture, "Fit Texture", "bool", 0);
-	LINA_FIELD(WidgetProps, textureTiling, "Texture Tiling", "Vector2", 0);
-	LINA_FIELD(WidgetProps, activeTextureTiling, "Active Texture Tiling", "bool", 0);
-	LINA_FIELD(WidgetProps, useSpecialTexture, "Use Special Texture", "bool", 0);
-	LINA_FIELD(WidgetProps, specialTexture, "Special Texture", "uint32", 0);
-	LINA_FIELD(WidgetProps, borderThickness, "Border Thicknesses", "TBLR", 0);
-	LINA_FIELD(WidgetProps, colorBorders, "Border Color", "Color", 0);
-	LINA_FIELD(WidgetProps, childMargins, "Child Margins", "TBLR", 0);
-	LINA_FIELD(WidgetProps, childPadding, "Child Padding", "float", 0);
-	LINA_FIELD(WidgetProps, customClip, "Custom Clip", "bool", 0);
-	LINA_FIELD(WidgetProps, customClipRect, "Custom Clip Rect", "Rect", 0);
-	LINA_FIELD_VEC(WidgetProps, onlyRound, "Only Round", int32);
-	LINA_FIELD(WidgetProps, dropshadow, "Dropshadow Props", "Class", GetTypeID<DropshadowProps>());
+	LINA_FIELD(WidgetProps, debugName, "Debug Name", FieldType::String, 0);
+	LINA_FIELD(WidgetProps, tooltip, "Tooltip", FieldType::String, 0);
+	LINA_FIELD(WidgetProps, drawOrderIncrement, "Draw Order Increment", FieldType::Int32, 0);
+	LINA_FIELD(WidgetProps, clipChildren, "Clip Children", FieldType::Boolean, 0);
+	LINA_FIELD(WidgetProps, drawBackground, "Draw Background", FieldType::Boolean, 0);
+	LINA_FIELD(WidgetProps, backgroundIsCentralGradient, "Central Gradient", FieldType::Boolean, 0);
+	LINA_FIELD(WidgetProps, interpolateColor, "Interpolate Color", FieldType::Boolean, 0);
+	LINA_FIELD(WidgetProps, colorInterpolateSpeed, "Color Interpolate Speed", FieldType::Float, 0);
+	LINA_FIELD(WidgetProps, colorBackgroundDirection, "Background Direction", FieldType::Enum, GetTypeID<DirectionOrientation>());
+	LINA_FIELD(WidgetProps, colorBackground, "Background Color", FieldType::ColorGrad, 0);
+	LINA_FIELD(WidgetProps, colorOutline, "Outline Color", FieldType::ColorGrad, 0);
+	LINA_FIELD(WidgetProps, colorOutlineControls, "Outline Color in Control", FieldType::ColorGrad, 0);
+	LINA_FIELD(WidgetProps, colorDisabled, "Disabled Color", FieldType::ColorGrad, 0);
+	LINA_FIELD(WidgetProps, hoveredIsDifferentColor, "Use Hovered Color", FieldType::Boolean, 0);
+	LINA_FIELD(WidgetProps, colorHovered, "Hovered Color", FieldType::ColorGrad, 0);
+	LINA_FIELD(WidgetProps, pressedIsDifferentColor, "Use Pressed Color", FieldType::Boolean, 0);
+	LINA_FIELD(WidgetProps, colorPressed, "Pressed Color", FieldType::ColorGrad, 0);
+	LINA_FIELD(WidgetProps, outlineThickness, "Outline Thickness", FieldType::Float, 0);
+	LINA_FIELD(WidgetProps, outlineIsInner, "Inner Outline", FieldType::Boolean, 0);
+	LINA_FIELD(WidgetProps, rounding, "Rounding", FieldType::Float, 0);
+	LINA_FIELD(WidgetProps, fitTexture, "Fit Texture", FieldType::Boolean, 0);
+	LINA_FIELD(WidgetProps, textureTiling, "Texture Tiling", FieldType::Vector2, 0);
+	LINA_FIELD(WidgetProps, activeTextureTiling, "Active Texture Tiling", FieldType::Boolean, 0);
+	LINA_FIELD(WidgetProps, useSpecialTexture, "Use Special Texture", FieldType::Boolean, 0);
+	LINA_FIELD(WidgetProps, specialTexture, "Special Texture", FieldType::UInt32, 0);
+	LINA_FIELD(WidgetProps, borderThickness, "Border Thicknesses", FieldType::TBLR, 0);
+	LINA_FIELD(WidgetProps, colorBorders, "Border Color", FieldType::Color, 0);
+	LINA_FIELD(WidgetProps, childMargins, "Child Margins", FieldType::TBLR, 0);
+	LINA_FIELD(WidgetProps, childPadding, "Child Padding", FieldType::Float, 0);
+	LINA_FIELD(WidgetProps, customClip, "Custom Clip", FieldType::Boolean, 0);
+	LINA_FIELD(WidgetProps, customClipRect, "Custom Clip Rect", FieldType::Rect, 0);
+	LINA_FIELD_VEC(WidgetProps, onlyRound, "Only Round", FieldType::Int32, int32, 0);
+	LINA_FIELD(WidgetProps, dropshadow, "Dropshadow Props", FieldType::UserClass, GetTypeID<DropshadowProps>());
 
 	LINA_FIELD_DEPENDENCY_POS(WidgetProps, backgroundIsCentralGradient, "drawBackground", 1);
 	LINA_FIELD_DEPENDENCY_POS(WidgetProps, interpolateColor, "drawBackground", 1);

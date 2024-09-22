@@ -149,20 +149,19 @@ namespace Lina
 		if (Math::Equals(req.materialData.color1.w, GUI_IS_SINGLE_CHANNEL, 0.01f))
 			singleChannel = 1.0f;
 
-		Bitmask<int32> channelBM;
-		channelBM.Set(1 << 0 | 1 << 1 | 1 << 2);
-		float mipLevel = 0.0f;
+		DisplayChannels displayChannels = DisplayChannels::RGBA;
+		float			mipLevel		= 0.0f;
 
 		if (buf->userData != nullptr)
 		{
 			GUIRendererUserData* ud = static_cast<GUIRendererUserData*>(buf->userData);
-			channelBM				= ud->channelMask;
+			displayChannels			= ud->displayChannels;
 			mipLevel				= static_cast<float>(ud->mipLevel);
 		}
 
 		req.materialData.color2.z	= mipLevel;
 		req.materialData.floatPack1 = Vector4(buf->m_textureUVTiling.x, buf->m_textureUVTiling.y, buf->m_textureUVOffset.x, buf->m_textureUVOffset.y);
-		req.materialData.floatPack2 = Vector4(buf->m_isAABuffer, singleChannel, channelBM.GetValue(), drawBufferType);
+		req.materialData.floatPack2 = Vector4(buf->m_isAABuffer, singleChannel, static_cast<uint32>(displayChannels), drawBufferType);
 	}
 
 	void GUIRenderer::DrawSimpleText(LinaVG::SimpleTextDrawBuffer* buf)

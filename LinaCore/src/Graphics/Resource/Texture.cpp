@@ -38,13 +38,13 @@ namespace Lina
 	void Texture::Metadata::SaveToStream(OStream& out) const
 	{
 		out << format << mipFilter;
-		out << generateMipmaps;
+		out << generateMipmaps << force8Bit;
 	}
 
 	void Texture::Metadata::LoadFromStream(IStream& in)
 	{
 		in >> format >> mipFilter;
-		in >> generateMipmaps;
+		in >> generateMipmaps >> force8Bit;
 	}
 
 	Texture::~Texture()
@@ -104,14 +104,14 @@ namespace Lina
 		DestroySW();
 
 		LinaGX::TextureBuffer outBuffer = {};
-		LinaGX::LoadImageFromFile(path.c_str(), outBuffer, 0, &m_importedChannels);
+		LinaGX::LoadImageFromFile(path.c_str(), outBuffer, 0, &m_importedChannels, m_meta.force8Bit);
 		m_bytesPerPixel = outBuffer.bytesPerPixel;
 		LINA_ASSERT(outBuffer.pixels != nullptr, "Failed loading texture! {0}", path);
 
 		if (m_importedChannels == 1)
-			m_meta.format = LinaGX::Format::R8_UNORM;
+			m_meta.format = m_bytesPerPixel == 1 ? LinaGX::Format::R8_UNORM : LinaGX::Format::R16_UNORM;
 		else if (m_importedChannels == 2)
-			m_meta.format = LinaGX::Format::R8G8_UNORM;
+			m_meta.format = m_bytesPerPixel == 2 ? LinaGX::Format::R8G8_UNORM : LinaGX::Format::R16G16_UNORM;
 		else if (m_importedChannels == 3)
 		{
 			// Reimport as 4.
@@ -121,11 +121,11 @@ namespace Lina
 			m_importedChannels = 4;
 			m_bytesPerPixel	   = outBuffer.bytesPerPixel;
 			LINA_ASSERT(outBuffer.pixels != nullptr, "Failed loading texture! {0}", path);
-			m_meta.format = LinaGX::Format::R8G8B8A8_SRGB;
+			m_meta.format = m_bytesPerPixel == 4 ? LinaGX::Format::R8G8B8A8_SRGB : LinaGX::Format::R16G16B16A16_UNORM;
 		}
 		else if (m_importedChannels == 4)
 		{
-			m_meta.format = LinaGX::Format::R8G8B8A8_SRGB;
+			m_meta.format = m_bytesPerPixel == 4 ? LinaGX::Format::R8G8B8A8_SRGB : LinaGX::Format::R16G16B16A16_UNORM;
 		}
 
 		m_size.x = outBuffer.width;
@@ -257,13 +257,13 @@ namespace Lina
 
 	uint32 Texture::GetChannels()
 	{
-		if (m_meta.format == LinaGX::Format::R8_UNORM)
+		if (m_meta.format == LinaGX::Format::R8_UNORM || m_meta.format == LinaGX::Format::R16_UNORM)
 			return 1;
-		else if (m_meta.format == LinaGX::Format::R8G8_UNORM)
+		else if (m_meta.format == LinaGX::Format::R8G8_UNORM || m_meta.format == LinaGX::Format::R16G16_UNORM)
 			return 2;
 		else if (m_meta.format == LinaGX::Format::R8G8B8A8_UNORM || m_meta.format == LinaGX::Format::R8G8B8A8_SRGB)
 			return 4;
-		else if (m_meta.format == LinaGX::Format::R16G16B16A16_SFLOAT)
+		else if (m_meta.format == LinaGX::Format::R16G16B16A16_UNORM)
 			return 4;
 
 		LINA_ASSERT(false, "");

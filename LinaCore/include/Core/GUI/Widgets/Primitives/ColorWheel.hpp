@@ -41,7 +41,6 @@ namespace Lina
 
 		struct Properties
 		{
-			bool						 _fold		   = false;
 			float*						 hue		   = nullptr;
 			float*						 saturation	   = nullptr;
 			float						 darknessAlpha = 1.0f;
@@ -87,10 +86,9 @@ namespace Lina
 	};
 
 	LINA_WIDGET_BEGIN(ColorWheel, Primitive)
-	LINA_FIELD(ColorWheel, m_props, "", "Class", GetTypeID<ColorWheel::Properties>());
+	LINA_FIELD(ColorWheel, m_props, "", FieldType::UserClass, GetTypeID<ColorWheel::Properties>());
 	LINA_CLASS_END(ColorWheel)
 
 	LINA_CLASS_BEGIN(ColorWheelProperties)
-	LINA_FIELD(ColorWheel::Properties, _fold, "Color Wheel", "Category", 0)
 	LINA_CLASS_END(ColorWheelProperties)
 } // namespace Lina

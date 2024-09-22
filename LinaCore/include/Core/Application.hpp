@@ -54,6 +54,7 @@ namespace Lina
 		void PreTick();
 		void Poll();
 		void Tick();
+		void Render();
 		void Shutdown();
 
 		inline void Quit()
