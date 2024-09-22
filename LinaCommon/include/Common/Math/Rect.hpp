@@ -127,6 +127,11 @@ namespace Lina
 		Vector2ui pos  = Vector2ui(0, 0);
 		Vector2ui size = Vector2ui(0, 0);
 
+		bool IsInside(uint32 x, uint32 y) const
+		{
+			return x > pos.x && x < pos.x + size.x && y > pos.y && y < pos.y + size.y;
+		}
+
 		bool Equals(const Rectui& other)
 		{
 			return pos.Equals(other.pos) && size.Equals(other.size);
