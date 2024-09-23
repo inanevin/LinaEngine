@@ -97,7 +97,7 @@ namespace Lina
 			return m_props;
 		}
 
-		inline LinaVG::LinaVGFont* GetLVGFont()
+		inline LinaVG::Font* GetLVGFont()
 		{
 			return m_lvgFont;
 		}
@@ -120,7 +120,7 @@ namespace Lina
 		Properties			   m_props				= {};
 		LinaVG::SDFTextOptions m_sdfOptions			= {};
 		float				   m_calculatedDPIScale = 0.0f;
-		LinaVG::LinaVGFont*	   m_lvgFont			= nullptr;
+		LinaVG::Font*		   m_lvgFont			= nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(Icon, Primitive)

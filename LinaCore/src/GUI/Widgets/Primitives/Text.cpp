@@ -45,6 +45,9 @@ namespace Lina
 		if (m_props.fetchWrapFromParent)
 			m_props.wrapWidth = m_parent->GetSizeX();
 
+		if (!Math::Equals(m_props.wrapWidth, 0.0f, 0.1f))
+			CalculateTextSize();
+
 		if (!Math::Equals(m_lgxWindow->GetDPIScale(), m_calculatedDPIScale, 0.01f))
 			CalculateTextSize();
 	}
@@ -129,13 +132,10 @@ namespace Lina
 	{
 		const float dpiScale = m_lgxWindow->GetDPIScale();
 		auto*		font	 = m_resourceManager->GetResource<Font>(m_props.font);
-		m_lvgFont			 = font->GetLinaVGFont(dpiScale);
+		m_lvgFont			 = font->GetFont(dpiScale);
 		m_calculatedDPIScale = dpiScale;
 
 		m_isSDF = m_lvgFont->m_isSDF;
-
-		if (m_props.fetchWrapFromParent)
-			m_props.wrapWidth = m_parent->GetSizeX();
 
 		if (m_isSDF)
 		{

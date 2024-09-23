@@ -42,10 +42,12 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
+#include "Core/Graphics/GfxManager.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
+#include "Common/System/System.hpp"
 
 namespace Lina::Editor
 {
@@ -340,6 +342,7 @@ namespace Lina::Editor
 
 	void PanelTextureViewer::RegenTexture(const String& path)
 	{
+		m_editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->Join();
 		m_texture->DestroyHW();
 
 		if (path.empty())

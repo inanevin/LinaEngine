@@ -89,7 +89,7 @@ namespace Lina
 			return m_props;
 		}
 
-		inline LinaVG::LinaVGFont* GetLVGFont()
+		inline LinaVG::Font* GetLVGFont()
 		{
 			return m_lvgFont;
 		}
@@ -109,12 +109,12 @@ namespace Lina
 	private:
 		LINA_REFLECTION_ACCESS(Text);
 
-		Properties			m_props					= {};
-		float				m_calculatedDPIScale	= 0.0f;
-		LinaVG::LinaVGFont* m_lvgFont				= nullptr;
-		bool				m_isSDF					= false;
-		float				m_lastPressSeconds		= 0.0f;
-		bool				m_waitingOnClickedDelay = false;
+		Properties	  m_props				  = {};
+		float		  m_calculatedDPIScale	  = 0.0f;
+		LinaVG::Font* m_lvgFont				  = nullptr;
+		bool		  m_isSDF				  = false;
+		float		  m_lastPressSeconds	  = 0.0f;
+		bool		  m_waitingOnClickedDelay = false;
 	};
 
 	LINA_WIDGET_BEGIN(Text, Primitive)

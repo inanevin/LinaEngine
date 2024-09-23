@@ -37,71 +37,93 @@ namespace Lina
 {
 	void GUIBackend::Initialize(ResourceManagerV2* resMan, ResourceUploadQueue* uploadQueue)
 	{
-		m_resourceManagerV2							   = resMan;
-		m_uploadQueue								   = uploadQueue;
-		m_lvgText.GetCallbacks().fontTextureBind	   = std::bind(&GUIBackend::BindFontTexture, this, std::placeholders::_1);
-		m_lvgText.GetCallbacks().fontTextureBufferData = std::bind(&GUIBackend::BufferFontTextureAtlas, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5);
-		m_lvgText.GetCallbacks().fontTextureBufferEnd  = std::bind(&GUIBackend::BufferEnded, this);
-		m_lvgText.GetCallbacks().fontTextureCreate	   = std::bind(&GUIBackend::CreateFontTexture, this, std::placeholders::_1, std::placeholders::_2);
+		m_resourceManagerV2						  = resMan;
+		m_uploadQueue							  = uploadQueue;
+		m_lvgText.GetCallbacks().atlasNeedsUpdate = std::bind(&GUIBackend::FontAtlasNeedsUpdate, this, std::placeholders::_1);
 	}
 
 	void GUIBackend::Shutdown()
 	{
-		for (const auto& ft : m_fontTextures)
+		for (const auto& ft : m_fontAtlases)
 		{
-			m_resourceManagerV2->DestroyResource<Texture>(ft.texture);
-			delete[] ft.pixels;
+			m_resourceManagerV2->DestroyResource<Texture>(ft.second.texture);
 		}
 
-		m_fontTextures.clear();
+		m_fontAtlases.clear();
 	}
 
-	void GUIBackend::BufferFontTextureAtlas(int width, int height, int offsetX, int offsetY, unsigned char* data)
+	void GUIBackend::FontAtlasNeedsUpdate(LinaVG::Atlas* atlas)
 	{
-		auto&  ft		   = m_fontTextures[m_boundFontTexture];
-		uint32 startOffset = offsetY * ft.width + offsetX;
+		auto		 it		= m_fontAtlases.find(atlas);
+		const uint32 width	= atlas->GetSize().x;
+		const uint32 height = atlas->GetSize().y;
 
-		for (int i = 0; i < height; i++)
+		if (it == m_fontAtlases.end())
 		{
-			const uint32 size = width;
-			MEMCPY(ft.pixels + startOffset, &data[width * i], size);
-			startOffset += ft.width;
+			const String name		 = "GUI Backend Font Texture " + TO_STRING(m_fontAtlases.size());
+			FontTexture	 fontTexture = {
+				 .texture = m_resourceManagerV2->CreateResource<Texture>(m_resourceManagerV2->ConsumeResourceID(), name),
+				 .width	  = width,
+				 .height  = height,
+			 };
+			fontTexture.texture->GetMeta().format		   = LinaGX::Format::R8_UNORM;
+			fontTexture.texture->GetMeta().generateMipmaps = true;
+			m_fontAtlases[atlas]						   = fontTexture;
 		}
-	}
 
-	void GUIBackend::BufferEnded()
-	{
-		auto& ft = m_fontTextures[m_boundFontTexture];
-		ft.texture->LoadFromBuffer(ft.pixels, ft.width, ft.height, 1);
-
+		auto& ft = m_fontAtlases[atlas];
+		ft.texture->LoadFromBuffer(atlas->GetData(), width, height, 1);
 		if (!ft.texture->IsGPUValid())
 			ft.texture->GenerateHW();
-
 		ft.texture->AddToUploadQueue(*m_uploadQueue, true);
 	}
+	/*
+		void GUIBackend::BufferFontTextureAtlas(int width, int height, int offsetX, int offsetY, unsigned char* data)
+		{
+			auto&  ft		   = m_fontTextures[m_boundFontTexture];
+			uint32 startOffset = offsetY * ft.width + offsetX;
 
-	void GUIBackend::BindFontTexture(LinaVG::BackendHandle texture)
-	{
-		m_boundFontTexture = texture;
-	}
+			for (int i = 0; i < height; i++)
+			{
+				const uint32 size = width;
+				MEMCPY(ft.pixels + startOffset, &data[width * i], size);
+				startOffset += ft.width;
+			}
+		}
 
-	LinaVG::BackendHandle GUIBackend::CreateFontTexture(int width, int height)
-	{
-		const String name		 = "GUI Backend Font Texture " + TO_STRING(m_fontTextures.size());
-		FontTexture	 fontTexture = {
-			 .texture = m_resourceManagerV2->CreateResource<Texture>(m_resourceManagerV2->ConsumeResourceID(), name),
-			 .width	  = width,
-			 .height  = height,
-		 };
+		void GUIBackend::BufferEnded()
+		{
+			auto& ft = m_fontTextures[m_boundFontTexture];
+			ft.texture->LoadFromBuffer(ft.pixels, ft.width, ft.height, 1);
 
-		fontTexture.texture->GetMeta().format		   = LinaGX::Format::R8_UNORM;
-		fontTexture.texture->GetMeta().generateMipmaps = true;
-		fontTexture.pixels							   = new uint8[width * height];
-		memset(fontTexture.pixels, 0, width * height);
+			if (!ft.texture->IsGPUValid())
+				ft.texture->GenerateHW();
 
-		m_fontTextures.push_back(fontTexture);
-		m_boundFontTexture = static_cast<LinaVG::BackendHandle>(m_fontTextures.size() - 1);
-		return m_boundFontTexture;
-	}
+			ft.texture->AddToUploadQueue(*m_uploadQueue, true);
+		}
 
+		void GUIBackend::BindFontTexture(LinaVG::BackendHandle texture)
+		{
+			m_boundFontTexture = texture;
+		}
+
+		LinaVG::BackendHandle GUIBackend::CreateFontTexture(int width, int height)
+		{
+			const String name		 = "GUI Backend Font Texture " + TO_STRING(m_fontTextures.size());
+			FontTexture	 fontTexture = {
+				 .texture = m_resourceManagerV2->CreateResource<Texture>(m_resourceManagerV2->ConsumeResourceID(), name),
+				 .width	  = width,
+				 .height  = height,
+			 };
+
+			fontTexture.texture->GetMeta().format		   = LinaGX::Format::R8_UNORM;
+			fontTexture.texture->GetMeta().generateMipmaps = true;
+			fontTexture.pixels							   = new uint8[width * height];
+			memset(fontTexture.pixels, 0, width * height);
+
+			m_fontTextures.push_back(fontTexture);
+			m_boundFontTexture = static_cast<LinaVG::BackendHandle>(m_fontTextures.size() - 1);
+			return m_boundFontTexture;
+		}
+	*/
 } // namespace Lina

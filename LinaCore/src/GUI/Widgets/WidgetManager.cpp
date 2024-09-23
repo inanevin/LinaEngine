@@ -295,7 +295,7 @@ namespace Lina
 
 		const Rect			rect	= w->GetRect();
 		const Vector2&		mp		= m_window->GetMousePosition();
-		auto*				lvgFont = m_resourceManagerV2->GetResource<Font>(Theme::GetDef().defaultFont)->GetLinaVGFont(m_window->GetDPIScale());
+		auto*				lvgFont = m_resourceManagerV2->GetResource<Font>(Theme::GetDef().defaultFont)->GetFont(m_window->GetDPIScale());
 		LinaVG::TextOptions textOpts;
 		textOpts.font = lvgFont;
 

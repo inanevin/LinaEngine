@@ -37,7 +37,8 @@ SOFTWARE.
 namespace LinaVG
 {
 	struct DrawBuffer;
-}
+	class Atlas;
+} // namespace LinaVG
 
 namespace Lina
 {
@@ -55,25 +56,21 @@ namespace Lina
 		struct FontTexture
 		{
 			Texture* texture = nullptr;
-			uint8*	 pixels	 = nullptr;
-			int		 width	 = 0;
-			int		 height	 = 0;
+			uint32	 width	 = 0;
+			uint32	 height	 = 0;
 		};
 
 	public:
 		GUIBackend()  = default;
 		~GUIBackend() = default;
 
-		void				  Initialize(ResourceManagerV2* resourceManager, ResourceUploadQueue* uploadQueue);
-		void				  Shutdown();
-		void				  BufferFontTextureAtlas(int width, int height, int offsetX, int offsetY, unsigned char* data);
-		void				  BufferEnded();
-		void				  BindFontTexture(LinaVG::BackendHandle texture);
-		LinaVG::BackendHandle CreateFontTexture(int width, int height);
+		void Initialize(ResourceManagerV2* resourceManager, ResourceUploadQueue* uploadQueue);
+		void Shutdown();
+		void FontAtlasNeedsUpdate(LinaVG::Atlas* atlas);
 
-		inline const FontTexture& GetFontTexture(uint32 handle) const
+		inline const FontTexture& GetFontTexture(LinaVG::Atlas* atlas) const
 		{
-			return m_fontTextures.at(handle);
+			return m_fontAtlases.at(atlas);
 		}
 
 		inline LinaVG::Text& GetLVGText()
@@ -82,10 +79,10 @@ namespace Lina
 		}
 
 	private:
-		LinaVG::Text		 m_lvgText;
-		ResourceUploadQueue* m_uploadQueue;
-		StringID			 m_boundFontTexture	 = 0;
-		ResourceManagerV2*	 m_resourceManagerV2 = nullptr;
-		Vector<FontTexture>	 m_fontTextures;
+		LinaVG::Text						 m_lvgText;
+		ResourceUploadQueue*				 m_uploadQueue;
+		StringID							 m_boundFontTexture	 = 0;
+		ResourceManagerV2*					 m_resourceManagerV2 = nullptr;
+		HashMap<LinaVG::Atlas*, FontTexture> m_fontAtlases;
 	};
 } // namespace Lina

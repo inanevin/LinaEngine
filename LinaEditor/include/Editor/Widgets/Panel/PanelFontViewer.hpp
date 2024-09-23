@@ -65,6 +65,7 @@ namespace Lina::Editor
 		String			   m_fontName				= "";
 		bool			   m_generalFold			= true;
 		bool			   m_fontFold				= true;
+		String			   m_displayString			= "Peace at home, peace at world.";
 		Button*			   m_saveButton				= nullptr;
 		Widget*			   m_fontPanel				= nullptr;
 		Text*			   m_fontDisplay			= nullptr;
@@ -76,6 +77,7 @@ namespace Lina::Editor
 
 	LINA_WIDGET_BEGIN(PanelFontViewer, Hidden)
 	LINA_FIELD(PanelFontViewer, m_fontName, "Font Name", FieldType::StringFixed, 0)
+	LINA_FIELD(PanelFontViewer, m_displayString, "Display String", FieldType::String, 0)
 	LINA_CLASS_END(PanelFontViewer)
 
 } // namespace Lina::Editor

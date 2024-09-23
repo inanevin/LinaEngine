@@ -1070,8 +1070,7 @@ namespace Lina::Editor
 			inp->GetProps().isNumberField = true;
 			inp->GetProps().clampNumber	  = true;
 
-			inp->GetProps().onEditEnd	   = [onFieldChanged, field, &metaType](const String& str) { onFieldChanged(metaType, field); };
-			inp->GetProps().onValueChanged = [onFieldChanged, field, &metaType](float val) { onFieldChanged(metaType, field); };
+			inp->GetProps().onEditEnd = [onFieldChanged, field, &metaType](const String& str) { onFieldChanged(metaType, field); };
 
 			if (hasLimits)
 			{
@@ -1091,6 +1090,9 @@ namespace Lina::Editor
 			inp->GetProps().valuePtr	  = reinterpret_cast<uint8*>(ptr);
 			inp->GetProps().valueBits	  = bits;
 			inp->GetProps().valueUnsigned = isUnsigned;
+
+			if (!inp->GetProps().disableNumberSlider && inp->GetProps().isNumberField)
+				inp->GetProps().onValueChanged = [onFieldChanged, field, &metaType](float val) { onFieldChanged(metaType, field); };
 
 			inp->GetProps().onRightClick = [wm, inp]() {
 				Popup* popup				   = wm->Allocate<Popup>("Popup");

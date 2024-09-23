@@ -573,7 +573,7 @@ namespace Lina
 			return;
 
 		LinaVG::TextOptions textOpts;
-		textOpts.font		   = m_manager->GetDefaultFont()->GetLinaVGFont(m_lgxWindow->GetDPIScale());
+		textOpts.font		   = m_manager->GetDefaultFont()->GetFont(m_lgxWindow->GetDPIScale());
 		const Vector2 textSize = m_lvg->CalculateTextSize(tooltip.c_str(), textOpts);
 
 		const Rect tooltipRect = Rect(mp + Vector2(10, 10), textSize + Vector2(Theme::GetDef().baseIndent * 2.0f, Theme::GetDef().baseIndent));

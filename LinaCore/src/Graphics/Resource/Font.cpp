@@ -45,10 +45,10 @@ namespace Lina
 		out << isSDF;
 		out << static_cast<int32>(glyphRanges.size());
 
-		for (const auto& rangePair : glyphRanges)
+		for (const auto& range : glyphRanges)
 		{
-			out << rangePair.first;
-			out << rangePair.second;
+			out << range.start;
+			out << range.end;
 		}
 	}
 
@@ -71,13 +71,18 @@ namespace Lina
 			glyphRanges.resize(static_cast<size_t>(glyphRangeSize));
 			for (int32 i = 0; i < glyphRangeSize; i++)
 			{
-				in >> glyphRanges[i].first;
-				in >> glyphRanges[i].second;
+				in >> glyphRanges[i].start;
+				in >> glyphRanges[i].end;
 			}
 		}
 	}
 
 	Font::~Font()
+	{
+		DestroyHW();
+	}
+
+	void Font::DestroyHW()
 	{
 		for (auto* font : m_lvgFonts)
 			delete font;
@@ -89,8 +94,8 @@ namespace Lina
 		Vector<LinaVG::GlyphEncoding> customRangeVec;
 		for (const auto& rng : m_meta.glyphRanges)
 		{
-			customRangeVec.push_back(rng.first);
-			customRangeVec.push_back(rng.second);
+			customRangeVec.push_back(rng.start);
+			customRangeVec.push_back(rng.end);
 		}
 
 		const int32 sz = static_cast<int32>(m_meta.points.size());
@@ -107,6 +112,7 @@ namespace Lina
 	void Font::LoadFromFile(const String& path)
 	{
 		// Populate if not existing.
+		m_file.clear();
 		FileSystem::ReadFileContentsToVector(path.c_str(), m_file);
 	}
 
@@ -127,7 +133,7 @@ namespace Lina
 		stream << m_file;
 	}
 
-	LinaVG::LinaVGFont* Font::GetLinaVGFont(float dpiScale)
+	LinaVG::Font* Font::GetFont(float dpiScale)
 	{
 		const int32 sz = static_cast<int32>(m_meta.points.size());
 

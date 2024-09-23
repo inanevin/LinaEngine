@@ -230,6 +230,7 @@ namespace Lina::Editor
 				SurfaceRenderer* rend = m_validSurfaceRenderers.at(i);
 				streams[i]			  = rend->Render(frameIndex);
 				swapchains[i]		  = rend->GetSwapchain();
+				int a				  = 5;
 			});
 			m_editor->GetSystem()->GetMainExecutor()->RunAndWait(tf);
 		}

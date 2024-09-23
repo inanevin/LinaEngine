@@ -35,7 +35,7 @@ SOFTWARE.
 
 namespace LinaVG
 {
-	class LinaVGFont;
+	class Font;
 }
 
 namespace LinaGX

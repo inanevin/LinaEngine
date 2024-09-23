@@ -70,7 +70,6 @@ namespace Lina
 			return nullptr;
 		}
 
-		Vector<Grid*> aq = m_availableGrids;
 
 		for (Grid* grid : m_availableGrids)
 		{
@@ -80,7 +79,7 @@ namespace Lina
 			TextureAtlasImage* img = new TextureAtlasImage();
 			img->rectCoords.pos	   = grid->rect.pos;
 			img->rectCoords.size   = size;
-			img->rectUV.pos		   = {static_cast<float>(img->rectCoords.pos.x) / static_cast<float>(m_size.x), static_cast<float>(img->rectCoords.size.y) / static_cast<float>(m_size.y)};
+			img->rectUV.pos		   = {static_cast<float>(img->rectCoords.pos.x) / static_cast<float>(m_size.x), static_cast<float>(img->rectCoords.pos.y) / static_cast<float>(m_size.y)};
 			img->rectUV.size	   = {static_cast<float>(size.x) / static_cast<float>(m_size.x), static_cast<float>(size.y) / static_cast<float>(m_size.y)};
 			img->atlas			   = this;
 			img->sid			   = sid;

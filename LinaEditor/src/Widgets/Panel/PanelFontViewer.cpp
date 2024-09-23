@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
 #include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
+#include "Common/System/System.hpp"
 #include "Core/Meta/ProjectData.hpp"
 #include "Core/Platform/PlatformProcess.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
@@ -44,8 +45,9 @@ SOFTWARE.
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
-#include "Core/Graphics/Resource/Font.hpp"
+#include "Core/Graphics/GfxManager.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
+#include "Core/Graphics/Resource/Font.hpp"
 
 namespace Lina::Editor
 {
@@ -81,10 +83,16 @@ namespace Lina::Editor
 
 		Text* fontDisplay = m_manager->Allocate<Text>("Font Display");
 		fontDisplay->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
-		fontDisplay->SetAlignedPos(Vector2::One * 0.5f);
-		fontDisplay->SetAnchorX(Anchor::Center);
-		fontDisplay->SetAnchorY(Anchor::Center);
-		fontDisplay->GetProps().text = "ABCDEFGHIJKLMNabcdefghijklmn0123456789";
+		// fontDisplay->SetAlignedPos(Vector2::One * 0.5f);
+		// fontDisplay->SetAnchorX(Anchor::Center);
+		// fontDisplay->SetAnchorY(Anchor::Center);
+		fontDisplay->GetProps().text				= m_displayString;
+		fontDisplay->GetProps().fetchWrapFromParent = true;
+		fontDisplay->GetProps().isDynamic			= true;
+		// fontDisplay->GetProps().wordWrap = false;
+
+		// kfontDisplay->GetProps().fetchCustomClipFromParent = true;
+
 		fontPanel->AddChild(fontDisplay);
 
 		ScrollArea* scroll = m_manager->Allocate<ScrollArea>("Scroll");
@@ -145,10 +153,15 @@ namespace Lina::Editor
 		m_inspector->AddChild(foldFont);
 
 		CommonWidgets::BuildClassReflection(foldGeneral, this, ReflectionSystem::Get().Resolve<PanelFontViewer>(), [this](const MetaType& meta, FieldBase* field) {
-
+			m_fontDisplay->GetProps().text = m_displayString;
+			m_fontDisplay->CalculateTextSize();
 		});
 
-		CommonWidgets::BuildClassReflection(foldFont, &m_font->GetMeta(), ReflectionSystem::Get().Resolve<Font::Metadata>(), [this](const MetaType& meta, FieldBase* field) { SetRuntimeDirty(true); });
+		CommonWidgets::BuildClassReflection(foldFont, &m_font->GetMeta(), ReflectionSystem::Get().Resolve<Font::Metadata>(), [this](const MetaType& meta, FieldBase* field) {
+			const Font::Metadata& current = m_font->GetMeta();
+			SetRuntimeDirty(true);
+			RegenFont("");
+		});
 
 		auto buildButtonLayout = [this]() -> Widget* {
 			DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>();
@@ -254,23 +267,16 @@ namespace Lina::Editor
 
 	void PanelFontViewer::RegenFont(const String& path)
 	{
+		m_editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->Join();
+		m_font->DestroyHW();
 
-		// m_texture->DestroyHW();
-		//
-		// if(path.empty())
-		//     m_texture->LoadFromBuffer(m_textureBuffer.pixels, m_textureBuffer.width, m_textureBuffer.height, m_textureBuffer.bytesPerPixel);
-		// else
-		// {
-		//     m_texture->LoadFromFile(path);
-		//     m_texture->SetPath(path);
-		// }
-		//
-		// m_texture->GenerateHW();
-		// m_texture->AddToUploadQueue(m_editor->GetEditorRenderer().GetUploadQueue(), false);
-		// m_editor->GetEditorRenderer().MarkBindlessDirty();
-		//
-		// m_formatDropdown->GetText()->GetProps().text = ReflectionSystem::Get().Meta<LinaGX::Format>().GetProperty<String>(static_cast<StringID>(m_texture->GetMeta().format));
-		// m_formatDropdown->GetText()->CalculateTextSize();
+		if (!path.empty())
+			m_font->LoadFromFile(path);
+
+		m_font->GenerateHW(m_editor->GetEditorRenderer().GetGUIBackend().GetLVGText());
+		m_editor->GetEditorRenderer().MarkBindlessDirty();
+		m_fontDisplay->GetProps().font = m_font->GetID();
+		m_fontDisplay->CalculateTextSize();
 	}
 
 	void PanelFontViewer::SaveLayoutToStream(OStream& stream)

@@ -37,7 +37,7 @@ SOFTWARE.
 
 namespace LinaVG
 {
-	class LinaVGFont;
+	class Font;
 	class Text;
 } // namespace LinaVG
 
@@ -52,11 +52,17 @@ namespace Lina
 			float  dpiLimit = 10.0f;
 		};
 
+		struct GlyphRange
+		{
+			uint32 start = 0;
+			uint32 end	 = 0;
+		};
+
 		struct Metadata
 		{
-			Vector<FontPoint>			 points = {FontPoint()};
-			bool						 isSDF	= false;
-			Vector<Pair<uint32, uint32>> glyphRanges;
+			Vector<FontPoint>  points = {FontPoint()};
+			Vector<GlyphRange> glyphRanges;
+			bool			   isSDF = false;
 
 			void SaveToStream(OStream& out) const;
 			void LoadFromStream(IStream& in);
@@ -67,13 +73,19 @@ namespace Lina
 		Font(ResourceID id, const String& name) : Resource(id, GetTypeID<Font>(), name){};
 		virtual ~Font();
 
-		void				GenerateHW(LinaVG::Text& lvgText);
-		LinaVG::LinaVGFont* GetLinaVGFont(float dpiScale);
-		virtual void		LoadFromFile(const String& path) override;
-		virtual void		LoadFromStream(IStream& stream) override;
-		virtual void		SaveToStream(OStream& stream) const override;
+		void		  GenerateHW(LinaVG::Text& lvgText);
+		void		  DestroyHW();
+		LinaVG::Font* GetFont(float dpiScale);
+		virtual void  LoadFromFile(const String& path) override;
+		virtual void  LoadFromStream(IStream& stream) override;
+		virtual void  SaveToStream(OStream& stream) const override;
 
 		inline Metadata& GetMeta()
+		{
+			return m_meta;
+		}
+
+		inline const Metadata& GetMeta() const
 		{
 			return m_meta;
 		}
@@ -86,9 +98,9 @@ namespace Lina
 	private:
 		ALLOCATOR_BUCKET_MEM;
 
-		Vector<LinaVG::LinaVGFont*> m_lvgFonts = {};
-		Vector<char>				m_file;
-		Metadata					m_meta = {};
+		Vector<LinaVG::Font*> m_lvgFonts = {};
+		Vector<char>		  m_file;
+		Metadata			  m_meta = {};
 	};
 
 	LINA_RESOURCE_BEGIN(Font);
@@ -99,8 +111,15 @@ namespace Lina
 	LINA_FIELD(Font::FontPoint, dpiLimit, "DPI Limit", FieldType::Float, 0)
 	LINA_CLASS_END(FontPointRef)
 
+	LINA_CLASS_BEGIN(FontGlyphRange)
+	LINA_FIELD(Font::GlyphRange, start, "Start", FieldType::UInt32, 0)
+	LINA_FIELD(Font::GlyphRange, end, "End", FieldType::UInt32, 0)
+	LINA_CLASS_END(FontGlyphRange)
+
 	LINA_CLASS_BEGIN(FontMeta)
 	LINA_FIELD(Font::Metadata, isSDF, "Is SDF", FieldType::Boolean, 0);
 	LINA_FIELD_VEC(Font::Metadata, points, "Points", FieldType::UserClass, Font::FontPoint, GetTypeID<Font::FontPoint>());
+	LINA_FIELD_VEC(Font::Metadata, glyphRanges, "Extra Ranges", FieldType::UserClass, Font::GlyphRange, GetTypeID<Font::GlyphRange>());
 	LINA_CLASS_END(FontMeta)
+
 } // namespace Lina
