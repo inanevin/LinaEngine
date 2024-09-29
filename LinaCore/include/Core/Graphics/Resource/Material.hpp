@@ -95,7 +95,7 @@ namespace Lina
 
 		inline ResourceID GetShaderID() const
 		{
-			return m_shaderID;
+			return m_shader.id;
 		}
 
 		inline uint32 GetBindlessBytePadding() const
@@ -105,8 +105,7 @@ namespace Lina
 
 	private:
 		ALLOCATOR_BUCKET_MEM;
-		Shader*				   m_shader	  = nullptr;
-		ResourceID			   m_shaderID = 0;
+		ResRef<Shader>		   m_shader;
 		DescriptorAllocation   m_descriptorSetContainer[FRAMES_IN_FLIGHT];
 		size_t				   m_bindlessBytePadding = 0;
 		bool				   m_propsDirty			 = false;

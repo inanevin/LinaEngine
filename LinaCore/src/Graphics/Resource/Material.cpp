@@ -90,19 +90,19 @@ namespace Lina
 
 	void Material::SetShader(Shader* shader)
 	{
-		m_shader   = shader;
-		m_shaderID = shader->GetID();
+		m_shader.raw = shader;
+		m_shader.id	 = shader->GetID();
 		ResetProperties();
 	}
 
 	void Material::SetShaderID(ResourceID id)
 	{
-		m_shaderID = id;
+		m_shader.id = id;
 	}
 
 	void Material::ResetProperties()
 	{
-		m_properties = m_shader->GetProperties();
+		m_properties = m_shader.raw->GetProperties();
 	}
 
 	void Material::LoadFromFile(const String& path)
@@ -119,7 +119,7 @@ namespace Lina
 	{
 		Resource::SaveToStream(stream);
 		stream << VERSION;
-		stream << m_shaderID;
+		stream << m_shader;
 		stream << m_properties;
 	}
 
@@ -128,16 +128,16 @@ namespace Lina
 		Resource::LoadFromStream(stream);
 		uint32 version = 0;
 		stream >> version;
-		stream >> m_shaderID;
+		stream >> m_shader;
 		stream >> m_properties;
 	}
 
 	Shader* Material::GetShader(ResourceManagerV2* rm)
 	{
-		if (m_shader == nullptr)
-			m_shader = rm->GetResource<Shader>(m_shaderID);
+		if (m_shader.raw == nullptr)
+			m_shader.raw = rm->GetResource<Shader>(m_shader.id);
 
-		return m_shader;
+		return m_shader.raw;
 	}
 
 	size_t Material::BufferDataInto(Buffer& buf, size_t padding)
@@ -153,12 +153,21 @@ namespace Lina
 					.texture = 0,
 					.sampler = 0,
 				};
-				buf.BufferData(padding, (uint8*)&bindless, prop.size);
+
+				uint32 txtIdx	  = 0;
+				uint32 samplerIdx = 0;
+				buf.BufferData(padding, (uint8*)&txtIdx, sizeof(uint32));
+				buf.BufferData(padding + sizeof(uint32), (uint8*)&samplerIdx, sizeof(uint32));
+
+				padding += sizeof(uint32) * 2;
+				totalSize += sizeof(uint32) * 2;
 			}
 			else
+			{
 				buf.BufferData(padding, (uint8*)&prop.data, prop.size);
-			padding += prop.size;
-			totalSize += prop.size;
+				padding += prop.size;
+				totalSize += prop.size;
+			}
 		}
 
 		return totalSize;

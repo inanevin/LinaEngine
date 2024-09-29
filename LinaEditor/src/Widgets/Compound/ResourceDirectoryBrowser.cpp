@@ -59,6 +59,13 @@ namespace Lina::Editor
 
 		// GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent);
 
+		ScrollArea* scroll = m_manager->Allocate<ScrollArea>("Scroll");
+		scroll->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		scroll->SetAlignedPos(Vector2::Zero);
+		scroll->SetAlignedSize(Vector2::One);
+		scroll->GetProps().direction = DirectionOrientation::Vertical;
+		AddChild(scroll);
+
 		ItemController* controller = m_manager->Allocate<ItemController>("Controller");
 		controller->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		controller->SetAlignedPos(Vector2::Zero);
@@ -72,14 +79,7 @@ namespace Lina::Editor
 		controller->GetWidgetProps().dropshadow.direction = Direction::Top;
 		controller->GetWidgetProps().dropshadow.isInner	  = true;
 		controller->GetContextMenu()->SetListener(this);
-		AddChild(controller);
-
-		ScrollArea* scroll = m_manager->Allocate<ScrollArea>("Scroll");
-		scroll->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		scroll->SetAlignedPos(Vector2::Zero);
-		scroll->SetAlignedSize(Vector2::One);
-		scroll->GetProps().direction = DirectionOrientation::Vertical;
-		controller->AddChild(scroll);
+		scroll->AddChild(controller);
 
 		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("VerticalLayout");
 		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
@@ -87,7 +87,9 @@ namespace Lina::Editor
 		layout->SetAlignedSize(Vector2::One);
 		layout->GetProps().direction		  = DirectionOrientation::Vertical;
 		layout->GetWidgetProps().clipChildren = true;
-		scroll->AddChild(layout);
+		controller->AddChild(layout);
+
+		scroll->SetTarget(layout);
 
 		m_controller = controller;
 		m_layout	 = layout;

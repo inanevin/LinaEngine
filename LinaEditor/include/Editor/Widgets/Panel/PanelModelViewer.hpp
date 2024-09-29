@@ -83,7 +83,7 @@ namespace Lina::Editor
 	};
 
 	LINA_WIDGET_BEGIN(PanelModelViewer, Hidden)
-	LINA_FIELD(PanelModelViewer, m_modelName, "Font Name", FieldType::StringFixed, 0)
+	LINA_FIELD(PanelModelViewer, m_modelName, "Model Name", FieldType::StringFixed, 0)
 	LINA_CLASS_END(PanelModelViewer)
 
 } // namespace Lina::Editor

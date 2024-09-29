@@ -80,6 +80,11 @@ namespace Lina
 			return m_name;
 		}
 
+		inline const Vector<PrimitiveDefault>& GetPrimitives() const
+		{
+			return m_primitives;
+		}
+
 	private:
 		friend class Model;
 		friend class ModelNode;

@@ -124,7 +124,7 @@ void main()
    vec4 normals = texture(sampler2D(LINA_TEXTURES[LINA_PASS_DATA.gBufNormal], LINA_SAMPLERS[LINA_PASS_DATA.gBufSampler]), inUV);
    vec4 worldPos = texture(sampler2D(LINA_TEXTURES[LINA_PASS_DATA.gBufPosition], LINA_SAMPLERS[LINA_PASS_DATA.gBufSampler]), inUV);
    vec3 finalColor = albedo.xyz;
-   outFragColor = vec4(0,1,0, 1.0);
+   outFragColor = vec4(finalColor.rgb, 1.0);
 }
 
 #lina_end

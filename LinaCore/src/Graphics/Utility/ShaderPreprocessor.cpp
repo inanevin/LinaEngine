@@ -195,6 +195,8 @@ namespace Lina
 					if (line.find("{") != String::npos)
 						continue;
 
+					continue;
+
 					LINA_ASSERT(false, "Unkown type!");
 				}
 			}

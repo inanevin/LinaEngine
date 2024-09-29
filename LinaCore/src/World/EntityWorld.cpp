@@ -235,7 +235,7 @@ namespace Lina
 
 	namespace
 	{
-		void ProcessModelNode(Model* model, EntityWorld* world, Entity* parent, ModelNode* node)
+		void ProcessModelNode(Model* model, EntityWorld* world, Entity* parent, ModelNode* node, const Vector<Material*>& materials)
 		{
 			Entity* nodeEntity = world->CreateEntity(node->GetName());
 			parent->AddChild(nodeEntity);
@@ -245,21 +245,25 @@ namespace Lina
 
 			if (mesh != nullptr)
 			{
-				MeshComponent* mc = world->AddComponent<MeshComponent>(nodeEntity);
+				const uint32   matIdx = model->GetMesh(node->GetMeshIndex())->GetPrimitives().front().GetMaterialIndex();
+				MeshComponent* mc	  = world->AddComponent<MeshComponent>(nodeEntity);
 				mc->SetMesh(model, node->GetMeshIndex());
+				mc->SetMaterial(materials[matIdx]);
 			}
 
 			for (ModelNode* child : node->GetChildren())
-				ProcessModelNode(model, world, nodeEntity, child);
+				ProcessModelNode(model, world, nodeEntity, child, materials);
 		}
 	} // namespace
 
-	Entity* EntityWorld::AddModelToWorld(Model* model)
+	Entity* EntityWorld::AddModelToWorld(Model* model, const Vector<Material*>& materials)
 	{
+		LINA_ASSERT(materials.size() == model->GetMeta().materials.size(), "");
+
 		Entity*					 base  = CreateEntity(model->GetName());
 		const Vector<ModelNode*> roots = model->GetRootNodes();
 		for (ModelNode* rootNode : roots)
-			ProcessModelNode(model, this, base, rootNode);
+			ProcessModelNode(model, this, base, rootNode, materials);
 		return base;
 	}
 } // namespace Lina

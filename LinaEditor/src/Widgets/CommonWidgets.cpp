@@ -1199,6 +1199,14 @@ namespace Lina::Editor
 
 			ResourceDirectory* dir = Editor::Get()->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(resID);
 
+			TypeID tid = 0;
+
+			if (field->HasProperty<TypeID>("SubType"_hs))
+				tid = field->GetProperty<TypeID>("SubType"_hs);
+
+			if (tid == 0)
+				tid = field->GetProperty<TypeID>("SubTypeTID"_hs);
+
 			Button* btn = wm->Allocate<Button>();
 			btn->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 			btn->SetAlignedSize(Vector2(0.0f, 1.0f));
@@ -1213,7 +1221,7 @@ namespace Lina::Editor
 			layout->GetWidgetProps().childPadding		= Theme::GetDef().baseIndent;
 			layout->GetWidgetProps().childMargins.left	= Theme::GetDef().baseIndent;
 			layout->GetWidgetProps().childMargins.right = Theme::GetDef().baseIndent;
-			layout->GetWidgetProps().clipChildren		= true;
+			// layout->GetWidgetProps().clipChildren		= true;
 			btn->AddChild(layout);
 
 			Widget* thumb = wm->Allocate<Widget>("Thumb");
@@ -1239,7 +1247,28 @@ namespace Lina::Editor
 			txt->SetAnchorY(Anchor::Center);
 			txt->GetProps().text = dir == nullptr ? "(NoResource)" : dir->name;
 			txt->CalculateTextSize();
+			txt->GetProps().fetchCustomClipFromParent = true;
+			txt->GetProps().isDynamic				  = true;
 			layout->AddChild(txt);
+
+			btn->GetProps().onClicked = [src, onFieldChanged, &metaType, field, memberVariablePtr, fieldType, tid, thumb, txt]() {
+				ThrowResourceSelector(src, tid, [onFieldChanged, &metaType, field, memberVariablePtr, fieldType, thumb, txt](ResourceDirectory* dir) {
+					onFieldChanged(metaType, field);
+					FieldValue rf(memberVariablePtr);
+					if (fieldType == FieldType::ResourceRef)
+						(rf.CastPtr<ResRefBase>())->id = dir->resourceID;
+					else
+						*rf.CastPtr<ResourceID>() = dir->resourceID;
+
+					thumb->GetWidgetProps().textureAtlas = dir->_thumbnailAtlasImage;
+					if (thumb->GetWidgetProps().textureAtlas == nullptr)
+						thumb->GetWidgetProps().textureAtlas = Editor::Get()->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "FileShaderSmall"_hs);
+
+					txt->GetProps().text = dir->name;
+					txt->CalculateTextSize();
+				});
+			};
+
 			rightSide->AddChild(btn);
 		}
 		else if (fieldType == FieldType::UserClass)

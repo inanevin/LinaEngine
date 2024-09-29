@@ -80,18 +80,21 @@ layout (location = 2) out vec4 outNormal;
 struct LINA_MATERIAL
 {
    vec4 color;
-   LinaTexture2D txtAlbedo;
-   LinaTexture2D txtNormals;
+   
 };
 
 LINA_MATERIAL AsMaterial()
 {
    LINA_MATERIAL mat;
 	uint index = inMaterialBytePadding;
-   mat.txtAlbedo.txt = LINA_MATERIALS.data[index++];
-   mat.txtAlbedo.smp = LINA_MATERIALS.data[index++];
-   mat.txtNormals.txt = LINA_MATERIALS.data[index++];
-   mat.txtNormals.smp = LINA_MATERIALS.data[index++];
+   mat.color.x = uintBitsToFloat(LINA_MATERIALS.data[index++]);
+   mat.color.y = uintBitsToFloat(LINA_MATERIALS.data[index++]);
+   mat.color.z = uintBitsToFloat(LINA_MATERIALS.data[index++]);
+   mat.color.w = uintBitsToFloat(LINA_MATERIALS.data[index++]);
+   // mat.txtAlbedo.txt = LINA_MATERIALS.data[index++];
+   // mat.txtAlbedo.smp = LINA_MATERIALS.data[index++];
+   // mat.txtNormals.txt = LINA_MATERIALS.data[index++];
+   // mat.txtNormals.smp = LINA_MATERIALS.data[index++];
 	return mat;
 }
 

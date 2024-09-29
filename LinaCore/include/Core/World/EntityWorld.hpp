@@ -100,7 +100,7 @@ namespace Lina
 		void		 RemoveListener(EntityWorldListener* listener);
 		void		 PreTick();
 		void		 Tick(float deltaTime);
-		Entity*		 AddModelToWorld(Model* model);
+		Entity*		 AddModelToWorld(Model* model, const Vector<Material*>& materials);
 
 		inline uint32 GetActiveEntityCount() const
 		{

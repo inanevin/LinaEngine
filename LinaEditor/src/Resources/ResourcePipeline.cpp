@@ -272,7 +272,7 @@ namespace Lina::Editor
 
 					if (defaultShader == nullptr)
 					{
-						defaultShader = new Shader(0, "");
+						defaultShader = new Shader(DEFAULT_SHADER_OBJECT_ID, DEFAULT_SHADER_OBJECT_PATH);
 						defaultShader->LoadFromFile(DEFAULT_SHADER_OBJECT_PATH);
 					}
 

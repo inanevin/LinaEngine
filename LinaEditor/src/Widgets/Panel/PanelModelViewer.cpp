@@ -50,6 +50,7 @@ SOFTWARE.
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
 #include "Core/Components/CameraComponent.hpp"
+#include "Core/Components/SimpleFlightMovement.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/World/EntityWorld.hpp"
 
@@ -152,6 +153,7 @@ namespace Lina::Editor
 		m_editor->GetResourceManagerV2().LoadResourcesFromProject(m_editor, m_editor->GetProjectManager().GetProjectData(), {def}, 0);
 		m_editor->GetResourceManagerV2().WaitForAll();
 		m_model					   = m_editor->GetResourceManagerV2().GetResource<Model>(def.id);
+		m_modelName				   = m_model->GetName();
 		GetWidgetProps().debugName = "Model: " + m_model->GetName();
 
 		FoldLayout* foldGeneral = CommonWidgets::BuildFoldTitle(this, Locale::GetStr(LocaleStr::General), &m_generalFold);
@@ -255,25 +257,45 @@ namespace Lina::Editor
 		m_lastWorldSize = Vector2ui(4, 4);
 		m_worldRenderer = new WorldRenderer(m_world, m_lastWorldSize);
 
-		Vector<ResourceDef> neededResources = {{
-												   .id	 = DEFAULT_SHADER_LIGHTING_ID,
-												   .name = DEFAULT_SHADER_LIGHTING_PATH,
-												   .tid	 = GetTypeID<Shader>(),
-											   },
-											   {
-												   .id	 = DEFAULT_SHADER_SKY_ID,
-												   .name = DEFAULT_SHADER_SKY_PATH,
-												   .tid	 = GetTypeID<Shader>(),
-											   },
-											   {
-												   .id	 = DEFAULT_SKY_CUBE_ID,
-												   .name = DEFAULT_SKY_CUBE_PATH,
-												   .tid	 = GetTypeID<Model>(),
-											   }};
-		m_world->GetResourceManagerV2().LoadResourcesFromFile(m_editor, neededResources, -1);
-		m_world->GetResourceManagerV2().LoadResourcesFromProject(m_editor, m_editor->GetProjectManager().GetProjectData(), {{.id = m_model->GetID(), .name = m_model->GetName(), .tid = GetTypeID<Model>()}}, -1);
-		m_world->GetResourceManagerV2().WaitForAll();
+		Vector<ResourceDef> neededResources = {
+			{
+				.id	  = DEFAULT_SHADER_LIGHTING_ID,
+				.name = DEFAULT_SHADER_LIGHTING_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
+			{
+				.id	  = DEFAULT_SHADER_SKY_ID,
+				.name = DEFAULT_SHADER_SKY_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
+			{
+				.id	  = DEFAULT_SKY_CUBE_ID,
+				.name = DEFAULT_SKY_CUBE_PATH,
+				.tid  = GetTypeID<Model>(),
+			},
+			{
+				.id	  = DEFAULT_SHADER_OBJECT_ID,
+				.name = DEFAULT_SHADER_OBJECT_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
+		};
 
+		m_world->GetResourceManagerV2().LoadResourcesFromFile(m_editor, neededResources, -1);
+
+		neededResources.clear();
+
+		for (ResourceID id : m_model->GetMeta().materials)
+		{
+			neededResources.push_back({
+				.id	 = id,
+				.tid = GetTypeID<Material>(),
+			});
+		}
+
+		neededResources.push_back({.id = m_model->GetID(), .name = m_model->GetName(), .tid = GetTypeID<Model>()});
+
+		m_world->GetResourceManagerV2().LoadResourcesFromProject(m_editor, m_editor->GetProjectManager().GetProjectData(), neededResources, -1);
+		m_world->GetResourceManagerV2().WaitForAll();
 		SetupScene();
 
 		// Add rendering
@@ -294,11 +316,20 @@ namespace Lina::Editor
 		m_world->GetGfxSettings().SetSkyMaterial(skyMaterial);
 		m_world->GetGfxSettings().SetLightingMaterial(lightingMaterial);
 
-		Entity*			 camera		= m_world->CreateEntity("Camera");
-		CameraComponent* cameraComp = m_world->AddComponent<CameraComponent>(camera);
+		Entity* camera = m_world->CreateEntity("Camera");
+		camera->SetPosition(Vector3(0, 3, -40));
+		// camera->SetRotation(Quaternion::LookAt(camera->GetPosition(), Vector3::Zero, Vector3::Up));
+		CameraComponent*	  cameraComp = m_world->AddComponent<CameraComponent>(camera);
+		SimpleFlightMovement* flight	 = m_world->AddComponent<SimpleFlightMovement>(camera);
 		m_world->SetActiveCamera(cameraComp);
 
-		Entity* model = m_world->AddModelToWorld(m_model);
+		Vector<Material*> materials;
+		materials.reserve(m_model->GetMeta().materials.size());
+		for (ResourceID id : m_model->GetMeta().materials)
+		{
+			materials.push_back(m_world->GetResourceManagerV2().GetResource<Material>(id));
+		}
+		Entity* model = m_world->AddModelToWorld(m_model, materials);
 	}
 
 	void PanelModelViewer::Destruct()
