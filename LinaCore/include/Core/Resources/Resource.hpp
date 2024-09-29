@@ -108,17 +108,16 @@ namespace Lina
 		TypeID	   m_tid  = 0;
 	};
 
-    class ResRefBase
-    {
-    public:
-        ResourceID id  = 0;
-    };
+	class ResRefBase
+	{
+	public:
+		ResourceID id = 0;
+	};
 
 	template <typename T> class ResRef : public ResRefBase
 	{
-    public:
-        
-		T*		   raw = nullptr;
+	public:
+		T* raw = nullptr;
 
 		void SaveToStream(OStream& stream) const
 		{

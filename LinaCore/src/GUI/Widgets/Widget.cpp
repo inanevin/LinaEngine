@@ -530,7 +530,6 @@ namespace Lina
 
 		const Vector2 mp = Vector2(Math::FloorToFloat(m_lgxWindow->GetMousePosition().x), Math::FloorToFloat(m_lgxWindow->GetMousePosition().y));
 
-
 		if (!m_isHovered)
 			return;
 
@@ -575,17 +574,17 @@ namespace Lina
 
 		auto*		foregroundRoot	= m_manager->GetForegroundRoot();
 		const auto& foregroundItems = foregroundRoot->GetChildren();
-        
+
 		if (m_drawOrder < FOREGROUND_DRAW_ORDER)
 		{
-            for(Widget* frItem : foregroundItems)
-            {
-                if(frItem->GetFlags().IsSet(WF_FOREGROUND_BLOCKER))
-                {
-                    m_isHovered = false;
-                    return;
-                }
-            }
+			for (Widget* frItem : foregroundItems)
+			{
+				if (frItem->GetFlags().IsSet(WF_FOREGROUND_BLOCKER))
+				{
+					m_isHovered = false;
+					return;
+				}
+			}
 		}
 
 		const Vector2& pos = m_lgxWindow->GetMousePosition();
