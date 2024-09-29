@@ -60,7 +60,7 @@ namespace Lina
 			m_parent->RemoveChild(this);
 	}
 
-	void Entity::SetTransformation(Matrix4& mat, bool omitScale)
+	void Entity::SetTransformation(const Matrix4& mat, bool omitScale)
 	{
 		Vector3	   loc;
 		Quaternion rot;
@@ -73,7 +73,7 @@ namespace Lina
 			SetScale(scale);
 	}
 
-	void Entity::SetLocalTransformation(Matrix4& mat, bool omitScale)
+	void Entity::SetLocalTransformation(const Matrix4& mat, bool omitScale)
 	{
 		Vector3	   loc;
 		Quaternion rot;

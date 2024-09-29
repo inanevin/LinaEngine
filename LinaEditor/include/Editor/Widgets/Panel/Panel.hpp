@@ -33,6 +33,7 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+	class Tab;
 
 	struct PanelPayloadData
 	{
@@ -58,6 +59,7 @@ namespace Lina::Editor
 		virtual void SaveLayoutToStream(OStream& stream){};
 		virtual void LoadLayoutFromStream(IStream& stream){};
 		virtual void Destruct() override;
+		void		 RefreshTab();
 
 		inline PanelType GetType() const
 		{
@@ -79,10 +81,16 @@ namespace Lina::Editor
 			m_subData = data;
 		}
 
+		inline void SetTab(Tab* tab)
+		{
+			m_tab = tab;
+		}
+
 	protected:
 		PanelType  m_panelType	= PanelType::ResourceBrowser;
 		ResourceID m_subData	= 0;
 		Bitmask32  m_panelFlags = 0;
+		Tab*	   m_tab		= nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(Panel, Hidden)

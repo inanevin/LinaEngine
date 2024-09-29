@@ -43,7 +43,6 @@ namespace Lina
 		m_rawTexture							= m_resourceManagerV2->CreateResource<Texture>(m_resourceManagerV2->ConsumeResourceID(), "TextureAtlasRawTexture");
 		m_rawTexture->GetMeta().format			= m_textureFormat;
 		m_rawTexture->GetMeta().generateMipmaps = true;
-		m_isDirty								= true;
 		m_availableGrids.push_back(new Grid(Vector2ui::Zero, sz));
 	}
 
@@ -70,10 +69,9 @@ namespace Lina
 			return nullptr;
 		}
 
-
 		for (Grid* grid : m_availableGrids)
 		{
-			if (grid->rect.size.x <= size.x || grid->rect.size.y <= size.y)
+			if (grid->rect.size.x < size.x || grid->rect.size.y < size.y)
 				continue;
 
 			TextureAtlasImage* img = new TextureAtlasImage();
@@ -132,6 +130,13 @@ namespace Lina
 			Grid* newGrid = new Grid(rect->rectCoords.pos, rect->rectCoords.size);
 			m_availableGrids.push_back(newGrid);
 
+			uint32 startPos = (newGrid->rect.pos.y * m_size.x + newGrid->rect.pos.x) * m_bytesPerPixel;
+			for (uint32 row = 0; row < newGrid->rect.size.y; row++)
+			{
+				MEMSET(m_data.data() + startPos, 0, newGrid->rect.size.x * m_bytesPerPixel);
+				startPos += m_size.x * m_bytesPerPixel;
+			}
+
 			delete rect;
 			m_rects.erase(it);
 			return true;
@@ -142,10 +147,6 @@ namespace Lina
 
 	void TextureAtlas::RefreshGPU(ResourceUploadQueue& queue)
 	{
-		if (!m_isDirty)
-			return;
-
-		m_isDirty = false;
 		m_rawTexture->LoadFromBuffer(m_data.data(), m_size.x, m_size.y, m_bytesPerPixel);
 
 		if (!m_rawTexture->IsGPUValid())

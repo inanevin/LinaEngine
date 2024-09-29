@@ -43,6 +43,8 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
+#include "Core/Graphics/Resource/Model.hpp"
+#include "Core/Audio/Audio.hpp"
 #include "Core/Graphics/Resource/TextureSampler.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Physics/PhysicsMaterial.hpp"
@@ -111,6 +113,18 @@ namespace Lina::Editor
 			else if (item->resourceTID == GetTypeID<Font>())
 			{
 				m_editor->GetWindowPanelManager().OpenPanel(PanelType::FontViewer, item->resourceID, this);
+			}
+			else if (item->resourceTID == GetTypeID<Model>())
+			{
+				m_editor->GetWindowPanelManager().OpenPanel(PanelType::ModelViewer, item->resourceID, this);
+			}
+			else if (item->resourceTID == GetTypeID<Material>())
+			{
+				m_editor->GetWindowPanelManager().OpenPanel(PanelType::MaterialViewer, item->resourceID, this);
+			}
+			else if (item->resourceTID == GetTypeID<Audio>())
+			{
+				m_editor->GetWindowPanelManager().OpenPanel(PanelType::AudioViewer, item->resourceID, this);
 			}
 		};
 
@@ -185,8 +199,10 @@ namespace Lina::Editor
 			}
 			else
 			{
+				const bool hasChildren = child->children.empty();
+
 				TextureAtlasImage* img = child->_thumbnailAtlasImage ? child->_thumbnailAtlasImage : m_editor->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "FileShaderSmall"_hs);
-				Widget*			   w   = CommonWidgets::BuildTexturedListItem(this, child, margin, img, child->name, true);
+				Widget*			   w   = CommonWidgets::BuildTexturedListItem(this, child, margin, img, child->name);
 				m_controller->GetItem(dir)->GetParent()->AddChild(w);
 				m_controller->AddItem(w);
 			}
@@ -364,7 +380,7 @@ namespace Lina::Editor
 				return true;
 
 			m_editor->GetResourcePipeline().ImportResources(selection.front(), files);
-			RefreshDirectory();
+			// TODO: Lock here.
 			return true;
 		}
 
@@ -533,7 +549,7 @@ namespace Lina::Editor
 	{
 		for (ResourceDirectory* item : dirs)
 			m_editor->GetResourcePipeline().DuplicateResource(&m_editor->GetResourceManagerV2(), item, item->parent);
-
+		m_editor->GetAtlasManager().RefreshDirtyAtlases();
 		RefreshDirectory();
 		m_editor->GetProjectManager().SaveProjectChanges();
 	}
@@ -541,8 +557,14 @@ namespace Lina::Editor
 	void ResourceDirectoryBrowser::DeleteItems(Vector<ResourceDirectory*> dirs)
 	{
 		for (ResourceDirectory* item : dirs)
-			item->parent->DestroyChild(item);
+		{
+			if (item->_thumbnailAtlasImage != nullptr)
+				m_editor->GetAtlasManager().RemoveImage(item->_thumbnailAtlasImage);
 
+			item->parent->DestroyChild(item);
+		}
+
+		m_editor->GetAtlasManager().RefreshDirtyAtlases();
 		RefreshDirectory();
 		m_editor->GetProjectManager().SaveProjectChanges();
 	}

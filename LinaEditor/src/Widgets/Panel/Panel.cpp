@@ -28,6 +28,8 @@ SOFTWARE.
 
 #include "Editor/Widgets/Panel/Panel.hpp"
 #include "Editor/Editor.hpp"
+#include "Editor/Widgets/Compound/Tab.hpp"
+#include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 
 namespace Lina::Editor
@@ -35,5 +37,14 @@ namespace Lina::Editor
 	void Panel::Destruct()
 	{
 		Editor::Get()->GetWindowPanelManager().StorePanelWindowInfo(this);
+	}
+
+	void Panel::RefreshTab()
+	{
+		if (m_tab == nullptr)
+			return;
+
+		m_tab->GetText()->GetProps().text = GetWidgetProps().debugName;
+		m_tab->GetText()->CalculateTextSize();
 	}
 } // namespace Lina::Editor

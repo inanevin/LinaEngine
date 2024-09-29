@@ -99,7 +99,7 @@ namespace Lina
 			Texture* gBufDepth			= nullptr;
 			Texture* lightingPassOutput = nullptr;
 
-			bool bindlessDirty = false;
+			bool bindlessDirty = true;
 		};
 
 	public:
@@ -144,7 +144,7 @@ namespace Lina
 			return m_size;
 		}
 
-		inline Texture* GetGBufColorMaterialID(uint32 frameIndex)
+		inline Texture* GetGBufAlbedo(uint32 frameIndex)
 		{
 			return m_pfd[frameIndex].gBufAlbedo;
 		}

@@ -31,8 +31,11 @@ SOFTWARE.
 #include "Core/World/Component.hpp"
 #include "Core/Reflection/ReflectionSystem.hpp"
 #include "Core/Graphics/GfxManager.hpp"
+#include "Core/Graphics/Resource/Model.hpp"
+#include "Core/Graphics/Data/ModelNode.hpp"
 #include "Core/Audio/Audio.hpp"
 #include "Core/Resources/ResourceManager.hpp"
+#include "Core/Components/MeshComponent.hpp"
 
 #include "Common/System/SystemInfo.hpp"
 #include "Common/System/System.hpp"
@@ -229,5 +232,35 @@ namespace Lina
 	void EntityWorld::RemoveListener(EntityWorldListener* listener)
 	{
 		m_listeners.erase(linatl::find_if(m_listeners.begin(), m_listeners.end(), [listener](EntityWorldListener* list) -> bool { return list == listener; }));
+	}
+
+	namespace
+	{
+		void ProcessModelNode(Model* model, EntityWorld* world, Entity* parent, ModelNode* node)
+		{
+			Entity* nodeEntity = world->CreateEntity(node->GetName());
+			parent->AddChild(nodeEntity);
+			nodeEntity->SetLocalTransformation(node->GetLocalMatrix());
+
+			MeshDefault* mesh = node->GetMesh();
+
+			if (mesh != nullptr)
+			{
+				MeshComponent* mc = world->AddComponent<MeshComponent>(nodeEntity);
+				mc->SetMesh(model, node->GetMeshIndex());
+			}
+
+			for (ModelNode* child : node->GetChildren())
+				ProcessModelNode(model, world, nodeEntity, child);
+		}
+	} // namespace
+
+	Entity* EntityWorld::AddModelToWorld(Model* model)
+	{
+		Entity*					 base  = CreateEntity(model->GetName());
+		const Vector<ModelNode*> roots = model->GetRootNodes();
+		for (ModelNode* rootNode : roots)
+			ProcessModelNode(model, this, base, rootNode);
+		return base;
 	}
 } // namespace Lina

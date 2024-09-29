@@ -153,7 +153,7 @@ namespace Lina
 		DirectionOrientation colorBackgroundDirection	 = DirectionOrientation::Horizontal;
 		TextureAtlasImage*	 textureAtlas				 = nullptr;
 		Texture*			 rawTexture					 = nullptr;
-		uint32				 specialTexture				 = 0;
+		void*				 specialTexture				 = 0;
 		Vector2				 textureTiling				 = Vector2::One;
 		Vector<int32>		 onlyRound					 = {};
 		Rect				 customClipRect				 = {};
@@ -528,6 +528,7 @@ namespace Lina
 		void*						m_userData				= nullptr;
 		uint32						m_cacheIndex			= 0;
 		WidgetProps					m_widgetProps			= {};
+		bool						m_initializing			= false;
 	};
 
 	LINA_WIDGET_BEGIN(Widget, General)
@@ -589,8 +590,6 @@ namespace Lina
 	LINA_FIELD(WidgetProps, fitTexture, "Fit Texture", FieldType::Boolean, 0);
 	LINA_FIELD(WidgetProps, textureTiling, "Texture Tiling", FieldType::Vector2, 0);
 	LINA_FIELD(WidgetProps, activeTextureTiling, "Active Texture Tiling", FieldType::Boolean, 0);
-	LINA_FIELD(WidgetProps, useSpecialTexture, "Use Special Texture", FieldType::Boolean, 0);
-	LINA_FIELD(WidgetProps, specialTexture, "Special Texture", FieldType::UInt32, 0);
 	LINA_FIELD(WidgetProps, borderThickness, "Border Thicknesses", FieldType::TBLR, 0);
 	LINA_FIELD(WidgetProps, colorBorders, "Border Color", FieldType::Color, 0);
 	LINA_FIELD(WidgetProps, childMargins, "Child Margins", FieldType::TBLR, 0);
@@ -618,8 +617,6 @@ namespace Lina
 	LINA_FIELD_DEPENDENCY_POS(WidgetProps, fitTexture, "drawBackground", 1);
 	LINA_FIELD_DEPENDENCY_POS(WidgetProps, textureTiling, "drawBackground", 1);
 	LINA_FIELD_DEPENDENCY_POS(WidgetProps, activeTextureTiling, "drawBackground", 1);
-	LINA_FIELD_DEPENDENCY_POS(WidgetProps, useSpecialTexture, "drawBackground", 1);
-	LINA_FIELD_DEPENDENCY_POS(WidgetProps, specialTexture, "useSpecialTexture", 1);
 	LINA_FIELD_DEPENDENCY_POS(WidgetProps, customClipRect, "customClip", 1);
 
 	LINA_CLASS_END(WidgetProps)

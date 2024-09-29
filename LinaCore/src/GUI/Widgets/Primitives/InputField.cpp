@@ -136,7 +136,7 @@ namespace Lina
 			}
 
 			if (m_props.onValueChanged)
-				m_props.onValueChanged(GetValue());
+				m_props.onValueChanged(GetValue(), true);
 		}
 	}
 
@@ -545,7 +545,7 @@ namespace Lina
 			}
 
 			if (m_props.onValueChanged)
-				m_props.onValueChanged(GetValue());
+				m_props.onValueChanged(GetValue(), false);
 		}
 	}
 
@@ -591,7 +591,7 @@ namespace Lina
 			}
 
 			if (m_props.onValueChanged)
-				m_props.onValueChanged(GetValue());
+				m_props.onValueChanged(GetValue(), false);
 		}
 	}
 

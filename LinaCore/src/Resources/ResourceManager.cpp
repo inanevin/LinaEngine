@@ -73,7 +73,12 @@ namespace Lina
 		m_loadTasks.clear();
 	}
 
-	void ResourceManagerV2::LoadResourcesFromFile(ApplicationDelegate* delegate, ProjectData* project, const Vector<ResourceDef>& resourceDefs, int32 taskID)
+	void ResourceManagerV2::LoadResourcesFromFile(ApplicationDelegate* delegate, const Vector<ResourceDef>& resourceDef, int32 taskID)
+	{
+		LoadResourcesFromProject(delegate, nullptr, resourceDef, taskID);
+	}
+
+	void ResourceManagerV2::LoadResourcesFromProject(ApplicationDelegate* delegate, ProjectData* project, const Vector<ResourceDef>& resourceDefs, int32 taskID)
 	{
 		for (ResourceManagerListener* listener : m_listeners)
 			listener->OnResourceLoadStarted(taskID, resourceDefs);

@@ -50,7 +50,8 @@ namespace Lina
 		ResourceManagerV2(){};
 		~ResourceManagerV2(){};
 
-		void LoadResourcesFromFile(ApplicationDelegate* delegate, ProjectData* project, const Vector<ResourceDef>& resourceDef, int32 taskID);
+		void LoadResourcesFromFile(ApplicationDelegate* delegate, const Vector<ResourceDef>& resourceDef, int32 taskID);
+		void LoadResourcesFromProject(ApplicationDelegate* delegate, ProjectData* project, const Vector<ResourceDef>& resourceDef, int32 taskID);
 		void UnloadResources(const Vector<Resource*>& resources);
 
 		void Poll();

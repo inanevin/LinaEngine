@@ -33,14 +33,18 @@ namespace Lina
 
 	void ModelMaterial::SaveToStream(OStream& stream) const
 	{
-		stream << m_defaultMat;
-		stream << m_name;
+		stream << name;
+		stream << albedo;
+		stream << isOpaque;
+		stream << textureIndices;
 	}
 
 	void ModelMaterial::LoadFromStream(IStream& stream)
 	{
-		stream >> m_defaultMat;
-		stream >> m_name;
+		stream >> name;
+		stream >> albedo;
+		stream >> isOpaque;
+		stream >> textureIndices;
 	}
 
 } // namespace Lina

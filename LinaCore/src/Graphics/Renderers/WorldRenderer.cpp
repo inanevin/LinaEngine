@@ -72,7 +72,9 @@ namespace Lina
 		m_resourceManagerV2 = &world->GetResourceManagerV2();
 		m_resourceManagerV2->AddListener(this);
 		m_gBufSampler					= m_resourceManagerV2->CreateResource<TextureSampler>(m_resourceManagerV2->ConsumeResourceID(), "World Renderer GBuf Sampler");
-		LinaGX::SamplerDesc gBufSampler = {};
+		LinaGX::SamplerDesc gBufSampler = {
+			.anisotropy = 1,
+		};
 		m_gBufSampler->GenerateHW(gBufSampler);
 		m_lgx = GfxManager::GetLGX();
 
@@ -419,24 +421,14 @@ namespace Lina
 
 		// Lighting pass specific.
 		{
-			GPUDataAtmosphere atmosphere = {
-				.skyTopAndDiffusion	   = Color(0.22, 0.45f, 0.93f, 0.03f),
-				.skyHorizonAndBase	   = Color(0.32, 0.65f, 0.98f, 0.55f),
-				.skyGroundAndCurvature = Color(0.02f, 0.02f, 0.02f, 0.05f),
-				.sunLightAndCoef	   = Vector4(1.0f, 1.0f, 1.0f, 200.0f),
-				.sunPosition		   = Vector4(0, 50, 100, 0),
-				.ambientTop			   = Color(0.1f, 0.1f, 1.0f, 1.0f),
-				.ambientMiddle		   = Color(1.0f, 0.0f, 0.0f, 1.0f),
-				.ambientBottom		   = Color(0.0f, 1.0f, 0.0f, 1.0f),
-			};
-			m_lightingPass.GetBuffer(frameIndex, "AtmosphereData"_hs).BufferData(0, (uint8*)&atmosphere, sizeof(GPUDataAtmosphere));
-
 			GPUDataDeferredLightingPass renderPassData = {
 				.gBufAlbedo			  = currentFrame.gBufAlbedo->GetBindlessIndex(),
 				.gBufPositionMetallic = currentFrame.gBufPosition->GetBindlessIndex(),
 				.gBufNormalRoughness  = currentFrame.gBufNormal->GetBindlessIndex(),
 				// .gBufDepth             = currentFrame.gBufDepth->GetBindlessIndex(),
-				.gBufSampler = m_gBufSampler->GetBindlessIndex(),
+				.gBufSampler			   = m_gBufSampler->GetBindlessIndex(),
+				.lightingMaterialByteIndex = m_world->GetGfxSettings().lightingMaterial.raw->GetBindlessBytePadding(),
+				.skyMaterialByteIndex	   = m_world->GetGfxSettings().skyMaterial.raw->GetBindlessBytePadding(),
 			};
 
 			m_lightingPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&renderPassData, sizeof(GPUDataDeferredLightingPass));
@@ -462,8 +454,12 @@ namespace Lina
 		{
 			MeshDefault* mesh	  = mc->GetMeshRaw();
 			Material*	 material = mc->GetMaterialRaw();
-			Shader*		 shader	  = material->GetShader(m_resourceManagerV2);
-			auto&		 vec	  = m_drawData[shader];
+
+			if (material == nullptr)
+				continue;
+
+			Shader* shader = material->GetShader(m_resourceManagerV2);
+			auto&	vec	   = m_drawData[shader];
 
 			auto it = linatl::find_if(vec.begin(), vec.end(), [mesh](const DrawDataMeshDefault& dd) -> bool { return dd.mesh == mesh; });
 
@@ -566,7 +562,7 @@ namespace Lina
 		currentFrame.signalSemaphore.ResetModified();
 
 		if (m_skyCube == nullptr)
-			m_skyCube = m_resourceManagerV2->GetResource<Model>("Resources/Core/Models/SkyCube.glb"_hs)->GetMesh(0);
+			m_skyCube = m_resourceManagerV2->GetResource<Model>(DEFAULT_SKY_CUBE_ID)->GetMesh(0);
 
 		UpdateBindlessResources(frameIndex);
 		UpdateBuffers(frameIndex);

@@ -59,58 +59,29 @@ void main()
 layout (location = 0) in vec3 inWorldPos;
 layout (location = 1) in vec3 inNormal;
 layout (location = 2) in vec2 inUV;
-
 layout (location = 0) out vec4 outFragColor;
 
-// layout(set = 2, binding = 0) uniform MaterialData
-// {
-//    vec4 color1;
-// } material;
-
-float Remap(float val, float fromLow, float fromHigh, float toLow, float toHigh)
+struct LINA_MATERIAL
 {
-	return toLow + (val - fromLow) * (toHigh - toLow) / (fromHigh - fromLow);
-}
+   uint test;
+};
 
-vec3 getSunColor()
+LINA_MATERIAL AsMaterial()
 {
-    float dist = distance(inWorldPos, LINA_ATMOSPHERE.sunPosition.xyz);
-    float sunRad = 10;
-
-    return mix(vec3(0.0), vec3(1.0), 1.0 - clamp(dist / sunRad, 0.0, 1.0));
+    LINA_MATERIAL mat;
+	uint index = LINA_PASS_DATA.skyMaterialByteIndex;
+    mat.test = LINA_MATERIALS.data[index++];
+	return mat;
 }
 
 vec3 getSkyColor()
 {
-   float horizon = LINA_ATMOSPHERE.skyHorizonAndBase.w;
-   float diffusion = LINA_ATMOSPHERE.skyTopAndDiffusion.w;
-   vec3 normalizedDir = normalize(inWorldPos);
-   float y = 1.0f - (normalizedDir.y + 1.0) / 2.0;
-
-    float lim1 = horizon - diffusion;
-    float lim2 = horizon + diffusion;
-    vec3 skyColor;
-
-    if (y < lim1)
-    {
-        float horizonFactor = smoothstep(0.0, lim1, y);
-        skyColor = mix(LINA_ATMOSPHERE.skyTopAndDiffusion.xyz, LINA_ATMOSPHERE.skyHorizonAndBase.xyz, horizonFactor);
-    }
-    else
-    {
-        float groundFactor = smoothstep(lim1, lim2, y);
-        skyColor = mix(LINA_ATMOSPHERE.skyHorizonAndBase.xyz, LINA_ATMOSPHERE.skyGroundAndCurvature.xyz, groundFactor);
-    }
-
-    float sun= dot(normalizedDir, normalize(LINA_ATMOSPHERE.sunPosition.xyz));
-    sun = clamp(sun,0.0,1.0);
-    sun = pow(sun, LINA_ATMOSPHERE.sunColorAndCoef.w) * 2.0;
-    sun = clamp(sun,0.0,1.0);
-    return mix(skyColor, LINA_ATMOSPHERE.sunColorAndCoef.xyz, sun);
+   return vec3(0.5, 0.5, 0.5);
 }
 
 void main()
 {
+   LINA_MATERIAL material = AsMaterial();
    outFragColor = vec4(getSkyColor(), 1);
 }
 

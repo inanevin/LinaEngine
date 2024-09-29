@@ -64,6 +64,11 @@ namespace Lina::Editor
 			return m_tooltipProps;
 		}
 
+		inline Text* GetText()
+		{
+			return m_text;
+		}
+
 	private:
 		static constexpr float TWEEN_TIME = 0.1f;
 

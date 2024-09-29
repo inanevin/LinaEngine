@@ -106,7 +106,7 @@ namespace Lina::Editor
 		LinaVG::StyleOptions opts;
 
 		auto draw = [&](TextureAtlasImage* img, const Vector2& offset, const Color& color) {
-			opts.textureHandle	 = img->atlas->GetRaw()->GetBindlessIndex() + 1;
+			opts.textureHandle	 = img->atlas->GetRaw();
 			opts.textureUVOffset = img->rectUV.pos.AsLVG();
 			opts.textureUVTiling = img->rectUV.size.AsLVG();
 			opts.color			 = color.AsLVG4();

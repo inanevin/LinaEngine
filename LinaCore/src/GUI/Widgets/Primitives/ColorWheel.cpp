@@ -48,8 +48,8 @@ namespace Lina
 		AddChild(m_icon);
 
 		GetWidgetProps().drawBackground	   = true;
-		GetWidgetProps().specialTexture	   = GUI_TEXTURE_COLORWHEEL;
-		GetWidgetProps().useSpecialTexture = GUI_TEXTURE_COLORWHEEL;
+		GetWidgetProps().specialTexture	   = &GUI_TEXTURE_COLORWHEEL;
+		GetWidgetProps().useSpecialTexture = true;
 		GetWidgetProps().outlineThickness  = 0.0f;
 		GetWidgetProps().rounding		   = 0.0f;
 	}

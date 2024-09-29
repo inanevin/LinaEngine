@@ -51,7 +51,7 @@ namespace Lina
 
 			if (m_props.isHueShift)
 			{
-				bg->GetWidgetProps().specialTexture		 = m_widgetProps.colorBackgroundDirection == DirectionOrientation::Horizontal ? GUI_TEXTURE_HUE_HORIZONTAL : GUI_TEXTURE_HUE_VERTICAL;
+				bg->GetWidgetProps().specialTexture		 = m_widgetProps.colorBackgroundDirection == DirectionOrientation::Horizontal ? &GUI_TEXTURE_HUE_HORIZONTAL : &GUI_TEXTURE_HUE_VERTICAL;
 				bg->GetWidgetProps().useSpecialTexture	 = true;
 				bg->GetWidgetProps().activeTextureTiling = false;
 			}

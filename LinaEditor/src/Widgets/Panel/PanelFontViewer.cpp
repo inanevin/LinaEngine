@@ -90,8 +90,7 @@ namespace Lina::Editor
 		fontDisplay->GetProps().fetchWrapFromParent = true;
 		fontDisplay->GetProps().isDynamic			= true;
 		// fontDisplay->GetProps().wordWrap = false;
-
-		// kfontDisplay->GetProps().fetchCustomClipFromParent = true;
+		// fontDisplay->GetProps().fetchCustomClipFromParent = true;
 
 		fontPanel->AddChild(fontDisplay);
 
@@ -139,7 +138,7 @@ namespace Lina::Editor
 			.id	 = m_subData,
 			.tid = GetTypeID<Font>(),
 		};
-		m_editor->GetResourceManagerV2().LoadResourcesFromFile(m_editor, m_editor->GetProjectManager().GetProjectData(), {def}, 0);
+		m_editor->GetResourceManagerV2().LoadResourcesFromProject(m_editor, m_editor->GetProjectManager().GetProjectData(), {def}, 0);
 		m_editor->GetResourceManagerV2().WaitForAll();
 		m_font						   = m_editor->GetResourceManagerV2().GetResource<Font>(def.id);
 		m_fontDisplay->GetProps().font = def.id;
@@ -148,7 +147,7 @@ namespace Lina::Editor
 		m_fontName = m_font->GetName();
 
 		FoldLayout* foldGeneral = CommonWidgets::BuildFoldTitle(this, Locale::GetStr(LocaleStr::General), &m_generalFold);
-		FoldLayout* foldFont	= CommonWidgets::BuildFoldTitle(this, "Font", &m_generalFold);
+		FoldLayout* foldFont	= CommonWidgets::BuildFoldTitle(this, "Font", &m_fontFold);
 		m_inspector->AddChild(foldGeneral);
 		m_inspector->AddChild(foldFont);
 
@@ -233,7 +232,7 @@ namespace Lina::Editor
 			if (m_containsRuntimeChanges)
 			{
 				m_resourceManager->SaveResource(m_editor->GetProjectManager().GetProjectData(), m_font);
-				m_editor->GetResourcePipeline().GenerateThumbnailForResource(m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_font->GetID()), m_font);
+				m_editor->GetResourcePipeline().GenerateThumbnailForResource(m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_font->GetID()), m_font, true);
 				DockArea* outDockArea = nullptr;
 				Panel*	  p			  = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::ResourceBrowser, 0, outDockArea);
 				if (p)
@@ -244,6 +243,8 @@ namespace Lina::Editor
 
 		m_saveButton = save;
 		buttonLayout2->AddChild(save);
+
+		Panel::Initialize();
 	}
 
 	void PanelFontViewer::Destruct()

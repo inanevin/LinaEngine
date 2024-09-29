@@ -105,6 +105,7 @@ namespace Lina
 
 	private:
 		GUIBackend*			m_guiBackend;
+		ResourceManagerV2*	m_resourceManager;
 		PerFrameData		m_pfd[FRAMES_IN_FLIGHT];
 		LinaGX::Instance*	m_lgx	 = nullptr;
 		LinaGX::Window*		m_window = nullptr;

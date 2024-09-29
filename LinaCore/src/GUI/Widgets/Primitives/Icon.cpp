@@ -60,6 +60,9 @@ namespace Lina
 		if (!GetIsVisible())
 			return;
 
+		if (m_lvgFont == nullptr)
+			return;
+
 		m_sdfOptions.color				 = m_props.color.AsLVG();
 		m_sdfOptions.sdfThickness		 = m_props.sdfThickness;
 		m_sdfOptions.sdfSoftness		 = m_props.sdfSoftness;
@@ -91,6 +94,10 @@ namespace Lina
 		auto*		font	 = m_resourceManager->GetResource<Font>(m_props.font);
 		const float dpiScale = m_lgxWindow->GetDPIScale();
 		m_lvgFont			 = font->GetFont(dpiScale);
+
+		if (m_lvgFont == nullptr)
+			return;
+
 		m_calculatedDPIScale = dpiScale;
 		m_sdfOptions.font	 = m_lvgFont;
 		m_rect.size			 = static_cast<float>(Math::RoundToIntEven(m_lvgFont->m_size * m_props.textScale));

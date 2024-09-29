@@ -74,11 +74,14 @@ include/Editor/Widgets/Panel/PanelPerformance.hpp
 include/Editor/Widgets/Panel/PanelEntities.hpp
 include/Editor/Widgets/Panel/PanelTextureViewer.hpp
 include/Editor/Widgets/Panel/PanelFontViewer.hpp
+include/Editor/Widgets/Panel/PanelModelViewer.hpp
 include/Editor/Widgets/Panel/PanelResourceBrowser.hpp
 include/Editor/Widgets/Panel/PanelColorWheel.hpp
 include/Editor/Widgets/Panel/PanelFactory.hpp
 include/Editor/Widgets/FX/LinaLoading.hpp
+include/Editor/Widgets/FX/ProgressCircleFill.hpp
 include/Editor/Widgets/Layout/ItemController.hpp
+include/Editor/Widgets/World/WorldDisplayer.hpp
 
 # Meta
 include/Editor/Meta/EditorSettings.hpp
@@ -143,11 +146,14 @@ src/Widgets/Panel/PanelWidgetEditorProperties.cpp
 src/Widgets/Panel/PanelEntities.cpp
 src/Widgets/Panel/PanelTextureViewer.cpp
 src/Widgets/Panel/PanelFontViewer.cpp
+src/Widgets/Panel/PanelModelViewer.cpp
 src/Widgets/Panel/PanelResourceBrowser.cpp
 src/Widgets/Panel/PanelColorWheel.cpp
 src/Widgets/Panel/PanelFactory.cpp
 src/Widgets/FX/LinaLoading.cpp
+src/Widgets/FX/ProgressCircleFill.cpp
 src/Widgets/Layout/ItemController.cpp
+src/Widgets/World/WorldDisplayer.cpp
 
 # Meta
 src/Meta/EditorSettings.cpp

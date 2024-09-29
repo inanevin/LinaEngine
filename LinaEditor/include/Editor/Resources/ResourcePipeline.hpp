@@ -35,6 +35,7 @@ namespace Lina
 {
 	class ResourceDirectory;
 	class ResourceManagerV2;
+	class Model;
 } // namespace Lina
 namespace Lina::Editor
 {
@@ -55,12 +56,13 @@ namespace Lina::Editor
 		void DuplicateResource(ResourceManagerV2* resMan, ResourceDirectory* directory, ResourceDirectory* newParent);
 
 		void GenerateThumbnailAtlases(ResourceDirectory* dir);
-		void GenerateThumbnailForResource(ResourceDirectory* dir, Resource* resource);
+		void GenerateThumbnailForResource(ResourceDirectory* dir, Resource* resource, bool refreshAtlases);
 
 	private:
 		void VerifyResources(ResourceDirectory* dir);
 
 	private:
+		JobExecutor	   m_executor;
 		Editor*		   m_editor					= nullptr;
 		Atomic<uint32> m_importedResourcesCount = 0;
 	};

@@ -161,13 +161,21 @@ namespace Lina::Editor
 			return;
 
 		// Textures.
-		ResourceCache<Texture>* cacheTxt = m_resourceManagerV2->GetCache<Texture>();
-		pfd.globalTexturesDesc.textures.resize(static_cast<size_t>(cacheTxt->GetActiveItemCount()));
+		ResourceCache<Texture>* cacheTxt	 = m_resourceManagerV2->GetCache<Texture>();
+		const size_t			txtCacheSize = static_cast<size_t>(cacheTxt->GetActiveItemCount());
+		pfd.globalTexturesDesc.textures.resize(txtCacheSize + m_dynamicTextures.size());
 		cacheTxt->View([&](Texture* txt, uint32 index) -> bool {
 			pfd.globalTexturesDesc.textures[index] = txt->GetGPUHandle();
 			txt->SetBindlessIndex(static_cast<uint32>(index));
 			return false;
 		});
+
+		for (size_t i = 0; i < m_dynamicTextures.size(); i++)
+		{
+			Texture* txt									  = m_dynamicTextures.at(i);
+			pfd.globalTexturesDesc.textures[txtCacheSize + i] = txt->GetGPUHandle();
+			txt->SetBindlessIndex(static_cast<uint32>(i + txtCacheSize));
+		}
 
 		if (!pfd.globalTexturesDesc.textures.empty())
 			m_lgx->DescriptorUpdateImage(pfd.globalTexturesDesc);
@@ -195,12 +203,12 @@ namespace Lina::Editor
 
 		auto& pfd = m_pfd[frameIndex];
 
-		//  Taskflow tf;
-		//  tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) {
-		//      WorldRenderer* rend = m_worldRenderers.at(i);
-		//      rend->Render(frameIndex);
-		//  });
-		//  m_editor->GetSystem()->GetMainExecutor()->RunAndWait(tf);
+		Taskflow tf;
+		tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) {
+			WorldRenderer* rend = m_worldRenderers.at(i);
+			rend->Render(frameIndex);
+		});
+		m_editor->GetSystem()->GetMainExecutor()->RunAndWait(tf);
 
 		UpdateBindlessResources(frameIndex);
 		if (m_uploadQueue.FlushAll(pfd.copyStream))
@@ -212,6 +220,13 @@ namespace Lina::Editor
 		Vector<uint16> waitSemaphores;
 		Vector<uint64> waitValues;
 
+		for (WorldRenderer* wr : m_worldRenderers)
+		{
+			const SemaphoreData sem = wr->GetSubmitSemaphore(frameIndex);
+			waitSemaphores.push_back(sem.GetSemaphore());
+			waitValues.push_back(sem.GetValue());
+		}
+
 		Vector<LinaGX::CommandStream*> streams;
 		Vector<uint8>				   swapchains;
 		streams.resize(m_validSurfaceRenderers.size());
@@ -219,7 +234,7 @@ namespace Lina::Editor
 
 		if (m_validSurfaceRenderers.size() == 1)
 		{
-			SurfaceRenderer* rend = m_surfaceRenderers[0];
+			SurfaceRenderer* rend = m_validSurfaceRenderers[0];
 			streams[0]			  = rend->Render(frameIndex);
 			swapchains[0]		  = rend->GetSwapchain();
 		}
@@ -230,7 +245,6 @@ namespace Lina::Editor
 				SurfaceRenderer* rend = m_validSurfaceRenderers.at(i);
 				streams[i]			  = rend->Render(frameIndex);
 				swapchains[i]		  = rend->GetSwapchain();
-				int a				  = 5;
 			});
 			m_editor->GetSystem()->GetMainExecutor()->RunAndWait(tf);
 		}
@@ -270,11 +284,13 @@ namespace Lina::Editor
 	void EditorRenderer::AddWorldRenderer(WorldRenderer* wr)
 	{
 		m_worldRenderers.push_back(wr);
+		RefreshDynamicTextures();
 	}
 
 	void EditorRenderer::RemoveWorldRenderer(WorldRenderer* wr)
 	{
 		m_worldRenderers.erase(linatl::find_if(m_worldRenderers.begin(), m_worldRenderers.end(), [wr](WorldRenderer* rend) -> bool { return wr == rend; }));
+		RefreshDynamicTextures();
 	}
 
 	void EditorRenderer::AddSurfaceRenderer(SurfaceRenderer* sr)
@@ -285,6 +301,25 @@ namespace Lina::Editor
 	void EditorRenderer::RemoveSurfaceRenderer(SurfaceRenderer* sr)
 	{
 		m_surfaceRenderers.erase(linatl::find_if(m_surfaceRenderers.begin(), m_surfaceRenderers.end(), [sr](SurfaceRenderer* rend) -> bool { return sr == rend; }));
+	}
+
+	void EditorRenderer::RefreshDynamicTextures()
+	{
+		m_dynamicTextures.clear();
+
+		for (WorldRenderer* wr : m_worldRenderers)
+		{
+			for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+			{
+				m_dynamicTextures.push_back(wr->GetGBufAlbedo(i));
+				m_dynamicTextures.push_back(wr->GetGBufPosition(i));
+				m_dynamicTextures.push_back(wr->GetGBufNormal(i));
+				m_dynamicTextures.push_back(wr->GetGBufDepth(i));
+				m_dynamicTextures.push_back(wr->GetLightingPassOutput(i));
+			}
+		}
+
+		MarkBindlessDirty();
 	}
 
 	void EditorRenderer::OnResourceUnloaded(const Vector<ResourceDef>& resources)

@@ -34,6 +34,9 @@ namespace Lina
 	ResourceDirectory::~ResourceDirectory()
 	{
 		thumbnailBuffer.Destroy();
+
+		for (ResourceDirectory* c : children)
+			delete c;
 	}
 
 	void ResourceDirectory::SaveToStream(OStream& stream)

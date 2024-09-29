@@ -281,6 +281,8 @@ namespace Lina
 				.useCustomPipelineLayout = false,
 				.debugName				 = m_name.c_str(),
 			});
+
+			variant._gpuHandleExists = true;
 		}
 
 		for (auto& [stage, blob] : m_outCompiledBlobs)
@@ -291,9 +293,14 @@ namespace Lina
 
 	void Shader::DestroyHW()
 	{
+		for (auto& [sid, var] : m_meta.variants)
+		{
+			if (!var._gpuHandleExists)
+				continue;
 
-		for (const auto& [sid, var] : m_meta.variants)
+			var._gpuHandleExists = false;
 			GfxManager::GetLGX()->DestroyShader(var._gpuHandle);
+		}
 
 		for (const auto& d : m_descriptorSets)
 		{

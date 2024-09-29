@@ -60,7 +60,7 @@ namespace Lina::Editor
 		virtual void PreTick() override;
 		virtual void Tick(float delta) override;
 
-		void AddTab(void* userData, const String& title, bool isFixed = false);
+		Tab* AddTab(void* userData, const String& title, bool isFixed = false);
 		void RemoveTab(void* userData);
 		void SetSelected(void* userData);
 		void SetCanCloseTabs(bool canCloseTabs);

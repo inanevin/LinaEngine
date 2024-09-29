@@ -94,7 +94,6 @@ namespace Lina
 		Span<uint8>				   m_data;
 		Texture*				   m_rawTexture = nullptr;
 		Vector<TextureAtlasImage*> m_rects;
-		bool					   m_isDirty = true;
 	};
 
 } // namespace Lina

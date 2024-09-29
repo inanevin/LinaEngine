@@ -312,18 +312,10 @@ namespace Lina
 						},
 						{
 							.bufferType	  = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
-							.debugName	  = "RP: FWTransparency - Atmosphere",
-							.size		  = sizeof(GPUDataAtmosphere),
-							.stagingOnly  = true,
-							.bindingIndex = 1,
-							.ident		  = "AtmosphereData"_hs,
-						},
-						{
-							.bufferType	  = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
 							.debugName	  = "RP: FWTransparency - DeferredLightingPassData",
 							.size		  = sizeof(GPUDataDeferredLightingPass),
 							.stagingOnly  = true,
-							.bindingIndex = 2,
+							.bindingIndex = 1,
 							.ident		  = "PassData"_hs,
 						},
 

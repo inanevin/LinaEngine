@@ -113,6 +113,7 @@ namespace Lina::Editor
 		FontViewer,
 		AudioViewer,
 		ModelViewer,
+		MaterialViewer,
 	};
 
 	enum class PayloadType

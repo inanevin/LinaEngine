@@ -35,6 +35,7 @@ SOFTWARE.
 namespace Lina
 {
 	class MeshDefault;
+	class Model;
 
 	class ModelNode
 	{
@@ -49,6 +50,26 @@ namespace Lina
 			return m_children;
 		}
 
+		inline const String& GetName() const
+		{
+			return m_name;
+		}
+
+		inline const Matrix4& GetLocalMatrix() const
+		{
+			return m_localMatrix;
+		}
+
+		inline Model* GetModel() const
+		{
+			return m_owner;
+		}
+
+		inline uint32 GetMeshIndex() const
+		{
+			return m_meshIndex;
+		}
+
 	private:
 		friend class Model;
 
@@ -57,10 +78,12 @@ namespace Lina
 		void LoadFromStream(IStream& stream);
 
 	private:
-		String			   m_name	  = "";
-		ModelNode*		   m_parent	  = nullptr;
-		Vector<ModelNode*> m_children = {};
-		MeshDefault*	   m_mesh	  = nullptr;
+		Model*			   m_owner	   = nullptr;
+		uint32			   m_meshIndex = 0;
+		String			   m_name	   = "";
+		ModelNode*		   m_parent	   = nullptr;
+		Vector<ModelNode*> m_children  = {};
+		MeshDefault*	   m_mesh	   = nullptr;
 		Matrix4			   m_localMatrix;
 	};
 

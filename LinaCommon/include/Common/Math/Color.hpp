@@ -48,6 +48,7 @@ namespace Lina
 				*this = SRGB2Linear();
 		};
 		Color(const LinaVG::Vec4& v) : x(v.x), y(v.y), z(v.z), w(v.w){};
+		Color(const Vector4& v);
 
 		LinaVG::Vec4 AsLVG4() const
 		{

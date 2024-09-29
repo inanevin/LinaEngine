@@ -134,7 +134,7 @@ namespace Lina::Editor
 			.id	 = m_subData,
 			.tid = GetTypeID<Texture>(),
 		};
-		m_editor->GetResourceManagerV2().LoadResourcesFromFile(m_editor, m_editor->GetProjectManager().GetProjectData(), {def}, 0);
+		m_editor->GetResourceManagerV2().LoadResourcesFromProject(m_editor, m_editor->GetProjectManager().GetProjectData(), {def}, 0);
 		m_editor->GetResourceManagerV2().WaitForAll();
 		m_texture										  = m_editor->GetResourceManagerV2().GetResource<Texture>(def.id);
 		m_texturePanel->GetWidgetProps().drawBackground	  = true;
@@ -150,6 +150,99 @@ namespace Lina::Editor
 
 		m_textureName = m_texture->GetName();
 		m_textureSize = TO_STRING(m_texture->GetSize().x) + " x " + TO_STRING(m_texture->GetSize().y);
+		m_totalSizeKb = UtilStr::FloatToString(static_cast<float>(m_texture->GetTotalSize()) / 1000.0f, 1) + " KB";
+
+		BuildInspector();
+
+		Panel::Initialize();
+	}
+
+	void PanelTextureViewer::Destruct()
+	{
+		Panel::Destruct();
+		if (m_texture == nullptr)
+			return;
+
+		delete[] m_textureBuffer.pixels;
+		m_editor->GetResourceManagerV2().UnloadResources({m_texture});
+	}
+
+	void PanelTextureViewer::StoreBuffer()
+	{
+		if (m_textureBuffer.pixels != nullptr)
+			delete[] m_textureBuffer.pixels;
+
+		m_textureBuffer = {};
+
+		const LinaGX::TextureBuffer base = m_texture->GetAllLevels().front();
+
+		// Store initial buffer.
+		const size_t sz		   = static_cast<size_t>(base.width * base.height * base.bytesPerPixel);
+		m_textureBuffer		   = base;
+		m_textureBuffer.pixels = new uint8[sz];
+		MEMCPY(m_textureBuffer.pixels, base.pixels, sz);
+	}
+
+	void PanelTextureViewer::SetRuntimeDirty(bool isDirty)
+	{
+		m_containsRuntimeChanges = isDirty;
+
+		Text* txt = GetWidgetOfType<Text>(m_saveButton);
+
+		if (isDirty)
+			txt->GetProps().text = Locale::GetStr(LocaleStr::Save) + " *";
+		else
+			txt->GetProps().text = Locale::GetStr(LocaleStr::Save);
+
+		txt->CalculateTextSize();
+	}
+
+	void PanelTextureViewer::RegenTexture(const String& path)
+	{
+		m_editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->Join();
+		m_texture->DestroyHW();
+
+		if (path.empty())
+			m_texture->LoadFromBuffer(m_textureBuffer.pixels, m_textureBuffer.width, m_textureBuffer.height, m_textureBuffer.bytesPerPixel);
+		else
+		{
+			m_texture->LoadFromFile(path);
+			m_texture->SetPath(path);
+			m_texture->SetName(FileSystem::GetFilenameOnlyFromPath(path));
+		}
+
+		m_texture->GenerateHW();
+		m_texture->AddToUploadQueue(m_editor->GetEditorRenderer().GetUploadQueue(), false);
+		m_editor->GetEditorRenderer().MarkBindlessDirty();
+
+		m_textureName			   = m_texture->GetName();
+		GetWidgetProps().debugName = "Texture: " + m_textureName;
+		m_textureSize			   = TO_STRING(m_texture->GetSize().x) + " x " + TO_STRING(m_texture->GetSize().y);
+		m_totalSizeKb			   = UtilStr::FloatToString(static_cast<float>(m_texture->GetTotalSize()) / 1000.0f, 1) + " KB";
+
+		m_formatDropdown->GetText()->GetProps().text = ReflectionSystem::Get().Meta<LinaGX::Format>().GetProperty<String>(static_cast<StringID>(m_texture->GetMeta().format));
+		m_formatDropdown->GetText()->CalculateTextSize();
+		m_txtName->GetProps().text	 = m_textureName;
+		m_txtSize->GetProps().text	 = m_textureSize;
+		m_txtSizeKb->GetProps().text = m_totalSizeKb;
+		m_txtName->CalculateTextSize();
+		m_txtSize->CalculateTextSize();
+		m_txtSizeKb->CalculateTextSize();
+		RefreshTab();
+	}
+
+	void PanelTextureViewer::SaveLayoutToStream(OStream& stream)
+	{
+	}
+
+	void PanelTextureViewer::LoadLayoutFromStream(IStream& stream)
+	{
+	}
+
+	void PanelTextureViewer::BuildInspector()
+	{
+		m_inspector->DeallocAllChildren();
+		m_inspector->RemoveAllChildren();
 
 		FoldLayout* generalFold = CommonWidgets::BuildFoldTitle(m_inspector, Locale::GetStr(LocaleStr::General), &m_generalInfoFold);
 		m_inspector->AddChild(generalFold);
@@ -158,6 +251,10 @@ namespace Lina::Editor
 			m_displayUserData.displayChannels = m_displayChannels;
 			m_displayUserData.mipLevel		  = m_mipLevel;
 		});
+
+		m_txtName	= static_cast<Text*>(generalFold->FindChildWithUserdata(&m_textureName));
+		m_txtSize	= static_cast<Text*>(generalFold->FindChildWithUserdata(&m_textureSize));
+		m_txtSizeKb = static_cast<Text*>(generalFold->FindChildWithUserdata(&m_totalSizeKb));
 
 		Widget*		mipField			 = m_inspector->FindChildWithDebugName("Mip Level")->GetChildren().front();
 		InputField* mipFieldInp			 = static_cast<InputField*>(mipField);
@@ -241,8 +338,11 @@ namespace Lina::Editor
 		save->GetProps().onClicked = [this]() {
 			if (m_containsRuntimeChanges)
 			{
+				ResourceDirectory* dir = m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_texture->GetID());
 				m_resourceManager->SaveResource(m_editor->GetProjectManager().GetProjectData(), m_texture);
-				m_editor->GetResourcePipeline().GenerateThumbnailForResource(m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_texture->GetID()), m_texture);
+				m_editor->GetResourcePipeline().GenerateThumbnailForResource(dir, m_texture, true);
+				dir->name = m_texture->GetName();
+
 				DockArea* outDockArea = nullptr;
 				Panel*	  p			  = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::ResourceBrowser, 0, outDockArea);
 				if (p)
@@ -298,74 +398,5 @@ namespace Lina::Editor
 				}
 			}
 		};
-	}
-
-	void PanelTextureViewer::Destruct()
-	{
-		Panel::Destruct();
-		if (m_texture == nullptr)
-			return;
-
-		delete[] m_textureBuffer.pixels;
-		m_editor->GetResourceManagerV2().UnloadResources({m_texture});
-	}
-
-	void PanelTextureViewer::StoreBuffer()
-	{
-		if (m_textureBuffer.pixels != nullptr)
-			delete[] m_textureBuffer.pixels;
-
-		m_textureBuffer = {};
-
-		const LinaGX::TextureBuffer base = m_texture->GetAllLevels().front();
-
-		// Store initial buffer.
-		const size_t sz		   = static_cast<size_t>(base.width * base.height * base.bytesPerPixel);
-		m_textureBuffer		   = base;
-		m_textureBuffer.pixels = new uint8[sz];
-		MEMCPY(m_textureBuffer.pixels, base.pixels, sz);
-	}
-
-	void PanelTextureViewer::SetRuntimeDirty(bool isDirty)
-	{
-		m_containsRuntimeChanges = isDirty;
-
-		Text* txt = GetWidgetOfType<Text>(m_saveButton);
-
-		if (isDirty)
-			txt->GetProps().text = Locale::GetStr(LocaleStr::Save) + " *";
-		else
-			txt->GetProps().text = Locale::GetStr(LocaleStr::Save);
-
-		txt->CalculateTextSize();
-	}
-
-	void PanelTextureViewer::RegenTexture(const String& path)
-	{
-		m_editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->Join();
-		m_texture->DestroyHW();
-
-		if (path.empty())
-			m_texture->LoadFromBuffer(m_textureBuffer.pixels, m_textureBuffer.width, m_textureBuffer.height, m_textureBuffer.bytesPerPixel);
-		else
-		{
-			m_texture->LoadFromFile(path);
-			m_texture->SetPath(path);
-		}
-
-		m_texture->GenerateHW();
-		m_texture->AddToUploadQueue(m_editor->GetEditorRenderer().GetUploadQueue(), false);
-		m_editor->GetEditorRenderer().MarkBindlessDirty();
-
-		m_formatDropdown->GetText()->GetProps().text = ReflectionSystem::Get().Meta<LinaGX::Format>().GetProperty<String>(static_cast<StringID>(m_texture->GetMeta().format));
-		m_formatDropdown->GetText()->CalculateTextSize();
-	}
-
-	void PanelTextureViewer::SaveLayoutToStream(OStream& stream)
-	{
-	}
-
-	void PanelTextureViewer::LoadLayoutFromStream(IStream& stream)
-	{
 	}
 } // namespace Lina::Editor

@@ -45,6 +45,7 @@ namespace Lina
 	{
 		stream << m_name;
 		stream << m_localMatrix;
+		stream << m_meshIndex;
 
 		stream << static_cast<uint32>(m_children.size());
 
@@ -62,6 +63,7 @@ namespace Lina
 	{
 		stream >> m_name;
 		stream >> m_localMatrix;
+		stream >> m_meshIndex;
 
 		uint32 childSz = 0;
 		stream >> childSz;

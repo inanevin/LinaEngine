@@ -51,6 +51,7 @@ namespace Lina::Editor
 		static LinaGX::TextureBuffer GenerateThumbnailForResource(Resource* resource);
 		static LinaGX::TextureBuffer GenerateThumbnail(Texture* texture);
 		static LinaGX::TextureBuffer GenerateThumbnail(Model* model);
+		static LinaGX::TextureBuffer GenerateThumbnail(Material* mat);
 		static LinaGX::TextureBuffer GenerateThumbnail(Audio* audio);
 		static LinaGX::TextureBuffer GenerateThumbnailForFont(const String& absPath);
 	};

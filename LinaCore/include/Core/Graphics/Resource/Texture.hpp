@@ -46,7 +46,7 @@ namespace Lina
 			LinaGX::Format		 format			 = LinaGX::Format::R8G8B8A8_SRGB;
 			LinaGX::MipmapFilter mipFilter		 = LinaGX::MipmapFilter::Mitchell;
 			bool				 generateMipmaps = true;
-			bool				 force8Bit		 = false;
+			bool				 force8Bit		 = true;
 
 			void SaveToStream(OStream& out) const;
 			void LoadFromStream(IStream& in);
@@ -70,6 +70,11 @@ namespace Lina
 		Vector2ui GetSize();
 		Vector2	  GetSizeF();
 		void	  OnUploadCompleted();
+
+		inline size_t GetTotalSize() const
+		{
+			return m_totalSize;
+		}
 
 		virtual void SetCustomMeta(IStream& stream) override
 		{
@@ -123,6 +128,7 @@ namespace Lina
 
 	private:
 		uint32 GetChannels();
+		void   CalculateTotalSize();
 
 	private:
 		ALLOCATOR_BUCKET_MEM;
@@ -135,6 +141,7 @@ namespace Lina
 		int32						  m_importedChannels = 0;
 		bool						  m_useGlobalDelete	 = false;
 		bool						  m_gpuHandleExists	 = false;
+		size_t						  m_totalSize		 = 0;
 	};
 
 	LINA_RESOURCE_BEGIN(Texture);

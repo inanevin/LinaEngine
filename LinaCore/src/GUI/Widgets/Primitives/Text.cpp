@@ -82,6 +82,9 @@ namespace Lina
 			}
 		}
 
+		if (m_lvgFont == nullptr)
+			return;
+
 		if (m_isSDF)
 		{
 			LinaVG::SDFTextOptions opts;
@@ -134,6 +137,9 @@ namespace Lina
 		auto*		font	 = m_resourceManager->GetResource<Font>(m_props.font);
 		m_lvgFont			 = font->GetFont(dpiScale);
 		m_calculatedDPIScale = dpiScale;
+
+		if (m_lvgFont == nullptr)
+			return;
 
 		m_isSDF = m_lvgFont->m_isSDF;
 

@@ -73,7 +73,7 @@ namespace Lina
 		Vector3 GetScale();
 		Vector3 GetTranslation();
 
-		void		Decompose(Vector3& position, Quaternion& rotation, Vector3& scale);
+		void		Decompose(Vector3& position, Quaternion& rotation, Vector3& scale) const;
 		static bool Decompose(const glm::mat4& transform, glm::vec3& outTranslation, glm::vec3& outRotation, glm::vec3& outScale);
 
 		Transformation ToTransform();

@@ -92,6 +92,12 @@ namespace Lina
 	{
 		m_shader   = shader;
 		m_shaderID = shader->GetID();
+		ResetProperties();
+	}
+
+	void Material::SetShaderID(ResourceID id)
+	{
+		m_shaderID = id;
 	}
 
 	void Material::ResetProperties()
@@ -143,11 +149,11 @@ namespace Lina
 			if (prop.type == ShaderPropertyType::Texture2D)
 			{
 				// LinaTexture2D stringIDs = std::get<LinaTexture2D>(prop.data);
-				// LinaTexture2D bindless	= {
-				// 	 .texture = m_resourceManager->GetResource<Texture>(stringIDs.texture)->GetBindlessIndex(),
-				// 	 .sampler = m_resourceManager->GetResource<TextureSampler>(stringIDs.sampler)->GetBindlessIndex(),
-				//  };
-				// buf.BufferData(padding, (uint8*)&bindless, prop.size);
+				LinaTexture2D bindless = {
+					.texture = 0,
+					.sampler = 0,
+				};
+				buf.BufferData(padding, (uint8*)&bindless, prop.size);
 			}
 			else
 				buf.BufferData(padding, (uint8*)&prop.data, prop.size);

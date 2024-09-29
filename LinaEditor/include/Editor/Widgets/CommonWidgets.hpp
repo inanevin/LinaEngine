@@ -77,7 +77,7 @@ namespace Lina::Editor
 		static Widget* BuildPayloadForDirectoryItem(Widget* src, DirectoryItem* item);
 		static Widget* BuildDefaultFoldItem(Widget* src, void* userdata, float margin, const String& icon, const Color& iconColor, const String& title, bool hasChildren, bool* unfoldVal, bool isRoot = false, bool boldText = false);
 		static Widget* BuildDefaultListItem(Widget* src, void* userData, float margin, const String& icon, const Color& iconColor, const String& title, bool foldNudge);
-		static Widget* BuildTexturedListItem(Widget* src, void* userData, float margin, TextureAtlasImage* txt, const String& title, bool foldNudge);
+		static Widget* BuildTexturedListItem(Widget* src, void* userData, float margin, TextureAtlasImage* txt, const String& title);
 		static Widget* BuildDirectoryItemFolderView(Widget* src, DirectoryItem* item, float margin);
 		static Widget* BuildDirectoryItemListView(Widget* src, DirectoryItem* item);
 		static Widget* BuildDirectoryItemGridView(Widget* src, DirectoryItem* item, const Vector2& itemSize);

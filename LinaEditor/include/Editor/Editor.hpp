@@ -147,6 +147,11 @@ namespace Lina::Editor
 			return m_resourcePipeline;
 		}
 
+		inline GfxManager* GetGfxManager()
+		{
+			return m_gfxManager;
+		}
+
 	private:
 		void CreateWorldRenderer(EntityWorld* world);
 		void DestroyWorldRenderer(EntityWorld* world);

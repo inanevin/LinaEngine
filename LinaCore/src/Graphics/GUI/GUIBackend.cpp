@@ -77,53 +77,5 @@ namespace Lina
 			ft.texture->GenerateHW();
 		ft.texture->AddToUploadQueue(*m_uploadQueue, true);
 	}
-	/*
-		void GUIBackend::BufferFontTextureAtlas(int width, int height, int offsetX, int offsetY, unsigned char* data)
-		{
-			auto&  ft		   = m_fontTextures[m_boundFontTexture];
-			uint32 startOffset = offsetY * ft.width + offsetX;
 
-			for (int i = 0; i < height; i++)
-			{
-				const uint32 size = width;
-				MEMCPY(ft.pixels + startOffset, &data[width * i], size);
-				startOffset += ft.width;
-			}
-		}
-
-		void GUIBackend::BufferEnded()
-		{
-			auto& ft = m_fontTextures[m_boundFontTexture];
-			ft.texture->LoadFromBuffer(ft.pixels, ft.width, ft.height, 1);
-
-			if (!ft.texture->IsGPUValid())
-				ft.texture->GenerateHW();
-
-			ft.texture->AddToUploadQueue(*m_uploadQueue, true);
-		}
-
-		void GUIBackend::BindFontTexture(LinaVG::BackendHandle texture)
-		{
-			m_boundFontTexture = texture;
-		}
-
-		LinaVG::BackendHandle GUIBackend::CreateFontTexture(int width, int height)
-		{
-			const String name		 = "GUI Backend Font Texture " + TO_STRING(m_fontTextures.size());
-			FontTexture	 fontTexture = {
-				 .texture = m_resourceManagerV2->CreateResource<Texture>(m_resourceManagerV2->ConsumeResourceID(), name),
-				 .width	  = width,
-				 .height  = height,
-			 };
-
-			fontTexture.texture->GetMeta().format		   = LinaGX::Format::R8_UNORM;
-			fontTexture.texture->GetMeta().generateMipmaps = true;
-			fontTexture.pixels							   = new uint8[width * height];
-			memset(fontTexture.pixels, 0, width * height);
-
-			m_fontTextures.push_back(fontTexture);
-			m_boundFontTexture = static_cast<LinaVG::BackendHandle>(m_fontTextures.size() - 1);
-			return m_boundFontTexture;
-		}
-	*/
 } // namespace Lina

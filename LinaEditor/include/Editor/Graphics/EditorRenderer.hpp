@@ -74,6 +74,7 @@ namespace Lina::Editor
 		void Render();
 		void AddWorldRenderer(WorldRenderer* wr);
 		void RemoveWorldRenderer(WorldRenderer* wr);
+		void RefreshDynamicTextures();
 
 		void AddSurfaceRenderer(SurfaceRenderer* sr);
 		void RemoveSurfaceRenderer(SurfaceRenderer* sr);
@@ -127,6 +128,7 @@ namespace Lina::Editor
 		void BumpAndSendTransfers(uint32 frameIndex);
 
 	private:
+		Vector<Texture*>		 m_dynamicTextures;
 		uint16					 m_pipelineLayoutGlobal = 0;
 		uint16					 m_pipelineLayoutGUI	= 0;
 		Vector<SurfaceRenderer*> m_validSurfaceRenderers;

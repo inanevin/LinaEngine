@@ -32,18 +32,31 @@ SOFTWARE.
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/MeshManager.hpp"
 #include "Common/System/System.hpp"
-#include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 
 namespace Lina
 {
 	Model::~Model()
 	{
+		DestroyTextureDefs();
+
 		for (auto* n : m_rootNodes)
 		{
 			delete n;
 		}
 		m_rootNodes.clear();
+	}
+
+	void Model::DestroyTextureDefs()
+	{
+		for (ModelTexture& txt : m_textureDefs)
+		{
+			if (txt.buffer.pixels == nullptr)
+				continue;
+
+			delete[] txt.buffer.pixels;
+			txt.buffer.pixels = nullptr;
+		}
 	}
 
 	void Model::ProcessNode(LinaGX::ModelNode* lgxNode, ModelNode* parent)
@@ -67,10 +80,11 @@ namespace Lina
 		{
 			LinaGX::ModelMesh* lgxMesh = lgxNode->mesh;
 			MeshDefault*	   m	   = new MeshDefault();
+			node->m_mesh			   = m;
+			node->m_meshIndex		   = static_cast<uint32>(m_meshes.size());
 			m_meshes.push_back(m);
-			node->m_mesh = m;
-			m->m_name	 = lgxMesh->name;
-			m->m_node	 = node;
+			m->m_name = lgxMesh->name;
+			m->m_node = node;
 			m->m_primitives.resize(lgxMesh->primitives.size());
 
 			Vector3 min = Vector3::Zero;
@@ -124,14 +138,37 @@ namespace Lina
 		else
 			success = LinaGX::LoadGLTFASCII(path.c_str(), modelData);
 
-		m_materials.resize(modelData.allMaterials.size());
+		m_materialDefs.resize(modelData.allMaterials.size());
 
 		size_t idx = 0;
 		for (auto* lgxMat : modelData.allMaterials)
 		{
-			auto& mat  = m_materials[idx];
-			mat.m_name = lgxMat->name;
+			auto& mat	 = m_materialDefs[idx];
+			mat.name	 = lgxMat->name;
+			mat.isOpaque = lgxMat->isOpaque;
+			mat.albedo	 = Color(lgxMat->baseColor);
+
+			for (auto [type, index] : lgxMat->textureIndices)
+				mat.textureIndices.push_back(index);
+
 			idx++;
+		}
+
+		for (auto* lgxTexture : modelData.allTextures)
+		{
+			ModelTexture txt = {};
+			txt.name		 = lgxTexture->name;
+
+			const size_t sz = static_cast<size_t>(lgxTexture->buffer.width * lgxTexture->buffer.height * lgxTexture->buffer.bytesPerPixel);
+			txt.buffer		= {
+					 .pixels		= new uint8[sz],
+					 .width			= lgxTexture->buffer.width,
+					 .height		= lgxTexture->buffer.height,
+					 .bytesPerPixel = lgxTexture->buffer.bytesPerPixel,
+			 };
+
+			MEMCPY(txt.buffer.pixels, lgxTexture->buffer.pixels, sz);
+			m_textureDefs.push_back(txt);
 		}
 
 		for (auto* lgxNode : modelData.rootNodes)
@@ -140,11 +177,12 @@ namespace Lina
 
 	void Model::LoadFromStream(IStream& stream)
 	{
+		Resource::LoadFromStream(stream);
 		uint32 version = 0;
 		stream >> version;
 		stream >> m_id;
 
-		stream >> m_materials;
+		stream >> m_materialDefs;
 
 		uint32 sz = 0;
 		stream >> sz;
@@ -155,6 +193,7 @@ namespace Lina
 		{
 			ModelNode* node = new ModelNode();
 			node->LoadFromStream(stream);
+			node->m_owner  = this;
 			m_rootNodes[i] = node;
 
 			if (node->m_mesh != nullptr)
@@ -164,10 +203,11 @@ namespace Lina
 
 	void Model::SaveToStream(OStream& stream) const
 	{
+		Resource::SaveToStream(stream);
 		stream << VERSION;
 		stream << m_id;
 
-		stream << m_materials;
+		stream << m_materialDefs;
 
 		stream << static_cast<uint32>(m_rootNodes.size());
 		for (auto* node : m_rootNodes)

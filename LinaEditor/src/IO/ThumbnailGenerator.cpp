@@ -60,6 +60,9 @@ namespace Lina::Editor
 		if (resource->GetTID() == GetTypeID<Model>())
 			return GenerateThumbnail(static_cast<Model*>(resource));
 
+		if (resource->GetTID() == GetTypeID<Material>())
+			return GenerateThumbnail(static_cast<Material*>(resource));
+
 		if (resource->GetTID() == GetTypeID<Audio>())
 			return GenerateThumbnail(static_cast<Audio*>(resource));
 
@@ -71,8 +74,10 @@ namespace Lina::Editor
 
 	LinaGX::TextureBuffer ThumbnailGenerator::GenerateThumbnail(Texture* texture)
 	{
-		LinaGX::TextureBuffer buffer = {};
-		LinaGX::LoadImageFromFile(texture->GetPath().c_str(), buffer, 4, nullptr, true);
+		LinaGX::TextureBuffer				 buffer	   = {};
+		const Vector<LinaGX::TextureBuffer>& allLevels = texture->GetAllLevels();
+		buffer										   = allLevels.front();
+		// LinaGX::LoadImageFromFile(texture->GetPath().c_str(), buffer, 4, nullptr, true);
 
 		const float max	   = static_cast<float>(Math::Max(buffer.width, buffer.height));
 		const float min	   = static_cast<float>(Math::Min(buffer.width, buffer.height));
@@ -101,6 +106,12 @@ namespace Lina::Editor
 	}
 
 	LinaGX::TextureBuffer ThumbnailGenerator::GenerateThumbnail(Audio* audio)
+	{
+		LinaGX::TextureBuffer buffer;
+		return buffer;
+	}
+
+	LinaGX::TextureBuffer ThumbnailGenerator::GenerateThumbnail(Material* mat)
 	{
 		LinaGX::TextureBuffer buffer;
 		return buffer;

@@ -38,26 +38,14 @@ layout(set = 1, binding = 0) uniform ViewData
 	vec4 padding2;
 } LINA_VIEW;
 
-layout(set = 1, binding = 1) uniform AtmosphereData
-{
-	vec4 skyTopAndDiffusion;
-	vec4 skyHorizonAndBase;
-	vec4 skyGroundAndCurvature;
-	vec4 sunColorAndCoef;
-	vec4 sunPosition;
-	vec4 ambientTop;
-	vec4 ambientMiddle;
-	vec4 ambientBottom;
-} LINA_ATMOSPHERE;
-
-layout(set = 1, binding = 2) uniform PassData
+layout(set = 1, binding = 1) uniform PassData
 {
 	uint gBufColorMaterialID;
 	uint gBufPosition;
 	uint gBufNormal;
 	uint gBufSampler;
-	uint pad;
-	uint pad2;
+	uint lightingMaterialByteIndex;
+	uint skyMaterialByteIndex;
 	uint pad3;
 	uint pad4;
 } LINA_PASS_DATA;

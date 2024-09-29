@@ -39,8 +39,8 @@ SOFTWARE.
 namespace Lina
 {
 
-#define MAX_VERTICES 10000
-#define MAX_INDICES	 30000
+#define MAX_VERTICES 100000
+#define MAX_INDICES	 300000
 
 	void MeshManager::Initialize()
 	{

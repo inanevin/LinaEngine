@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Editor/Widgets/Layout/ItemController.hpp"
 #include "Editor/Editor.hpp"
+#include "Common/Math/Math.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
@@ -323,6 +324,8 @@ namespace Lina::Editor
 		{
 			SetFocus(true);
 
+			int32 idx = 0;
+
 			for (Widget* item : m_allItems)
 			{
 				if (item->GetIsHovered() || (m_props.hoverAcceptItemParents && item->GetParent()->GetIsHovered()))
@@ -341,6 +344,22 @@ namespace Lina::Editor
 							fold->SetIsUnfolded(!fold->GetIsUnfolded());
 						else if (act == LinaGX::InputAction::Repeated && fold->GetIsHovered())
 							fold->SetIsUnfolded(!fold->GetIsUnfolded());
+					}
+
+					if (m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LSHIFT))
+					{
+						Widget*		lastSelection = m_selectedItems.empty() ? m_allItems.front() : m_selectedItems.back();
+						const int32 start		  = UtilVector::IndexOf(m_allItems, lastSelection);
+						const int32 end			  = idx;
+						const int32 iStart		  = Math::Min(start, end);
+						const int32 iEnd		  = Math::Max(start, end);
+
+						for (int32 i = iStart; i <= iEnd; i++)
+						{
+							SelectItem(m_allItems[i], false, false);
+						}
+
+						return true;
 					}
 
 					if (m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LCTRL))
@@ -363,6 +382,7 @@ namespace Lina::Editor
 					}
 					return true;
 				}
+				idx++;
 			}
 
 			UnselectAll();
@@ -506,12 +526,16 @@ namespace Lina::Editor
 				sc->ScrollToChild(item);
 			}
 		}
+
 		if (clearSelected)
 			m_selectedItems.clear();
 
 		m_lastSelected = item->GetUserData();
 		m_manager->GrabControls(this);
-		m_selectedItems.push_back(item);
+
+		auto exists = linatl::find_if(m_selectedItems.begin(), m_selectedItems.end(), [item](Widget* it) -> bool { return item == it; });
+		if (exists == m_selectedItems.end())
+			m_selectedItems.push_back(item);
 
 		if (callEvent && m_props.onItemSelected)
 			m_props.onItemSelected(item->GetUserData());

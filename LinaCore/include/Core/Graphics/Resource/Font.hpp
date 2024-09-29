@@ -109,6 +109,7 @@ namespace Lina
 	LINA_CLASS_BEGIN(FontPointRef)
 	LINA_FIELD(Font::FontPoint, size, "Size", FieldType::UInt32, 0)
 	LINA_FIELD(Font::FontPoint, dpiLimit, "DPI Limit", FieldType::Float, 0)
+	LINA_FIELD_LIMITS(Font::FontPoint, size, 4, 96, 0)
 	LINA_CLASS_END(FontPointRef)
 
 	LINA_CLASS_BEGIN(FontGlyphRange)

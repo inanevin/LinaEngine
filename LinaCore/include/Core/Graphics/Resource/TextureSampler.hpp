@@ -68,8 +68,10 @@ namespace Lina
 		ALLOCATOR_BUCKET_MEM;
 		uint32				m_bindlessIndex = 0;
 		uint32				m_gpuHandle		= 0;
-		LinaGX::SamplerDesc m_samplerDesc	= {};
-		bool				m_hwExists		= false;
+		LinaGX::SamplerDesc m_samplerDesc	= {
+			  .anisotropy = 1,
+		  };
+		bool m_hwExists = false;
 	};
 
 	LINA_RESOURCE_BEGIN(TextureSampler);

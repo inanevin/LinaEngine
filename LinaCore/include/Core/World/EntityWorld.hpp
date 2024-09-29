@@ -40,10 +40,10 @@ SOFTWARE.
 
 namespace Lina
 {
+	class Model;
 	class Entity;
 	class Component;
 	class CameraComponent;
-	class SkyComponent;
 	class EntityWorldListener
 	{
 	public:
@@ -100,6 +100,7 @@ namespace Lina
 		void		 RemoveListener(EntityWorldListener* listener);
 		void		 PreTick();
 		void		 Tick(float deltaTime);
+		Entity*		 AddModelToWorld(Model* model);
 
 		inline uint32 GetActiveEntityCount() const
 		{
@@ -134,16 +135,6 @@ namespace Lina
 		inline CameraComponent* GetActiveCamera() const
 		{
 			return m_activeCamera;
-		}
-
-		inline void SetActiveSky(SkyComponent* sky)
-		{
-			m_activeSky = sky;
-		}
-
-		inline SkyComponent* GetActiveSky() const
-		{
-			return m_activeSky;
 		}
 
 		template <typename T> T* GetComponent(Entity* e)
@@ -181,9 +172,6 @@ namespace Lina
 
 			if (comp == m_activeCamera)
 				m_activeCamera = nullptr;
-
-			if (comp == m_activeSky)
-				m_activeSky = nullptr;
 
 			cache->Destroy(e);
 		}
@@ -228,7 +216,6 @@ namespace Lina
 		PhysicsWorld						 m_physicsWorld;
 		HashMap<TypeID, ComponentCacheBase*> m_componentCaches;
 		CameraComponent*					 m_activeCamera = nullptr;
-		SkyComponent*						 m_activeSky	= nullptr;
 		Bitmask32							 m_flags		= 0;
 		Vector<EntityWorldListener*>		 m_listeners;
 		GfxSettings							 m_gfxSettings;

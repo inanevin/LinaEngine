@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Common/Data/Vector.hpp"
 #include "Common/Math/AABB.hpp"
 #include "Core/Graphics/Data/ModelMaterial.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
 
 namespace LinaGX
 {
@@ -47,6 +48,12 @@ namespace Lina
 	class Model : public Resource
 	{
 	public:
+		struct ModelTexture
+		{
+			String				  name	 = "";
+			LinaGX::TextureBuffer buffer = {};
+		};
+
 		static constexpr uint32 VERSION = 0;
 
 		Model(ResourceID id, const String& name) : Resource(id, GetTypeID<Model>(), name){};
@@ -56,6 +63,7 @@ namespace Lina
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
 		void		 UploadNodes(MeshManager& meshManager);
+		void		 DestroyTextureDefs();
 
 		ModelNode* GetFirstNodeWMesh();
 
@@ -79,6 +87,16 @@ namespace Lina
 			return m_totalAABB;
 		}
 
+		inline const Vector<ModelMaterial>& GetMaterialDefs() const
+		{
+			return m_materialDefs;
+		}
+
+		inline const Vector<ModelTexture>& GetTextureDefs() const
+		{
+			return m_textureDefs;
+		}
+
 	private:
 		void	   ProcessNode(LinaGX::ModelNode* lgxNode, ModelNode* parent);
 		void	   UploadNode(MeshManager& meshManager, ModelNode* node);
@@ -88,7 +106,8 @@ namespace Lina
 		ALLOCATOR_BUCKET_MEM;
 		Vector<MeshDefault*>  m_meshes;
 		Vector<ModelNode*>	  m_rootNodes;
-		Vector<ModelMaterial> m_materials;
+		Vector<ModelMaterial> m_materialDefs;
+		Vector<ModelTexture>  m_textureDefs;
 		AABB				  m_totalAABB;
 	};
 	LINA_RESOURCE_BEGIN(Model);

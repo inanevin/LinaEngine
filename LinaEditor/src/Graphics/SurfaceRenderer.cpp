@@ -184,6 +184,8 @@ namespace Lina::Editor
 
 	LinaGX::CommandStream* SurfaceRenderer::Render(uint32 frameIndex)
 	{
+		LINA_ASSERT(m_isVisible, "");
+
 		auto& currentFrame = m_pfd[frameIndex];
 		currentFrame.copySemaphore.ResetModified();
 

@@ -41,11 +41,12 @@ namespace Lina::Editor
 {
 	void InfoTooltip::Construct()
 	{
+		GetProps().direction			  = DirectionOrientation::Horizontal;
 		GetWidgetProps().drawBackground	  = true;
 		GetWidgetProps().colorBackground  = Theme::GetDef().background0;
-		GetWidgetProps().rounding		  = Theme::GetDef().baseRounding;
+		GetWidgetProps().rounding		  = 0;
 		GetWidgetProps().outlineThickness = Theme::GetDef().baseOutlineThickness;
-		GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_SIZE_Y_MAX_CHILDREN);
+		GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_SIZE_Y_MAX_CHILDREN | WF_SIZE_AFTER_CHILDREN);
 		SetAlignedSizeX(1.0f);
 		SetAlignedSizeY(1.0f);
 		GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
@@ -98,7 +99,6 @@ namespace Lina::Editor
 		if (m_lgxWindow->GetInput()->GetMouseButtonDown(LINAGX_MOUSE_0))
 		{
 			m_manager->AddToKillList(this);
-
 			return;
 		}
 	}
@@ -115,7 +115,7 @@ namespace Lina::Editor
 			return;
 		}
 
-		if (m_firstTick)
+		if (m_firstTick && !m_initializing)
 		{
 			m_firstTick		= false;
 			m_startPosition = GetPos();
@@ -127,7 +127,6 @@ namespace Lina::Editor
 		DirectionalLayout::Tick(delta);
 
 		m_counter += delta;
-
 		if (m_counter > m_tooltipProps.time)
 			m_manager->AddToKillList(this);
 	}

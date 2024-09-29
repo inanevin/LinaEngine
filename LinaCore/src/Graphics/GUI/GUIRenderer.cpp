@@ -52,9 +52,10 @@ namespace Lina
 
 	void GUIRenderer::Create(GUIBackend* guiBackend, ResourceManagerV2* resourceManager, TextureSampler* defaultSampler, TextureSampler* textSampler, LinaGX::Window* window)
 	{
-		m_guiBackend = guiBackend;
-		m_window	 = window;
-		m_lgx		 = GfxManager::GetLGX();
+		m_resourceManager = resourceManager;
+		m_guiBackend	  = guiBackend;
+		m_window		  = window;
+		m_lgx			  = GfxManager::GetLGX();
 
 		m_defaultGUISampler = defaultSampler;
 		m_textGUISampler	= textSampler;
@@ -128,21 +129,21 @@ namespace Lina
 		req.materialData.color1 = buf->m_tint;
 		float singleChannel		= 0.0f;
 
-		if (buf->m_textureHandle == GUI_TEXTURE_HUE_HORIZONTAL)
+		if (buf->m_textureHandle == &GUI_TEXTURE_HUE_HORIZONTAL)
 		{
 			drawBufferType = 5.0f; // special case :)
 		}
-		else if (buf->m_textureHandle == GUI_TEXTURE_HUE_VERTICAL)
+		else if (buf->m_textureHandle == &GUI_TEXTURE_HUE_VERTICAL)
 		{
 			drawBufferType = 6.0f; // special case :)
 		}
-		else if (buf->m_textureHandle == GUI_TEXTURE_COLORWHEEL)
+		else if (buf->m_textureHandle == &GUI_TEXTURE_COLORWHEEL)
 		{
 			drawBufferType = 7.0f; // special case :)
 		}
 		else
 		{
-			req.materialData.color2.x = static_cast<float>(buf->m_textureHandle - 1);
+			req.materialData.color2.x = static_cast<float>(static_cast<Texture*>(buf->m_textureHandle)->GetBindlessIndex());
 			req.materialData.color2.y = static_cast<float>(m_defaultGUISampler->GetBindlessIndex());
 		}
 

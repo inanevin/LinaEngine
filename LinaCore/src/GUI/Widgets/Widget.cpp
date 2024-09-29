@@ -125,6 +125,7 @@ namespace Lina
 
 	void Widget::Initialize()
 	{
+		m_initializing					 = true;
 		m_widgetProps._interpolatedColor = m_widgetProps.colorBackground;
 		m_manager->InitializeWidget(this);
 		linatl::for_each(m_children.begin(), m_children.end(), [this](Widget* child) -> void {
@@ -132,6 +133,7 @@ namespace Lina
 			if (GetIsDisabled())
 				child->SetIsDisabled(true);
 		});
+		m_initializing = false;
 	}
 
 	void Widget::DrawDropshadow()
@@ -235,7 +237,7 @@ namespace Lina
 
 			if (m_widgetProps.useSpecialTexture)
 			{
-				opts.textureHandle = static_cast<LinaVG::BackendHandle>(m_widgetProps.specialTexture);
+				opts.textureHandle = m_widgetProps.specialTexture;
 			}
 			else if (m_widgetProps.textureAtlas != nullptr || m_widgetProps.rawTexture != nullptr)
 			{
@@ -273,7 +275,7 @@ namespace Lina
 				{
 					if (m_widgetProps.rawTexture->GetMeta().format == LinaGX::Format::R8_UNORM)
 						opts.color.start.w = opts.color.end.w = GUI_IS_SINGLE_CHANNEL;
-					opts.textureHandle = m_widgetProps.rawTexture->GetBindlessIndex() + 1;
+					opts.textureHandle = m_widgetProps.rawTexture;
 					opts.userData	   = m_widgetProps.textureUserData;
 					textureSize		   = m_widgetProps.rawTexture->GetSizeF();
 				}
@@ -282,7 +284,7 @@ namespace Lina
 					if (m_widgetProps.textureAtlas->atlas->GetRaw()->GetMeta().format == LinaGX::Format::R8_UNORM)
 						opts.color.start.w = opts.color.end.w = GUI_IS_SINGLE_CHANNEL;
 					opts.userData		 = m_widgetProps.textureUserData;
-					opts.textureHandle	 = m_widgetProps.textureAtlas->atlas->GetRaw()->GetBindlessIndex() + 1;
+					opts.textureHandle	 = m_widgetProps.textureAtlas->atlas->GetRaw();
 					opts.textureUVOffset = m_widgetProps.textureAtlas->rectUV.pos.AsLVG();
 					textureTiling *= m_widgetProps.textureAtlas->rectUV.size;
 					textureSize = m_widgetProps.textureAtlas->rectUV.size * m_widgetProps.textureAtlas->atlas->GetRaw()->GetSizeF();

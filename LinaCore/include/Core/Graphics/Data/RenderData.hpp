@@ -143,27 +143,15 @@ namespace Lina
 		uint32 defaultSampler;
 	};
 
-	struct GPUDataAtmosphere
-	{
-		Vector4 skyTopAndDiffusion;
-		Vector4 skyHorizonAndBase;
-		Vector4 skyGroundAndCurvature;
-		Vector4 sunLightAndCoef;
-		Vector4 sunPosition;
-		Vector4 ambientTop;
-		Vector4 ambientMiddle;
-		Vector4 ambientBottom;
-	};
-
 	struct GPUDataDeferredLightingPass
 	{
-		uint32 gBufAlbedo			= 0;
-		uint32 gBufPositionMetallic = 0;
-		uint32 gBufNormalRoughness	= 0;
-		uint32 gBufAO				= 0;
-		uint32 gBufSampler			= 0;
-		uint32 pad;
-		uint32 pad2;
+		uint32 gBufAlbedo				 = 0;
+		uint32 gBufPositionMetallic		 = 0;
+		uint32 gBufNormalRoughness		 = 0;
+		uint32 gBufAO					 = 0;
+		uint32 gBufSampler				 = 0;
+		uint32 lightingMaterialByteIndex = 0;
+		uint32 skyMaterialByteIndex		 = 0;
 		uint32 pad3;
 		uint32 pad4;
 	};

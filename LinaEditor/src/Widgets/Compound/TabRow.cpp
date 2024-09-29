@@ -84,7 +84,7 @@ namespace Lina::Editor
 			linatl::sort(m_tabs.begin(), m_tabs.end(), [](Tab* t, Tab* t2) -> bool { return t->GetRect().pos.x < t2->GetRect().pos.x; });
 	}
 
-	void TabRow::AddTab(void* userData, const String& title, bool isFixed)
+	Tab* TabRow::AddTab(void* userData, const String& title, bool isFixed)
 	{
 		Tab* tab = m_manager->Allocate<Tab>("Tab");
 		tab->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_SKIP_FLOORING);
@@ -106,6 +106,7 @@ namespace Lina::Editor
 		}
 
 		tab->DisableClosing(!m_canCloseTabs);
+		return tab;
 	}
 
 	void TabRow::RemoveTab(void* userData)

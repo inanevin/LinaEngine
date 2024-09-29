@@ -132,6 +132,7 @@ namespace Lina::Editor
 			}
 
 			m_windowCloseRequests.clear();
+			m_editor->SaveSettings();
 		}
 
 		if (m_payloadRequest.active)
@@ -342,6 +343,7 @@ namespace Lina::Editor
 			dock->GetWindow()->SetSize(inf.size.AsLGX2UI());
 		}
 
+		m_editor->SaveSettings();
 		return panel;
 	}
 

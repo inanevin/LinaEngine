@@ -76,6 +76,7 @@ namespace Lina
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
 		void		 SetShader(Shader* shader);
+		void		 SetShaderID(ResourceID id);
 		void		 ResetProperties();
 		size_t		 BufferDataInto(Buffer& buf, size_t padding);
 		Shader*		 GetShader(ResourceManagerV2* rm);

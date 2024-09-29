@@ -66,7 +66,7 @@ namespace Lina::Editor
 		field->SetAlignedSizeY(1.0f);
 		field->SetFixedSizeX(baseItemHeight * 2.0f);
 		field->SetAlignedPosY(0.0f);
-		field->GetProps().onValueChanged = [this](float val) { Recalculate(true); };
+		field->GetProps().onValueChanged = [this](float val, bool fromSlider) { Recalculate(true); };
 
 		ColorSlider* slider						= m_manager->Allocate<ColorSlider>("ColorComponentColorSlider");
 		slider->GetWidgetProps().drawBackground = true;
@@ -116,7 +116,7 @@ namespace Lina::Editor
 		field->SetAlignedSizeX(1.0f);
 		field->SetAlignedPosX(0.0f);
 		field->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		field->GetProps().onValueChanged = [this](float val) { Recalculate(false); };
+		field->GetProps().onValueChanged = [this](float val, bool fromSlider) { Recalculate(false); };
 
 		ColorSlider* slider								  = m_manager->Allocate<ColorSlider>("HSVSlider");
 		slider->GetWidgetProps().colorBackgroundDirection = DirectionOrientation::Vertical;

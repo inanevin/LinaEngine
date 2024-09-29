@@ -59,6 +59,7 @@ src/Graphics/Renderers/WorldRenderer.cpp
 src/Graphics/Pipeline/Buffer.cpp
 src/Graphics/Pipeline/RenderPass.cpp
 src/Graphics/Pipeline/DescriptorSet.cpp
+src/Graphics/CommonGraphics.cpp
 
 src/Components/SkyComponent.cpp
 src/Components/CameraComponent.cpp

@@ -97,6 +97,7 @@ namespace Lina
 		}
 
 		m_useGlobalDelete = true;
+		CalculateTotalSize();
 	}
 
 	void Texture::LoadFromFile(const String& path)
@@ -140,6 +141,8 @@ namespace Lina
 			for (const auto& mp : mipData)
 				m_allLevels.push_back(mp);
 		}
+
+		CalculateTotalSize();
 	}
 
 	void Texture::LoadFromStream(IStream& stream)
@@ -180,6 +183,7 @@ namespace Lina
 
 			m_allLevels.push_back(buffer);
 		}
+		CalculateTotalSize();
 	}
 
 	void Texture::SaveToStream(OStream& stream) const
@@ -268,5 +272,12 @@ namespace Lina
 
 		LINA_ASSERT(false, "");
 		return 4;
+	}
+
+	void Texture::CalculateTotalSize()
+	{
+		m_totalSize = 0;
+		for (const auto& level : m_allLevels)
+			m_totalSize += static_cast<size_t>(level.width * level.height * level.bytesPerPixel);
 	}
 } // namespace Lina

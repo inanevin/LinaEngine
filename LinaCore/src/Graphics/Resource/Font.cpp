@@ -85,7 +85,10 @@ namespace Lina
 	void Font::DestroyHW()
 	{
 		for (auto* font : m_lvgFonts)
-			delete font;
+		{
+			if (font != nullptr)
+				delete font;
+		}
 		m_lvgFonts.clear();
 	}
 

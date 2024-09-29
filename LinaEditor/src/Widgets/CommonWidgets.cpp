@@ -162,13 +162,12 @@ namespace Lina::Editor
 		inf->GetFlags().Set(WF_USE_FIXED_SIZE_Y | WF_CONTROLS_DRAW_ORDER);
 		inf->SetDrawOrder(FOREGROUND_HIGHP_DRAW_ORDER);
 		inf->SetFixedSize(Theme::GetDef().baseItemHeight);
-		inf->Initialize();
 		source->GetWidgetManager()->AddToForeground(inf);
+		inf->Initialize();
 
 		LinaGX::Window* window	   = source->GetWindow();
 		const Vector2	windowSize = Vector2(static_cast<float>(window->GetSize().x), static_cast<float>(window->GetSize().y));
-
-		const Vector2 sz = inf->GetSize();
+		const Vector2	sz		   = inf->GetSize();
 
 		// Try right
 		inf->SetPos(Vector2(source->GetRect().GetEnd().x, source->GetPosY()));
@@ -197,7 +196,6 @@ namespace Lina::Editor
 		// Last resort bottom
 		inf->SetPos(Vector2(source->GetPosX(), source->GetRect().GetEnd().y));
 		inf->GetTooltipProps().direction = Direction::Bottom;
-
 		return inf;
 	}
 
@@ -412,7 +410,7 @@ namespace Lina::Editor
 		return fold;
 	}
 
-	Widget* CommonWidgets::BuildTexturedListItem(Widget* src, void* userData, float margin, TextureAtlasImage* img, const String& title, bool foldNudge)
+	Widget* CommonWidgets::BuildTexturedListItem(Widget* src, void* userData, float margin, TextureAtlasImage* img, const String& title)
 	{
 		WidgetManager*	   wm	  = src->GetWidgetManager();
 		DirectionalLayout* layout = wm->Allocate<DirectionalLayout>("Layout");
@@ -431,18 +429,15 @@ namespace Lina::Editor
 		layout->GetWidgetProps().colorInterpolateSpeed	  = 20.0f;
 		layout->SetUserData(userData);
 
-		if (foldNudge)
-		{
-			Icon* chevron			 = wm->Allocate<Icon>("Folder");
-			chevron->GetProps().icon = ICON_CHEVRON_RIGHT;
-			chevron->GetFlags().Set(WF_POS_ALIGN_Y);
-			chevron->SetAlignedPosY(0.5f);
-			chevron->SetAnchorY(Anchor::Center);
-			chevron->GetProps().dynamicSizeToParent = true;
-			chevron->GetProps().dynamicSizeScale	= 0.55f;
-			layout->AddChild(chevron);
-			chevron->SetVisible(false);
-		}
+		Icon* chevron			 = wm->Allocate<Icon>("Folder");
+		chevron->GetProps().icon = ICON_CHEVRON_RIGHT;
+		chevron->GetFlags().Set(WF_POS_ALIGN_Y);
+		chevron->SetAlignedPosY(0.5f);
+		chevron->SetAnchorY(Anchor::Center);
+		chevron->GetProps().dynamicSizeToParent = true;
+		chevron->GetProps().dynamicSizeScale	= 0.55f;
+		layout->AddChild(chevron);
+		chevron->SetVisible(false);
 
 		Widget* bg = wm->Allocate<Widget>("BG");
 		bg->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_X_COPY_Y);
@@ -888,6 +883,17 @@ namespace Lina::Editor
 		layout->GetWidgetProps().childMargins.left	= Theme::GetDef().baseIndent * 1;
 		layout->GetWidgetProps().childMargins.right = Theme::GetDef().baseIndent * 2;
 
+		if (isFoldLayout)
+		{
+			layout->GetFlags().Set(WF_MOUSE_PASSTHRU);
+			layout->GetProps().receiveInput = true;
+			layout->GetProps().onClicked	= [fold, layout]() {
+				   const Vector2 mp = layout->GetWindow()->GetMousePosition();
+				   if (mp.x < layout->GetRect().GetCenter().x)
+					   fold->SetIsUnfolded(!fold->GetIsUnfolded());
+			};
+		}
+
 		Widget* dummyParent = wm->Allocate<Widget>();
 		dummyParent->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X);
 		dummyParent->SetAlignedPosY(0.0f);
@@ -907,11 +913,6 @@ namespace Lina::Editor
 			icn->SetAlignedPosY(0.5f);
 			icn->SetAnchorY(Anchor::Center);
 			icn->SetVisible(i == dependencies - 1);
-
-			if (isFoldLayout)
-			{
-				icn->GetProps().onClicked = [fold]() { fold->SetIsUnfolded(!fold->GetIsUnfolded()); };
-			}
 			layout->AddChild(icn);
 		}
 
@@ -936,11 +937,6 @@ namespace Lina::Editor
 		txt->SetAlignedPosY(0.5f);
 		txt->SetAnchorY(Anchor::Center);
 		layout->AddChild(txt);
-
-		if (isFoldLayout)
-		{
-			txt->GetProps().onClicked = [fold]() { fold->SetIsUnfolded(!fold->GetIsUnfolded()); };
-		}
 
 		return isFoldLayout ? static_cast<Widget*>(fold) : static_cast<Widget*>(layout);
 	}
@@ -987,6 +983,11 @@ namespace Lina::Editor
 		fold->AddChild(foldFirstChild);
 
 		const uint32 vs = field->GetFunction<uint32(void*)>("GetVectorSize"_hs)(vectorPtr);
+
+		Text* count			   = Widget::GetWidgetOfType<Text>(foldFirstChild->GetChildren().back());
+		count->GetProps().text = "(" + TO_STRING(vs) + ")";
+		count->CalculateTextSize();
+
 		for (int32 j = 0; j < vs; j++)
 		{
 			void*	element	 = field->GetFunction<void*(void*, int32)>("GetElementAddr"_hs)(vectorPtr, j);
@@ -1074,7 +1075,7 @@ namespace Lina::Editor
 
 			if (hasLimits)
 			{
-				inp->GetProps().disableNumberSlider = false;
+				inp->GetProps().disableNumberSlider = Math::Equals(stepFloat, 0.0f, 0.001f);
 				inp->GetProps().valueMin			= minFloat;
 				inp->GetProps().valueMax			= maxFloat;
 				inp->GetProps().valueStep			= stepFloat;
@@ -1091,8 +1092,10 @@ namespace Lina::Editor
 			inp->GetProps().valueBits	  = bits;
 			inp->GetProps().valueUnsigned = isUnsigned;
 
-			if (!inp->GetProps().disableNumberSlider && inp->GetProps().isNumberField)
-				inp->GetProps().onValueChanged = [onFieldChanged, field, &metaType](float val) { onFieldChanged(metaType, field); };
+			inp->GetProps().onValueChanged = [onFieldChanged, field, &metaType](float val, bool fromSlider) {
+				if (fromSlider)
+					onFieldChanged(metaType, field);
+			};
 
 			inp->GetProps().onRightClick = [wm, inp]() {
 				Popup* popup				   = wm->Allocate<Popup>("Popup");
@@ -1167,6 +1170,7 @@ namespace Lina::Editor
 			txt->SetAlignedPosY(0.5f);
 			txt->SetAnchorY(Anchor::Center);
 			txt->GetProps().text = *str;
+			txt->SetUserData(str);
 			rightSide->AddChild(txt);
 		}
 		else if (fieldType == FieldType::Vector)

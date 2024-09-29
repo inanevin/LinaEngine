@@ -193,7 +193,7 @@ namespace Lina::Editor
 			return true;
 		}
 
-		if (id == DEFAULT_SHADER_DEFERRED_LIGHTING_ID)
+		if (id == DEFAULT_SHADER_LIGHTING_ID)
 		{
 			Shader::Metadata meta;
 			meta.variants["RenderTarget"_hs] = ShaderVariant{
@@ -289,7 +289,7 @@ namespace Lina::Editor
 		priorityResources.push_back({ICON_FONT_ID, ICON_FONT_PATH, GetTypeID<Font>()});
 		priorityResources.push_back({DEFAULT_FONT_ID, DEFAULT_FONT_PATH, GetTypeID<Font>()});
 		priorityResources.push_back({DEFAULT_FONT_BOLD_ID, DEFAULT_FONT_BOLD_PATH, GetTypeID<Font>()});
-		m_resourceManagerV2.LoadResourcesFromFile(this, nullptr, priorityResources, 0);
+		m_resourceManagerV2.LoadResourcesFromFile(this, priorityResources, 0);
 		m_resourceManagerV2.WaitForAll();
 	}
 
@@ -339,7 +339,7 @@ namespace Lina::Editor
 		priorityResources.push_back({DEFAULT_ALT_FONT_ID, DEFAULT_ALT_FONT_PATH, GetTypeID<Font>()});
 		priorityResources.push_back({DEFAULT_ALT_FONT_BOLD_ID, DEFAULT_ALT_FONT_BOLD_PATH, GetTypeID<Font>()});
 		priorityResources.push_back({BIG_FONT_ID, BIG_FONT_PATH, GetTypeID<Font>()});
-		m_resourceManagerV2.LoadResourcesFromFile(this, nullptr, priorityResources, RLID_CORE_RES);
+		m_resourceManagerV2.LoadResourcesFromFile(this, priorityResources, RLID_CORE_RES);
 	}
 
 	void Editor::OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size)
@@ -359,7 +359,6 @@ namespace Lina::Editor
 		m_windowPanelManager.PreTick();
 		m_fileManager.PreTick();
 		m_editorRenderer.PreTick();
-		m_atlasManager.RefreshDirtyAtlases();
 	}
 
 	void Editor::Tick(float delta)

@@ -37,6 +37,7 @@ namespace Lina
 	class DirectionalLayout;
 	class Button;
 	class Dropdown;
+	class Text;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -59,6 +60,7 @@ namespace Lina::Editor
 		void StoreBuffer();
 		void SetRuntimeDirty(bool isDirty);
 		void RegenTexture(const String& path);
+		void BuildInspector();
 
 	private:
 		LINA_REFLECTION_ACCESS(PanelTextureViewer);
@@ -68,6 +70,7 @@ namespace Lina::Editor
 
 		String			m_textureName	  = "";
 		String			m_textureSize	  = "";
+		String			m_totalSizeKb	  = "";
 		DisplayChannels m_displayChannels = DisplayChannels::RGBA;
 
 		GUIRendererUserData m_displayUserData;
@@ -81,11 +84,16 @@ namespace Lina::Editor
 		uint32				  m_mipLevel			   = 0;
 		LinaGX::TextureBuffer m_textureBuffer		   = {};
 		bool				  m_containsRuntimeChanges = false;
+
+		Text* m_txtName	  = nullptr;
+		Text* m_txtSize	  = nullptr;
+		Text* m_txtSizeKb = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(PanelTextureViewer, Hidden)
 	LINA_FIELD(PanelTextureViewer, m_textureName, "Texture Name", FieldType::StringFixed, 0)
 	LINA_FIELD(PanelTextureViewer, m_textureSize, "Texture Size", FieldType::StringFixed, 0)
+	LINA_FIELD(PanelTextureViewer, m_totalSizeKb, "Size (All Mips)", FieldType::StringFixed, 0)
 	LINA_FIELD(PanelTextureViewer, m_mipLevel, "Mip Level", FieldType::UInt32, 0)
 	LINA_FIELD(PanelTextureViewer, m_displayChannels, "Display Channels", FieldType::Enum, GetTypeID<DisplayChannels>())
 	LINA_FIELD_LIMITS(PanelTextureViewer, m_mipLevel, 0, 1, 1)

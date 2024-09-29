@@ -29,24 +29,23 @@ SOFTWARE.
 #pragma once
 
 #include "Common/Data/String.hpp"
+#include "Common/Math/Color.hpp"
 
 namespace Lina
 {
 	class OStream;
 	class IStream;
 
-	class ModelMaterial
+	struct ModelMaterial
 	{
 	public:
 		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);
 
-	private:
-		friend class Model;
-
-	private:
-		StringID m_defaultMat = 0;
-		String	 m_name		  = "";
+		String		   name	  = "";
+		Color		   albedo = Color::White;
+		Vector<uint32> textureIndices;
+		bool		   isOpaque = true;
 	};
 
 } // namespace Lina
