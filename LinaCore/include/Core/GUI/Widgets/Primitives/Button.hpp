@@ -64,6 +64,7 @@ namespace Lina
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
 		void CreateIcon(const String& icon);
+		void RemoveText();
 
 		virtual void SaveToStream(OStream& stream) const override
 		{

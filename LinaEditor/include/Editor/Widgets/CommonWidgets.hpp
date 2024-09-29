@@ -87,9 +87,10 @@ namespace Lina::Editor
 		static FoldLayout* BuildFoldTitle(Widget* src, const String& title, bool* foldValue);
 		static Widget*	   BuildColorGradSlider(Widget* src, ColorGrad* color, MetaType& meta, FieldBase* field, Delegate<void(const MetaType& meta, FieldBase* field)> onFieldChanged);
 		static void		   BuildClassReflection(Widget* owner, void* obj, MetaType& meta, Delegate<void(const MetaType& meta, FieldBase* field)> onFieldChanged);
-		static void		   RefreshVector(Widget* owningFold, FieldBase* field, void* vectorPtr, MetaType* meta, FieldType subType, int32 elementIndex, Delegate<void(const MetaType& meta, FieldBase* field)> onFieldChanged);
+		static void		   RefreshVector(Widget* owningFold, FieldBase* field, void* vectorPtr, MetaType* meta, FieldType subType, int32 elementIndex, Delegate<void(const MetaType& meta, FieldBase* field)> onFieldChanged, bool disallowAddDelete);
 
-		static Widget* ThrowResourceSelector(Widget* src, TypeID reosurceType, Delegate<void(ResourceDirectory*)>&& onSelected);
+        static Widget* ThrowResourceSelector(Widget* src, TypeID reosurceType, Delegate<void(ResourceDirectory*)>&& onSelected);
+        static Widget* BuildThumbnailTooltip(void* thumbnailOwner);
 
 	private:
 	};

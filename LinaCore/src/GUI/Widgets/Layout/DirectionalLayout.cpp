@@ -63,6 +63,7 @@ namespace Lina
 
 	void DirectionalLayout::Tick(float delta)
 	{
+
 		m_lastHoverStatus = GetIsHovered();
 
 		m_start	 = GetStartFromMargins();
@@ -291,6 +292,7 @@ namespace Lina
 
 	void DirectionalLayout::Draw()
 	{
+
 		const Vector2 start = GetStartFromMargins();
 		const Vector2 end	= GetEndFromMargins();
 		if (end.x - start.x < 1.0f || end.y - start.y < 1.0f)

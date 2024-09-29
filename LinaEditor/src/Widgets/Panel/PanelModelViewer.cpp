@@ -163,10 +163,10 @@ namespace Lina::Editor
 
 		});
 
-		// CommonWidgets::BuildClassReflection(foldFont, &m_font->GetMeta(), ReflectionSystem::Get().Resolve<Font::Metadata>(), [this](const MetaType& meta, FieldBase* field) {
-		// 	SetRuntimeDirty(true);
-		// 	RegenFont("");
-		// });
+		CommonWidgets::BuildClassReflection(foldModel, &m_model->GetMeta(), ReflectionSystem::Get().Resolve<Model::Metadata>(), [this](const MetaType& meta, FieldBase* field) {
+			SetRuntimeDirty(true);
+			// RegenModel("");
+		});
 
 		auto buildButtonLayout = [this]() -> Widget* {
 			DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>();

@@ -37,12 +37,14 @@ SOFTWARE.
 namespace Lina
 {
 
-	void Model::Metadata::SaveToStream(OStream& out) const
+	void Model::Metadata::SaveToStream(OStream& stream) const
 	{
+		stream << materials;
 	}
 
-	void Model::Metadata::LoadFromStream(IStream& in)
+	void Model::Metadata::LoadFromStream(IStream& stream)
 	{
+		stream >> materials;
 	}
 
 	Model::~Model()
@@ -148,6 +150,7 @@ namespace Lina
 			success = LinaGX::LoadGLTFASCII(path.c_str(), modelData);
 
 		m_materialDefs.resize(modelData.allMaterials.size());
+		m_meta.materials.resize(m_materialDefs.size());
 
 		size_t idx = 0;
 		for (auto* lgxMat : modelData.allMaterials)

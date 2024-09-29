@@ -63,6 +63,12 @@ namespace Lina
 		AddChild(m_icon);
 	}
 
+	void Button::RemoveText()
+	{
+		RemoveChild(m_text);
+		m_manager->Deallocate(m_text);
+	}
+
 	void Button::PreTick()
 	{
 		if (GetIsHovered() && !m_lastHoverStatus)

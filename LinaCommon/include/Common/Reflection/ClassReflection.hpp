@@ -70,6 +70,7 @@ namespace Lina
 		Recti,
 		TBLR,
 		Bitmask32,
+		ResourceRef,
 	};
 
 	class ReflectionClassUtility
@@ -179,6 +180,8 @@ namespace Lina
 	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Title"), TITLE);                                                                                                                           \
 	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::FieldType>(Lina::TO_SIDC("Type"), TYPE);                                                                                                                          \
 	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::TypeID>(Lina::TO_SIDC("SubType"), SUBTYPE);
+
+#define LINA_FIELD_LOCK0(ClassName, FieldName) Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<uint8>(Lina::TO_SIDC("Lock0"), 0);
 
 #define LINA_FIELD_VEC(ClassName, FieldName, TITLE, SUBTYPE, SUBTYPERAW, SUBTYPETID)                                                                                                                                                                               \
 	const Lina::StringID sid_##FieldName = Lina::TO_SIDC(TOSTRING(FieldName));                                                                                                                                                                                     \

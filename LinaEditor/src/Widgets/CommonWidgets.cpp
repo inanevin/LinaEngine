@@ -45,6 +45,7 @@ SOFTWARE.
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/System/System.hpp"
+#include "Core/Meta/ProjectData.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
@@ -450,6 +451,8 @@ namespace Lina::Editor
 		bg->GetWidgetProps().outlineThickness = 0.0f;
 		bg->GetWidgetProps().rounding		  = 0.0f;
 		bg->GetWidgetProps().colorBackground  = Color::White;
+		bg->SetCustomTooltipUserData(bg);
+		bg->SetBuildCustomTooltip(BIND(&CommonWidgets::BuildThumbnailTooltip, std::placeholders::_1));
 		layout->AddChild(bg);
 
 		Text* titleText = wm->Allocate<Text>("Title");
@@ -461,6 +464,35 @@ namespace Lina::Editor
 		layout->AddChild(titleText);
 		layout->Initialize();
 		return layout;
+	}
+
+	Widget* CommonWidgets::BuildThumbnailTooltip(void* thumbnailOwner)
+	{
+		Widget*		   owner = static_cast<Widget*>(thumbnailOwner);
+		WidgetManager* wm	 = owner->GetWidgetManager();
+
+		Widget* thumbnailRect = wm->Allocate<Widget>("ThumbnailRect");
+		thumbnailRect->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_USE_FIXED_SIZE_Y);
+		thumbnailRect->SetFixedSize(Vector2(RESOURCE_THUMBNAIL_SIZE, RESOURCE_THUMBNAIL_SIZE));
+		thumbnailRect->GetWidgetProps().drawBackground	 = true;
+		thumbnailRect->GetWidgetProps().outlineThickness = Theme::GetDef().baseOutlineThickness;
+		thumbnailRect->GetWidgetProps().colorOutline	 = Theme::GetDef().outlineColorBase;
+		thumbnailRect->GetWidgetProps().rounding		 = Theme::GetDef().miniRounding;
+		thumbnailRect->GetWidgetProps().colorBackground	 = Theme::GetDef().background0;
+		thumbnailRect->GetWidgetProps().childMargins	 = TBLR::Eq(thumbnailRect->GetWidgetProps().outlineThickness);
+
+		Widget* thumb = wm->Allocate<Widget>("Thumb");
+		thumb->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		thumb->SetAlignedPos(Vector2::Zero);
+		thumb->SetAlignedSize(Vector2::One);
+		thumb->GetWidgetProps().drawBackground	 = true;
+		thumb->GetWidgetProps().fitTexture		 = true;
+		thumb->GetWidgetProps().outlineThickness = 0.0f;
+		thumb->GetWidgetProps().rounding		 = Theme::GetDef().miniRounding;
+		thumb->GetWidgetProps().colorBackground	 = Color::White;
+		thumb->GetWidgetProps().textureAtlas	 = owner->GetWidgetProps().textureAtlas;
+		thumbnailRect->AddChild(thumb);
+		return thumbnailRect;
 	}
 
 	Widget* CommonWidgets::BuildDefaultListItem(Widget* src, void* userData, float margin, const String& icn, const Color& iconColor, const String& txt, bool foldNudge)
@@ -973,7 +1005,7 @@ namespace Lina::Editor
 
 	} // namespace
 
-	void CommonWidgets::RefreshVector(Widget* owningFold, FieldBase* field, void* vectorPtr, MetaType* meta, FieldType subType, int32 elementIndex, Delegate<void(const MetaType& meta, FieldBase* field)> onFieldChanged)
+	void CommonWidgets::RefreshVector(Widget* owningFold, FieldBase* field, void* vectorPtr, MetaType* meta, FieldType subType, int32 elementIndex, Delegate<void(const MetaType& meta, FieldBase* field)> onFieldChanged, bool disallowAddDelete)
 	{
 		FoldLayout* fold		   = static_cast<FoldLayout*>(owningFold);
 		Widget*		foldFirstChild = fold->GetChildren().front();
@@ -1002,28 +1034,39 @@ namespace Lina::Editor
 			else
 				subFieldRightSide = subField->GetChildren().back();
 
+			DirectionalLayout* buttonLayout = fold->GetWidgetManager()->Allocate<DirectionalLayout>("ButtonLayout");
+			buttonLayout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_X_TOTAL_CHILDREN);
+			buttonLayout->SetAlignedPosY(0.0f);
+			buttonLayout->SetAlignedPosX(1.0f);
+			buttonLayout->SetAlignedSizeY(1.0f);
+			buttonLayout->SetAnchorX(Anchor::End);
+			buttonLayout->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
+			subFieldRightSide->AddChild(buttonLayout);
+
 			Button* duplicate = fold->GetWidgetManager()->Allocate<Button>();
 			duplicate->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y);
 			duplicate->SetAlignedPosY(0.0f);
 			duplicate->SetAlignedSizeY(1.0f);
 			duplicate->CreateIcon(ICON_COPY);
-			duplicate->GetProps().onClicked = [j, fold, field, vectorPtr, meta, subType, elementIndex, onFieldChanged]() {
+			duplicate->GetProps().onClicked = [j, fold, field, vectorPtr, meta, subType, elementIndex, onFieldChanged, disallowAddDelete]() {
 				field->GetFunction<void(void*, int32)>("DuplicateElement"_hs)(vectorPtr, j);
-				RefreshVector(fold, field, vectorPtr, meta, subType, elementIndex, onFieldChanged);
+				RefreshVector(fold, field, vectorPtr, meta, subType, elementIndex, onFieldChanged, disallowAddDelete);
 			};
+			duplicate->SetIsDisabled(disallowAddDelete);
 
-			subFieldRightSide->AddChild(duplicate);
+			buttonLayout->AddChild(duplicate);
 
 			Button* remove = fold->GetWidgetManager()->Allocate<Button>();
 			remove->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y);
 			remove->SetAlignedPosY(0.0f);
 			remove->SetAlignedSizeY(1.0f);
 			remove->CreateIcon(ICON_MINUS);
-			remove->GetProps().onClicked = [j, fold, field, vectorPtr, meta, subType, elementIndex, onFieldChanged]() {
+			remove->GetProps().onClicked = [j, fold, field, vectorPtr, meta, subType, elementIndex, onFieldChanged, disallowAddDelete]() {
 				field->GetFunction<void(void*, int32)>("RemoveElement"_hs)(vectorPtr, j);
-				RefreshVector(fold, field, vectorPtr, meta, subType, elementIndex, onFieldChanged);
+				RefreshVector(fold, field, vectorPtr, meta, subType, elementIndex, onFieldChanged, disallowAddDelete);
 			};
-			subFieldRightSide->AddChild(remove);
+			remove->SetIsDisabled(disallowAddDelete);
+			buttonLayout->AddChild(remove);
 		}
 	}
 
@@ -1046,7 +1089,6 @@ namespace Lina::Editor
 		rightSide->SetAlignedPosY(0.0f);
 		rightSide->SetAlignedSizeX(0.5f);
 		rightSide->SetAlignedSizeY(1.0f);
-		rightSide->GetProps().mode = DirectionalLayout::Mode::EqualSizes;
 		rightSide->SetAnchorX(Anchor::End);
 		rightSide->GetWidgetProps().debugName = title;
 		if (isFold)
@@ -1107,8 +1149,9 @@ namespace Lina::Editor
 				popup->AddToggleItem("Theme:BaseIndentInner", false, 1);
 				popup->AddToggleItem("Theme:BaseItemHeight", false, 2);
 				popup->AddToggleItem("Theme:BaseRounding", false, 3);
-				popup->AddToggleItem("Theme:BaseOutlineThickness", false, 4);
-				popup->AddToggleItem("Theme:BaseBorderThickness", false, 5);
+				popup->AddToggleItem("Theme:MiniRounding", false, 4);
+				popup->AddToggleItem("Theme:BaseOutlineThickness", false, 5);
+				popup->AddToggleItem("Theme:BaseBorderThickness", false, 6);
 				popup->GetProps().onSelectedItem = [inp](int32 idx, void* ud) {
 					float val = 0.0f;
 
@@ -1121,8 +1164,10 @@ namespace Lina::Editor
 					else if (idx == 3)
 						val = Theme::GetDef().baseRounding;
 					else if (idx == 4)
-						val = Theme::GetDef().baseOutlineThickness;
+						val = Theme::GetDef().miniRounding;
 					else if (idx == 5)
+						val = Theme::GetDef().baseOutlineThickness;
+					else if (idx == 6)
 						val = Theme::GetDef().baseBorderThickness;
 
 					inp->SetValue(val);
@@ -1148,7 +1193,57 @@ namespace Lina::Editor
 			return btn;
 		};
 
-		if (fieldType == FieldType::UserClass)
+		if (fieldType == FieldType::ResourceRef)
+		{
+			ResRefBase*		 base  = reflectionValue.CastPtr<ResRefBase>();
+			const ResourceID resID = base->id;
+
+			ResourceDirectory* dir = Editor::Get()->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(resID);
+
+			Button* btn = wm->Allocate<Button>();
+			btn->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+			btn->SetAlignedSize(Vector2(0.0f, 1.0f));
+			btn->SetAlignedPosY(0.0f);
+			btn->RemoveText();
+
+			DirectionalLayout* layout = wm->Allocate<DirectionalLayout>("ResRefField");
+			layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+			layout->SetAlignedPos(Vector2::Zero);
+			layout->GetProps().direction = DirectionOrientation::Horizontal;
+			layout->SetAlignedSize(Vector2(1.0f, 1.0f));
+			layout->GetWidgetProps().childPadding		= Theme::GetDef().baseIndent;
+			layout->GetWidgetProps().childMargins.left	= Theme::GetDef().baseIndent;
+			layout->GetWidgetProps().childMargins.right = Theme::GetDef().baseIndent;
+			layout->GetWidgetProps().clipChildren		= true;
+			btn->AddChild(layout);
+
+			Widget* thumb = wm->Allocate<Widget>("Thumb");
+			thumb->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_X_COPY_Y);
+			thumb->SetAlignedPosY(0.5f);
+			thumb->SetAlignedSizeY(0.5f);
+			thumb->SetAnchorY(Anchor::Center);
+			thumb->GetWidgetProps().drawBackground	 = true;
+			thumb->GetWidgetProps().colorBackground	 = Color::White;
+			thumb->GetWidgetProps().outlineThickness = 0.0f;
+			thumb->GetWidgetProps().rounding		 = 0.0f;
+			thumb->GetWidgetProps().textureAtlas	 = dir == nullptr ? nullptr : dir->_thumbnailAtlasImage;
+			thumb->SetCustomTooltipUserData(thumb);
+			thumb->SetBuildCustomTooltip(BIND(&CommonWidgets::BuildThumbnailTooltip, std::placeholders::_1));
+			layout->AddChild(thumb);
+
+			if (thumb->GetWidgetProps().textureAtlas == nullptr)
+				thumb->GetWidgetProps().textureAtlas = Editor::Get()->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "FileShaderSmall"_hs);
+
+			Text* txt = wm->Allocate<Text>("Titlessss");
+			txt->GetFlags().Set(WF_POS_ALIGN_Y);
+			txt->SetAlignedPosY(0.5f);
+			txt->SetAnchorY(Anchor::Center);
+			txt->GetProps().text = dir == nullptr ? "(NoResource)" : dir->name;
+			txt->CalculateTextSize();
+			layout->AddChild(txt);
+			rightSide->AddChild(btn);
+		}
+		else if (fieldType == FieldType::UserClass)
 		{
 			TypeID tid = 0;
 
@@ -1180,6 +1275,10 @@ namespace Lina::Editor
 			const uint32	vectorSize = field->GetFunction<uint32(void*)>("GetVectorSize"_hs)(vectorPtr);
 			const FieldType subType	   = field->GetProperty<FieldType>("SubType"_hs);
 
+			const bool disallowAddDelete = field->HasProperty<uint8>("Lock0"_hs);
+
+			rightSide->GetProps().mode = DirectionalLayout::Mode::EqualSizes;
+
 			Text* elemCount = wm->Allocate<Text>();
 			elemCount->GetFlags().Set(WF_POS_ALIGN_Y);
 			elemCount->SetAlignedPosY(0.5f);
@@ -1192,11 +1291,12 @@ namespace Lina::Editor
 			newElem->SetAlignedPosY(0.0f);
 			newElem->SetAlignedSizeY(1.0f);
 			newElem->CreateIcon(ICON_PLUS);
-			newElem->GetProps().onClicked = [src, &metaType, field, subType, fieldLayout, vectorPtr, onFieldChanged]() {
+			newElem->GetProps().onClicked = [src, &metaType, field, subType, fieldLayout, vectorPtr, onFieldChanged, disallowAddDelete]() {
 				const uint32 vs = field->GetFunction<uint32(void*)>("GetVectorSize"_hs)(vectorPtr);
 				field->GetFunction<void(void*)>("AddNewElement"_hs)(vectorPtr);
-				CommonWidgets::RefreshVector(fieldLayout, field, vectorPtr, &metaType, subType, -1, onFieldChanged);
+				CommonWidgets::RefreshVector(fieldLayout, field, vectorPtr, &metaType, subType, -1, onFieldChanged, disallowAddDelete);
 			};
+			newElem->SetIsDisabled(disallowAddDelete);
 			rightSide->AddChild(newElem);
 
 			Button* clear = wm->Allocate<Button>();
@@ -1204,12 +1304,13 @@ namespace Lina::Editor
 			clear->SetAlignedPosY(0.0f);
 			clear->SetAlignedSizeY(1.0f);
 			clear->CreateIcon(ICON_TRASH);
-			clear->GetProps().onClicked = [src, &metaType, field, subType, fieldLayout, vectorPtr, onFieldChanged]() {
+			clear->GetProps().onClicked = [src, &metaType, field, subType, fieldLayout, vectorPtr, onFieldChanged, disallowAddDelete]() {
 				field->GetFunction<void(void*)>("ClearVector"_hs)(vectorPtr);
-				CommonWidgets::RefreshVector(fieldLayout, field, vectorPtr, &metaType, subType, -1, onFieldChanged);
+				CommonWidgets::RefreshVector(fieldLayout, field, vectorPtr, &metaType, subType, -1, onFieldChanged, disallowAddDelete);
 			};
+			clear->SetIsDisabled(disallowAddDelete);
 
-			RefreshVector(fieldLayout, field, vectorPtr, &metaType, subType, -1, onFieldChanged);
+			RefreshVector(fieldLayout, field, vectorPtr, &metaType, subType, -1, onFieldChanged, disallowAddDelete);
 			rightSide->AddChild(clear);
 		}
 		else if (fieldType == FieldType::Bitmask32)

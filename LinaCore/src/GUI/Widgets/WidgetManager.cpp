@@ -211,7 +211,7 @@ namespace Lina
 			{
 				if (!c->GetIsHovered())
 				{
-					if (!c->GetFlags().IsSet(WF_FOREGROUND_BLOCKER))
+					if (!c->GetFlags().IsSet(WF_FOREGROUND_BLOCKER) && !c->GetFlags().IsSet(WF_TOOLTIP))
 						removeList.push_back(c);
 				}
 			}
@@ -420,6 +420,9 @@ namespace Lina
 		if (widget->GetFlags().IsSet(WF_HIDE))
 			return false;
 
+		if (widget->GetFlags().IsSet(WF_DISABLED_BY_PARENT))
+			return false;
+
 		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnKey(keycode, scancode, inputAction) && !widget->GetFlags().IsSet(WF_KEY_PASSTHRU))
 			return true;
 
@@ -435,6 +438,9 @@ namespace Lina
 	bool WidgetManager::PassMouse(Widget* widget, uint32 button, LinaGX::InputAction inputAction)
 	{
 		if (widget->GetFlags().IsSet(WF_HIDE))
+			return false;
+
+		if (widget->GetFlags().IsSet(WF_DISABLED_BY_PARENT))
 			return false;
 
 		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnMouse(button, inputAction) && !widget->GetFlags().IsSet(WF_MOUSE_PASSTHRU))
@@ -454,6 +460,9 @@ namespace Lina
 		if (widget->GetFlags().IsSet(WF_HIDE))
 			return false;
 
+		if (widget->GetFlags().IsSet(WF_DISABLED_BY_PARENT))
+			return false;
+
 		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnMouseWheel(amt) && !widget->GetFlags().IsSet(WF_MOUSE_PASSTHRU))
 			return true;
 
@@ -469,6 +478,9 @@ namespace Lina
 	bool WidgetManager::PassMousePos(Widget* widget, const Vector2& pos)
 	{
 		if (widget->GetFlags().IsSet(WF_HIDE))
+			return false;
+
+		if (widget->GetFlags().IsSet(WF_DISABLED_BY_PARENT))
 			return false;
 
 		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnMousePos(pos) && !widget->GetFlags().IsSet(WF_MOUSE_PASSTHRU))
@@ -499,6 +511,26 @@ namespace Lina
 		w->SetIsHovered();
 		w->CheckCustomTooltip();
 		w->PreTick();
+
+		const Vector2 mp = Vector2(Math::FloorToFloat(m_window->GetMousePosition().x), Math::FloorToFloat(m_window->GetMousePosition().y));
+
+		if (w->m_buildCustomTooltip)
+		{
+			if (!w->GetIsHovered() && w->m_customTooltip != nullptr)
+			{
+				RemoveFromForeground(w->m_customTooltip);
+				Deallocate(w->m_customTooltip);
+				w->m_customTooltip = nullptr;
+			}
+			else if (w->GetIsHovered() && w->m_customTooltip == nullptr)
+			{
+				w->m_customTooltip = w->m_buildCustomTooltip(w->m_customTooltipUserData);
+				w->m_customTooltip->GetFlags().Set(WF_TOOLTIP);
+				w->m_customTooltip->SetPos(mp + Vector2(10, 10));
+				AddToForeground(w->m_customTooltip);
+			}
+		}
+
 		for (auto* c : w->GetChildren())
 			PassPreTick(c);
 	}
@@ -759,7 +791,7 @@ namespace Lina
 					current = current->m_next;
 			}
 
-			if (current && current->GetFlags().IsSet(WF_CONTROLLABLE) && !current->GetIsDisabled() && current->GetIsVisible() && !current->GetFlags().IsSet(WF_HIDE))
+			if (current && current->GetFlags().IsSet(WF_CONTROLLABLE) && !current->GetIsDisabled() && current->GetIsVisible() && !current->GetFlags().IsSet(WF_HIDE) && !current->GetFlags().IsSet(WF_DISABLED_BY_PARENT))
 				return current;
 		} while (current != nullptr && current != start);
 
@@ -784,7 +816,7 @@ namespace Lina
 			else
 				current = current->m_parent;
 
-			if (current && current->GetFlags().IsSet(WF_CONTROLLABLE) && !current->GetIsDisabled() && current->GetIsVisible() && !current->GetFlags().IsSet(WF_HIDE))
+			if (current && current->GetFlags().IsSet(WF_CONTROLLABLE) && !current->GetIsDisabled() && current->GetIsVisible() && !current->GetFlags().IsSet(WF_HIDE) && !current->GetFlags().IsSet(WF_DISABLED_BY_PARENT))
 				return current;
 
 		} while (current != nullptr && current != start);

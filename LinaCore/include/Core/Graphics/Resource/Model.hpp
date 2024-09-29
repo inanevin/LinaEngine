@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Common/Math/AABB.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Core/Graphics/Data/ModelMaterial.hpp"
+#include "Core/Graphics/Resource/Material.hpp"
 
 namespace LinaGX
 {
@@ -56,8 +57,10 @@ namespace Lina
 
 		struct Metadata
 		{
-			void SaveToStream(OStream& out) const;
-			void LoadFromStream(IStream& in);
+			void SaveToStream(OStream& stream) const;
+			void LoadFromStream(IStream& stream);
+
+			Vector<ResRef<Material>> materials;
 		};
 
 		static constexpr uint32 VERSION = 0;
@@ -129,4 +132,9 @@ namespace Lina
 	};
 	LINA_RESOURCE_BEGIN(Model);
 	LINA_CLASS_END(Model);
+
+	LINA_CLASS_BEGIN(ModelMeta)
+	LINA_FIELD_VEC(Model::Metadata, materials, "Materials", FieldType::ResourceRef, ResRef<Material>, GetTypeID<Material>());
+	LINA_FIELD_LOCK0(Model::Metadata, materials)
+	LINA_CLASS_END(ModelMeta)
 } // namespace Lina

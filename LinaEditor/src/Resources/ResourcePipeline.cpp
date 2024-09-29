@@ -269,8 +269,6 @@ namespace Lina::Editor
 					Model model(id, dir->name);
 					model.SetPath(path);
 					model.LoadFromFile(path);
-					model.SaveToFileAsBinary(projectData->GetResourcePath(id));
-					GenerateThumbnailForResource(dir, &model, false);
 
 					if (defaultShader == nullptr)
 					{
@@ -298,6 +296,9 @@ namespace Lina::Editor
 						GenerateThumbnailForResource(child, &texture, false);
 					}
 
+					Model::Metadata& meta = model.GetMeta();
+
+					int32 matIdx = 0;
 					for (const ModelMaterial& def : matDefs)
 					{
 						const ResourceID newID = m_editor->GetProjectManager().GetProjectData()->ConsumeResourceID();
@@ -309,13 +310,18 @@ namespace Lina::Editor
 							.name		 = def.name,
 						});
 
+						meta.materials[matIdx].id = newID;
+
 						Material mat(newID, def.name);
 						mat.SetShader(defaultShader);
 						mat.SetProperty("color"_hs, def.albedo);
 						mat.SaveToFileAsBinary(projectData->GetResourcePath(newID));
 						GenerateThumbnailForResource(child, &mat, false);
+						matIdx++;
 					}
 
+					model.SaveToFileAsBinary(projectData->GetResourcePath(id));
+					GenerateThumbnailForResource(dir, &model, false);
 					model.DestroyTextureDefs();
 				}
 

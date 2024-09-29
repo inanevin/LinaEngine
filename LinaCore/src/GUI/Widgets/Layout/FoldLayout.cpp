@@ -94,7 +94,13 @@ namespace Lina
 			if (idx != 0)
 			{
 				c->SetPosX(c->GetPosX() + tweenValue);
-				c->SetIsDisabled(!m_unfolded);
+				// c->SetIsDisabled(!m_unfolded);
+
+				if (m_unfolded)
+					c->GetFlags().Remove(WF_DISABLED_BY_PARENT);
+				else
+					c->GetFlags().Set(WF_DISABLED_BY_PARENT);
+
 				c->SetVisible(m_unfolded);
 			}
 

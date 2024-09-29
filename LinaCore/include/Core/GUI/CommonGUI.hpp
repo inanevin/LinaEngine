@@ -88,6 +88,8 @@ namespace Lina
 		WF_KEY_PASSTHRU			 = 1 << 19,
 		WF_SKIP_FLOORING		 = 1 << 20,
 		WF_HIDE					 = 1 << 21,
+		WF_DISABLED_BY_PARENT	 = 1 << 22,
+		WF_TOOLTIP				 = 1 << 23,
 	};
 
 	LINA_CLASS_BEGIN(WidgetFlags)
@@ -113,6 +115,8 @@ namespace Lina
 	LINA_PROPERTY_STRING(WidgetFlags, 19, "Key Passthrough")
 	LINA_PROPERTY_STRING(WidgetFlags, 20, "Skip Flooring")
 	LINA_PROPERTY_STRING(WidgetFlags, 21, "Hide")
+	LINA_PROPERTY_STRING(WidgetFlags, 22, "Disabled By Parent")
+	LINA_PROPERTY_STRING(WidgetFlags, 23, "Tooltip")
 	LINA_CLASS_END(WidgetFlags)
 
 	enum class Anchor
