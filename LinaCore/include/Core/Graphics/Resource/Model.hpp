@@ -53,13 +53,12 @@ namespace Lina
 			String				  name	 = "";
 			LinaGX::TextureBuffer buffer = {};
 		};
-        
-        struct Metadata
-        {
-            void SaveToStream(OStream& out) const;
-            void LoadFromStream(IStream& in);
-          
-        };
+
+		struct Metadata
+		{
+			void SaveToStream(OStream& out) const;
+			void LoadFromStream(IStream& in);
+		};
 
 		static constexpr uint32 VERSION = 0;
 
@@ -103,16 +102,16 @@ namespace Lina
 		{
 			return m_textureDefs;
 		}
-        
-        inline Metadata& GetMeta()
-        {
-            return m_meta;
-        }
-        
-        inline const Metadata& GetMeta() const
-        {
-            return m_meta;
-        }
+
+		inline Metadata& GetMeta()
+		{
+			return m_meta;
+		}
+
+		inline const Metadata& GetMeta() const
+		{
+			return m_meta;
+		}
 
 	private:
 		void	   ProcessNode(LinaGX::ModelNode* lgxNode, ModelNode* parent);
@@ -121,7 +120,7 @@ namespace Lina
 
 	private:
 		ALLOCATOR_BUCKET_MEM;
-        Metadata m_meta;
+		Metadata			  m_meta;
 		Vector<MeshDefault*>  m_meshes;
 		Vector<ModelNode*>	  m_rootNodes;
 		Vector<ModelMaterial> m_materialDefs;
