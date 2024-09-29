@@ -45,8 +45,8 @@ namespace Lina
 
 	struct ShaderVariant
 	{
-		uint32 _gpuHandle = 0;
-        bool _gpuHandleExists = false;
+		uint32 _gpuHandle		= 0;
+		bool   _gpuHandleExists = false;
 
 		String					   name				   = "";
 		bool					   blendDisable		   = false;

@@ -48,7 +48,9 @@ namespace Lina
 	Color Color::Brown	   = Color(0.647f, 0.164f, 0.164f);
 	Color Color::Gray	   = Color(0.5f, 0.5f, 0.5f);
 
-    Color::Color(const Vector4& col) : x(col.x), y(col.y), z(col.z), w(col.w) {}
+	Color::Color(const Vector4& col) : x(col.x), y(col.y), z(col.z), w(col.w)
+	{
+	}
 
 	void Color::SaveToStream(OStream& stream) const
 	{
