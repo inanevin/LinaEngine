@@ -29,7 +29,6 @@ SOFTWARE.
 #include "Core/World/EntityWorld.hpp"
 #include "Core/World/Entity.hpp"
 #include "Core/World/Component.hpp"
-#include "Core/Reflection/ReflectionSystem.hpp"
 #include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
 #include "Core/Graphics/Data/ModelNode.hpp"
@@ -208,7 +207,7 @@ namespace Lina
 			stream >> tid;
 
 			MetaType&			type  = ReflectionSystem::Get().Resolve(tid);
-			void*				ptr	  = type.GetFunction<void*(EntityWorld*, GameEventDispatcher*)>("CreateCompCache"_hs)(this, this);
+			void*				ptr	  = type.GetFunction<void*(EntityWorld*)>("CreateComponentCache"_hs)(this);
 			ComponentCacheBase* cache = static_cast<ComponentCacheBase*>(ptr);
 			cache->LoadFromStream(stream, entities);
 			m_componentCaches[tid] = cache;

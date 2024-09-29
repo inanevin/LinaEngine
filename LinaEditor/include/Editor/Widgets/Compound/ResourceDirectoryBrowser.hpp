@@ -44,6 +44,7 @@ namespace Lina::Editor
 
 	class Editor;
 	class ItemController;
+	class ProgressCircleFill;
 
 	enum class Mode
 	{
@@ -110,12 +111,17 @@ namespace Lina::Editor
 		void DeleteItems(Vector<ResourceDirectory*> dirs);
 		void DropPayload(ResourceDirectory* target);
 
+		void ShowProgress();
+		void HideProgress();
+
 	private:
-		Properties		   m_props;
-		ItemController*	   m_controller	 = nullptr;
-		DirectionalLayout* m_layout		 = nullptr;
-		Editor*			   m_editor		 = nullptr;
-		ResourceDirectory* m_payloadItem = nullptr;
+		Widget*				m_progressParent = nullptr;
+		ProgressCircleFill* m_progress		 = nullptr;
+		Properties			m_props;
+		ItemController*		m_controller  = nullptr;
+		DirectionalLayout*	m_layout	  = nullptr;
+		Editor*				m_editor	  = nullptr;
+		ResourceDirectory*	m_payloadItem = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(ResourceDirectoryBrowser, Editor)

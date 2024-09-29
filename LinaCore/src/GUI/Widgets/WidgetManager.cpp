@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/GfxManager.hpp"
 #include "Core/CommonCore.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Data/CommonData.hpp"
 #include "Common/System/System.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"

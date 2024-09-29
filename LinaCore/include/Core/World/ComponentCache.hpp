@@ -31,7 +31,6 @@ SOFTWARE.
 #include "CommonWorld.hpp"
 #include "Entity.hpp"
 #include "Common/SizeDefinitions.hpp"
-#include "Common/Event/GameEventDispatcher.hpp"
 #include "Common/Memory/AllocatorBucket.hpp"
 
 namespace Lina
@@ -57,9 +56,8 @@ namespace Lina
 	template <typename T> class ComponentCache : public ComponentCacheBase
 	{
 	public:
-		ComponentCache(EntityWorld* world, GameEventDispatcher* eventDispatcher) : m_world(world)
+		ComponentCache(EntityWorld* world) : m_world(world)
 		{
-			m_eventDispatcher = eventDispatcher;
 		}
 
 		virtual ~ComponentCache()
@@ -166,8 +164,7 @@ namespace Lina
 		}
 
 	private:
-		EntityWorld*			m_world			  = nullptr;
-		GameEventDispatcher*	m_eventDispatcher = nullptr;
+		EntityWorld*			m_world = nullptr;
 		AllocatorBucket<T, 100> m_componentBucket;
 	};
 

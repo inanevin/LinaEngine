@@ -51,7 +51,7 @@ namespace Lina::Editor
 		ResourceID SaveNewResource(TypeID tid, uint32 subType = 0);
 
 		/// For importing external resources, such as textures, models, materials etc.
-		void ImportResources(ResourceDirectory* src, const Vector<String>& absPaths);
+		void ImportResources(ResourceDirectory* src, const Vector<String>& absPaths, Delegate<void(uint32 imported, float progress, bool isCompleted)> onProgress);
 
 		void DuplicateResource(ResourceManagerV2* resMan, ResourceDirectory* directory, ResourceDirectory* newParent);
 

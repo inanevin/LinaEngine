@@ -30,22 +30,23 @@ SOFTWARE.
 
 #include "Common/Data/HashMap.hpp"
 #include "Common/Data/IDList.hpp"
-#include "Common/Platform/LinaGXIncl.hpp"
 #include "Core/GUI/CommonGUI.hpp"
 #include "Core/GUI/Theme.hpp"
 #include "WidgetCache.hpp"
-#include "Core/Reflection/ReflectionSystem.hpp"
 #include "Core/GUI/Widgets/Widget.hpp"
 
 namespace LinaGX
 {
 	class Window;
-}
+	enum class InputAction;
+	enum class CursorType;
+} // namespace LinaGX
 
 namespace LinaVG
 {
 	class Drawer;
 }
+
 namespace Lina
 {
 	class Widget;

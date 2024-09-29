@@ -181,7 +181,7 @@ namespace Lina
 			const TypeID tid = GetTypeID<T>();
 
 			if (m_componentCaches.find(tid) == m_componentCaches.end())
-				m_componentCaches[tid] = new ComponentCache<T>(this, this);
+				m_componentCaches[tid] = new ComponentCache<T>(this);
 
 			ComponentCache<T>* cache = static_cast<ComponentCache<T>*>(m_componentCaches[tid]);
 			return cache;

@@ -30,7 +30,7 @@ SOFTWARE.
 
 #include "Common/SizeDefinitions.hpp"
 #include "Core/Resources/CommonResources.hpp"
-#include "Core/Reflection/ClassReflection.hpp"
+#include "Common/Reflection/ClassReflection.hpp"
 
 namespace Lina
 {

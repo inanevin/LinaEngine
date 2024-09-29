@@ -189,28 +189,20 @@ namespace Lina::Editor
 		return id;
 	}
 
-	void ResourcePipeline::ImportResources(ResourceDirectory* src, const Vector<String>& absPaths)
+	void ResourcePipeline::ImportResources(ResourceDirectory* src, const Vector<String>& absPaths, Delegate<void(uint32 imported, float progress, bool isCompleted)> onProgress)
 	{
 		// Thumbnails.
 		m_editor->GetGfxManager()->Join();
 
-		// Fire up notification displayer in the main window.
-		const float totalCount		  = static_cast<float>(absPaths.size());
-		m_importedResourcesCount	  = 0;
-		NotificationDesc notification = {
-			.icon		= NotificationIcon::Loading,
-			.title		= Locale::GetStr(LocaleStr::ImportingResources),
-			.showButton = false,
-			.onProgress = [totalCount, this](float& out) { out = static_cast<float>(m_importedResourcesCount.load()) / static_cast<float>(totalCount); },
-		};
-		m_editor->GetWindowPanelManager().GetNotificationDisplayer(m_editor->GetWindowPanelManager().GetMainWindow())->AddNotification(notification);
+		const float totalCount	 = static_cast<float>(absPaths.size());
+		m_importedResourcesCount = 0;
 
 		ProjectData* projectData = m_editor->GetProjectManager().GetProjectData();
 
 		// Import resources in parallel.
 		Taskflow tf;
 
-		tf.emplace([absPaths, this, projectData, src]() {
+		tf.emplace([absPaths, this, projectData, src, onProgress]() {
 			Shader* defaultShader = nullptr;
 
 			for (const String& path : absPaths)
@@ -328,6 +320,7 @@ namespace Lina::Editor
 				}
 
 				m_importedResourcesCount.fetch_add(1);
+				onProgress(m_importedResourcesCount.load(), static_cast<float>(m_importedResourcesCount.load()) / static_cast<float>(absPaths.size()), false);
 			}
 
 			DockArea* outDockArea = nullptr;
@@ -338,8 +331,9 @@ namespace Lina::Editor
 			if (defaultShader)
 				delete defaultShader;
 
+			onProgress(m_importedResourcesCount.load(), 1.0f, true);
 			m_editor->GetProjectManager().SaveProjectChanges();
-			m_editor->GetAtlasManager().RefreshDirtyAtlases()
+			m_editor->GetAtlasManager().RefreshDirtyAtlases();
 		});
 
 		m_executor.RunMove(tf);

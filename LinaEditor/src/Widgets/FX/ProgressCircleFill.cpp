@@ -26,98 +26,59 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Editor/Widgets/FX/LinaLoading.hpp"
+#include "Editor/Widgets/FX/ProgressCircleFill.hpp"
 #include "Editor/Editor.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
-#include "Core/Graphics/Utility/TextureAtlas.hpp"
-#include "Core/Graphics/Resource/Texture.hpp"
+#include "Editor/Widgets/FX/LinaLoading.hpp"
 
 namespace Lina::Editor
 {
-	void LinaLoading::Construct()
+	void ProgressCircleFill::Construct()
 	{
-		m_imgLeft	= Editor::Get()->GetAtlasManager().GetImageFromAtlas("MiscTextures"_hs, "LogoLeft"_hs);
-		m_imgRight	= Editor::Get()->GetAtlasManager().GetImageFromAtlas("MiscTextures"_hs, "LogoRight"_hs);
-		m_imgBottom = Editor::Get()->GetAtlasManager().GetImageFromAtlas("MiscTextures"_hs, "LogoBottom"_hs);
+		GetWidgetProps().colorBackground = Theme::GetDef().foreground0;
+	}
+	void ProgressCircleFill::Initialize()
+	{
+		if (m_props.includeLinaLoading)
+		{
+			LinaLoading* loading = m_manager->Allocate<LinaLoading>("Loading");
+			loading->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+			loading->SetAlignedPos(Vector2(0.5f, 0.5f));
+			loading->SetAlignedSize(Vector2(0.5f, 0.5f));
+			loading->SetAnchorX(Anchor::Center);
+			loading->SetAnchorY(Anchor::Center);
+			AddChild(loading);
+		}
+
+		Widget::Initialize();
 	}
 
-	void LinaLoading::Tick(float delta)
+	void ProgressCircleFill::Tick(float delta)
 	{
-		const float disperseAmt = (m_rect.GetEnd() - m_rect.pos).MagnitudeSqrt() * m_props.dispersePower * 0.005f;
-		if (m_action == -1)
-		{
-			m_tween = Tween(0.0f, 1.0f, m_props.tweenTime, TweenType::Sinusoidal);
-			m_tween.SetDelay(m_props.waitTime);
-			m_action = 0;
-		}
-
-		m_tween.Tick(delta);
-
-		if (m_action == 0)
-		{
-			m_rightOffset = Math::Lerp(Vector2::Zero, Vector2(1.0f, -0.6f) * disperseAmt, m_tween.GetValue());
-			m_rightTint	  = Math::Lerp(Theme::GetDef().foreground1, Theme::GetDef().accentPrimary2, m_tween.GetValue());
-		}
-		else if (m_action == 1)
-		{
-			m_bottomOffset = Math::Lerp(Vector2::Zero, Vector2(0.0f, 1.0f) * disperseAmt, m_tween.GetValue());
-			m_bottomTint   = Math::Lerp(Theme::GetDef().foreground1, Theme::GetDef().accentPrimary2, m_tween.GetValue());
-		}
-		else if (m_action == 2)
-		{
-			m_leftOffset = Math::Lerp(Vector2::Zero, Vector2(-1.0f, -1.0f) * disperseAmt, m_tween.GetValue());
-			m_leftTint	 = Math::Lerp(Theme::GetDef().foreground1, Theme::GetDef().accentPrimary2, m_tween.GetValue());
-		}
-		else if (m_action == 3)
-		{
-			m_rightOffset  = Math::Lerp(Vector2::Zero, Vector2(1.0f, -1.0f) * disperseAmt, m_tween.GetValue());
-			m_bottomOffset = Math::Lerp(Vector2::Zero, Vector2(0.0f, 1.0f) * disperseAmt, m_tween.GetValue());
-			m_leftOffset   = Math::Lerp(Vector2::Zero, Vector2(-1.0f, -1.0f) * disperseAmt, m_tween.GetValue());
-
-			m_leftTint	 = Math::Lerp(Theme::GetDef().foreground1, Theme::GetDef().accentPrimary2, m_tween.GetValue());
-			m_rightTint	 = Math::Lerp(Theme::GetDef().foreground1, Theme::GetDef().accentPrimary2, m_tween.GetValue());
-			m_bottomTint = Math::Lerp(Theme::GetDef().foreground1, Theme::GetDef().accentPrimary2, m_tween.GetValue());
-		}
-
-		if (m_tween.GetIsCompleted())
-		{
-			m_action = (m_action + 1) % 4;
-
-			if (m_action == 3)
-			{
-				m_tween.SetStart(1.0f);
-				m_tween.SetEnd(0.0f);
-				m_tween.SetTween(TweenType::Exponential);
-			}
-			else
-			{
-				m_tween.SetStart(0.0f);
-				m_tween.SetEnd(1.0f);
-				m_tween.SetTween(TweenType::Sinusoidal);
-			}
-
-			m_tween.Restart();
-		}
+		m_progress = Math::EaseOut(m_progress, m_targetProgress, delta * m_props.barSpeed);
 	}
 
-	void LinaLoading::Draw()
+	void ProgressCircleFill::Draw()
 	{
 		LinaVG::StyleOptions opts;
+		opts.isFilled	= false;
+		opts.aaEnabled	= true;
+		opts.color		= GetWidgetProps().colorBackground.AsLVG();
+		opts.thickness	= m_props.thickness;
+		const float rad = Math::Min(m_rect.size.x, m_rect.size.y) * 0.5f;
+		m_lvg->DrawCircle(m_rect.GetCenter().AsLVG(), rad, opts, 36, 0.0f, 90.0f, 450.0f, m_drawOrder);
 
-		auto draw = [&](TextureAtlasImage* img, const Vector2& offset, const Color& color) {
-			opts.textureHandle	 = img->atlas->GetRaw();
-			opts.textureUVOffset = img->rectUV.pos.AsLVG();
-			opts.textureUVTiling = img->rectUV.size.AsLVG();
-			opts.color			 = color.AsLVG4();
+		opts.color = m_props.colorProgress.AsLVG4();
+		m_lvg->DrawCircle(m_rect.GetCenter().AsLVG(), rad, opts, 36, 0.0f, 90.0f, 90.0f + 360.0f * m_progress, m_drawOrder + 1);
 
-			const Vector2 start = m_rect.pos + offset;
-			const Vector2 end	= start + (m_rect.GetEnd() - m_rect.pos);
-			m_lvg->DrawRect(start.AsLVG(), end.AsLVG(), opts, 0.0f, m_drawOrder);
-		};
-
-		draw(m_imgLeft, m_leftOffset, m_leftTint);
-		draw(m_imgRight, m_rightOffset, m_rightTint);
-		draw(m_imgBottom, m_bottomOffset, m_bottomTint);
+		Widget::Draw();
 	}
+
+	void ProgressCircleFill::UpdateProgress(float prog)
+	{
+		m_targetProgress = prog;
+	}
+
 } // namespace Lina::Editor

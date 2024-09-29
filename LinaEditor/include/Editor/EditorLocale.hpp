@@ -137,6 +137,7 @@ namespace Lina::Editor
 		ThisResourceNoLongerExists,
 		GenerateSDF,
 		General,
+		Working,
 	};
 
 	class Locale

@@ -33,7 +33,7 @@ SOFTWARE.
 #include "Common/Math/Rect.hpp"
 #include "Common/Data/Map.hpp"
 #include "Common/Common.hpp"
-#include "Core/Reflection/ClassReflection.hpp"
+#include "Common/Reflection/ClassReflection.hpp"
 
 namespace Lina
 {

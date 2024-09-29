@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Editor/Widgets/Layout/ItemController.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Editor/Widgets/Popups/GenericPopup.hpp"
+#include "Editor/Widgets/FX/ProgressCircleFill.hpp"
 #include "Core/Meta/ProjectData.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
@@ -379,8 +380,16 @@ namespace Lina::Editor
 			if (files.empty())
 				return true;
 
-			m_editor->GetResourcePipeline().ImportResources(selection.front(), files);
-			// TODO: Lock here.
+			ShowProgress();
+			m_editor->GetResourcePipeline().ImportResources(selection.front(), files, [this](uint32 importedCount, float progress, bool isComplete) {
+				if (isComplete)
+				{
+					HideProgress();
+					return;
+				}
+				LINA_TRACE("Updating progress {0}", progress);
+				m_progress->UpdateProgress(progress);
+			});
 			return true;
 		}
 
@@ -587,5 +596,58 @@ namespace Lina::Editor
 	void ResourceDirectoryBrowser::OnProjectOpened(ProjectData* data)
 	{
 		RefreshDirectory();
+	}
+
+	void ResourceDirectoryBrowser::ShowProgress()
+	{
+		m_progressParent = m_manager->Allocate<Widget>("ProgressParent");
+		m_progressParent->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		m_progressParent->SetAlignedPos(Vector2::Zero);
+		m_progressParent->SetAlignedSize(Vector2::One);
+		m_progressParent->GetWidgetProps().drawBackground		   = true;
+		m_progressParent->GetWidgetProps().colorBackground		   = Theme::GetDef().black;
+		m_progressParent->GetWidgetProps().colorBackground.start.w = m_progressParent->GetWidgetProps().colorBackground.end.w = 0.9f;
+		m_progressParent->GetWidgetProps().drawOrderIncrement																  = 1;
+		AddChild(m_progressParent);
+
+		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("ProgressLayout");
+		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_USE_FIXED_SIZE_Y);
+		layout->SetAlignedPos(Vector2(0.5f, 0.5f));
+		layout->SetFixedSizeX(Theme::GetDef().baseItemHeight * 3);
+		layout->SetFixedSizeY(layout->GetAlignedSizeX() + Theme::GetDef().baseItemHeight);
+		layout->SetAnchorX(Anchor::Center);
+		layout->SetAnchorY(Anchor::Center);
+		layout->GetProps().direction		  = DirectionOrientation::Vertical;
+		layout->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
+		m_progressParent->AddChild(layout);
+
+		Widget* rect = m_manager->Allocate<Widget>("ProgressLayoutRect");
+		rect->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_COPY_X);
+		rect->SetAlignedPosX(0.0f);
+		rect->SetAlignedSizeX(1.0f);
+		layout->AddChild(rect);
+
+		m_progress = m_manager->Allocate<ProgressCircleFill>("Progress");
+		m_progress->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		m_progress->SetAlignedPos(Vector2::Zero);
+		m_progress->SetAlignedSize(Vector2::One);
+		rect->AddChild(m_progress);
+
+		Text* txt			 = m_manager->Allocate<Text>("ProgressText");
+		txt->GetProps().text = Locale::GetStr(LocaleStr::Working);
+		txt->GetFlags().Set(WF_POS_ALIGN_X);
+		txt->SetAlignedPosX(0.5f);
+		txt->SetAnchorX(Anchor::Center);
+		layout->AddChild(txt);
+
+		m_progressParent->Initialize();
+	}
+
+	void ResourceDirectoryBrowser::HideProgress()
+	{
+		RemoveChild(m_progressParent);
+		m_manager->Deallocate(m_progressParent);
+		m_progress		 = nullptr;
+		m_progressParent = nullptr;
 	}
 } // namespace Lina::Editor

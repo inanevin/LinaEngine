@@ -34,7 +34,7 @@ SOFTWARE.
 #include "Core/GUI/CommonGUI.hpp"
 #include "Core/GUI/Theme.hpp"
 #include "Common/Data/Bitmask.hpp"
-#include "Core/Reflection/ClassReflection.hpp"
+#include "Core/Reflection/WidgetReflection.hpp"
 
 namespace LinaGX
 {

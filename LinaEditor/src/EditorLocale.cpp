@@ -134,6 +134,7 @@ namespace Lina::Editor
 		{LocaleStr::ThisResourceNoLongerExists, "This resource no longer exists :("},
 		{LocaleStr::GenerateSDF, "Generate SDF"},
 		{LocaleStr::General, "General"},
+		{LocaleStr::Working, "Working"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

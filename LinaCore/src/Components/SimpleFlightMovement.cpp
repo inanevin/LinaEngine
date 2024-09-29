@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/Components/SimpleFlightMovement.hpp"
+#include "Core/World/Entity.hpp"
 #include "Common/Math/Math.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 

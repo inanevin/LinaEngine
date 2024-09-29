@@ -136,6 +136,5 @@ namespace Lina::Editor
 			pair.second->RefreshGPU(m_editor->GetEditorRenderer().GetUploadQueue());
 
 		m_editor->GetEditorRenderer().MarkBindlessDirty();
-		m_atlasPoolDirty.store(false);
 	}
 } // namespace Lina::Editor

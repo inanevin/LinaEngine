@@ -71,8 +71,6 @@ src/Components/WidgetComponent.cpp
 # Meta
 src/Meta/ProjectData.cpp
 
-# Reflection
-src/Reflection/ReflectionSystem.cpp
 
 # Resources
 src/Resources/CommonResources.cpp
@@ -145,8 +143,10 @@ include/Core/Audio/miniaudio/miniaudio.h
 include/Core/Platform/PlatformProcess.hpp
 
 # Reflection
-include/Core/Reflection/ClassReflection.hpp
-include/Core/Reflection/ReflectionSystem.hpp
+include/Core/Reflection/ComponentReflection.hpp
+include/Core/Reflection/WidgetReflection.hpp
+include/Core/Reflection/ResourceReflection.hpp
+include/Core/Reflection/CommonReflection.hpp
 
 # Resources
 include/Core/Resources/CommonResources.hpp

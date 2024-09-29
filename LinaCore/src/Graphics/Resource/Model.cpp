@@ -36,6 +36,15 @@ SOFTWARE.
 
 namespace Lina
 {
+
+	void Model::Metadata::SaveToStream(OStream& out) const
+	{
+	}
+
+	void Model::Metadata::LoadFromStream(IStream& in)
+	{
+	}
+
 	Model::~Model()
 	{
 		DestroyTextureDefs();
@@ -181,8 +190,8 @@ namespace Lina
 		uint32 version = 0;
 		stream >> version;
 		stream >> m_id;
-
 		stream >> m_materialDefs;
+		stream >> m_meta;
 
 		uint32 sz = 0;
 		stream >> sz;
@@ -206,8 +215,8 @@ namespace Lina
 		Resource::SaveToStream(stream);
 		stream << VERSION;
 		stream << m_id;
-
 		stream << m_materialDefs;
+		stream << m_meta;
 
 		stream << static_cast<uint32>(m_rootNodes.size());
 		for (auto* node : m_rootNodes)

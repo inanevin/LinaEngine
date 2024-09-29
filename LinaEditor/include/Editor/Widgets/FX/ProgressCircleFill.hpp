@@ -30,32 +30,29 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Common/Data/String.hpp"
-#include "Common/Platform/LinaVGIncl.hpp"
-#include "Common/Tween/Tween.hpp"
-
-namespace Lina
-{
-	struct TextureAtlasImage;
-}
 
 namespace Lina::Editor
 {
-	class LinaLoading : public Widget
+	class ProgressCircleFill : public Widget
 	{
 	public:
 		struct Props
 		{
-			float tweenTime		= 0.15f;
-			float waitTime		= 0.1f;
-			float dispersePower = 0.2f;
+			float thickness			 = Theme::GetDef().baseOutlineThickness;
+			float barSpeed			 = 40.0f;
+			bool  includeLinaLoading = true;
+			Color colorProgress		 = Theme::GetDef().accentSecondary;
 		};
 
-		LinaLoading()		   = default;
-		virtual ~LinaLoading() = default;
+		ProgressCircleFill()		  = default;
+		virtual ~ProgressCircleFill() = default;
 
 		virtual void Construct() override;
+		virtual void Initialize() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw() override;
+
+		void UpdateProgress(float prog);
 
 		inline Props& GetProps()
 		{
@@ -63,20 +60,10 @@ namespace Lina::Editor
 		}
 
 	private:
-		int32 m_action = -1;
-		Tween m_tween;
-
-		Props			   m_props		  = {};
-		Vector2			   m_leftOffset	  = Vector2::Zero;
-		Vector2			   m_rightOffset  = Vector2::Zero;
-		Vector2			   m_bottomOffset = Vector2::Zero;
-		Color			   m_rightTint	  = Color::White;
-		Color			   m_bottomTint	  = Color::White;
-		Color			   m_leftTint	  = Color::White;
-		TextureAtlasImage* m_imgLeft	  = nullptr;
-		TextureAtlasImage* m_imgRight	  = nullptr;
-		TextureAtlasImage* m_imgBottom	  = nullptr;
+		Props m_props		   = {};
+		float m_progress	   = 0.0f;
+		float m_targetProgress = 0.0f;
 	};
-	LINA_WIDGET_BEGIN(LinaLoading, Hidden)
-	LINA_CLASS_END(LinaLoading)
+	LINA_WIDGET_BEGIN(ProgressCircleFill, Hidden)
+	LINA_CLASS_END(ProgressCircleFill)
 } // namespace Lina::Editor

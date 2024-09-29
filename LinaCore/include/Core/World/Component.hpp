@@ -30,7 +30,7 @@ SOFTWARE.
 
 #include "Common/SizeDefinitions.hpp"
 #include "Core/World/CommonWorld.hpp"
-#include "Core/Reflection/ClassReflection.hpp"
+#include "Core/Reflection/ComponentReflection.hpp"
 #include "Common/StringID.hpp"
 #include "Common/Data/Streams.hpp"
 #include "Common/Data/Vector.hpp"
@@ -46,6 +46,7 @@ namespace Lina
 	class Entity;
 	class ReflectionClassUtility;
 	class ResourceManagerV2;
+	class EntityWorld;
 
 	class Component
 	{

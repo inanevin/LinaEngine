@@ -44,7 +44,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/GUIWidget.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/CommonCore.hpp"
-#include "Core/Reflection/ReflectionSystem.hpp"
+#include "Core/Reflection/CommonReflection.hpp"
 
 namespace Lina
 {

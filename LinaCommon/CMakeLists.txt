@@ -63,6 +63,9 @@ set (SOURCES
 	src/Serialization/Serializable.cpp
 	src/Serialization/Endianness.cpp
 	src/Serialization/Compressor.cpp
+
+	# Reflection
+	src/Reflection/ReflectionSystem.cpp
 	
 	# Memory
 	src/Memory/Memory.cpp
@@ -163,6 +166,10 @@ set(HEADERS
 	include/Common/Serialization/Endianness.hpp
 	include/Common/Serialization/Serialization.hpp
 	include/Common/Serialization/Serializable.hpp
+
+	# Reflection
+	include/Common/Reflection/ReflectionSystem.hpp
+	include/Common/Reflection/ClassReflection.hpp
 
 	# Math
 	include/Common/Math/Color.hpp
