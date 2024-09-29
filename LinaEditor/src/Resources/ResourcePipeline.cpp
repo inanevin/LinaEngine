@@ -310,7 +310,7 @@ namespace Lina::Editor
 							.name		 = def.name,
 						});
 
-						meta.materials[matIdx].id = newID;
+						meta.materials[matIdx] = newID;
 
 						Material mat(newID, def.name);
 						mat.SetShader(defaultShader);

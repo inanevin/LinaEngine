@@ -57,10 +57,9 @@ namespace Lina
 
 		struct Metadata
 		{
-			void SaveToStream(OStream& stream) const;
-			void LoadFromStream(IStream& stream);
-
-			Vector<ResRef<Material>> materials;
+			void			   SaveToStream(OStream& stream) const;
+			void			   LoadFromStream(IStream& stream);
+			Vector<ResourceID> materials;
 		};
 
 		static constexpr uint32 VERSION = 0;
@@ -134,7 +133,7 @@ namespace Lina
 	LINA_CLASS_END(Model);
 
 	LINA_CLASS_BEGIN(ModelMeta)
-	LINA_FIELD_VEC(Model::Metadata, materials, "Materials", FieldType::ResourceRef, ResRef<Material>, GetTypeID<Material>());
+	LINA_FIELD_VEC(Model::Metadata, materials, "Materials", FieldType::ResourceID, ResourceID, GetTypeID<Material>());
 	LINA_FIELD_LOCK0(Model::Metadata, materials)
 	LINA_CLASS_END(ModelMeta)
 } // namespace Lina

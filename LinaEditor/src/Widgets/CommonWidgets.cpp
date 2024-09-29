@@ -1193,10 +1193,9 @@ namespace Lina::Editor
 			return btn;
 		};
 
-		if (fieldType == FieldType::ResourceRef)
+		if (fieldType == FieldType::ResourceRef || fieldType == FieldType::ResourceID)
 		{
-			ResRefBase*		 base  = reflectionValue.CastPtr<ResRefBase>();
-			const ResourceID resID = base->id;
+			const ResourceID resID = fieldType == FieldType::ResourceRef ? (reflectionValue.CastPtr<ResRefBase>()->id) : (reflectionValue.GetValue<ResourceID>());
 
 			ResourceDirectory* dir = Editor::Get()->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(resID);
 
