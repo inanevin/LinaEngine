@@ -29,33 +29,36 @@ SOFTWARE.
 #include "Core/World/WorldInput.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 
-
 namespace Lina
 {
-	
-bool WorldInput::GetKey(int32 button) { 
-    return m_lgxInput->GetKey(button);
-}
 
-bool WorldInput::GetKeyDown(int32 button) { 
-    return m_lgxInput->GetKeyDown(button);
-}
+	bool WorldInput::GetKey(int32 button)
+	{
+		return m_lgxInput->GetKey(button);
+	}
 
-bool WorldInput::GetKeyUp(int32 button) { 
-    return m_lgxInput->GetKeyUp(button);
-}
+	bool WorldInput::GetKeyDown(int32 button)
+	{
+		return m_lgxInput->GetKeyDown(button);
+	}
 
-bool WorldInput::GetMouseButton(int32 button) { 
-    return m_lgxInput->GetMouseButton(button);
-}
+	bool WorldInput::GetKeyUp(int32 button)
+	{
+		return m_lgxInput->GetKeyUp(button);
+	}
 
-bool WorldInput::GetMouseButtonDown(int button) { 
-    return m_lgxInput->GetMouseButtonDown(button);
-}
+	bool WorldInput::GetMouseButton(int32 button)
+	{
+		return m_lgxInput->GetMouseButton(button);
+	}
 
-bool WorldInput::GetMouseButtonUp(int32 button) { 
-    return m_lgxInput->GetMouseButtonUp(button);
+	bool WorldInput::GetMouseButtonDown(int button)
+	{
+		return m_lgxInput->GetMouseButtonDown(button);
+	}
 
-}
+	bool WorldInput::GetMouseButtonUp(int32 button)
+	{
+		return m_lgxInput->GetMouseButtonUp(button);
+	}
 } // namespace Lina
-
