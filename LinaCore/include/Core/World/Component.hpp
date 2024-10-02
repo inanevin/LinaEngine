@@ -51,11 +51,10 @@ namespace Lina
 	class Component
 	{
 	public:
-        
 		virtual void SaveToStream(OStream& stream) const {};
 		virtual void LoadFromStream(IStream& stream){};
-        virtual void OnEvent(const ComponentEvent& event) {};
-        
+		virtual void OnEvent(const ComponentEvent& event){};
+
 		virtual TypeID GetComponentType() = 0;
 
 		inline Entity* GetEntity()

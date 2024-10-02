@@ -358,9 +358,9 @@ namespace Lina::Editor
 		Entity* camera = m_world->CreateEntity("Camera");
 		camera->SetPosition(Vector3(0, 0, 0));
 		// camera->SetRotation(Quaternion::LookAt(camera->GetPosition(), Vector3::Zero, Vector3::Up));
-		CameraComponent*	  cameraComp = m_world->AddComponent<CameraComponent>(camera);
-		FlyCameraMovement* flight	 = m_world->AddComponent<FlyCameraMovement>(camera);
-        flight->GetFlags() = CF_RECEIVE_EDITOR_TICK;
+		CameraComponent*   cameraComp = m_world->AddComponent<CameraComponent>(camera);
+		FlyCameraMovement* flight	  = m_world->AddComponent<FlyCameraMovement>(camera);
+		flight->GetFlags()			  = CF_RECEIVE_EDITOR_TICK;
 		m_world->SetActiveCamera(cameraComp);
 
 		Vector<Material*> materials;
@@ -398,7 +398,7 @@ namespace Lina::Editor
 			m_editor->GetEditorRenderer().RefreshDynamicTextures();
 		}
 
-        m_world->PreTick(ComponentFlags::CF_RECEIVE_EDITOR_TICK);
+		m_world->PreTick(ComponentFlags::CF_RECEIVE_EDITOR_TICK);
 	}
 
 	void PanelModelViewer::Tick(float delta)

@@ -49,11 +49,11 @@ namespace Lina
 		{
 			m_displaySize = sz;
 		}
-        
-        inline void SetDisplayPos(const Vector2ui& sz)
-        {
-            m_displayPos = sz;
-        }
+
+		inline void SetDisplayPos(const Vector2ui& sz)
+		{
+			m_displayPos = sz;
+		}
 
 		inline void SetOwnerWindow(LinaGX::Window* wnd)
 		{
@@ -68,21 +68,21 @@ namespace Lina
 		{
 			return m_displaySize;
 		}
-        
-        inline const Vector2ui& GetDisplayPos() const
-        {
-            return m_displayPos;
-        }
-        
-        inline LinaGX::Window* GetOwnerWindow() const
-        {
-            return m_ownerWindow;
-        }
+
+		inline const Vector2ui& GetDisplayPos() const
+		{
+			return m_displayPos;
+		}
+
+		inline LinaGX::Window* GetOwnerWindow() const
+		{
+			return m_ownerWindow;
+		}
 
 	private:
 		Vector2ui		m_renderSize  = Vector2ui::Zero;
-        Vector2ui        m_displaySize = Vector2ui::Zero;
-        Vector2ui		m_displayPos = Vector2ui::Zero;
+		Vector2ui		m_displaySize = Vector2ui::Zero;
+		Vector2ui		m_displayPos  = Vector2ui::Zero;
 		LinaGX::Window* m_ownerWindow = nullptr;
 	};
 } // namespace Lina

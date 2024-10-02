@@ -33,18 +33,18 @@ SOFTWARE.
 
 namespace Lina
 {
-    void FlyCameraMovement::OnEvent(const ComponentEvent &ev)
-    {
-        if(ev.type != ComponentEventType::Tick)
-            return;
-        
-        Tick(ev.data);
-    }
+	void FlyCameraMovement::OnEvent(const ComponentEvent& ev)
+	{
+		if (ev.type != ComponentEventType::Tick)
+			return;
+
+		Tick(ev.data);
+	}
 
 	void FlyCameraMovement::Tick(float delta)
 	{
-       
-        /*
+
+		/*
 		if (!m_input->GetMouseButton(LINAGX_MOUSE_1))
 			return;
 
