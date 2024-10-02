@@ -55,7 +55,7 @@ namespace Lina::Editor
 		virtual void Tick(float delta) override;
 		virtual void Draw() override;
 
-		virtual void OnResourceLoadStarted(int32 taskID, const Vector<ResourceDef>& idents) override;
+		virtual void OnResourcesPreLoaded(int32 taskID, const ResourceDefinitionList& idents) override;
 		virtual void OnResourceLoaded(int32 taskID, const ResourceDef& ident) override;
 
 	private:

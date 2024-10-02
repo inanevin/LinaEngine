@@ -39,22 +39,24 @@ SOFTWARE.
 
 namespace Lina
 {
-	void ShaderProperty::SaveToStream(OStream& out) const
+	void ShaderProperty::SaveToStream(OStream& stream) const
 	{
-		out << sid;
-		out << type;
-		out << name;
-		out << size;
-		out.WriteRawEndianSafe((uint8*)&data, size);
+		stream << sid;
+		stream << type;
+		stream << name;
+		stream << static_cast<uint32>(data.size());
+		stream.WriteRaw(data);
 	}
 
-	void ShaderProperty::LoadFromStream(IStream& in)
+	void ShaderProperty::LoadFromStream(IStream& stream)
 	{
-		in >> sid;
-		in >> type;
-		in >> name;
-		in >> size;
-		in.ReadToRawEndianSafe((void*)&data, size);
+		stream >> sid;
+		stream >> type;
+		stream >> name;
+		uint32 sz = 0;
+		stream >> sz;
+		data = {new uint8[static_cast<size_t>(sz)], static_cast<size_t>(sz)};
+		stream.ReadToRaw(data);
 	}
 
 	void Shader::Metadata::SaveToStream(OStream& out) const
@@ -62,7 +64,6 @@ namespace Lina
 		out << variants;
 		out << descriptorSetAllocationCount;
 		out << drawIndirectEnabled;
-		out << materialSize;
 	}
 
 	void Shader::Metadata::LoadFromStream(IStream& in)
@@ -70,11 +71,12 @@ namespace Lina
 		in >> variants;
 		in >> descriptorSetAllocationCount;
 		in >> drawIndirectEnabled;
-		in >> materialSize;
 	}
 
 	Shader::~Shader()
 	{
+		for (ShaderProperty* p : m_properties)
+			delete p;
 		DestroyHW();
 	}
 
@@ -307,5 +309,23 @@ namespace Lina
 			d->Destroy();
 			delete d;
 		}
+	}
+
+	Vector<ShaderProperty*> Shader::CopyProperties()
+	{
+		Vector<ShaderProperty*> props;
+
+		for (ShaderProperty* property : m_properties)
+		{
+			ShaderProperty* copy = new ShaderProperty();
+			copy->name			 = property->name;
+			copy->sid			 = property->sid;
+			copy->type			 = property->type;
+			copy->data			 = {new uint8[property->data.size()], property->data.size()};
+			MEMCPY(copy->data.data(), property->data.data(), property->data.size());
+			props.push_back(copy);
+		}
+
+		return props;
 	}
 } // namespace Lina

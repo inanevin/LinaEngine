@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Common/StringID.hpp"
 #include "Common/Data/String.hpp"
+#include "Common/Data/HashSet.hpp"
 #include "Common/Common.hpp"
 
 namespace Lina
@@ -37,7 +38,7 @@ namespace Lina
 	class Resource;
 
 	typedef uint64 ResourceID;
-#define RESOURCE_ID_ENGINE_SPACE UINT64_MAX - 11000
+#define RESOURCE_ID_ENGINE_SPACE UINT64_MAX - 1000
 #define RESOURCE_ID_CUSTOM_SPACE UINT64_MAX - 10000
 #define RESOURCE_ID_MAX			 RESOURCE_ID_CUSTOM_SPACE - 1
 
@@ -58,16 +59,28 @@ namespace Lina
 		ResourceID id	= 0;
 		String	   name = "";
 		TypeID	   tid	= 0;
+
+		bool operator==(const ResourceDef& other) const
+		{
+			return id == other.id;
+		}
+	};
+
+	struct ResourceDefHash
+	{
+		std::size_t operator()(const ResourceDef& s) const noexcept
+		{
+			return std::hash<ResourceID>{}(s.id);
+		}
 	};
 
 	struct ResourceLoadTask
 	{
-		Taskflow			tf;
-		Vector<ResourceDef> identifiers;
-		Vector<Resource*>	resources;
-		Atomic<bool>		isCompleted = false;
-		int32				id			= 0;
-		uint64				startTime	= 0;
-		uint64				endTime		= 0;
+		Taskflow		  tf;
+		Vector<Resource*> resources;
+		Atomic<bool>	  isCompleted = false;
+		int32			  id		  = 0;
+		uint64			  startTime	  = 0;
+		uint64			  endTime	  = 0;
 	};
 } // namespace Lina

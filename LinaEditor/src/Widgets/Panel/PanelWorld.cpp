@@ -56,7 +56,6 @@ namespace Lina::Editor
 
 		const Vector2ui size = Vector2ui(static_cast<uint32>(Math::CeilToInt(GetSizeX())), static_cast<uint32>(Math::CeilToInt(GetSizeY())));
 		m_worldRenderer->Resize(size);
-		m_world->SetRenderSize(size);
 	}
 
 	void PanelWorld::Draw()

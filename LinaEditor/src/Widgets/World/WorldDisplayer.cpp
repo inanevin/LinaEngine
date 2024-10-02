@@ -31,13 +31,14 @@ SOFTWARE.
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/Graphics/GfxManager.hpp"
+#include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor
 {
 
 	void WorldDisplayer::Construct()
 	{
-		GetWidgetProps().outlineThickness = 0.0f;
+		GetWidgetProps().outlineThickness = Theme::GetDef().baseOutlineThickness;
 		GetWidgetProps().rounding		  = 0.025f;
 	}
 
@@ -59,9 +60,29 @@ namespace Lina::Editor
 		if (m_worldRenderer == nullptr)
 			return;
 
+		Screen& sc = m_worldRenderer->GetWorld()->GetScreen();
+		sc.SetOwnerWindow(m_lgxWindow);
+		sc.SetDisplaySize(m_rect.size);
+
+		m_worldRenderer->GetWorld()->GetFlags().Set(WORLD_FLAGS_UNFOCUSED, m_manager->GetControlsOwner() == this);
+
 		Texture* target = m_worldRenderer->GetLightingPassOutput(Editor::Get()->GetGfxManager()->GetLGX()->GetCurrentFrameIndex());
 
 		GetWidgetProps().rawTexture = target;
+	}
+
+	bool WorldDisplayer::OnMouse(uint32 button, LinaGX::InputAction act)
+	{
+		if (button != LINAGX_MOUSE_0)
+			return false;
+
+		if (m_isHovered && (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated))
+		{
+			m_manager->GrabControls(this);
+			return true;
+		}
+
+		return false;
 	}
 
 } // namespace Lina::Editor

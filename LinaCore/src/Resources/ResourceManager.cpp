@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Core/Resources/ResourceManagerListener.hpp"
 #include "Common/Serialization/Serialization.hpp"
 #include "Common/Data/CommonData.hpp"
+#include "Common/Data/HashSet.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/System/System.hpp"
 #include "Common/Platform/PlatformTime.hpp"
@@ -80,23 +81,25 @@ namespace Lina
 
 	void ResourceManagerV2::LoadResourcesFromProject(ApplicationDelegate* delegate, ProjectData* project, const Vector<ResourceDef>& resourceDefs, int32 taskID)
 	{
-		for (ResourceManagerListener* listener : m_listeners)
-			listener->OnResourceLoadStarted(taskID, resourceDefs);
-
+		// No duplicates.
+		HashSet<ResourceDef, ResourceDefHash> resources;
 		for (const ResourceDef& def : resourceDefs)
-		{
+			resources.insert(def);
+
+		for (const ResourceDef& def : resources)
 			GetCache(def.tid)->Create(def.id, def.name);
-		}
+
+		for (ResourceManagerListener* listener : m_listeners)
+			listener->OnResourcesPreLoaded(taskID, resources);
 
 		ResourceLoadTask* loadTask = new ResourceLoadTask();
 		loadTask->id			   = taskID;
-		loadTask->identifiers	   = resourceDefs;
 		loadTask->startTime		   = PlatformTime::GetCPUCycles();
-		loadTask->resources.resize(resourceDefs.size());
+		loadTask->resources.resize(resources.size());
 		m_loadTasks.push_back(loadTask);
 
 		uint32 idx = 0;
-		for (const ResourceDef& def : resourceDefs)
+		for (const ResourceDef& def : resources)
 		{
 			loadTask->tf.emplace([delegate, idx, def, this, loadTask, taskID, project]() {
 				auto&	  cache			 = m_caches.at(def.tid);
@@ -143,24 +146,28 @@ namespace Lina
 
 	void ResourceManagerV2::UnloadResources(const Vector<Resource*>& resources)
 	{
-		for (ResourceManagerListener* listener : m_listeners)
-			listener->OnResourcePreUnloaded(resources);
+		HashSet<Resource*> resourcesToUnload;
 
-		Vector<ResourceDef> defs;
+		for (Resource* res : resources)
+			resourcesToUnload.insert(res);
+
+		for (ResourceManagerListener* listener : m_listeners)
+			listener->OnResourcesPreUnloaded(resourcesToUnload);
+
+		HashSet<ResourceDef, ResourceDefHash> defs;
 		for (Resource* res : resources)
 		{
-			defs.push_back({
+			defs.insert({
 				.id	  = res->GetID(),
 				.name = res->GetName(),
 				.tid  = res->GetTID(),
 			});
-
 			ResourceCacheBase* cache = GetCache(res->GetTID());
 			cache->Destroy(res->GetID());
 		}
 
 		for (ResourceManagerListener* listener : m_listeners)
-			listener->OnResourceUnloaded(defs);
+			listener->OnResourcesUnloaded(defs);
 	}
 
 	void ResourceManagerV2::Poll()
@@ -182,8 +189,13 @@ namespace Lina
 	void ResourceManagerV2::DispatchLoadTaskEvent(ResourceLoadTask* task)
 	{
 		LINA_TRACE("[Resource Manager] -> Load task complete: {0} seconds", PlatformTime::GetDeltaSeconds64(task->startTime, task->endTime));
+
+		HashSet<Resource*> resources;
+		for (Resource* r : task->resources)
+			resources.insert(r);
+
 		for (ResourceManagerListener* listener : m_listeners)
-			listener->OnResourceLoadEnded(task->id, task->resources);
+			listener->OnResourcesLoaded(task->id, resources);
 	}
 
 	Resource* ResourceManagerV2::OpenResource(ProjectData* project, TypeID typeID, ResourceID resourceID, void* subdata)

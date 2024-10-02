@@ -91,11 +91,6 @@ namespace Lina
 			return m_allLevels;
 		}
 
-		inline uint32 GetBindlessIndex() const
-		{
-			return m_bindlessIndex;
-		}
-
 		inline const Metadata& GetMeta() const
 		{
 			return m_meta;
@@ -104,11 +99,6 @@ namespace Lina
 		inline Metadata& GetMeta()
 		{
 			return m_meta;
-		}
-
-		inline void SetBindlessIndex(uint32 bindless)
-		{
-			m_bindlessIndex = bindless;
 		}
 
 		inline bool IsGPUValid() const
@@ -133,7 +123,6 @@ namespace Lina
 	private:
 		ALLOCATOR_BUCKET_MEM;
 		Vector<LinaGX::TextureBuffer> m_allLevels;
-		uint32						  m_bindlessIndex	 = 0;
 		uint32						  m_gpuHandle		 = 0;
 		uint32						  m_bytesPerPixel	 = 0;
 		Metadata					  m_meta			 = {};

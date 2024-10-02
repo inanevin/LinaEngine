@@ -54,23 +54,12 @@ namespace Lina
 			return m_gpuHandle;
 		}
 
-		inline uint32 GetBindlessIndex() const
-		{
-			return m_bindlessIndex;
-		}
-
-		inline void SetBindlessIndex(uint32 bindless)
-		{
-			m_bindlessIndex = bindless;
-		}
-
 	private:
 		ALLOCATOR_BUCKET_MEM;
-		uint32				m_bindlessIndex = 0;
-		uint32				m_gpuHandle		= 0;
-		LinaGX::SamplerDesc m_samplerDesc	= {
-			  .anisotropy = 1,
-		  };
+		uint32				m_gpuHandle	  = 0;
+		LinaGX::SamplerDesc m_samplerDesc = {
+			.anisotropy = 1,
+		};
 		bool m_hwExists = false;
 	};
 

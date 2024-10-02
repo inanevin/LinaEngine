@@ -188,7 +188,6 @@ namespace Lina::Editor
 
 			meta.descriptorSetAllocationCount = 1;
 			meta.drawIndirectEnabled		  = true;
-			meta.materialSize				  = sizeof(GPUMaterialDefaultObject);
 			stream << meta;
 			return true;
 		}
@@ -206,7 +205,6 @@ namespace Lina::Editor
 			};
 			meta.descriptorSetAllocationCount = 1;
 			meta.drawIndirectEnabled		  = false;
-			meta.materialSize				  = 0;
 			stream << meta;
 			return true;
 		}
@@ -228,7 +226,6 @@ namespace Lina::Editor
 
 			meta.descriptorSetAllocationCount = 1;
 			meta.drawIndirectEnabled		  = false;
-			meta.materialSize				  = sizeof(GPUMaterialDefaultSky);
 			stream << meta;
 			return true;
 		}
@@ -454,7 +451,7 @@ namespace Lina::Editor
 		return m_worldRenderers.at(world);
 	}
 
-	void Editor::OnResourceLoadEnded(int32 taskID, const Vector<Resource*>& resources)
+	void Editor::OnResourcesLoaded(int32 taskID, const ResourceList& resources)
 	{
 		if (m_coreResourcesOK)
 			return;

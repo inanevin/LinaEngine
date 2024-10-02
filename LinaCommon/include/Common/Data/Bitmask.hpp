@@ -57,6 +57,14 @@ namespace Lina
 			m_mask |= m;
 		}
 
+		inline void Set(T m, bool isSet)
+		{
+			if (isSet)
+				m_mask |= m;
+			else
+				m_mask &= ~m;
+		}
+
 		inline void Remove(T m)
 		{
 			m_mask &= ~m;

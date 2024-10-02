@@ -51,11 +51,21 @@ namespace Lina
 
 	struct ShaderProperty
 	{
-		ShaderPropertyType																									type = ShaderPropertyType::Bool;
-		String																												name = "";
-		size_t																												size = 0;
-		std::variant<bool, float, uint32, int32, Vector2, Vector3, Vector4, Vector2ui, Vector3ui, Vector4ui, LinaTexture2D> data;
-		StringID																											sid = 0;
+		ShaderPropertyType type = ShaderPropertyType::Bool;
+		String			   name = "";
+		Span<uint8>		   data;
+		StringID		   sid = 0;
+
+		ShaderProperty(){};
+		ShaderProperty(const ShaderProperty& other)		 = delete;
+		ShaderProperty& operator=(ShaderProperty const&) = delete;
+
+		~ShaderProperty()
+		{
+			if (data.data() != nullptr)
+				delete[] data.data();
+			data = {};
+		}
 
 		void SaveToStream(OStream& out) const;
 		void LoadFromStream(IStream& in);
@@ -68,7 +78,6 @@ namespace Lina
 		{
 			HashMap<StringID, ShaderVariant> variants;
 			uint32							 descriptorSetAllocationCount = 1;
-			uint32							 materialSize				  = 0;
 			bool							 drawIndirectEnabled		  = false;
 
 			void SaveToStream(OStream& out) const;
@@ -89,11 +98,12 @@ namespace Lina
 			m_meta.LoadFromStream(stream);
 		}
 
-		void GenerateHW();
-		void DestroyHW();
-		void Bind(LinaGX::CommandStream* stream, uint32 gpuHandle);
-		void AllocateDescriptorSet(DescriptorSet*& outSet, uint32& outIndex);
-		void FreeDescriptorSet(DescriptorSet* set, uint32 index);
+		void					GenerateHW();
+		void					DestroyHW();
+		void					Bind(LinaGX::CommandStream* stream, uint32 gpuHandle);
+		void					AllocateDescriptorSet(DescriptorSet*& outSet, uint32& outIndex);
+		void					FreeDescriptorSet(DescriptorSet* set, uint32 index);
+		Vector<ShaderProperty*> CopyProperties();
 
 		inline uint32 GetGPUHandle() const
 		{
@@ -120,12 +130,6 @@ namespace Lina
 			return m_meta;
 		}
 
-		inline const Vector<ShaderProperty>& GetProperties() const
-		{
-			return m_properties;
-		}
-
-	protected:
 	private:
 		ALLOCATOR_BUCKET_MEM;
 		LINAGX_MAP<LinaGX::ShaderStage, LinaGX::DataBlob> m_outCompiledBlobs;
@@ -134,7 +138,7 @@ namespace Lina
 		LinaGX::ShaderDescriptorSetLayout				  m_materialSetInfo = {};
 		Metadata										  m_meta			= {};
 		Vector<DescriptorSet*>							  m_descriptorSets;
-		Vector<ShaderProperty>							  m_properties;
+		Vector<ShaderProperty*>							  m_properties;
 	};
 
 	LINA_RESOURCE_BEGIN(Shader);

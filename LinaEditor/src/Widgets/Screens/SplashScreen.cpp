@@ -125,7 +125,7 @@ namespace Lina::Editor
 		m_loadingInfo->Draw();
 	}
 
-	void SplashScreen::OnResourceLoadStarted(int32 taskID, const Vector<ResourceDef>& idents)
+	void SplashScreen::OnResourcesPreLoaded(int32 taskID, const ResourceDefinitionList& idents)
 	{
 		m_totalResourceSize = static_cast<uint32>(idents.size());
 	}

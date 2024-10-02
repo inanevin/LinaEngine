@@ -91,23 +91,9 @@ namespace Lina
 		Matrix4 proj;
 	};
 
-	struct GPUDataScene
-	{
-		Vector4 skyTop;
-		Vector4 skyHor;
-		Vector4 skyBot;
-	};
-
 	struct GPUDataObject
 	{
 		Matrix4 model;
-	};
-
-	struct GPUTexture2D
-	{
-		uint32 textureIndex;
-		uint32 samplerIndex;
-		uint32 padding[2];
 	};
 
 	struct GPUMaterialGUI
@@ -127,33 +113,16 @@ namespace Lina
 		uint32 materialByteIndex;
 	};
 
-	struct GPUPushConstantRPMain
-	{
-		uint32 batchStartIndex = 0;
-	};
-
-	struct GPUMaterialDefaultSky
-	{
-		Vector4 color;
-	};
-
-	struct GPUMaterialDefaultObject
-	{
-		uint32 txtAlbedo;
-		uint32 defaultSampler;
-	};
-
-	struct GPUDataDeferredLightingPass
+	struct GPUDataLightingPass
 	{
 		uint32 gBufAlbedo				 = 0;
 		uint32 gBufPositionMetallic		 = 0;
 		uint32 gBufNormalRoughness		 = 0;
-		uint32 gBufAO					 = 0;
 		uint32 gBufSampler				 = 0;
 		uint32 lightingMaterialByteIndex = 0;
 		uint32 skyMaterialByteIndex		 = 0;
-		uint32 pad3;
-		uint32 pad4;
+		uint32 pad3						 = 0;
+		uint32 pad4						 = 0;
 	};
 
 } // namespace Lina

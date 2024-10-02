@@ -49,6 +49,7 @@ namespace Lina
 	class TextureSampler;
 	class ResourceUploadQueue;
 	class GUIBackend;
+	class BindlessContext;
 
 	class GUIRenderer
 	{
@@ -76,7 +77,7 @@ namespace Lina
 		GUIRenderer()  = default;
 		~GUIRenderer() = default;
 
-		void					   Create(GUIBackend* guiBackend, ResourceManagerV2* resourceManager, TextureSampler* defaultSampler, TextureSampler* textSampler, LinaGX::Window* window);
+		void					   Create(GUIBackend* guiBackend, BindlessContext* bindlessContext, ResourceManagerV2* resourceManager, TextureSampler* defaultSampler, TextureSampler* textSampler, LinaGX::Window* window);
 		void					   PreTick();
 		void					   Tick(float delta, const Vector2ui& size);
 		void					   DrawDefault(LinaVG::DrawBuffer* buf);
@@ -116,6 +117,7 @@ namespace Lina
 		TextureSampler*		m_textGUISampler	   = nullptr;
 		uint32				m_totalIndices		   = 0;
 		size_t				m_indirectBufferOffset = 0;
+		BindlessContext*	m_bindlessContext	   = nullptr;
 	};
 
 } // namespace Lina

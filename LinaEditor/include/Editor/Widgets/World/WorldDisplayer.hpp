@@ -40,13 +40,14 @@ namespace Lina::Editor
 	class WorldDisplayer : public Widget
 	{
 	public:
-		WorldDisplayer()		  = default;
+		WorldDisplayer() : Widget(WF_CONTROLLABLE){};
 		virtual ~WorldDisplayer() = default;
 
 		virtual void Construct() override;
 		virtual void Tick(float dt) override;
 
 		void DisplayWorld(WorldRenderer* renderer);
+		bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
 	private:
 		WorldRenderer* m_worldRenderer = nullptr;

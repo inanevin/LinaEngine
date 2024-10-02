@@ -49,6 +49,8 @@ SOFTWARE.
 #include "Core/Graphics/GfxManager.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
+#include "Core/Graphics/Resource/Texture.hpp"
+#include "Core/Graphics/Resource/TextureSampler.hpp"
 #include "Core/Components/CameraComponent.hpp"
 #include "Core/Components/SimpleFlightMovement.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
@@ -296,6 +298,43 @@ namespace Lina::Editor
 
 		m_world->GetResourceManagerV2().LoadResourcesFromProject(m_editor, m_editor->GetProjectManager().GetProjectData(), neededResources, -1);
 		m_world->GetResourceManagerV2().WaitForAll();
+
+		neededResources.clear();
+
+		for (ResourceID id : m_model->GetMeta().materials)
+		{
+			Material* mat = m_world->GetResourceManagerV2().GetResource<Material>(id);
+
+			const Vector<ShaderProperty*>& props = mat->GetProperties();
+
+			for (ShaderProperty* prop : props)
+			{
+				if (prop->type != ShaderPropertyType::Texture2D)
+					continue;
+
+				LinaTexture2D* txt = reinterpret_cast<LinaTexture2D*>(prop->data.data());
+
+				if (txt->texture != DEFAULT_NULL_TEXTURE_ID && txt->texture != DEFAULT_NULL_NORMAL_TEXTURE_ID)
+				{
+					neededResources.push_back({
+						.id	 = txt->texture,
+						.tid = GetTypeID<Texture>(),
+					});
+				}
+
+				if (txt->sampler != DEFAULT_SAMPLER_ID)
+				{
+					neededResources.push_back({
+						.id	 = txt->sampler,
+						.tid = GetTypeID<TextureSampler>(),
+					});
+				}
+			}
+		}
+
+		m_world->GetResourceManagerV2().LoadResourcesFromProject(m_editor, m_editor->GetProjectManager().GetProjectData(), neededResources, -1);
+		m_world->GetResourceManagerV2().WaitForAll();
+
 		SetupScene();
 
 		// Add rendering
@@ -317,7 +356,7 @@ namespace Lina::Editor
 		m_world->GetGfxSettings().SetLightingMaterial(lightingMaterial);
 
 		Entity* camera = m_world->CreateEntity("Camera");
-		camera->SetPosition(Vector3(0, 3, -40));
+		camera->SetPosition(Vector3(0, 0, 0));
 		// camera->SetRotation(Quaternion::LookAt(camera->GetPosition(), Vector3::Zero, Vector3::Up));
 		CameraComponent*	  cameraComp = m_world->AddComponent<CameraComponent>(camera);
 		SimpleFlightMovement* flight	 = m_world->AddComponent<SimpleFlightMovement>(camera);
@@ -326,10 +365,9 @@ namespace Lina::Editor
 		Vector<Material*> materials;
 		materials.reserve(m_model->GetMeta().materials.size());
 		for (ResourceID id : m_model->GetMeta().materials)
-		{
 			materials.push_back(m_world->GetResourceManagerV2().GetResource<Material>(id));
-		}
-		Entity* model = m_world->AddModelToWorld(m_model, materials);
+
+		Entity* model = m_world->AddModelToWorld(m_world->GetResourceManagerV2().GetResource<Model>(m_model->GetID()), materials);
 	}
 
 	void PanelModelViewer::Destruct()

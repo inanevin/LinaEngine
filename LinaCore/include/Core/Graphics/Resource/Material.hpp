@@ -40,6 +40,7 @@ namespace Lina
 	class Shader;
 	class DescriptorSet;
 	class ResourceManagerV2;
+	class BindlessContext;
 
 	// Version changes
 	// 0: initial
@@ -78,19 +79,18 @@ namespace Lina
 		void		 SetShader(Shader* shader);
 		void		 SetShaderID(ResourceID id);
 		void		 ResetProperties();
-		size_t		 BufferDataInto(Buffer& buf, size_t padding);
+		size_t		 BufferDataInto(Buffer& buf, size_t padding, ResourceManagerV2* rm, BindlessContext* context);
 		Shader*		 GetShader(ResourceManagerV2* rm);
 
 		template <typename T> void SetProperty(StringID sid, T val)
 		{
-			auto it = linatl::find_if(m_properties.begin(), m_properties.end(), [sid](const ShaderProperty& p) -> bool { return p.sid == sid; });
+			auto it = linatl::find_if(m_properties.begin(), m_properties.end(), [sid](ShaderProperty* p) -> bool { return p->sid == sid; });
 			LINA_ASSERT(it != m_properties.end(), "Property not found!");
 
-			ShaderProperty& prop = *it;
-			LINA_ASSERT(prop.size == sizeof(T), "Property size mismatch!");
+			ShaderProperty* prop = *it;
+			// LINA_ASSERT(prop->data.size() == sizeof(T), "Property size mismatch!");
 
-			prop.data	 = val;
-			m_propsDirty = true;
+			MEMCPY(prop->data.data(), &val, sizeof(T));
 		}
 
 		inline ResourceID GetShaderID() const
@@ -98,18 +98,17 @@ namespace Lina
 			return m_shader.id;
 		}
 
-		inline uint32 GetBindlessBytePadding() const
+		inline const Vector<ShaderProperty*>& GetProperties() const
 		{
-			return static_cast<uint32>(m_bindlessBytePadding);
+			return m_properties;
 		}
 
 	private:
 		ALLOCATOR_BUCKET_MEM;
-		ResRef<Shader>		   m_shader;
-		DescriptorAllocation   m_descriptorSetContainer[FRAMES_IN_FLIGHT];
-		size_t				   m_bindlessBytePadding = 0;
-		bool				   m_propsDirty			 = false;
-		Vector<ShaderProperty> m_properties;
+		ResRef<Shader>			m_shader;
+		DescriptorAllocation	m_descriptorSetContainer[FRAMES_IN_FLIGHT];
+		Vector<ShaderProperty*> m_properties;
+		ResourceID				m_loadedShaderID = 0;
 	};
 
 	LINA_RESOURCE_BEGIN(Material);

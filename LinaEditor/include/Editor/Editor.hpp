@@ -92,7 +92,7 @@ namespace Lina::Editor
 		void RequestExit();
 
 		// Resources
-		virtual void OnResourceLoadEnded(int32 taskID, const Vector<Resource*>& resources) override;
+		virtual void OnResourcesLoaded(int32 taskID, const ResourceList& resources) override;
 
 		// Renderers
 		WorldRenderer* GetWorldRenderer(EntityWorld* world);

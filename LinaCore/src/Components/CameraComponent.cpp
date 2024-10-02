@@ -38,7 +38,7 @@ namespace Lina
 		Matrix4 rotMat			  = Matrix4(m_entity->GetRotation().Inverse());
 		Matrix4 translationMatrix = Matrix4::Translate(-m_entity->GetPosition());
 		m_view					  = rotMat * translationMatrix;
-		const Vector2ui& sz		  = m_world->GetRenderSize();
+		const Vector2ui& sz		  = m_world->GetScreen().GetRenderSize();
 
 		if (sz.x == 0 || sz.y == 0)
 			return;

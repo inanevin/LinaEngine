@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/World/Component.hpp"
 #include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
+#include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/Data/ModelNode.hpp"
 #include "Core/Audio/Audio.hpp"
 #include "Core/Resources/ResourceManager.hpp"
@@ -44,7 +45,12 @@ namespace Lina
 {
 #define ENTITY_VEC_SIZE_CHUNK 2000
 
-	EntityWorld::~EntityWorld()
+EntityWorld::EntityWorld(ResourceID id, const String& name) : Resource(id, GetTypeID<EntityWorld>(), name), m_worldInput(&GfxManager::GetLGX()->GetInput()), m_physicsWorld(this)
+{
+    
+};
+
+ 	EntityWorld::~EntityWorld()
 	{
 		m_resourceManagerV2.Shutdown();
 
@@ -216,7 +222,6 @@ namespace Lina
 
 	void EntityWorld::ProcessComponent(Component* c, Entity* e)
 	{
-		c->m_input			 = &GfxManager::GetLGX()->GetInput();
 		c->m_world			 = this;
 		c->m_resourceManager = &m_resourceManagerV2;
 		c->m_entity			 = e;
@@ -241,6 +246,7 @@ namespace Lina
 			parent->AddChild(nodeEntity);
 			nodeEntity->SetLocalTransformation(node->GetLocalMatrix());
 
+            const Vector3 nodeEntityPos = nodeEntity->GetPosition();
 			MeshDefault* mesh = node->GetMesh();
 
 			if (mesh != nullptr)
@@ -249,6 +255,7 @@ namespace Lina
 				MeshComponent* mc	  = world->AddComponent<MeshComponent>(nodeEntity);
 				mc->SetMesh(model, node->GetMeshIndex());
 				mc->SetMaterial(materials[matIdx]);
+                LINA_TRACE("Added mesh to world, mesh {0}, material {1}", mesh->GetName(), materials[matIdx]->GetName());
 			}
 
 			for (ModelNode* child : node->GetChildren())
@@ -266,4 +273,7 @@ namespace Lina
 			ProcessModelNode(model, this, base, rootNode, materials);
 		return base;
 	}
+
 } // namespace Lina
+
+

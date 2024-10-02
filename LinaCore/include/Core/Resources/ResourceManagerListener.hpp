@@ -29,20 +29,23 @@ SOFTWARE.
 #pragma once
 
 #include "Common/SizeDefinitions.hpp"
-#include "Common/Data/Vector.hpp"
+#include "Common/Data/HashSet.hpp"
 
 namespace Lina
 {
 	struct ResourceDef;
 	class Resource;
 
+	typedef HashSet<ResourceDef, ResourceDefHash> ResourceDefinitionList;
+	typedef HashSet<Resource*>					  ResourceList;
+
 	class ResourceManagerListener
 	{
 	public:
-		virtual void OnResourceLoadStarted(int32 taskID, const Vector<ResourceDef>& idents){};
-		virtual void OnResourceLoadEnded(int32 taskID, const Vector<Resource*>& resources){};
-		virtual void OnResourceLoaded(int32 taskID, const ResourceDef& ident){};
-		virtual void OnResourcePreUnloaded(const Vector<Resource*>& resources){};
-		virtual void OnResourceUnloaded(const Vector<ResourceDef>& defs){};
+		virtual void OnResourcesPreLoaded(int32 taskID, const ResourceDefinitionList& definitions){};
+		virtual void OnResourcesLoaded(int32 taskID, const ResourceList& resources){};
+		virtual void OnResourceLoaded(int32 taskID, const ResourceDef& definition){};
+		virtual void OnResourcesPreUnloaded(const ResourceList& resources){};
+		virtual void OnResourcesUnloaded(const ResourceDefinitionList& definitions){};
 	};
 } // namespace Lina

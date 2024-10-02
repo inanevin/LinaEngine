@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Resource/TextureSampler.hpp"
 #include "Core/Graphics/ResourceUploadQueue.hpp"
+#include "Core/Graphics/BindlessContext.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/System/System.hpp"
@@ -50,12 +51,13 @@ namespace Lina
 #define MAX_GUI_VERTICES  120000
 #define MAX_GUI_INDICES	  140000
 
-	void GUIRenderer::Create(GUIBackend* guiBackend, ResourceManagerV2* resourceManager, TextureSampler* defaultSampler, TextureSampler* textSampler, LinaGX::Window* window)
+	void GUIRenderer::Create(GUIBackend* guiBackend, BindlessContext* bindlessContext, ResourceManagerV2* resourceManager, TextureSampler* defaultSampler, TextureSampler* textSampler, LinaGX::Window* window)
 	{
 		m_resourceManager = resourceManager;
 		m_guiBackend	  = guiBackend;
 		m_window		  = window;
 		m_lgx			  = GfxManager::GetLGX();
+		m_bindlessContext = bindlessContext;
 
 		m_defaultGUISampler = defaultSampler;
 		m_textGUISampler	= textSampler;
@@ -143,8 +145,8 @@ namespace Lina
 		}
 		else
 		{
-			req.materialData.color2.x = static_cast<float>(static_cast<Texture*>(buf->m_textureHandle)->GetBindlessIndex());
-			req.materialData.color2.y = static_cast<float>(m_defaultGUISampler->GetBindlessIndex());
+			req.materialData.color2.x = static_cast<float>(m_bindlessContext->GetBindlessIndex(static_cast<Texture*>(buf->m_textureHandle)));
+			req.materialData.color2.y = static_cast<float>(m_bindlessContext->GetBindlessIndex(m_defaultGUISampler));
 		}
 
 		if (Math::Equals(req.materialData.color1.w, GUI_IS_SINGLE_CHANNEL, 0.01f))
@@ -170,8 +172,8 @@ namespace Lina
 		auto& req					  = AddDrawRequest(buf);
 		auto  txt					  = m_guiBackend->GetFontTexture(buf->m_font->m_atlas).texture;
 		req.materialData.floatPack2.w = static_cast<float>(buf->m_drawBufferType);
-		req.materialData.color2.x	  = static_cast<float>(txt->GetBindlessIndex());
-		req.materialData.color2.y	  = static_cast<float>(m_textGUISampler->GetBindlessIndex());
+		req.materialData.color2.x	  = static_cast<float>(m_bindlessContext->GetBindlessIndex(txt));
+		req.materialData.color2.y	  = static_cast<float>(m_bindlessContext->GetBindlessIndex(m_textGUISampler));
 	}
 
 	void GUIRenderer::DrawSDFText(LinaVG::SDFTextDrawBuffer* buf)
@@ -181,8 +183,8 @@ namespace Lina
 		req.materialData.color1		= buf->m_outlineColor;
 		req.materialData.floatPack1 = Vector4(buf->m_thickness, buf->m_softness, buf->m_outlineThickness, buf->m_outlineSoftness);
 		req.materialData.floatPack2 = Vector4(buf->m_flipAlpha ? 1.0f : 0.0f, 0.0f, 0.0f, static_cast<float>(buf->m_drawBufferType));
-		req.materialData.color2.x	= static_cast<float>(txt->GetBindlessIndex());
-		req.materialData.color2.y	= static_cast<float>(m_textGUISampler->GetBindlessIndex());
+		req.materialData.color2.x	= static_cast<float>(m_bindlessContext->GetBindlessIndex(txt));
+		req.materialData.color2.y	= static_cast<float>(m_bindlessContext->GetBindlessIndex(m_textGUISampler));
 	}
 
 	void GUIRenderer::Destroy()

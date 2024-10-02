@@ -279,6 +279,8 @@ namespace Lina::Editor
 					const Vector<ModelMaterial>&	   matDefs	   = model.GetMaterialDefs();
 					const Vector<Model::ModelTexture>& textureDefs = model.GetTextureDefs();
 
+					Vector<ResourceID> createdTextures;
+					Vector<String>	   createdTextureNames;
 					for (const Model::ModelTexture& def : textureDefs)
 					{
 						const ResourceID newID = m_editor->GetProjectManager().GetProjectData()->ConsumeResourceID();
@@ -290,10 +292,14 @@ namespace Lina::Editor
 							.name		 = def.name,
 						});
 
-						Texture texture(newID, def.name);
+						Texture	   texture(newID, def.name);
+						const bool isColor		 = true;
+						texture.GetMeta().format = isColor ? LinaGX::Format::R8G8B8A8_SRGB : LinaGX::Format::R8G8B8A8_UNORM;
 						texture.LoadFromBuffer(def.buffer.pixels, def.buffer.width, def.buffer.height, def.buffer.bytesPerPixel);
 						texture.SaveToFileAsBinary(projectData->GetResourcePath(newID));
 						GenerateThumbnailForResource(child, &texture, false);
+						createdTextures.push_back(newID);
+						createdTextureNames.push_back(def.name);
 					}
 
 					Model::Metadata& meta = model.GetMeta();
@@ -312,9 +318,45 @@ namespace Lina::Editor
 
 						meta.materials[matIdx] = newID;
 
+						LinaTexture2D albedo = {
+							.texture = DEFAULT_NULL_TEXTURE_ID,
+							.sampler = DEFAULT_SAMPLER_ID,
+						};
+
+						LinaTexture2D normal = {
+							.texture = DEFAULT_NULL_NORMAL_TEXTURE_ID,
+							.sampler = DEFAULT_SAMPLER_ID,
+						};
+
+						int32 outIndex	= -1;
+						int32 outIndex2 = -1;
+						for (auto [textureType, textureIndex] : def.textureIndices)
+						{
+							if (textureType == static_cast<uint8>(LinaGX::GLTFTextureType::BaseColor))
+							{
+								albedo.texture = createdTextures[textureIndex];
+								outIndex	   = textureIndex;
+								continue;
+							}
+
+							if (textureType == static_cast<uint8>(LinaGX::GLTFTextureType::Normal))
+							{
+								normal.texture = createdTextures[textureIndex];
+								outIndex2	   = textureIndex;
+								continue;
+							}
+						}
+
 						Material mat(newID, def.name);
 						mat.SetShader(defaultShader);
 						mat.SetProperty("color"_hs, def.albedo);
+						mat.SetProperty("txtAlbedo"_hs, albedo);
+						mat.SetProperty("txtNormal"_hs, normal);
+
+						LINA_TRACE("Imported material {0}", def.name);
+						LINA_TRACE("Color {0} {1} {2} {3}", def.albedo.x, def.albedo.y, def.albedo.z, def.albedo.w);
+						LINA_TRACE("Albedo texture {0} name {1}", albedo.texture, outIndex == -1 ? "none" : createdTextureNames[outIndex]);
+						LINA_TRACE("Normal texture {0} name {1}", albedo.texture, outIndex2 == -1 ? "non" : createdTextureNames[outIndex2]);
 						mat.SaveToFileAsBinary(projectData->GetResourcePath(newID));
 						GenerateThumbnailForResource(child, &mat, false);
 						matIdx++;

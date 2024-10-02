@@ -105,18 +105,11 @@ float LinearizeDepth(float depth, float near, float far)
 //     return mix(vec4(0.2, 0.2, 0.2, l), vec4(0.8, 0.8, 0.8, l),  step(hmod, 0.5));
 // }
 
-struct LINA_MATERIAL
-{
-   uint test;
-};
+// struct LINA_MATERIAL
+// {
+//    uint test;
+// };
 
-LINA_MATERIAL AsMaterial()
-{
-    LINA_MATERIAL mat;
-	uint index = LINA_PASS_DATA.lightingMaterialByteIndex;
-    mat.test = LINA_MATERIALS.data[index++];
-	return mat;
-}
 
 void main()
 {

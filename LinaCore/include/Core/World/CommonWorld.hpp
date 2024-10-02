@@ -56,8 +56,8 @@ namespace Lina
 
 	enum WorldFlags
 	{
-		WORLD_FLAGS_NONE	= 1 << 0,
-		WORLD_FLAGS_LOADING = 1 << 1,
+		WORLD_FLAGS_NONE	  = 1 << 0,
+		WORLD_FLAGS_UNFOCUSED = 1 << 1,
 	};
 
 } // namespace Lina

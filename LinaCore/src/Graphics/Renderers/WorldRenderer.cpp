@@ -56,11 +56,26 @@ SOFTWARE.
 namespace Lina
 {
 #define MAX_GFX_COMMANDS  250
-#define MAX_COPY_COMMANDS 50
+#define MAX_COPY_COMMANDS 200
 #define MAX_GUI_VERTICES  5000
 #define MAX_GUI_INDICES	  5000
 #define MAX_GUI_MATERIALS 100
 #define MAX_OBJECTS		  256
+
+#ifdef LINA_DEBUG
+#define DEBUG_LABEL_BEGIN(Stream, LABEL)                                                                                                                                                                                                                           \
+	{                                                                                                                                                                                                                                                              \
+		LinaGX::CMDDebugBeginLabel* debug = Stream->AddCommand<LinaGX::CMDDebugBeginLabel>();                                                                                                                                                                      \
+		debug->label					  = LABEL;                                                                                                                                                                                                                 \
+	}
+#define DEBUG_LABEL_END(Stream)                                                                                                                                                                                                                                    \
+	{                                                                                                                                                                                                                                                              \
+		Stream->AddCommand<LinaGX::CMDDebugEndLabel>();                                                                                                                                                                                                            \
+	}
+#else
+#define DEBUG_LABEL_BEGIN(Stream, LABEL)
+#define DEBUG_LABEL_END(Stream)
+#endif
 
 	WorldRenderer::WorldRenderer(EntityWorld* world, const Vector2ui& viewSize, Buffer* snapshotBuffers, bool standaloneSubmit)
 	{
@@ -71,7 +86,41 @@ namespace Lina
 		m_size				= viewSize;
 		m_resourceManagerV2 = &world->GetResourceManagerV2();
 		m_resourceManagerV2->AddListener(this);
-		m_gBufSampler					= m_resourceManagerV2->CreateResource<TextureSampler>(m_resourceManagerV2->ConsumeResourceID(), "World Renderer GBuf Sampler");
+		m_gBufSampler = m_resourceManagerV2->CreateResource<TextureSampler>(DEFAULT_SAMPLER_ID, "World Renderer GBuf Sampler");
+
+		// Create checker null texture
+		{
+			m_nullTexture		= m_resourceManagerV2->CreateResource<Texture>(DEFAULT_NULL_TEXTURE_ID, "World Renderer Null Texture");
+			m_nullNormalTexture = m_resourceManagerV2->CreateResource<Texture>(DEFAULT_NULL_NORMAL_TEXTURE_ID, "World Renderer Null Normal Texture");
+
+			const uint32 nullTextureWidth		 = 16;
+			const uint32 nullTextureHeight		 = 16;
+			uint8*		 nullTextureBuffer		 = new uint8[nullTextureWidth * nullTextureHeight * 4];
+			uint8*		 nullNormalTextureBuffer = new uint8[nullTextureWidth * nullTextureHeight * 4];
+
+			uint8 nullTextureColor[4]		= {255, 255, 255, 255};
+			uint8 nullTextureNormalColor[4] = {128, 128, 255, 255};
+
+			for (uint32 row = 0; row < nullTextureHeight; row++)
+			{
+				for (uint32 col = 0; col < nullTextureWidth; col++)
+				{
+					const uint32 pixel = row * nullTextureWidth + col;
+					const size_t addr  = pixel * 4;
+					MEMCPY(nullTextureBuffer + addr, nullTextureColor, sizeof(uint8) * 4);
+					MEMCPY(nullNormalTextureBuffer + addr, nullTextureNormalColor, sizeof(uint8) * 4);
+				}
+			}
+			m_nullTexture->LoadFromBuffer(nullTextureBuffer, nullTextureWidth, nullTextureHeight, 4);
+			m_nullNormalTexture->LoadFromBuffer(nullNormalTextureBuffer, nullTextureWidth, nullTextureHeight, 4);
+			m_nullTexture->GenerateHW();
+			m_nullNormalTexture->GenerateHW();
+			m_nullTexture->AddToUploadQueue(m_globalUploadQueue, true);
+			m_nullNormalTexture->AddToUploadQueue(m_globalUploadQueue, true);
+			delete[] nullTextureBuffer;
+			delete[] nullNormalTextureBuffer;
+		}
+
 		LinaGX::SamplerDesc gBufSampler = {
 			.anisotropy = 1,
 		};
@@ -82,7 +131,7 @@ namespace Lina
 		{
 			auto& data		= m_pfd[i];
 			data.gfxStream	= m_lgx->CreateCommandStream({LinaGX::CommandType::Graphics, MAX_GFX_COMMANDS, 24000, 4096, 32, "WorldRenderer: Gfx Stream"});
-			data.copyStream = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, MAX_COPY_COMMANDS, 4000, 1024, 32, "WorldRenderer: Copy Stream"});
+			data.copyStream = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, MAX_COPY_COMMANDS, 4000, 4096, 32, "WorldRenderer: Copy Stream"});
 			data.objectBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUDataObject) * MAX_OBJECTS, "WorldRenderer: ObjectData", false);
 			data.signalSemaphore = SemaphoreData(m_lgx->CreateUserSemaphore());
 			data.copySemaphore	 = SemaphoreData(m_lgx->CreateUserSemaphore());
@@ -162,6 +211,7 @@ namespace Lina
 	WorldRenderer::~WorldRenderer()
 	{
 		m_resourceManagerV2->DestroyResource(m_gBufSampler);
+		m_resourceManagerV2->DestroyResource(m_nullTexture);
 		m_resourceManagerV2->RemoveListener(this);
 
 		m_guiBackend.Shutdown();
@@ -270,6 +320,8 @@ namespace Lina
 																 .clearDepth   = 1.0f,
 															 });
 		}
+
+		MarkBindlessDirty();
 	}
 
 	void WorldRenderer::DestroySizeRelativeResources()
@@ -329,6 +381,7 @@ namespace Lina
 		if (m_size.Equals(newSize))
 			return;
 
+		m_world->GetScreen().SetRenderSize(newSize);
 		m_size = newSize;
 		DestroySizeRelativeResources();
 		CreateSizeRelativeResources();
@@ -346,7 +399,7 @@ namespace Lina
 		pfd.globalTexturesDesc.textures.resize(static_cast<size_t>(cacheTxt->GetActiveItemCount()));
 		cacheTxt->View([&](Texture* txt, uint32 index) -> bool {
 			pfd.globalTexturesDesc.textures[index] = txt->GetGPUHandle();
-			txt->SetBindlessIndex(static_cast<uint32>(index));
+			SetBindlessIndex(txt, index);
 			return false;
 		});
 
@@ -357,7 +410,7 @@ namespace Lina
 		ResourceCache<TextureSampler>* cacheSmp = m_resourceManagerV2->GetCache<TextureSampler>();
 		pfd.globalSamplersDesc.samplers.resize(static_cast<size_t>(cacheSmp->GetActiveItemCount()));
 		cacheSmp->View([&](TextureSampler* smp, uint32 index) -> bool {
-			smp->SetBindlessIndex(static_cast<uint32>(index));
+			SetBindlessIndex(smp, index);
 			return false;
 		});
 
@@ -368,7 +421,8 @@ namespace Lina
 		ResourceCache<Material>* cacheMat = m_resourceManagerV2->GetCache<Material>();
 		size_t					 padding  = 0;
 		cacheMat->View([&](Material* mat, uint32 index) -> bool {
-			padding += mat->BufferDataInto(pfd.globalMaterialsBuffer, padding);
+			SetBindlessIndex(mat, static_cast<uint32>(padding));
+			padding += mat->BufferDataInto(pfd.globalMaterialsBuffer, padding, &m_world->GetResourceManagerV2(), this);
 			pfd.globalMaterialsBuffer.MarkDirty();
 			return false;
 		});
@@ -381,7 +435,7 @@ namespace Lina
 	{
 		auto& currentFrame = m_pfd[frameIndex];
 
-		// Global queue is mostly for resources that are not per-frame-dependent, like textures or meshes.
+		// Global queue is mostly for resources that are not per-frame-dependent, like asset textures or meshes.
 		// We will wait for them to be completed before proceding.
 		if (m_globalUploadQueue.FlushAll(currentFrame.copyStream))
 		{
@@ -413,7 +467,6 @@ namespace Lina
 				view.cameraDirectionAndFar = Vector4(camDir.x, camDir.y, camDir.z, camera->GetFar());
 				view.size				   = Vector2(static_cast<float>(m_size.x), static_cast<float>(m_size.y));
 			}
-
 			m_lightingPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
 			m_mainPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
 			m_forwardTransparencyPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
@@ -421,24 +474,24 @@ namespace Lina
 
 		// Lighting pass specific.
 		{
-			GPUDataDeferredLightingPass renderPassData = {
-				.gBufAlbedo			  = currentFrame.gBufAlbedo->GetBindlessIndex(),
-				.gBufPositionMetallic = currentFrame.gBufPosition->GetBindlessIndex(),
-				.gBufNormalRoughness  = currentFrame.gBufNormal->GetBindlessIndex(),
+			GPUDataLightingPass renderPassData = {
+				.gBufAlbedo			  = GetBindlessIndex(currentFrame.gBufAlbedo),
+				.gBufPositionMetallic = GetBindlessIndex(currentFrame.gBufPosition),
+				.gBufNormalRoughness  = GetBindlessIndex(currentFrame.gBufNormal),
 				// .gBufDepth             = currentFrame.gBufDepth->GetBindlessIndex(),
-				.gBufSampler			   = m_gBufSampler->GetBindlessIndex(),
-				.lightingMaterialByteIndex = m_world->GetGfxSettings().lightingMaterial.raw->GetBindlessBytePadding(),
-				.skyMaterialByteIndex	   = m_world->GetGfxSettings().skyMaterial.raw->GetBindlessBytePadding(),
+				.gBufSampler			   = GetBindlessIndex(m_gBufSampler),
+				.lightingMaterialByteIndex = GetBindlessIndex(m_world->GetGfxSettings().lightingMaterial.raw) / 4,
+				.skyMaterialByteIndex	   = GetBindlessIndex(m_world->GetGfxSettings().skyMaterial.raw) / 4,
 			};
 
-			m_lightingPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&renderPassData, sizeof(GPUDataDeferredLightingPass));
+			m_lightingPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&renderPassData, sizeof(GPUDataLightingPass));
 		}
 
 		// All entities.
 		{
 			m_objects.resize(static_cast<size_t>(m_world->GetActiveEntityCount()));
 			m_world->ViewEntities([&](Entity* e, uint32 index) -> bool {
-				e->SetBindlessIndex(index);
+				SetBindlessIndex(e, index);
 				auto& data = m_objects[index];
 				data.model = e->GetTransform().GetMatrix();
 				return false;
@@ -455,6 +508,8 @@ namespace Lina
 			MeshDefault* mesh	  = mc->GetMeshRaw();
 			Material*	 material = mc->GetMaterialRaw();
 
+			const Vector3 pos = mc->GetEntity()->GetPosition();
+
 			if (material == nullptr)
 				continue;
 
@@ -464,12 +519,12 @@ namespace Lina
 			auto it = linatl::find_if(vec.begin(), vec.end(), [mesh](const DrawDataMeshDefault& dd) -> bool { return dd.mesh == mesh; });
 
 			if (it != vec.end())
-				it->instances.push_back({material, mc->GetEntity()->GetBindlessIndex()});
+				it->instances.push_back({material, GetBindlessIndex(mc->GetEntity())});
 			else
 			{
 				DrawDataMeshDefault drawData = {
 					.mesh	   = mesh,
-					.instances = {{material, mc->GetEntity()->GetBindlessIndex()}},
+					.instances = {{material, GetBindlessIndex(mc->GetEntity())}},
 				};
 				vec.push_back(drawData);
 			}
@@ -495,7 +550,7 @@ namespace Lina
 				{
 					GPUIndirectConstants0 constants = {
 						.entityID		   = inst.entityIndex,
-						.materialByteIndex = inst.material->GetBindlessBytePadding(),
+						.materialByteIndex = GetBindlessIndex(inst.material) / 4,
 					};
 					m_mainPass.GetBuffer(frameIndex, "IndirectConstants"_hs).BufferData(constantsCount * sizeof(GPUIndirectConstants0), (uint8*)&constants, sizeof(GPUIndirectConstants0));
 					constantsCount++;
@@ -527,7 +582,7 @@ namespace Lina
 					guiMaterialBufferOffset += sizeof(GPUMaterialGUI);
 
 					GPUIndirectConstants0 constants = {
-						.entityID = wc->GetEntity()->GetBindlessIndex(),
+						.entityID = GetBindlessIndex(wc->GetEntity()),
 					};
 
 					m_forwardTransparencyPass.GetBuffer(frameIndex, "IndirectConstants"_hs).BufferData(constantsCount * sizeof(GPUIndirectConstants0), (uint8*)&constants, sizeof(GPUIndirectConstants0));
@@ -614,7 +669,10 @@ namespace Lina
 		Shader*	  lastBoundShader	= nullptr;
 		Material* lastBoundMaterial = nullptr;
 
-		uint32 indirectOffset = 0;
+		const uint32 mainPassIndirectBuffer = m_mainPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).GetGPUResource();
+		uint32		 mainPassIndirectOffset = 0;
+
+		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Main Deferred Pass: Objects");
 
 		for (auto& [shader, meshVec] : m_drawData)
 		{
@@ -626,9 +684,9 @@ namespace Lina
 
 			LinaGX::CMDDrawIndexedIndirect* draw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawIndexedIndirect>();
 			draw->count							 = static_cast<uint32>(meshVec.size());
-			draw->indirectBuffer				 = m_mainPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).GetGPUResource();
-			draw->indirectBufferOffset			 = indirectOffset;
-			indirectOffset += draw->count * static_cast<uint32>(m_lgx->GetIndexedIndirectCommandSize());
+			draw->indirectBuffer				 = mainPassIndirectBuffer;
+			draw->indirectBufferOffset			 = mainPassIndirectOffset;
+			mainPassIndirectOffset += draw->count * static_cast<uint32>(m_lgx->GetIndexedIndirectCommandSize());
 
 #ifdef LINA_DEBUG
 			uint32 totalTris = 0;
@@ -637,6 +695,8 @@ namespace Lina
 			PROFILER_ADD_DRAWCALL(totalTris, "WorldRenderer", 0);
 #endif
 		}
+
+		DEBUG_LABEL_END(currentFrame.gfxStream);
 
 		m_mainPass.End(currentFrame.gfxStream);
 
@@ -658,24 +718,29 @@ namespace Lina
 		Shader* lighting = m_world->GetGfxSettings().lightingMaterial.raw->GetShader(m_resourceManagerV2);
 		lighting->Bind(currentFrame.gfxStream, lighting->GetGPUHandle());
 
+		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Lighting Pass: Fullscreen");
 		LinaGX::CMDDrawInstanced* lightingDraw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawInstanced>();
 		lightingDraw->instanceCount			   = 1;
 		lightingDraw->startInstanceLocation	   = 0;
 		lightingDraw->startVertexLocation	   = 0;
 		lightingDraw->vertexCountPerInstance   = 3;
+		DEBUG_LABEL_END(currentFrame.gfxStream);
 
 		Shader* skyShader = m_world->GetGfxSettings().skyMaterial.raw->GetShader(m_resourceManagerV2);
 		skyShader->Bind(currentFrame.gfxStream, skyShader->GetGPUHandle());
 
+		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Lighting Pass: SkyCube");
 		LinaGX::CMDDrawIndexedInstanced* skyDraw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
 		skyDraw->baseVertexLocation				 = m_skyCube->GetVertexOffset();
 		skyDraw->indexCountPerInstance			 = m_skyCube->GetIndexCount();
 		skyDraw->instanceCount					 = 1;
 		skyDraw->startIndexLocation				 = m_skyCube->GetIndexOffset();
 		skyDraw->startInstanceLocation			 = 0;
+		DEBUG_LABEL_END(currentFrame.gfxStream);
 
 		m_lightingPass.End(currentFrame.gfxStream);
 
+		/*
 		m_forwardTransparencyPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
 		m_forwardTransparencyPass.BindDescriptors(currentFrame.gfxStream, frameIndex, currentFrame.pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::ForwardTransparency]);
 
@@ -706,16 +771,18 @@ namespace Lina
 		for (auto* ext : m_extensions)
 			ext->Render(frameIndex, currentFrame.gfxStream);
 
+		 */
+
 		// Barrier to shader read or transfer read
 		if (m_snapshotBuffer == nullptr)
 		{
-			LinaGX::CMDBarrier* barrier	 = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
-			barrier->srcStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
-			barrier->dstStageFlags		 = LinaGX::PSF_FragmentShader;
-			barrier->textureBarrierCount = 2;
-			barrier->textureBarriers	 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 2);
-			barrier->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.lightingPassOutput->GetGPUHandle());
-			barrier->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.gBufDepth->GetGPUHandle());
+			// LinaGX::CMDBarrier* barrier	 = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
+			// barrier->srcStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
+			// barrier->dstStageFlags		 = LinaGX::PSF_FragmentShader;
+			// barrier->textureBarrierCount = 2;
+			// barrier->textureBarriers	 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 2);
+			// barrier->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.lightingPassOutput->GetGPUHandle());
+			// barrier->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.gBufDepth->GetGPUHandle());
 		}
 		else
 		{
@@ -808,7 +875,7 @@ namespace Lina
 		return currentFrame.copySemaphore.GetValue();
 	}
 
-	void WorldRenderer::OnResourceUnloaded(const Vector<ResourceDef>& resources)
+	void WorldRenderer::OnResourcesUnloaded(const ResourceDefinitionList& resources)
 	{
 		bool bindlessDirty	  = false;
 		bool meshManagerDirty = false;
@@ -831,7 +898,7 @@ namespace Lina
 		}
 	}
 
-	void WorldRenderer::OnResourceLoadEnded(int32 taskID, const Vector<Resource*>& resources)
+	void WorldRenderer::OnResourcesLoaded(int32 taskID, const ResourceList& resources)
 	{
 		bool bindlessDirty	  = false;
 		bool meshManagerDirty = false;

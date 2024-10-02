@@ -164,16 +164,6 @@ namespace Lina
 			return m_transientID;
 		}
 
-		inline void SetBindlessIndex(uint32 index)
-		{
-			m_bindlessIndex = index;
-		}
-
-		inline uint32 GetBindlessIndex() const
-		{
-			return m_bindlessIndex;
-		}
-
 	private:
 		void UpdateGlobalPosition();
 		void UpdateLocalPosition();
@@ -206,7 +196,6 @@ namespace Lina
 		Transformation	m_prevTransform;
 		Bitmask16		m_mask;
 		AABB			m_totalAABB;
-		uint32			m_bindlessIndex;
 	};
 
 } // namespace Lina

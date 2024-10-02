@@ -119,12 +119,7 @@ namespace Lina
 				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 			};
 
-			LinaGX::DescriptorBinding binding2 = {
-				.type	= LinaGX::DescriptorType::UBO,
-				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-			};
-
-			return {.bindings = {binding0, binding1, binding2}};
+			return {.bindings = {binding0, binding1}};
 		}
 
 		LINA_ASSERT(false, "");
@@ -304,7 +299,7 @@ namespace Lina
 					{
 						{
 							.bufferType	  = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
-							.debugName	  = "RP: FWTransparency - ViewData",
+							.debugName	  = "RP: Lighting - ViewData",
 							.size		  = sizeof(GPUDataView),
 							.stagingOnly  = true,
 							.bindingIndex = 0,
@@ -312,8 +307,8 @@ namespace Lina
 						},
 						{
 							.bufferType	  = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
-							.debugName	  = "RP: FWTransparency - DeferredLightingPassData",
-							.size		  = sizeof(GPUDataDeferredLightingPass),
+							.debugName	  = "RP: Lighting - PassData",
+							.size		  = sizeof(GPUDataLightingPass),
 							.stagingOnly  = true,
 							.bindingIndex = 1,
 							.ident		  = "PassData"_hs,

@@ -42,10 +42,10 @@ namespace Lina
 		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);
 
-		String		   name	  = "";
-		Color		   albedo = Color::White;
-		Vector<uint32> textureIndices;
-		bool		   isOpaque = true;
+		String				   name	  = "";
+		Color				   albedo = Color::White;
+		HashMap<uint8, uint32> textureIndices;
+		bool				   isOpaque = true;
 	};
 
 } // namespace Lina

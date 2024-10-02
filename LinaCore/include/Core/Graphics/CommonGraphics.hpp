@@ -74,6 +74,8 @@ namespace Lina
 #define DEFAULT_ALT_FONT_ID				  RESOURCE_ID_ENGINE_SPACE + 13
 #define DEFAULT_ALT_FONT_BOLD_ID		  RESOURCE_ID_ENGINE_SPACE + 14
 #define DEFAULT_SKY_CUBE_ID				  RESOURCE_ID_ENGINE_SPACE + 16
+#define DEFAULT_NULL_TEXTURE_ID			  RESOURCE_ID_ENGINE_SPACE + 17
+#define DEFAULT_NULL_NORMAL_TEXTURE_ID	  RESOURCE_ID_ENGINE_SPACE + 18
 
 #define LINA_MAIN_SWAPCHAIN UINT32_MAX - 1
 #define DEFAULT_CLEAR_CLR	Color(0.3f, 0.3f, 0.5f, 1.0f)
@@ -198,6 +200,15 @@ namespace Lina
 	{
 		ResourceID texture = 0;
 		ResourceID sampler = 0;
+
+		void SaveToStream(OStream& out) const
+		{
+			out << texture << sampler;
+		}
+		void LoadFromStream(IStream& in)
+		{
+			in >> texture >> sampler;
+		}
 	};
 
 	enum class ShaderPropertyType

@@ -84,7 +84,7 @@ namespace Lina::Editor
 
 		// RP
 		m_guiPass.Create(EditorGfxHelpers::GetGUIPassDescription());
-		m_guiRenderer.Create(&m_editor->GetEditorRenderer().GetGUIBackend(), &m_editor->GetResourceManagerV2(), m_editor->GetEditorRenderer().GetGUISampler(), m_editor->GetEditorRenderer().GetGUITextSampler(), window);
+		m_guiRenderer.Create(&m_editor->GetEditorRenderer().GetGUIBackend(), &m_editor->GetEditorRenderer(), &m_editor->GetResourceManagerV2(), m_editor->GetEditorRenderer().GetGUISampler(), m_editor->GetEditorRenderer().GetGUITextSampler(), window);
 	}
 
 	SurfaceRenderer::~SurfaceRenderer()

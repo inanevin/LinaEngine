@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Core/Graphics/GUI/GUIBackend.hpp"
 #include "Core/Graphics/ResourceUploadQueue.hpp"
+#include "Core/Graphics/BindlessContext.hpp"
 #include "Core/Resources/ResourceManagerListener.hpp"
 
 namespace Lina
@@ -50,7 +51,7 @@ namespace Lina::Editor
 	class Editor;
 	class SurfaceRenderer;
 
-	class EditorRenderer : public ResourceManagerListener
+	class EditorRenderer : public ResourceManagerListener, public BindlessContext
 	{
 	public:
 		struct PerFrameData
@@ -79,8 +80,8 @@ namespace Lina::Editor
 		void AddSurfaceRenderer(SurfaceRenderer* sr);
 		void RemoveSurfaceRenderer(SurfaceRenderer* sr);
 
-		virtual void OnResourceLoadEnded(int32 taskID, const Vector<Resource*>& resources) override;
-		virtual void OnResourceUnloaded(const Vector<ResourceDef>& resources) override;
+		virtual void OnResourcesLoaded(int32 taskID, const ResourceList& resources) override;
+		virtual void OnResourcesUnloaded(const ResourceDefinitionList& resources) override;
 
 		inline GUIBackend& GetGUIBackend()
 		{

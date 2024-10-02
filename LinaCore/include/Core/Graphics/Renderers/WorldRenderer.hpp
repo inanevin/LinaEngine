@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Core/Resources/ResourceManagerListener.hpp"
 #include "Common/Data/Map.hpp"
 #include "Core/Graphics/GUI/GUIBackend.hpp"
+#include "Core/Graphics/BindlessContext.hpp"
 
 namespace LinaGX
 {
@@ -71,7 +72,7 @@ namespace Lina
 		WorldRenderer* m_worldRenderer = nullptr;
 	};
 
-	class WorldRenderer : public EntityWorldListener, public ResourceManagerListener
+	class WorldRenderer : public EntityWorldListener, public ResourceManagerListener, public BindlessContext
 	{
 	private:
 		struct PerFrameData
@@ -110,8 +111,8 @@ namespace Lina
 		void Render(uint32 frameIndex);
 		void Resize(const Vector2ui& newSize);
 
-		virtual void OnResourceLoadEnded(int32 taskID, const Vector<Resource*>& resources) override;
-		virtual void OnResourceUnloaded(const Vector<ResourceDef>& resources) override;
+		virtual void OnResourcesLoaded(int32 taskID, const ResourceList& resources) override;
+		virtual void OnResourcesUnloaded(const ResourceDefinitionList& resources) override;
 		virtual void OnComponentAdded(Component* c) override;
 		virtual void OnComponentRemoved(Component* c) override;
 
@@ -209,8 +210,10 @@ namespace Lina
 		Shader*										  m_deferredLightingShader = nullptr;
 		MeshDefault*								  m_skyCube				   = nullptr;
 		Vector<WorldRendererExtension*>				  m_extensions;
-		Buffer*										  m_snapshotBuffer	 = nullptr;
-		bool										  m_standaloneSubmit = false;
+		Buffer*										  m_snapshotBuffer	  = nullptr;
+		Texture*									  m_nullTexture		  = nullptr;
+		Texture*									  m_nullNormalTexture = nullptr;
+		bool										  m_standaloneSubmit  = false;
 	};
 
 } // namespace Lina

@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/GfxManager.hpp"
+#include "Core/Graphics/BindlessContext.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Resource/TextureSampler.hpp"
@@ -86,13 +87,17 @@ namespace Lina
 
 	Material::~Material()
 	{
+		for (ShaderProperty* p : m_properties)
+			delete p;
 	}
 
 	void Material::SetShader(Shader* shader)
 	{
 		m_shader.raw = shader;
 		m_shader.id	 = shader->GetID();
-		ResetProperties();
+
+		if (m_loadedShaderID != m_shader.id)
+			ResetProperties();
 	}
 
 	void Material::SetShaderID(ResourceID id)
@@ -102,7 +107,11 @@ namespace Lina
 
 	void Material::ResetProperties()
 	{
-		m_properties = m_shader.raw->GetProperties();
+		for (ShaderProperty* p : m_properties)
+			delete p;
+		m_properties.clear();
+		m_properties	 = m_shader.raw->CopyProperties();
+		m_loadedShaderID = m_shader.id;
 	}
 
 	void Material::LoadFromFile(const String& path)
@@ -130,6 +139,7 @@ namespace Lina
 		stream >> version;
 		stream >> m_shader;
 		stream >> m_properties;
+		m_loadedShaderID = m_shader.id;
 	}
 
 	Shader* Material::GetShader(ResourceManagerV2* rm)
@@ -140,33 +150,26 @@ namespace Lina
 		return m_shader.raw;
 	}
 
-	size_t Material::BufferDataInto(Buffer& buf, size_t padding)
+	size_t Material::BufferDataInto(Buffer& buf, size_t padding, ResourceManagerV2* rm, BindlessContext* context)
 	{
-		m_bindlessBytePadding = padding;
-		size_t totalSize	  = 0;
-		for (const auto& prop : m_properties)
+		size_t totalSize = 0;
+		for (ShaderProperty* prop : m_properties)
 		{
-			if (prop.type == ShaderPropertyType::Texture2D)
+			if (prop->type == ShaderPropertyType::Texture2D)
 			{
-				// LinaTexture2D stringIDs = std::get<LinaTexture2D>(prop.data);
-				LinaTexture2D bindless = {
-					.texture = 0,
-					.sampler = 0,
-				};
-
-				uint32 txtIdx	  = 0;
-				uint32 samplerIdx = 0;
+				LinaTexture2D* bindless	  = reinterpret_cast<LinaTexture2D*>(prop->data.data());
+				uint32		   txtIdx	  = context->GetBindlessIndex(rm->GetResource<Texture>(bindless->texture));
+				uint32		   samplerIdx = context->GetBindlessIndex(rm->GetResource<TextureSampler>(bindless->sampler));
 				buf.BufferData(padding, (uint8*)&txtIdx, sizeof(uint32));
 				buf.BufferData(padding + sizeof(uint32), (uint8*)&samplerIdx, sizeof(uint32));
-
 				padding += sizeof(uint32) * 2;
 				totalSize += sizeof(uint32) * 2;
 			}
 			else
 			{
-				buf.BufferData(padding, (uint8*)&prop.data, prop.size);
-				padding += prop.size;
-				totalSize += prop.size;
+				buf.BufferData(padding, prop->data.data(), prop->data.size());
+				padding += prop->data.size();
+				totalSize += prop->data.size();
 			}
 		}
 

@@ -32,12 +32,14 @@ src/CommonCore.cpp
 src/EngineInterface.cpp
 
 # Graphics
-src/Graphics/GUI/GUIBackend.cpp
-src/Graphics/GUI/GUIRenderer.cpp
 src/Graphics/GfxManager.cpp
 src/Graphics/ResourceUploadQueue.cpp
 src/Graphics/MeshManager.cpp
 src/Graphics/CameraSystem.cpp
+src/Graphics/BindlessContext.cpp
+
+src/Graphics/GUI/GUIBackend.cpp
+src/Graphics/GUI/GUIRenderer.cpp
 src/Graphics/Utility/ShaderPreprocessor.cpp
 src/Graphics/Utility/GfxHelpers.cpp
 src/Graphics/Utility/TextureAtlas.cpp
@@ -85,6 +87,8 @@ src/World/Entity.cpp
 src/World/Component.cpp
 src/World/ComponentCache.cpp
 src/World/WorldManager.cpp
+src/World/Screen.cpp
+src/World/WorldInput.cpp
 src/World/EntityWorld.cpp
 
 
@@ -159,13 +163,15 @@ include/Core/Resources/ResourcesReflection.hpp
 include/Core/Resources/Data/ResourceMetadata.hpp
 
 # Graphics
-include/Core/Graphics/GUI/GUIBackend.hpp
-include/Core/Graphics/GUI/GUIRenderer.hpp
 include/Core/Graphics/GfxManager.hpp
 include/Core/Graphics/CameraSystem.hpp
 include/Core/Graphics/CommonGraphics.hpp
 include/Core/Graphics/ResourceUploadQueue.hpp
 include/Core/Graphics/MeshManager.hpp
+include/Core/Graphics/BindlessContext.hpp
+
+include/Core/Graphics/GUI/GUIBackend.hpp
+include/Core/Graphics/GUI/GUIRenderer.hpp
 include/Core/Graphics/Utility/ShaderPreprocessor.hpp
 include/Core/Graphics/Utility/GfxHelpers.hpp
 include/Core/Graphics/Utility/TextureAtlas.hpp
@@ -197,6 +203,8 @@ include/Core/World/Entity.hpp
 include/Core/World/Component.hpp
 include/Core/World/ComponentCache.hpp
 include/Core/World/WorldManager.hpp
+include/Core/World/Screen.hpp
+include/Core/World/WorldInput.hpp
 include/Core/World/EntityWorld.hpp
 include/Core/World/CommonWorld.hpp
 

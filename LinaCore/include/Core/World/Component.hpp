@@ -36,7 +36,7 @@ SOFTWARE.
 #include "Common/Data/Vector.hpp"
 #include "Common/Memory/CommonMemory.hpp"
 #include "Core/Resources/Resource.hpp"
-
+#include <LinaGX/Core/InputMappings.hpp>
 namespace LinaGX
 {
 	class Input;
@@ -86,7 +86,6 @@ namespace Lina
 		EntityWorld*	   m_world			 = nullptr;
 		ResourceManagerV2* m_resourceManager = nullptr;
 		Bitmask32		   m_flags			 = 0;
-		LinaGX::Input*	   m_input			 = nullptr;
 	};
 
 } // namespace Lina

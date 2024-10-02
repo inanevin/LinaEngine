@@ -161,7 +161,7 @@ namespace Lina
 			mat.albedo	 = Color(lgxMat->baseColor);
 
 			for (auto [type, index] : lgxMat->textureIndices)
-				mat.textureIndices.push_back(index);
+				mat.textureIndices[static_cast<uint8>(type)] = index;
 
 			idx++;
 		}
@@ -199,6 +199,7 @@ namespace Lina
 		uint32 sz = 0;
 		stream >> sz;
 
+		m_meshes.clear();
 		m_rootNodes.resize(static_cast<size_t>(sz));
 
 		for (size_t i = 0; i < static_cast<size_t>(sz); i++)

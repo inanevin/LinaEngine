@@ -30,6 +30,8 @@ SOFTWARE.
 
 #include "Core/Resources/Resource.hpp"
 #include "ComponentCache.hpp"
+#include "Screen.hpp"
+#include "WorldInput.hpp"
 #include "Common/Memory/MemoryAllocatorPool.hpp"
 #include "Common/ObjectWrapper.hpp"
 #include "Core/Physics/PhysicsWorld.hpp"
@@ -88,7 +90,7 @@ namespace Lina
 		static constexpr uint32 VERSION = 0;
 
 		EntityWorld(const EntityWorld& other) = delete;
-		EntityWorld(ResourceID id, const String& name) : Resource(id, GetTypeID<EntityWorld>(), name), m_physicsWorld(this){};
+		EntityWorld(ResourceID id, const String& name);
 		~EntityWorld();
 
 		Entity*		 CreateEntity(const String& name);
@@ -110,16 +112,6 @@ namespace Lina
 		inline void ViewEntities(Delegate<bool(Entity* e, uint32 index)>&& callback)
 		{
 			m_entityBucket.View(std::move(callback));
-		}
-
-		inline void SetRenderSize(const Vector2ui& sz)
-		{
-			m_renderSize = sz;
-		}
-
-		inline Vector2ui GetRenderSize() const
-		{
-			return m_renderSize;
 		}
 
 		inline Bitmask32& GetFlags()
@@ -197,7 +189,11 @@ namespace Lina
 			return m_resourceManagerV2;
 		}
 
-	protected:
+		inline Screen& GetScreen()
+		{
+			return m_screen;
+		}
+
 	private:
 		void ProcessComponent(Component* c, Entity* e);
 
@@ -219,7 +215,8 @@ namespace Lina
 		Bitmask32							 m_flags		= 0;
 		Vector<EntityWorldListener*>		 m_listeners;
 		GfxSettings							 m_gfxSettings;
-		Vector2ui							 m_renderSize;
+		Screen								 m_screen	  = {};
+		WorldInput							 m_worldInput = nullptr;
 	};
 
 } // namespace Lina

@@ -166,7 +166,7 @@ namespace Lina::Editor
 		pfd.globalTexturesDesc.textures.resize(txtCacheSize + m_dynamicTextures.size());
 		cacheTxt->View([&](Texture* txt, uint32 index) -> bool {
 			pfd.globalTexturesDesc.textures[index] = txt->GetGPUHandle();
-			txt->SetBindlessIndex(static_cast<uint32>(index));
+			SetBindlessIndex(txt, static_cast<uint32>(index));
 			return false;
 		});
 
@@ -174,7 +174,7 @@ namespace Lina::Editor
 		{
 			Texture* txt									  = m_dynamicTextures.at(i);
 			pfd.globalTexturesDesc.textures[txtCacheSize + i] = txt->GetGPUHandle();
-			txt->SetBindlessIndex(static_cast<uint32>(i + txtCacheSize));
+			SetBindlessIndex(txt, static_cast<uint32>(i + txtCacheSize));
 		}
 
 		if (!pfd.globalTexturesDesc.textures.empty())
@@ -185,7 +185,7 @@ namespace Lina::Editor
 		pfd.globalSamplersDesc.samplers.resize(static_cast<size_t>(cacheSmp->GetActiveItemCount()));
 		cacheSmp->View([&](TextureSampler* smp, uint32 index) -> bool {
 			pfd.globalSamplersDesc.samplers[index] = smp->GetGPUHandle();
-			smp->SetBindlessIndex(static_cast<uint32>(index));
+			SetBindlessIndex(smp, static_cast<uint32>(index));
 			return false;
 		});
 
@@ -203,12 +203,20 @@ namespace Lina::Editor
 
 		auto& pfd = m_pfd[frameIndex];
 
-		Taskflow tf;
-		tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) {
-			WorldRenderer* rend = m_worldRenderers.at(i);
-			rend->Render(frameIndex);
-		});
-		m_editor->GetSystem()->GetMainExecutor()->RunAndWait(tf);
+		// Taskflow tf;
+		// tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) {
+		// 	WorldRenderer* rend = m_worldRenderers.at(i);
+		// 	rend->Render(frameIndex);
+		// });
+		// m_editor->GetSystem()->GetMainExecutor()->RunAndWait(tf);
+
+		for (WorldRenderer* wr : m_worldRenderers)
+		{
+			wr->Render(frameIndex);
+			m_lgx->WaitForUserSemaphore(wr->GetSubmitSemaphore(frameIndex).GetSemaphore(), wr->GetSubmitSemaphore(frameIndex).GetValue());
+		}
+
+		m_lgx->Join();
 
 		UpdateBindlessResources(frameIndex);
 		if (m_uploadQueue.FlushAll(pfd.copyStream))
@@ -220,12 +228,12 @@ namespace Lina::Editor
 		Vector<uint16> waitSemaphores;
 		Vector<uint64> waitValues;
 
-		for (WorldRenderer* wr : m_worldRenderers)
-		{
-			const SemaphoreData sem = wr->GetSubmitSemaphore(frameIndex);
-			waitSemaphores.push_back(sem.GetSemaphore());
-			waitValues.push_back(sem.GetValue());
-		}
+		// for (WorldRenderer* wr : m_worldRenderers)
+		// {
+		// 	const SemaphoreData sem = wr->GetSubmitSemaphore(frameIndex);
+		// 	waitSemaphores.push_back(sem.GetSemaphore());
+		// 	waitValues.push_back(sem.GetValue());
+		// }
 
 		Vector<LinaGX::CommandStream*> streams;
 		Vector<uint8>				   swapchains;
@@ -322,7 +330,7 @@ namespace Lina::Editor
 		MarkBindlessDirty();
 	}
 
-	void EditorRenderer::OnResourceUnloaded(const Vector<ResourceDef>& resources)
+	void EditorRenderer::OnResourcesUnloaded(const ResourceDefinitionList& resources)
 	{
 		bool bindlessDirty = false;
 
@@ -336,7 +344,7 @@ namespace Lina::Editor
 			MarkBindlessDirty();
 	}
 
-	void EditorRenderer::OnResourceLoadEnded(int32 taskID, const Vector<Resource*>& resources)
+	void EditorRenderer::OnResourcesLoaded(int32 taskID, const ResourceList& resources)
 	{
 		bool bindlessDirty = false;
 
