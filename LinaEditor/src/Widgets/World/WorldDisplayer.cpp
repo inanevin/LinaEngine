@@ -60,14 +60,17 @@ namespace Lina::Editor
 		if (m_worldRenderer == nullptr)
 			return;
 
+		// Screen setup
 		Screen& sc = m_worldRenderer->GetWorld()->GetScreen();
 		sc.SetOwnerWindow(m_lgxWindow);
 		sc.SetDisplaySize(m_rect.size);
+		sc.SetDisplayPos(m_rect.pos);
 
-		m_worldRenderer->GetWorld()->GetFlags().Set(WORLD_FLAGS_UNFOCUSED, m_manager->GetControlsOwner() == this);
+		// Input setup
+		const bool worldHasFocus = m_manager->GetControlsOwner() == this && m_lgxWindow->HasFocus();
+		m_worldRenderer->GetWorld()->GetInput().SetIsActive(worldHasFocus);
 
-		Texture* target = m_worldRenderer->GetLightingPassOutput(Editor::Get()->GetGfxManager()->GetLGX()->GetCurrentFrameIndex());
-
+		Texture* target				= m_worldRenderer->GetLightingPassOutput(Editor::Get()->GetGfxManager()->GetLGX()->GetCurrentFrameIndex());
 		GetWidgetProps().rawTexture = target;
 	}
 

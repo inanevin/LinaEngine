@@ -182,6 +182,7 @@ namespace Lina
 		}
 
 	private:
+		void   CalculateViewProj(CameraComponent* camera, Matrix4& outView, Matrix4& outProj);
 		void   UpdateBindlessResources(uint32 frameIndex);
 		void   UpdateBuffers(uint32 frameIndex);
 		void   FetchRenderables();
@@ -190,6 +191,8 @@ namespace Lina
 		uint64 BumpAndSendTransfers(uint32 frameIndex);
 
 	private:
+		Matrix4										  m_mainPassView = {};
+		Matrix4										  m_mainPassProj = {};
 		GUIBackend									  m_guiBackend;
 		MeshManager									  m_meshManager;
 		ResourceManagerV2*							  m_resourceManagerV2 = nullptr;

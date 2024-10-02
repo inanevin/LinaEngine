@@ -31,11 +31,13 @@ SOFTWARE.
 #include "CommonWorld.hpp"
 #include "Entity.hpp"
 #include "Common/SizeDefinitions.hpp"
+#include "Common/Data/Functional.hpp"
 #include "Common/Memory/AllocatorBucket.hpp"
 
 namespace Lina
 {
 	class EntityWorld;
+	class Component;
 
 #define COMPONENT_POOL_SIZE 100
 
@@ -45,12 +47,16 @@ namespace Lina
 		ComponentCacheBase()		  = default;
 		virtual ~ComponentCacheBase() = default;
 
-		virtual void PreTick()														  = 0;
-		virtual void Tick(float delta)												  = 0;
-		virtual void PostTick(float delta)											  = 0;
+		virtual void PlayBegin()													  = 0;
+		virtual void PlayEnd()														  = 0;
+		virtual void PreTick(uint32 flags)											  = 0;
+		virtual void Tick(float delta, uint32 flags)								  = 0;
+		virtual void PostTick(float delta, uint32 flags)							  = 0;
 		virtual void LoadFromStream(IStream& stream, const Vector<Entity*>& entities) = 0;
 		virtual void SaveToStream(OStream& stream)									  = 0;
 		virtual void Destroy(Entity* e)												  = 0;
+		virtual void Destroy(Component* c)											  = 0;
+		virtual void ForEach(Delegate<void(Component* c)>&& cb)						  = 0;
 	};
 
 	template <typename T> class ComponentCache : public ComponentCacheBase
@@ -62,32 +68,47 @@ namespace Lina
 
 		virtual ~ComponentCache()
 		{
-			m_componentBucket.View([&](T* comp, uint32 index) -> bool {
-				comp->Destroy();
-				return false;
-			});
 		}
 
-		virtual void PreTick() override
+		virtual void PlayBegin() override
 		{
 			m_componentBucket.View([](T* comp, uint32 index) -> bool {
-				comp->PreTick();
+				comp->OnEvent({.type = ComponentEventType::PlayBegin});
 				return false;
 			});
 		}
 
-		virtual void Tick(float delta) override
+		virtual void PlayEnd() override
 		{
-			m_componentBucket.View([delta](T* comp, uint32 index) -> bool {
-				comp->Tick(delta);
+			m_componentBucket.View([](T* comp, uint32 index) -> bool {
+				comp->OnEvent({.type = ComponentEventType::PlayEnd});
 				return false;
 			});
 		}
 
-		virtual void PostTick(float delta) override
+		virtual void PreTick(uint32 flags) override
 		{
-			m_componentBucket.View([delta](T* comp, uint32 index) -> bool {
-				comp->PostTick(delta);
+			m_componentBucket.View([flags](T* comp, uint32 index) -> bool {
+				if (comp->GetFlags().IsSet(flags))
+					comp->OnEvent({.type = ComponentEventType::PreTick});
+				return false;
+			});
+		}
+
+		virtual void Tick(float delta, uint32 flags) override
+		{
+			m_componentBucket.View([delta, flags](T* comp, uint32 index) -> bool {
+				if (comp->GetFlags().IsSet(flags))
+					comp->OnEvent({.type = ComponentEventType::Tick, .data = delta});
+				return false;
+			});
+		}
+
+		virtual void PostTick(float delta, uint32 flags) override
+		{
+			m_componentBucket.View([delta, flags](T* comp, uint32 index) -> bool {
+				if (comp->GetFlags().IsSet(flags))
+					comp->OnEvent({.type = ComponentEventType::PostTick, .data = delta});
 				return false;
 			});
 		}
@@ -110,10 +131,12 @@ namespace Lina
 			});
 
 			if (component != nullptr)
-			{
-				component->Destroy();
 				m_componentBucket.Free(component);
-			}
+		}
+
+		virtual void Destroy(Component* c) override
+		{
+			m_componentBucket.Free(static_cast<T*>(c));
 		}
 
 		inline T* Get(Entity* e)
@@ -156,6 +179,14 @@ namespace Lina
 				stream >> entityID;
 				comp->m_entity = entities[entityID];
 			}
+		}
+
+		virtual void ForEach(Delegate<void(Component* c)>&& cb) override
+		{
+			m_componentBucket.View([&](T* comp, uint32 index) -> bool {
+				cb(comp);
+				return false;
+			});
 		}
 
 		void View(Delegate<bool(T* comp, uint32 index)>&& callback)

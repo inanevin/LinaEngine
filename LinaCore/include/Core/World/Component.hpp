@@ -51,17 +51,11 @@ namespace Lina
 	class Component
 	{
 	public:
+        
 		virtual void SaveToStream(OStream& stream) const {};
 		virtual void LoadFromStream(IStream& stream){};
-
-		virtual void Create(){};
-		virtual void Destroy(){};
-		virtual void Begin(){};
-		virtual void End(){};
-		virtual void PreTick(){};
-		virtual void Tick(float delta){};
-		virtual void PostTick(float delta){};
-
+        virtual void OnEvent(const ComponentEvent& event) {};
+        
 		virtual TypeID GetComponentType() = 0;
 
 		inline Entity* GetEntity()
@@ -69,7 +63,7 @@ namespace Lina
 			return m_entity;
 		}
 
-		inline Bitmask32& GetComponentFlags()
+		inline Bitmask32& GetFlags()
 		{
 			return m_flags;
 		}

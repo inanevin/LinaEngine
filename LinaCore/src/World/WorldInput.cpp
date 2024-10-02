@@ -27,38 +27,83 @@ SOFTWARE.
 */
 
 #include "Core/World/WorldInput.hpp"
+#include "Core/World/Screen.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
+#include "Common/Math/Math.hpp"
 
 namespace Lina
 {
 
 	bool WorldInput::GetKey(int32 button)
 	{
+		if (!m_isActive)
+			return false;
 		return m_lgxInput->GetKey(button);
 	}
 
 	bool WorldInput::GetKeyDown(int32 button)
 	{
+		if (!m_isActive)
+			return false;
+
 		return m_lgxInput->GetKeyDown(button);
 	}
 
 	bool WorldInput::GetKeyUp(int32 button)
 	{
-		return m_lgxInput->GetKeyUp(button);
+		const bool isUp = m_lgxInput->GetKeyUp(button);
+
+		if (m_isActive)
+			return isUp;
+		else
+			return isUp ? true : false;
 	}
 
 	bool WorldInput::GetMouseButton(int32 button)
 	{
+		if (!m_isActive)
+			return false;
+
 		return m_lgxInput->GetMouseButton(button);
 	}
 
 	bool WorldInput::GetMouseButtonDown(int button)
 	{
+		if (!m_isActive)
+			return false;
+
 		return m_lgxInput->GetMouseButtonDown(button);
 	}
 
 	bool WorldInput::GetMouseButtonUp(int32 button)
 	{
-		return m_lgxInput->GetMouseButtonUp(button);
+		const bool isUp = m_lgxInput->GetMouseButtonUp(button);
+
+		if (m_isActive)
+			return isUp;
+		else
+			return isUp ? true : false;
 	}
+
+	Vector2 WorldInput::GetMousePosition()
+	{
+		if (!m_isActive)
+			return m_lastMousePosition;
+
+		const Vector2 mpRelativeWindow = m_screen->GetOwnerWindow()->GetMousePosition();
+		const Vector2 displayPos	   = m_screen->GetDisplayPos();
+		const Vector2 displaySize	   = m_screen->GetDisplaySize();
+		const Vector2 mousePos		   = Vector2(Math::Clamp(mpRelativeWindow.x - displayPos.x, 0.0f, displaySize.x), Math::Clamp(mpRelativeWindow.y - displayPos.y, 0.0f, displaySize.y));
+		m_lastMousePosition			   = mousePos;
+		return m_lastMousePosition;
+	}
+
+	Vector2 WorldInput::GetMousePositionRatio()
+	{
+		const Vector2 displaySize = m_screen->GetDisplaySize();
+		const Vector2 mousePos	  = GetMousePosition();
+		const Vector2 ratio		  = Vector2(mousePos.x / displaySize.x, mousePos.y / displaySize.y);
+		return ratio;
+	}
+
 } // namespace Lina

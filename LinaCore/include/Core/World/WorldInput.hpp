@@ -38,20 +38,32 @@ namespace LinaGX
 
 namespace Lina
 {
+	class Screen;
+
 	class WorldInput
 	{
 	public:
 		WorldInput() = delete;
-		WorldInput(LinaGX::Input* inp) : m_lgxInput(inp){};
+		WorldInput(LinaGX::Input* inp, Screen* sc) : m_lgxInput(inp), m_screen(sc){};
 
-		bool GetKey(int32 button);
-		bool GetKeyDown(int32 button);
-		bool GetKeyUp(int32 button);
-		bool GetMouseButton(int32 button);
-		bool GetMouseButtonDown(int button);
-		bool GetMouseButtonUp(int32 button);
+		bool	GetKey(int32 button);
+		bool	GetKeyDown(int32 button);
+		bool	GetKeyUp(int32 button);
+		bool	GetMouseButton(int32 button);
+		bool	GetMouseButtonDown(int button);
+		bool	GetMouseButtonUp(int32 button);
+		Vector2 GetMousePosition();
+		Vector2 GetMousePositionRatio();
+
+		inline void SetIsActive(bool isActive)
+		{
+			m_isActive = isActive;
+		}
 
 	private:
-		LinaGX::Input* m_lgxInput = nullptr;
+		Vector2		   m_lastMousePosition = Vector2::Zero;
+		LinaGX::Input* m_lgxInput		   = nullptr;
+		Screen*		   m_screen			   = nullptr;
+		bool		   m_isActive		   = true;
 	};
 } // namespace Lina

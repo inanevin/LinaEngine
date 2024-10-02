@@ -38,7 +38,7 @@ SOFTWARE.
 #include "Core/Components/MeshComponent.hpp"
 #include "Core/Components/WidgetComponent.hpp"
 #include "Core/Components/CameraComponent.hpp"
-#include "Core/Components/SimpleFlightMovement.hpp"
+#include "Core/Components/FlyCameraMovement.hpp"
 #include "Common/Math/Math.hpp"
 
 namespace Lina
@@ -258,26 +258,26 @@ namespace Lina
 
 	void WorldManager::PreTick()
 	{
-		if (m_activeWorlds.size() == 1)
-			m_activeWorlds[0]->PreTick();
-		else
-		{
-			Taskflow tf;
-			tf.for_each(m_activeWorlds.begin(), m_activeWorlds.end(), [](EntityWorld* world) { world->PreTick(); });
-			m_system->GetMainExecutor()->RunAndWait(tf);
-		}
+		// if (m_activeWorlds.size() == 1)
+		// 	m_activeWorlds[0]->PreTick();
+		// else
+		// {
+		// 	Taskflow tf;
+		// 	tf.for_each(m_activeWorlds.begin(), m_activeWorlds.end(), [](EntityWorld* world) { world->PreTick(); });
+		// 	m_system->GetMainExecutor()->RunAndWait(tf);
+		// }
 	}
 
 	void WorldManager::Tick(float delta)
 	{
-		if (m_activeWorlds.size() == 1)
-			m_activeWorlds[0]->Tick(delta);
-		else
-		{
-			Taskflow tf;
-			tf.for_each(m_activeWorlds.begin(), m_activeWorlds.end(), [delta](EntityWorld* world) { world->Tick(delta); });
-			m_system->GetMainExecutor()->RunAndWait(tf);
-		}
+		// if (m_activeWorlds.size() == 1)
+		// 	m_activeWorlds[0]->Tick(delta);
+		// else
+		// {
+		// 	Taskflow tf;
+		// 	tf.for_each(m_activeWorlds.begin(), m_activeWorlds.end(), [delta](EntityWorld* world) { world->Tick(delta); });
+		// 	m_system->GetMainExecutor()->RunAndWait(tf);
+		// }
 	}
 
 } // namespace Lina

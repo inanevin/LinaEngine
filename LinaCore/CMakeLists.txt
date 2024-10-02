@@ -63,9 +63,8 @@ src/Graphics/Pipeline/RenderPass.cpp
 src/Graphics/Pipeline/DescriptorSet.cpp
 src/Graphics/CommonGraphics.cpp
 
-src/Components/SkyComponent.cpp
 src/Components/CameraComponent.cpp
-src/Components/SimpleFlightMovement.cpp
+src/Components/FlyCameraMovement.cpp
 src/Components/RenderableComponent.cpp
 src/Components/MeshComponent.cpp
 src/Components/WidgetComponent.cpp
@@ -214,9 +213,8 @@ include/Core/Physics/PhysicsMaterial.hpp
 
 # Components
 include/Core/Components/CameraComponent.hpp
-include/Core/Components/SimpleFlightMovement.hpp
+include/Core/Components/FlyCameraMovement.hpp
 include/Core/Components/RenderableComponent.hpp
-include/Core/Components/SkyComponent.hpp
 include/Core/Components/MeshComponent.hpp
 include/Core/Components/WidgetComponent.hpp
 

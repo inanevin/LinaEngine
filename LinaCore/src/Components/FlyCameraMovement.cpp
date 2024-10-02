@@ -26,23 +26,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Components/SimpleFlightMovement.hpp"
+#include "Core/Components/FlyCameraMovement.hpp"
 #include "Core/World/Entity.hpp"
 #include "Common/Math/Math.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina
 {
-	void SimpleFlightMovement::Begin()
-	{
-	}
+    void FlyCameraMovement::OnEvent(const ComponentEvent &ev)
+    {
+        if(ev.type != ComponentEventType::Tick)
+            return;
+        
+        Tick(ev.data);
+    }
 
-	void SimpleFlightMovement::End()
+	void FlyCameraMovement::Tick(float delta)
 	{
-	}
-
-	void SimpleFlightMovement::Tick(float delta)
-	{
+       
+        /*
 		if (!m_input->GetMouseButton(LINAGX_MOUSE_1))
 			return;
 
@@ -74,6 +76,6 @@ namespace Lina
 		input *= m_movementPower;
 
 		const Vector3 targetPosition = (m_entity->GetPosition() + m_entity->GetRotation().GetForward() * input.y + m_entity->GetRotation().GetRight() * input.x);
-		m_entity->SetPosition(Math::Lerp(m_entity->GetPosition(), targetPosition, delta * m_movementSpeed));
+		m_entity->SetPosition(Math::Lerp(m_entity->GetPosition(), targetPosition, delta * m_movementSpeed));*/
 	}
 } // namespace Lina

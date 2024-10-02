@@ -37,7 +37,7 @@ namespace Lina
 	class CameraComponent : public Component
 	{
 	public:
-		virtual void PostTick(float delta) override;
+		CameraComponent() : Component(0){};
 
 		virtual TypeID GetComponentType() override
 		{
@@ -54,16 +54,6 @@ namespace Lina
 			stream >> m_fieldOfView >> m_zNear >> m_zFar;
 		}
 
-		inline const Matrix4& GetProjection()
-		{
-			return m_projection;
-		}
-
-		inline const Matrix4& GetView()
-		{
-			return m_view;
-		}
-
 		inline float GetNear() const
 		{
 			return m_zNear;
@@ -74,11 +64,14 @@ namespace Lina
 			return m_zFar;
 		}
 
+		inline float GetFOV() const
+		{
+			return m_fieldOfView;
+		}
+
 	private:
 		friend class CameraSystem;
 		LINA_REFLECTION_ACCESS(CameraComponent);
-		Matrix4	   m_projection	 = Matrix4::Identity();
-		Matrix4	   m_view		 = Matrix4::Identity();
 		float	   m_fieldOfView = 90.0f;
 		float	   m_zNear		 = 0.01f;
 		float	   m_zFar		 = 500.0f;

@@ -36,17 +36,6 @@ SOFTWARE.
 
 namespace Lina
 {
-	void WidgetComponent::Create()
-	{
-		// auto* gfxMan = m_world->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-		// m_guiRenderer.Create(gfxMan, gfxMan->GetApplicationWindow(LINA_MAIN_SWAPCHAIN));
-	}
-
-	void WidgetComponent::Destroy()
-	{
-		// m_guiRenderer.Destroy();
-	}
-
 	void WidgetComponent::SaveToStream(OStream& stream) const
 	{
 		stream << m_targetWidget;
@@ -55,16 +44,6 @@ namespace Lina
 	void WidgetComponent::LoadFromStream(IStream& stream)
 	{
 		stream >> m_targetWidget;
-	}
-
-	void WidgetComponent::PreTick()
-	{
-		// m_guiRenderer.PreTick();
-	}
-
-	void WidgetComponent::Tick(float delta)
-	{
-		// m_guiRenderer.Tick(delta, m_canvasSize);
 	}
 
 	void WidgetComponent::SetMaterial(ResourceID id)

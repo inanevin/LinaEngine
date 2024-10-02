@@ -45,10 +45,7 @@ namespace Lina
 {
 #define ENTITY_VEC_SIZE_CHUNK 2000
 
-	EntityWorld::EntityWorld(ResourceID id, const String& name)
-		: Resource(id, GetTypeID<EntityWorld>(), name), m_worldInput(&GfxManager::GetLGX()->GetInput()), m_physicsWorld(this){
-
-																										 };
+	EntityWorld::EntityWorld(ResourceID id, const String& name) : Resource(id, GetTypeID<EntityWorld>(), name), m_worldInput(&GfxManager::GetLGX()->GetInput(), &m_screen), m_physicsWorld(this){};
 
 	EntityWorld::~EntityWorld()
 	{
@@ -102,26 +99,42 @@ namespace Lina
 		m_physicsWorld.Simulate();
 	}
 
-	void EntityWorld::PreTick()
+	void EntityWorld::PlayBeginComponents()
+	{
+		for (const auto& [tid, cache] : m_componentCaches)
+		{
+			cache->PlayBegin();
+		}
+	}
+
+	void EntityWorld::PlayEndComponents()
+	{
+		for (const auto& [tid, cache] : m_componentCaches)
+		{
+			cache->PlayEnd();
+		}
+	}
+
+	void EntityWorld::PreTick(uint32 flags)
 	{
 		m_resourceManagerV2.Poll();
 
 		for (const auto& [tid, cache] : m_componentCaches)
 		{
-			cache->PreTick();
+			cache->PreTick(flags);
 		}
 	}
 
-	void EntityWorld::Tick(float deltaTime)
+	void EntityWorld::Tick(float deltaTime, uint32 flags)
 	{
 		for (const auto& [tid, cache] : m_componentCaches)
 		{
-			cache->Tick(deltaTime);
+			cache->Tick(deltaTime, flags);
 		}
 
 		for (const auto& [tid, cache] : m_componentCaches)
 		{
-			cache->PostTick(deltaTime);
+			cache->PostTick(deltaTime, flags);
 		}
 	}
 
@@ -217,15 +230,27 @@ namespace Lina
 			ComponentCacheBase* cache = static_cast<ComponentCacheBase*>(ptr);
 			cache->LoadFromStream(stream, entities);
 			m_componentCaches[tid] = cache;
+
+			cache->ForEach([this](Component* c) { OnCreateComponent(c, c->m_entity); });
 		}
 	}
 
-	void EntityWorld::ProcessComponent(Component* c, Entity* e)
+	void EntityWorld::OnCreateComponent(Component* c, Entity* e)
 	{
 		c->m_world			 = this;
 		c->m_resourceManager = &m_resourceManagerV2;
 		c->m_entity			 = e;
-		c->Create();
+		c->OnEvent({.type = ComponentEventType::Create});
+		for (auto* l : m_listeners)
+			l->OnComponentAdded(c);
+	}
+
+	void EntityWorld::OnDestroyComponent(Component* c, Entity* e)
+	{
+		c->OnEvent({.type = ComponentEventType::Destroy});
+
+		for (auto* l : m_listeners)
+			l->OnComponentRemoved(c);
 	}
 
 	void EntityWorld::AddListener(EntityWorldListener* listener)

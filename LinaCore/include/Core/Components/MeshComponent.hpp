@@ -40,8 +40,8 @@ namespace Lina
 	class MeshComponent : public RenderableComponent
 	{
 	public:
-		virtual void Create() override;
-		virtual void Destroy() override;
+		virtual void OnEvent(const ComponentEvent& event) override;
+
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
 

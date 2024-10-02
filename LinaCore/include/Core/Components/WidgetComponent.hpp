@@ -39,12 +39,8 @@ namespace Lina
 	class WidgetComponent : public Component
 	{
 	public:
-		virtual void Create() override;
-		virtual void Destroy() override;
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
-		virtual void PreTick() override;
-		virtual void Tick(float delta) override;
 
 		void SetWidget(ResourceID id);
 		void SetMaterial(ResourceID id);

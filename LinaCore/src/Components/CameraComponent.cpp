@@ -33,16 +33,5 @@ SOFTWARE.
 
 namespace Lina
 {
-	void CameraComponent::PostTick(float delta)
-	{
-		Matrix4 rotMat			  = Matrix4(m_entity->GetRotation().Inverse());
-		Matrix4 translationMatrix = Matrix4::Translate(-m_entity->GetPosition());
-		m_view					  = rotMat * translationMatrix;
-		const Vector2ui& sz		  = m_world->GetScreen().GetRenderSize();
 
-		if (sz.x == 0 || sz.y == 0)
-			return;
-
-		m_projection = Matrix4::Perspective(m_fieldOfView / 2, static_cast<float>(sz.x) / static_cast<float>(sz.y), m_zNear, m_zFar);
-	}
 } // namespace Lina

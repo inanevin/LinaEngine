@@ -34,13 +34,16 @@ SOFTWARE.
 
 namespace Lina
 {
-	void MeshComponent::Create()
+	void MeshComponent::OnEvent(const ComponentEvent& event)
 	{
-	}
-
-	void MeshComponent::Destroy()
-	{
-		m_entity->RemoveAABB(m_usedLocalAABB);
+		switch (event.type)
+		{
+		case ComponentEventType::Destroy:
+			m_entity->RemoveAABB(m_usedLocalAABB);
+			break;
+		default:
+			break;
+		}
 	}
 
 	void MeshComponent::SaveToStream(OStream& stream) const

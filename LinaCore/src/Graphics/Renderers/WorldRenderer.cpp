@@ -374,6 +374,10 @@ namespace Lina
 	{
 		for (auto* ext : m_extensions)
 			ext->Tick(delta);
+
+		CameraComponent* activeCamera = m_world->GetActiveCamera();
+		if (activeCamera)
+			CalculateViewProj(activeCamera, m_mainPassView, m_mainPassProj);
 	}
 
 	void WorldRenderer::Resize(const Vector2ui& newSize)
@@ -460,8 +464,8 @@ namespace Lina
 			{
 				const Vector3& camPos	   = camera->GetEntity()->GetPosition();
 				const Vector3& camDir	   = camera->GetEntity()->GetRotation().GetForward();
-				view.view				   = camera->GetView();
-				view.proj				   = camera->GetProjection();
+				view.view				   = m_mainPassView;
+				view.proj				   = m_mainPassProj;
 				view.viewProj			   = view.proj * view.view;
 				view.cameraPositionAndNear = Vector4(camPos.x, camPos.y, camPos.z, camera->GetNear());
 				view.cameraDirectionAndFar = Vector4(camDir.x, camDir.y, camDir.z, camera->GetFar());
@@ -954,6 +958,19 @@ namespace Lina
 		{
 			m_meshManager.AddToUploadQueue(m_globalUploadQueue);
 		}
+	}
+
+	void WorldRenderer::CalculateViewProj(CameraComponent* camera, Matrix4& outView, Matrix4& outProj)
+	{
+		Matrix4 rotMat			  = Matrix4(camera->GetEntity()->GetRotation().Inverse());
+		Matrix4 translationMatrix = Matrix4::Translate(-camera->GetEntity()->GetPosition());
+		outView					  = rotMat * translationMatrix;
+		const Vector2ui& sz		  = m_world->GetScreen().GetRenderSize();
+
+		if (sz.x == 0 || sz.y == 0)
+			return;
+
+		outProj = Matrix4::Perspective(camera->GetFOV() / 2, static_cast<float>(sz.x) / static_cast<float>(sz.y), camera->GetNear(), camera->GetFar());
 	}
 
 } // namespace Lina

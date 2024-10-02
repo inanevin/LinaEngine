@@ -29,32 +29,42 @@ SOFTWARE.
 #pragma once
 
 #include "Core/World/Component.hpp"
-#include "Common/Math/Color.hpp"
 
 namespace Lina
 {
-	class SkyComponent : public Component
+	class FlyCameraMovement : public Component
 	{
 	public:
+		FlyCameraMovement() : Component(CF_RECEIVE_TICK){};
+
+		virtual void OnEvent(const ComponentEvent& ev) override;
+
 		virtual TypeID GetComponentType() override
 		{
-			return GetTypeID<SkyComponent>();
+			return GetTypeID<FlyCameraMovement>();
 		}
 
-		virtual void SaveToStream(OStream& stream)
+		virtual void SaveToStream(OStream& stream) const override
 		{
-			stream << m_topColor << m_horizonColor << m_groundColor;
+			stream << m_movementSpeed << m_rotationSpeed;
 		};
 
-		virtual void LoadFromStream(IStream& stream)
+		virtual void LoadFromStream(IStream& stream) override
 		{
-			stream >> m_topColor >> m_horizonColor >> m_groundColor;
+			stream >> m_movementSpeed >> m_rotationSpeed;
 		}
 
 	private:
-		Color m_topColor	 = Color::Black;
-		Color m_horizonColor = Color::White;
-		Color m_groundColor	 = Color::Black;
+		void Tick(float delta);
+
+	private:
+		LINA_REFLECTION_ACCESS(SimpleFlightMovement);
+		float	m_movementSpeed = 5.0f;
+		float	m_rotationSpeed = 26.0f;
+		float	m_rotationPower = 0.75f;
+		float	m_movementPower = 7.0f;
+		Vector2 m_targetAngles	= Vector2::Zero;
+		Vector2 m_finalAngles	= Vector2::Zero;
 	};
 
 } // namespace Lina

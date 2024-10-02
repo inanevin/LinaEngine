@@ -50,14 +50,32 @@ namespace Lina
 
 	enum ComponentFlags
 	{
-		CF_NONE		  = 1 << 0,
-		CF_RENDERABLE = 1 << 1,
+		CF_NONE				   = 1 << 0,
+		CF_RENDERABLE		   = 1 << 1,
+		CF_RECEIVE_TICK		   = 1 << 2,
+		CF_RECEIVE_EDITOR_TICK = 1 << 3,
 	};
 
 	enum WorldFlags
 	{
-		WORLD_FLAGS_NONE	  = 1 << 0,
-		WORLD_FLAGS_UNFOCUSED = 1 << 1,
+		WORLD_FLAGS_NONE = 1 << 0,
+	};
+
+	enum class ComponentEventType
+	{
+		Create,
+		Destroy,
+		PlayBegin,
+		PlayEnd,
+		PreTick,
+		Tick,
+		PostTick,
+	};
+
+	struct ComponentEvent
+	{
+		ComponentEventType type = ComponentEventType::Create;
+		float			   data = 0.0f;
 	};
 
 } // namespace Lina

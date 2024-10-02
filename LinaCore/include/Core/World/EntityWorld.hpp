@@ -100,8 +100,10 @@ namespace Lina
 		virtual void LoadFromFile(const String& path) override;
 		void		 AddListener(EntityWorldListener* listener);
 		void		 RemoveListener(EntityWorldListener* listener);
-		void		 PreTick();
-		void		 Tick(float deltaTime);
+		void		 PlayBeginComponents();
+		void		 PlayEndComponents();
+		void		 PreTick(uint32 flags);
+		void		 Tick(float deltaTime, uint32 flags);
 		Entity*		 AddModelToWorld(Model* model, const Vector<Material*>& materials);
 
 		inline uint32 GetActiveEntityCount() const
@@ -138,19 +140,14 @@ namespace Lina
 		{
 			T* comp = GetCache<T>()->Create();
 			*comp	= t;
-			ProcessComponent(comp, e);
-			for (auto* l : m_listeners)
-				l->OnComponentAdded(comp);
-
+			OnCreateComponent(comp, e);
 			return comp;
 		}
 
 		template <typename T> T* AddComponent(Entity* e)
 		{
 			T* ptr = GetCache<T>()->Create();
-			ProcessComponent(ptr, e);
-			for (auto* l : m_listeners)
-				l->OnComponentAdded(ptr);
+			OnCreateComponent(ptr, e);
 			return ptr;
 		}
 
@@ -158,14 +155,10 @@ namespace Lina
 		{
 			ComponentCache<T>* cache = GetCache<T>();
 			T*				   comp	 = cache->Get(e);
-
-			for (auto* l : m_listeners)
-				l->OnComponentRemoved(comp);
-
+			OnDestroyComponent(comp, e);
 			if (comp == m_activeCamera)
 				m_activeCamera = nullptr;
-
-			cache->Destroy(e);
+			cache->Destroy(comp);
 		}
 
 		template <typename T> ComponentCache<T>* GetCache()
@@ -194,8 +187,14 @@ namespace Lina
 			return m_screen;
 		}
 
+		inline WorldInput& GetInput()
+		{
+			return m_worldInput;
+		}
+
 	private:
-		void ProcessComponent(Component* c, Entity* e);
+		void OnCreateComponent(Component* c, Entity* e);
+		void OnDestroyComponent(Component* c, Entity* e);
 
 	private:
 		friend class WorldManager;
@@ -215,8 +214,8 @@ namespace Lina
 		Bitmask32							 m_flags		= 0;
 		Vector<EntityWorldListener*>		 m_listeners;
 		GfxSettings							 m_gfxSettings;
-		Screen								 m_screen	  = {};
-		WorldInput							 m_worldInput = nullptr;
+		Screen								 m_screen = {};
+		WorldInput							 m_worldInput;
 	};
 
 } // namespace Lina

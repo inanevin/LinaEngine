@@ -52,7 +52,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Resource/TextureSampler.hpp"
 #include "Core/Components/CameraComponent.hpp"
-#include "Core/Components/SimpleFlightMovement.hpp"
+#include "Core/Components/FlyCameraMovement.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/World/EntityWorld.hpp"
 
@@ -359,7 +359,8 @@ namespace Lina::Editor
 		camera->SetPosition(Vector3(0, 0, 0));
 		// camera->SetRotation(Quaternion::LookAt(camera->GetPosition(), Vector3::Zero, Vector3::Up));
 		CameraComponent*	  cameraComp = m_world->AddComponent<CameraComponent>(camera);
-		SimpleFlightMovement* flight	 = m_world->AddComponent<SimpleFlightMovement>(camera);
+		FlyCameraMovement* flight	 = m_world->AddComponent<FlyCameraMovement>(camera);
+        flight->GetFlags() = CF_RECEIVE_EDITOR_TICK;
 		m_world->SetActiveCamera(cameraComp);
 
 		Vector<Material*> materials;
@@ -397,7 +398,7 @@ namespace Lina::Editor
 			m_editor->GetEditorRenderer().RefreshDynamicTextures();
 		}
 
-		m_world->PreTick();
+        m_world->PreTick(ComponentFlags::CF_RECEIVE_EDITOR_TICK);
 	}
 
 	void PanelModelViewer::Tick(float delta)
@@ -405,7 +406,7 @@ namespace Lina::Editor
 		if (m_world == nullptr)
 			return;
 
-		m_world->Tick(delta);
+		m_world->Tick(delta, ComponentFlags::CF_RECEIVE_EDITOR_TICK);
 	}
 
 	void PanelModelViewer::SetRuntimeDirty(bool isDirty)
