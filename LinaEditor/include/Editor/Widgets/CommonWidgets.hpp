@@ -55,7 +55,6 @@ namespace LinaGX
 
 namespace Lina::Editor
 {
-	class GenericPopup;
 	class InfoTooltip;
 	class ItemController;
 

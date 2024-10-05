@@ -59,11 +59,8 @@ include/Editor/Widgets/Docking/DockBorder.hpp
 include/Editor/Widgets/Docking/DockWidget.hpp
 include/Editor/Widgets/Docking/DockPreview.hpp
 include/Editor/Widgets/Screens/SplashScreen.hpp
-include/Editor/Widgets/Popups/ProjectSelector.hpp
 include/Editor/Widgets/Popups/NotificationDisplayer.hpp
 include/Editor/Widgets/Popups/InfoTooltip.hpp
-include/Editor/Widgets/Popups/GenericPopup.hpp
-include/Editor/Widgets/Popups/ProgressPopup.hpp
 include/Editor/Widgets/Panel/Panel.hpp
 include/Editor/Widgets/Panel/PanelWorld.hpp
 include/Editor/Widgets/Panel/PanelWidgetEditor.hpp
@@ -130,11 +127,8 @@ src/Widgets/Docking/DockBorder.cpp
 src/Widgets/Docking/DockArea.cpp
 src/Widgets/Docking/DockPreview.cpp
 src/Widgets/Screens/SplashScreen.cpp
-src/Widgets/Popups/ProjectSelector.cpp
 src/Widgets/Popups/NotificationDisplayer.cpp
 src/Widgets/Popups/InfoTooltip.cpp
-src/Widgets/Popups/GenericPopup.cpp
-src/Widgets/Popups/ProgressPopup.cpp
 src/Widgets/Panel/Panel.cpp
 src/Widgets/Panel/PanelPerformance.cpp
 src/Widgets/Panel/PanelWorld.cpp

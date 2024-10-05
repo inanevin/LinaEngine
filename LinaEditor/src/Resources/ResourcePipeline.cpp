@@ -32,7 +32,6 @@ SOFTWARE.
 #include "Editor/IO/ThumbnailGenerator.hpp"
 #include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
 #include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
-#include "Editor/Widgets/Popups/ProgressPopup.hpp"
 
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Serialization/Serialization.hpp"

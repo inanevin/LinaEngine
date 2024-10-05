@@ -28,7 +28,6 @@ SOFTWARE.
 
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Editor/Widgets/Popups/InfoTooltip.hpp"
-#include "Editor/Widgets/Popups/GenericPopup.hpp"
 #include "Editor/Widgets/FX/LinaLoading.hpp"
 #include "Editor/Widgets/Layout/ItemController.hpp"
 #include "Editor/Widgets/Compound/ColorWheelCompound.hpp"

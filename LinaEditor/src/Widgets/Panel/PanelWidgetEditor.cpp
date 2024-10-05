@@ -30,7 +30,6 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelWidgetEditorProperties.hpp"
 #include "Editor/Widgets/Layout/ItemController.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
-#include "Editor/Widgets/Popups/GenericPopup.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Core/Resources/ResourceDirectory.hpp"

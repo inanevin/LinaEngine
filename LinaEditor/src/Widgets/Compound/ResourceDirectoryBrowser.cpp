@@ -31,7 +31,6 @@ SOFTWARE.
 #include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
 #include "Editor/Widgets/Layout/ItemController.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
-#include "Editor/Widgets/Popups/GenericPopup.hpp"
 #include "Editor/Widgets/FX/ProgressCircleFill.hpp"
 #include "Editor/Resources/ResourcePipeline.hpp"
 #include "Core/Meta/ProjectData.hpp"
