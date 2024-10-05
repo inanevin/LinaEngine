@@ -38,7 +38,7 @@ SOFTWARE.
 
 namespace Lina
 {
-    LinaGX::Instance* Application::s_lgx = nullptr;
+	LinaGX::Instance* Application::s_lgx = nullptr;
 
 	void Application::Initialize(const SystemInitializationInfo& initInfo)
 	{
@@ -56,9 +56,9 @@ namespace Lina
 		PROFILER_REGISTER_THREAD("Main");
 
 		// Pre-initialization
-        GfxHelpers::InitializeLinaVG();
-        s_lgx = GfxHelpers::InitializeLinaGX();
-        GetAppDelegate()->PreInitialize();
+		GfxHelpers::InitializeLinaVG();
+		s_lgx = GfxHelpers::InitializeLinaGX();
+		GetAppDelegate()->PreInitialize();
 
 		// Main window
 		auto window = CreateApplicationWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, Vector2i::Zero, Vector2ui(initInfo.windowWidth, initInfo.windowHeight), static_cast<uint32>(initInfo.windowStyle));
@@ -67,7 +67,7 @@ namespace Lina
 		window->SetVisible(true);
 
 		// Initialization
-        GetAppDelegate()->Initialize();
+		GetAppDelegate()->Initialize();
 	}
 
 	void Application::LoadPlugins()
@@ -82,23 +82,23 @@ namespace Lina
 
 	void Application::Tick()
 	{
-        PROFILER_FRAME_START();
-        PROFILER_FUNCTION();
+		PROFILER_FRAME_START();
+		PROFILER_FUNCTION();
 
-        // Time.
-        CalculateTime();
+		// Time.
+		CalculateTime();
 
-        // PreTick
-        s_lgx->TickWindowSystem();
-        GetAppDelegate()->PreTick();
-       
-        // Tick
-        const double delta             = SystemInfo::GetDeltaTime();
-        const float     deltaF             = SystemInfo::GetDeltaTimeF();
-        const int64     fixedTimestep     = SystemInfo::GetFixedTimestepMicroseonds();
-        const double fixedTimestepDb = static_cast<double>(fixedTimestep);
-        m_fixedTimestepAccumulator += SystemInfo::GetDeltaTimeMicroSeconds();
-        GetAppDelegate()->Tick(deltaF);
+		// PreTick
+		s_lgx->TickWindowSystem();
+		GetAppDelegate()->PreTick();
+
+		// Tick
+		const double delta			 = SystemInfo::GetDeltaTime();
+		const float	 deltaF			 = SystemInfo::GetDeltaTimeF();
+		const int64	 fixedTimestep	 = SystemInfo::GetFixedTimestepMicroseonds();
+		const double fixedTimestepDb = static_cast<double>(fixedTimestep);
+		m_fixedTimestepAccumulator += SystemInfo::GetDeltaTimeMicroSeconds();
+		GetAppDelegate()->Tick(deltaF);
 		SystemInfo::SetFrames(SystemInfo::GetFrames() + 1);
 		SystemInfo::SetAppTime(SystemInfo::GetAppTime() + SystemInfo::GetDeltaTime());
 
@@ -115,14 +115,14 @@ namespace Lina
 
 	void Application::Shutdown()
 	{
-        GetLGX()->Join();
-        GetAppDelegate()->PreShutdown();
-        GfxHelpers::ShutdownLinaVG();
-        
-        GetAppDelegate()->Shutdown();
-        DestroyApplicationWindow(LINA_MAIN_SWAPCHAIN);
-        delete s_lgx;
-        s_lgx = nullptr;
+		GetLGX()->Join();
+		GetAppDelegate()->PreShutdown();
+		GfxHelpers::ShutdownLinaVG();
+
+		GetAppDelegate()->Shutdown();
+		DestroyApplicationWindow(LINA_MAIN_SWAPCHAIN);
+		delete s_lgx;
+		s_lgx = nullptr;
 
 		PROFILER_SHUTDOWN;
 		ReflectionSystem::Get().Destroy();
@@ -140,82 +140,82 @@ namespace Lina
 
 	void Application::OnWindowClose(LinaGX::Window* window)
 	{
-        if(window->GetSID() == LINA_MAIN_SWAPCHAIN)
-            m_exitRequested = true;
+		if (window->GetSID() == LINA_MAIN_SWAPCHAIN)
+			m_exitRequested = true;
 	}
 
-    void Application::OnWindowSizeChanged(LinaGX::Window *window, const LinaGX::LGXVector2ui& sz)
-    {
-        GetAppDelegate()->OnWindowSizeChanged(window, sz);
-    }
+	void Application::OnWindowSizeChanged(LinaGX::Window* window, const LinaGX::LGXVector2ui& sz)
+	{
+		GetAppDelegate()->OnWindowSizeChanged(window, sz);
+	}
 
-    LinaGX::Window* Application::CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, uint32 style, LinaGX::Window* parentWindow)
-    {
-        s_lgx->Join();
-        auto window = s_lgx->GetWindowManager().CreateApplicationWindow(sid, title, pos.x, pos.y, size.x, size.y, static_cast<LinaGX::WindowStyle>(style), parentWindow);
-        window->AddListener(this);
-        return window;
-    }
-    
-    void Application::DestroyApplicationWindow(StringID sid)
-    {
-        s_lgx->Join();
-        auto* window = s_lgx->GetWindowManager().GetWindow(sid);
-        window->RemoveListener(this);
-        s_lgx->GetWindowManager().DestroyApplicationWindow(sid);
-    }
-    
-    LinaGX::Window* Application::GetApplicationWindow(StringID sid)
-    {
-        return s_lgx->GetWindowManager().GetWindow(sid);
-    }
+	LinaGX::Window* Application::CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, uint32 style, LinaGX::Window* parentWindow)
+	{
+		s_lgx->Join();
+		auto window = s_lgx->GetWindowManager().CreateApplicationWindow(sid, title, pos.x, pos.y, size.x, size.y, static_cast<LinaGX::WindowStyle>(style), parentWindow);
+		window->AddListener(this);
+		return window;
+	}
 
-    void Application::CalculateTime()
-    {
-        static int64 previous = PlatformTime::GetCPUMicroseconds();
-        int64         current  = PlatformTime::GetCPUMicroseconds();
-        int64         deltaUs  = current - previous;
-        
-        const int64 frameCap = SystemInfo::GetFrameCapMicroseconds();
-        
-        if (frameCap > 0 && deltaUs < frameCap)
-        {
-            const int64 throttleAmount = frameCap - deltaUs;
-            m_frameCapAccumulator += throttleAmount;
-            const int64 throttleBegin = PlatformTime::GetCPUMicroseconds();
-            PlatformTime::Throttle(m_frameCapAccumulator);
-            const int64 totalThrottle = PlatformTime::GetCPUMicroseconds() - throttleBegin;
-            m_frameCapAccumulator -= totalThrottle;
-            SystemInfo::SetThrottleTime(totalThrottle);
-            
-            current = PlatformTime::GetCPUMicroseconds();
-            deltaUs = current - previous;
-        }
-        
-        previous = current;
-        
-        if (deltaUs <= 0)
-            deltaUs = 16667;
-        else if (deltaUs >= 50000)
-            deltaUs = 50000;
-        
-        const double avgDeltaMicroseconds = SystemInfo::CalculateRunningAverageDT(deltaUs);
-        SystemInfo::SetRealDeltaTimeMicroSeconds(deltaUs);
-        SystemInfo::SetDeltaTimeMicroSeconds(static_cast<int64>(avgDeltaMicroseconds));
-        
-        const float        gameTime      = SystemInfo::GetAppTimeF();
-        static float    lastFPSUpdate = gameTime;
-        static uint64    lastFPSFrames = SystemInfo::GetFrames();
-        constexpr float measureTime      = 1.0f;
-        
-        if (gameTime > lastFPSUpdate + measureTime)
-        {
-            const uint64 frames = SystemInfo::GetFrames();
-            SystemInfo::SetMeasuredFPS(static_cast<uint32>(static_cast<float>((frames - lastFPSFrames)) / measureTime));
-            lastFPSFrames = frames;
-            lastFPSUpdate = gameTime;
-            LINA_TRACE("FPS: {0} Time: {1} Idle: {2}", SystemInfo::GetMeasuredFPS(), SystemInfo::GetDeltaTimeF() * 1000.0f, (SystemInfo::GetThrottleTime()) * 0.001f);
-        }
-    }
+	void Application::DestroyApplicationWindow(StringID sid)
+	{
+		s_lgx->Join();
+		auto* window = s_lgx->GetWindowManager().GetWindow(sid);
+		window->RemoveListener(this);
+		s_lgx->GetWindowManager().DestroyApplicationWindow(sid);
+	}
+
+	LinaGX::Window* Application::GetApplicationWindow(StringID sid)
+	{
+		return s_lgx->GetWindowManager().GetWindow(sid);
+	}
+
+	void Application::CalculateTime()
+	{
+		static int64 previous = PlatformTime::GetCPUMicroseconds();
+		int64		 current  = PlatformTime::GetCPUMicroseconds();
+		int64		 deltaUs  = current - previous;
+
+		const int64 frameCap = SystemInfo::GetFrameCapMicroseconds();
+
+		if (frameCap > 0 && deltaUs < frameCap)
+		{
+			const int64 throttleAmount = frameCap - deltaUs;
+			m_frameCapAccumulator += throttleAmount;
+			const int64 throttleBegin = PlatformTime::GetCPUMicroseconds();
+			PlatformTime::Throttle(m_frameCapAccumulator);
+			const int64 totalThrottle = PlatformTime::GetCPUMicroseconds() - throttleBegin;
+			m_frameCapAccumulator -= totalThrottle;
+			SystemInfo::SetThrottleTime(totalThrottle);
+
+			current = PlatformTime::GetCPUMicroseconds();
+			deltaUs = current - previous;
+		}
+
+		previous = current;
+
+		if (deltaUs <= 0)
+			deltaUs = 16667;
+		else if (deltaUs >= 50000)
+			deltaUs = 50000;
+
+		const double avgDeltaMicroseconds = SystemInfo::CalculateRunningAverageDT(deltaUs);
+		SystemInfo::SetRealDeltaTimeMicroSeconds(deltaUs);
+		SystemInfo::SetDeltaTimeMicroSeconds(static_cast<int64>(avgDeltaMicroseconds));
+
+		const float		gameTime	  = SystemInfo::GetAppTimeF();
+		static float	lastFPSUpdate = gameTime;
+		static uint64	lastFPSFrames = SystemInfo::GetFrames();
+		constexpr float measureTime	  = 1.0f;
+
+		if (gameTime > lastFPSUpdate + measureTime)
+		{
+			const uint64 frames = SystemInfo::GetFrames();
+			SystemInfo::SetMeasuredFPS(static_cast<uint32>(static_cast<float>((frames - lastFPSFrames)) / measureTime));
+			lastFPSFrames = frames;
+			lastFPSUpdate = gameTime;
+			LINA_TRACE("FPS: {0} Time: {1} Idle: {2}", SystemInfo::GetMeasuredFPS(), SystemInfo::GetDeltaTimeF() * 1000.0f, (SystemInfo::GetThrottleTime()) * 0.001f);
+		}
+	}
 
 } // namespace Lina

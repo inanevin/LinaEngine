@@ -64,7 +64,6 @@ namespace Lina
 		void RemoveMesh(MeshDefault* mesh);
 
 	private:
-
 		void Refresh();
 
 	private:
