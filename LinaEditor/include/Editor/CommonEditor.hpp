@@ -40,6 +40,8 @@ namespace Lina::Editor
 #define RESOURCE_ID_EDITOR_MODELS	RESOURCE_ID_EDITOR_SPACE + 150
 #define RESOURCE_ID_EDITOR_SAMPLERS RESOURCE_ID_EDITOR_SPACE + 200
 
+#define EDITOR_DEF_RESOURCES_FOLDER "_Lina"
+
 // Fonts
 #define EDITOR_FONT_ROBOTO_PATH		 "Resources/Editor/Fonts/Roboto-Regular.ttf"
 #define EDITOR_FONT_ROBOTO_BOLD_PATH "Resources/Editor/Fonts/Roboto-Regular.ttf"

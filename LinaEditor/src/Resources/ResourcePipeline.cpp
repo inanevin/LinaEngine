@@ -34,11 +34,9 @@ SOFTWARE.
 #include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
 #include "Editor/Widgets/Popups/ProgressPopup.hpp"
 
-#include "Common/System/System.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Serialization/Serialization.hpp"
 #include "Core/Meta/ProjectData.hpp"
-#include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/Resource/GUIWidget.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
@@ -53,28 +51,6 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-
-	void ResourcePipeline::GenerateThumbnailAtlases(ResourceDirectory* dir)
-	{
-		if (!dir->isFolder && !dir->thumbnailBuffer.IsEmpty())
-		{
-			IStream stream;
-			stream.Create(dir->thumbnailBuffer.GetRaw(), dir->thumbnailBuffer.GetSize());
-			uint32 width = 0, height = 0, bytesPerPixel = 0;
-			stream >> width;
-			stream >> height;
-			stream >> bytesPerPixel;
-			const size_t sz		   = static_cast<size_t>(width * height * bytesPerPixel);
-			Span<uint8>	 thumbData = {new uint8[sz], sz};
-			stream.ReadToRaw(thumbData);
-			stream.Destroy();
-			dir->_thumbnailAtlasImage = m_editor->GetAtlasManager().AddImageToAtlas(thumbData.data(), Vector2ui(width, height), bytesPerPixel == 1 ? LinaGX::Format::R8_UNORM : LinaGX::Format::R8G8B8A8_SRGB);
-			delete[] thumbData.data();
-		}
-
-		for (ResourceDirectory* c : dir->children)
-			GenerateThumbnailAtlases(c);
-	}
 
 	ResourceDirectory* ResourcePipeline::SaveNewResource(ProjectData* project, ResourceDirectory* src, const String& name, TypeID tid, ResourceID inID, uint32 subType)
 	{
@@ -173,10 +149,10 @@ namespace Lina::Editor
 			const String	   name = FileSystem::GetFilenameOnlyFromPath(def.path) + "." + FileSystem::GetFileExtension(def.path);
 			ResourceDirectory* dir	= nullptr;
 
-			auto createDirectory = [&]() {
+			auto createDirectory = [&](ResourceID id) {
 				dir = src->CreateChild({
 					.isFolder	 = false,
-					.resourceID	 = def.id == 0 ? projectData->ConsumeResourceID() : def.id,
+					.resourceID	 = id,
 					.resourceTID = resourceTID,
 					.name		 = FileSystem::GetFilenameOnlyFromPath(def.path) + "." + FileSystem::GetFileExtension(def.path),
 				});
@@ -204,7 +180,7 @@ namespace Lina::Editor
 				shader.SetID(def.id == 0 ? projectData->ConsumeResourceID() : def.id);
 				shader.SetPath(def.path);
 				shader.SaveToFileAsBinary(projectData->GetResourcePath(shader.GetID()));
-				createDirectory();
+				createDirectory(shader.GetID());
 				genThumbnail(&shader, dir);
 			}
 			else if (resourceTID == GetTypeID<Texture>())
@@ -216,7 +192,7 @@ namespace Lina::Editor
 				txt.SetID(def.id == 0 ? projectData->ConsumeResourceID() : def.id);
 				txt.SetPath(def.path);
 				txt.SaveToFileAsBinary(projectData->GetResourcePath(txt.GetID()));
-				createDirectory();
+				createDirectory(txt.GetID());
 				genThumbnail(&txt, dir);
 			}
 			else if (resourceTID == GetTypeID<Font>())
@@ -228,7 +204,7 @@ namespace Lina::Editor
 				font.SetID(def.id == 0 ? projectData->ConsumeResourceID() : def.id);
 				font.SetPath(def.path);
 				font.SaveToFileAsBinary(projectData->GetResourcePath(font.GetID()));
-				createDirectory();
+				createDirectory(font.GetID());
 				genThumbnail(&font, dir);
 			}
 			else if (resourceTID == GetTypeID<Audio>())
@@ -240,7 +216,7 @@ namespace Lina::Editor
 				aud.SetID(def.id == 0 ? projectData->ConsumeResourceID() : def.id);
 				aud.SetPath(def.path);
 				aud.SaveToFileAsBinary(projectData->GetResourcePath(aud.GetID()));
-				createDirectory();
+				createDirectory(aud.GetID());
 				genThumbnail(&aud, dir);
 			}
 			else if (resourceTID == GetTypeID<Model>())
@@ -251,7 +227,7 @@ namespace Lina::Editor
 
 				model.SetID(def.id == 0 ? projectData->ConsumeResourceID() : def.id);
 				model.SetPath(def.path);
-				createDirectory();
+				createDirectory(model.GetID());
 				genThumbnail(&model, dir);
 
 				if (defaultShader == nullptr)
@@ -354,38 +330,7 @@ namespace Lina::Editor
 		onProgress(sz, {}, true);
 	}
 
-	void ResourcePipeline::GenerateThumbnailForResource(ResourceDirectory* dir, Resource* resource, bool refreshAtlases)
-	{
-		const ResourceID id = dir->resourceID;
-
-		if (!dir->thumbnailBuffer.IsEmpty())
-			dir->thumbnailBuffer.Destroy();
-
-		if (dir->_thumbnailAtlasImage != nullptr)
-		{
-			m_editor->GetAtlasManager().RemoveImage(dir->_thumbnailAtlasImage);
-			dir->_thumbnailAtlasImage = nullptr;
-		}
-
-		LinaGX::TextureBuffer thumbnail = {};
-		thumbnail						= ThumbnailGenerator::GenerateThumbnailForResource(resource);
-
-		if (thumbnail.pixels != nullptr)
-		{
-			OStream stream;
-			stream << thumbnail.width << thumbnail.height << thumbnail.bytesPerPixel;
-			stream.WriteRaw(thumbnail.pixels, thumbnail.width * thumbnail.height * thumbnail.bytesPerPixel);
-			dir->_thumbnailAtlasImage = m_editor->GetAtlasManager().AddImageToAtlas(thumbnail.pixels, Vector2ui(thumbnail.width, thumbnail.height), thumbnail.bytesPerPixel == 1 ? LinaGX::Format::R8_UNORM : LinaGX::Format::R8G8B8A8_SRGB);
-			dir->thumbnailBuffer.Create(stream);
-			delete[] thumbnail.pixels;
-			stream.Destroy();
-		}
-
-		if (refreshAtlases)
-			m_editor->GetAtlasManager().RefreshDirtyAtlases();
-	}
-
-	void ResourcePipeline::DuplicateResource(ResourceManagerV2* resourceManager, ResourceDirectory* directory, ResourceDirectory* newParent)
+	void ResourcePipeline::DuplicateResource(ProjectData* projectData, ResourceManagerV2* resourceManager, ResourceDirectory* directory, ResourceDirectory* newParent)
 	{
 		ResourceDirectory* dup = new ResourceDirectory();
 		*dup				   = *directory;
@@ -394,11 +339,10 @@ namespace Lina::Editor
 
 		if (!directory->isFolder)
 		{
-			ProjectData*	 projectData = m_editor->GetProjectManager().GetProjectData();
-			const String	 path		 = projectData->GetResourcePath(directory->resourceID);
-			const String	 duplicated	 = FileSystem::Duplicate(path);
-			const ResourceID newID		 = m_editor->GetProjectManager().ConsumeResourceID();
-			dup->resourceID				 = newID;
+			const String	 path		= projectData->GetResourcePath(directory->resourceID);
+			const String	 duplicated = FileSystem::Duplicate(path);
+			const ResourceID newID		= projectData->ConsumeResourceID();
+			dup->resourceID				= newID;
 			FileSystem::ChangeDirectoryName(duplicated, projectData->GetResourcePath(newID));
 
 			Resource* res = static_cast<Resource*>(resourceManager->OpenResource(projectData, directory->resourceTID, newID, nullptr));
@@ -409,14 +353,12 @@ namespace Lina::Editor
 			{
 				dup->thumbnailBuffer = RawStream();
 				dup->thumbnailBuffer.Create(directory->thumbnailBuffer.GetRaw(), directory->thumbnailBuffer.GetSize());
-				GenerateThumbnailAtlases(dup);
+				dup->_thumbnailAtlasImage = nullptr;
 			}
 		}
 
 		for (ResourceDirectory* c : directory->children)
-		{
-			DuplicateResource(resourceManager, c, dup);
-		}
+			DuplicateResource(projectData, resourceManager, c, dup);
 	}
 
 } // namespace Lina::Editor

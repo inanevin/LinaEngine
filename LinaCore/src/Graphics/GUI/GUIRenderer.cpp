@@ -28,7 +28,6 @@ SOFTWARE.
 
 #include "Core/Graphics/GUI/GUIRenderer.hpp"
 #include "Core/Graphics/GUI/GUIBackend.hpp"
-#include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
 #include "Core/Resources/ResourceManager.hpp"
@@ -39,10 +38,11 @@ SOFTWARE.
 #include "Core/Graphics/BindlessContext.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
-#include "Common/System/System.hpp"
+
 #include "Common/Profiling/Profiler.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/System/SystemInfo.hpp"
+#include "Core/Application.hpp"
 
 namespace Lina
 {
@@ -56,7 +56,6 @@ namespace Lina
 		m_resourceManager = resourceManager;
 		m_guiBackend	  = guiBackend;
 		m_window		  = window;
-		m_lgx			  = GfxManager::GetLGX();
 		m_bindlessContext = bindlessContext;
 
 		m_defaultGUISampler = defaultSampler;
@@ -200,7 +199,7 @@ namespace Lina
 
 	GUIRenderer::DrawRequest& GUIRenderer::AddDrawRequest(LinaVG::DrawBuffer* buf)
 	{
-		const uint32 frame = GfxManager::GetLGX()->GetCurrentFrameIndex();
+		const uint32 frame = Application::GetLGX()->GetCurrentFrameIndex();
 		auto&		 pfd   = m_pfd[frame];
 		m_drawRequests.push_back({});
 		auto& req		 = m_drawRequests.back();

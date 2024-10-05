@@ -29,11 +29,9 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelWorld.hpp"
 #include "Editor/Editor.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
-#include "Common/System/System.hpp"
+
 #include "Common/Math/Math.hpp"
-#include "Core/World/WorldManager.hpp"
 #include "Core/World/EntityWorld.hpp"
-#include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 
@@ -41,33 +39,31 @@ namespace Lina::Editor
 {
 	void PanelWorld::Construct()
 	{
-		m_wm	 = Editor::Get()->GetSystem()->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
-		m_gfxMan = Editor::Get()->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 	}
 
 	void PanelWorld::Tick(float delta)
 	{
-		m_world = m_wm->GetMainWorld();
-		if (!m_world)
-			return;
-
-		if (m_worldRenderer == nullptr)
-			m_worldRenderer = Editor::Get()->GetWorldRenderer(m_world);
-
-		const Vector2ui size = Vector2ui(static_cast<uint32>(Math::CeilToInt(GetSizeX())), static_cast<uint32>(Math::CeilToInt(GetSizeY())));
-		m_worldRenderer->Resize(size);
+		// m_world = m_wm->GetMainWorld();
+		// if (!m_world)
+		// 	return;
+		//
+		// if (m_worldRenderer == nullptr)
+		// 	m_worldRenderer = Editor::Get()->GetWorldRenderer(m_world);
+		//
+		// const Vector2ui size = Vector2ui(static_cast<uint32>(Math::CeilToInt(GetSizeX())), static_cast<uint32>(Math::CeilToInt(GetSizeY())));
+		// m_worldRenderer->Resize(size);
 	}
 
 	void PanelWorld::Draw()
 	{
-		LinaVG::StyleOptions opts;
-		opts.color = Theme::GetDef().background1.AsLVG4();
-		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+		// LinaVG::StyleOptions opts;
+		// opts.color = Theme::GetDef().background1.AsLVG4();
+		// m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 
-		if (!m_world)
-			return;
+		// if (!m_world)
+		// 	return;
 
-		m_lvg->DrawImage(m_worldRenderer->GetLightingPassOutput(GfxManager::GetLGX()->GetCurrentFrameIndex()), m_rect.GetCenter().AsLVG(), m_rect.size.AsLVG(), {1, 1, 1, 1}, 0.0f, m_drawOrder);
+		// m_lvg->DrawImage(m_worldRenderer->GetLightingPassOutput(Application::GetLGX()->GetCurrentFrameIndex()), m_rect.GetCenter().AsLVG(), m_rect.size.AsLVG(), {1, 1, 1, 1}, 0.0f, m_drawOrder);
 	}
 
 } // namespace Lina::Editor

@@ -35,7 +35,6 @@ SOFTWARE.
 
 namespace Lina
 {
-	class WorldManager;
 	class Entity;
 	class DirectionalLayout;
 } // namespace Lina
@@ -57,9 +56,8 @@ namespace Lina::Editor
 		virtual void OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
 
 	private:
-		Editor*		  m_editor		 = nullptr;
-		WorldManager* m_worldManager = nullptr;
-		EntityWorld*  m_world		 = nullptr;
+		Editor*		 m_editor = nullptr;
+		EntityWorld* m_world  = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(PanelEntities, Hidden)

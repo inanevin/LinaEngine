@@ -44,7 +44,6 @@ namespace Lina::Editor
 
 	class Editor;
 	class ItemController;
-	class ProgressCircleFill;
 
 	enum class Mode
 	{
@@ -75,8 +74,6 @@ namespace Lina::Editor
 		virtual void Destruct() override;
 		virtual void Initialize() override;
 		void		 RefreshDirectory();
-		void		 ShowProgress();
-		void		 HideProgress();
 
 		inline Properties& GetProps()
 		{
@@ -91,8 +88,10 @@ namespace Lina::Editor
 	protected:
 		virtual bool OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData) override;
 		virtual void OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
-		virtual void OnProjectOpened(ProjectData* data) override;
-		virtual void OnProjectClosed() override;
+		virtual void OnProjectResourcesRefreshed() override
+		{
+			RefreshDirectory();
+		}
 
 		virtual void SaveToStream(OStream& stream) const override
 		{
@@ -113,15 +112,15 @@ namespace Lina::Editor
 		void RequestDuplicate(Vector<ResourceDirectory*> dirs);
 		void DeleteItems(Vector<ResourceDirectory*> dirs);
 		void DropPayload(ResourceDirectory* target);
+		bool CheckIfContainsEngineResource(const Vector<ResourceDirectory*>& dirs);
 
 	private:
-		Widget*				m_progressParent = nullptr;
-		ProgressCircleFill* m_progress		 = nullptr;
-		Properties			m_props;
-		ItemController*		m_controller  = nullptr;
-		DirectionalLayout*	m_layout	  = nullptr;
-		Editor*				m_editor	  = nullptr;
-		ResourceDirectory*	m_payloadItem = nullptr;
+		JobExecutor		   m_executor;
+		Properties		   m_props;
+		ItemController*	   m_controller	 = nullptr;
+		DirectionalLayout* m_layout		 = nullptr;
+		Editor*			   m_editor		 = nullptr;
+		ResourceDirectory* m_payloadItem = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(ResourceDirectoryBrowser, Editor)

@@ -27,10 +27,10 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/Pipeline/Buffer.hpp"
-#include "Core/Graphics/GfxManager.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Data/Streams.hpp"
 #include "Common/Serialization/Serialization.hpp"
+#include "Core/Application.hpp"
 
 namespace Lina
 {
@@ -55,8 +55,8 @@ namespace Lina
 				   .debugName	  = dbgName.c_str(),
 			   };
 
-			m_gpu = GfxManager::GetLGX()->CreateResource(desc);
-			GfxManager::GetLGX()->MapResource(m_gpu, m_mapped);
+			m_gpu = Application::GetLGX()->CreateResource(desc);
+			Application::GetLGX()->MapResource(m_gpu, m_mapped);
 			m_residesInGPU = true;
 		}
 		else
@@ -71,23 +71,23 @@ namespace Lina
 				.debugName	   = dbgNameStg.c_str(),
 			};
 
-			m_staging = GfxManager::GetLGX()->CreateResource(desc);
+			m_staging = Application::GetLGX()->CreateResource(desc);
 
 			if (!m_stagingOnly)
 			{
 				desc.heapType  = LinaGX::ResourceHeap::GPUOnly;
 				desc.debugName = dbgNameGPU.c_str();
-				m_gpu		   = GfxManager::GetLGX()->CreateResource(desc);
+				m_gpu		   = Application::GetLGX()->CreateResource(desc);
 				m_residesInGPU = true;
 			}
 			else
 				m_residesInGPU = false;
 
-			GfxManager::GetLGX()->MapResource(m_staging, m_mapped);
+			Application::GetLGX()->MapResource(m_staging, m_mapped);
 		}
 
 		// if (hintFlags & LinaGX::ResourceTypeHint::TH_ReadbackDest)
-		// 	GfxManager::GetLGX()->MapResource(m_gpu, m_mappedGPU);
+		// 	Application::GetLGX()->MapResource(m_gpu, m_mappedGPU);
 	}
 
 	void Buffer::BufferData(size_t padding, uint8* data, size_t size)
@@ -124,14 +124,14 @@ namespace Lina
 	{
 		if (m_residesInGPU)
 		{
-			GfxManager::GetLGX()->UnmapResource(m_gpu);
-			GfxManager::GetLGX()->DestroyResource(m_gpu);
+			Application::GetLGX()->UnmapResource(m_gpu);
+			Application::GetLGX()->DestroyResource(m_gpu);
 		}
 
 		if (!m_isCPUVisibleGPUResource)
 		{
-			GfxManager::GetLGX()->UnmapResource(m_staging);
-			GfxManager::GetLGX()->DestroyResource(m_staging);
+			Application::GetLGX()->UnmapResource(m_staging);
+			Application::GetLGX()->DestroyResource(m_staging);
 		}
 	}
 

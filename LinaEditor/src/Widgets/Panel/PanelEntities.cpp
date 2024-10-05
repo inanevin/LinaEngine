@@ -31,8 +31,7 @@ SOFTWARE.
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Widgets/Testbed.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
-#include "Common/System/System.hpp"
-#include "Core/World/WorldManager.hpp"
+
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
@@ -46,8 +45,7 @@ namespace Lina::Editor
 {
 	void PanelEntities::Construct()
 	{
-		m_editor	   = Editor::Get();
-		m_worldManager = m_editor->GetSystem()->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
+		m_editor = Editor::Get();
 
 		DirectionalLayout* layout	 = m_manager->Allocate<DirectionalLayout>("Layout");
 		layout->GetProps().direction = DirectionOrientation::Vertical;
@@ -77,13 +75,6 @@ namespace Lina::Editor
 
 	void PanelEntities::PreTick()
 	{
-		auto* world = m_worldManager->GetMainWorld();
-
-		if (world != m_world)
-		{
-			m_world = world;
-			m_world->AddListener(this);
-		}
 	}
 
 	void PanelEntities::Tick(float dt)

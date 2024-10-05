@@ -45,7 +45,7 @@ SOFTWARE.
 #include "Common/Data/HashSet.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Math/Math.hpp"
-#include "Common/System/System.hpp"
+
 #include "Core/Meta/ProjectData.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
@@ -268,60 +268,6 @@ namespace Lina::Editor
 
 		Text* txt			 = wm->Allocate<Text>("Text");
 		txt->GetProps().text = name;
-		txt->GetFlags().Set(WF_POS_ALIGN_Y);
-		txt->SetAlignedPosY(0.5f);
-		txt->SetAnchorY(Anchor::Center);
-		layout->AddChild(txt);
-		layout->Initialize();
-		return layout;
-	}
-
-	Widget* CommonWidgets::BuildPayloadForDirectoryItem(Widget* src, DirectoryItem* item)
-	{
-		WidgetManager*	   wm				  = src->GetWidgetManager();
-		DirectionalLayout* layout			  = wm->Allocate<DirectionalLayout>("Layout");
-		layout->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
-		layout->GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_USE_FIXED_SIZE_Y);
-		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-
-		if (item->isDirectory)
-		{
-			Icon* icon			  = wm->Allocate<Icon>("IconBG");
-			icon->GetProps().icon = ICON_FOLDER;
-			icon->GetFlags().Set(WF_POS_ALIGN_Y);
-			icon->SetAlignedPosY(0.5f);
-			icon->SetAnchorY(Anchor::Center);
-			layout->AddChild(icon);
-		}
-		else
-		{
-			if (item->textureAtlas == nullptr)
-			{
-				LinaLoading* loading = wm->Allocate<LinaLoading>();
-				loading->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y);
-				loading->SetAlignedSizeY(1.0f);
-				loading->SetAlignedPosY(0.5f);
-				loading->SetAnchorX(Anchor::Center);
-				loading->SetAnchorY(Anchor::Center);
-				loading->GetWidgetProps().outlineThickness = 0.0f;
-				loading->GetWidgetProps().rounding		   = 0.0f;
-				layout->AddChild(loading);
-			}
-			else
-			{
-				Widget* bg = wm->Allocate<Widget>();
-				bg->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y);
-				bg->SetAlignedSizeY(1.0f);
-				bg->GetWidgetProps().drawBackground	 = true;
-				bg->GetWidgetProps().colorBackground = Color::White;
-				bg->GetWidgetProps().fitTexture		 = true;
-				bg->GetWidgetProps().textureAtlas	 = item->textureAtlas;
-				layout->AddChild(bg);
-			}
-		}
-
-		Text* txt			 = wm->Allocate<Text>("Text");
-		txt->GetProps().text = item->name;
 		txt->GetFlags().Set(WF_POS_ALIGN_Y);
 		txt->SetAlignedPosY(0.5f);
 		txt->SetAnchorY(Anchor::Center);
@@ -561,254 +507,6 @@ namespace Lina::Editor
 		return layout;
 	}
 
-	Widget* CommonWidgets::BuildDirectoryItemFolderView(Widget* src, DirectoryItem* item, float margin)
-	{
-		WidgetManager* wm = src->GetWidgetManager();
-
-		FoldLayout* fold = wm->Allocate<FoldLayout>("Fold");
-
-		if (item->parent == nullptr)
-		{
-			fold->GetFlags().Set(WF_POS_ALIGN_X);
-			fold->SetAlignedPosX(0.0f);
-		}
-
-		fold->GetFlags().Set(WF_SIZE_ALIGN_X);
-		fold->SetAlignedSizeX(1.0f);
-		fold->GetProps().useTween	   = true;
-		fold->GetProps().tweenDuration = 0.25f;
-		fold->GetProps().tweenPower	   = Theme::GetDef().baseIndentInner;
-		fold->SetIsUnfolded(item->isUnfolded);
-		fold->SetUserData(item);
-		fold->GetWidgetProps().debugName = item->name;
-
-		fold->GetProps().onFoldChanged = [fold, item](bool unfolded) {
-			Icon* icon			  = fold->GetWidgetOfType<Icon>(fold);
-			icon->GetProps().icon = unfolded ? ICON_CHEVRON_DOWN : ICON_CHEVRON_RIGHT;
-			icon->CalculateIconSize();
-			item->isUnfolded = unfolded;
-		};
-
-		DirectionalLayout* layout = wm->Allocate<DirectionalLayout>("Layout");
-		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-		layout->SetAlignedPos(Vector2::Zero);
-		layout->SetAlignedSizeX(1.0f);
-		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		layout->GetWidgetProps().childPadding			  = Theme::GetDef().baseIndentInner;
-		layout->GetWidgetProps().childMargins.left		  = margin;
-		layout->GetWidgetProps().drawBackground			  = true;
-		layout->GetWidgetProps().colorBackgroundDirection = DirectionOrientation::Vertical;
-		layout->GetWidgetProps().colorBackground		  = Color(0.0f, 0.0f, 0.0f, 0.0f);
-		layout->GetWidgetProps().outlineThickness		  = 0.0f;
-		layout->GetWidgetProps().rounding				  = 0.0f;
-		layout->GetWidgetProps().interpolateColor		  = true;
-		layout->GetWidgetProps().colorInterpolateSpeed	  = 20.0f;
-		layout->SetUserData(item);
-		fold->AddChild(layout);
-
-		Icon* chevron			 = wm->Allocate<Icon>("Folder");
-		chevron->GetProps().icon = fold->GetIsUnfolded() ? ICON_CHEVRON_DOWN : ICON_CHEVRON_RIGHT;
-		chevron->GetFlags().Set(WF_POS_ALIGN_Y);
-		chevron->SetAlignedPosY(0.5f);
-		chevron->GetProps().textScale = 0.4f;
-		chevron->SetAnchorY(Anchor::Center);
-
-		layout->AddChild(chevron);
-
-		auto it = linatl::find_if(item->children.begin(), item->children.end(), [](DirectoryItem* c) -> bool { return c->isDirectory; });
-		if (it == item->children.end())
-			chevron->SetVisible(false);
-
-		Icon* icon			  = wm->Allocate<Icon>("Folder");
-		icon->GetProps().icon = ICON_FOLDER;
-		icon->GetFlags().Set(WF_POS_ALIGN_Y);
-		icon->SetAlignedPosY(0.5f);
-		icon->SetAnchorY(Anchor::Center);
-		layout->AddChild(icon);
-
-		Text* title = wm->Allocate<Text>("Title");
-		title->GetFlags().Set(WF_POS_ALIGN_Y);
-		title->SetAlignedPosY(0.5f);
-		title->SetAnchorY(Anchor::Center);
-		title->GetProps().text = item->name;
-		title->SetUserData(item);
-		title->SetUserData(item);
-		layout->AddChild(title);
-		fold->Initialize();
-		return fold;
-	}
-
-	Widget* CommonWidgets::BuildDirectoryItemListView(Widget* src, DirectoryItem* item)
-	{
-		WidgetManager* wm = src->GetWidgetManager();
-
-		DirectionalLayout* layout = wm->Allocate<DirectionalLayout>("Layout");
-		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-		layout->SetAlignedPosX(0);
-		layout->SetAlignedSizeX(1.0f);
-		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		layout->GetWidgetProps().childPadding			  = Theme::GetDef().baseIndentInner;
-		layout->GetWidgetProps().childMargins.left		  = Theme::GetDef().baseIndent;
-		layout->GetWidgetProps().childMargins.right		  = Theme::GetDef().baseIndent;
-		layout->GetWidgetProps().drawBackground			  = true;
-		layout->GetWidgetProps().colorBackgroundDirection = DirectionOrientation::Vertical;
-		layout->GetWidgetProps().colorBackground		  = Color(0.0f, 0.0f, 0.0f, 0.0f);
-		layout->GetWidgetProps().outlineThickness		  = 0.0f;
-		layout->GetWidgetProps().rounding				  = 0.0f;
-		layout->GetWidgetProps().interpolateColor		  = true;
-		layout->GetWidgetProps().colorInterpolateSpeed	  = 20.0f;
-		layout->SetUserData(item);
-
-		Widget* bg = wm->Allocate<Widget>("BG");
-		bg->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_X_COPY_Y);
-		bg->SetAlignedPosY(0.5f);
-		bg->SetAnchorY(Anchor::Center);
-		bg->SetAlignedSizeY(1.0f);
-		layout->AddChild(bg);
-
-		if (item->isDirectory)
-		{
-
-			Icon* icon			  = wm->Allocate<Icon>("Folder");
-			icon->GetProps().icon = ICON_FOLDER;
-			icon->GetFlags().Set(WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
-			icon->SetAlignedPos(Vector2(0.5f));
-			icon->GetProps().dynamicSizeToParent = true;
-			icon->GetProps().dynamicSizeScale	 = 0.8f;
-			icon->SetAnchorX(Anchor::Center);
-			icon->SetAnchorY(Anchor::Center);
-			bg->AddChild(icon);
-		}
-		else
-		{
-			if (item->textureAtlas == nullptr)
-			{
-				LinaLoading* loading = wm->Allocate<LinaLoading>();
-				loading->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-				loading->SetAlignedPos(Vector2(0.5f, 0.5f));
-				loading->SetAlignedSize(Vector2(0.25f, 0.25f));
-				loading->SetAnchorX(Anchor::Center);
-				loading->SetAnchorY(Anchor::Center);
-				loading->GetWidgetProps().outlineThickness = 0.0f;
-				loading->GetWidgetProps().rounding		   = 0.0f;
-				bg->AddChild(loading);
-			}
-			else
-			{
-				bg->GetWidgetProps().drawBackground	  = true;
-				bg->GetWidgetProps().colorBackground  = Color::White;
-				bg->GetWidgetProps().fitTexture		  = true;
-				bg->GetWidgetProps().textureAtlas	  = item->textureAtlas;
-				bg->GetWidgetProps().outlineThickness = 0.0f;
-				bg->GetWidgetProps().rounding		  = 0.0f;
-			}
-		}
-
-		Text* title = wm->Allocate<Text>("Title");
-		title->GetFlags().Set(WF_POS_ALIGN_Y);
-		title->SetAlignedPosY(0.5f);
-		title->SetAnchorY(Anchor::Center);
-		title->GetProps().text = item->name;
-		title->SetUserData(item);
-		title->SetUserData(item);
-		layout->AddChild(title);
-		layout->Initialize();
-		return layout;
-	}
-
-	Widget* CommonWidgets::BuildDirectoryItemGridView(Widget* src, DirectoryItem* item, const Vector2& itemSize)
-	{
-		WidgetManager* wm = src->GetWidgetManager();
-
-		DirectionalLayout* layout = wm->Allocate<DirectionalLayout>("Layout");
-		layout->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_USE_FIXED_SIZE_Y);
-		layout->SetFixedSize(itemSize);
-		layout->SetUserData(item);
-		layout->GetProps().direction = DirectionOrientation::Vertical;
-
-		Widget* imageBG = wm->Allocate<Widget>("ImageBG");
-		imageBG->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_COPY_X);
-		imageBG->SetAlignedPosX(0.0f);
-		imageBG->SetAlignedSizeX(1.0f);
-		imageBG->GetWidgetProps().onlyRound.push_back(0);
-		imageBG->GetWidgetProps().onlyRound.push_back(1);
-		imageBG->GetWidgetProps().rounding		   = Theme::GetDef().baseRounding / 2;
-		imageBG->GetWidgetProps().outlineThickness = 0.0f;
-		// imageBG->GetWidgetProps().colorOutline	   = Theme::GetDef().outlineColorBase;
-
-		// imageBG->GetWidgetProps().outlineThickness = 0.0f;
-		layout->AddChild(imageBG);
-
-		if (item->isDirectory)
-		{
-			Icon* icon			  = wm->Allocate<Icon>("Folder");
-			icon->GetProps().icon = ICON_FOLDER;
-			icon->GetFlags().Set(WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
-			icon->SetAlignedPos(Vector2(0.5f));
-			icon->GetProps().dynamicSizeToParent = true;
-			icon->GetProps().dynamicSizeScale	 = 0.8f;
-			icon->SetAnchorX(Anchor::Center);
-			icon->SetAnchorY(Anchor::Center);
-			imageBG->AddChild(icon);
-		}
-		else
-		{
-			if (item->textureAtlas == nullptr)
-			{
-				LinaLoading* loading = wm->Allocate<LinaLoading>();
-				loading->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-				loading->SetAlignedPos(Vector2(0.5f, 0.5f));
-				loading->SetAlignedSize(Vector2(0.25f, 0.25f));
-				loading->SetAnchorX(Anchor::Center);
-				loading->SetAnchorY(Anchor::Center);
-				loading->GetWidgetProps().outlineThickness = 0.0f;
-				loading->GetWidgetProps().rounding		   = 0.0f;
-				imageBG->AddChild(loading);
-			}
-			else
-			{
-				imageBG->GetWidgetProps().drawBackground  = true;
-				imageBG->GetWidgetProps().colorBackground = Color::White;
-				imageBG->GetWidgetProps().fitTexture	  = true;
-				imageBG->GetWidgetProps().textureAtlas	  = item->textureAtlas;
-			}
-		}
-
-		Widget* textBG = wm->Allocate<Widget>("TextBG");
-		textBG->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		textBG->SetAlignedPosX(0.0f);
-		textBG->SetAlignedSize(Vector2(1.0f, 0.0f));
-		textBG->GetWidgetProps().drawBackground	 = true;
-		textBG->GetWidgetProps().colorBackground = Theme::GetDef().background1;
-		textBG->SetUserData(item);
-		textBG->GetWidgetProps().dropshadow.enabled		  = true;
-		textBG->GetWidgetProps().dropshadow.direction	  = Direction::Bottom;
-		textBG->GetWidgetProps().dropshadow.steps		  = 12;
-		textBG->GetWidgetProps().dropshadow.margin		  = Theme::GetDef().baseOutlineThickness;
-		textBG->GetWidgetProps().interpolateColor		  = true;
-		textBG->GetWidgetProps().colorInterpolateSpeed	  = 20.0f;
-		textBG->GetWidgetProps().colorBackgroundDirection = DirectionOrientation::Vertical;
-
-		textBG->GetWidgetProps().rounding		  = 0.0f;
-		textBG->GetWidgetProps().outlineThickness = 0.0f;
-		layout->AddChild(textBG);
-
-		Text* title = wm->Allocate<Text>("Title");
-		title->GetFlags().Set(WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
-		title->SetAlignedPos(Vector2(0.5f, 0.5f));
-		title->SetAnchorX(Anchor::Center);
-		title->SetAnchorY(Anchor::Center);
-		title->GetProps().text = item->name;
-		//	title->GetProps().fetchWrapFromParent		= true;
-		//	title->GetProps().wordWrap					= false;
-		title->GetProps().fetchCustomClipFromParent = true;
-		title->GetProps().isDynamic					= true;
-		title->SetUserData(item);
-		textBG->AddChild(title);
-		layout->Initialize();
-		return layout;
-	}
-
 	Widget* CommonWidgets::BuildGenericPopupWithButtons(Widget* src, const String& desc, const Vector<GenericPopupButton>& buttonDefs)
 	{
 		DirectionalLayout* layout = src->GetWidgetManager()->Allocate<DirectionalLayout>("Base");
@@ -854,7 +552,7 @@ namespace Lina::Editor
 		return layout;
 	}
 
-	Widget* CommonWidgets::BuildGenericPopupProgress(Widget* src, const String& desc)
+	Widget* CommonWidgets::BuildGenericPopupProgress(Widget* src, const String& desc, bool isRotatingCircle)
 	{
 		DirectionalLayout* layout = src->GetWidgetManager()->Allocate<DirectionalLayout>("Base");
 		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_Y_TOTAL_CHILDREN);
@@ -882,6 +580,7 @@ namespace Lina::Editor
 		fill->SetAlignedPosX(0.5f);
 		fill->SetAnchorX(Anchor::Center);
 		fill->SetAlignedSizeX(0.5f);
+		fill->GetProps().rotate = isRotatingCircle;
 		layout->AddChild(fill);
 
 		Text* progressText = src->GetWidgetManager()->Allocate<Text>("Progress");

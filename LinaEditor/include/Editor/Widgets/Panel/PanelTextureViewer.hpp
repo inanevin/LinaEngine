@@ -84,6 +84,7 @@ namespace Lina::Editor
 		uint32				  m_mipLevel			   = 0;
 		LinaGX::TextureBuffer m_textureBuffer		   = {};
 		bool				  m_containsRuntimeChanges = false;
+		JobExecutor			  m_executor;
 
 		Text* m_txtName	  = nullptr;
 		Text* m_txtSize	  = nullptr;

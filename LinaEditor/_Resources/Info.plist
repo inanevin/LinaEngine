@@ -5,7 +5,7 @@
 	<key>CFBundleIconFile</key>
 	<string>${PROJECT_NAME}.icns</string>
 	<key>NSDownloadsFolderUsageDescription</key>
-	<string></string>
+	<string>${PROJECT_NAME} requires access to your downloads folder to open and save user settings.</string>
 	<key>NSDocumentsFolderUsageDescription</key>
 	<string>${PROJECT_NAME} requires access to your documents folder to open and save user settings.</string>
 	<key>NSDesktopFolderUsageDescription</key>

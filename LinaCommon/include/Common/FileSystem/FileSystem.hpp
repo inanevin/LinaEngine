@@ -28,10 +28,6 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef FileSystem_HPP
-#define FileSystem_HPP
-
-#include "FileData.hpp"
 #include "Common/Data/Vector.hpp"
 
 namespace Lina
@@ -64,22 +60,6 @@ namespace Lina
 		static String Duplicate(const String& path);
 		static void	  PerformMove(const String& targetFile, const String& targetDirectory);
 
-		// File and folder
-		static bool	  FolderContainsDirectory(Folder* root, const String& path, DirectoryItem*& outItem);
-		static void	  GetFolderHierarchToRoot(Folder* folder, Vector<Folder*>& hierarchy);
-		static void	  CreateNewSubfolder(Folder* parent);
-		static void	  DeleteFolder(Folder* folder);
-		static void	  ParentPathUpdated(Folder* folder);
-		static void	  ParentPathUpdated(File* file);
-		static void	  ChangeFolderName(Folder* folder, const String& newName);
-		static void	  ChangeFileName(File* file, const String& newName);
-		static void	  RewriteFileContents(File* file, const String& newContent);
-		static bool	  FolderContainsFilter(const Folder* folder, const String& filter);
-		static bool	  SubfoldersContainFilter(const Folder* folder, const String& filter);
-		static bool	  FileContainsFilter(const File& file, const String& filter);
-		static File*  FindFile(Folder* root, const String& path);
-		static String GetUniqueDirectoryName(Folder* parent, const String& prefix, const String& extension);
-
 		// Utility
 
 		/// <summary>
@@ -101,4 +81,3 @@ namespace Lina
 
 } // namespace Lina
 
-#endif

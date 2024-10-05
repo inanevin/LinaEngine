@@ -33,13 +33,11 @@ SOFTWARE.
 #include "CommonResources.hpp"
 #include "ResourceCache.hpp"
 #include "Common/JobSystem/JobSystem.hpp"
-#include "Common/System/Subsystem.hpp"
 #include "Common/Data/CommonData.hpp"
 
 namespace Lina
 {
 	class IStream;
-	class GfxManager;
 	class ResourceManagerListener;
 	class ProjectData;
 	struct ResourceDirectory;

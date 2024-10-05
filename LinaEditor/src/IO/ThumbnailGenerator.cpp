@@ -28,9 +28,8 @@ SOFTWARE.
 
 #include "Editor/Editor.hpp"
 #include "Editor/IO/ThumbnailGenerator.hpp"
-#include "Editor/IO/DirectoryItem.hpp"
 #include "Editor/CommonEditor.hpp"
-#include "Common/System/System.hpp"
+
 #include "Common/Serialization/Serialization.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Math/Math.hpp"
@@ -39,7 +38,6 @@ SOFTWARE.
 #include "Core/Meta/ProjectData.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Audio/Audio.hpp"
-#include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Data/Mesh.hpp"
@@ -181,7 +179,7 @@ namespace Lina::Editor
 		renderer->Render(0);
 
 		const SemaphoreData semaphoreData = renderer->GetSubmitSemaphore(0);
-		GfxManager::GetLGX()->WaitForUserSemaphore(semaphoreData.GetSemaphore(), semaphoreData.GetValue());
+		Application::GetLGX()->WaitForUserSemaphore(semaphoreData.GetSemaphore(), semaphoreData.GetValue());
 
 		LinaGX::TextureBuffer retBuffer = {
 			.width		   = RESOURCE_THUMBNAIL_SIZE,

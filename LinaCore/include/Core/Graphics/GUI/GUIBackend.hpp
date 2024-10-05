@@ -42,7 +42,6 @@ namespace LinaVG
 
 namespace Lina
 {
-	class GfxManager;
 	class ResourceManagerV2;
 	class Texture;
 	class TextureSampler;

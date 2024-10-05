@@ -36,7 +36,6 @@ SOFTWARE.
 namespace Lina
 {
 	class Shader;
-	class GfxManager;
 } // namespace Lina
 
 namespace LinaGX
@@ -81,7 +80,6 @@ namespace Lina::Editor
 
 	private:
 		RenderPass	 m_pass;
-		GfxManager*	 m_gfxManager  = nullptr;
 		Shader*		 m_shaderLines = nullptr;
 		PerFrameData m_pfd[FRAMES_IN_FLIGHT];
 	};

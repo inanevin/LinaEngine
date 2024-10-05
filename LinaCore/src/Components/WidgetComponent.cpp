@@ -29,10 +29,7 @@ SOFTWARE.
 #include "Core/Components/WidgetComponent.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
-#include "Core/Graphics/GfxManager.hpp"
 #include "Core/World/EntityWorld.hpp"
-
-#include "Common/System/System.hpp"
 
 namespace Lina
 {

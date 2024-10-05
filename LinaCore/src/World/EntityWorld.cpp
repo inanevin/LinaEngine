@@ -29,7 +29,6 @@ SOFTWARE.
 #include "Core/World/EntityWorld.hpp"
 #include "Core/World/Entity.hpp"
 #include "Core/World/Component.hpp"
-#include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/Data/ModelNode.hpp"
@@ -38,14 +37,15 @@ SOFTWARE.
 #include "Core/Components/MeshComponent.hpp"
 
 #include "Common/System/SystemInfo.hpp"
-#include "Common/System/System.hpp"
+
 #include "Common/Serialization/Serialization.hpp"
+#include "Core/Application.hpp"
 
 namespace Lina
 {
 #define ENTITY_VEC_SIZE_CHUNK 2000
 
-	EntityWorld::EntityWorld(ResourceID id, const String& name) : Resource(id, GetTypeID<EntityWorld>(), name), m_worldInput(&GfxManager::GetLGX()->GetInput(), &m_screen), m_physicsWorld(this){};
+	EntityWorld::EntityWorld(ResourceID id, const String& name) : Resource(id, GetTypeID<EntityWorld>(), name), m_worldInput(&Application::GetLGX()->GetInput(), &m_screen), m_physicsWorld(this){};
 
 	EntityWorld::~EntityWorld()
 	{

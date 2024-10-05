@@ -38,7 +38,6 @@ namespace LinaGX
 
 namespace Lina
 {
-	class GfxManager;
 
 	class DescriptorSet
 	{

@@ -27,13 +27,11 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/Resource/Shader.hpp"
+#include "Core/Application.hpp"
 #include "Core/Resources/ResourceManager.hpp"
-#include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Utility/ShaderPreprocessor.hpp"
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
 #include "Core/Graphics/Pipeline/DescriptorSet.hpp"
-
-#include "Common/System/System.hpp"
 
 #include "Common/FileSystem//FileSystem.hpp"
 
@@ -277,7 +275,7 @@ namespace Lina
 				.depthCompare				  = variant.depthOp,
 			};
 
-			variant._gpuHandle = GfxManager::GetLGX()->CreateShader({
+			variant._gpuHandle = Application::GetLGX()->CreateShader({
 				.stages					 = m_outCompiledBlobs,
 				.colorAttachments		 = colorAttachments,
 				.depthStencilDesc		 = depthStencilAtt,
@@ -312,7 +310,7 @@ namespace Lina
 				continue;
 
 			var._gpuHandleExists = false;
-			GfxManager::GetLGX()->DestroyShader(var._gpuHandle);
+			Application::GetLGX()->DestroyShader(var._gpuHandle);
 		}
 
 		for (const auto& d : m_descriptorSets)

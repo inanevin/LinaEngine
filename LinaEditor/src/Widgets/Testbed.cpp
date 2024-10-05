@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Editor/Widgets/Compound/ColorWheelCompound.hpp"
 #include "Editor/CommonEditor.hpp"
 #include "Core/GUI/Theme.hpp"
-#include "Common/System/System.hpp"
+
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Layout/Popup.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"

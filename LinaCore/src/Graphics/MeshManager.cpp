@@ -27,11 +27,10 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/MeshManager.hpp"
-#include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
 #include "Core/Graphics/Resource/Mesh.hpp"
 #include "Core/Graphics/ResourceUploadQueue.hpp"
-#include "Common/System/System.hpp"
+
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Data/Vertex.hpp"
 #include "Core/Graphics/Data/Mesh.hpp"

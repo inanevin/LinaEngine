@@ -31,8 +31,7 @@ SOFTWARE.
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Data/Streams.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
-#include "Common/System/System.hpp"
-#include "Core/Graphics/GfxManager.hpp"
+
 #include "Core/Resources/ResourceManager.hpp"
 
 namespace Lina

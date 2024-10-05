@@ -35,7 +35,6 @@ SOFTWARE.
 
 namespace Lina
 {
-	class WorldManager;
 	class Entity;
 	class DirectionalLayout;
 } // namespace Lina
@@ -61,7 +60,6 @@ namespace Lina::Editor
 
 	private:
 		Editor*					  m_editor			= nullptr;
-		WorldManager*			  m_worldManager	= nullptr;
 		EntityWorld*			  m_world			= nullptr;
 		ResourceDirectoryBrowser* m_resourceBrowser = nullptr;
 	};

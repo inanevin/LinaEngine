@@ -37,7 +37,7 @@ SOFTWARE.
 #include "Common/Data/CommonData.hpp"
 #include "Common/Data/HashSet.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
-#include "Common/System/System.hpp"
+
 #include "Common/Platform/PlatformTime.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/System/SystemInfo.hpp"

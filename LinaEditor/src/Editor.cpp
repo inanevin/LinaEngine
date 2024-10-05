@@ -240,11 +240,6 @@ namespace Lina::Editor
 	{
 		m_editorRenderer.Initialize(this);
 
-		const String metacachePath = FileManager::GetMetacachePath();
-
-		if (!FileSystem::FileOrPathExists(metacachePath))
-			FileSystem::CreateFolderInPath(metacachePath);
-
 		Vector<ResourceDef> priorityResources;
 		priorityResources.push_back({EDITOR_SHADER_GUI_ID, EDITOR_SHADER_GUI_PATH, GetTypeID<Shader>()});
 		priorityResources.push_back({EDITOR_TEXTURE_LINA_LOGO_ID, EDITOR_TEXTURE_LINA_LOGO_PATH, GetTypeID<Texture>()});
@@ -269,14 +264,11 @@ namespace Lina::Editor
 		Theme::GetDef().iconColorWheelPointer = ICON_CIRCLE;
 
 		m_resourceManagerV2.AddListener(this);
-		m_worldManager = m_app->GetSystem()->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
-		m_gfxManager   = m_app->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
-		m_fileManager.Initialize(this);
 		m_atlasManager.Initialize(this);
 		m_windowPanelManager.Initialize(this);
 
-		m_mainWindow		   = m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
+		m_mainWindow		   = m_app->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
 		m_primaryWidgetManager = &m_windowPanelManager.GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
 
 		// Push splash
@@ -307,7 +299,7 @@ namespace Lina::Editor
 
 	void Editor::OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size)
 	{
-		m_gfxManager->Join();
+		m_app->GetLGX()->Join();
 		m_windowPanelManager.OnWindowSizeChanged(window, size);
 	}
 	void Editor::PreTick()
@@ -321,7 +313,6 @@ namespace Lina::Editor
 		}
 
 		m_windowPanelManager.PreTick();
-		m_fileManager.PreTick();
 		m_editorRenderer.PreTick();
 	}
 
@@ -355,23 +346,13 @@ namespace Lina::Editor
 		// Launch project
 		m_projectManager.Initialize(this);
 		m_settings.GetLayout().ApplyStoredLayout();
-
-		// const String& lastWorldPath = m_settings.GetLastWorldAbsPath();
-		// if (FileSystem::FileOrPathExists(lastWorldPath))
-		// {
-		//     EntityWorld* world = new EntityWorld();
-		// 	m_worldManager->InstallWorld(lastWorldPath);
-		// 	CreateWorldRenderer(m_worldManager->GetMainWorld());
-		// }
 	}
 
 	void Editor::PreShutdown()
 	{
 		m_resourceManagerV2.RemoveListener(this);
 		m_editorRenderer.Shutdown();
-		// DestroyWorldRenderer(m_worldManager->GetMainWorld());
-		m_worldManager->UninstallMainWorld();
-		m_fileManager.Shutdown();
+
 		m_atlasManager.Shutdown();
 		m_windowPanelManager.Shutdown();
 		m_projectManager.Shutdown();
@@ -387,17 +368,13 @@ namespace Lina::Editor
 
 	void Editor::SaveSettings()
 	{
-		auto* loadedWorld = m_app->GetSystem()->CastSubsystem<WorldManager>(SubsystemType::WorldManager)->GetMainWorld();
-		if (loadedWorld)
-			m_settings.SetLastWorldID(loadedWorld->GetID());
-
 		m_settings.GetLayout().StoreLayout();
 		m_settings.SaveToFile();
 	}
 
 	void Editor::CreateWorldRenderer(EntityWorld* world)
 	{
-		WorldRenderer* wr = new WorldRenderer(world, m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->GetSize());
+		WorldRenderer* wr = new WorldRenderer(world, m_app->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->GetSize());
 		m_editorRenderer.AddWorldRenderer(wr);
 		m_worldRenderers[world] = wr;
 	}
@@ -408,7 +385,6 @@ namespace Lina::Editor
 		LINA_ASSERT(it != m_worldRenderers.end(), "");
 		WorldRenderer* wr = it->second;
 		m_editorRenderer.RemoveWorldRenderer(wr);
-		// m_gfxManager->RemoveRenderer(wr);
 		delete wr;
 		m_worldRenderers.erase(it);
 	}

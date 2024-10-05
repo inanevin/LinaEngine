@@ -35,9 +35,9 @@ SOFTWARE.
 #include "Editor/Widgets/Compound/WindowBar.hpp"
 #include "Editor/Widgets/Popups/NotificationDisplayer.hpp"
 #include "Editor/Graphics/SurfaceRenderer.hpp"
-#include "Common/System/System.hpp"
+
 #include "Common/Platform/LinaGXIncl.hpp"
-#include "Core/Graphics/GfxManager.hpp"
+#include "Core/Application.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor
@@ -45,11 +45,10 @@ namespace Lina::Editor
 	void WindowPanelManager::Initialize(Editor* editor)
 	{
 		m_editor		= editor;
-		m_gfxManager	= m_editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-		m_mainWindow	= m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
-		m_payloadWindow = m_gfxManager->CreateApplicationWindow(PAYLOAD_WINDOW_SID, "Transparent", Vector2i(0, 0), Vector2(500, 500), (uint32)LinaGX::WindowStyle::BorderlessAlpha, m_mainWindow);
+		m_mainWindow	= m_editor->GetApp()->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
+		m_payloadWindow = m_editor->GetApp()->CreateApplicationWindow(PAYLOAD_WINDOW_SID, "Transparent", Vector2i(0, 0), Vector2(500, 500), (uint32)LinaGX::WindowStyle::BorderlessAlpha, m_mainWindow);
 
-		CreateSurfaceRendererForWindow(m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN));
+		CreateSurfaceRendererForWindow(m_editor->GetApp()->GetApplicationWindow(LINA_MAIN_SWAPCHAIN));
 		m_primaryWidgetManager = &GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
 
 		CreateSurfaceRendererForWindow(m_payloadWindow);
@@ -61,12 +60,12 @@ namespace Lina::Editor
 		for (auto* w : m_subWindows)
 		{
 			DestroySurfaceRenderer(w);
-			m_gfxManager->DestroyApplicationWindow(static_cast<StringID>(w->GetSID()));
+			m_editor->GetApp()->DestroyApplicationWindow(static_cast<StringID>(w->GetSID()));
 		}
 
 		m_subWindows.clear();
 		DestroySurfaceRenderer(m_payloadWindow);
-		m_gfxManager->DestroyApplicationWindow(static_cast<StringID>(m_payloadWindow->GetSID()));
+		m_editor->GetApp()->DestroyApplicationWindow(static_cast<StringID>(m_payloadWindow->GetSID()));
 		DestroySurfaceRenderer(m_mainWindow);
 	}
 
@@ -105,7 +104,7 @@ namespace Lina::Editor
 		if (!m_windowCloseRequests.empty())
 		{
 			if (!m_windowCloseRequests.empty())
-				m_gfxManager->Join();
+				Application::GetLGX()->Join();
 
 			for (auto sid : m_windowCloseRequests)
 			{
@@ -118,14 +117,14 @@ namespace Lina::Editor
 
 					m_subWindows.erase(it);
 				}
-				LinaGX::Window* window = m_gfxManager->GetApplicationWindow(sid);
+				LinaGX::Window* window = m_editor->GetApp()->GetApplicationWindow(sid);
 				DestroySurfaceRenderer(window);
-				m_gfxManager->DestroyApplicationWindow(sid);
-				LinaGX::Window* top = m_gfxManager->GetLGX()->GetWindowManager().GetTopWindow();
+				m_editor->GetApp()->DestroyApplicationWindow(sid);
+				LinaGX::Window* top = Application::GetLGX()->GetWindowManager().GetTopWindow();
 				if (top->GetSID() == PAYLOAD_WINDOW_SID)
 				{
-					m_gfxManager->GetLGX()->GetWindowManager().PopWindowFromList(PAYLOAD_WINDOW_SID);
-					top = m_gfxManager->GetLGX()->GetWindowManager().GetTopWindow();
+					Application::GetLGX()->GetWindowManager().PopWindowFromList(PAYLOAD_WINDOW_SID);
+					top = Application::GetLGX()->GetWindowManager().GetTopWindow();
 				}
 				if (top != nullptr)
 					top->BringToFront();
@@ -139,7 +138,7 @@ namespace Lina::Editor
 		{
 			if (!m_payloadWindow->GetIsVisible())
 			{
-				m_gfxManager->Join();
+				Application::GetLGX()->Join();
 
 				m_payloadWindow->SetVisible(true);
 				m_payloadWindow->SetAlpha(0.75f);
@@ -157,12 +156,12 @@ namespace Lina::Editor
 					l->OnPayloadStarted(m_payloadRequest.type, m_payloadRequest.payload);
 			}
 
-			const auto& mp = GfxManager::GetLGX()->GetInput().GetMousePositionAbs();
+			const auto& mp = Application::GetLGX()->GetInput().GetMousePositionAbs();
 			m_payloadWindow->SetPosition({static_cast<int32>(mp.x) + 10, static_cast<int32>(mp.y) + 10});
 
-			if (!GfxManager::GetLGX()->GetInput().GetMouseButton(LINAGX_MOUSE_0))
+			if (!Application::GetLGX()->GetInput().GetMouseButton(LINAGX_MOUSE_0))
 			{
-				m_gfxManager->Join();
+				Application::GetLGX()->Join();
 
 				bool received = false;
 				for (auto* l : m_payloadListeners)
@@ -360,7 +359,7 @@ namespace Lina::Editor
 			m_subWindowCounter = sid + 1;
 
 		const Vector2	usedSize = size.Clamp(m_editor->GetEditorRoot()->GetMonitorSize() * 0.1f, m_editor->GetEditorRoot()->GetMonitorSize());
-		LinaGX::Window* window	 = m_gfxManager->CreateApplicationWindow(sid, title.c_str(), pos, usedSize, (uint32)LinaGX::WindowStyle::BorderlessApplication, m_mainWindow);
+		LinaGX::Window* window	 = m_editor->GetApp()->CreateApplicationWindow(sid, title.c_str(), pos, usedSize, (uint32)LinaGX::WindowStyle::BorderlessApplication, m_mainWindow);
 		CreateSurfaceRendererForWindow(window);
 
 		m_subWindows.push_back(window);
@@ -416,7 +415,7 @@ namespace Lina::Editor
 
 	SurfaceRenderer* WindowPanelManager::GetSurfaceRenderer(StringID sid)
 	{
-		return m_surfaceRenderers.at(m_gfxManager->GetApplicationWindow(sid));
+		return m_surfaceRenderers.at(m_editor->GetApp()->GetApplicationWindow(sid));
 	}
 
 	void WindowPanelManager::OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size)

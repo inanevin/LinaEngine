@@ -31,8 +31,9 @@ SOFTWARE.
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
 #include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
-#include "Common/System/System.hpp"
+
 #include "Core/Meta/ProjectData.hpp"
+#include "Core/Application.hpp"
 #include "Core/Platform/PlatformProcess.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
@@ -45,7 +46,6 @@ SOFTWARE.
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
-#include "Core/Graphics/GfxManager.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 
@@ -235,7 +235,7 @@ namespace Lina::Editor
 			if (m_containsRuntimeChanges)
 			{
 				m_resourceManager->SaveResource(m_editor->GetProjectManager().GetProjectData(), m_font);
-				m_editor->GetResourcePipeline().GenerateThumbnailForResource(m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_font->GetID()), m_font, true);
+				// m_editor->GetResourcePipeline().GenerateThumbnailForResource(m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_font->GetID()), m_font, true);
 				Panel* p = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::ResourceBrowser, 0);
 				if (p)
 					static_cast<PanelResourceBrowser*>(p)->GetBrowser()->RefreshDirectory();
@@ -270,7 +270,7 @@ namespace Lina::Editor
 
 	void PanelFontViewer::RegenFont(const String& path)
 	{
-		m_editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->Join();
+		Application::GetLGX()->Join();
 		m_font->DestroyHW();
 
 		if (!path.empty())

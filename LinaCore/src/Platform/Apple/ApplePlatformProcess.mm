@@ -107,9 +107,9 @@ namespace
 		}
 
 		NSApplication* app = [NSApplication sharedApplication];
-		[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
-		[NSApp setPresentationOptions:NSApplicationPresentationDefault];
-		[NSApp activateIgnoringOtherApps:YES];
+		[app setActivationPolicy:NSApplicationActivationPolicyRegular];
+		[app setPresentationOptions:NSApplicationPresentationDefault];
+		[app activateIgnoringOtherApps:YES];
 	}
 } // namespace
 
@@ -143,10 +143,8 @@ int main(int argc, char* argv[])
 						[NSApp updateWindows];
 					}
 				} while (ev);
-				linaApp->Poll();
-				linaApp->PreTick();
+
 				linaApp->Tick();
-				// dispatch_semaphore_wait(renderSemaphore, DISPATCH_TIME_FOREVER);
 				linaApp->Render();
 			}
 		}

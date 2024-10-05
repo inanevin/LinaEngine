@@ -35,8 +35,8 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelFactory.hpp"
 #include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
 #include "Editor/Graphics/SurfaceRenderer.hpp"
-#include "Common/System/System.hpp"
-#include "Core/Graphics/GfxManager.hpp"
+
+#include "Core/Application.hpp"
 
 namespace Lina::Editor
 {
@@ -134,8 +134,7 @@ namespace Lina::Editor
 		if (m_windows.empty())
 			StoreDefaultLayout();
 
-		Editor*		editor = Editor::Get();
-		GfxManager* gfxMan = editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		Editor* editor = Editor::Get();
 
 		for (auto& windowData : m_windows)
 		{
@@ -146,8 +145,8 @@ namespace Lina::Editor
 
 				if (windowData.size.x != 0 && windowData.size.y != 0)
 				{
-					gfxMan->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->SetPosition(windowData.position.AsLGX2I());
-					gfxMan->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->AddSizeRequest(windowData.size.AsLGX2UI());
+					editor->GetApp()->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->SetPosition(windowData.position.AsLGX2I());
+					editor->GetApp()->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->AddSizeRequest(windowData.size.AsLGX2UI());
 				}
 			}
 			else
@@ -202,9 +201,8 @@ namespace Lina::Editor
 
 		Editor* editor = Editor::Get();
 
-		GfxManager*				gfxMan	= editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 		Vector<LinaGX::Window*> windows = editor->GetWindowPanelManager().GetSubWindows();
-		windows.push_back(gfxMan->GetApplicationWindow(LINA_MAIN_SWAPCHAIN));
+		windows.push_back(editor->GetApp()->GetApplicationWindow(LINA_MAIN_SWAPCHAIN));
 
 		for (auto* w : windows)
 		{

@@ -68,7 +68,10 @@ namespace Lina
 			return false;
 		};
 
-		System* GetSystem();
+		inline Application* GetApp() const
+		{
+			return m_app;
+		}
 
 	protected:
 		friend class Application;

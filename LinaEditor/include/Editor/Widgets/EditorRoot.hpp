@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Compound/FileMenu.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Common/Data/Mutex.hpp"
+#include "Editor/Project/ProjectManager.hpp"
 
 namespace Lina
 {
@@ -39,7 +40,6 @@ namespace Lina
 	class Text;
 	class Icon;
 	class Texture;
-	class WorldManager;
 	class EntityWorld;
 } // namespace Lina
 
@@ -48,7 +48,7 @@ namespace Lina::Editor
 	class DockArea;
 	class Editor;
 
-	class EditorRoot : public DirectionalLayout, public FileMenuListener
+	class EditorRoot : public DirectionalLayout, public FileMenuListener, public ProjectManagerListener
 	{
 	public:
 		EditorRoot()		  = default;
@@ -60,7 +60,7 @@ namespace Lina::Editor
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 		virtual bool OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData) override;
 		virtual void OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
-		void		 SetProjectName(const String& name);
+		virtual void OnProjectOpened(ProjectData* project) override;
 
 		inline Widget* GetPanelArea() const
 		{
@@ -74,12 +74,10 @@ namespace Lina::Editor
 		FileMenu*		   m_fileMenu		 = nullptr;
 		Widget*			   m_windowButtons	 = nullptr;
 		Text*			   m_projectNameText = nullptr;
-		Text*			   m_worldNameText	 = nullptr;
 		Widget*			   m_panelArea		 = nullptr;
 		DirectionalLayout* m_titleBar		 = nullptr;
 		Icon*			   m_saveIcon		 = nullptr;
 		Icon*			   m_linaIcon		 = nullptr;
-		WorldManager*	   m_worldManager	 = nullptr;
 		EntityWorld*	   m_currentWorld	 = nullptr;
 	};
 

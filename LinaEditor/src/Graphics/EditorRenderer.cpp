@@ -31,12 +31,12 @@ SOFTWARE.
 #include "Editor/Graphics/SurfaceRenderer.hpp"
 #include "Editor/Graphics/EditorGfxHelpers.hpp"
 #include "Common/Data/CommonData.hpp"
-#include "Common/System/System.hpp"
+
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
-#include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Resource/TextureSampler.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
+#include "Core/Application.hpp"
 
 namespace Lina::Editor
 {
@@ -44,7 +44,7 @@ namespace Lina::Editor
 	{
 		m_editor = editor;
 		m_guiBackend.Initialize(&m_editor->GetResourceManagerV2(), &m_uploadQueue);
-		m_lgx				= GfxManager::GetLGX();
+		m_lgx				= Application::GetLGX();
 		m_resourceManagerV2 = &editor->GetResourceManagerV2();
 		m_guiSampler		= m_resourceManagerV2->CreateResource<TextureSampler>(m_resourceManagerV2->ConsumeResourceID(), "EditorRendererGUISampler");
 		m_guiTextSampler	= m_resourceManagerV2->CreateResource<TextureSampler>(m_resourceManagerV2->ConsumeResourceID(), "EditorRendererGUITextSampler");
@@ -130,7 +130,7 @@ namespace Lina::Editor
 				SurfaceRenderer* rend = m_validSurfaceRenderers.at(i);
 				rend->PreTick();
 			});
-			m_editor->GetSystem()->GetMainExecutor()->RunAndWait(tf);
+			m_editor->GetApp()->GetExecutor().RunAndWait(tf);
 		}
 	}
 	void EditorRenderer::Tick(float delta)
@@ -149,7 +149,7 @@ namespace Lina::Editor
 				SurfaceRenderer* rend = m_validSurfaceRenderers.at(i);
 				rend->Tick(delta);
 			});
-			m_editor->GetSystem()->GetMainExecutor()->RunAndWait(tf);
+			m_editor->GetApp()->GetExecutor().RunAndWait(tf);
 		}
 	}
 
@@ -254,7 +254,7 @@ namespace Lina::Editor
 				streams[i]			  = rend->Render(frameIndex);
 				swapchains[i]		  = rend->GetSwapchain();
 			});
-			m_editor->GetSystem()->GetMainExecutor()->RunAndWait(tf);
+			m_editor->GetApp()->GetExecutor().RunAndWait(tf);
 		}
 
 		for (SurfaceRenderer* rend : m_validSurfaceRenderers)

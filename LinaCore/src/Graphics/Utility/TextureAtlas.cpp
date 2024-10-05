@@ -148,10 +148,8 @@ namespace Lina
 	void TextureAtlas::RefreshGPU(ResourceUploadQueue& queue)
 	{
 		m_rawTexture->LoadFromBuffer(m_data.data(), m_size.x, m_size.y, m_bytesPerPixel);
-
 		if (!m_rawTexture->IsGPUValid())
 			m_rawTexture->GenerateHW();
-
 		m_rawTexture->AddToUploadQueue(queue, true);
 	}
 } // namespace Lina

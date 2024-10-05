@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Editor/Editor.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
-#include "Core/Graphics/GfxManager.hpp"
+#include "Core/Application.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor
@@ -81,7 +81,7 @@ namespace Lina::Editor
 		const bool worldHasFocus = m_manager->GetControlsOwner() == this && m_lgxWindow->HasFocus();
 		m_worldRenderer->GetWorld()->GetInput().SetIsActive(worldHasFocus);
 
-		Texture* target				= m_worldRenderer->GetLightingPassOutput(Editor::Get()->GetGfxManager()->GetLGX()->GetCurrentFrameIndex());
+		Texture* target				= m_worldRenderer->GetLightingPassOutput(Application::GetLGX()->GetCurrentFrameIndex());
 		GetWidgetProps().rawTexture = target;
 	}
 

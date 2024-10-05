@@ -29,23 +29,19 @@ SOFTWARE.
 #pragma once
 
 #include "Core/ApplicationDelegate.hpp"
-#include "Core/World/WorldManager.hpp"
 #include "Common/Data/HashMap.hpp"
 #include "Meta/EditorSettings.hpp"
 #include "Editor/CommonEditor.hpp"
-#include "IO/FileManager.hpp"
 #include "Atlas/AtlasManager.hpp"
 #include "Core/Resources/ResourceManagerListener.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Editor/WindowPanelManager.hpp"
 #include "Editor/Project/ProjectManager.hpp"
 #include "Editor/Graphics/EditorRenderer.hpp"
-#include "Editor/Resources/ResourcePipeline.hpp"
 
 namespace Lina
 {
 	class Application;
-	class GfxManager;
 	class WidgetManager;
 	class EntityWorld;
 	class Widget;
@@ -112,11 +108,6 @@ namespace Lina::Editor
 			return m_settings;
 		}
 
-		inline FileManager& GetFileManager()
-		{
-			return m_fileManager;
-		}
-
 		inline AtlasManager& GetAtlasManager()
 		{
 			return m_atlasManager;
@@ -142,16 +133,6 @@ namespace Lina::Editor
 			return m_editorRenderer;
 		}
 
-		inline ResourcePipeline& GetResourcePipeline()
-		{
-			return m_resourcePipeline;
-		}
-
-		inline GfxManager* GetGfxManager()
-		{
-			return m_gfxManager;
-		}
-
 	private:
 		void CreateWorldRenderer(EntityWorld* world);
 		void DestroyWorldRenderer(EntityWorld* world);
@@ -159,15 +140,11 @@ namespace Lina::Editor
 
 	private:
 		ResourceManagerV2					  m_resourceManagerV2;
-		ResourcePipeline					  m_resourcePipeline;
 		EditorRenderer						  m_editorRenderer;
 		WindowPanelManager					  m_windowPanelManager;
 		AtlasManager						  m_atlasManager;
 		ProjectManager						  m_projectManager;
-		EditorSettings						  m_settings = {};
-		FileManager							  m_fileManager;
-		WorldManager*						  m_worldManager		 = nullptr;
-		GfxManager*							  m_gfxManager			 = nullptr;
+		EditorSettings						  m_settings			 = {};
 		WidgetManager*						  m_primaryWidgetManager = nullptr;
 		EntityWorld*						  m_currentWorld		 = nullptr;
 		EditorRoot*							  m_editorRoot			 = nullptr;

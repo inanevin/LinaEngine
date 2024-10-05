@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Editor/Graphics/EditorGfxHelpers.hpp"
 #include "Core/Graphics/Data/RenderData.hpp"
-#include "Core/Graphics/GfxManager.hpp"
+#include "Core/Application.hpp"
 
 namespace Lina::Editor
 {
@@ -54,7 +54,7 @@ namespace Lina::Editor
 							   {
 								   .bufferType	 = LinaGX::ResourceTypeHint::TH_IndirectBuffer,
 								   .debugName	 = "RP: GUI - IndirectBuffer",
-								   .size		 = GfxManager::GetLGX()->GetIndexedIndirectCommandSize() * static_cast<size_t>(250),
+								   .size		 = Application::GetLGX()->GetIndexedIndirectCommandSize() * static_cast<size_t>(250),
 								   .stagingOnly	 = false,
 								   .bindingIndex = -1,
 								   .ident		 = "IndirectBuffer"_hs,

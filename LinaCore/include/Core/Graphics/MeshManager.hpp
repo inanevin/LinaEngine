@@ -64,7 +64,6 @@ namespace Lina
 		void RemoveMesh(MeshDefault* mesh);
 
 	private:
-		friend class GfxManager;
 
 		void Refresh();
 

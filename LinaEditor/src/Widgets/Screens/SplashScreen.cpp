@@ -35,7 +35,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Core/Resources/ResourceManager.hpp"
-#include "Common/System/System.hpp"
+
 #include "Common/Math/Math.hpp"
 
 namespace Lina::Editor

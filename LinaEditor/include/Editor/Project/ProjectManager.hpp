@@ -46,6 +46,7 @@ namespace Lina::Editor
 	public:
 		virtual void OnProjectOpened(ProjectData* data){};
 		virtual void OnProjectClosed(){};
+		virtual void OnProjectResourcesRefreshed(){};
 	};
 
 	class ProjectManager
@@ -66,11 +67,16 @@ namespace Lina::Editor
 		void	   OpenProject(const String& projectFile);
 		void	   SaveProjectChanges();
 		ResourceID ConsumeResourceID();
-		void	   GenerateMissingAtlasImages(ResourceDirectory* dir);
-		void	   PreDestroyResourceDirectory(ResourceDirectory* dir);
+		void	   GenerateMissingAtlasImages(ResourceDirectory* dir, bool isRecursive = true);
+		void	   RemoveDirectoryThumbnails(ResourceDirectory* dir);
 
 		void AddListener(ProjectManagerListener* listener);
 		void RemoveListener(ProjectManagerListener* listener);
+
+		void MarkResourceAtlasesNeedUpdate()
+		{
+			m_resourceAtlasesNeedUpdate.store(true);
+		}
 
 		inline ProjectData* GetProjectData() const
 		{
@@ -89,6 +95,6 @@ namespace Lina::Editor
 		Editor*							m_editor			   = nullptr;
 		ProjectData*					m_currentProject	   = nullptr;
 		Vector<ProjectManagerListener*> m_listeners;
-		Atomic<WorkState>				m_workState = WorkState::None;
+		Atomic<bool>					m_resourceAtlasesNeedUpdate = false;
 	};
 } // namespace Lina::Editor

@@ -40,7 +40,6 @@ namespace LinaGX
 
 namespace Lina
 {
-	class GfxManager;
 	class Widget;
 	class WidgetManager;
 
@@ -135,7 +134,6 @@ namespace Lina::Editor
 	private:
 		WidgetManager*							   m_primaryWidgetManager = nullptr;
 		Editor*									   m_editor				  = nullptr;
-		GfxManager*								   m_gfxManager			  = nullptr;
 		LinaGX::Window*							   m_payloadWindow		  = nullptr;
 		LinaGX::Window*							   m_mainWindow			  = nullptr;
 		Vector<StringID>						   m_windowCloseRequests;

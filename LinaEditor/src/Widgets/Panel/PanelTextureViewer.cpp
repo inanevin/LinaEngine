@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
 #include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
+#include "Editor/IO/ThumbnailGenerator.hpp"
 #include "Core/Meta/ProjectData.hpp"
 #include "Core/Platform/PlatformProcess.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
@@ -42,12 +43,12 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
-#include "Core/Graphics/GfxManager.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
-#include "Common/System/System.hpp"
+
+#include "Core/Application.hpp"
 
 namespace Lina::Editor
 {
@@ -202,7 +203,7 @@ namespace Lina::Editor
 
 	void PanelTextureViewer::RegenTexture(const String& path)
 	{
-		m_editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->Join();
+		Application::GetLGX()->Join();
 		m_texture->DestroyHW();
 
 		if (path.empty())
@@ -308,9 +309,20 @@ namespace Lina::Editor
 			if (paths.empty())
 				return;
 
-			RegenTexture(paths.front());
-			StoreBuffer();
-			SetRuntimeDirty(true);
+			Widget* lock = m_editor->GetWindowPanelManager().LockAllForegrounds(m_lgxWindow, Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow));
+			Widget* pp	 = CommonWidgets::BuildGenericPopupProgress(lock, Locale::GetStr(LocaleStr::ImportingResources), true);
+			lock->AddChild(pp);
+			m_texturePanel->GetWidgetProps().drawBackground = false;
+			const String& path								= paths.front();
+			Taskflow	  tf;
+			tf.emplace([this, path]() {
+				RegenTexture(path);
+				StoreBuffer();
+				SetRuntimeDirty(true);
+				m_editor->GetWindowPanelManager().UnlockAllForegrounds();
+				m_texturePanel->GetWidgetProps().drawBackground = true;
+			});
+			m_executor.RunMove(tf);
 		};
 		buttonLayout1->AddChild(importButton);
 
@@ -343,13 +355,25 @@ namespace Lina::Editor
 			{
 				ResourceDirectory* dir = m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_texture->GetID());
 				m_resourceManager->SaveResource(m_editor->GetProjectManager().GetProjectData(), m_texture);
-				m_editor->GetResourcePipeline().GenerateThumbnailForResource(dir, m_texture, true);
+
 				dir->name = m_texture->GetName();
+				dir->thumbnailBuffer.Destroy();
+				dir->_thumbnailAtlasImage = nullptr;
 
-				Panel* p = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::ResourceBrowser, 0);
-				if (p)
-					static_cast<PanelResourceBrowser*>(p)->GetBrowser()->RefreshDirectory();
+				const LinaGX::TextureBuffer thumb = ThumbnailGenerator::GenerateThumbnailForResource(m_texture);
+				if (thumb.pixels != nullptr)
+				{
+					OStream stream;
+					stream << thumb.width << thumb.height << thumb.bytesPerPixel;
+					stream.WriteRaw(thumb.pixels, thumb.width * thumb.height * thumb.bytesPerPixel);
+					dir->thumbnailBuffer.Create(stream);
+					stream.Destroy();
+				}
 
+				m_editor->GetProjectManager().SaveProjectChanges();
+				m_editor->GetProjectManager().RemoveDirectoryThumbnails(dir);
+				m_editor->GetProjectManager().GenerateMissingAtlasImages(dir);
+				m_editor->GetProjectManager().MarkResourceAtlasesNeedUpdate();
 				SetRuntimeDirty(false);
 			}
 		};

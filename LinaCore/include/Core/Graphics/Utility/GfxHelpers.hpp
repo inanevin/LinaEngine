@@ -38,6 +38,10 @@ namespace Lina
 	class GfxHelpers
 	{
 	public:
+		static LinaGX::Instance* InitializeLinaGX();
+		static void				 InitializeLinaVG();
+		static void				 ShutdownLinaVG();
+
 		static LinaGX::DescriptorSetDesc GetSetDescPersistentGlobal();
 		static LinaGX::DescriptorSetDesc GetSetDescPersistentRenderPass(RenderPassDescriptorType renderpassType);
 

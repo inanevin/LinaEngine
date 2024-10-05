@@ -27,7 +27,6 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/Data/Mesh.hpp"
-#include "Core/Graphics/GfxManager.hpp"
 #include "Common/Data/Streams.hpp"
 
 #include "Common/Platform/LinaGXIncl.hpp"
@@ -85,12 +84,4 @@ namespace Lina
 		index->indexType				   = LinaGX::IndexType::Uint16;
 	}
 
-	void MeshDefault::GenerateBuffers(GfxManager* gfxMan)
-	{
-		m_vertexBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, static_cast<uint32>(sizeof(VertexDefault) * m_vertices.size()));
-		m_indexBuffer.Create(LinaGX::ResourceTypeHint::TH_IndexBuffer, static_cast<uint32>(sizeof(uint16) * m_indices16.size()));
-		m_vertexBuffer.BufferData(0, (uint8*)m_vertices.data(), sizeof(VertexDefault) * m_vertices.size());
-		m_indexBuffer.BufferData(0, (uint8*)m_indices16.data(), sizeof(uint16) * m_indices16.size());
-		m_ownsBuffers = true;
-	}
 } // namespace Lina

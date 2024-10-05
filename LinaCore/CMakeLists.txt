@@ -27,15 +27,11 @@ src/Audio/Audio.cpp
 # Core
 src/Application.cpp
 src/ApplicationDelegate.cpp
-src/Engine.cpp
 src/CommonCore.cpp
-src/EngineInterface.cpp
 
 # Graphics
-src/Graphics/GfxManager.cpp
 src/Graphics/ResourceUploadQueue.cpp
 src/Graphics/MeshManager.cpp
-src/Graphics/CameraSystem.cpp
 src/Graphics/BindlessContext.cpp
 
 src/Graphics/GUI/GUIBackend.cpp
@@ -85,7 +81,6 @@ src/Resources/Data/ResourceMetadata.cpp
 src/World/Entity.cpp
 src/World/Component.cpp
 src/World/ComponentCache.cpp
-src/World/WorldManager.cpp
 src/World/Screen.cpp
 src/World/WorldInput.cpp
 src/World/EntityWorld.cpp
@@ -133,9 +128,7 @@ set(HEADERS
 include/Core/Lina.hpp
 include/Core/Application.hpp
 include/Core/ApplicationDelegate.hpp
-include/Core/Engine.hpp
 include/Core/CommonCore.hpp
-include/Core/EngineInterface.hpp
 
 # Audio
 include/Core/Audio/AudioManager.hpp
@@ -162,8 +155,6 @@ include/Core/Resources/ResourcesReflection.hpp
 include/Core/Resources/Data/ResourceMetadata.hpp
 
 # Graphics
-include/Core/Graphics/GfxManager.hpp
-include/Core/Graphics/CameraSystem.hpp
 include/Core/Graphics/CommonGraphics.hpp
 include/Core/Graphics/ResourceUploadQueue.hpp
 include/Core/Graphics/MeshManager.hpp
@@ -201,7 +192,6 @@ include/Core/Meta/ProjectData.hpp
 include/Core/World/Entity.hpp
 include/Core/World/Component.hpp
 include/Core/World/ComponentCache.hpp
-include/Core/World/WorldManager.hpp
 include/Core/World/Screen.hpp
 include/Core/World/WorldInput.hpp
 include/Core/World/EntityWorld.hpp

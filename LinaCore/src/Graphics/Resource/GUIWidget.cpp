@@ -27,7 +27,6 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/Resource/GUIWidget.hpp"
-#include "Core/Graphics/GfxManager.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Common/Serialization/Serialization.hpp"
 

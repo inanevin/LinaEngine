@@ -27,7 +27,6 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/GUI/GUIBackend.hpp"
-#include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Pipeline/Buffer.hpp"

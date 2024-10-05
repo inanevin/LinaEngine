@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Editor/Widgets/Popups/GenericPopup.hpp"
 #include "Editor/Widgets/FX/ProgressCircleFill.hpp"
+#include "Editor/Resources/ResourcePipeline.hpp"
 #include "Core/Meta/ProjectData.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
@@ -99,7 +100,9 @@ namespace Lina::Editor
 
 		controller->GetProps().onDelete = [this]() {
 			Vector<ResourceDirectory*> selection = m_controller->GetSelectedUserData<ResourceDirectory>();
-			RequestDelete(selection);
+
+			if (!CheckIfContainsEngineResource(selection))
+				RequestDelete(selection);
 		};
 
 		controller->GetProps().onInteract = [this]() {
@@ -150,14 +153,14 @@ namespace Lina::Editor
 		controller->GetProps().onPayloadAccepted = [this](void* ud) { DropPayload(static_cast<ResourceDirectory*>(ud)); };
 
 		controller->GetProps().onCheckCanCreatePayload = [this](void* ud) {
-			ResourceDirectory* dir	= static_cast<ResourceDirectory*>(ud);
-			ResourceDirectory* root = &m_editor->GetProjectManager().GetProjectData()->GetResourceRoot();
-			return dir != root;
+			ResourceDirectory* dir = static_cast<ResourceDirectory*>(ud);
+			return !CheckIfContainsEngineResource({dir});
 		};
 
 		controller->GetProps().onDuplicate = [this]() {
 			Vector<ResourceDirectory*> selection = m_controller->GetSelectedUserData<ResourceDirectory>();
-			RequestDuplicate(selection);
+			if (!CheckIfContainsEngineResource(selection))
+				RequestDuplicate(selection);
 		};
 	}
 
@@ -223,6 +226,7 @@ namespace Lina::Editor
 		if (currentProject == nullptr)
 			return;
 		ResourceDirectory& root = currentProject->GetResourceRoot();
+		ResourceDirectory* lina = root.GetChildByName(EDITOR_DEF_RESOURCES_FOLDER);
 
 		bool renameDisabled	   = false;
 		bool createDisabled	   = false;
@@ -232,7 +236,8 @@ namespace Lina::Editor
 		bool alreadyInFav	   = false;
 		bool importDisabled	   = false;
 
-		if (m_controller->IsItemSelected(m_controller->GetItem(&root)))
+		Vector<ResourceDirectory*> selection = m_controller->GetSelectedUserData<ResourceDirectory>();
+		if (CheckIfContainsEngineResource(selection))
 		{
 			renameDisabled	  = true;
 			deleteDisabled	  = true;
@@ -248,12 +253,19 @@ namespace Lina::Editor
 			favDisabled		  = true;
 			importDisabled	  = true;
 		}
+		else if (m_controller->GetSelectedItems().front()->GetUserData() == lina)
+			importDisabled = true;
 
 		if (m_controller->GetSelectedItems().size() > 1)
 		{
 			createDisabled = true;
 			renameDisabled = true;
 			importDisabled = true;
+		}
+		else
+		{
+			ResourceDirectory* dir = static_cast<ResourceDirectory*>(m_controller->GetSelectedItems().front()->GetUserData());
+			createDisabled		   = !dir->isFolder;
 		}
 
 		if (!m_controller->GetSelectedItems().empty() && !m_controller->GetSelectedUserData<ResourceDirectory>().front()->isFolder)
@@ -393,18 +405,38 @@ namespace Lina::Editor
 				importDefinitions.push_back({.path = file});
 			}
 
-			m_editor->GetResourcePipeline().ImportResources(m_editor->GetProjectManager().GetProjectData(), selection.front(), importDefinitions, [this](uint32 importedCount, const ResourcePipeline::ResourceImportDef& def, bool isComplete) {
-				if (isComplete)
-					return;
-				// LINA_TRACE("Updating progress {0}", progress);
-				// m_progress->UpdateProgress(progress);
+			Widget*				lock		 = m_editor->GetWindowPanelManager().LockAllForegrounds(m_lgxWindow, Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow));
+			Widget*				popup		 = CommonWidgets::BuildGenericPopupProgress(lock, Locale::GetStr(LocaleStr::ImportingResources), false);
+			ProgressCircleFill* progress	 = static_cast<ProgressCircleFill*>(popup->FindChildWithDebugName("Fill"));
+			Text*				progressText = static_cast<Text*>(popup->FindChildWithDebugName("Progress"));
+			lock->AddChild(popup);
+
+			Taskflow tf;
+
+			ResourceDirectory* directory = selection.front();
+
+			tf.emplace([selection, importDefinitions, progress, progressText, directory, this]() {
+				const float totalSize = static_cast<float>(importDefinitions.size());
+
+				ResourcePipeline::ImportResources(m_editor->GetProjectManager().GetProjectData(), directory, importDefinitions, [this, progress, progressText, totalSize](uint32 importedCount, const ResourcePipeline::ResourceImportDef& def, bool isComplete) {
+					const float p = static_cast<float>(importedCount) / totalSize;
+					progress->UpdateProgress(p);
+					progressText->GetProps().text = def.path;
+					progressText->CalculateTextSize();
+				});
+
+				m_editor->GetProjectManager().GenerateMissingAtlasImages(directory, false);
+				m_editor->GetProjectManager().SaveProjectChanges();
+				m_editor->GetProjectManager().MarkResourceAtlasesNeedUpdate();
 			});
+
+			m_executor.RunMove(tf);
+
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::AddToFavourites)))
 		{
-
 			return true;
 		}
 
@@ -529,26 +561,23 @@ namespace Lina::Editor
 	void ResourceDirectoryBrowser::RequestDuplicate(Vector<ResourceDirectory*> dirs)
 	{
 		for (ResourceDirectory* item : dirs)
-			m_editor->GetResourcePipeline().DuplicateResource(&m_editor->GetResourceManagerV2(), item, item->parent);
-		m_editor->GetAtlasManager().RefreshDirtyAtlases();
-		RefreshDirectory();
+			ResourcePipeline::DuplicateResource(m_editor->GetProjectManager().GetProjectData(), &m_editor->GetResourceManagerV2(), item, item->parent);
+
+		m_editor->GetProjectManager().GenerateMissingAtlasImages(&m_editor->GetProjectManager().GetProjectData()->GetResourceRoot(), true);
 		m_editor->GetProjectManager().SaveProjectChanges();
+		m_editor->GetProjectManager().MarkResourceAtlasesNeedUpdate();
 	}
 
 	void ResourceDirectoryBrowser::DeleteItems(Vector<ResourceDirectory*> dirs)
 	{
 		for (ResourceDirectory* item : dirs)
 		{
-			if (item->_thumbnailAtlasImage != nullptr)
-				m_editor->GetAtlasManager().RemoveImage(item->_thumbnailAtlasImage);
-
-			m_editor->GetProjectManager().PreDestroyResourceDirectory(item);
+			m_editor->GetProjectManager().RemoveDirectoryThumbnails(item);
 			item->parent->DestroyChild(item);
 		}
 
-		m_editor->GetAtlasManager().RefreshDirtyAtlases();
-		RefreshDirectory();
 		m_editor->GetProjectManager().SaveProjectChanges();
+		m_editor->GetProjectManager().MarkResourceAtlasesNeedUpdate();
 	}
 
 	void ResourceDirectoryBrowser::DropPayload(ResourceDirectory* target)
@@ -566,66 +595,21 @@ namespace Lina::Editor
 		m_editor->GetProjectManager().SaveProjectChanges();
 	}
 
-	void ResourceDirectoryBrowser::OnProjectOpened(ProjectData* data)
+	bool ResourceDirectoryBrowser::CheckIfContainsEngineResource(const Vector<ResourceDirectory*>& dirs)
 	{
-		RefreshDirectory();
-	}
+		ResourceDirectory* root = &m_editor->GetProjectManager().GetProjectData()->GetResourceRoot();
+		ResourceDirectory* lina = root->GetChildByName(EDITOR_DEF_RESOURCES_FOLDER);
 
-	void ResourceDirectoryBrowser::OnProjectClosed()
-	{
-		RefreshDirectory();
-	}
+		for (ResourceDirectory* d : dirs)
+		{
+			if (d == root)
+				return true;
 
-	void ResourceDirectoryBrowser::ShowProgress()
-	{
-		m_progressParent = m_manager->Allocate<Widget>("ProgressParent");
-		m_progressParent->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		m_progressParent->SetAlignedPos(Vector2::Zero);
-		m_progressParent->SetAlignedSize(Vector2::One);
-		m_progressParent->GetWidgetProps().drawBackground		   = true;
-		m_progressParent->GetWidgetProps().colorBackground		   = Theme::GetDef().black;
-		m_progressParent->GetWidgetProps().colorBackground.start.w = m_progressParent->GetWidgetProps().colorBackground.end.w = 0.9f;
-		m_progressParent->GetWidgetProps().drawOrderIncrement																  = 1;
-		AddChild(m_progressParent);
+			if (d == lina)
+				return true;
 
-		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("ProgressLayout");
-		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_USE_FIXED_SIZE_Y);
-		layout->SetAlignedPos(Vector2(0.5f, 0.5f));
-		layout->SetFixedSizeX(Theme::GetDef().baseItemHeight * 3);
-		layout->SetFixedSizeY(layout->GetAlignedSizeX() + Theme::GetDef().baseItemHeight);
-		layout->SetAnchorX(Anchor::Center);
-		layout->SetAnchorY(Anchor::Center);
-		layout->GetProps().direction		  = DirectionOrientation::Vertical;
-		layout->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
-		m_progressParent->AddChild(layout);
-
-		Widget* rect = m_manager->Allocate<Widget>("ProgressLayoutRect");
-		rect->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_COPY_X);
-		rect->SetAlignedPosX(0.0f);
-		rect->SetAlignedSizeX(1.0f);
-		layout->AddChild(rect);
-
-		m_progress = m_manager->Allocate<ProgressCircleFill>("Progress");
-		m_progress->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		m_progress->SetAlignedPos(Vector2::Zero);
-		m_progress->SetAlignedSize(Vector2::One);
-		rect->AddChild(m_progress);
-
-		Text* txt			 = m_manager->Allocate<Text>("ProgressText");
-		txt->GetProps().text = Locale::GetStr(LocaleStr::Working);
-		txt->GetFlags().Set(WF_POS_ALIGN_X);
-		txt->SetAlignedPosX(0.5f);
-		txt->SetAnchorX(Anchor::Center);
-		layout->AddChild(txt);
-
-		m_progressParent->Initialize();
-	}
-
-	void ResourceDirectoryBrowser::HideProgress()
-	{
-		RemoveChild(m_progressParent);
-		m_manager->Deallocate(m_progressParent);
-		m_progress		 = nullptr;
-		m_progressParent = nullptr;
+			if (d->parent == lina)
+				return true;
+		}
 	}
 } // namespace Lina::Editor

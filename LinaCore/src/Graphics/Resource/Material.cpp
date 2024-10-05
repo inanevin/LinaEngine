@@ -27,13 +27,11 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/Resource/Material.hpp"
-#include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/BindlessContext.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Resource/TextureSampler.hpp"
 #include "Core/Graphics/Pipeline/DescriptorSet.hpp"
-#include "Common/System/System.hpp"
 
 #include "Common/Serialization/Serialization.hpp"
 

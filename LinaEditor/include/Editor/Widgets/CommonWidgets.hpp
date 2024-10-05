@@ -58,7 +58,6 @@ namespace Lina::Editor
 	class GenericPopup;
 	class InfoTooltip;
 	class ItemController;
-	struct DirectoryItem;
 
 	class CommonWidgets
 	{
@@ -74,20 +73,16 @@ namespace Lina::Editor
 		static InfoTooltip*		  ThrowInfoTooltip(const String& str, LogLevel level, float time, WidgetManager* manager, const Vector2& targetPos);
 
 		static Widget* BuildGenericPopupWithButtons(Widget* src, const String& desc, const Vector<GenericPopupButton>& buttons);
-		static Widget* BuildGenericPopupProgress(Widget* src, const String& desc);
+		static Widget* BuildGenericPopupProgress(Widget* src, const String& desc, bool isRotatingCircle);
 
 		static float GetPopupWidth(LinaGX::Window* window);
 
 		static Widget* GetPopupItemWithSelectionToggle(Widget* source, const String& title, bool isSelected);
 
 		static Widget* BuildPayloadForPanel(Widget* src, const String& name);
-		static Widget* BuildPayloadForDirectoryItem(Widget* src, DirectoryItem* item);
 		static Widget* BuildDefaultFoldItem(Widget* src, void* userdata, float margin, const String& icon, const Color& iconColor, const String& title, bool hasChildren, bool* unfoldVal, bool isRoot = false, bool boldText = false);
 		static Widget* BuildDefaultListItem(Widget* src, void* userData, float margin, const String& icon, const Color& iconColor, const String& title, bool foldNudge);
 		static Widget* BuildTexturedListItem(Widget* src, void* userData, float margin, TextureAtlasImage* txt, const String& title);
-		static Widget* BuildDirectoryItemFolderView(Widget* src, DirectoryItem* item, float margin);
-		static Widget* BuildDirectoryItemListView(Widget* src, DirectoryItem* item);
-		static Widget* BuildDirectoryItemGridView(Widget* src, DirectoryItem* item, const Vector2& itemSize);
 
 		static Widget*	   BuildFieldLayout(Widget* src, uint32 dependencies, const String& title, bool isFoldLayout, bool* foldVal = nullptr);
 		static Widget*	   BuildField(Widget* src, const String& title, void* memberVariablePtr, MetaType& metaType, FieldBase* field, FieldType fieldType, Delegate<void(const MetaType& meta, FieldBase* field)> onFieldChanged, int32 vectorElementIndex = -1);

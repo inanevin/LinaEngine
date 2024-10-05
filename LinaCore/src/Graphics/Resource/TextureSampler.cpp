@@ -27,11 +27,11 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/Resource/TextureSampler.hpp"
-#include "Core/Graphics/GfxManager.hpp"
-#include "Common/System/System.hpp"
+
 #include "Common/Serialization/Serialization.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Core/Resources/ResourceManager.hpp"
+#include "Core/Application.hpp"
 
 namespace Lina
 {
@@ -86,14 +86,14 @@ namespace Lina
 	void TextureSampler::GenerateHW()
 	{
 		m_samplerDesc.debugName = m_name.c_str();
-		m_gpuHandle				= GfxManager::GetLGX()->CreateSampler(m_samplerDesc);
+		m_gpuHandle				= Application::GetLGX()->CreateSampler(m_samplerDesc);
 		m_hwExists				= true;
 	}
 
 	void TextureSampler::GenerateHW(const LinaGX::SamplerDesc& desc)
 	{
 		m_samplerDesc = desc;
-		m_gpuHandle	  = GfxManager::GetLGX()->CreateSampler(m_samplerDesc);
+		m_gpuHandle	  = Application::GetLGX()->CreateSampler(m_samplerDesc);
 		m_hwExists	  = true;
 	}
 
@@ -101,7 +101,7 @@ namespace Lina
 	{
 		if (!m_hwExists)
 			return;
-		GfxManager::GetLGX()->DestroySampler(m_gpuHandle);
+		Application::GetLGX()->DestroySampler(m_gpuHandle);
 		m_hwExists = false;
 	}
 

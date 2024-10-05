@@ -50,7 +50,7 @@ namespace Lina::Editor
 	public:
 		void			   Initialize(Editor* editor);
 		void			   Shutdown();
-		void			   RefreshDirtyAtlases();
+		void			   RefreshPoolAtlases();
 		TextureAtlasImage* AddImageToAtlas(uint8* data, const Vector2ui& size, LinaGX::Format format);
 		void			   RemoveImage(TextureAtlasImage* rect);
 		TextureAtlasImage* GetImageFromAtlas(StringID atlas, StringID image);

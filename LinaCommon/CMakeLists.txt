@@ -26,8 +26,6 @@ set (SOURCES
 	
 	# FileSystem
 	src/FileSystem/FileSystem.cpp
-	src/FileSystem/FileData.cpp
-	src/FileSystem/FileWatcher.cpp
 
 	# Log
 	src/Log/Log.cpp
@@ -81,8 +79,6 @@ set (SOURCES
 
 	# System
 	src/System/Plugin.cpp
-	src/System/System.cpp
-	src/System/Subsystem.cpp
 	src/System/SystemInfo.cpp
 
 	# Platform
@@ -107,8 +103,6 @@ set(HEADERS
 	
 	# FileSystem
 	include/Common/FileSystem/FileSystem.hpp
-	include/Common/FileSystem/FileData.hpp
-	include/Common/FileSystem/FileWatcher.hpp
 
 	# Job System
 	include/Common/JobSystem/JobSystem.hpp
@@ -185,8 +179,6 @@ set(HEADERS
 
 	# System
 	include/Common/System/Plugin.hpp
-	include/Common/System/System.hpp
-	include/Common/System/Subsystem.hpp
 	include/Common/System/SystemInfo.hpp
 
 	# Platform

@@ -206,8 +206,6 @@ namespace Lina
 		void OnDestroyComponent(Component* c, Entity* e);
 
 	private:
-		friend class WorldManager;
-
 		void DestroyEntityData(Entity* e);
 		void Simulate(float fixedDelta);
 

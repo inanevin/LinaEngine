@@ -32,7 +32,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Common/Math/Math.hpp"
-#include "Common/System/System.hpp"
+
 #include "Editor/Editor.hpp"
 #include "Editor/CommonEditor.hpp"
 #include <LinaGX/Core/InputMappings.hpp>

@@ -34,13 +34,12 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
-#include "Core/Graphics/GfxManager.hpp"
 #include "Common/System/SystemInfo.hpp"
 #include "Core/Graphics/Data/Vertex.hpp"
 #include "Core/Application.hpp"
 #include "Core/ApplicationDelegate.hpp"
 #include "Core/Resources/ResourceManager.hpp"
-#include "Common/System/System.hpp"
+
 #include "Common/Profiling/Profiler.hpp"
 
 namespace Lina::Editor
@@ -52,7 +51,7 @@ namespace Lina::Editor
 	{
 		m_editor			= editor;
 		m_resourceManagerV2 = &m_editor->GetResourceManagerV2();
-		m_lgx				= GfxManager::GetLGX();
+		m_lgx				= Application::GetLGX();
 		m_size				= m_window->GetSize();
 		m_guiShader			= m_resourceManagerV2->GetResource<Shader>(EDITOR_SHADER_GUI_ID);
 

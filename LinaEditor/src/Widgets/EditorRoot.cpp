@@ -41,9 +41,8 @@ SOFTWARE.
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Platform/PlatformProcess.hpp"
-#include "Core/World/WorldManager.hpp"
 #include "Core/World/EntityWorld.hpp"
-#include "Common/System/System.hpp"
+
 #include "Common/Math/Math.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
@@ -140,14 +139,6 @@ namespace Lina::Editor
 		projectNameText->GetProps().text = Locale::GetStr(LocaleStr::NoProject);
 		projectName->AddChild(projectNameText);
 
-		Text* worldText = m_manager->Allocate<Text>("WorldText");
-		worldText->GetFlags().Set(WF_POS_ALIGN_Y);
-		worldText->SetAlignedPosY(0.5f);
-		worldText->SetAnchorX(Anchor::Center);
-		worldText->SetAnchorY(Anchor::Center);
-		worldText->GetProps().text = Locale::GetStr(LocaleStr::NoWorld);
-		projectName->AddChild(worldText);
-
 		DirectionalLayout* wb = CommonWidgets::BuildWindowButtons(this);
 		wb->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_X);
 		wb->SetAnchorX(Anchor::End);
@@ -171,11 +162,10 @@ namespace Lina::Editor
 		m_fileMenu		  = fm;
 		m_windowButtons	  = wb;
 		m_projectNameText = projectNameText;
-		m_worldNameText	  = worldText;
 		m_titleBar		  = titleBar;
 		m_linaIcon		  = lina;
 
-		m_worldManager = Editor::Get()->GetSystem()->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
+		Editor::Get()->GetProjectManager().AddListener(this);
 	}
 
 	void EditorRoot::PreTick()
@@ -199,15 +189,6 @@ namespace Lina::Editor
 				m_saveIcon->SetIsDisabled(true);
 		}
 
-		auto* loadedWorld = m_worldManager->GetMainWorld();
-
-		if (loadedWorld != m_currentWorld)
-		{
-			m_currentWorld					 = loadedWorld;
-			m_worldNameText->GetProps().text = FileSystem::GetFilenameOnlyFromPath(m_currentWorld->GetName());
-			m_worldNameText->CalculateTextSize();
-		}
-
 		const Color targetColor							 = m_lgxWindow->HasFocus() ? Theme::GetDef().accentPrimary0 : Theme::GetDef().background2;
 		m_titleBar->GetWidgetProps().colorBackground.end = Math::Lerp(m_titleBar->GetWidgetProps().colorBackground.end, targetColor, delta * COLOR_SPEED);
 
@@ -228,9 +209,9 @@ namespace Lina::Editor
 		return false;
 	}
 
-	void EditorRoot::SetProjectName(const String& name)
+	void EditorRoot::OnProjectOpened(ProjectData* project)
 	{
-		m_projectNameText->GetProps().text = name;
+		m_projectNameText->GetProps().text = project->GetProjectName();
 		m_projectNameText->Initialize();
 	}
 

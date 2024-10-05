@@ -28,9 +28,105 @@ SOFTWARE.
 
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
 #include "Core/Graphics/Data/RenderData.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
+
+namespace
+{
+	LINAGX_STRING FormatString(const char* fmt, va_list args)
+	{
+		// Determine the required size
+		va_list args_copy;
+		va_copy(args_copy, args);
+		int size = vsnprintf(nullptr, 0, fmt, args_copy) + 1; // +1 for the null terminator
+		va_end(args_copy);
+
+		// Allocate a buffer and format the string
+		std::vector<char> buffer(size);
+		vsnprintf(buffer.data(), size, fmt, args);
+
+		return std::string(buffer.data());
+	}
+
+	void LinaGX_ErrorCallback(const char* err, ...)
+	{
+		va_list args;
+		va_start(args, err);
+		std::string formattedStr = FormatString(err, args);
+		LINA_ERR(formattedStr.c_str());
+		va_end(args);
+	}
+
+	void LinaGX_LogCallback(const char* err, ...)
+	{
+		va_list args;
+		va_start(args, err);
+		std::string formattedStr = FormatString(err, args);
+		LINA_INFO(formattedStr.c_str());
+		va_end(args);
+	}
+} // namespace
 
 namespace Lina
 {
+	LinaGX::Instance* GfxHelpers::InitializeLinaGX()
+	{
+		// Setup LinaGX
+		LinaGX::Instance* lgx = new LinaGX::Instance();
+
+		LinaGX::Config.dx12Config = {
+			.allowTearing				 = true,
+			.enableDebugLayers			 = true,
+			.serializeShaderDebugSymbols = true,
+		};
+
+		LinaGX::Config.vulkanConfig = {
+			.enableVulkanFeatures = LinaGX::VulkanFeatureFlags::VKF_Bindless | LinaGX::VulkanFeatureFlags::VKF_MultiDrawIndirect,
+		};
+
+		LinaGX::Config.gpuLimits = {
+			.samplerLimit = 2048,
+			.bufferLimit  = 2048,
+		};
+
+		LinaGX::Config.logLevel		 = LinaGX::LogLevel::Verbose;
+		LinaGX::Config.errorCallback = LinaGX_ErrorCallback;
+		LinaGX::Config.infoCallback	 = LinaGX_LogCallback;
+		LinaGX::BackendAPI api		 = LinaGX::BackendAPI::Vulkan;
+
+#ifdef LINA_PLATFORM_APPLE
+		api = LinaGX::BackendAPI::Metal;
+#endif
+
+		LinaGX::Config.multithreadedQueueSubmission = true;
+		LinaGX::Config.api							= api;
+		LinaGX::Config.gpu							= LinaGX::PreferredGPUType::Discrete;
+		LinaGX::Config.framesInFlight				= FRAMES_IN_FLIGHT;
+		LinaGX::Config.backbufferCount				= BACK_BUFFER_COUNT;
+		LinaGX::Config.mutexLockCreationDeletion	= true;
+
+		lgx->Initialize();
+		return lgx;
+	}
+
+	void GfxHelpers::InitializeLinaVG()
+	{
+		LinaVG::Config.globalFramebufferScale = 1.0f;
+		LinaVG::Config.globalAAMultiplier	  = 1.0f;
+		LinaVG::Config.gcCollectInterval	  = 4000;
+		LinaVG::Config.textCachingEnabled	  = true;
+		LinaVG::Config.textCachingSDFEnabled  = true;
+		LinaVG::Config.textCacheReserve		  = 10000;
+		LinaVG::Config.maxFontAtlasSize		  = 1024;
+		LinaVG::Config.errorCallback		  = [](const std::string& err) { LINA_ERR(err.c_str()); };
+		LinaVG::Config.logCallback			  = [](const std::string& log) { LINA_TRACE(log.c_str()); };
+		LinaVG::InitializeText();
+	}
+
+	void GfxHelpers::ShutdownLinaVG()
+	{
+		LinaVG::TerminateText();
+	}
+
 	LinaGX::DescriptorSetDesc GfxHelpers::GetSetDescPersistentGlobal()
 	{
 		LinaGX::DescriptorBinding binding0 = {

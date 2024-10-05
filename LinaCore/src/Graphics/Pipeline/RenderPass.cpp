@@ -28,8 +28,8 @@ SOFTWARE.
 
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
-#include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/ResourceUploadQueue.hpp"
+#include "Core/Application.hpp"
 
 namespace Lina
 {
@@ -38,7 +38,7 @@ namespace Lina
 		for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data		   = m_pfd[i];
-			data.descriptorSet = GfxManager::GetLGX()->CreateDescriptorSet(desc.setDescription);
+			data.descriptorSet = Application::GetLGX()->CreateDescriptorSet(desc.setDescription);
 
 			for (const auto& b : desc.buffers)
 			{
@@ -50,7 +50,7 @@ namespace Lina
 
 				if (b.bindingIndex != -1)
 				{
-					GfxManager::GetLGX()->DescriptorUpdateBuffer({
+					Application::GetLGX()->DescriptorUpdateBuffer({
 						.setHandle = data.descriptorSet,
 						.binding   = static_cast<uint32>(b.bindingIndex),
 						.buffers   = {buffer.GetGPUResource()},
@@ -70,7 +70,7 @@ namespace Lina
 				b.Destroy();
 
 			data.buffers.clear();
-			GfxManager::GetLGX()->DestroyDescriptorSet(data.descriptorSet);
+			Application::GetLGX()->DestroyDescriptorSet(data.descriptorSet);
 		}
 	}
 

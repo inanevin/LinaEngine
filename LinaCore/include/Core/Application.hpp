@@ -28,15 +28,14 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Application_HPP
-#define Application_HPP
-
-#include "Core/Engine.hpp"
+#include "Common/JobSystem/JobSystem.hpp"
+#include <LinaGX/Core/Window.hpp>
 
 namespace LinaGX
 {
 	class Window;
-}
+	class Instance;
+} // namespace LinaGX
 
 namespace Lina
 {
@@ -47,15 +46,19 @@ namespace Lina
 	class Application : public LinaGX::WindowListener
 	{
 	public:
-		Application() : m_engine(this){};
+		Application(){};
 		~Application(){};
 
-		void Initialize(const SystemInitializationInfo& initInfo);
-		void PreTick();
-		void Poll();
-		void Tick();
-		void Render();
-		void Shutdown();
+		void		 Initialize(const SystemInitializationInfo& initInfo);
+		void		 Tick();
+		void		 Render();
+		void		 Shutdown();
+		virtual void OnWindowClose(LinaGX::Window* window) override;
+		virtual void OnWindowSizeChanged(LinaGX::Window* window, const LinaGX::LGXVector2ui&) override;
+
+		void			DestroyApplicationWindow(StringID sid);
+		LinaGX::Window* CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, uint32 style, LinaGX::Window* parentWindow = nullptr);
+		LinaGX::Window* GetApplicationWindow(StringID sid);
 
 		inline void Quit()
 		{
@@ -77,27 +80,32 @@ namespace Lina
 			return m_appDelegate;
 		}
 
-		inline System* GetSystem()
+		static LinaGX::Instance* GetLGX()
 		{
-			return &m_engine;
+			return s_lgx;
 		}
 
-	protected:
-		virtual void OnWindowClose();
+		inline JobExecutor& GetExecutor()
+		{
+			return m_executor;
+		}
 
-	protected:
+	private:
 		void SetFrameCap(int64 microseconds);
 		void SetFixedTimestep(int64 microseconds);
-
 		void LoadPlugins();
 		void UnloadPlugins();
+		void CalculateTime();
 
-	protected:
-		ApplicationDelegate* m_appDelegate = nullptr;
-		Engine				 m_engine;
-		bool				 m_exitRequested = false;
-		bool				 m_isIdleMode	 = false;
+	private:
+		static LinaGX::Instance* s_lgx;
+		ApplicationDelegate*	 m_appDelegate	 = nullptr;
+		bool					 m_exitRequested = false;
+		bool					 m_isIdleMode	 = false;
+		JobExecutor				 m_executor;
+
+		// Time
+		int64 m_frameCapAccumulator		 = 0;
+		int64 m_fixedTimestepAccumulator = 0;
 	};
 } // namespace Lina
-
-#endif

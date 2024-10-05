@@ -40,9 +40,7 @@ include/Editor/Graphics/SurfaceRenderer.hpp
 include/Editor/Graphics/EditorGfxHelpers.hpp
 
 # IO
-include/Editor/IO/FileManager.hpp
 include/Editor/IO/ThumbnailGenerator.hpp
-include/Editor/IO/DirectoryItem.hpp
 include/Editor/IO/ExtensionSupport.hpp
 
 # Widgets
@@ -67,7 +65,6 @@ include/Editor/Widgets/Popups/InfoTooltip.hpp
 include/Editor/Widgets/Popups/GenericPopup.hpp
 include/Editor/Widgets/Popups/ProgressPopup.hpp
 include/Editor/Widgets/Panel/Panel.hpp
-include/Editor/Widgets/Panel/PanelResources.hpp
 include/Editor/Widgets/Panel/PanelWorld.hpp
 include/Editor/Widgets/Panel/PanelWidgetEditor.hpp
 include/Editor/Widgets/Panel/PanelWidgetEditorProperties.hpp
@@ -114,9 +111,7 @@ src/Graphics/EditorGfxHelpers.cpp
 
 
 # IO
-src/IO/FileManager.cpp
 src/IO/ThumbnailGenerator.cpp
-src/IO/DirectoryItem.cpp
 src/IO/ExtensionSupport.cpp
 
 # Widgets
@@ -141,7 +136,6 @@ src/Widgets/Popups/InfoTooltip.cpp
 src/Widgets/Popups/GenericPopup.cpp
 src/Widgets/Popups/ProgressPopup.cpp
 src/Widgets/Panel/Panel.cpp
-src/Widgets/Panel/PanelResources.cpp
 src/Widgets/Panel/PanelPerformance.cpp
 src/Widgets/Panel/PanelWorld.cpp
 src/Widgets/Panel/PanelWidgetEditor.cpp

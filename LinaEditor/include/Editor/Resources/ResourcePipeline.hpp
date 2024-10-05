@@ -38,6 +38,7 @@ namespace Lina
 	class Model;
 	class ProjectData;
 } // namespace Lina
+
 namespace Lina::Editor
 {
 
@@ -53,19 +54,8 @@ namespace Lina::Editor
 		};
 
 		static ResourceDirectory* SaveNewResource(ProjectData* project, ResourceDirectory* src, const String& name, TypeID tid, ResourceID id = 0, uint32 subType = 0);
-
-		/// For importing external resources, such as textures, models, materials etc.
-		static void ImportResources(ProjectData* project, ResourceDirectory* src, const Vector<ResourceImportDef>& importDef, Delegate<void(uint32 imported, const ResourceImportDef& importDef, bool isCompleted)> onProgress);
-
-		void DuplicateResource(ResourceManagerV2* resMan, ResourceDirectory* directory, ResourceDirectory* newParent);
-
-		void GenerateThumbnailAtlases(ResourceDirectory* dir);
-		void GenerateThumbnailForResource(ResourceDirectory* dir, Resource* resource, bool refreshAtlases);
-
-	private:
-	private:
-		JobExecutor m_executor;
-		Editor*		m_editor = nullptr;
+		static void				  ImportResources(ProjectData* project, ResourceDirectory* src, const Vector<ResourceImportDef>& importDef, Delegate<void(uint32 imported, const ResourceImportDef& importDef, bool isCompleted)> onProgress);
+		static void				  DuplicateResource(ProjectData* project, ResourceManagerV2* resMan, ResourceDirectory* directory, ResourceDirectory* newParent);
 	};
 
 } // namespace Lina::Editor

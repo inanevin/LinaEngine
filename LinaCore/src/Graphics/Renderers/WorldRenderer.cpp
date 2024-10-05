@@ -27,7 +27,6 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
-#include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
@@ -43,9 +42,10 @@ SOFTWARE.
 #include "Core/Components/CameraComponent.hpp"
 #include "Core/Components/WidgetComponent.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
-#include "Common/System/System.hpp"
+
 #include "Common/System/SystemInfo.hpp"
 #include "Common/Profiling/Profiler.hpp"
+#include "Core/Application.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -125,7 +125,7 @@ namespace Lina
 			.anisotropy = 1,
 		};
 		m_gBufSampler->GenerateHW(gBufSampler);
-		m_lgx = GfxManager::GetLGX();
+		m_lgx = Application::GetLGX();
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -151,8 +151,8 @@ namespace Lina
 				.heapType	   = LinaGX::ResourceHeap::StagingHeap,
 				.debugName	   = "WorldRenderer: Global Data Buffer",
 			};
-			data.globalDataBuffer.Create(LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataEngineGlobals), "GfxManager: Engine Globals", true);
-			data.globalMaterialsBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(uint32) * 1000, "GfxManager: Materials", false);
+			data.globalDataBuffer.Create(LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataEngineGlobals), "WorldRenderer: Engine Globals", true);
+			data.globalMaterialsBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(uint32) * 1000, "WorldRendererr: Materials", false);
 
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle			= m_mainPass.GetDescriptorSet(i),

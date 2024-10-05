@@ -28,11 +28,11 @@ SOFTWARE.
 
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Common/Math/Math.hpp"
-#include "Common/System/System.hpp"
+
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Core/Resources/ResourceManager.hpp"
-#include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/ResourceUploadQueue.hpp"
+#include "Core/Application.hpp"
 
 namespace Lina
 {
@@ -238,7 +238,7 @@ namespace Lina
 	void Texture::GenerateHWFromDesc(const LinaGX::TextureDesc& desc)
 	{
 		LINA_ASSERT(m_gpuHandleExists == false, "");
-		m_gpuHandle		  = GfxManager::GetLGX()->CreateTexture(desc);
+		m_gpuHandle		  = Application::GetLGX()->CreateTexture(desc);
 		m_gpuHandleExists = true;
 		m_size			  = Vector2ui(desc.width, desc.height);
 	}
@@ -254,7 +254,7 @@ namespace Lina
 			.mipLevels = static_cast<uint32>(m_allLevels.size()),
 			.debugName = m_name.c_str(),
 		};
-		m_gpuHandle		  = GfxManager::GetLGX()->CreateTexture(desc);
+		m_gpuHandle		  = Application::GetLGX()->CreateTexture(desc);
 		m_gpuHandleExists = true;
 	}
 
@@ -263,7 +263,7 @@ namespace Lina
 		if (!m_gpuHandleExists)
 			return;
 
-		GfxManager::GetLGX()->DestroyTexture(m_gpuHandle);
+		Application::GetLGX()->DestroyTexture(m_gpuHandle);
 		m_gpuHandleExists = false;
 	}
 

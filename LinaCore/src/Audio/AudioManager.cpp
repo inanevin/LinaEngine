@@ -34,7 +34,7 @@ SOFTWARE.
 namespace Lina
 {
 
-	void AudioManager::Initialize(const SystemInitializationInfo& initInfo)
+	void AudioManager::Initialize()
 	{
 		m_audioEngine = (ma_engine*)MALLOC(sizeof(ma_engine));
 

@@ -32,7 +32,7 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
 #include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
 #include "Editor/Widgets/World/WorldDisplayer.hpp"
-#include "Common/System/System.hpp"
+
 #include "Common/Math/Math.hpp"
 #include "Core/Meta/ProjectData.hpp"
 #include "Core/Platform/PlatformProcess.hpp"
@@ -47,7 +47,7 @@ SOFTWARE.
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
-#include "Core/Graphics/GfxManager.hpp"
+
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
@@ -56,6 +56,7 @@ SOFTWARE.
 #include "Core/Components/FlyCameraMovement.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/World/EntityWorld.hpp"
+#include "Core/Application.hpp"
 
 namespace Lina::Editor
 {
@@ -246,7 +247,7 @@ namespace Lina::Editor
 			if (m_containsRuntimeChanges)
 			{
 				m_resourceManager->SaveResource(m_editor->GetProjectManager().GetProjectData(), m_model);
-				m_editor->GetResourcePipeline().GenerateThumbnailForResource(m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_model->GetID()), m_model, true);
+				// m_editor->GetResourcePipeline().GenerateThumbnailForResource(m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_model->GetID()), m_model, true);
 				Panel* p = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::ResourceBrowser, 0);
 				if (p)
 					static_cast<PanelResourceBrowser*>(p)->GetBrowser()->RefreshDirectory();
@@ -413,7 +414,7 @@ namespace Lina::Editor
 		if (sz.x != 0 && sz.y != 0 && !sz.Equals(m_lastWorldSize))
 		{
 			m_lastWorldSize = sz;
-			m_editor->GetGfxManager()->Join();
+			Application::GetLGX()->Join();
 			m_worldRenderer->Resize(m_lastWorldSize);
 			m_editor->GetEditorRenderer().RefreshDynamicTextures();
 		}
@@ -443,7 +444,7 @@ namespace Lina::Editor
 	void PanelModelViewer::RegenModel(const String& path)
 	{
 		/*
-		m_editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->Join();
+		Application::GetLGX()->Join();
 		m_font->DestroyHW();
 
 		if (!path.empty())

@@ -42,7 +42,6 @@ namespace LinaGX
 namespace Lina
 {
 	class ModelNode;
-	class GfxManager;
 
 	class MeshDefault
 	{
@@ -90,8 +89,6 @@ namespace Lina
 		friend class ModelNode;
 		friend class MeshManager;
 
-		void GenerateBuffers(GfxManager* gfxMan);
-
 	private:
 		Vector<PrimitiveDefault> m_primitives;
 		Vector<VertexDefault>	 m_vertices;
@@ -102,10 +99,9 @@ namespace Lina
 		uint32					 m_indexOffset	= 0;
 		AABB					 m_localAABB;
 
-		GfxManager* m_gfxManager = nullptr;
-		Buffer		m_vertexBuffer;
-		Buffer		m_indexBuffer;
-		bool		m_ownsBuffers = false;
+		Buffer m_vertexBuffer;
+		Buffer m_indexBuffer;
+		bool   m_ownsBuffers = false;
 	};
 
 } // namespace Lina

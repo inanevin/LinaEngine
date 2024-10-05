@@ -44,7 +44,6 @@ SOFTWARE.
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
-#include "Common/System/System.hpp"
 
 namespace Lina::Editor
 {

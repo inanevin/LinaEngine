@@ -44,7 +44,6 @@ namespace LinaGX
 namespace Lina
 {
 	class Texture;
-	class GfxManager;
 	class Buffer;
 
 	struct TextureUploadRequest

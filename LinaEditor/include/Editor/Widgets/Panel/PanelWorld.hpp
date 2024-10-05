@@ -32,10 +32,8 @@ SOFTWARE.
 
 namespace Lina
 {
-	class WorldManager;
 	class EntityWorld;
 	class WorldRenderer;
-	class GfxManager;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -52,10 +50,8 @@ namespace Lina::Editor
 		virtual void Draw() override;
 
 	private:
-		WorldManager*  m_wm			   = nullptr;
 		EntityWorld*   m_world		   = nullptr;
 		WorldRenderer* m_worldRenderer = nullptr;
-		GfxManager*	   m_gfxMan		   = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(PanelWorld, Hidden)

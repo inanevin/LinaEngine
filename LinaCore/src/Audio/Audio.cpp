@@ -30,7 +30,7 @@ SOFTWARE.
 
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Data/Streams.hpp"
-#include "Common/System/System.hpp"
+
 #include "Common/Serialization/Serialization.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Audio/miniaudio/miniaudio.h"

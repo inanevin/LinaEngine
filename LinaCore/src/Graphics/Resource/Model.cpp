@@ -31,7 +31,7 @@ SOFTWARE.
 #include "Core/Graphics/Data/Mesh.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/MeshManager.hpp"
-#include "Common/System/System.hpp"
+
 #include "Common/FileSystem/FileSystem.hpp"
 
 namespace Lina

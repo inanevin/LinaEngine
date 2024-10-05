@@ -28,18 +28,15 @@ SOFTWARE.
 
 #include "Editor/Graphics/WorldRendererExtEditor.hpp"
 #include "Editor/Editor.hpp"
-#include "Common/System/System.hpp"
+
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
-#include "Core/Graphics/GfxManager.hpp"
 #include "Core/Components/CameraComponent.hpp"
 
 namespace Lina::Editor
 {
 	WorldRendererExtEditor::WorldRendererExtEditor()
 	{
-		m_gfxManager = Editor::Get()->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-		// m_rm		  = Editor::Get()->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		// m_shaderLines = m_rm->GetResource<Shader>(EDITOR_LINES_SHADER_ID);
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)

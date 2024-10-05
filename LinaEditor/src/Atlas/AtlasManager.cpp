@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Editor/Atlas/AtlasManager.hpp"
 #include "Editor/Editor.hpp"
-#include "Common/System/System.hpp"
+
 #include "Common/Math/Math.hpp"
 #include "Core/Graphics/Utility/TextureAtlas.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
@@ -104,7 +104,11 @@ namespace Lina::Editor
 
 		addAtlas("Resources/Editor/Textures/Atlas/MiscTextures/", "MiscTextures"_hs, Vector2ui(1024, 1024));
 		addAtlas("Resources/Editor/Textures/Atlas/ProjectIcons/", "ProjectIcons"_hs, Vector2ui(2048, 2048));
-		RefreshDirtyAtlases();
+
+		for (Pair<StringID, TextureAtlas*> pair : m_customAtlases)
+			pair.second->RefreshGPU(m_editor->GetEditorRenderer().GetUploadQueue());
+
+		m_editor->GetEditorRenderer().MarkBindlessDirty();
 	}
 
 	TextureAtlasImage* AtlasManager::GetImageFromAtlas(StringID atlasSID, StringID image)
@@ -127,13 +131,10 @@ namespace Lina::Editor
 		m_customAtlases.clear();
 	}
 
-	void AtlasManager::RefreshDirtyAtlases()
+	void AtlasManager::RefreshPoolAtlases()
 	{
 		for (TextureAtlas* atlas : m_atlasPool)
 			atlas->RefreshGPU(m_editor->GetEditorRenderer().GetUploadQueue());
-
-		for (Pair<StringID, TextureAtlas*> pair : m_customAtlases)
-			pair.second->RefreshGPU(m_editor->GetEditorRenderer().GetUploadQueue());
 
 		m_editor->GetEditorRenderer().MarkBindlessDirty();
 	}

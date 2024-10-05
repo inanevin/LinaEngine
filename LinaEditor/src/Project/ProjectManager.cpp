@@ -108,11 +108,13 @@ namespace Lina::Editor
 
 	void ProjectManager::PreTick()
 	{
-		if (m_workState == WorkState::Done)
+		if (m_resourceAtlasesNeedUpdate.load(std::memory_order_relaxed))
 		{
 			m_editor->GetWindowPanelManager().UnlockAllForegrounds();
-			m_workState.store(WorkState::None);
-			m_editor->GetAtlasManager().RefreshDirtyAtlases();
+			m_editor->GetAtlasManager().RefreshPoolAtlases();
+			m_resourceAtlasesNeedUpdate.store(false);
+			for (ProjectManagerListener* listener : m_listeners)
+				listener->OnProjectResourcesRefreshed();
 		}
 	}
 
@@ -194,7 +196,9 @@ namespace Lina::Editor
 		if (m_currentProject == nullptr)
 			return;
 
-		PreDestroyResourceDirectory(&m_currentProject->GetResourceRoot());
+		RemoveDirectoryThumbnails(&m_currentProject->GetResourceRoot());
+		MarkResourceAtlasesNeedUpdate();
+
 		delete m_currentProject;
 		m_currentProject = nullptr;
 
@@ -212,18 +216,14 @@ namespace Lina::Editor
 		if (!FileSystem::FileOrPathExists(m_currentProject->GetResourceDirectory()))
 			FileSystem::CreateFolderInPath(m_currentProject->GetResourceDirectory());
 
-		m_workState.store(WorkState::Working);
-
 		// Lock windows & add progress.
-		Widget*				lock		 = m_editor->GetWindowPanelManager().LockAllForegrounds(m_primaryWidgetManager->GetRoot()->GetWindow(), Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow));
-		Widget*				progress	 = CommonWidgets::BuildGenericPopupProgress(m_primaryWidgetManager->GetRoot(), Locale::GetStr(LocaleStr::CreatingProject));
-		Text*				progressText = static_cast<Text*>(progress->FindChildWithDebugName("Progress"));
-		ProgressCircleFill* progressFill = static_cast<ProgressCircleFill*>(progress->FindChildWithDebugName("Fill"));
-		progressFill->GetProps().rotate	 = true;
+		Widget* lock		 = m_editor->GetWindowPanelManager().LockAllForegrounds(m_primaryWidgetManager->GetRoot()->GetWindow(), Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow));
+		Widget* progress	 = CommonWidgets::BuildGenericPopupProgress(m_primaryWidgetManager->GetRoot(), Locale::GetStr(LocaleStr::CreatingProject), true);
+		Text*	progressText = static_cast<Text*>(progress->FindChildWithDebugName("Progress"));
 		lock->AddChild(progress);
 
 		Taskflow tf;
-		tf.emplace([this, progressText, progressFill]() {
+		tf.emplace([this, progressText]() {
 			auto updateProg = [progressText](const String& txt) {
 				progressText->GetProps().text = txt;
 				progressText->CalculateTextSize();
@@ -232,12 +232,12 @@ namespace Lina::Editor
 			updateProg(Locale::GetStr(LocaleStr::LoadingProjectData));
 			m_currentProject->LoadFromFile();
 
-			ResourceDirectory* linaAssets = m_currentProject->GetResourceRoot().GetChildByName("_Lina");
+			ResourceDirectory* linaAssets = m_currentProject->GetResourceRoot().GetChildByName(EDITOR_DEF_RESOURCES_FOLDER);
 
 			if (linaAssets == nullptr)
 			{
 				ResourceDirectory* lina = m_currentProject->GetResourceRoot().CreateChild({
-					.name	  = "_Lina",
+					.name	  = EDITOR_DEF_RESOURCES_FOLDER,
 					.isFolder = true,
 				});
 
@@ -307,15 +307,17 @@ namespace Lina::Editor
 			updateProg(Locale::GetStr(LocaleStr::Saving));
 			m_currentProject->SaveToFile();
 
-			m_editor->GetEditorRoot()->SetProjectName(m_currentProject->GetProjectName());
 			EditorSettings& settings = m_editor->GetSettings();
 			settings.SetLastProjectPath(m_currentProject->GetPath());
 			settings.SaveToFile();
+
+			MarkResourceAtlasesNeedUpdate();
+
 			for (ProjectManagerListener* listener : m_listeners)
 				listener->OnProjectOpened(m_currentProject);
 		});
 
-		m_executor.RunMove(tf, [this]() { m_workState.store(WorkState::Done); });
+		m_executor.RunMove(tf);
 	}
 
 	void ProjectManager::VerifyProjectResources(ProjectData* projectData)
@@ -367,10 +369,8 @@ namespace Lina::Editor
 			dir->DestroyChild(d);
 	}
 
-	void ProjectManager::GenerateMissingAtlasImages(ResourceDirectory* dir)
+	void ProjectManager::GenerateMissingAtlasImages(ResourceDirectory* dir, bool isRecursive)
 	{
-		m_workState.store(WorkState::Working);
-
 		if (!dir->thumbnailBuffer.IsEmpty())
 		{
 			if (dir->_thumbnailAtlasImage == nullptr)
@@ -388,15 +388,13 @@ namespace Lina::Editor
 			GenerateMissingAtlasImages(c);
 	}
 
-	void ProjectManager::PreDestroyResourceDirectory(ResourceDirectory* dir)
+	void ProjectManager::RemoveDirectoryThumbnails(ResourceDirectory* dir)
 	{
-		m_workState.store(WorkState::Working);
-
 		if (dir->_thumbnailAtlasImage != nullptr && !dir->thumbnailBuffer.IsEmpty())
 			m_editor->GetAtlasManager().RemoveImage(dir->_thumbnailAtlasImage);
 
 		dir->_thumbnailAtlasImage = nullptr;
 		for (ResourceDirectory* c : dir->children)
-			PreDestroyResourceDirectory(c);
+			RemoveDirectoryThumbnails(c);
 	}
 } // namespace Lina::Editor
