@@ -72,7 +72,7 @@ namespace Lina
 		void	SetClip(const Rect& r, const TBLR& margin);
 		void	UnsetClip();
 		void	AddToKillList(Widget* w);
-		void	AddToForeground(Widget* widget, float foregroundDim = -1.0f);
+		void	AddToForeground(Widget* widget);
 		void	RemoveFromForeground(Widget* widget);
 		void	Deallocate(Widget* widget);
 		void	GrabControls(Widget* widget);
@@ -86,6 +86,8 @@ namespace Lina
 		bool	PassKey(Widget* widget, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction);
 		bool	PassMouse(Widget* widget, uint32 button, LinaGX::InputAction inputAction);
 		bool	PassMouseWheel(Widget* widget, float amt);
+		Widget* LockForeground(const String& showText);
+		void	UnlockForeground();
 
 		inline Widget* GetRoot() const
 		{
@@ -103,11 +105,6 @@ namespace Lina
 				return nullptr;
 			else
 				return &m_clipStack[m_clipStack.size() - 1].rect;
-		}
-
-		inline void SetForegroundDim(float dim = 0.0f)
-		{
-			m_foregroundDim = dim;
 		}
 
 		inline Font* GetDefaultFont()
@@ -198,11 +195,11 @@ namespace Lina
 		ResourceManagerV2*				  m_resourceManagerV2 = nullptr;
 		Vector<ClipData>				  m_clipStack;
 		float							  m_debugDrawYOffset	= 0.0f;
-		float							  m_foregroundDim		= 0.0f;
 		Font*							  m_defaultFont			= nullptr;
 		Vector<Widget*>					  m_killList			= {};
 		Widget*							  m_lastControlsManager = nullptr;
 		HashMap<TypeID, WidgetCacheBase*> m_widgetCaches;
+		Widget*							  m_foregroundLock		  = nullptr;
 		bool							  m_isMouseHoveringWindow = true;
 	};
 

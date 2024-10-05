@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
+#include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/GfxManager.hpp"
@@ -103,11 +104,8 @@ namespace Lina
 		PassTick(m_rootWidget, delta);
 	}
 
-	void WidgetManager::AddToForeground(Widget* w, float foregroundDim)
+	void WidgetManager::AddToForeground(Widget* w)
 	{
-		if (foregroundDim > -0.1f)
-			SetForegroundDim(foregroundDim);
-
 		w->SetDrawOrder(FOREGROUND_DRAW_ORDER + static_cast<int32>(m_foregroundRoot->GetChildren().size()));
 		w->GetFlags().Set(WF_CONTROLS_DRAW_ORDER);
 		m_foregroundRoot->AddChild(w);
@@ -119,6 +117,48 @@ namespace Lina
 		m_foregroundRoot->RemoveChild(w);
 	}
 
+	Widget* WidgetManager::LockForeground(const String& showText)
+	{
+		LINA_ASSERT(m_foregroundLock == nullptr, "");
+
+		Widget* lock = Allocate<Widget>();
+		lock->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_CONTROLS_DRAW_ORDER | WF_FOREGROUND_BLOCKER);
+		lock->SetAlignedPos(Vector2::Zero);
+		lock->SetAlignedSize(Vector2::One);
+		lock->SetDrawOrder(FOREGROUND_DRAW_ORDER);
+		lock->GetWidgetProps().drawBackground		   = true;
+		lock->GetWidgetProps().outlineThickness		   = 0.0f;
+		lock->GetWidgetProps().rounding				   = 0.0f;
+		lock->GetWidgetProps().colorBackground		   = Theme::GetDef().black;
+		lock->GetWidgetProps().colorBackground.start.w = lock->GetWidgetProps().colorBackground.end.w = 0.75f;
+		m_foregroundRoot->AddChild(lock);
+		m_foregroundLock = lock;
+
+		if (!showText.empty())
+		{
+			Text* txt			 = Allocate<Text>("Info");
+			txt->GetProps().text = showText;
+			txt->GetProps().font = Theme::GetDef().altBigFont;
+			txt->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+			txt->SetAlignedPos(Vector2(0.5f, 0.5f));
+			txt->SetAnchorX(Anchor::Center);
+			txt->SetAnchorY(Anchor::Center);
+			lock->AddChild(txt);
+		}
+
+		return lock;
+	}
+
+	void WidgetManager::UnlockForeground()
+	{
+		if (m_foregroundLock == nullptr)
+			return;
+
+		m_foregroundRoot->RemoveChild(m_foregroundLock);
+		Deallocate(m_foregroundLock);
+		m_foregroundLock = nullptr;
+	}
+
 	void WidgetManager::Draw()
 	{
 		PROFILER_FUNCTION();
@@ -126,9 +166,6 @@ namespace Lina
 
 		if (!m_foregroundRoot->GetChildren().empty())
 		{
-			LinaVG::StyleOptions opts;
-			opts.color = LinaVG::Vec4(0.0f, 0.0f, 0.0f, m_foregroundDim);
-			m_lvg->DrawRect(Vector2::Zero.AsLVG(), Vector2(static_cast<float>(m_window->GetSize().x), static_cast<float>(m_window->GetSize().y)).AsLVG(), opts, 0.0f, FOREGROUND_DRAW_ORDER);
 			m_foregroundRoot->Draw();
 		}
 

@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelColorWheel.hpp"
 #include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
 #include "Editor/Widgets/Compound/WindowBar.hpp"
+#include "Editor/Widgets/FX/ProgressCircleFill.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/GUI/Widgets/Layout/Popup.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
@@ -406,7 +407,7 @@ namespace Lina::Editor
 		txt->SetUserData(userdata);
 
 		if (boldText)
-			txt->GetProps().font = DEFAULT_FONT_BOLD_ID;
+			txt->GetProps().font = Theme::GetDef().defaultBoldFont;
 		layout->AddChild(txt);
 		fold->Initialize();
 		return fold;
@@ -808,14 +809,90 @@ namespace Lina::Editor
 		return layout;
 	}
 
-	GenericPopup* CommonWidgets::ThrowGenericPopup(const String& title, const String& text, const String& icon, Widget* source)
+	Widget* CommonWidgets::BuildGenericPopupWithButtons(Widget* src, const String& desc, const Vector<GenericPopupButton>& buttonDefs)
 	{
-		GenericPopup* pp		  = source->GetWidgetManager()->Allocate<GenericPopup>("GenericPopup");
-		pp->GetPopupProps().text  = text;
-		pp->GetPopupProps().title = title;
-		pp->GetPopupProps().icon  = icon;
-		pp->Initialize();
-		return pp;
+		DirectionalLayout* layout = src->GetWidgetManager()->Allocate<DirectionalLayout>("Base");
+		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_Y_TOTAL_CHILDREN | WF_SIZE_X_MAX_CHILDREN);
+		layout->SetAlignedPos(Vector2(0.5f, 0.5f));
+		layout->SetAlignedSize(1.0f);
+		layout->SetAnchorX(Anchor::Center);
+		layout->SetAnchorY(Anchor::Center);
+		layout->GetProps().direction		  = DirectionOrientation::Vertical;
+		layout->GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent);
+		layout->GetWidgetProps().childPadding = Theme::GetDef().baseIndent * 2;
+
+		Text* txt = src->GetWidgetManager()->Allocate<Text>("Text");
+		txt->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+		txt->GetProps().text	  = desc;
+		txt->GetProps().font	  = EDITOR_FONT_PLAY_BIG_ID;
+		txt->GetProps().wrapWidth = static_cast<float>(src->GetWindow()->GetSize().x) * 0.5f;
+		txt->CalculateTextSize();
+		layout->AddChild(txt);
+
+		DirectionalLayout* buttons = src->GetWidgetManager()->Allocate<DirectionalLayout>("Buttons");
+		buttons->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+		buttons->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		buttons->SetAlignedSizeX(1.0f);
+		buttons->GetProps().mode = DirectionalLayout::Mode::EqualPositions;
+		layout->AddChild(buttons);
+
+		for (const GenericPopupButton& def : buttonDefs)
+		{
+			Delegate<void()> cb = def.onPressed;
+
+			Button* button = src->GetWidgetManager()->Allocate<Button>("Button");
+			button->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X);
+			button->SetAlignedPosY(0.0f);
+			button->SetAlignedSizeY(1.0f);
+			button->SetFixedSizeX(Theme::GetDef().baseItemHeight * 4);
+			button->GetText()->GetProps().text = def.title;
+			button->GetProps().onClicked	   = [cb]() { cb(); };
+			buttons->AddChild(button);
+		}
+
+		layout->Initialize();
+		return layout;
+	}
+
+	Widget* CommonWidgets::BuildGenericPopupProgress(Widget* src, const String& desc)
+	{
+		DirectionalLayout* layout = src->GetWidgetManager()->Allocate<DirectionalLayout>("Base");
+		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_Y_TOTAL_CHILDREN);
+		layout->SetAlignedPos(Vector2(0.5f, 0.5f));
+		layout->SetAlignedSize(1.0f);
+		layout->SetAnchorX(Anchor::Center);
+		layout->SetAnchorY(Anchor::Center);
+		layout->GetProps().direction		  = DirectionOrientation::Vertical;
+		layout->GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent);
+		layout->GetWidgetProps().childPadding = Theme::GetDef().baseIndent * 2;
+
+		Text* txt = src->GetWidgetManager()->Allocate<Text>("Text");
+		txt->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+		txt->SetAlignedPosX(0.5f);
+		txt->SetAnchorX(Anchor::Center);
+		txt->GetProps().text	  = desc;
+		txt->GetProps().font	  = EDITOR_FONT_PLAY_BIG_ID;
+		txt->GetProps().wrapWidth = static_cast<float>(src->GetWindow()->GetSize().x) * 0.5f;
+		txt->CalculateTextSize();
+		layout->SetSizeX(txt->GetSizeX() * 1.25f);
+		layout->AddChild(txt);
+
+		ProgressCircleFill* fill = src->GetWidgetManager()->Allocate<ProgressCircleFill>("Fill");
+		fill->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_COPY_X);
+		fill->SetAlignedPosX(0.5f);
+		fill->SetAnchorX(Anchor::Center);
+		fill->SetAlignedSizeX(0.5f);
+		layout->AddChild(fill);
+
+		Text* progressText = src->GetWidgetManager()->Allocate<Text>("Progress");
+		progressText->GetFlags().Set(WF_POS_ALIGN_X);
+		progressText->SetAlignedPosX(0.5f);
+		progressText->SetAnchorX(Anchor::Center);
+		progressText->GetProps().text = Locale::GetStr(LocaleStr::Working);
+		layout->AddChild(progressText);
+
+		layout->Initialize();
+		return layout;
 	}
 
 	FoldLayout* CommonWidgets::BuildFoldTitle(Widget* src, const String& title, bool* foldValue)
@@ -1519,7 +1596,7 @@ namespace Lina::Editor
 			cf->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 			cf->SetAlignedSize(Vector2(0.0f, 1.0f));
 			cf->SetAlignedPosY(0.0f);
-			cf->GetProps().backgroundTexture = Editor::Get()->GetResourceManagerV2().GetResource<Texture>(EDITOR_CHECKERED_ID);
+			cf->GetProps().backgroundTexture = Editor::Get()->GetResourceManagerV2().GetResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID);
 			cf->GetProps().value			 = col;
 			cf->GetProps().onClicked		 = [cf, col, src, &metaType, field, onFieldChanged]() {
 				PanelColorWheel* panel						 = static_cast<PanelColorWheel*>(Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::ColorWheel, 0, src));
@@ -1665,7 +1742,7 @@ namespace Lina::Editor
 		cf->SetAlignedPosY(0.0f);
 		cf->GetProps().gradValue		 = color;
 		cf->GetProps().disableInput		 = true;
-		cf->GetProps().backgroundTexture = Editor::Get()->GetResourceManagerV2().GetResource<Texture>(EDITOR_CHECKERED_ID);
+		cf->GetProps().backgroundTexture = Editor::Get()->GetResourceManagerV2().GetResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID);
 		layout->AddChild(cf);
 
 		layout->Initialize();
@@ -1758,7 +1835,6 @@ namespace Lina::Editor
 			ResourceDirectory* selection = bw->GetItemController()->GetSelectedUserData<ResourceDirectory>().front();
 			if (!selection->isFolder && selection->resourceTID == resourceType)
 			{
-				wm->SetForegroundDim(0.0f);
 				wm->AddToKillList(layout);
 				onSelected(selection);
 			}
@@ -1794,7 +1870,6 @@ namespace Lina::Editor
 		});
 
 		select->GetProps().onClicked = [layout, bw, onSelected, wm]() {
-			wm->SetForegroundDim(0.0f);
 			wm->AddToKillList(layout);
 			ResourceDirectory* selection = bw->GetItemController()->GetSelectedUserData<ResourceDirectory>().front();
 			onSelected(selection);
@@ -1810,14 +1885,11 @@ namespace Lina::Editor
 		cancel->SetAlignedPosY(0.5f);
 		cancel->SetAnchorY(Anchor::Center);
 
-		cancel->GetProps().onClicked = [layout, wm]() {
-			wm->SetForegroundDim(0.0f);
-			wm->AddToKillList(layout);
-		};
+		cancel->GetProps().onClicked = [layout, wm]() { wm->AddToKillList(layout); };
 		horizontal->AddChild(cancel);
 
 		layout->Initialize();
-		wm->AddToForeground(layout, 0.25f);
+		wm->AddToForeground(layout);
 		wm->GrabControls(layout);
 		return layout;
 	}

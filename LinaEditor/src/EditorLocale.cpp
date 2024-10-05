@@ -50,6 +50,7 @@ namespace Lina::Editor
 		{LocaleStr::Name, "Name"},
 		{LocaleStr::Location, "Location"},
 		{LocaleStr::Select, "Select"},
+		{LocaleStr::CreatingProject, "Creating project"},
 		{LocaleStr::ProjectSelect, "Project Selection"},
 		{LocaleStr::CreateNewProject, "Create new project"},
 		{LocaleStr::OpenExistingProject, "Open existing project"},
@@ -67,6 +68,7 @@ namespace Lina::Editor
 		{LocaleStr::LinaProjectFile, "Lina Project File"},
 		{LocaleStr::LinaWorldFile, "Lina World File"},
 		{LocaleStr::NoProject, "No Project"},
+		{LocaleStr::NoProjectFound, "No project was found. Create or open one."},
 		{LocaleStr::NoWorld, "No World"},
 		{LocaleStr::NewProject, "New Project"},
 		{LocaleStr::LoadProject, "Load Project"},
@@ -135,6 +137,11 @@ namespace Lina::Editor
 		{LocaleStr::GenerateSDF, "Generate SDF"},
 		{LocaleStr::General, "General"},
 		{LocaleStr::Working, "Working"},
+		{LocaleStr::WorkInProgressInAnotherWindow, "Work in progress in another window."},
+		{LocaleStr::LoadingProjectData, "Loading project data..."},
+		{LocaleStr::VerifyingProjectResources, "Verifying project resources..."},
+		{LocaleStr::CreatingCoreResources, "Creating core resources..."},
+		{LocaleStr::Saving, "Saving..."},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

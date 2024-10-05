@@ -63,7 +63,7 @@ namespace Lina
 		return negative;
 	}
 
-	void AABB::SaveToStream(OStream& stream)
+	void AABB::SaveToStream(OStream& stream) const
 	{
 		stream << boundsHalfExtents;
 		stream << boundsMin;

@@ -112,11 +112,14 @@ namespace Lina
 		}
 	}
 
-	void Font::LoadFromFile(const String& path)
+	bool Font::LoadFromFile(const String& path)
 	{
-		// Populate if not existing.
+		if (!FileSystem::FileOrPathExists(path))
+			return false;
+
 		m_file.clear();
 		FileSystem::ReadFileContentsToVector(path.c_str(), m_file);
+		return true;
 	}
 
 	void Font::LoadFromStream(IStream& stream)

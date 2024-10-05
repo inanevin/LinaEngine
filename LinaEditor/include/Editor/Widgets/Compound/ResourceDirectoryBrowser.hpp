@@ -75,6 +75,8 @@ namespace Lina::Editor
 		virtual void Destruct() override;
 		virtual void Initialize() override;
 		void		 RefreshDirectory();
+		void		 ShowProgress();
+		void		 HideProgress();
 
 		inline Properties& GetProps()
 		{
@@ -90,6 +92,7 @@ namespace Lina::Editor
 		virtual bool OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData) override;
 		virtual void OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
 		virtual void OnProjectOpened(ProjectData* data) override;
+		virtual void OnProjectClosed() override;
 
 		virtual void SaveToStream(OStream& stream) const override
 		{
@@ -110,9 +113,6 @@ namespace Lina::Editor
 		void RequestDuplicate(Vector<ResourceDirectory*> dirs);
 		void DeleteItems(Vector<ResourceDirectory*> dirs);
 		void DropPayload(ResourceDirectory* target);
-
-		void ShowProgress();
-		void HideProgress();
 
 	private:
 		Widget*				m_progressParent = nullptr;

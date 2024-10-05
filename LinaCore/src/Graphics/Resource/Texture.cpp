@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/System/System.hpp"
+#include "Common/FileSystem/FileSystem.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/ResourceUploadQueue.hpp"
@@ -100,14 +101,23 @@ namespace Lina
 		CalculateTotalSize();
 	}
 
-	void Texture::LoadFromFile(const String& path)
+	bool Texture::LoadFromFile(const String& path)
 	{
+		if (!FileSystem::FileOrPathExists(path))
+			return false;
+
 		DestroySW();
 
 		LinaGX::TextureBuffer outBuffer = {};
 		LinaGX::LoadImageFromFile(path.c_str(), outBuffer, 0, &m_importedChannels, m_meta.force8Bit);
+
+		if (outBuffer.pixels == nullptr)
+		{
+			LINA_ERR("Failed loading texture! {0}", path);
+			return false;
+		}
+
 		m_bytesPerPixel = outBuffer.bytesPerPixel;
-		LINA_ASSERT(outBuffer.pixels != nullptr, "Failed loading texture! {0}", path);
 
 		if (m_importedChannels == 1)
 			m_meta.format = m_bytesPerPixel == 1 ? LinaGX::Format::R8_UNORM : LinaGX::Format::R16_UNORM;
@@ -121,7 +131,13 @@ namespace Lina
 			LinaGX::LoadImageFromFile(path.c_str(), outBuffer, 4);
 			m_importedChannels = 4;
 			m_bytesPerPixel	   = outBuffer.bytesPerPixel;
-			LINA_ASSERT(outBuffer.pixels != nullptr, "Failed loading texture! {0}", path);
+
+			if (outBuffer.pixels == nullptr)
+			{
+				LINA_ERR("Failed loading texture! {0}", path);
+				return false;
+			}
+
 			m_meta.format = m_bytesPerPixel == 4 ? LinaGX::Format::R8G8B8A8_SRGB : LinaGX::Format::R16G16B16A16_UNORM;
 		}
 		else if (m_importedChannels == 4)
@@ -143,6 +159,7 @@ namespace Lina
 		}
 
 		CalculateTotalSize();
+		return true;
 	}
 
 	void Texture::LoadFromStream(IStream& stream)

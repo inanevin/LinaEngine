@@ -111,7 +111,7 @@ namespace Lina
 		Transformation t;
 		t.SetPosition(Vector3::Lerp(m_prevTransform.GetPosition(), m_transform.GetPosition(), interpolation));
 		t.SetScale(Vector3::Lerp(m_prevTransform.GetScale(), m_transform.GetScale(), interpolation));
-		t.SetRotation(Quaternion::Euler(Vector3::Lerp(m_prevTransform.GetRotationAngles(), m_transform.GetRotation().GetEuler(), interpolation)));
+		t.SetRotation(Quaternion::PitchYawRoll(Vector3::Lerp(m_prevTransform.GetRotationAngles(), m_transform.GetRotation().GetPitchYawRoll(), interpolation)));
 		return t;
 	}
 
@@ -143,7 +143,7 @@ namespace Lina
 	void Entity::SetLocalRotation(const Quaternion& rot, bool isThisPivot)
 	{
 		m_transform.SetLocalRotation(rot);
-		m_transform.SetLocalRotationAngles(rot.GetEuler());
+		m_transform.SetLocalRotationAngles(rot.GetPitchYawRoll());
 		UpdateGlobalRotation();
 
 		for (auto child : m_children)
@@ -176,7 +176,7 @@ namespace Lina
 		m_mask.Set(EF_NEEDS_VIS_UPDATE);
 
 		m_transform.SetRotation(rot);
-		m_transform.SetRotationAngles(rot.GetEuler());
+		m_transform.SetRotationAngles(rot.GetPitchYawRoll());
 		UpdateLocalRotation();
 
 		for (auto child : m_children)
@@ -293,7 +293,7 @@ namespace Lina
 			Vector3	   s = Vector3(), p = Vector3();
 			global.Decompose(p, targetRot, s);
 			m_transform.SetRotation(targetRot);
-			m_transform.SetRotationAngles(m_transform.GetRotation().GetEuler());
+			m_transform.SetRotationAngles(m_transform.GetRotation().GetPitchYawRoll());
 		}
 
 		for (auto child : m_children)
@@ -338,7 +338,7 @@ namespace Lina
 			Quaternion q = {};
 			global.Decompose(s, q, p);
 			m_transform.SetLocalRotation(q);
-			m_transform.SetLocalRotationAngles(m_transform.GetLocalRotation().GetEuler());
+			m_transform.SetLocalRotationAngles(m_transform.GetLocalRotation().GetPitchYawRoll());
 		}
 	}
 

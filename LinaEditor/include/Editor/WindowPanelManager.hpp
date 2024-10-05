@@ -95,6 +95,8 @@ namespace Lina::Editor
 		void			 PreTick();
 		void			 Shutdown();
 		SurfaceRenderer* GetSurfaceRenderer(StringID sid);
+		Widget*			 LockAllForegrounds(LinaGX::Window* srcWindow, const String& text);
+		void			 UnlockAllForegrounds();
 
 		// Payload
 		void	AddPayloadListener(EditorPayloadListener* listener);
@@ -110,6 +112,7 @@ namespace Lina::Editor
 		void	OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size);
 		void	StorePanelWindowInfo(Panel* panel);
 		Panel*	FindPanelOfType(PanelType type, ResourceID subData, DockArea*& owningArea);
+		Panel*	FindPanelOfType(PanelType type, ResourceID subData);
 
 		// Notification
 		NotificationDisplayer* GetNotificationDisplayer(LinaGX::Window* window);

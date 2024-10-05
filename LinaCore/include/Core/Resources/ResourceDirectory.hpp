@@ -43,11 +43,12 @@ namespace Lina
 
 		~ResourceDirectory();
 
-		String					   name		   = "";
-		bool					   isFolder	   = false;
-		bool					   unfolded	   = false;
-		ResourceID				   resourceID  = 0;
-		TypeID					   resourceTID = 0;
+		String					   name					 = "";
+		String					   relativePathToProject = "";
+		bool					   isFolder				 = false;
+		bool					   unfolded				 = false;
+		ResourceID				   resourceID			 = 0;
+		TypeID					   resourceTID			 = 0;
 		Vector<ResourceDirectory*> children;
 		ResourceDirectory*		   parent = nullptr;
 		RawStream				   thumbnailBuffer;
@@ -56,6 +57,7 @@ namespace Lina
 		void SaveToStream(OStream& stream);
 		void LoadFromStream(IStream& stream);
 
+		ResourceDirectory* GetChildByName(const String& name);
 		ResourceDirectory* FindResource(ResourceID id);
 		ResourceDirectory* CreateChild(ResourceDirectory desc);
 		void			   DestroyChild(ResourceDirectory* dir);

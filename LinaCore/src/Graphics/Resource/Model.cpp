@@ -109,7 +109,7 @@ namespace Lina
 				min = min.Min(Vector3(lgxPrim->minPosition.x, lgxPrim->minPosition.y, lgxPrim->minPosition.z));
 				max = max.Max(Vector3(lgxPrim->maxPosition.x, lgxPrim->maxPosition.y, lgxPrim->maxPosition.z));
 
-				meshPrim.m_materialIndex = lgxPrim->material ? lgxPrim->material->index : -1;
+				meshPrim.m_materialIndex = lgxPrim->material ? lgxPrim->material->index : 0;
 				meshPrim.m_startVertex	 = static_cast<uint32>(m->m_vertices.size());
 				meshPrim.m_startIndex	 = static_cast<uint32>(m->m_indices16.size());
 
@@ -138,8 +138,11 @@ namespace Lina
 			ProcessNode(lgxChild, node);
 	}
 
-	void Model::LoadFromFile(const String& path)
+	bool Model::LoadFromFile(const String& path)
 	{
+		if (!FileSystem::FileOrPathExists(path))
+			return false;
+
 		const String	  ext		= FileSystem::GetFileExtension(path);
 		LinaGX::ModelData modelData = {};
 
@@ -148,6 +151,12 @@ namespace Lina
 			success = LinaGX::LoadGLTFBinary(path.c_str(), modelData);
 		else
 			success = LinaGX::LoadGLTFASCII(path.c_str(), modelData);
+
+		if (!success)
+		{
+			LINA_ERR("Failed loading model! {0}", path);
+			return false;
+		}
 
 		m_materialDefs.resize(modelData.allMaterials.size());
 		m_meta.materials.resize(m_materialDefs.size());
@@ -185,6 +194,8 @@ namespace Lina
 
 		for (auto* lgxNode : modelData.rootNodes)
 			ProcessNode(lgxNode, nullptr);
+
+		return true;
 	}
 
 	void Model::LoadFromStream(IStream& stream)
@@ -195,6 +206,7 @@ namespace Lina
 		stream >> m_id;
 		stream >> m_materialDefs;
 		stream >> m_meta;
+		stream >> m_totalAABB;
 
 		uint32 sz = 0;
 		stream >> sz;
@@ -221,6 +233,7 @@ namespace Lina
 		stream << m_id;
 		stream << m_materialDefs;
 		stream << m_meta;
+		stream << m_totalAABB;
 
 		stream << static_cast<uint32>(m_rootNodes.size());
 		for (auto* node : m_rootNodes)

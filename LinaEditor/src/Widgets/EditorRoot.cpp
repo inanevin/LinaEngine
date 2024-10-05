@@ -238,13 +238,13 @@ namespace Lina::Editor
 	{
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::NewProject)))
 		{
-			Editor::Get()->GetProjectManager().OpenPopupProjectSelector(true, true);
+			Editor::Get()->GetProjectManager().OpenDialogCreateProject();
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::LoadProject)))
 		{
-			Editor::Get()->GetProjectManager().OpenPopupProjectSelector(true, false);
+			Editor::Get()->GetProjectManager().OpenDialogSelectProject();
 			return true;
 		}
 

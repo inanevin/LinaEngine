@@ -137,4 +137,5 @@ namespace Lina::Editor
 
 		m_editor->GetEditorRenderer().MarkBindlessDirty();
 	}
+
 } // namespace Lina::Editor

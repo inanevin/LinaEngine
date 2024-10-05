@@ -44,6 +44,7 @@ namespace Lina::Editor
 		virtual ~WorldDisplayer() = default;
 
 		virtual void Construct() override;
+		virtual void PreTick() override;
 		virtual void Tick(float dt) override;
 
 		void DisplayWorld(WorldRenderer* renderer);
@@ -51,6 +52,7 @@ namespace Lina::Editor
 
 	private:
 		WorldRenderer* m_worldRenderer = nullptr;
+		bool		   m_mouseConfined = false;
 	};
 	LINA_WIDGET_BEGIN(WorldDisplayer, Hidden)
 	LINA_CLASS_END(WorldDisplayer)

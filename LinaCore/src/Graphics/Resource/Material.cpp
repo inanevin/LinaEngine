@@ -114,14 +114,17 @@ namespace Lina
 		m_loadedShaderID = m_shader.id;
 	}
 
-	void Material::LoadFromFile(const String& path)
+	bool Material::LoadFromFile(const String& path)
 	{
 		IStream stream = Serialization::LoadFromFile(path.c_str());
 
 		if (stream.GetDataRaw() != nullptr)
 			LoadFromStream(stream);
+		else
+			return false;
 
 		stream.Destroy();
+		return true;
 	}
 
 	void Material::SaveToStream(OStream& stream) const

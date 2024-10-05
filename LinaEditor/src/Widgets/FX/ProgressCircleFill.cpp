@@ -57,7 +57,10 @@ namespace Lina::Editor
 
 	void ProgressCircleFill::Tick(float delta)
 	{
-		m_progress = Math::EaseOut(m_progress, m_targetProgress, delta * m_props.barSpeed);
+		if (m_props.rotate)
+			m_rotation += delta * m_props.barSpeed;
+		else
+			m_progress = Math::EaseOut(m_progress, m_targetProgress, delta * m_props.barSpeed);
 	}
 
 	void ProgressCircleFill::Draw()
@@ -65,13 +68,17 @@ namespace Lina::Editor
 		LinaVG::StyleOptions opts;
 		opts.isFilled	= false;
 		opts.aaEnabled	= true;
-		opts.color		= GetWidgetProps().colorBackground.AsLVG();
+		opts.color		= m_props.rotate ? m_props.colorProgress.AsLVG4() : GetWidgetProps().colorBackground.AsLVG();
 		opts.thickness	= m_props.thickness;
 		const float rad = Math::Min(m_rect.size.x, m_rect.size.y) * 0.5f;
-		m_lvg->DrawCircle(m_rect.GetCenter().AsLVG(), rad, opts, 36, 0.0f, 90.0f, 450.0f, m_drawOrder);
 
-		opts.color = m_props.colorProgress.AsLVG4();
-		m_lvg->DrawCircle(m_rect.GetCenter().AsLVG(), rad, opts, 36, 0.0f, 90.0f, 90.0f + 360.0f * m_progress, m_drawOrder + 1);
+		m_lvg->DrawCircle(m_rect.GetCenter().AsLVG(), rad, opts, 36, m_rotation, 100.0f, 450.0f, m_drawOrder);
+
+		if (!m_props.rotate)
+		{
+			opts.color = m_props.colorProgress.AsLVG4();
+			m_lvg->DrawCircle(m_rect.GetCenter().AsLVG(), rad, opts, 36, 0.0f, 100.0f, 101.0f + 349.0f * m_progress, m_drawOrder + 1);
+		}
 
 		Widget::Draw();
 	}

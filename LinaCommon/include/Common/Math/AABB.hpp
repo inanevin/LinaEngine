@@ -57,7 +57,7 @@ namespace Lina
 		Vector3 GetPositive(const Vector3& normal) const;
 		Vector3 GetNegative(const Vector3& normal) const;
 
-		void SaveToStream(OStream& stream);
+        void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);
 
 		inline void UpdateHalfExtents()

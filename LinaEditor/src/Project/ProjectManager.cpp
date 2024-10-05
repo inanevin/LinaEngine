@@ -30,13 +30,19 @@ SOFTWARE.
 #include "Editor/Graphics/SurfaceRenderer.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/Widgets/Popups/ProjectSelector.hpp"
+#include "Editor/Widgets/FX/ProgressCircleFill.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Editor/Widgets/Popups/GenericPopup.hpp"
 #include "Editor/Widgets/EditorRoot.hpp"
+#include "Editor/Resources/ResourcePipeline.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Core/Meta/ProjectData.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
+#include "Core/Graphics/Resource/TextureSampler.hpp"
+#include "Core/Graphics/Resource/Font.hpp"
+#include "Core/Platform/PlatformProcess.hpp"
+#include "Core/GUI/Widgets/Primitives/Text.hpp"
 
 namespace Lina::Editor
 {
@@ -52,72 +58,98 @@ namespace Lina::Editor
 		if (FileSystem::FileOrPathExists(settings.GetLastProjectPath()))
 			OpenProject(settings.GetLastProjectPath());
 		else
-			OpenPopupProjectSelector(false);
+		{
+
+			Vector<CommonWidgets::GenericPopupButton> buttons = {
+				{
+					.title = Locale::GetStr(LocaleStr::Open),
+					.onPressed =
+						[this]() {
+							const Vector<String> projectPaths = PlatformProcess::OpenDialog({
+								.title				   = Locale::GetStr(LocaleStr::OpenExistingProject),
+								.primaryButton		   = Locale::GetStr(LocaleStr::Open),
+								.extensionsDescription = "",
+								.extensions			   = {"linaproject"},
+								.mode				   = PlatformProcess::DialogMode::SelectFile,
+							});
+
+							if (!projectPaths.empty())
+							{
+								m_editor->GetWindowPanelManager().UnlockAllForegrounds();
+								OpenProject(projectPaths.front());
+							}
+						},
+				},
+				{
+					.title = Locale::GetStr(LocaleStr::Create),
+					.onPressed =
+						[this]() {
+							const String path = PlatformProcess::SaveDialog({
+								.title				   = Locale::GetStr(LocaleStr::CreateNewProject),
+								.primaryButton		   = Locale::GetStr(LocaleStr::Create),
+								.extensionsDescription = "",
+								.extensions			   = {"linaproject"},
+							});
+
+							if (!path.empty())
+							{
+								m_editor->GetWindowPanelManager().UnlockAllForegrounds();
+								CreateEmptyProjectAndOpen(path);
+							}
+						},
+				},
+			};
+
+			Widget* lock = m_editor->GetWindowPanelManager().LockAllForegrounds(m_primaryWidgetManager->GetRoot()->GetWindow(), Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow));
+
+			lock->AddChild(CommonWidgets::BuildGenericPopupWithButtons(lock, Locale::GetStr(LocaleStr::NoProjectFound), buttons));
+		}
+	}
+
+	void ProjectManager::PreTick()
+	{
+		if (m_workState == WorkState::Done)
+		{
+			m_editor->GetWindowPanelManager().UnlockAllForegrounds();
+			m_workState.store(WorkState::None);
+			m_editor->GetAtlasManager().RefreshDirtyAtlases();
+		}
 	}
 
 	void ProjectManager::Shutdown()
 	{
 		RemoveCurrentProject();
 	}
-	void ProjectManager::OpenPopupProjectSelector(bool canCancel, bool openCreateFirst)
+
+	void ProjectManager::OpenDialogCreateProject()
 	{
-		ProjectSelector* projectSelector = m_primaryWidgetManager->Allocate<ProjectSelector>("ProjectSelector");
-		projectSelector->SetCancellable(canCancel);
-		projectSelector->SetTab(openCreateFirst ? 0 : 1);
-		projectSelector->Initialize();
+		const String path = PlatformProcess::SaveDialog({
+			.title				   = Locale::GetStr(LocaleStr::CreateNewProject),
+			.primaryButton		   = Locale::GetStr(LocaleStr::Create),
+			.extensionsDescription = "",
+			.extensions			   = {"linaproject"},
+		});
 
-		// When we select a project to open -> ask if we want to save current one if its dirty.
-		projectSelector->GetProps().onProjectOpened = [this](const String& location) {
-			if (m_currentProject && m_currentProject->GetIsDirty())
-			{
-				GenericPopup* popup = CommonWidgets::ThrowGenericPopup(Locale::GetStr(LocaleStr::UnfinishedWorkTitle), Locale::GetStr(LocaleStr::UnfinishedWorkDesc), ICON_SAVE, m_primaryWidgetManager->GetRoot());
+		if (!path.empty())
+		{
+			CreateEmptyProjectAndOpen(path);
+		}
+	}
 
-				m_primaryWidgetManager->AddToForeground(popup);
+	void ProjectManager::OpenDialogSelectProject()
+	{
+		const Vector<String> projectPaths = PlatformProcess::OpenDialog({
+			.title				   = Locale::GetStr(LocaleStr::OpenExistingProject),
+			.primaryButton		   = Locale::GetStr(LocaleStr::Open),
+			.extensionsDescription = "",
+			.extensions			   = {"linaproject"},
+			.mode				   = PlatformProcess::DialogMode::SelectFile,
+		});
 
-				popup->AddButton({.text = Locale::GetStr(LocaleStr::Yes), .onClicked = [location, popup, this]() {
-									  SaveProjectChanges();
-									  RemoveCurrentProject();
-									  OpenProject(location);
-									  m_primaryWidgetManager->RemoveFromForeground(popup);
-									  m_primaryWidgetManager->Deallocate(popup);
-								  }});
-
-				popup->AddButton({.text = Locale::GetStr(LocaleStr::No), .onClicked = [location, popup, this]() {
-									  RemoveCurrentProject();
-									  OpenProject(location);
-									  m_primaryWidgetManager->RemoveFromForeground(popup);
-									  m_primaryWidgetManager->Deallocate(popup);
-								  }});
-			}
-			else
-			{
-				RemoveCurrentProject();
-				OpenProject(location);
-			}
-		};
-
-		projectSelector->GetProps().onProjectCreated = [&](const String& path) {
-			RemoveCurrentProject();
-
-			if (m_currentProject && m_currentProject->GetIsDirty())
-			{
-				GenericPopup* popup = CommonWidgets::ThrowGenericPopup(Locale::GetStr(LocaleStr::UnfinishedWorkTitle), Locale::GetStr(LocaleStr::UnfinishedWorkDesc), ICON_SAVE, m_primaryWidgetManager->GetRoot());
-
-				// Save first then create & open.
-				popup->AddButton({.text = Locale::GetStr(LocaleStr::Yes), .onClicked = [&]() {
-									  SaveProjectChanges();
-									  CreateEmptyProjectAndOpen(path);
-								  }});
-
-				// Create & open without saving
-				popup->AddButton({.text = Locale::GetStr(LocaleStr::No), .onClicked = [&]() { CreateEmptyProjectAndOpen(path); }});
-			}
-			else
-				CreateEmptyProjectAndOpen(path);
-		};
-
-		m_primaryWidgetManager->AddToForeground(projectSelector);
-		// m_primaryWidgetManager->SetForegroundDim(0.5f);
+		if (!projectPaths.empty())
+		{
+			OpenProject(projectPaths.front());
+		}
 	}
 
 	void ProjectManager::SaveProjectChanges()
@@ -149,6 +181,11 @@ namespace Lina::Editor
 		dummy.SetPath(path);
 		dummy.SetProjectName(FileSystem::GetFilenameOnlyFromPath(path));
 		dummy.SaveToFile();
+
+		const String resCache = dummy.GetResourceDirectory();
+		if (FileSystem::FileOrPathExists(resCache))
+			FileSystem::DeleteDirectory(resCache);
+
 		OpenProject(path);
 	}
 
@@ -157,26 +194,209 @@ namespace Lina::Editor
 		if (m_currentProject == nullptr)
 			return;
 
+		PreDestroyResourceDirectory(&m_currentProject->GetResourceRoot());
 		delete m_currentProject;
 		m_currentProject = nullptr;
+
+		for (ProjectManagerListener* listener : m_listeners)
+			listener->OnProjectClosed();
 	}
 
 	void ProjectManager::OpenProject(const String& projectFile)
 	{
-		LINA_ASSERT(m_currentProject == nullptr, "");
+		RemoveCurrentProject();
 		m_currentProject = new ProjectData();
 		m_currentProject->SetPath(projectFile);
-		m_currentProject->LoadFromFile();
-		// m_editor->GetEditorRoot()->SetProjectName(m_currentProject->GetProjectName());
 
-		EditorSettings& settings = m_editor->GetSettings();
-		settings.SetLastProjectPath(projectFile);
-		settings.SaveToFile();
+		// Create resource directory if not existing.
+		if (!FileSystem::FileOrPathExists(m_currentProject->GetResourceDirectory()))
+			FileSystem::CreateFolderInPath(m_currentProject->GetResourceDirectory());
 
-		for (ProjectManagerListener* listener : m_listeners)
-			listener->OnProjectOpened(m_currentProject);
+		m_workState.store(WorkState::Working);
 
-		m_editor->GetResourcePipeline().Initialize(m_editor);
+		// Lock windows & add progress.
+		Widget*				lock		 = m_editor->GetWindowPanelManager().LockAllForegrounds(m_primaryWidgetManager->GetRoot()->GetWindow(), Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow));
+		Widget*				progress	 = CommonWidgets::BuildGenericPopupProgress(m_primaryWidgetManager->GetRoot(), Locale::GetStr(LocaleStr::CreatingProject));
+		Text*				progressText = static_cast<Text*>(progress->FindChildWithDebugName("Progress"));
+		ProgressCircleFill* progressFill = static_cast<ProgressCircleFill*>(progress->FindChildWithDebugName("Fill"));
+		progressFill->GetProps().rotate	 = true;
+		lock->AddChild(progress);
+
+		Taskflow tf;
+		tf.emplace([this, progressText, progressFill]() {
+			auto updateProg = [progressText](const String& txt) {
+				progressText->GetProps().text = txt;
+				progressText->CalculateTextSize();
+			};
+
+			updateProg(Locale::GetStr(LocaleStr::LoadingProjectData));
+			m_currentProject->LoadFromFile();
+
+			ResourceDirectory* linaAssets = m_currentProject->GetResourceRoot().GetChildByName("_Lina");
+
+			if (linaAssets == nullptr)
+			{
+				ResourceDirectory* lina = m_currentProject->GetResourceRoot().CreateChild({
+					.name	  = "_Lina",
+					.isFolder = true,
+				});
+
+				const Vector<ResourcePipeline::ResourceImportDef> importDefinitions = {
+					{
+						.path = EDITOR_FONT_ROBOTO_PATH,
+						.id	  = EDITOR_FONT_ROBOTO_ID,
+					},
+					{
+						.path = EDITOR_SHADER_DEFAULT_OBJECT_PATH,
+						.id	  = EDITOR_SHADER_DEFAULT_OBJECT_ID,
+					},
+					{
+						.path = EDITOR_SHADER_DEFAULT_SKY_PATH,
+						.id	  = EDITOR_SHADER_DEFAULT_SKY_ID,
+					},
+					{
+						.path = EDITOR_SHADER_DEFAULT_LIGHTING_PATH,
+						.id	  = EDITOR_SHADER_DEFAULT_LIGHTING_ID,
+					},
+					{
+						.path = EDITOR_MODEL_CUBE_PATH,
+						.id	  = EDITOR_MODEL_CUBE_ID,
+					},
+					{
+						.path = EDITOR_MODEL_SPHERE_PATH,
+						.id	  = EDITOR_MODEL_SPHERE_ID,
+					},
+					{
+						.path = EDITOR_MODEL_CYLINDER_PATH,
+						.id	  = EDITOR_MODEL_CYLINDER_ID,
+					},
+					{
+						.path = EDITOR_MODEL_PLANE_PATH,
+						.id	  = EDITOR_MODEL_PLANE_ID,
+					},
+					{
+						.path = EDITOR_MODEL_SKYCUBE_PATH,
+						.id	  = EDITOR_MODEL_SKYCUBE_ID,
+					},
+					{
+						.path = EDITOR_TEXTURE_EMPTY_ALBEDO_PATH,
+						.id	  = EDITOR_TEXTURE_EMPTY_ALBEDO_ID,
+					},
+					{
+						.path = EDITOR_TEXTURE_EMPTY_NORMAL_PATH,
+						.id	  = EDITOR_TEXTURE_EMPTY_NORMAL_ID,
+					},
+				};
+
+				updateProg(Locale::GetStr(LocaleStr::CreatingCoreResources));
+				ResourcePipeline::ImportResources(m_currentProject, lina, importDefinitions, [updateProg](uint32 count, const ResourcePipeline::ResourceImportDef& currentDef, bool isComplete) {
+					if (!currentDef.path.empty())
+						updateProg(currentDef.path);
+				});
+
+				updateProg(EDITOR_SAMPLER_DEFAULT_PATH);
+				ResourcePipeline::SaveNewResource(m_currentProject, lina, EDITOR_SAMPLER_DEFAULT_PATH, GetTypeID<TextureSampler>(), EDITOR_SAMPLER_DEFAULT_ID);
+			}
+
+			updateProg(Locale::GetStr(LocaleStr::VerifyingProjectResources));
+			VerifyProjectResources(m_currentProject);
+
+			updateProg(Locale::GetStr(LocaleStr::GeneratingThumbnails));
+			GenerateMissingAtlasImages(&m_currentProject->GetResourceRoot());
+
+			updateProg(Locale::GetStr(LocaleStr::Saving));
+			m_currentProject->SaveToFile();
+
+			m_editor->GetEditorRoot()->SetProjectName(m_currentProject->GetProjectName());
+			EditorSettings& settings = m_editor->GetSettings();
+			settings.SetLastProjectPath(m_currentProject->GetPath());
+			settings.SaveToFile();
+			for (ProjectManagerListener* listener : m_listeners)
+				listener->OnProjectOpened(m_currentProject);
+		});
+
+		m_executor.RunMove(tf, [this]() { m_workState.store(WorkState::Done); });
 	}
 
+	void ProjectManager::VerifyProjectResources(ProjectData* projectData)
+	{
+		// Check if the actual resource file for a ResourceDirectory in the project exists, if not delete the directory.
+		ResourceDirectory* root = &projectData->GetResourceRoot();
+		VerifyResourceDirectory(projectData, root);
+
+		// Go through all the resource files in the cache directory.
+		// If the equivalent resource is not included in/used by the project delete the file to prevent littering.
+		const String   resDir = projectData->GetResourceDirectory();
+		Vector<String> files;
+		FileSystem::GetFilesInDirectory(resDir, files);
+		for (const String& file : files)
+		{
+			const String fileName = FileSystem::GetFilenameOnlyFromPath(file);
+			const size_t under	  = fileName.find("_");
+			if (under == String::npos)
+				continue;
+			const String	   resID	= fileName.substr(under + 1, fileName.length() - under);
+			const ResourceID   resIDInt = static_cast<ResourceID>(UtilStr::StringToBigInt(resID));
+			ResourceDirectory* found	= root->FindResource(resIDInt);
+			if (found == nullptr)
+				FileSystem::DeleteFileInPath(file);
+		}
+
+		m_editor->GetProjectManager().SaveProjectChanges();
+	}
+
+	void ProjectManager::VerifyResourceDirectory(ProjectData* projectData, ResourceDirectory* dir)
+	{
+		Vector<ResourceDirectory*> killList;
+
+		for (ResourceDirectory* c : dir->children)
+		{
+			if (!c->isFolder)
+			{
+				const String path = projectData->GetResourcePath(c->resourceID);
+				if (!FileSystem::FileOrPathExists(path))
+				{
+					killList.push_back(c);
+				}
+			}
+			else
+				VerifyResourceDirectory(projectData, c);
+		}
+
+		for (ResourceDirectory* d : killList)
+			dir->DestroyChild(d);
+	}
+
+	void ProjectManager::GenerateMissingAtlasImages(ResourceDirectory* dir)
+	{
+		m_workState.store(WorkState::Working);
+
+		if (!dir->thumbnailBuffer.IsEmpty())
+		{
+			if (dir->_thumbnailAtlasImage == nullptr)
+			{
+				if (dir->resourceTID == GetTypeID<Font>())
+					dir->_thumbnailAtlasImage = m_editor->GetAtlasManager().AddImageToAtlas(dir->thumbnailBuffer.GetRaw(), Vector2ui(RESOURCE_THUMBNAIL_SIZE, RESOURCE_THUMBNAIL_SIZE), LinaGX::Format::R8_UNORM);
+				else
+					dir->_thumbnailAtlasImage = m_editor->GetAtlasManager().AddImageToAtlas(dir->thumbnailBuffer.GetRaw(), Vector2ui(RESOURCE_THUMBNAIL_SIZE, RESOURCE_THUMBNAIL_SIZE), LinaGX::Format::R8G8B8A8_SRGB);
+			}
+		}
+		else
+			dir->_thumbnailAtlasImage = m_editor->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "FileShaderSmall"_hs);
+
+		for (ResourceDirectory* c : dir->children)
+			GenerateMissingAtlasImages(c);
+	}
+
+	void ProjectManager::PreDestroyResourceDirectory(ResourceDirectory* dir)
+	{
+		m_workState.store(WorkState::Working);
+
+		if (dir->_thumbnailAtlasImage != nullptr && !dir->thumbnailBuffer.IsEmpty())
+			m_editor->GetAtlasManager().RemoveImage(dir->_thumbnailAtlasImage);
+
+		dir->_thumbnailAtlasImage = nullptr;
+		for (ResourceDirectory* c : dir->children)
+			PreDestroyResourceDirectory(c);
+	}
 } // namespace Lina::Editor

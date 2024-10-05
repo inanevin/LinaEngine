@@ -53,6 +53,7 @@ namespace Lina::Editor
 		Name,
 		Location,
 		Select,
+		CreatingProject,
 		ProjectSelect,
 		CreateNewProject,
 		OpenExistingProject,
@@ -70,6 +71,7 @@ namespace Lina::Editor
 		LinaProjectFile,
 		LinaWorldFile,
 		NoProject,
+		NoProjectFound,
 		NoWorld,
 		NewProject,
 		LoadProject,
@@ -138,6 +140,11 @@ namespace Lina::Editor
 		GenerateSDF,
 		General,
 		Working,
+		WorkInProgressInAnotherWindow,
+		LoadingProjectData,
+		VerifyingProjectResources,
+		CreatingCoreResources,
+		Saving,
 	};
 
 	class Locale

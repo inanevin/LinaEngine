@@ -175,12 +175,13 @@ namespace Lina
 		}
 	}
 
-	void EntityWorld::LoadFromFile(const String& path)
+	bool EntityWorld::LoadFromFile(const String& path)
 	{
 		IStream stream = Serialization::LoadFromFile(path.c_str());
 		if (stream.GetDataRaw() != nullptr)
 			LoadFromStream(stream);
 		stream.Destroy();
+		return true;
 	}
 
 	void EntityWorld::LoadFromStream(IStream& stream)
@@ -290,7 +291,7 @@ namespace Lina
 
 	Entity* EntityWorld::AddModelToWorld(Model* model, const Vector<Material*>& materials)
 	{
-		LINA_ASSERT(materials.size() == model->GetMeta().materials.size(), "");
+		LINA_ASSERT(materials.size() >= model->GetMeta().materials.size(), "");
 
 		Entity*					 base  = CreateEntity(model->GetName());
 		const Vector<ModelNode*> roots = model->GetRootNodes();

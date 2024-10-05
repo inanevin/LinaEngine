@@ -62,6 +62,9 @@ namespace Lina
 
 	IStream Serialization::LoadFromFile(const char* path)
 	{
+		if (!FileSystem::FileOrPathExists(path))
+			return {};
+
 		std::ifstream rf(path, std::ios::out | std::ios::binary);
 
 		if (!rf)

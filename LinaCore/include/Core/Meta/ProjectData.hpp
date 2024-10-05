@@ -87,6 +87,11 @@ namespace Lina
 			return id;
 		}
 
+		inline void SetNextResourceID(ResourceID id)
+		{
+			m_resourceIDCounter = id;
+		}
+
 	private:
 		Runtime			  m_runtime			  = {};
 		String			  m_projectName		  = "";

@@ -28,8 +28,8 @@ SOFTWARE.
 
 #include "Core/Components/FlyCameraMovement.hpp"
 #include "Core/World/Entity.hpp"
+#include "Core/World/EntityWorld.hpp"
 #include "Common/Math/Math.hpp"
-#include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina
 {
@@ -43,39 +43,57 @@ namespace Lina
 
 	void FlyCameraMovement::Tick(float delta)
 	{
+		WorldInput& worldInput = m_world->GetInput();
 
-		/*
-		if (!m_input->GetMouseButton(LINAGX_MOUSE_1))
-			return;
+		// Handle movement.
+		{
+			Vector2 moveInput = Vector2::Zero;
 
-		auto md = m_input->GetMouseDelta();
+			if (worldInput.GetKey(LINAGX_KEY_D))
+				moveInput.x = 1.0f;
+			else if (worldInput.GetKey(LINAGX_KEY_A))
+				moveInput.x = -1.0f;
+			else
+				moveInput.x = 0.0f;
 
-#ifdef LINAGX_PLATFORM_WINDOWS
-		const int clampAmt = 10;
-#else
-		const int clampAmt = 3;
-#endif
-		md.x = Math::Clamp((int)md.x, -clampAmt, clampAmt);
-		md.y = Math::Clamp((int)md.y, -clampAmt, clampAmt);
+			if (worldInput.GetKey(LINAGX_KEY_W))
+				moveInput.y = 1.0f;
+			else if (worldInput.GetKey(LINAGX_KEY_S))
+				moveInput.y = -1.0f;
+			else
+				moveInput.y = 0.0f;
 
-		m_targetAngles += Vector2(md.y, md.x) * m_rotationPower;
-		m_finalAngles = Math::Lerp(m_finalAngles, m_targetAngles, delta * m_rotationSpeed);
-		m_entity->SetRotationAngles(Vector3(m_finalAngles.x, m_finalAngles.y, 0.0f));
+			const Vector2 targetMove   = m_movementPower * moveInput;
+			m_usedMoveAmt			   = Math::EaseIn(m_usedMoveAmt, targetMove, delta * m_movementSpeed);
+			const Vector3 moveAddition = m_entity->GetRotation().GetRight() * m_usedMoveAmt.x + m_entity->GetRotation().GetForward() * m_usedMoveAmt.y;
+			m_entity->AddPosition(moveAddition);
+		}
 
-		// Calc pos.
-		Vector2 input = Vector2::Zero;
-		if (m_input->GetKey(LINAGX_KEY_W))
-			input.y = 1.0f;
-		else if (m_input->GetKey(LINAGX_KEY_S))
-			input.y = -1.0f;
-		if (m_input->GetKey(LINAGX_KEY_D))
-			input.x = 1.0f;
-		else if (m_input->GetKey(LINAGX_KEY_A))
-			input.x = -1.0f;
+		// Handle rotation.
+		{
+			if (m_firstTick)
+			{
+				m_firstTick	   = false;
+				m_targetAngles = m_entity->GetRotation().GetPitchYawRoll();
+				m_usedAngles   = m_targetAngles;
+			}
 
-		input *= m_movementPower;
+			const bool canRotate = m_requireMousePressToRotate ? worldInput.GetMouseButton(LINAGX_MOUSE_1) : true;
+			if (!canRotate)
+				return;
 
-		const Vector3 targetPosition = (m_entity->GetPosition() + m_entity->GetRotation().GetForward() * input.y + m_entity->GetRotation().GetRight() * input.x);
-		m_entity->SetPosition(Math::Lerp(m_entity->GetPosition(), targetPosition, delta * m_movementSpeed));*/
+			LinaGX::Window* window			= m_world->GetScreen().GetOwnerWindow();
+			const uint32	dpi				= window == nullptr ? 0 : window->GetDPI();
+			const float		smoothingFactor = 0.5f;
+			const Vector2	deltaMouse		= worldInput.GetMouseDelta() * dpi;
+			const Vector2	usedDelta		= (m_previousMouseDelta * (1.0f - smoothingFactor) + deltaMouse * smoothingFactor) * 0.0001f * m_rotationPower;
+			m_previousMouseDelta			= deltaMouse;
+
+			m_targetAngles.y -= usedDelta.x;
+			m_targetAngles.x += usedDelta.y;
+
+			m_usedAngles = Vector3::Lerp(m_usedAngles, m_targetAngles, delta * m_rotationSpeed);
+			m_entity->SetRotation(Quaternion::PitchYawRoll(m_usedAngles));
+		}
 	}
 } // namespace Lina

@@ -121,6 +121,9 @@ namespace Lina::Editor
 	{
 		if (m_font != nullptr)
 			return;
+        
+        if(m_editor->GetProjectManager().GetProjectData() == nullptr)
+            return;
 
 		if (!m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_subData))
 		{
@@ -233,8 +236,7 @@ namespace Lina::Editor
 			{
 				m_resourceManager->SaveResource(m_editor->GetProjectManager().GetProjectData(), m_font);
 				m_editor->GetResourcePipeline().GenerateThumbnailForResource(m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_font->GetID()), m_font, true);
-				DockArea* outDockArea = nullptr;
-				Panel*	  p			  = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::ResourceBrowser, 0, outDockArea);
+				Panel*	  p			  = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::ResourceBrowser, 0);
 				if (p)
 					static_cast<PanelResourceBrowser*>(p)->GetBrowser()->RefreshDirectory();
 				SetRuntimeDirty(false);

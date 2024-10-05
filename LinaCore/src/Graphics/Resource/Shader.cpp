@@ -62,14 +62,12 @@ namespace Lina
 	void Shader::Metadata::SaveToStream(OStream& out) const
 	{
 		out << variants;
-		out << descriptorSetAllocationCount;
 		out << drawIndirectEnabled;
 	}
 
 	void Shader::Metadata::LoadFromStream(IStream& in)
 	{
 		in >> variants;
-		in >> descriptorSetAllocationCount;
 		in >> drawIndirectEnabled;
 	}
 
@@ -125,8 +123,11 @@ namespace Lina
 		}
 	}
 
-	void Shader::LoadFromFile(const String& path)
+	bool Shader::LoadFromFile(const String& path)
 	{
+		if (!FileSystem::FileOrPathExists(path))
+			return false;
+
 		LINAGX_MAP<LinaGX::ShaderStage, LinaGX::ShaderCompileData> data;
 		LINAGX_MAP<LinaGX::ShaderStage, String>					   blocks;
 
@@ -137,7 +138,7 @@ namespace Lina
 
 		bool success = ShaderPreprocessor::Preprocess(txt, outStages, m_properties);
 		if (!success)
-			return;
+			return false;
 
 		for (const auto& [stg, text] : outStages)
 		{
@@ -152,10 +153,19 @@ namespace Lina
 		if (!success)
 		{
 			LINA_ERR("Shader: Failed compiling shader! {0}", m_name);
+
+			for (auto& [stage, blob] : m_outCompiledBlobs)
+			{
+				if (blob.ptr != nullptr)
+					delete[] blob.ptr;
+			}
+
+			return false;
 		}
 
 		if (m_meta.variants.empty())
 			m_meta.variants["Default"_hs] = {};
+		return true;
 	}
 
 	void Shader::SaveToStream(OStream& stream) const
@@ -169,9 +179,8 @@ namespace Lina
 
 		for (const auto& [stage, blob] : m_outCompiledBlobs)
 		{
-			const uint8 stg = static_cast<uint8>(stage);
-			stream << stg;
-			stream << blob.size;
+			stream << stage;
+			stream << static_cast<uint32>(blob.size);
 			stream.WriteRawEndianSafe(blob.ptr, blob.size);
 		}
 
@@ -191,10 +200,12 @@ namespace Lina
 
 		for (uint32 i = 0; i < size; i++)
 		{
-			uint8 stg = 0;
-			stream >> stg;
-			LinaGX::DataBlob blob;
-			stream >> blob.size;
+			uint32				sz = 0;
+			LinaGX::ShaderStage stage;
+			stream >> stage;
+			stream >> sz;
+
+			LinaGX::DataBlob blob = {.ptr = nullptr, .size = static_cast<size_t>(sz)};
 
 			if (blob.size != 0)
 			{
@@ -202,7 +213,7 @@ namespace Lina
 				stream.ReadToRawEndianSafe(blob.ptr, blob.size);
 			}
 
-			m_outCompiledBlobs[static_cast<LinaGX::ShaderStage>(stg)] = blob;
+			m_outCompiledBlobs[stage] = blob;
 		}
 
 		m_layout = {};
@@ -228,7 +239,7 @@ namespace Lina
 			for (const auto& b : setLayout.bindings)
 				m_materialSetDesc.bindings.push_back(GfxHelpers::GetBindingFromShaderBinding(b));
 
-			m_materialSetDesc.allocationCount = m_meta.descriptorSetAllocationCount;
+			m_materialSetDesc.allocationCount = 1;
 		}
 
 		m_descriptorSets.push_back(new DescriptorSet());

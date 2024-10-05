@@ -41,42 +41,6 @@ namespace Lina
 
 #define GUI_IS_SINGLE_CHANNEL 2.0f
 
-#define DEFAULT_SHADER_GUI_PATH				"Resources/Core/Shaders/GUI/GUI2D.linashader"
-#define DEFAULT_SHADER_GUI3D_PATH			"Resources/Core/Shaders/GUI/GUI3D.linashader"
-#define DEFAULT_SHADER_OBJECT_PATH			"Resources/Core/Shaders/Object/DefaultObject.linashader"
-#define DEFAULT_SHADER_SKY_PATH				"Resources/Core/Shaders/Sky/DefaultSky.linashader"
-#define DEFAULT_SHADER_LIGHTING_PATH		"Resources/Core/Shaders/Lighting/DefaultLighting.linashader"
-#define DEFAULT_SAMPLER_PATH				"Resources/Core/Samplers/DefaultSampler.linasampler"
-#define DEFAULT_SAMPLER_GUI_PATH			"Resources/Core/Samplers/DefaultGUISampler.linasampler"
-#define DEFAULT_SAMPLER_TEXT_PATH			"Resources/Core/Samplers/DefaultGUITextSampler.linasampler"
-#define DEFAULT_MATERIAL_OBJECT_PATH		"Resources/Core/Materials/DefaultObject.linamaterial"
-#define DEFAULT_MATERIAL_SKY_PATH			"Resources/Core/Materials/DefaultSky.linamaterial"
-#define DEFAULT_TEXTURE_CHECKERED_DARK_PATH "Resources/Core/Textures/CheckeredDark.png"
-#define DEFAULT_FONT_PATH					"Resources/Core/Fonts/Roboto-Regular.ttf"
-#define DEFAULT_FONT_BOLD_PATH				"Resources/Core/Fonts/Roboto-Bold.ttf"
-#define DEFAULT_ALT_FONT_PATH				"Resources/Editor/Fonts/Play-Regular.ttf"
-#define DEFAULT_ALT_FONT_BOLD_PATH			"Resources/Editor/Fonts/Play-Bold.ttf"
-#define DEFAULT_SKY_CUBE_PATH				"Resources/Core/Models/SkyCube.glb"
-
-#define DEFAULT_SHADER_GUI_ID			  RESOURCE_ID_ENGINE_SPACE
-#define DEFAULT_SHADER_GUI3D_ID			  RESOURCE_ID_ENGINE_SPACE + 1
-#define DEFAULT_SHADER_OBJECT_ID		  RESOURCE_ID_ENGINE_SPACE + 2
-#define DEFAULT_SHADER_SKY_ID			  RESOURCE_ID_ENGINE_SPACE + 3
-#define DEFAULT_SHADER_LIGHTING_ID		  RESOURCE_ID_ENGINE_SPACE + 4
-#define DEFAULT_SAMPLER_ID				  RESOURCE_ID_ENGINE_SPACE + 5
-#define DEFAULT_SAMPLER_GUI_ID			  RESOURCE_ID_ENGINE_SPACE + 6
-#define DEFAULT_SAMPLER_TEXT_ID			  RESOURCE_ID_ENGINE_SPACE + 7
-#define DEFAULT_MATERIAL_OBJECT_ID		  RESOURCE_ID_ENGINE_SPACE + 8
-#define DEFAULT_MATERIAL_SKY_ID			  RESOURCE_ID_ENGINE_SPACE + 9
-#define DEFAULT_TEXTURE_CHECKERED_DARK_ID RESOURCE_ID_ENGINE_SPACE + 10
-#define DEFAULT_FONT_ID					  RESOURCE_ID_ENGINE_SPACE + 11
-#define DEFAULT_FONT_BOLD_ID			  RESOURCE_ID_ENGINE_SPACE + 12
-#define DEFAULT_ALT_FONT_ID				  RESOURCE_ID_ENGINE_SPACE + 13
-#define DEFAULT_ALT_FONT_BOLD_ID		  RESOURCE_ID_ENGINE_SPACE + 14
-#define DEFAULT_SKY_CUBE_ID				  RESOURCE_ID_ENGINE_SPACE + 16
-#define DEFAULT_NULL_TEXTURE_ID			  RESOURCE_ID_ENGINE_SPACE + 17
-#define DEFAULT_NULL_NORMAL_TEXTURE_ID	  RESOURCE_ID_ENGINE_SPACE + 18
-
 #define LINA_MAIN_SWAPCHAIN UINT32_MAX - 1
 #define DEFAULT_CLEAR_CLR	Color(0.3f, 0.3f, 0.5f, 1.0f)
 #define IDEAL_RT			16667
@@ -85,11 +49,13 @@ namespace Lina
 #define MAX_BOUND_TEXTURES	512
 #define MAX_BOUND_SAMPLERS	128
 
+#define DEFAULT_FOV 90.0f
+
 	enum RenderPassDescriptorType
 	{
 		Main = 0,
 		Lighting,
-		ForwardTransparency,
+		Forward,
 		Max,
 	};
 
@@ -116,7 +82,7 @@ namespace Lina
 			return "Main";
 		case Lighting:
 			return "Lighting";
-		case ForwardTransparency:
+		case Forward:
 			return "ForwardTransparency";
 		case Max:
 			return "Max";

@@ -43,7 +43,7 @@ namespace Lina
 
 		virtual ~GUIWidget();
 		virtual void SetSubdata(void* subdata) override;
-		virtual void LoadFromFile(const String& path) override;
+		virtual bool LoadFromFile(const String& path) override;
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
 		void		 ClearRoot();

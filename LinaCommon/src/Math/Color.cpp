@@ -52,6 +52,23 @@ namespace Lina
 	{
 	}
 
+    Color Color::Color255(float r, float g, float b, float a)
+    {
+        return Color(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
+    }
+    
+    Color Color::Color255Linear(float r, float g, float b, float a)
+    {
+        Color color(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
+        return color.SRGB2Linear();
+    }
+    
+    Color Color::ColorLinear(float r, float g, float b, float a)
+    {
+        Color color(r, g, b, a);
+        return color.SRGB2Linear();
+    }
+
 	void Color::SaveToStream(OStream& stream) const
 	{
 		stream << x << y << z << w;

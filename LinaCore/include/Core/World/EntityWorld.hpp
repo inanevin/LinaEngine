@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Common/Event/GameEventDispatcher.hpp"
 #include "Core/World/CommonWorld.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
+#include "Core/Graphics/Resource/Model.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 
 namespace Lina
@@ -61,23 +62,31 @@ namespace Lina
 		{
 			ResRef<Material> skyMaterial;
 			ResRef<Material> lightingMaterial;
+			ResRef<Model>	 skyModel;
 
 			void SaveToStream(OStream& stream)
 			{
-				stream << skyMaterial << lightingMaterial;
+				stream << skyMaterial << lightingMaterial << skyModel;
 			}
 
 			void LoadFromStream(IStream& stream, ResourceManagerV2* rm)
 			{
-				stream >> skyMaterial >> lightingMaterial;
+				stream >> skyMaterial >> lightingMaterial >> skyModel;
 				skyMaterial.raw		 = rm->GetResource<Material>(skyMaterial.id);
 				lightingMaterial.raw = rm->GetResource<Material>(lightingMaterial.id);
+				skyModel.raw		 = rm->GetResource<Model>(skyModel.id);
 			}
 
 			inline void SetSkyMaterial(Material* mat)
 			{
 				skyMaterial.raw = mat;
 				skyMaterial.id	= mat->GetID();
+			}
+
+			inline void SetSkyModel(Model* m)
+			{
+				skyModel.raw = m;
+				skyModel.id	 = m->GetID();
 			}
 
 			inline void SetLightingMaterial(Material* mat)
@@ -97,7 +106,7 @@ namespace Lina
 		void		 DestroyEntity(Entity* e);
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
-		virtual void LoadFromFile(const String& path) override;
+		virtual bool LoadFromFile(const String& path) override;
 		void		 AddListener(EntityWorldListener* listener);
 		void		 RemoveListener(EntityWorldListener* listener);
 		void		 PlayBeginComponents();

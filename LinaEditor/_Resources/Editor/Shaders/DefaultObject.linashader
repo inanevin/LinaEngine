@@ -1,0 +1,98 @@
+/*
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
+
+Author: Inan Evin
+http://www.inanevin.com
+
+Copyright (c) [2018-] [Inan Evin]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+#lina_vs
+
+#include "Resources/Core/Shaders/Common/GlobalData.linashader"
+#include "Resources/Core/Shaders/Common/RenderPass_main.linashader"
+
+layout (location = 0) in vec3 inPos;
+layout (location = 1) in vec3 inNormal;
+layout (location = 2) in vec2 inUV;
+
+layout (location = 0) out vec3 outWorldPos;
+layout (location = 1) out vec3 outNormal;
+layout (location = 2) out vec2 outUV;
+layout (location = 3) flat out uint outMaterialBytePadding;
+
+
+void main()
+{
+
+#ifdef LGX_COMPILE_HLSL
+   int argBufferIndex = LGX_DRAW_ID + gl_InstanceIndex;
+#else
+   int argBufferIndex = gl_InstanceIndex;
+#endif  
+
+    IndirectArguments argBuffer = LINA_INDIRECT_ARGUMENTS.data[argBufferIndex];
+    
+    uint entityID = argBuffer.entityID;
+    Object object = LINA_OBJECTS.data[entityID];
+    outWorldPos = vec3(object.modelMatrix * vec4(inPos, 1.0));
+    outNormal = inNormal;
+    outUV = vec2(1.0 - inUV.x, inUV.y);
+    outMaterialBytePadding = argBuffer.materialBytePadding;
+    gl_Position = LINA_VIEW.proj * LINA_VIEW.view *  vec4(outWorldPos, 1.0);
+}
+
+#lina_end
+
+#lina_fs
+
+#include "Resources/Core/Shaders/Common/GlobalData.linashader"
+#include "Resources/Core/Shaders/Common/RenderPass_main.linashader"
+
+layout (location = 0) in vec3 inWorldPos;
+layout (location = 1) in vec3 inNormal;
+layout (location = 2) in vec2 inUV;
+layout (location = 3) flat in uint inMaterialBytePadding;
+
+layout (location = 0) out vec4 outAlbedo;
+layout (location = 1) out vec4 outPosition;
+layout (location = 2) out vec4 outNormal;
+
+struct LINA_MATERIAL
+{
+   vec4 color;
+   vec4 tilingAndOffset;
+   LinaTexture2D txtAlbedo;
+   LinaTexture2D txtNormal;
+};
+
+void main()
+{
+   LINA_MATERIAL material = LINA_GET_MATERIAL(inMaterialBytePadding);
+   vec4 albedo = texture(sampler2D(LINA_TEXTURES[material.txtAlbedo.txt], LINA_SAMPLERS[material.txtAlbedo.smp]), inUV) * material.color;
+   vec4 normal = texture(sampler2D(LINA_TEXTURES[material.txtNormal.txt], LINA_SAMPLERS[material.txtNormal.smp]), inUV) * material.color;
+   outAlbedo = vec4(albedo.rgb, 1.0);
+   outPosition = vec4(inWorldPos, 0.0);
+   outNormal = vec4(inNormal, 0.0);
+}
+
+#lina_end

@@ -76,7 +76,7 @@ namespace Lina
 		void		  GenerateHW(LinaVG::Text& lvgText);
 		void		  DestroyHW();
 		LinaVG::Font* GetFont(float dpiScale);
-		virtual void  LoadFromFile(const String& path) override;
+		virtual bool  LoadFromFile(const String& path) override;
 		virtual void  LoadFromStream(IStream& stream) override;
 		virtual void  SaveToStream(OStream& stream) const override;
 

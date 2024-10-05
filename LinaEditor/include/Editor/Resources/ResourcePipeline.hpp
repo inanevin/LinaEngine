@@ -36,6 +36,7 @@ namespace Lina
 	class ResourceDirectory;
 	class ResourceManagerV2;
 	class Model;
+	class ProjectData;
 } // namespace Lina
 namespace Lina::Editor
 {
@@ -45,13 +46,16 @@ namespace Lina::Editor
 	class ResourcePipeline
 	{
 	public:
-		void Initialize(Editor* editor);
+		struct ResourceImportDef
+		{
+			String	   path = "";
+			ResourceID id	= 0;
+		};
 
-		/// For creating and saving user-made resources, such as GUIWidget, EntityWorld, Material etc.
-		ResourceID SaveNewResource(TypeID tid, uint32 subType = 0);
+		static ResourceDirectory* SaveNewResource(ProjectData* project, ResourceDirectory* src, const String& name, TypeID tid, ResourceID id = 0, uint32 subType = 0);
 
 		/// For importing external resources, such as textures, models, materials etc.
-		void ImportResources(ResourceDirectory* src, const Vector<String>& absPaths, Delegate<void(uint32 imported, float progress, bool isCompleted)> onProgress);
+		static void ImportResources(ProjectData* project, ResourceDirectory* src, const Vector<ResourceImportDef>& importDef, Delegate<void(uint32 imported, const ResourceImportDef& importDef, bool isCompleted)> onProgress);
 
 		void DuplicateResource(ResourceManagerV2* resMan, ResourceDirectory* directory, ResourceDirectory* newParent);
 
@@ -59,12 +63,9 @@ namespace Lina::Editor
 		void GenerateThumbnailForResource(ResourceDirectory* dir, Resource* resource, bool refreshAtlases);
 
 	private:
-		void VerifyResources(ResourceDirectory* dir);
-
 	private:
-		JobExecutor	   m_executor;
-		Editor*		   m_editor					= nullptr;
-		Atomic<uint32> m_importedResourcesCount = 0;
+		JobExecutor m_executor;
+		Editor*		m_editor = nullptr;
 	};
 
 } // namespace Lina::Editor

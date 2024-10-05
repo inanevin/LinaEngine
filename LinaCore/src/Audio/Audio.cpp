@@ -50,8 +50,9 @@ namespace Lina
 	{
 	}
 
-	void Audio::LoadFromFile(const String& path)
+	bool Audio::LoadFromFile(const String& path)
 	{
+		return true;
 	}
 
 	void Audio::LoadFromStream(IStream& stream)

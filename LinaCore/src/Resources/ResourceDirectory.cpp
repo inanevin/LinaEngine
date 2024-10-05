@@ -42,6 +42,7 @@ namespace Lina
 	void ResourceDirectory::SaveToStream(OStream& stream)
 	{
 		stream << VERSION;
+		stream << relativePathToProject;
 		stream << name;
 		stream << isFolder;
 		stream << resourceID;
@@ -54,6 +55,7 @@ namespace Lina
 	{
 		uint32 ver = 0;
 		stream >> ver;
+		stream >> relativePathToProject;
 		stream >> name;
 		stream >> isFolder;
 		stream >> resourceID;
@@ -109,6 +111,14 @@ namespace Lina
 		children.clear();
 		children.insert(children.end(), folders.begin(), folders.end());
 		children.insert(children.end(), files.begin(), files.end());
+	}
+
+	ResourceDirectory* ResourceDirectory::GetChildByName(const String& name)
+	{
+		auto it = linatl::find_if(children.begin(), children.end(), [name](ResourceDirectory* dir) -> bool { return name.compare(dir->name) == 0; });
+		if (it == children.end())
+			return nullptr;
+		return *it;
 	}
 
 	ResourceDirectory* ResourceDirectory::FindResource(ResourceID id)

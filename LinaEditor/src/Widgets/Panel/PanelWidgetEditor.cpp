@@ -443,28 +443,28 @@ namespace Lina::Editor
 			return;
 		}
 
-		GenericPopup* p = CommonWidgets::ThrowGenericPopup(Locale::GetStr(LocaleStr::SaveChanges), Locale::GetStr(LocaleStr::SaveChangesDesc), ICON_LINA_LOGO, this);
-		p->AddButton(GenericPopup::ButtonProps{
-			.text = Locale::GetStr(LocaleStr::Yes),
-			.onClicked =
-				[onAct, this, p]() {
-					CloseCurrent(true);
-					onAct();
-					m_manager->AddToKillList(p);
-				},
-		});
-
-		p->AddButton(GenericPopup::ButtonProps{
-			.text = Locale::GetStr(LocaleStr::No),
-			.onClicked =
-				[onAct, this, p]() {
-					CloseCurrent(false);
-					onAct();
-					m_manager->AddToKillList(p);
-				},
-		});
-
-		m_manager->AddToForeground(p, 0.25f);
+		// GenericPopup* p = CommonWidgets::ThrowGenericPopup(Locale::GetStr(LocaleStr::SaveChanges), Locale::GetStr(LocaleStr::SaveChangesDesc), //ICON_LINA_LOGO, this);
+		// p->AddButton(GenericPopup::ButtonProps{
+		//	.text = Locale::GetStr(LocaleStr::Yes),
+		//	.onClicked =
+		//		[onAct, this, p]() {
+		//			CloseCurrent(true);
+		//			onAct();
+		//			m_manager->AddToKillList(p);
+		//		},
+		// });
+		//
+		// p->AddButton(GenericPopup::ButtonProps{
+		//	.text = Locale::GetStr(LocaleStr::No),
+		//	.onClicked =
+		//		[onAct, this, p]() {
+		//			CloseCurrent(false);
+		//			onAct();
+		//			m_manager->AddToKillList(p);
+		//		},
+		//});
+		//
+		// m_manager->AddToForeground(p);
 	}
 
 	void PanelWidgetEditor::OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData)

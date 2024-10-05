@@ -73,7 +73,7 @@ namespace Lina
 
 		Material(ResourceID id, const String& name) : Resource(id, GetTypeID<Material>(), name){};
 		virtual ~Material();
-		virtual void LoadFromFile(const String& path) override;
+		virtual bool LoadFromFile(const String& path) override;
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
 		void		 SetShader(Shader* shader);

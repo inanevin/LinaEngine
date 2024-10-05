@@ -115,30 +115,31 @@ namespace Lina
 			return *this != other;
 		}
 
-		Vector3			  GetRight() const;
-		Vector3			  GetUp() const;
-		Vector3			  GetForward() const;
-		Vector3			  GetEuler() const;
-		Vector3			  GetAxis() const;
-		Vector3			  GetRotated(const Vector3& other) const;
-		Quaternion		  Conjugate() const;
-		Quaternion		  Inverse() const;
-		Quaternion		  Normalized() const;
-		static Quaternion FromVector(const glm::vec3& rot)
-		{
-			return glm::quat(rot);
-		}
-		static Quaternion Euler(const Vector3& v);
-		static Quaternion Euler(float x, float y, float z);
+		Vector3	   GetRight() const;
+		Vector3	   GetUp() const;
+		Vector3	   GetForward() const;
+		Vector3	   GetPitchYawRoll() const;
+		Vector3	   GetAxis() const;
+		Vector3	   GetRotated(const Vector3& other) const;
+		Quaternion Conjugate() const;
+		Quaternion Inverse() const;
+		Quaternion Normalized() const;
+		bool	   IsNormalized() const;
+		float	   GetAngle() const;
+		float	   Dot(const Quaternion& other) const;
+		float	   Length() const;
+		float	   LengthSquared() const;
+		Vector4	   ToVector() const;
+
+		static Quaternion Identity();
+		static Quaternion FromVector(const Vector3& rot);
+		static Quaternion ShortMix(const Quaternion& q1, const Quaternion& q2, float alpha);
+		static Quaternion Lerp(const Quaternion& q1, const Quaternion& q2, float alpha);
+		static Quaternion PitchYawRoll(const Vector3& v);
+		static Quaternion PitchYawRoll(float x, float y, float z);
 		static Quaternion AngleAxis(float angleDegrees, const Vector3& axis);
 		static Quaternion Slerp(const Quaternion& from, const Quaternion& dest, float t);
 		static Quaternion LookAt(const Vector3& from, const Vector3& to, const Vector3& up);
-		bool			  IsNormalized() const;
-		float			  GetAngle() const;
-		float			  Dot(const Quaternion& other) const;
-		float			  Length() const;
-		float			  LengthSquared() const;
-		Vector4			  ToVector() const;
 
 		void SaveToStream(OStream& stream);
 		void LoadFromStream(IStream& stream);

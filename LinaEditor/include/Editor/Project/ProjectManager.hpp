@@ -29,11 +29,13 @@ SOFTWARE.
 #pragma once
 
 #include "Core/Resources/CommonResources.hpp"
+#include "Common/JobSystem/JobSystem.hpp"
 
 namespace Lina
 {
 	class ProjectData;
 	class WidgetManager;
+	class ResourceDirectory;
 } // namespace Lina
 namespace Lina::Editor
 {
@@ -43,18 +45,29 @@ namespace Lina::Editor
 	{
 	public:
 		virtual void OnProjectOpened(ProjectData* data){};
+		virtual void OnProjectClosed(){};
 	};
 
 	class ProjectManager
 	{
 	public:
+		enum class WorkState
+		{
+			None,
+			Working,
+			Done
+		};
 		void Initialize(Editor* editor);
 		void Shutdown();
+		void PreTick();
 
-		void	   OpenPopupProjectSelector(bool canCancel, bool openCreateFirst = true);
+		void	   OpenDialogSelectProject();
+		void	   OpenDialogCreateProject();
 		void	   OpenProject(const String& projectFile);
 		void	   SaveProjectChanges();
 		ResourceID ConsumeResourceID();
+		void	   GenerateMissingAtlasImages(ResourceDirectory* dir);
+		void	   PreDestroyResourceDirectory(ResourceDirectory* dir);
 
 		void AddListener(ProjectManagerListener* listener);
 		void RemoveListener(ProjectManagerListener* listener);
@@ -67,11 +80,15 @@ namespace Lina::Editor
 	private:
 		void RemoveCurrentProject();
 		void CreateEmptyProjectAndOpen(const String& path);
+		void VerifyProjectResources(ProjectData* projectData);
+		void VerifyResourceDirectory(ProjectData* projectData, ResourceDirectory* dir);
 
 	private:
+		JobExecutor						m_executor;
 		WidgetManager*					m_primaryWidgetManager = nullptr;
 		Editor*							m_editor			   = nullptr;
 		ProjectData*					m_currentProject	   = nullptr;
 		Vector<ProjectManagerListener*> m_listeners;
+		Atomic<WorkState>				m_workState = WorkState::None;
 	};
 } // namespace Lina::Editor

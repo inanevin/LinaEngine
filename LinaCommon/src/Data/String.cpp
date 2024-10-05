@@ -184,7 +184,7 @@ namespace Lina
 	{
 		try
 		{
-			return static_cast<uint64>(std::stoll(str));
+			return static_cast<uint64>(std::stoull(str));
 		}
 		catch (const std::exception& e)
 		{

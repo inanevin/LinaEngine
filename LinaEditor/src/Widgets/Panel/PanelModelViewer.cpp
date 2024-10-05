@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
 #include "Editor/Widgets/World/WorldDisplayer.hpp"
 #include "Common/System/System.hpp"
+#include "Common/Math/Math.hpp"
 #include "Core/Meta/ProjectData.hpp"
 #include "Core/Platform/PlatformProcess.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
@@ -133,6 +134,9 @@ namespace Lina::Editor
 	void PanelModelViewer::Initialize()
 	{
 		if (m_model != nullptr)
+			return;
+
+		if (m_editor->GetProjectManager().GetProjectData() == nullptr)
 			return;
 
 		if (!m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_subData))
@@ -243,8 +247,7 @@ namespace Lina::Editor
 			{
 				m_resourceManager->SaveResource(m_editor->GetProjectManager().GetProjectData(), m_model);
 				m_editor->GetResourcePipeline().GenerateThumbnailForResource(m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_model->GetID()), m_model, true);
-				DockArea* outDockArea = nullptr;
-				Panel*	  p			  = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::ResourceBrowser, 0, outDockArea);
+				Panel* p = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::ResourceBrowser, 0);
 				if (p)
 					static_cast<PanelResourceBrowser*>(p)->GetBrowser()->RefreshDirectory();
 				SetRuntimeDirty(false);
@@ -254,29 +257,41 @@ namespace Lina::Editor
 		m_saveButton = save;
 		buttonLayout2->AddChild(save);
 
+		SetupScene();
+
+		// Add rendering
+		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer);
+
+		m_worldDisplayer->DisplayWorld(m_worldRenderer);
+		Panel::Initialize();
+	}
+
+	void PanelModelViewer::SetupScene()
+	{
 		// Setup world
 		m_world			= new EntityWorld(0, "");
 		m_lastWorldSize = Vector2ui(4, 4);
 		m_worldRenderer = new WorldRenderer(m_world, m_lastWorldSize);
 
+		/*
 		Vector<ResourceDef> neededResources = {
 			{
-				.id	  = DEFAULT_SHADER_LIGHTING_ID,
+				.id      = DEFAULT_SHADER_LIGHTING_ID,
 				.name = DEFAULT_SHADER_LIGHTING_PATH,
 				.tid  = GetTypeID<Shader>(),
 			},
 			{
-				.id	  = DEFAULT_SHADER_SKY_ID,
+				.id      = DEFAULT_SHADER_SKY_ID,
 				.name = DEFAULT_SHADER_SKY_PATH,
 				.tid  = GetTypeID<Shader>(),
 			},
 			{
-				.id	  = DEFAULT_SKY_CUBE_ID,
+				.id      = DEFAULT_SKY_CUBE_ID,
 				.name = DEFAULT_SKY_CUBE_PATH,
 				.tid  = GetTypeID<Model>(),
 			},
 			{
-				.id	  = DEFAULT_SHADER_OBJECT_ID,
+				.id      = DEFAULT_SHADER_OBJECT_ID,
 				.name = DEFAULT_SHADER_OBJECT_PATH,
 				.tid  = GetTypeID<Shader>(),
 			},
@@ -289,7 +304,7 @@ namespace Lina::Editor
 		for (ResourceID id : m_model->GetMeta().materials)
 		{
 			neededResources.push_back({
-				.id	 = id,
+				.id     = id,
 				.tid = GetTypeID<Material>(),
 			});
 		}
@@ -314,18 +329,18 @@ namespace Lina::Editor
 
 				LinaTexture2D* txt = reinterpret_cast<LinaTexture2D*>(prop->data.data());
 
-				if (txt->texture != DEFAULT_NULL_TEXTURE_ID && txt->texture != DEFAULT_NULL_NORMAL_TEXTURE_ID)
+				if (txt->texture != 0)
 				{
 					neededResources.push_back({
-						.id	 = txt->texture,
+						.id     = txt->texture,
 						.tid = GetTypeID<Texture>(),
 					});
 				}
 
-				if (txt->sampler != DEFAULT_SAMPLER_ID)
+				if (txt->sampler != 0)
 				{
 					neededResources.push_back({
-						.id	 = txt->sampler,
+						.id     = txt->sampler,
 						.tid = GetTypeID<TextureSampler>(),
 					});
 				}
@@ -335,40 +350,45 @@ namespace Lina::Editor
 		m_world->GetResourceManagerV2().LoadResourcesFromProject(m_editor, m_editor->GetProjectManager().GetProjectData(), neededResources, -1);
 		m_world->GetResourceManagerV2().WaitForAll();
 
-		SetupScene();
 
-		// Add rendering
-		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer);
-
-		m_worldDisplayer->DisplayWorld(m_worldRenderer);
-		Panel::Initialize();
-	}
-
-	void PanelModelViewer::SetupScene()
-	{
 		Material* skyMaterial	   = m_world->GetResourceManagerV2().CreateResource<Material>(m_world->GetResourceManagerV2().ConsumeResourceID(), "Model Viewer Sky Material");
 		Material* lightingMaterial = m_world->GetResourceManagerV2().CreateResource<Material>(m_world->GetResourceManagerV2().ConsumeResourceID(), "Model Viewer Lighting Material");
 		Shader*	  lightingShader   = m_world->GetResourceManagerV2().GetResource<Shader>(DEFAULT_SHADER_LIGHTING_ID);
 		Shader*	  skyShader		   = m_world->GetResourceManagerV2().GetResource<Shader>(DEFAULT_SHADER_SKY_ID);
 		lightingMaterial->SetShader(lightingShader);
 		skyMaterial->SetShader(skyShader);
+		skyMaterial->SetProperty("topColor"_hs, Color(0.8f, 0.8f, 0.8f, 1.0f));
+		skyMaterial->SetProperty("groundColor"_hs, Color(0.1f, 0.1f, 0.1f, 1.0f));
 		m_world->GetGfxSettings().SetSkyMaterial(skyMaterial);
 		m_world->GetGfxSettings().SetLightingMaterial(lightingMaterial);
 
-		Entity* camera = m_world->CreateEntity("Camera");
-		camera->SetPosition(Vector3(0, 0, 0));
-		// camera->SetRotation(Quaternion::LookAt(camera->GetPosition(), Vector3::Zero, Vector3::Up));
-		CameraComponent*   cameraComp = m_world->AddComponent<CameraComponent>(camera);
-		FlyCameraMovement* flight	  = m_world->AddComponent<FlyCameraMovement>(camera);
-		flight->GetFlags()			  = CF_RECEIVE_EDITOR_TICK;
-		m_world->SetActiveCamera(cameraComp);
-
+		// Add model to world.
 		Vector<Material*> materials;
 		materials.reserve(m_model->GetMeta().materials.size());
 		for (ResourceID id : m_model->GetMeta().materials)
 			materials.push_back(m_world->GetResourceManagerV2().GetResource<Material>(id));
+		Entity* entityModel = m_world->AddModelToWorld(m_world->GetResourceManagerV2().GetResource<Model>(m_model->GetID()), materials);
 
-		Entity* model = m_world->AddModelToWorld(m_world->GetResourceManagerV2().GetResource<Model>(m_model->GetID()), materials);
+
+		const Vector3 aabbHalf = m_model->GetAABB().boundsHalfExtents;
+		const float maxAABBHalf = Math::Max(aabbHalf.x, Math::Max(aabbHalf.y, aabbHalf.z));
+		const float movePower = 0.25f * maxAABBHalf;
+
+
+		Entity* camera = m_world->CreateEntity("Camera");
+		CameraComponent*   cameraComp = m_world->AddComponent<CameraComponent>(camera);
+		FlyCameraMovement* flight      = m_world->AddComponent<FlyCameraMovement>(camera);
+
+		const float cameraDistance = aabbHalf.z * (DEFAULT_FOV / cameraComp->GetFOV()) * 10.0f;
+		const Vector3 cameraPosition = Vector3(0, entityModel->GetPosition().y + cameraDistance * 0.5f, entityModel->GetPosition().z + cameraDistance);
+		camera->SetPosition(cameraPosition);
+		camera->SetRotation(Quaternion::LookAt(cameraPosition, Vector3(0, aabbHalf.y, 0), Vector3::Up));
+
+		flight->SetMovementPower(movePower);
+		flight->SetMovementSpeed(40.0f);
+		flight->GetFlags()              = CF_RECEIVE_EDITOR_TICK;
+		m_world->SetActiveCamera(cameraComp);
+		 */
 	}
 
 	void PanelModelViewer::Destruct()

@@ -65,6 +65,7 @@ include/Editor/Widgets/Popups/ProjectSelector.hpp
 include/Editor/Widgets/Popups/NotificationDisplayer.hpp
 include/Editor/Widgets/Popups/InfoTooltip.hpp
 include/Editor/Widgets/Popups/GenericPopup.hpp
+include/Editor/Widgets/Popups/ProgressPopup.hpp
 include/Editor/Widgets/Panel/Panel.hpp
 include/Editor/Widgets/Panel/PanelResources.hpp
 include/Editor/Widgets/Panel/PanelWorld.hpp
@@ -75,6 +76,7 @@ include/Editor/Widgets/Panel/PanelEntities.hpp
 include/Editor/Widgets/Panel/PanelTextureViewer.hpp
 include/Editor/Widgets/Panel/PanelFontViewer.hpp
 include/Editor/Widgets/Panel/PanelModelViewer.hpp
+include/Editor/Widgets/Panel/PanelShaderViewer.hpp
 include/Editor/Widgets/Panel/PanelResourceBrowser.hpp
 include/Editor/Widgets/Panel/PanelColorWheel.hpp
 include/Editor/Widgets/Panel/PanelFactory.hpp
@@ -137,6 +139,7 @@ src/Widgets/Popups/ProjectSelector.cpp
 src/Widgets/Popups/NotificationDisplayer.cpp
 src/Widgets/Popups/InfoTooltip.cpp
 src/Widgets/Popups/GenericPopup.cpp
+src/Widgets/Popups/ProgressPopup.cpp
 src/Widgets/Panel/Panel.cpp
 src/Widgets/Panel/PanelResources.cpp
 src/Widgets/Panel/PanelPerformance.cpp
@@ -147,6 +150,7 @@ src/Widgets/Panel/PanelEntities.cpp
 src/Widgets/Panel/PanelTextureViewer.cpp
 src/Widgets/Panel/PanelFontViewer.cpp
 src/Widgets/Panel/PanelModelViewer.cpp
+src/Widgets/Panel/PanelShaderViewer.cpp
 src/Widgets/Panel/PanelResourceBrowser.cpp
 src/Widgets/Panel/PanelColorWheel.cpp
 src/Widgets/Panel/PanelFactory.cpp

@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelTextureViewer.hpp"
 #include "Editor/Widgets/Panel/PanelFontViewer.hpp"
 #include "Editor/Widgets/Panel/PanelModelViewer.hpp"
+#include "Editor/Widgets/Panel/PanelShaderViewer.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 
 namespace Lina::Editor
@@ -73,6 +74,9 @@ namespace Lina::Editor
 			break;
 		case PanelType::ModelViewer:
 			panel = source->GetWidgetManager()->Allocate<PanelModelViewer>("Model");
+			break;
+		case PanelType::ShaderViewer:
+			panel = source->GetWidgetManager()->Allocate<PanelShaderViewer>("Shader");
 			break;
 		default:
 			LINA_ASSERT(false, "");

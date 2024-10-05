@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Core/World/Component.hpp"
+#include "Core/Graphics/CommonGraphics.hpp"
 
 namespace Lina
 {
@@ -72,7 +73,7 @@ namespace Lina
 	private:
 		friend class CameraSystem;
 		LINA_REFLECTION_ACCESS(CameraComponent);
-		float	   m_fieldOfView = 90.0f;
+		float	   m_fieldOfView = DEFAULT_FOV;
 		float	   m_zNear		 = 0.01f;
 		float	   m_zFar		 = 500.0f;
 		float	   m_targetX	 = 0.0f;

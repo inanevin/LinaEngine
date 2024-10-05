@@ -65,7 +65,7 @@ namespace Lina
 		return GetRotated(Vector3::Forward);
 	}
 
-	Vector3 Quaternion::GetEuler() const
+	Vector3 Quaternion::GetPitchYawRoll() const
 	{
 		Vector3 euler = glm::eulerAngles(*this);
 		euler		  = Vector3(glm::degrees(euler.x), glm::degrees(euler.y), glm::degrees(euler.z));
@@ -88,7 +88,13 @@ namespace Lina
 		v.x = glm::radians(other.x);
 		v.y = glm::radians(other.y);
 		v.z = glm::radians(other.z);
+
 		return glm::rotate(*this, other);
+	}
+
+	Quaternion Quaternion::FromVector(const Vector3& rot)
+	{
+		return glm::quat(rot);
 	}
 
 	Quaternion Quaternion::Slerp(const Quaternion& from, const Quaternion& dest, float t)
@@ -98,9 +104,7 @@ namespace Lina
 
 	Quaternion Quaternion::LookAt(const Vector3& from, const Vector3& to, const Vector3& up)
 	{
-		Vector3 dir = to - from;
-		dir			= dir.Normalized();
-		return glm::quatLookAt(dir, up);
+		return glm::quatLookAt(glm::normalize(to - from), up);
 	}
 
 	Quaternion Quaternion::Conjugate() const
@@ -115,6 +119,7 @@ namespace Lina
 
 	float Quaternion::Dot(const Quaternion& other) const
 	{
+
 		return glm::dot(glm::quat(*this), glm::quat(other));
 	}
 
@@ -143,7 +148,7 @@ namespace Lina
 		stream >> x >> y >> z >> w;
 	}
 
-	Quaternion Quaternion::Euler(const Vector3& v)
+	Quaternion Quaternion::PitchYawRoll(const Vector3& v)
 	{
 		glm::vec3 vec;
 		vec.x = glm::radians(v.x);
@@ -152,13 +157,28 @@ namespace Lina
 		return glm::quat(vec);
 	}
 
-	Quaternion Quaternion::Euler(float x, float y, float z)
+	Quaternion Quaternion::PitchYawRoll(float x, float y, float z)
 	{
-		return Quaternion::Euler(Vector3(x, y, z));
+		return Quaternion::PitchYawRoll(Vector3(x, y, z));
 	}
 
 	Quaternion Quaternion::AngleAxis(float angleDegrees, const Vector3& axis)
 	{
 		return glm::angleAxis(glm::radians(angleDegrees), axis);
+	}
+
+	Quaternion Quaternion::ShortMix(const Quaternion& q1, const Quaternion& q2, float alpha)
+	{
+		return glm::shortMix(q1, q2, alpha);
+	}
+
+	Quaternion Quaternion::Lerp(const Quaternion& q1, const Quaternion& q2, float alpha)
+	{
+		return glm::fastMix(q1, q2, alpha);
+	}
+
+	Quaternion Quaternion::Identity()
+	{
+		return glm::quat_identity<float, glm::defaultp>();
 	}
 } // namespace Lina

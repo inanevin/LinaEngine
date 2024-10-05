@@ -83,7 +83,7 @@ namespace Lina
 
 			return {.bindings = {binding0, binding1, binding2}};
 		}
-		else if (type == RenderPassDescriptorType::ForwardTransparency)
+		else if (type == RenderPassDescriptorType::Forward)
 		{
 			LinaGX::DescriptorBinding binding0 = {
 				.type	= LinaGX::DescriptorType::UBO,
@@ -319,7 +319,7 @@ namespace Lina
 			};
 		}
 
-		if (type == RenderPassDescriptorType::ForwardTransparency)
+		if (type == RenderPassDescriptorType::Forward)
 		{
 			// 1 is object buffer reserved.
 			return {

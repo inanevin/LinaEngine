@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Editor/IO/ThumbnailGenerator.hpp"
 #include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
 #include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
+#include "Editor/Widgets/Popups/ProgressPopup.hpp"
 
 #include "Common/System/System.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
@@ -52,65 +53,6 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	void ResourcePipeline::Initialize(Editor* editor)
-	{
-		m_editor = editor;
-
-		ProjectData* projectData = m_editor->GetProjectManager().GetProjectData();
-
-		if (!FileSystem::FileOrPathExists(projectData->GetResourceDirectory()))
-			FileSystem::CreateFolderInPath(projectData->GetResourceDirectory());
-
-		// Check if the actual resource file for a ResourceDirectory in the project exists, if not delete the directory.
-		ResourceDirectory* root = &projectData->GetResourceRoot();
-		VerifyResources(root);
-		m_editor->GetProjectManager().SaveProjectChanges();
-
-		// Go through all the resource files in the cache directory.
-		// If the equivalent resource is not included in/used by the project delete the file to prevent littering.
-		const String   resDir = projectData->GetResourceDirectory();
-		Vector<String> files;
-		FileSystem::GetFilesInDirectory(resDir, files);
-		for (const String& file : files)
-		{
-			const String fileName = FileSystem::GetFilenameOnlyFromPath(file);
-			const size_t under	  = fileName.find("_");
-			if (under == String::npos)
-				continue;
-			const String	   resID	= fileName.substr(under + 1, fileName.length() - under);
-			const ResourceID   resIDInt = static_cast<ResourceID>(UtilStr::StringToBigInt(resID));
-			ResourceDirectory* found	= root->FindResource(resIDInt);
-			if (found == nullptr)
-				FileSystem::DeleteFileInPath(file);
-		}
-
-		GenerateThumbnailAtlases(root);
-		m_editor->GetAtlasManager().RefreshDirtyAtlases();
-	}
-
-	void ResourcePipeline::VerifyResources(ResourceDirectory* dir)
-	{
-		ProjectData* projectData = m_editor->GetProjectManager().GetProjectData();
-
-		Vector<ResourceDirectory*> killList;
-
-		for (ResourceDirectory* c : dir->children)
-		{
-			if (!c->isFolder)
-			{
-				const String path = projectData->GetResourcePath(c->resourceID);
-				if (!FileSystem::FileOrPathExists(path))
-				{
-					killList.push_back(c);
-				}
-			}
-			else
-				VerifyResources(c);
-		}
-
-		for (ResourceDirectory* d : killList)
-			dir->DestroyChild(d);
-	}
 
 	void ResourcePipeline::GenerateThumbnailAtlases(ResourceDirectory* dir)
 	{
@@ -134,36 +76,42 @@ namespace Lina::Editor
 			GenerateThumbnailAtlases(c);
 	}
 
-	ResourceID ResourcePipeline::SaveNewResource(TypeID tid, uint32 subType)
+	ResourceDirectory* ResourcePipeline::SaveNewResource(ProjectData* project, ResourceDirectory* src, const String& name, TypeID tid, ResourceID inID, uint32 subType)
 	{
-		const ResourceID id			 = m_editor->GetProjectManager().ConsumeResourceID();
-		ProjectData*	 projectData = m_editor->GetProjectManager().GetProjectData();
-		const String	 path		 = projectData->GetResourcePath(id);
+		const ResourceID id	  = inID != 0 ? inID : project->ConsumeResourceID();
+		const String	 path = project->GetResourcePath(id);
+
+		ResourceDirectory* newCreated = src->CreateChild({
+			.isFolder	 = false,
+			.resourceID	 = id,
+			.resourceTID = tid,
+			.name		 = name,
+		});
 
 		if (tid == GetTypeID<GUIWidget>())
 		{
-			GUIWidget w(id);
+			GUIWidget w(id, name);
 			w.GetRoot().GetWidgetProps().debugName = "Root";
 			w.SaveToFileAsBinary(path);
 		}
 		else if (tid == GetTypeID<Material>())
 		{
-			Material mat(id, "");
+			Material mat(id, name);
 			mat.SaveToFileAsBinary(path);
 		}
 		else if (tid == GetTypeID<EntityWorld>())
 		{
-			EntityWorld world(id, "");
+			EntityWorld world(id, name);
 			world.SaveToFileAsBinary(path);
 		}
 		else if (tid == GetTypeID<TextureSampler>())
 		{
-			TextureSampler sampler(id, "");
+			TextureSampler sampler(id, name);
 			sampler.SaveToFileAsBinary(path);
 		}
 		else if (tid == GetTypeID<Shader>())
 		{
-			Shader shader(id, "");
+			Shader shader(id, name);
 
 			// Load default text.
 			if (subType == 0)
@@ -182,209 +130,228 @@ namespace Lina::Editor
 		}
 		else if (tid == GetTypeID<PhysicsMaterial>())
 		{
-			PhysicsMaterial mat(id, "");
+			PhysicsMaterial mat(id, name);
 			mat.SaveToFileAsBinary(path);
 		}
 
-		return id;
+		return newCreated;
 	}
 
-	void ResourcePipeline::ImportResources(ResourceDirectory* src, const Vector<String>& absPaths, Delegate<void(uint32 imported, float progress, bool isCompleted)> onProgress)
+	void ResourcePipeline::ImportResources(ProjectData* projectData, ResourceDirectory* src, const Vector<ResourceImportDef>& defs, Delegate<void(uint32 imported, const ResourceImportDef& importDef, bool isCompleted)> onProgress)
 	{
-		// Thumbnails.
-		m_editor->GetGfxManager()->Join();
+		Shader* defaultShader = nullptr;
 
-		const float totalCount	 = static_cast<float>(absPaths.size());
-		m_importedResourcesCount = 0;
+		const int32 sz = static_cast<int32>(defs.size());
 
-		ProjectData* projectData = m_editor->GetProjectManager().GetProjectData();
+		for (int32 i = 0; i < sz; i++)
+		{
+			const ResourceImportDef& def = defs.at(i);
 
-		// Import resources in parallel.
-		Taskflow tf;
+			onProgress(i, def, false);
 
-		tf.emplace([absPaths, this, projectData, src, onProgress]() {
-			Shader* defaultShader = nullptr;
+			if (!FileSystem::FileOrPathExists(def.path))
+				continue;
 
-			for (const String& path : absPaths)
-			{
-				if (!FileSystem::FileOrPathExists(path))
-				{
-					m_importedResourcesCount.fetch_add(1);
-					continue;
-				}
+			const String   extension = FileSystem::GetFileExtension(def.path);
+			const StringID extSid	 = TO_SID(extension);
 
-				const String   extension = FileSystem::GetFileExtension(path);
-				const StringID extSid	 = TO_SID(extension);
+			TypeID resourceTID = 0;
 
-				TypeID resourceTID = 0;
+			if (extSid == "png"_hs || extSid == "jpg"_hs || extSid == "jpeg"_hs)
+				resourceTID = GetTypeID<Texture>();
+			else if (extSid == "mp3"_hs)
+				resourceTID = GetTypeID<Audio>();
+			else if (extSid == "glb"_hs || extSid == "gtlf"_hs)
+				resourceTID = GetTypeID<Model>();
+			else if (extSid == "otf"_hs || extSid == "ttf"_hs)
+				resourceTID = GetTypeID<Font>();
+			else if (extSid == "linashader"_hs)
+				resourceTID = GetTypeID<Shader>();
+			else
+				continue;
 
-				if (extSid == "png"_hs || extSid == "jpg"_hs || extSid == "jpeg"_hs)
-					resourceTID = GetTypeID<Texture>();
-				else if (extSid == "mp3"_hs)
-					resourceTID = GetTypeID<Audio>();
-				else if (extSid == "glb"_hs || extSid == "gtlf"_hs)
-					resourceTID = GetTypeID<Model>();
-				else if (extSid == "otf"_hs || extSid == "ttf"_hs)
-					resourceTID = GetTypeID<Font>();
-				else
-				{
-					m_importedResourcesCount.fetch_add(1);
-					continue;
-				}
+			const String	   name = FileSystem::GetFilenameOnlyFromPath(def.path) + "." + FileSystem::GetFileExtension(def.path);
+			ResourceDirectory* dir	= nullptr;
 
-				ResourceDirectory* dir = src->CreateChild({
+			auto createDirectory = [&]() {
+				dir = src->CreateChild({
 					.isFolder	 = false,
-					.resourceID	 = m_editor->GetProjectManager().GetProjectData()->ConsumeResourceID(),
+					.resourceID	 = def.id == 0 ? projectData->ConsumeResourceID() : def.id,
 					.resourceTID = resourceTID,
-					.name		 = FileSystem::GetFilenameOnlyFromPath(path) + "." + FileSystem::GetFileExtension(path),
+					.name		 = FileSystem::GetFilenameOnlyFromPath(def.path) + "." + FileSystem::GetFileExtension(def.path),
 				});
+			};
 
-				const ResourceID id = dir->resourceID;
-				if (dir->resourceTID == GetTypeID<Texture>())
+			auto genThumbnail = [](Resource* r, ResourceDirectory* directory) {
+				LinaGX::TextureBuffer thumbnail = ThumbnailGenerator::GenerateThumbnailForResource(r);
+
+				if (thumbnail.pixels != nullptr)
 				{
-					Texture txt(id, dir->name);
-					txt.SetPath(path);
-					txt.LoadFromFile(path);
-					txt.SaveToFileAsBinary(projectData->GetResourcePath(id));
-					GenerateThumbnailForResource(dir, &txt, false);
+					OStream stream;
+					stream << thumbnail.width << thumbnail.height << thumbnail.bytesPerPixel;
+					stream.WriteRaw(thumbnail.pixels, thumbnail.width * thumbnail.height * thumbnail.bytesPerPixel);
+					directory->thumbnailBuffer.Create(stream);
+					stream.Destroy();
 				}
-				else if (dir->resourceTID == GetTypeID<Font>())
+			};
+
+			if (resourceTID == GetTypeID<Shader>())
+			{
+				Shader shader(0, name);
+				if (!shader.LoadFromFile(def.path))
+					continue;
+
+				shader.SetID(def.id == 0 ? projectData->ConsumeResourceID() : def.id);
+				shader.SetPath(def.path);
+				shader.SaveToFileAsBinary(projectData->GetResourcePath(shader.GetID()));
+				createDirectory();
+				genThumbnail(&shader, dir);
+			}
+			else if (resourceTID == GetTypeID<Texture>())
+			{
+				Texture txt(0, name);
+				if (!txt.LoadFromFile(def.path))
+					continue;
+
+				txt.SetID(def.id == 0 ? projectData->ConsumeResourceID() : def.id);
+				txt.SetPath(def.path);
+				txt.SaveToFileAsBinary(projectData->GetResourcePath(txt.GetID()));
+				createDirectory();
+				genThumbnail(&txt, dir);
+			}
+			else if (resourceTID == GetTypeID<Font>())
+			{
+				Font font(0, name);
+				if (!font.LoadFromFile(def.path))
+					continue;
+
+				font.SetID(def.id == 0 ? projectData->ConsumeResourceID() : def.id);
+				font.SetPath(def.path);
+				font.SaveToFileAsBinary(projectData->GetResourcePath(font.GetID()));
+				createDirectory();
+				genThumbnail(&font, dir);
+			}
+			else if (resourceTID == GetTypeID<Audio>())
+			{
+				Audio aud(0, name);
+				if (aud.LoadFromFile(def.path))
+					continue;
+
+				aud.SetID(def.id == 0 ? projectData->ConsumeResourceID() : def.id);
+				aud.SetPath(def.path);
+				aud.SaveToFileAsBinary(projectData->GetResourcePath(aud.GetID()));
+				createDirectory();
+				genThumbnail(&aud, dir);
+			}
+			else if (resourceTID == GetTypeID<Model>())
+			{
+				Model model(0, name);
+				if (!model.LoadFromFile(def.path))
+					continue;
+
+				model.SetID(def.id == 0 ? projectData->ConsumeResourceID() : def.id);
+				model.SetPath(def.path);
+				createDirectory();
+				genThumbnail(&model, dir);
+
+				if (defaultShader == nullptr)
 				{
-					Font font(id, dir->name);
-					font.SetPath(path);
-					font.LoadFromFile(path);
-					font.SaveToFileAsBinary(projectData->GetResourcePath(id));
-					GenerateThumbnailForResource(dir, &font, false);
+					defaultShader = new Shader(EDITOR_SHADER_DEFAULT_OBJECT_ID, EDITOR_SHADER_DEFAULT_OBJECT_PATH);
+					defaultShader->LoadFromFile(EDITOR_SHADER_DEFAULT_OBJECT_PATH);
 				}
-				else if (dir->resourceTID == GetTypeID<Audio>())
+
+				const Vector<ModelMaterial>&	   matDefs	   = model.GetMaterialDefs();
+				const Vector<Model::ModelTexture>& textureDefs = model.GetTextureDefs();
+
+				Vector<ResourceID> createdTextures;
+				Vector<String>	   createdTextureNames;
+
+				for (const Model::ModelTexture& def : textureDefs)
 				{
-					Audio aud(id, dir->name);
-					aud.SetPath(path);
-					aud.LoadFromFile(path);
-					aud.SaveToFileAsBinary(projectData->GetResourcePath(id));
-					GenerateThumbnailForResource(dir, &aud, false);
+					const ResourceID newID = projectData->ConsumeResourceID();
+
+					ResourceDirectory* child = dir->parent->CreateChild({
+						.isFolder	 = false,
+						.resourceID	 = newID,
+						.resourceTID = GetTypeID<Texture>(),
+						.name		 = def.name,
+					});
+
+					const bool isColor = true;
+
+					Texture texture(newID, def.name);
+					texture.GetMeta().format = isColor ? LinaGX::Format::R8G8B8A8_SRGB : LinaGX::Format::R8G8B8A8_UNORM;
+					texture.LoadFromBuffer(def.buffer.pixels, def.buffer.width, def.buffer.height, def.buffer.bytesPerPixel);
+					texture.SaveToFileAsBinary(projectData->GetResourcePath(newID));
+					genThumbnail(&texture, child);
+
+					createdTextures.push_back(newID);
+					createdTextureNames.push_back(def.name);
 				}
-				else if (dir->resourceTID == GetTypeID<Model>())
+
+				Model::Metadata& meta = model.GetMeta();
+
+				int32 matIdx = 0;
+				for (const ModelMaterial& def : matDefs)
 				{
-					Model model(id, dir->name);
-					model.SetPath(path);
-					model.LoadFromFile(path);
+					const ResourceID newID = projectData->ConsumeResourceID();
 
-					if (defaultShader == nullptr)
+					ResourceDirectory* child = dir->parent->CreateChild({
+						.isFolder	 = false,
+						.resourceID	 = newID,
+						.resourceTID = GetTypeID<Material>(),
+						.name		 = def.name,
+					});
+
+					meta.materials[matIdx] = newID;
+
+					LinaTexture2D albedo = {
+						.texture = 0,
+						.sampler = 0,
+					};
+
+					LinaTexture2D normal = {
+						.texture = 0,
+						.sampler = 0,
+					};
+
+					int32 outIndex	= -1;
+					int32 outIndex2 = -1;
+					for (auto [textureType, textureIndex] : def.textureIndices)
 					{
-						defaultShader = new Shader(DEFAULT_SHADER_OBJECT_ID, DEFAULT_SHADER_OBJECT_PATH);
-						defaultShader->LoadFromFile(DEFAULT_SHADER_OBJECT_PATH);
-					}
-
-					const Vector<ModelMaterial>&	   matDefs	   = model.GetMaterialDefs();
-					const Vector<Model::ModelTexture>& textureDefs = model.GetTextureDefs();
-
-					Vector<ResourceID> createdTextures;
-					Vector<String>	   createdTextureNames;
-					for (const Model::ModelTexture& def : textureDefs)
-					{
-						const ResourceID newID = m_editor->GetProjectManager().GetProjectData()->ConsumeResourceID();
-
-						ResourceDirectory* child = dir->parent->CreateChild({
-							.isFolder	 = false,
-							.resourceID	 = newID,
-							.resourceTID = GetTypeID<Texture>(),
-							.name		 = def.name,
-						});
-
-						Texture	   texture(newID, def.name);
-						const bool isColor		 = true;
-						texture.GetMeta().format = isColor ? LinaGX::Format::R8G8B8A8_SRGB : LinaGX::Format::R8G8B8A8_UNORM;
-						texture.LoadFromBuffer(def.buffer.pixels, def.buffer.width, def.buffer.height, def.buffer.bytesPerPixel);
-						texture.SaveToFileAsBinary(projectData->GetResourcePath(newID));
-						GenerateThumbnailForResource(child, &texture, false);
-						createdTextures.push_back(newID);
-						createdTextureNames.push_back(def.name);
-					}
-
-					Model::Metadata& meta = model.GetMeta();
-
-					int32 matIdx = 0;
-					for (const ModelMaterial& def : matDefs)
-					{
-						const ResourceID newID = m_editor->GetProjectManager().GetProjectData()->ConsumeResourceID();
-
-						ResourceDirectory* child = dir->parent->CreateChild({
-							.isFolder	 = false,
-							.resourceID	 = newID,
-							.resourceTID = GetTypeID<Material>(),
-							.name		 = def.name,
-						});
-
-						meta.materials[matIdx] = newID;
-
-						LinaTexture2D albedo = {
-							.texture = DEFAULT_NULL_TEXTURE_ID,
-							.sampler = DEFAULT_SAMPLER_ID,
-						};
-
-						LinaTexture2D normal = {
-							.texture = DEFAULT_NULL_NORMAL_TEXTURE_ID,
-							.sampler = DEFAULT_SAMPLER_ID,
-						};
-
-						int32 outIndex	= -1;
-						int32 outIndex2 = -1;
-						for (auto [textureType, textureIndex] : def.textureIndices)
+						if (textureType == static_cast<uint8>(LinaGX::GLTFTextureType::BaseColor))
 						{
-							if (textureType == static_cast<uint8>(LinaGX::GLTFTextureType::BaseColor))
-							{
-								albedo.texture = createdTextures[textureIndex];
-								outIndex	   = textureIndex;
-								continue;
-							}
-
-							if (textureType == static_cast<uint8>(LinaGX::GLTFTextureType::Normal))
-							{
-								normal.texture = createdTextures[textureIndex];
-								outIndex2	   = textureIndex;
-								continue;
-							}
+							albedo.texture = createdTextures[textureIndex];
+							outIndex	   = textureIndex;
+							continue;
 						}
 
-						Material mat(newID, def.name);
-						mat.SetShader(defaultShader);
-						mat.SetProperty("color"_hs, def.albedo);
-						mat.SetProperty("txtAlbedo"_hs, albedo);
-						mat.SetProperty("txtNormal"_hs, normal);
-
-						LINA_TRACE("Imported material {0}", def.name);
-						LINA_TRACE("Color {0} {1} {2} {3}", def.albedo.x, def.albedo.y, def.albedo.z, def.albedo.w);
-						LINA_TRACE("Albedo texture {0} name {1}", albedo.texture, outIndex == -1 ? "none" : createdTextureNames[outIndex]);
-						LINA_TRACE("Normal texture {0} name {1}", albedo.texture, outIndex2 == -1 ? "non" : createdTextureNames[outIndex2]);
-						mat.SaveToFileAsBinary(projectData->GetResourcePath(newID));
-						GenerateThumbnailForResource(child, &mat, false);
-						matIdx++;
+						if (textureType == static_cast<uint8>(LinaGX::GLTFTextureType::Normal))
+						{
+							normal.texture = createdTextures[textureIndex];
+							outIndex2	   = textureIndex;
+							continue;
+						}
 					}
 
-					model.SaveToFileAsBinary(projectData->GetResourcePath(id));
-					GenerateThumbnailForResource(dir, &model, false);
-					model.DestroyTextureDefs();
+					Material mat(newID, def.name);
+					mat.SetShader(defaultShader);
+					mat.SetProperty("color"_hs, def.albedo);
+					mat.SetProperty("txtAlbedo"_hs, albedo);
+					mat.SetProperty("txtNormal"_hs, normal);
+					mat.SaveToFileAsBinary(projectData->GetResourcePath(newID));
+					genThumbnail(&mat, child);
+					matIdx++;
 				}
-
-				m_importedResourcesCount.fetch_add(1);
-				onProgress(m_importedResourcesCount.load(), static_cast<float>(m_importedResourcesCount.load()) / static_cast<float>(absPaths.size()), false);
+				model.SaveToFileAsBinary(projectData->GetResourcePath(model.GetID()));
+				model.DestroyTextureDefs();
 			}
+		}
 
-			DockArea* outDockArea = nullptr;
-			Panel*	  p			  = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::ResourceBrowser, 0, outDockArea);
-			if (p)
-				static_cast<PanelResourceBrowser*>(p)->GetBrowser()->RefreshDirectory();
+		if (defaultShader)
+			delete defaultShader;
 
-			if (defaultShader)
-				delete defaultShader;
-
-			onProgress(m_importedResourcesCount.load(), 1.0f, true);
-			m_editor->GetProjectManager().SaveProjectChanges();
-			m_editor->GetAtlasManager().RefreshDirtyAtlases();
-		});
-
-		m_executor.RunMove(tf);
+		onProgress(sz, {}, true);
 	}
 
 	void ResourcePipeline::GenerateThumbnailForResource(ResourceDirectory* dir, Resource* resource, bool refreshAtlases)

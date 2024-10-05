@@ -263,6 +263,13 @@ namespace Lina::Editor
 		return retVal;
 	}
 
+	Panel* WindowPanelManager::FindPanelOfType(PanelType type, ResourceID subData)
+	{
+		DockArea* owning;
+		Panel*	  panel = FindPanelOfType(type, subData, owning);
+		return panel;
+	}
+
 	Panel* WindowPanelManager::FindPanelOfType(PanelType type, ResourceID subData, DockArea*& owningArea)
 	{
 		Vector<DockArea*> primaryAreas;
@@ -421,6 +428,31 @@ namespace Lina::Editor
 				pair.second->OnWindowSizeChanged(window, size);
 				break;
 			}
+		}
+	}
+
+	Widget* WindowPanelManager::LockAllForegrounds(LinaGX::Window* srcWindow, const String& text)
+	{
+		Widget* lock = nullptr;
+
+		for (Pair<LinaGX::Window*, SurfaceRenderer*> pair : m_surfaceRenderers)
+		{
+			if (pair.first == srcWindow)
+			{
+				lock = pair.second->GetWidgetManager().LockForeground("");
+				continue;
+			}
+			pair.second->GetWidgetManager().LockForeground(text);
+		}
+
+		return lock;
+	}
+
+	void WindowPanelManager::UnlockAllForegrounds()
+	{
+		for (Pair<LinaGX::Window*, SurfaceRenderer*> pair : m_surfaceRenderers)
+		{
+			pair.second->GetWidgetManager().UnlockForeground();
 		}
 	}
 } // namespace Lina::Editor

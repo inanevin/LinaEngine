@@ -87,7 +87,12 @@ namespace Lina
 
 	Vector2 WorldInput::GetMousePosition()
 	{
+		return m_lgxInput->GetMouseDelta();
+
 		if (!m_isActive)
+			return m_lastMousePosition;
+
+		if (m_screen->GetOwnerWindow() == nullptr)
 			return m_lastMousePosition;
 
 		const Vector2 mpRelativeWindow = m_screen->GetOwnerWindow()->GetMousePosition();
@@ -106,4 +111,21 @@ namespace Lina
 		return ratio;
 	}
 
+	Vector2 WorldInput::GetMouseDelta()
+	{
+		LinaGX::Window* window = m_screen->GetOwnerWindow();
+		if (window == nullptr)
+			return Vector2::Zero;
+
+		return window->GetMouseDelta();
+	}
+
+	Vector2 WorldInput::GetMouseDeltaRelative()
+	{
+		LinaGX::Window* window = m_screen->GetOwnerWindow();
+		if (window == nullptr)
+			return Vector2::Zero;
+
+		return window->GetMouseDeltaRelative();
+	}
 } // namespace Lina

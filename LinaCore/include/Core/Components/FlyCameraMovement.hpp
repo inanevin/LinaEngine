@@ -54,17 +54,47 @@ namespace Lina
 			stream >> m_movementSpeed >> m_rotationSpeed;
 		}
 
+		inline void SetMovementPower(float pw)
+		{
+			m_movementPower = pw;
+		}
+
+		inline void SetMovementSpeed(float sp)
+		{
+			m_movementSpeed = sp;
+		}
+
+		inline void SetRotationSpeed(float sp)
+		{
+			m_rotationSpeed = sp;
+		}
+
+		inline void SetRotationPower(float pw)
+		{
+			m_rotationPower = pw;
+		}
+
+		inline void SetRequireMousePressToRotate(bool req)
+		{
+			m_requireMousePressToRotate = req;
+		}
+
 	private:
 		void Tick(float delta);
 
 	private:
 		LINA_REFLECTION_ACCESS(SimpleFlightMovement);
-		float	m_movementSpeed = 5.0f;
-		float	m_rotationSpeed = 26.0f;
-		float	m_rotationPower = 0.75f;
-		float	m_movementPower = 7.0f;
-		Vector2 m_targetAngles	= Vector2::Zero;
-		Vector2 m_finalAngles	= Vector2::Zero;
+		bool m_requireMousePressToRotate = true;
+
+		float	m_movementSpeed		 = 20.0f;
+		float	m_movementPower		 = 5.0f;
+		float	m_rotationSpeed		 = 24.0f;
+		float	m_rotationPower		 = 32.0f;
+		Vector3 m_targetAngles		 = Vector3::Zero;
+		Vector3 m_usedAngles		 = Vector3::Zero;
+		Vector2 m_usedMoveAmt		 = Vector2::Zero;
+		Vector2 m_previousMouseDelta = Vector2::Zero;
+		bool	m_firstTick			 = true;
 	};
 
 } // namespace Lina

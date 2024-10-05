@@ -45,14 +45,17 @@ namespace Lina
 		m_root.SetWidgetManager(wm);
 	}
 
-	void GUIWidget::LoadFromFile(const String& path)
+	bool GUIWidget::LoadFromFile(const String& path)
 	{
 		IStream stream = Serialization::LoadFromFile(path.c_str());
 
 		if (stream.GetDataRaw() != nullptr)
 			LoadFromStream(stream);
+		else
+			return false;
 
 		stream.Destroy();
+		return true;
 	}
 
 	void GUIWidget::SaveToStream(OStream& stream) const

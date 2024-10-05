@@ -33,22 +33,70 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-#define BIG_FONT_PATH		   "Resources/Editor/Fonts/Play-Big.ttf"
-#define ICON_FONT_PATH		   "Resources/Editor/Fonts/EditorIcons.ttf"
-#define EDITOR_GUI_SHADER	   "Resources/Editor/Shaders/GUI/EditorGUI.linashader"
-#define EDITOR_LINES_SHADER	   "Resources/Editor/Shaders/Lines.linashader"
-#define EDITOR_LINA_LOGO_TITLE "Resources/Editor/Textures/LinaLogoTitle.png"
-#define EDITOR_CHECKERED	   "Resources/Editor/Textures/Checkered.png"
+#define RESOURCE_ID_EDITOR_SPACE	RESOURCE_ID_ENGINE_SPACE
+#define RESOURCE_ID_EDITOR_FONTS	RESOURCE_ID_EDITOR_SPACE
+#define RESOURCE_ID_EDITOR_SHADERS	RESOURCE_ID_EDITOR_SPACE + 50
+#define RESOURCE_ID_EDITOR_TEXTURES RESOURCE_ID_EDITOR_SPACE + 100
+#define RESOURCE_ID_EDITOR_MODELS	RESOURCE_ID_EDITOR_SPACE + 150
+#define RESOURCE_ID_EDITOR_SAMPLERS RESOURCE_ID_EDITOR_SPACE + 200
 
-#define RESOURCE_ID_EDITOR_SPACE RESOURCE_ID_ENGINE_SPACE + 100
+// Fonts
+#define EDITOR_FONT_ROBOTO_PATH		 "Resources/Editor/Fonts/Roboto-Regular.ttf"
+#define EDITOR_FONT_ROBOTO_BOLD_PATH "Resources/Editor/Fonts/Roboto-Regular.ttf"
+#define EDITOR_FONT_PLAY_BIG_PATH	 "Resources/Editor/Fonts/Play-Big.ttf"
+#define EDITOR_FONT_ICON_PATH		 "Resources/Editor/Fonts/EditorIcons.ttf"
+#define EDITOR_FONT_PLAY_PATH		 "Resources/Editor/Fonts/Play-Regular.ttf"
+#define EDITOR_FONT_PLAY_BOLD_PATH	 "Resources/Editor/Fonts/Play-Bold.ttf"
 
-#define BIG_FONT_ID				  RESOURCE_ID_EDITOR_SPACE
-#define ICON_FONT_ID			  RESOURCE_ID_EDITOR_SPACE + 1
-#define EDITOR_GUI_SHADER_ID	  RESOURCE_ID_EDITOR_SPACE + 2
-#define EDITOR_LINES_SHADER_ID	  RESOURCE_ID_EDITOR_SPACE + 3
-#define EDITOR_LINA_LOGO_TITLE_ID RESOURCE_ID_EDITOR_SPACE + 4
-#define EDITOR_CHECKERED_ID		  RESOURCE_ID_EDITOR_SPACE + 5
+#define EDITOR_FONT_ROBOTO_ID	   RESOURCE_ID_EDITOR_FONTS
+#define EDITOR_FONT_ROBOTO_BOLD_ID RESOURCE_ID_EDITOR_FONTS + 1
+#define EDITOR_FONT_PLAY_BIG_ID	   RESOURCE_ID_EDITOR_FONTS + 2
+#define EDITOR_FONT_ICON_ID		   RESOURCE_ID_EDITOR_FONTS + 3
+#define EDITOR_FONT_PLAY_ID		   RESOURCE_ID_EDITOR_FONTS + 4
+#define EDITOR_FONT_PLAY_BOLD_ID   RESOURCE_ID_EDITOR_FONTS + 5
 
+// Shaders
+#define EDITOR_SHADER_GUI_PATH				"Resources/Editor/Shaders/GUI/EditorGUI.linashader"
+#define EDITOR_SHADER_LINES_PATH			"Resources/Editor/Shaders/Lines.linashader"
+#define EDITOR_SHADER_DEFAULT_OBJECT_PATH	"Resources/Editor/Shaders/DefaultObject.linashader"
+#define EDITOR_SHADER_DEFAULT_SKY_PATH		"Resources/Editor/Shaders/DefaultSky.linashader"
+#define EDITOR_SHADER_DEFAULT_LIGHTING_PATH "Resources/Editor/Shaders/DefaultLighting.linashader"
+
+#define EDITOR_SHADER_GUI_ID			  RESOURCE_ID_EDITOR_SHADERS
+#define EDITOR_SHADER_LINES_ID			  RESOURCE_ID_EDITOR_SHADERS + 1
+#define EDITOR_SHADER_DEFAULT_OBJECT_ID	  RESOURCE_ID_EDITOR_SHADERS + 2
+#define EDITOR_SHADER_DEFAULT_SKY_ID	  RESOURCE_ID_EDITOR_SHADERS + 3
+#define EDITOR_SHADER_DEFAULT_LIGHTING_ID RESOURCE_ID_EDITOR_SHADERS + 4
+
+// Textures
+#define EDITOR_TEXTURE_CHECKERED_PATH	 "Resources/Editor/Textures/Checkered.png"
+#define EDITOR_TEXTURE_LINA_LOGO_PATH	 "Resources/Editor/Textures/LinaLogoTitle.png"
+#define EDITOR_TEXTURE_EMPTY_ALBEDO_PATH "Resources/Editor/Textures/EmptyAlbedo.png"
+#define EDITOR_TEXTURE_EMPTY_NORMAL_PATH "Resources/Editor/Textures/EmptyNormal.png"
+
+#define EDITOR_TEXTURE_CHECKERED_ID	   RESOURCE_ID_EDITOR_TEXTURES
+#define EDITOR_TEXTURE_LINA_LOGO_ID	   RESOURCE_ID_EDITOR_TEXTURES + 1
+#define EDITOR_TEXTURE_EMPTY_ALBEDO_ID RESOURCE_ID_EDITOR_TEXTURES + 2
+#define EDITOR_TEXTURE_EMPTY_NORMAL_ID RESOURCE_ID_EDITOR_TEXTURES + 3
+
+// Samplers
+#define EDITOR_SAMPLER_DEFAULT_PATH "DefaultSampler"
+#define EDITOR_SAMPLER_DEFAULT_ID	RESOURCE_ID_EDITOR_SAMPLERS
+
+// Models
+#define EDITOR_MODEL_CUBE_PATH	   "Resources/Editor/Models/Cube.glb"
+#define EDITOR_MODEL_CYLINDER_PATH "Resources/Editor/Models/Cylinder.glb"
+#define EDITOR_MODEL_SPHERE_PATH   "Resources/Editor/Models/Sphere.glb"
+#define EDITOR_MODEL_SKYCUBE_PATH  "Resources/Editor/Models/SkyCube.glb"
+#define EDITOR_MODEL_PLANE_PATH	   "Resources/Editor/Models/Plane.glb"
+
+#define EDITOR_MODEL_CUBE_ID	 RESOURCE_ID_EDITOR_MODELS
+#define EDITOR_MODEL_CYLINDER_ID RESOURCE_ID_EDITOR_MODELS + 1
+#define EDITOR_MODEL_SPHERE_ID	 RESOURCE_ID_EDITOR_MODELS + 2
+#define EDITOR_MODEL_SKYCUBE_ID	 RESOURCE_ID_EDITOR_MODELS + 3
+#define EDITOR_MODEL_PLANE_ID	 RESOURCE_ID_EDITOR_MODELS + 4
+
+// Icons
 #define ICON_LINA_LOGO			 "\u0041"
 #define ICON_CHECK				 "\u0042"
 #define ICON_CIRCLE_FILLED		 "\u0043"
@@ -113,6 +161,7 @@ namespace Lina::Editor
 		FontViewer,
 		AudioViewer,
 		ModelViewer,
+		ShaderViewer,
 		MaterialViewer,
 	};
 

@@ -719,19 +719,19 @@ namespace Lina::Editor
 		auto		   rootIt = linatl::find_if(items.begin(), items.end(), [root](DirectoryItem* it) -> bool { return it == root; });
 		if (rootIt != items.end())
 			return;
-
-		const String  text	= Locale::GetStr(LocaleStr::AreYouSureYouWantToDeleteI) + " " + TO_STRING(items.size()) + " " + Locale::GetStr(LocaleStr::AreYouSureYouWantToDeleteII);
-		GenericPopup* popup = CommonWidgets::ThrowGenericPopup(Locale::GetStr(LocaleStr::Delete), text, ICON_TRASH, this);
-		popup->AddButton({
-			.text = Locale::GetStr(LocaleStr::Yes),
-			.onClicked =
-				[items, this, popup, isFolderBrowser]() {
-					DeleteItems(items, isFolderBrowser);
-					m_manager->AddToKillList(popup);
-				},
-		});
-		popup->AddButton({.text = Locale::GetStr(LocaleStr::No), .onClicked = [this, popup]() { m_manager->AddToKillList(popup); }});
-		m_manager->AddToForeground(popup);
+		//
+		// const String  text	= Locale::GetStr(LocaleStr::AreYouSureYouWantToDeleteI) + " " + TO_STRING(items.size()) + " " + //Locale::GetStr(LocaleStr::AreYouSureYouWantToDeleteII);
+		// GenericPopup* popup = CommonWidgets::ThrowGenericPopup(Locale::GetStr(LocaleStr::Delete), text, ICON_TRASH, this);
+		// popup->AddButton({
+		//	.text = Locale::GetStr(LocaleStr::Yes),
+		//	.onClicked =
+		//		[items, this, popup, isFolderBrowser]() {
+		//			DeleteItems(items, isFolderBrowser);
+		//			m_manager->AddToKillList(popup);
+		//		},
+		//});
+		// popup->AddButton({.text = Locale::GetStr(LocaleStr::No), .onClicked = [this, popup]() { m_manager->AddToKillList(popup); }});
+		// m_manager->AddToForeground(popup);
 	}
 
 	void PanelResources::RequestDuplicate(const Vector<DirectoryItem*>& items, bool isFolderBrowser)

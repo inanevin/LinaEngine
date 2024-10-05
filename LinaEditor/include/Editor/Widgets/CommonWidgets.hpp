@@ -63,11 +63,18 @@ namespace Lina::Editor
 	class CommonWidgets
 	{
 	public:
+		struct GenericPopupButton
+		{
+			String			 title = "";
+			Delegate<void()> onPressed;
+		};
+
 		static DirectionalLayout* BuildWindowButtons(Widget* source);
 		static InfoTooltip*		  ThrowInfoTooltip(const String& str, LogLevel level, float time, Widget* source);
 		static InfoTooltip*		  ThrowInfoTooltip(const String& str, LogLevel level, float time, WidgetManager* manager, const Vector2& targetPos);
 
-		static GenericPopup* ThrowGenericPopup(const String& title, const String& text, const String& icon, Widget* source);
+		static Widget* BuildGenericPopupWithButtons(Widget* src, const String& desc, const Vector<GenericPopupButton>& buttons);
+		static Widget* BuildGenericPopupProgress(Widget* src, const String& desc);
 
 		static float GetPopupWidth(LinaGX::Window* window);
 

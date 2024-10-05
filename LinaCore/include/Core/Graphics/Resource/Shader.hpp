@@ -77,8 +77,7 @@ namespace Lina
 		struct Metadata
 		{
 			HashMap<StringID, ShaderVariant> variants;
-			uint32							 descriptorSetAllocationCount = 1;
-			bool							 drawIndirectEnabled		  = false;
+			bool							 drawIndirectEnabled = false;
 
 			void SaveToStream(OStream& out) const;
 			void LoadFromStream(IStream& in);
@@ -90,7 +89,7 @@ namespace Lina
 		Shader(ResourceID id, const String& name) : Resource(id, GetTypeID<Shader>(), name){};
 		virtual ~Shader();
 
-		virtual void LoadFromFile(const String& path) override;
+		virtual bool LoadFromFile(const String& path) override;
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
 		virtual void SetCustomMeta(IStream& stream) override
@@ -125,7 +124,12 @@ namespace Lina
 			return m_materialSetInfo;
 		}
 
-		inline const Metadata GetMeta() const
+		inline const Metadata& GetMeta() const
+		{
+			return m_meta;
+		}
+
+		inline Metadata& GetMeta()
 		{
 			return m_meta;
 		}

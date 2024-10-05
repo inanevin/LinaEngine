@@ -59,7 +59,7 @@ namespace Lina::Editor
 		m_loadingInfo = m_manager->Allocate<Text>();
 		AddChild(m_loadingInfo);
 
-		m_splashImage	  = m_resourceManager->GetResource<Texture>(EDITOR_LINA_LOGO_TITLE_ID);
+		m_splashImage	  = m_resourceManager->GetResource<Texture>(EDITOR_TEXTURE_LINA_LOGO_ID);
 		m_logoTextureSize = m_splashImage->GetSizeF();
 	}
 

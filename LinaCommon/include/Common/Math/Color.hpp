@@ -50,6 +50,10 @@ namespace Lina
 		Color(const LinaVG::Vec4& v) : x(v.x), y(v.y), z(v.z), w(v.w){};
 		Color(const Vector4& v);
 
+		static Color Color255(float r, float g, float b, float a);
+		static Color ColorLinear(float r, float g, float b, float a);
+		static Color Color255Linear(float r, float g, float b, float);
+
 		LinaVG::Vec4 AsLVG4() const
 		{
 			return LinaVG::Vec4(x, y, z, w);

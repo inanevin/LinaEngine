@@ -54,10 +54,17 @@ namespace Lina
 		bool	GetMouseButtonUp(int32 button);
 		Vector2 GetMousePosition();
 		Vector2 GetMousePositionRatio();
+		Vector2 GetMouseDelta();
+		Vector2 GetMouseDeltaRelative();
 
 		inline void SetIsActive(bool isActive)
 		{
 			m_isActive = isActive;
+		}
+
+		inline LinaGX::Input* GetRawLGXInput()
+		{
+			return m_lgxInput;
 		}
 
 	private:
