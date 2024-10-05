@@ -126,10 +126,10 @@ namespace Lina::Editor
 			{
 				m_editor->GetWindowPanelManager().OpenPanel(PanelType::MaterialViewer, item->resourceID, this);
 			}
-            else if (item->resourceTID == GetTypeID<Shader>())
-            {
-                m_editor->GetWindowPanelManager().OpenPanel(PanelType::ShaderViewer, item->resourceID, this);
-            }
+			else if (item->resourceTID == GetTypeID<Shader>())
+			{
+				m_editor->GetWindowPanelManager().OpenPanel(PanelType::ShaderViewer, item->resourceID, this);
+			}
 			else if (item->resourceTID == GetTypeID<Audio>())
 			{
 				m_editor->GetWindowPanelManager().OpenPanel(PanelType::AudioViewer, item->resourceID, this);
@@ -386,18 +386,18 @@ namespace Lina::Editor
 
 			if (files.empty())
 				return true;
-            
-            Vector<ResourcePipeline::ResourceImportDef> importDefinitions;
-            for(const String& file : files)
-            {
-                importDefinitions.push_back({.path = file});
-            }
 
-            m_editor->GetResourcePipeline().ImportResources(m_editor->GetProjectManager().GetProjectData(), selection.front(), importDefinitions, [this](uint32 importedCount, const ResourcePipeline::ResourceImportDef& def, bool isComplete) {
+			Vector<ResourcePipeline::ResourceImportDef> importDefinitions;
+			for (const String& file : files)
+			{
+				importDefinitions.push_back({.path = file});
+			}
+
+			m_editor->GetResourcePipeline().ImportResources(m_editor->GetProjectManager().GetProjectData(), selection.front(), importDefinitions, [this](uint32 importedCount, const ResourcePipeline::ResourceImportDef& def, bool isComplete) {
 				if (isComplete)
 					return;
 				// LINA_TRACE("Updating progress {0}", progress);
-				//m_progress->UpdateProgress(progress);
+				// m_progress->UpdateProgress(progress);
 			});
 			return true;
 		}
@@ -425,42 +425,39 @@ namespace Lina::Editor
 		}
 		else if (sid == TO_SID(Locale::GetStr(LocaleStr::GUIWidget)))
 		{
-            newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "GUIWidget", GetTypeID<GUIWidget>());
+			newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "GUIWidget", GetTypeID<GUIWidget>());
 		}
 		else if (sid == TO_SID(Locale::GetStr(LocaleStr::World)))
 		{
-            newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "World", GetTypeID<EntityWorld>());
-
+			newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "World", GetTypeID<EntityWorld>());
 		}
 		else if (sid == TO_SID(Locale::GetStr(LocaleStr::Material)))
 		{
-            newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "Material", GetTypeID<Material>());
+			newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "Material", GetTypeID<Material>());
 		}
 		else if (sid == TO_SID(Locale::GetStr(LocaleStr::PhysicsMaterial)))
 		{
-            newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "PhysicsMaterial", GetTypeID<PhysicsMaterial>());
-
+			newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "PhysicsMaterial", GetTypeID<PhysicsMaterial>());
 		}
 		else if (sid == TO_SID(Locale::GetStr(LocaleStr::Sampler)))
 		{
-            newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "TextureSampler", GetTypeID<TextureSampler>());
+			newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "TextureSampler", GetTypeID<TextureSampler>());
 		}
 		else if (sid == TO_SID(Locale::GetStr(LocaleStr::DeferredShader)))
 		{
-            newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "DeferredShader", GetTypeID<Shader>(), 0, 0);
+			newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "DeferredShader", GetTypeID<Shader>(), 0, 0);
 		}
 		else if (sid == TO_SID(Locale::GetStr(LocaleStr::LightingShader)))
 		{
-            newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "LightingShader", GetTypeID<Shader>(), 0,1);
+			newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "LightingShader", GetTypeID<Shader>(), 0, 1);
 		}
 		else if (sid == TO_SID(Locale::GetStr(LocaleStr::ForwardShader)))
 		{
-            newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "ForwardShader", GetTypeID<Shader>(), 0, 2);
-
+			newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "ForwardShader", GetTypeID<Shader>(), 0, 2);
 		}
 		else if (sid == TO_SID(Locale::GetStr(LocaleStr::PostProcessShader)))
 		{
-            newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "PostProcessShader", GetTypeID<Shader>(), 0, 3);
+			newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "PostProcessShader", GetTypeID<Shader>(), 0, 3);
 		}
 		else
 			return false;
@@ -507,27 +504,26 @@ namespace Lina::Editor
 
 	void ResourceDirectoryBrowser::RequestDelete(Vector<ResourceDirectory*> dirs)
 	{
-		const String  text	= Locale::GetStr(LocaleStr::AreYouSureYouWantToDeleteI) + " " + TO_STRING(dirs.size()) + " " + Locale::GetStr(LocaleStr::AreYouSureYouWantToDeleteII);
-        
-        Widget* lockRoot = m_editor->GetWindowPanelManager().LockAllForegrounds(m_lgxWindow, Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow));
-        
-        Vector<CommonWidgets::GenericPopupButton> buttons = {
-            {
-                .title = Locale::GetStr(LocaleStr::Yes),
-                .onPressed = [this, dirs](){
-                    DeleteItems(dirs);
-                    m_editor->GetWindowPanelManager().UnlockAllForegrounds();
-                },
-            },
-            {
-                .title = Locale::GetStr(LocaleStr::No),
-                .onPressed = [this](){
-                    m_editor->GetWindowPanelManager().UnlockAllForegrounds();
-                },
-            },
-        };
-        
-        lockRoot->AddChild(CommonWidgets::BuildGenericPopupWithButtons(lockRoot, text, buttons));
+		const String text = Locale::GetStr(LocaleStr::AreYouSureYouWantToDeleteI) + " " + TO_STRING(dirs.size()) + " " + Locale::GetStr(LocaleStr::AreYouSureYouWantToDeleteII);
+
+		Widget* lockRoot = m_editor->GetWindowPanelManager().LockAllForegrounds(m_lgxWindow, Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow));
+
+		Vector<CommonWidgets::GenericPopupButton> buttons = {
+			{
+				.title = Locale::GetStr(LocaleStr::Yes),
+				.onPressed =
+					[this, dirs]() {
+						DeleteItems(dirs);
+						m_editor->GetWindowPanelManager().UnlockAllForegrounds();
+					},
+			},
+			{
+				.title	   = Locale::GetStr(LocaleStr::No),
+				.onPressed = [this]() { m_editor->GetWindowPanelManager().UnlockAllForegrounds(); },
+			},
+		};
+
+		lockRoot->AddChild(CommonWidgets::BuildGenericPopupWithButtons(lockRoot, text, buttons));
 	}
 
 	void ResourceDirectoryBrowser::RequestDuplicate(Vector<ResourceDirectory*> dirs)
@@ -546,7 +542,7 @@ namespace Lina::Editor
 			if (item->_thumbnailAtlasImage != nullptr)
 				m_editor->GetAtlasManager().RemoveImage(item->_thumbnailAtlasImage);
 
-            m_editor->GetProjectManager().PreDestroyResourceDirectory(item);
+			m_editor->GetProjectManager().PreDestroyResourceDirectory(item);
 			item->parent->DestroyChild(item);
 		}
 
@@ -575,10 +571,10 @@ namespace Lina::Editor
 		RefreshDirectory();
 	}
 
-void ResourceDirectoryBrowser::OnProjectClosed()
-{
-    RefreshDirectory();
-}
+	void ResourceDirectoryBrowser::OnProjectClosed()
+	{
+		RefreshDirectory();
+	}
 
 	void ResourceDirectoryBrowser::ShowProgress()
 	{

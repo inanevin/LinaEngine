@@ -38,7 +38,7 @@ namespace Lina::Editor
 
 	void WorldDisplayer::Construct()
 	{
-        GetFlags().Set(WF_KEY_PASSTHRU | WF_MOUSE_PASSTHRU);
+		GetFlags().Set(WF_KEY_PASSTHRU | WF_MOUSE_PASSTHRU);
 		GetWidgetProps().outlineThickness = Theme::GetDef().baseOutlineThickness;
 		GetWidgetProps().rounding		  = 0.025f;
 	}
@@ -56,21 +56,20 @@ namespace Lina::Editor
 		GetWidgetProps().colorBackground = Color::White;
 	}
 
-    void WorldDisplayer::PreTick()
-    {
-        if(m_mouseConfined && !m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_1))
-        {
-            m_lgxWindow->FreeMouse();
-            m_lgxWindow->SetMouseVisible(true);
-            m_mouseConfined = false;
-        }
-    }
+	void WorldDisplayer::PreTick()
+	{
+		if (m_mouseConfined && !m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_1))
+		{
+			m_lgxWindow->FreeMouse();
+			m_lgxWindow->SetMouseVisible(true);
+			m_mouseConfined = false;
+		}
+	}
 
 	void WorldDisplayer::Tick(float dt)
 	{
 		if (m_worldRenderer == nullptr)
 			return;
-
 
 		// Screen setup
 		Screen& sc = m_worldRenderer->GetWorld()->GetScreen();
@@ -88,27 +87,27 @@ namespace Lina::Editor
 
 	bool WorldDisplayer::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
-        if(m_isHovered && button == LINAGX_MOUSE_1 && (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated))
-        {
-            m_manager->GrabControls(this);
-            
-            const LinaGX::LGXVector2ui center = {static_cast<uint32>(m_lgxWindow->GetMousePosition().x), static_cast<uint32>(m_lgxWindow->GetMousePosition().y)};
-            m_lgxWindow->ConfineMouseToPoint(center);
-            m_lgxWindow->SetMouseVisible(false);
-            m_mouseConfined = true;
-            return true;
-        };
-        
+		if (m_isHovered && button == LINAGX_MOUSE_1 && (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated))
+		{
+			m_manager->GrabControls(this);
+
+			const LinaGX::LGXVector2ui center = {static_cast<uint32>(m_lgxWindow->GetMousePosition().x), static_cast<uint32>(m_lgxWindow->GetMousePosition().y)};
+			m_lgxWindow->ConfineMouseToPoint(center);
+			m_lgxWindow->SetMouseVisible(false);
+			m_mouseConfined = true;
+			return true;
+		};
+
 		if (m_isHovered)
 		{
 			m_manager->GrabControls(this);
 			return true;
 		}
-        else
-        {
-            m_manager->ReleaseControls(this);
-        }
-        
+		else
+		{
+			m_manager->ReleaseControls(this);
+		}
+
 		return false;
 	}
 

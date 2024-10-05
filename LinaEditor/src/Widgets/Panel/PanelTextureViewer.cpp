@@ -116,9 +116,9 @@ namespace Lina::Editor
 		if (m_texture != nullptr)
 			return;
 
-        if(m_editor->GetProjectManager().GetProjectData() == nullptr)
-            return;
-        
+		if (m_editor->GetProjectManager().GetProjectData() == nullptr)
+			return;
+
 		m_displayUserData = {};
 
 		if (!m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_subData))
@@ -346,7 +346,7 @@ namespace Lina::Editor
 				m_editor->GetResourcePipeline().GenerateThumbnailForResource(dir, m_texture, true);
 				dir->name = m_texture->GetName();
 
-				Panel*	  p			  = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::ResourceBrowser, 0);
+				Panel* p = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::ResourceBrowser, 0);
 				if (p)
 					static_cast<PanelResourceBrowser*>(p)->GetBrowser()->RefreshDirectory();
 
