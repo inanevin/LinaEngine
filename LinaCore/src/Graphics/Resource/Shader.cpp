@@ -57,16 +57,18 @@ namespace Lina
 		stream.ReadToRaw(data);
 	}
 
-	void Shader::Metadata::SaveToStream(OStream& out) const
+	void Shader::Metadata::SaveToStream(OStream& stream) const
 	{
-		out << variants;
-		out << drawIndirectEnabled;
+		stream << variants;
+		stream << drawIndirectEnabled;
+		stream << shaderType;
 	}
 
-	void Shader::Metadata::LoadFromStream(IStream& in)
+	void Shader::Metadata::LoadFromStream(IStream& stream)
 	{
-		in >> variants;
-		in >> drawIndirectEnabled;
+		stream >> variants;
+		stream >> drawIndirectEnabled;
+		stream >> shaderType;
 	}
 
 	Shader::~Shader()
@@ -134,7 +136,7 @@ namespace Lina
 
 		HashMap<LinaGX::ShaderStage, String> outStages;
 
-		bool success = ShaderPreprocessor::Preprocess(txt, outStages, m_properties);
+		bool success = ShaderPreprocessor::Preprocess(txt, outStages, m_properties, m_meta.shaderType);
 		if (!success)
 			return false;
 
@@ -161,8 +163,6 @@ namespace Lina
 			return false;
 		}
 
-		if (m_meta.variants.empty())
-			m_meta.variants["Default"_hs] = {};
 		return true;
 	}
 

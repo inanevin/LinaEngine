@@ -34,11 +34,16 @@ SOFTWARE.
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Editor/Widgets/EditorRoot.hpp"
 #include "Editor/Resources/ResourcePipeline.hpp"
+#include "Editor/IO/ThumbnailGenerator.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Core/Meta/ProjectData.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Core/Graphics/Resource/TextureSampler.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
+#include "Core/Graphics/Resource/Shader.hpp"
+#include "Core/Graphics/Resource/GUIWidget.hpp"
+#include "Core/Physics/PhysicsMaterial.hpp"
+#include "Core/World/EntityWorld.hpp"
 #include "Core/Platform/PlatformProcess.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/Application.hpp"
@@ -108,6 +113,26 @@ namespace Lina::Editor
 	void ProjectManager::PreTick()
 	{
 		TaskRunner::Poll();
+
+		// if(m_frameCtrForAtlases > 60 && !m_atlasGenWorking.load())
+		// {
+		//     m_frameCtrForAtlases = 0;
+		//     m_atlasGenWorking.store(true);
+		//
+		//     Taskflow tf;
+		//     tf.emplace([this](){
+		//         GenerateMissingAtlases(&m_currentProject->GetResourceRoot());
+		//         TaskRunner::QueueTask([this](){
+		//             m_frameCtrForAtlases = 0;
+		//             m_atlasGenWorking.store(false);
+		//             Application::GetLGX()->Join();
+		//             m_editor->GetAtlasManager().RefreshPoolAtlases();
+		//         });
+		//     });
+		//     m_executor.RunMove(tf);
+		// }
+		//
+		// m_frameCtrForAtlases++;
 	}
 
 	void ProjectManager::Shutdown()
@@ -188,9 +213,6 @@ namespace Lina::Editor
 		if (m_currentProject == nullptr)
 			return;
 
-		RemoveDirectoryThumbnails(&m_currentProject->GetResourceRoot());
-		m_editor->GetAtlasManager().RefreshPoolAtlases();
-
 		delete m_currentProject;
 		m_currentProject = nullptr;
 
@@ -223,6 +245,11 @@ namespace Lina::Editor
 
 			updateProg(Locale::GetStr(LocaleStr::LoadingProjectData));
 			m_currentProject->LoadFromFile();
+
+			updateProg(Locale::GetStr(LocaleStr::VerifyingProjectResources));
+			VerifyProjectResources(m_currentProject);
+
+			updateProg(Locale::GetStr(LocaleStr::CreatingCoreResources));
 
 			const Vector<ResourcePipeline::ResourceImportDef> desiredAssets = {
 				{
@@ -272,8 +299,7 @@ namespace Lina::Editor
 			};
 
 			Vector<ResourcePipeline::ResourceImportDef> importDefinitions;
-
-			ResourceDirectory* linaAssets = m_currentProject->GetResourceRoot().GetChildByName(EDITOR_DEF_RESOURCES_FOLDER);
+			ResourceDirectory*							linaAssets = m_currentProject->GetResourceRoot().GetChildByName(EDITOR_DEF_RESOURCES_FOLDER);
 			if (linaAssets == nullptr)
 			{
 				importDefinitions = desiredAssets;
@@ -293,7 +319,6 @@ namespace Lina::Editor
 
 			if (!importDefinitions.empty())
 			{
-				updateProg(Locale::GetStr(LocaleStr::CreatingCoreResources));
 				ResourcePipeline::ImportResources(m_currentProject, linaAssets, importDefinitions, [updateProg](uint32 count, const ResourcePipeline::ResourceImportDef& currentDef, bool isComplete) {
 					if (!currentDef.path.empty())
 						updateProg(currentDef.path);
@@ -307,11 +332,8 @@ namespace Lina::Editor
 				ResourcePipeline::SaveNewResource(m_currentProject, linaAssets, EDITOR_SAMPLER_DEFAULT_PATH, GetTypeID<TextureSampler>(), EDITOR_SAMPLER_DEFAULT_ID);
 			}
 
-			updateProg(Locale::GetStr(LocaleStr::VerifyingProjectResources));
-			VerifyProjectResources(m_currentProject);
-
-			updateProg(Locale::GetStr(LocaleStr::GeneratingThumbnails));
-			GenerateMissingAtlasImages(&m_currentProject->GetResourceRoot());
+			// updateProg(Locale::GetStr(LocaleStr::GeneratingThumbnails));
+			// GenerateMissingAtlasImages(&m_currentProject->GetResourceRoot());
 
 			updateProg(Locale::GetStr(LocaleStr::Saving));
 			m_currentProject->SaveToFile();
@@ -381,49 +403,73 @@ namespace Lina::Editor
 			dir->DestroyChild(d);
 	}
 
-	void ProjectManager::GenerateMissingAtlasImages(ResourceDirectory* dir, bool isRecursive)
-	{
-		if (!dir->thumbnailBuffer.IsEmpty())
-		{
-			if (dir->_thumbnailAtlasImage == nullptr)
-			{
-				IStream stream;
-				stream.Create(dir->thumbnailBuffer.GetRaw(), dir->thumbnailBuffer.GetSize());
-				uint32 width = 0, height = 0, bytesPerPixel = 0;
-				stream >> width >> height >> bytesPerPixel;
-
-				const size_t sz		= static_cast<size_t>(width * height * bytesPerPixel);
-				uint8*		 pixels = new uint8[sz];
-				stream.ReadToRaw(pixels, sz);
-
-				if (bytesPerPixel == 1)
-					dir->_thumbnailAtlasImage = m_editor->GetAtlasManager().AddImageToAtlas(pixels, Vector2ui(width, height), LinaGX::Format::R8_UNORM);
-				else
-					dir->_thumbnailAtlasImage = m_editor->GetAtlasManager().AddImageToAtlas(pixels, Vector2ui(width, height), LinaGX::Format::R8G8B8A8_SRGB);
-
-				stream.Destroy();
-			}
-		}
-		else
-			dir->_thumbnailAtlasImage = m_editor->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "FileShaderSmall"_hs);
-
-		for (ResourceDirectory* c : dir->children)
-			GenerateMissingAtlasImages(c);
-	}
-
-	void ProjectManager::RemoveDirectoryThumbnails(ResourceDirectory* dir)
-	{
-		if (dir->_thumbnailAtlasImage != nullptr && !dir->thumbnailBuffer.IsEmpty())
-			m_editor->GetAtlasManager().RemoveImage(dir->_thumbnailAtlasImage);
-
-		dir->_thumbnailAtlasImage = nullptr;
-		for (ResourceDirectory* c : dir->children)
-			RemoveDirectoryThumbnails(c);
-	}
-
 	void ProjectManager::NotifyProjectResourcesRefreshed()
 	{
 		for (ProjectManagerListener* listener : m_listeners)
 			listener->OnProjectResourcesRefreshed();
+	}
+
+	TextureAtlasImage* ProjectManager::GetThumbnail(ResourceDirectory* dir)
+	{
+		return m_resourceThumbnails[dir->resourceID];
+	}
+
+	void ProjectManager::InvalidateThumbnail(ResourceDirectory* dir)
+	{
+		m_resourceThumbnails[dir->resourceID] = nullptr;
+	}
+
+	void ProjectManager::GenerateMissingAtlases(ResourceDirectory* dir)
+	{
+		for (ResourceDirectory* c : dir->children)
+			GenerateMissingAtlases(c);
+
+		if (dir->isFolder)
+			return;
+
+		auto& thumb = m_resourceThumbnailsOnFlight[dir->resourceID];
+
+		if (thumb == nullptr)
+		{
+
+			if (dir->resourceTID == GetTypeID<Shader>())
+				thumb = m_editor->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "ShaderSmall"_hs);
+			else if (dir->resourceTID == GetTypeID<EntityWorld>())
+				thumb = m_editor->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "WorldSmall"_hs);
+			else if (dir->resourceTID == GetTypeID<PhysicsMaterial>())
+				thumb = m_editor->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "PhyMatSmall"_hs);
+			else if (dir->resourceTID == GetTypeID<TextureSampler>())
+				thumb = m_editor->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "SamplerSmall"_hs);
+			else if (dir->resourceTID == GetTypeID<GUIWidget>())
+				thumb = m_editor->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "WidgetSmall"_hs);
+			else
+			{
+				if (dir->thumbnailBuffer.IsEmpty())
+				{
+					LinaGX::TextureBuffer buf = {};
+					IStream				  stream;
+					stream.Create(dir->thumbnailBuffer.GetRaw(), dir->thumbnailBuffer.GetSize());
+					stream >> buf.width >> buf.height >> buf.bytesPerPixel;
+					const size_t sz = static_cast<size_t>(buf.width * buf.height * buf.bytesPerPixel);
+					buf.pixels		= new uint8[sz];
+					stream.ReadToRaw(buf.pixels, sz);
+
+					thumb = m_editor->GetAtlasManager().AddImageToAtlas(buf.pixels, Vector2ui(buf.width, buf.height), buf.bytesPerPixel == 4 ? LinaGX::Format::R8G8B8A8_SRGB : LinaGX::Format::R8_UNORM);
+
+					ThumbnailGenerator::CreateThumbnailBuffer(dir->thumbnailBuffer, buf);
+					delete[] buf.pixels;
+					stream.Destroy();
+				}
+				else
+				{
+					LinaGX::TextureBuffer buf = ThumbnailGenerator::GenerateThumbnailForResource(dir->relativePathToProject, dir->resourceTID);
+					ThumbnailGenerator::CreateThumbnailBuffer(dir->thumbnailBuffer, buf);
+
+					thumb = m_editor->GetAtlasManager().AddImageToAtlas(buf.pixels, Vector2ui(buf.width, buf.height), buf.bytesPerPixel == 4 ? LinaGX::Format::R8G8B8A8_SRGB : LinaGX::Format::R8_UNORM);
+
+					delete[] buf.pixels;
+				}
+			}
+		}
 	}
 } // namespace Lina::Editor

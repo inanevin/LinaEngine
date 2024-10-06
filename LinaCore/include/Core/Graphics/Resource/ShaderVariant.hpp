@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Common/Data/Streams.hpp"
 #include "Common/Data/String.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
+#include "Common/Reflection/ClassReflection.hpp"
 
 namespace Lina
 {
@@ -72,5 +73,37 @@ namespace Lina
 		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);
 	};
+
+	LINA_CLASS_BEGIN(ShaderVariant)
+	LINA_FIELD(ShaderVariant, name, "Name", FieldType::String, 0)
+	LINA_FIELD(ShaderVariant, blendDisable, "Blend Disable", FieldType::Boolean, 0)
+	LINA_FIELD(ShaderVariant, blendSrcFactor, "Src Factor", FieldType::Enum, GetTypeID<LinaGX::BlendFactor>())
+	LINA_FIELD(ShaderVariant, blendDstFactor, "Dst Factor", FieldType::Enum, GetTypeID<LinaGX::BlendFactor>())
+	LINA_FIELD(ShaderVariant, blendColorOp, "Color Op", FieldType::Enum, GetTypeID<LinaGX::BlendOp>())
+	LINA_FIELD(ShaderVariant, blendSrcAlphaFactor, "Src Alpha Factor", FieldType::Enum, GetTypeID<LinaGX::BlendFactor>())
+	LINA_FIELD(ShaderVariant, blendDstAlphaFactor, "Dst Alpha Factor", FieldType::Enum, GetTypeID<LinaGX::BlendFactor>())
+	LINA_FIELD(ShaderVariant, blendAlphaOp, "Alpha Op", FieldType::Enum, GetTypeID<LinaGX::BlendOp>())
+	LINA_FIELD(ShaderVariant, depthTest, "Depth Test", FieldType::Boolean, 0)
+	LINA_FIELD(ShaderVariant, depthWrite, "Depth Write", FieldType::Boolean, 0)
+	LINA_FIELD(ShaderVariant, depthOp, "Depth Op", FieldType::Enum, GetTypeID<LinaGX::CompareOp>())
+	LINA_FIELD(ShaderVariant, depthBiasEnable, "Depth Bias", FieldType::Boolean, 0)
+	LINA_FIELD(ShaderVariant, depthBiasConstant, "Bias Constant", FieldType::Float, 0)
+	LINA_FIELD(ShaderVariant, depthBiasClamp, "Bias Constant", FieldType::Float, 0)
+	LINA_FIELD(ShaderVariant, depthBiasSlope, "Bias Constant", FieldType::Float, 0)
+
+	LINA_FIELD(ShaderVariant, cullMode, "Cull Mode", FieldType::Enum, GetTypeID<LinaGX::CullMode>())
+	LINA_FIELD(ShaderVariant, frontFace, "Front Face", FieldType::Enum, GetTypeID<LinaGX::FrontFace>())
+	LINA_FIELD(ShaderVariant, topology, "Topology", FieldType::Enum, GetTypeID<LinaGX::Topology>())
+
+	LINA_FIELD_DEPENDENCY_POS(ShaderVariant, blendSrcFactor, "blendDisable", 0)
+	LINA_FIELD_DEPENDENCY_POS(ShaderVariant, blendDstFactor, "blendDisable", 0)
+	LINA_FIELD_DEPENDENCY_POS(ShaderVariant, blendColorOp, "blendDisable", 0)
+	LINA_FIELD_DEPENDENCY_POS(ShaderVariant, blendSrcAlphaFactor, "blendDisable", 0)
+	LINA_FIELD_DEPENDENCY_POS(ShaderVariant, blendDstAlphaFactor, "blendDisable", 0)
+	LINA_FIELD_DEPENDENCY_POS(ShaderVariant, blendAlphaOp, "blendDisable", 0)
+	LINA_FIELD_DEPENDENCY_POS(ShaderVariant, depthBiasConstant, "depthBiasEnable", 1)
+	LINA_FIELD_DEPENDENCY_POS(ShaderVariant, depthBiasClamp, "depthBiasEnable", 1)
+	LINA_FIELD_DEPENDENCY_POS(ShaderVariant, depthBiasSlope, "depthBiasEnable", 1)
+	LINA_CLASS_END(ShaderVariant)
 
 } // namespace Lina

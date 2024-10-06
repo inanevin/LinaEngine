@@ -71,6 +71,10 @@ include/Editor/Widgets/Panel/PanelTextureViewer.hpp
 include/Editor/Widgets/Panel/PanelFontViewer.hpp
 include/Editor/Widgets/Panel/PanelModelViewer.hpp
 include/Editor/Widgets/Panel/PanelShaderViewer.hpp
+include/Editor/Widgets/Panel/PanelSamplerViewer.hpp
+include/Editor/Widgets/Panel/PanelPhysicsMaterialViewer.hpp
+include/Editor/Widgets/Panel/PanelMaterialViewer.hpp
+include/Editor/Widgets/Panel/PanelAudioViewer.hpp
 include/Editor/Widgets/Panel/PanelResourceBrowser.hpp
 include/Editor/Widgets/Panel/PanelColorWheel.hpp
 include/Editor/Widgets/Panel/PanelFactory.hpp
@@ -140,6 +144,10 @@ src/Widgets/Panel/PanelTextureViewer.cpp
 src/Widgets/Panel/PanelFontViewer.cpp
 src/Widgets/Panel/PanelModelViewer.cpp
 src/Widgets/Panel/PanelShaderViewer.cpp
+src/Widgets/Panel/PanelSamplerViewer.cpp
+src/Widgets/Panel/PanelPhysicsMaterialViewer.cpp
+src/Widgets/Panel/PanelMaterialViewer.cpp
+src/Widgets/Panel/PanelAudioViewer.cpp
 src/Widgets/Panel/PanelResourceBrowser.cpp
 src/Widgets/Panel/PanelColorWheel.cpp
 src/Widgets/Panel/PanelFactory.cpp

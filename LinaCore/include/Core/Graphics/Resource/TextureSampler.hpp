@@ -30,7 +30,7 @@ SOFTWARE.
 
 #include "Core/Resources/Resource.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
-#include "Common/ClassMacros.hpp"
+#include "Common/Reflection/ClassReflection.hpp"
 
 namespace Lina
 {
@@ -56,13 +56,13 @@ namespace Lina
 
 	private:
 		ALLOCATOR_BUCKET_MEM;
+		LINA_REFLECTION_ACCESS(TextureSampler);
 		uint32				m_gpuHandle	  = 0;
-		LinaGX::SamplerDesc m_samplerDesc = {
-			.anisotropy = 1,
-		};
-		bool m_hwExists = false;
+		LinaGX::SamplerDesc m_samplerDesc = {};
+		bool				m_hwExists	  = false;
 	};
 
 	LINA_RESOURCE_BEGIN(TextureSampler);
+	LINA_FIELD(TextureSampler, m_samplerDesc, "Metadata", FieldType::UserClass, GetTypeID<LinaGX::SamplerDesc>())
 	LINA_CLASS_END(TextureSampler);
 } // namespace Lina

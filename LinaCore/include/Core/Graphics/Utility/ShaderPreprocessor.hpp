@@ -28,9 +28,6 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef ShaderPreProcessor_HPP
-#define ShaderPreProcessor_HPP
-
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Common/Data/HashMap.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
@@ -41,8 +38,6 @@ namespace Lina
 	class ShaderPreprocessor
 	{
 	public:
-		static bool Preprocess(const String& text, HashMap<LinaGX::ShaderStage, String>& outStages, Vector<ShaderProperty*>& outProperties);
+		static bool Preprocess(const String& text, HashMap<LinaGX::ShaderStage, String>& outStages, Vector<ShaderProperty*>& outProperties, ShaderType& outShaderType);
 	};
 } // namespace Lina
-
-#endif

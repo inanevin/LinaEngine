@@ -403,7 +403,6 @@ namespace Lina
 		stream << colorPressed;
 		stream << colorDisabled;
 		stream << colorBackgroundDirection;
-		stream << specialTexture;
 		stream << textureTiling;
 		stream << onlyRound;
 		stream << customClipRect;
@@ -431,7 +430,6 @@ namespace Lina
 		stream >> colorPressed;
 		stream >> colorDisabled;
 		stream >> colorBackgroundDirection;
-		stream >> specialTexture;
 		stream >> textureTiling;
 		stream >> onlyRound;
 		stream >> customClipRect;

@@ -125,7 +125,8 @@ namespace Lina::Editor
 		if (m_resource != nullptr)
 			return;
 
-		const bool dontExists = m_editor->GetProjectManager().GetProjectData() == nullptr || !m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_subData);
+		ResourceDirectory* resDir	  = m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_subData);
+		const bool		   dontExists = m_editor->GetProjectManager().GetProjectData() == nullptr || !resDir;
 
 		if (dontExists)
 		{
@@ -155,6 +156,9 @@ namespace Lina::Editor
 			r							 = *resources.begin();
 			m_editor->GetEditorRenderer().OnResourcesLoaded({r});
 		}
+
+		if (resDir->parent == m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().GetChildByName(EDITOR_DEF_RESOURCES_FOLDER))
+			m_previewOnly = true;
 
 		m_resource				   = r;
 		GetWidgetProps().debugName = m_resource->GetName();
@@ -275,21 +279,14 @@ namespace Lina::Editor
 			StoreBuffer();
 
 			// Generate new thumbnail.
-			dir->thumbnailBuffer.Destroy();
-			m_editor->GetProjectManager().RemoveDirectoryThumbnails(dir);
-			const LinaGX::TextureBuffer thumb = ThumbnailGenerator::GenerateThumbnailForResource(m_resource);
-			ThumbnailGenerator::CreateThumbnailBuffer(dir->thumbnailBuffer, thumb);
+			m_editor->GetProjectManager().InvalidateThumbnail(dir);
 
 			// Save project
 			m_editor->GetProjectManager().SaveProjectChanges();
 
 			m_editor->QueueTask([this, dir]() {
 				// Gen & upload atlases, unlock GUI.
-				Application::GetLGX()->Join();
-				m_editor->GetProjectManager().GenerateMissingAtlasImages(dir);
-				m_editor->GetAtlasManager().RefreshPoolAtlases();
 				m_editor->GetWindowPanelManager().UnlockAllForegrounds();
-				m_editor->GetProjectManager().NotifyProjectResourcesRefreshed();
 				SetRuntimeDirty(false);
 			});
 		});
@@ -311,12 +308,8 @@ namespace Lina::Editor
 			m_editor->QueueTask([this]() {
 				// Gen & upload atlases, unlock GUI.
 				Application::GetLGX()->Join();
-				RegenGPU();
-				ResourceDirectory* dir = m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_resource->GetID());
-				m_editor->GetProjectManager().GenerateMissingAtlasImages(dir);
-				m_editor->GetAtlasManager().RefreshPoolAtlases();
+				RegenHW();
 				m_editor->GetWindowPanelManager().UnlockAllForegrounds();
-				m_editor->GetProjectManager().NotifyProjectResourcesRefreshed();
 			});
 		});
 

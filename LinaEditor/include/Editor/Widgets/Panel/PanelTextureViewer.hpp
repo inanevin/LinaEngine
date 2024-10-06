@@ -45,37 +45,37 @@ namespace Lina::Editor
 {
 	class Editor;
 
-    class PanelTextureViewer : public PanelResourceViewer
+	class PanelTextureViewer : public PanelResourceViewer
 	{
 	public:
-        PanelTextureViewer() : PanelResourceViewer(PanelType::TextureViewer, GetTypeID<Texture>(), GetTypeID<PanelTextureViewer>()) {};
+		PanelTextureViewer() : PanelResourceViewer(PanelType::TextureViewer, GetTypeID<Texture>(), GetTypeID<PanelTextureViewer>()){};
 		virtual ~PanelTextureViewer() = default;
 
 		virtual void Construct() override;
 		virtual void Initialize() override;
 
-    protected:
-        virtual void OnGeneralMetaChanged(const MetaType& meta, FieldBase* field)  override;
-        virtual void OnResourceMetaChanged(const MetaType& meta, FieldBase* field) override;
-        virtual void RegenGPU() override;
-        
-        void UpdateTextureProps();
+	protected:
+		virtual void OnGeneralMetaChanged(const MetaType& meta, FieldBase* field) override;
+		virtual void OnResourceMetaChanged(const MetaType& meta, FieldBase* field) override;
+		virtual void RegenHW() override;
+
+	private:
+		void UpdateTextureProps();
 
 	private:
 		LINA_REFLECTION_ACCESS(PanelTextureViewer);
 
-
-        String           m_textureFormat      = "";
-		String			m_textureName	  = "";
-		String			m_textureDimensions	  = "";
-		String			m_totalSizeKb	  = "";
-        uint32          m_mipLevel               = 0;
-		DisplayChannels m_displayChannels = DisplayChannels::RGBA;
+		String			m_textureFormat		= "";
+		String			m_textureName		= "";
+		String			m_textureDimensions = "";
+		String			m_totalSizeKb		= "";
+		uint32			m_mipLevel			= 0;
+		DisplayChannels m_displayChannels	= DisplayChannels::RGBA;
 
 		GUIRendererUserData m_displayUserData;
 
-		Dropdown*			  m_formatDropdown		   = nullptr;
-		Widget*				  m_texturePanel		   = nullptr;
+		Dropdown* m_formatDropdown = nullptr;
+		Widget*	  m_texturePanel   = nullptr;
 
 		Text* m_txtName	  = nullptr;
 		Text* m_txtSize	  = nullptr;
@@ -83,7 +83,7 @@ namespace Lina::Editor
 	};
 
 	LINA_WIDGET_BEGIN(PanelTextureViewer, Hidden)
-    LINA_FIELD(PanelTextureViewer, m_textureName, "Name", FieldType::StringFixed, 0)
+	LINA_FIELD(PanelTextureViewer, m_textureName, "Name", FieldType::StringFixed, 0)
 	LINA_FIELD(PanelTextureViewer, m_textureFormat, "Format", FieldType::StringFixed, 0)
 	LINA_FIELD(PanelTextureViewer, m_textureDimensions, "Dimensions", FieldType::StringFixed, 0)
 	LINA_FIELD(PanelTextureViewer, m_totalSizeKb, "Size (All Mips)", FieldType::StringFixed, 0)

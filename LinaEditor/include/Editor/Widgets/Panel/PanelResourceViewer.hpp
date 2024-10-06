@@ -56,7 +56,7 @@ namespace Lina::Editor
 	protected:
 		virtual void OnGeneralMetaChanged(const MetaType& meta, FieldBase* field)  = 0;
 		virtual void OnResourceMetaChanged(const MetaType& meta, FieldBase* field) = 0;
-		virtual void RegenGPU()													   = 0;
+		virtual void RegenHW()													   = 0;
 
 		void	SaveResource();
 		void	ReimportResource();

@@ -76,7 +76,7 @@ namespace Lina::Editor
 		ReimportResource();
 	}
 
-	void PanelTextureViewer::RegenGPU()
+	void PanelTextureViewer::RegenHW()
 	{
 		UpdateTextureProps();
 		Texture* txt = static_cast<Texture*>(m_resource);

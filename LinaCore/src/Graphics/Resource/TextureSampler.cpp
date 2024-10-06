@@ -44,7 +44,6 @@ namespace Lina
 	{
 		Resource::SaveToStream(stream);
 		stream << VERSION;
-		stream << m_id;
 		const uint8 minFilter	= static_cast<uint8>(m_samplerDesc.minFilter);
 		const uint8 magFilter	= static_cast<uint8>(m_samplerDesc.magFilter);
 		const uint8 mode		= static_cast<uint8>(m_samplerDesc.mode);

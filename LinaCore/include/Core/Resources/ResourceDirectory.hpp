@@ -52,7 +52,6 @@ namespace Lina
 		Vector<ResourceDirectory*> children;
 		ResourceDirectory*		   parent = nullptr;
 		RawStream				   thumbnailBuffer;
-		TextureAtlasImage*		   _thumbnailAtlasImage = nullptr;
 
 		void SaveToStream(OStream& stream);
 		void LoadFromStream(IStream& stream);

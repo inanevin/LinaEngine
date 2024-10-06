@@ -36,340 +36,53 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-void PanelFontViewer::Construct()
-{
-    PanelResourceViewer::Construct();
-    m_fontDisplay = m_manager->Allocate<Text>("Display");
-    m_fontDisplay->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
-    m_resourceBG->AddChild(m_fontDisplay);
-}
-
-void PanelFontViewer::Initialize()
-{
-    PanelResourceViewer::Initialize();
-    
-    if(!m_resource)
-        return;
-    
-    m_fontDisplay->GetProps().font = static_cast<Font*>(m_resource)->GetID();
-    m_fontDisplay->GetProps().valuePtr                = &m_displayString;
-    m_fontDisplay->GetProps().fetchWrapFromParent = true;
-    m_fontDisplay->GetProps().isDynamic            = true;
-    UpdateFontProps();
-}
-
-void PanelFontViewer::OnGeneralMetaChanged(const MetaType &meta, FieldBase *field) {
-    
-}
-
-void PanelFontViewer::OnResourceMetaChanged(const MetaType &meta, FieldBase *field) {
-    Application::GetLGX()->Join();
-    RegenGPU();
-}
-
-void PanelFontViewer::RegenGPU() {
-    UpdateFontProps();
-    Font* font = static_cast<Font*>(m_resource);
-    font->DestroyHW();
-    font->GenerateHW(m_editor->GetEditorRenderer().GetGUIBackend().GetLVGText());
-    m_editor->GetEditorRenderer().GetGUIBackend().ReuploadAtlases(m_editor->GetEditorRenderer().GetUploadQueue());
-    m_editor->GetEditorRenderer().MarkBindlessDirty();
-}
-
-void PanelFontViewer::UpdateFontProps()
-{
-    Font* font = static_cast<Font*>(m_resource);
-    m_fontName = font->GetName();
-    m_fontSize = UtilStr::FloatToString(static_cast<float>(font->GetFileSize()) / 1000.0f, 1) + " KB";
-}
-
-/*
 	void PanelFontViewer::Construct()
 	{
-		m_editor = Editor::Get();
-
-		DirectionalLayout* horizontal = m_manager->Allocate<DirectionalLayout>("Horizontal");
-		horizontal->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		horizontal->SetAlignedPos(Vector2::Zero);
-		horizontal->SetAlignedSize(Vector2::One);
-		horizontal->GetProps().direction = DirectionOrientation::Horizontal;
-		horizontal->GetProps().mode		 = DirectionalLayout::Mode::Bordered;
-		AddChild(horizontal);
-
-		Widget* fontBG = m_manager->Allocate<Widget>("FontBG");
-		fontBG->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		fontBG->SetAlignedPos(Vector2::Zero);
-		fontBG->SetAlignedSize(Vector2(0.7f, 1.0f));
-		fontBG->GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent);
-		horizontal->AddChild(fontBG);
-
-		Widget* fontPanel = m_manager->Allocate<Widget>("FontPanel");
-		fontPanel->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		fontPanel->SetAlignedPos(Vector2::Zero);
-		fontPanel->SetAlignedSize(Vector2::One);
-		fontPanel->GetWidgetProps().drawBackground	 = true;
-		fontPanel->GetWidgetProps().colorBackground	 = Theme::GetDef().background0;
-		fontPanel->GetWidgetProps().outlineThickness = 0.0f;
-		fontPanel->GetWidgetProps().rounding		 = 0.0f;
-		fontPanel->GetWidgetProps().childMargins	 = TBLR::Eq(Theme::GetDef().baseIndent);
-		fontBG->AddChild(fontPanel);
-
-		Text* fontDisplay = m_manager->Allocate<Text>("Font Display");
-		fontDisplay->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
-		// fontDisplay->SetAlignedPos(Vector2::One * 0.5f);
-		// fontDisplay->SetAnchorX(Anchor::Center);
-		// fontDisplay->SetAnchorY(Anchor::Center);
-		fontDisplay->GetProps().text				= m_displayString;
-		fontDisplay->GetProps().fetchWrapFromParent = true;
-		fontDisplay->GetProps().isDynamic			= true;
-		// fontDisplay->GetProps().wordWrap = false;
-		// fontDisplay->GetProps().fetchCustomClipFromParent = true;
-
-		fontPanel->AddChild(fontDisplay);
-
-		ScrollArea* scroll = m_manager->Allocate<ScrollArea>("Scroll");
-		scroll->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		scroll->SetAlignedPos(Vector2(0.7f, 0.0f));
-		scroll->SetAlignedSize(Vector2(0.3f, 1.0f));
-		scroll->GetProps().direction = DirectionOrientation::Vertical;
-		horizontal->AddChild(scroll);
-
-		DirectionalLayout* inspector = m_manager->Allocate<DirectionalLayout>("Inspector");
-		inspector->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		inspector->SetAlignedPos(Vector2::Zero);
-		inspector->SetAlignedSize(Vector2::One);
-		inspector->GetProps().direction				  = DirectionOrientation::Vertical;
-		inspector->GetWidgetProps().childPadding	  = Theme::GetDef().baseIndentInner;
-		inspector->GetWidgetProps().clipChildren	  = true;
-		inspector->GetWidgetProps().childMargins.left = Theme::GetDef().baseBorderThickness;
-		inspector->GetWidgetProps().childMargins.top  = Theme::GetDef().baseIndent;
-		scroll->AddChild(inspector);
-
-		m_fontPanel	  = fontPanel;
-		m_fontDisplay = fontDisplay;
-		m_inspector	  = inspector;
+		PanelResourceViewer::Construct();
+		m_fontDisplay = m_manager->Allocate<Text>("Display");
+		m_fontDisplay->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+		m_resourceBG->AddChild(m_fontDisplay);
 	}
 
 	void PanelFontViewer::Initialize()
 	{
-		if (m_font != nullptr)
+		PanelResourceViewer::Initialize();
+
+		if (!m_resource)
 			return;
 
-		if (m_editor->GetProjectManager().GetProjectData() == nullptr)
-			return;
-
-		if (!m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_subData))
-		{
-			Text* text = m_manager->Allocate<Text>("Info");
-			text->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
-			text->SetAlignedPos(Vector2(0.5f, 0.5f));
-			text->SetAnchorX(Anchor::Center);
-			text->SetAnchorY(Anchor::Center);
-			text->GetProps().text = Locale::GetStr(LocaleStr::ThisResourceNoLongerExists);
-			m_fontPanel->AddChild(text);
-			return;
-		}
-
-		ResourceDef def = {
-			.id	 = m_subData,
-			.tid = GetTypeID<Font>(),
-		};
-		m_editor->GetResourceManagerV2().LoadResourcesFromProject(m_editor, m_editor->GetProjectManager().GetProjectData(), {def}, 0);
-		m_font = m_editor->GetResourceManagerV2().GetResource<Font>(def.id);
-		m_editor->GetEditorRenderer().OnResourcesLoaded({m_font});
-
-		m_fontDisplay->GetProps().font = def.id;
-		GetWidgetProps().debugName	   = "Font: " + m_font->GetName();
-
-		m_fontName = m_font->GetName();
-
-		FoldLayout* foldGeneral = CommonWidgets::BuildFoldTitle(this, Locale::GetStr(LocaleStr::General), &m_generalFold);
-		FoldLayout* foldFont	= CommonWidgets::BuildFoldTitle(this, "Font", &m_fontFold);
-		m_inspector->AddChild(foldGeneral);
-		m_inspector->AddChild(foldFont);
-
-		CommonWidgets::BuildClassReflection(foldGeneral, this, ReflectionSystem::Get().Resolve<PanelFontViewer>(), [this](const MetaType& meta, FieldBase* field) {
-			m_fontDisplay->GetProps().text = m_displayString;
-			m_fontDisplay->CalculateTextSize();
-		});
-
-		CommonWidgets::BuildClassReflection(foldFont, &m_font->GetMeta(), ReflectionSystem::Get().Resolve<Font::Metadata>(), [this](const MetaType& meta, FieldBase* field) {
-			ReloadCPU("");
-			ReloadGPU();
-			SetRuntimeDirty(true);
-		});
-
-		auto buildButtonLayout = [this]() -> Widget* {
-			DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>();
-			layout->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-			layout->SetAlignedPosX(0.0f);
-			layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-			layout->SetAlignedSizeX(1.0f);
-			layout->GetProps().mode						= DirectionalLayout::Mode::EqualSizes;
-			layout->GetProps().direction				= DirectionOrientation::Horizontal;
-			layout->GetWidgetProps().childMargins.left	= Theme::GetDef().baseIndent;
-			layout->GetWidgetProps().childMargins.right = Theme::GetDef().baseIndent;
-			layout->GetWidgetProps().childPadding		= Theme::GetDef().baseIndent;
-			return layout;
-		};
-
-		Widget* buttonLayout1 = buildButtonLayout();
-		Widget* buttonLayout2 = buildButtonLayout();
-		foldGeneral->AddChild(buttonLayout1);
-		foldGeneral->AddChild(buttonLayout2);
-		static_cast<DirectionalLayout*>(buttonLayout1)->GetProps().mode = DirectionalLayout::Mode::EqualSizes;
-		static_cast<DirectionalLayout*>(buttonLayout2)->GetProps().mode = DirectionalLayout::Mode::EqualSizes;
-
-		Button* importButton = WidgetUtility::BuildIconTextButton(this, ICON_IMPORT, Locale::GetStr(LocaleStr::Import));
-		importButton->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
-		importButton->SetAlignedPosY(0.0f);
-		importButton->SetAlignedSizeY(1.0f);
-		importButton->SetFixedSizeX(Theme::GetDef().baseItemHeight * 4);
-		importButton->GetProps().onClicked = [this]() {
-			const Vector<String> paths = PlatformProcess::OpenDialog({
-				.title				   = Locale::GetStr(LocaleStr::Import),
-				.primaryButton		   = Locale::GetStr(LocaleStr::Import),
-				.extensionsDescription = "",
-				.extensions			   = {"ttf", "otf"},
-				.mode				   = PlatformProcess::DialogMode::SelectFile,
-			});
-			if (paths.empty())
-				return;
-
-			Widget* lock = m_editor->GetWindowPanelManager().LockAllForegrounds(m_lgxWindow, Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow));
-			Widget* pp	 = CommonWidgets::BuildGenericPopupProgress(lock, Locale::GetStr(LocaleStr::ApplyingChanges), true);
-			lock->AddChild(pp);
-
-			const String& path = paths.front();
-			Taskflow	  tf;
-			tf.emplace([this, path]() {
-				ReloadCPU(path);
-				m_editor->QueueTask([this]() {
-					m_editor->GetWindowPanelManager().UnlockAllForegrounds();
-					ReloadGPU();
-					SetRuntimeDirty(true);
-				});
-			});
-			m_editor->GetExecutor().RunMove(tf);
-		};
-
-		buttonLayout1->AddChild(importButton);
-
-		Button* reimportButton = WidgetUtility::BuildIconTextButton(this, ICON_ROTATE, Locale::GetStr(LocaleStr::ReImport));
-		reimportButton->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
-		reimportButton->SetAlignedPosY(0.0f);
-		reimportButton->SetAlignedSizeY(1.0f);
-		reimportButton->SetFixedSizeX(Theme::GetDef().baseItemHeight * 4);
-		reimportButton->GetProps().onClicked = [this, reimportButton]() {
-			const String path = m_font->GetPath();
-			if (!FileSystem::FileOrPathExists(path))
-			{
-				CommonWidgets::ThrowInfoTooltip(Locale::GetStr(LocaleStr::FileNotFound), LogLevel::Error, 3.0f, reimportButton);
-				return;
-			}
-
-			Widget* lock = m_editor->GetWindowPanelManager().LockAllForegrounds(m_lgxWindow, Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow));
-			Widget* pp	 = CommonWidgets::BuildGenericPopupProgress(lock, Locale::GetStr(LocaleStr::ApplyingChanges), true);
-			lock->AddChild(pp);
-
-			Taskflow tf;
-			tf.emplace([this, path]() {
-				ReloadCPU(path);
-				m_editor->QueueTask([this]() {
-					m_editor->GetWindowPanelManager().UnlockAllForegrounds();
-					ReloadGPU();
-					SetRuntimeDirty(true);
-				});
-			});
-			m_editor->GetExecutor().RunMove(tf);
-		};
-
-		buttonLayout1->AddChild(reimportButton);
-
-		Button* save = WidgetUtility::BuildIconTextButton(this, ICON_SAVE, Locale::GetStr(LocaleStr::Save));
-		save->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
-		save->SetAlignedPosY(0.0f);
-		save->SetAlignedSizeY(1.0f);
-		save->SetFixedSizeX(Theme::GetDef().baseItemHeight * 4);
-		save->GetProps().onClicked = [this]() {
-			if (!m_containsRuntimeChanges)
-				return;
-
-			ResourceDirectory* dir = m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_font->GetID());
-			m_resourceManager->SaveResource(m_editor->GetProjectManager().GetProjectData(), m_font);
-
-			dir->name = m_font->GetName();
-			dir->thumbnailBuffer.Destroy();
-			dir->parent->SortChildren();
-			m_editor->GetProjectManager().RemoveDirectoryThumbnails(dir);
-
-			const LinaGX::TextureBuffer thumb = ThumbnailGenerator::GenerateThumbnailForResource(m_font);
-			ThumbnailGenerator::CreateThumbnailBuffer(dir->thumbnailBuffer, thumb);
-
-			m_editor->GetProjectManager().SaveProjectChanges();
-
-			m_editor->QueueTask([this, dir]() {
-				Application::GetLGX()->Join();
-				m_editor->GetProjectManager().GenerateMissingAtlasImages(dir);
-				m_editor->GetAtlasManager().RefreshPoolAtlases();
-
-				m_editor->GetWindowPanelManager().UnlockAllForegrounds();
-				m_editor->GetProjectManager().NotifyProjectResourcesRefreshed();
-				SetRuntimeDirty(false);
-			});
-		};
-
-		m_saveButton = save;
-		buttonLayout2->AddChild(save);
-
-		Panel::Initialize();
+		m_fontDisplay->GetProps().font				  = static_cast<Font*>(m_resource)->GetID();
+		m_fontDisplay->GetProps().valuePtr			  = &m_displayString;
+		m_fontDisplay->GetProps().fetchWrapFromParent = true;
+		m_fontDisplay->GetProps().isDynamic			  = true;
+		UpdateFontProps();
 	}
 
-	void PanelFontViewer::Destruct()
+	void PanelFontViewer::OnGeneralMetaChanged(const MetaType& meta, FieldBase* field)
 	{
-		Panel::Destruct();
-		if (m_font == nullptr)
-			return;
-
-		ResourceDef def = {.id = m_font->GetID(), .tid = m_font->GetTID(), .name = m_font->GetName()};
-		m_editor->GetResourceManagerV2().UnloadResources({m_font});
-		m_editor->GetEditorRenderer().OnResourcesUnloaded({def});
 	}
 
-	void PanelFontViewer::SetRuntimeDirty(bool isDirty)
-	{
-		m_containsRuntimeChanges = isDirty;
-		Text* txt				 = GetWidgetOfType<Text>(m_saveButton);
-		if (isDirty)
-			txt->GetProps().text = Locale::GetStr(LocaleStr::Save) + " *";
-		else
-			txt->GetProps().text = Locale::GetStr(LocaleStr::Save);
-		txt->CalculateTextSize();
-	}
-
-	void PanelFontViewer::ReloadCPU(const String& path)
-	{
-		if (!path.empty())
-			m_font->LoadFromFile(path);
-	}
-
-	void PanelFontViewer::ReloadGPU()
+	void PanelFontViewer::OnResourceMetaChanged(const MetaType& meta, FieldBase* field)
 	{
 		Application::GetLGX()->Join();
-		m_font->DestroyHW();
-		m_font->GenerateHW(m_editor->GetEditorRenderer().GetGUIBackend().GetLVGText());
+		RegenHW();
+	}
+
+	void PanelFontViewer::RegenHW()
+	{
+		UpdateFontProps();
+		Font* font = static_cast<Font*>(m_resource);
+		font->DestroyHW();
+		font->GenerateHW(m_editor->GetEditorRenderer().GetGUIBackend().GetLVGText());
 		m_editor->GetEditorRenderer().GetGUIBackend().ReuploadAtlases(m_editor->GetEditorRenderer().GetUploadQueue());
 		m_editor->GetEditorRenderer().MarkBindlessDirty();
-		m_fontDisplay->GetProps().font = m_font->GetID();
-		m_fontDisplay->CalculateTextSize();
 	}
 
-	void PanelFontViewer::SaveLayoutToStream(OStream& stream)
+	void PanelFontViewer::UpdateFontProps()
 	{
+		Font* font = static_cast<Font*>(m_resource);
+		m_fontName = font->GetName();
+		m_fontSize = UtilStr::FloatToString(static_cast<float>(font->GetFileSize()) / 1000.0f, 1) + " KB";
 	}
 
-	void PanelFontViewer::LoadLayoutFromStream(IStream& stream)
-	{
-	}
- */
 } // namespace Lina::Editor

@@ -47,5 +47,10 @@ namespace Lina
 		virtual void LoadFromStream(IStream& stream) override;
 
 	private:
+		ALLOCATOR_BUCKET_MEM;
 	};
+
+	LINA_RESOURCE_BEGIN(PhysicsMaterial)
+	LINA_CLASS_END(PhysicsMaterial)
+
 } // namespace Lina

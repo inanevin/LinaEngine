@@ -72,6 +72,7 @@ namespace Lina
 	{
 		DisplayChannels displayChannels = DisplayChannels::RGBA;
 		uint32			mipLevel		= 0;
+		ResourceID		sampler			= 0;
 	};
 
 	constexpr const char* RPTypeToString(RenderPassDescriptorType type)

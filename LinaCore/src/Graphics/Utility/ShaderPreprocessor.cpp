@@ -33,6 +33,47 @@ namespace Lina
 {
 	namespace
 	{
+		bool FindShaderType(ShaderType& outType, const String& txt)
+		{
+			if (txt.find("#LINA_SHADER_DEFERRED_OBJECT"))
+			{
+				outType = ShaderType::DeferredObject;
+				return true;
+			}
+
+			if (txt.find("#LINA_SHADER_FORWARD_OBJECT"))
+			{
+				outType = ShaderType::ForwardObject;
+				return true;
+			}
+
+			if (txt.find("#LINA_SHADER_LIGHTING"))
+			{
+				outType = ShaderType::Lighting;
+				return true;
+			}
+
+			if (txt.find("#LINA_SHADER_SKY"))
+			{
+				outType = ShaderType::Sky;
+				return true;
+			}
+
+			if (txt.find("#LINA_SHADER_POST_PROCESS"))
+			{
+				outType = ShaderType::PostProcess;
+				return true;
+			}
+
+			if (txt.find("#LINA_SHADER_CUSTOM"))
+			{
+				outType = ShaderType::Custom;
+				return true;
+			}
+
+			return false;
+		}
+
 		String ExtractBlock(const String& source, const String& startDelimiter, const String& endDelimiter)
 		{
 			size_t startPos = source.find(startDelimiter);
@@ -361,7 +402,7 @@ namespace Lina
 		}
 	} // namespace
 
-	bool ShaderPreprocessor::Preprocess(const String& text, HashMap<LinaGX::ShaderStage, String>& outStages, Vector<ShaderProperty*>& outProperties)
+	bool ShaderPreprocessor::Preprocess(const String& text, HashMap<LinaGX::ShaderStage, String>& outStages, Vector<ShaderProperty*>& outProperties, ShaderType& outShaderType)
 	{
 		if (text.find("#version") != String::npos)
 		{
@@ -372,6 +413,12 @@ namespace Lina
 		std::istringstream f(text.c_str());
 		std::string		   line	 = "";
 		bool			   isCmt = false;
+
+		if (!FindShaderType(outShaderType, text))
+		{
+			LINA_ERR("Shader type can't be found!");
+			return false;
+		}
 
 		HashMap<LinaGX::ShaderStage, String> blockIdentifiers;
 		blockIdentifiers[LinaGX::ShaderStage::Fragment] = "#lina_fs";

@@ -37,6 +37,10 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelFontViewer.hpp"
 #include "Editor/Widgets/Panel/PanelModelViewer.hpp"
 #include "Editor/Widgets/Panel/PanelShaderViewer.hpp"
+#include "Editor/Widgets/Panel/PanelSamplerViewer.hpp"
+#include "Editor/Widgets/Panel/PanelPhysicsMaterialViewer.hpp"
+#include "Editor/Widgets/Panel/PanelMaterialViewer.hpp"
+#include "Editor/Widgets/Panel/PanelAudioViewer.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 
 namespace Lina::Editor
@@ -77,6 +81,18 @@ namespace Lina::Editor
 			break;
 		case PanelType::ShaderViewer:
 			panel = source->GetWidgetManager()->Allocate<PanelShaderViewer>("Shader");
+			break;
+		case PanelType::SamplerViewer:
+			panel = source->GetWidgetManager()->Allocate<PanelSamplerViewer>("Sampler");
+			break;
+		case PanelType::PhysicsMaterialViewer:
+			panel = source->GetWidgetManager()->Allocate<PanelPhysicsMaterialViewer>("PhyMat");
+			break;
+		case PanelType::MaterialViewer:
+			panel = source->GetWidgetManager()->Allocate<PanelMaterialViewer>("Material");
+			break;
+		case PanelType::AudioViewer:
+			panel = source->GetWidgetManager()->Allocate<PanelAudioViewer>("Audio");
 			break;
 		default:
 			LINA_ASSERT(false, "");

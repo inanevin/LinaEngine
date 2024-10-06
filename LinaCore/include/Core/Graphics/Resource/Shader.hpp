@@ -28,9 +28,6 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Shader_HPP
-#define Shader_HPP
-
 #include "Core/Resources/Resource.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
@@ -71,6 +68,16 @@ namespace Lina
 		void LoadFromStream(IStream& in);
 	};
 
+	enum class ShaderType
+	{
+		DeferredObject,
+		ForwardObject,
+		Lighting,
+		Sky,
+		PostProcess,
+		Custom
+	};
+
 	class Shader : public Resource
 	{
 	public:
@@ -78,6 +85,7 @@ namespace Lina
 		{
 			HashMap<StringID, ShaderVariant> variants;
 			bool							 drawIndirectEnabled = false;
+			ShaderType						 shaderType			 = ShaderType::DeferredObject;
 
 			void SaveToStream(OStream& out) const;
 			void LoadFromStream(IStream& in);
@@ -109,11 +117,6 @@ namespace Lina
 			return m_meta.variants.begin()->second._gpuHandle;
 		}
 
-		inline uint32 GetGPUHandle(StringID variant) const
-		{
-			return m_meta.variants.at(variant)._gpuHandle;
-		}
-
 		inline const LinaGX::DescriptorSetDesc& GetMaterialSetDesc() const
 		{
 			return m_materialSetDesc;
@@ -136,6 +139,8 @@ namespace Lina
 
 	private:
 		ALLOCATOR_BUCKET_MEM;
+		LINA_REFLECTION_ACCESS(Shader);
+
 		LINAGX_MAP<LinaGX::ShaderStage, LinaGX::DataBlob> m_outCompiledBlobs;
 		LinaGX::ShaderLayout							  m_layout			= {};
 		LinaGX::DescriptorSetDesc						  m_materialSetDesc = {};
@@ -146,7 +151,10 @@ namespace Lina
 	};
 
 	LINA_RESOURCE_BEGIN(Shader);
+	LINA_FIELD(Shader, m_meta, "Metadata", FieldType::UserClass, GetTypeID<Shader::Metadata>())
 	LINA_CLASS_END(Shader);
-} // namespace Lina
 
-#endif
+	LINA_CLASS_BEGIN(ShaderMetadata)
+	LINA_FIELD(Shader::Metadata, drawIndirectEnabled, "DrawIndirect", FieldType::Boolean, 0)
+	LINA_CLASS_END(ShaderMetadata)
+} // namespace Lina

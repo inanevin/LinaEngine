@@ -36,6 +36,8 @@ namespace Lina
 	class ProjectData;
 	class WidgetManager;
 	class ResourceDirectory;
+	struct TextureAtlasImage;
+
 } // namespace Lina
 namespace Lina::Editor
 {
@@ -67,8 +69,6 @@ namespace Lina::Editor
 		void	   OpenProject(const String& projectFile);
 		void	   SaveProjectChanges();
 		ResourceID ConsumeResourceID();
-		void	   GenerateMissingAtlasImages(ResourceDirectory* dir, bool isRecursive = true);
-		void	   RemoveDirectoryThumbnails(ResourceDirectory* dir);
 
 		void AddListener(ProjectManagerListener* listener);
 		void RemoveListener(ProjectManagerListener* listener);
@@ -79,17 +79,25 @@ namespace Lina::Editor
 			return m_currentProject;
 		}
 
+		TextureAtlasImage* GetThumbnail(ResourceDirectory* dir);
+		void			   InvalidateThumbnail(ResourceDirectory* dir);
+
 	private:
 		void RemoveCurrentProject();
 		void CreateEmptyProjectAndOpen(const String& path);
 		void VerifyProjectResources(ProjectData* projectData);
 		void VerifyResourceDirectory(ProjectData* projectData, ResourceDirectory* dir);
+		void GenerateMissingAtlases(ResourceDirectory* dir);
 
 	private:
-		JobExecutor						m_executor;
-		WidgetManager*					m_primaryWidgetManager = nullptr;
-		Editor*							m_editor			   = nullptr;
-		ProjectData*					m_currentProject	   = nullptr;
-		Vector<ProjectManagerListener*> m_listeners;
+		JobExecutor								m_executor;
+		WidgetManager*							m_primaryWidgetManager = nullptr;
+		Editor*									m_editor			   = nullptr;
+		ProjectData*							m_currentProject	   = nullptr;
+		Vector<ProjectManagerListener*>			m_listeners;
+		uint32									m_frameCtrForAtlases = 0;
+		Atomic<bool>							m_atlasGenWorking	 = false;
+		HashMap<ResourceID, TextureAtlasImage*> m_resourceThumbnails;
+		HashMap<ResourceID, TextureAtlasImage*> m_resourceThumbnailsOnFlight;
 	};
 } // namespace Lina::Editor

@@ -28,8 +28,8 @@ SOFTWARE.
 
 #pragma once
 
-#include "Editor/Widgets/Panel/Panel.hpp"
-#include "Core/Graphics/CommonGraphics.hpp"
+#include "Editor/Widgets/Panel/PanelResourceViewer.hpp"
+#include "Core/Graphics/Resource/Shader.hpp"
 
 namespace Lina
 {
@@ -46,10 +46,10 @@ namespace Lina::Editor
 	class Editor;
 	class WorldDisplayer;
 
-	class PanelShaderViewer : public Panel
+	class PanelShaderViewer : public PanelResourceViewer
 	{
 	public:
-		PanelShaderViewer() : Panel(PanelType::ShaderViewer){};
+		PanelShaderViewer() : PanelResourceViewer(PanelType::ShaderViewer, GetTypeID<Shader>(), GetTypeID<PanelShaderViewer>()){};
 		virtual ~PanelShaderViewer() = default;
 
 		virtual void Construct() override;
@@ -57,25 +57,18 @@ namespace Lina::Editor
 		virtual void Destruct() override;
 		virtual void PreTick() override;
 		virtual void Tick(float delta) override;
-		virtual void SaveLayoutToStream(OStream& stream) override;
-		virtual void LoadLayoutFromStream(IStream& stream) override;
+
+	protected:
+		virtual void OnGeneralMetaChanged(const MetaType& meta, FieldBase* field) override;
+		virtual void OnResourceMetaChanged(const MetaType& meta, FieldBase* field) override;
+		virtual void RegenHW() override;
 
 	private:
-		void SetRuntimeDirty(bool isDirty);
-		void RegenShader(const String& path);
-		void SetupScene();
+		void UpdateShaderProps();
 
 	private:
 		LINA_REFLECTION_ACCESS(PanelShaderViewer);
 
-		bool m_generalFold			  = true;
-		bool m_shaderFold			  = true;
-		bool m_containsRuntimeChanges = false;
-
-		Editor*			m_editor		 = nullptr;
-		Shader*			m_shader		 = nullptr;
-		Widget*			m_inspector		 = nullptr;
-		Widget*			m_saveButton	 = nullptr;
 		EntityWorld*	m_world			 = nullptr;
 		WorldRenderer*	m_worldRenderer	 = nullptr;
 		Vector2ui		m_lastWorldSize	 = Vector2ui::Zero;
@@ -84,7 +77,7 @@ namespace Lina::Editor
 	};
 
 	LINA_WIDGET_BEGIN(PanelShaderViewer, Hidden)
-	LINA_FIELD(PanelShaderViewer, m_shaderName, "Shader Name", FieldType::StringFixed, 0)
+	LINA_FIELD(PanelShaderViewer, m_shaderName, "Name", FieldType::StringFixed, 0)
 	LINA_CLASS_END(PanelShaderViewer)
 
 } // namespace Lina::Editor

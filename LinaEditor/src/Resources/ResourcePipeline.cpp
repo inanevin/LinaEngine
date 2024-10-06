@@ -50,7 +50,6 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-
 	ResourceDirectory* ResourcePipeline::SaveNewResource(ProjectData* project, ResourceDirectory* src, const String& name, TypeID tid, ResourceID inID, uint32 subType)
 	{
 		const ResourceID id	  = inID != 0 ? inID : project->ConsumeResourceID();
@@ -63,6 +62,8 @@ namespace Lina::Editor
 			.name		 = name,
 		});
 
+		LinaGX::TextureBuffer thumb = {};
+
 		if (tid == GetTypeID<GUIWidget>())
 		{
 			GUIWidget w(id, name);
@@ -72,6 +73,7 @@ namespace Lina::Editor
 		else if (tid == GetTypeID<Material>())
 		{
 			Material mat(id, name);
+			mat.SetShaderID(EDITOR_SHADER_DEFAULT_OBJECT_ID);
 			mat.SaveToFileAsBinary(path);
 		}
 		else if (tid == GetTypeID<EntityWorld>())
@@ -157,19 +159,6 @@ namespace Lina::Editor
 				});
 			};
 
-			auto genThumbnail = [](Resource* r, ResourceDirectory* directory) {
-				LinaGX::TextureBuffer thumbnail = ThumbnailGenerator::GenerateThumbnailForResource(r);
-
-				if (thumbnail.pixels != nullptr)
-				{
-					OStream stream;
-					stream << thumbnail.width << thumbnail.height << thumbnail.bytesPerPixel;
-					stream.WriteRaw(thumbnail.pixels, thumbnail.width * thumbnail.height * thumbnail.bytesPerPixel);
-					directory->thumbnailBuffer.Create(stream);
-					stream.Destroy();
-				}
-			};
-
 			if (resourceTID == GetTypeID<Shader>())
 			{
 				Shader shader(0, name);
@@ -178,9 +167,69 @@ namespace Lina::Editor
 
 				shader.SetID(def.id == 0 ? projectData->ConsumeResourceID() : def.id);
 				shader.SetPath(def.path);
+
+				const ShaderType type = shader.GetMeta().shaderType;
+
+				if (type == ShaderType::DeferredObject)
+				{
+					shader.GetMeta().variants["RenderTarget"_hs] = {
+						.blendDisable = true,
+						.depthTest	  = true,
+						.depthWrite	  = true,
+						.targets	  = {{.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}},
+						.cullMode	  = LinaGX::CullMode::Back,
+						.frontFace	  = LinaGX::FrontFace::CW,
+					};
+					shader.GetMeta().drawIndirectEnabled = true;
+				}
+				else if (type == ShaderType::ForwardObject)
+				{
+					shader.GetMeta().variants["RenderTarget"_hs] = {
+						.blendDisable = true,
+						.depthTest	  = true,
+						.depthWrite	  = true,
+						.targets	  = {{.format = DEFAULT_RT_FORMAT}},
+						.cullMode	  = LinaGX::CullMode::Back,
+						.frontFace	  = LinaGX::FrontFace::CW,
+					};
+					shader.GetMeta().drawIndirectEnabled = true;
+				}
+				else if (type == ShaderType::Lighting)
+				{
+					shader.GetMeta().variants["RenderTarget"_hs] = {
+						.blendDisable = false,
+						.depthTest	  = false,
+						.depthWrite	  = false,
+						.targets	  = {{.format = DEFAULT_RT_FORMAT}},
+						.cullMode	  = LinaGX::CullMode::None,
+						.frontFace	  = LinaGX::FrontFace::CW,
+					};
+					shader.GetMeta().drawIndirectEnabled = false;
+				}
+				else if (type == ShaderType::Sky)
+				{
+					shader.GetMeta().variants["RenderTarget"_hs] = {
+						.blendDisable	   = true,
+						.depthTest		   = true,
+						.depthWrite		   = false,
+						.targets		   = {{.format = DEFAULT_RT_FORMAT}},
+						.depthOp		   = LinaGX::CompareOp::Equal,
+						.cullMode		   = LinaGX::CullMode::Back,
+						.frontFace		   = LinaGX::FrontFace::CW,
+						.depthBiasEnable   = true,
+						.depthBiasConstant = 5.0f,
+					};
+					shader.GetMeta().drawIndirectEnabled = false;
+				}
+				else if (type == ShaderType::PostProcess)
+				{
+				}
+				else if (type == ShaderType::Custom)
+				{
+				}
+
 				shader.SaveToFileAsBinary(projectData->GetResourcePath(shader.GetID()));
 				createDirectory(shader.GetID());
-				genThumbnail(&shader, dir);
 			}
 			else if (resourceTID == GetTypeID<Texture>())
 			{
@@ -192,7 +241,6 @@ namespace Lina::Editor
 				txt.SetPath(def.path);
 				txt.SaveToFileAsBinary(projectData->GetResourcePath(txt.GetID()));
 				createDirectory(txt.GetID());
-				genThumbnail(&txt, dir);
 			}
 			else if (resourceTID == GetTypeID<Font>())
 			{
@@ -204,7 +252,6 @@ namespace Lina::Editor
 				font.SetPath(def.path);
 				font.SaveToFileAsBinary(projectData->GetResourcePath(font.GetID()));
 				createDirectory(font.GetID());
-				genThumbnail(&font, dir);
 			}
 			else if (resourceTID == GetTypeID<Audio>())
 			{
@@ -216,7 +263,6 @@ namespace Lina::Editor
 				aud.SetPath(def.path);
 				aud.SaveToFileAsBinary(projectData->GetResourcePath(aud.GetID()));
 				createDirectory(aud.GetID());
-				genThumbnail(&aud, dir);
 			}
 			else if (resourceTID == GetTypeID<Model>())
 			{
@@ -227,7 +273,6 @@ namespace Lina::Editor
 				model.SetID(def.id == 0 ? projectData->ConsumeResourceID() : def.id);
 				model.SetPath(def.path);
 				createDirectory(model.GetID());
-				genThumbnail(&model, dir);
 
 				if (defaultShader == nullptr)
 				{
@@ -258,7 +303,6 @@ namespace Lina::Editor
 					texture.GetMeta().format = isColor ? LinaGX::Format::R8G8B8A8_SRGB : LinaGX::Format::R8G8B8A8_UNORM;
 					texture.LoadFromBuffer(def.buffer.pixels, def.buffer.width, def.buffer.height, def.buffer.bytesPerPixel);
 					texture.SaveToFileAsBinary(projectData->GetResourcePath(newID));
-					genThumbnail(&texture, child);
 
 					createdTextures.push_back(newID);
 					createdTextureNames.push_back(def.name);
@@ -315,7 +359,6 @@ namespace Lina::Editor
 					mat.SetProperty("txtAlbedo"_hs, albedo);
 					mat.SetProperty("txtNormal"_hs, normal);
 					mat.SaveToFileAsBinary(projectData->GetResourcePath(newID));
-					genThumbnail(&mat, child);
 					matIdx++;
 				}
 				model.SaveToFileAsBinary(projectData->GetResourcePath(model.GetID()));
@@ -352,7 +395,6 @@ namespace Lina::Editor
 			{
 				dup->thumbnailBuffer = RawStream();
 				dup->thumbnailBuffer.Create(directory->thumbnailBuffer.GetRaw(), directory->thumbnailBuffer.GetSize());
-				dup->_thumbnailAtlasImage = nullptr;
 			}
 		}
 

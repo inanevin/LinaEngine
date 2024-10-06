@@ -159,6 +159,9 @@ namespace Lina
 			GUIRendererUserData* ud = static_cast<GUIRendererUserData*>(buf->userData);
 			displayChannels			= ud->displayChannels;
 			mipLevel				= static_cast<float>(ud->mipLevel);
+
+			if (ud->sampler != 0)
+				req.materialData.color2.y = static_cast<float>(m_bindlessContext->GetBindlessIndex(m_resourceManager->GetResource<TextureSampler>(ud->sampler)));
 		}
 
 		req.materialData.color2.z	= mipLevel;

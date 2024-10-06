@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Editor/Widgets/FX/ProgressCircleFill.hpp"
 #include "Editor/Resources/ResourcePipeline.hpp"
+#include "Editor/IO/ThumbnailGenerator.hpp"
 #include "Core/Meta/ProjectData.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
@@ -116,6 +117,14 @@ namespace Lina::Editor
 			if (item->resourceTID == GetTypeID<Texture>())
 			{
 				m_editor->GetWindowPanelManager().OpenPanel(PanelType::TextureViewer, item->resourceID, this);
+			}
+			else if (item->resourceTID == GetTypeID<PhysicsMaterial>())
+			{
+				m_editor->GetWindowPanelManager().OpenPanel(PanelType::PhysicsMaterialViewer, item->resourceID, this);
+			}
+			else if (item->resourceTID == GetTypeID<TextureSampler>())
+			{
+				m_editor->GetWindowPanelManager().OpenPanel(PanelType::SamplerViewer, item->resourceID, this);
 			}
 			else if (item->resourceTID == GetTypeID<Font>())
 			{
@@ -211,7 +220,7 @@ namespace Lina::Editor
 			else
 			{
 				const bool hasChildren = child->children.empty();
-				Widget*	   w		   = CommonWidgets::BuildTexturedListItem(this, child, margin, child->_thumbnailAtlasImage, child->name);
+				Widget*	   w		   = CommonWidgets::BuildTexturedListItem(this, child, margin, m_editor->GetProjectManager().GetThumbnail(child), child->name);
 				m_controller->GetItem(dir)->GetParent()->AddChild(w);
 				m_controller->AddItem(w);
 			}
@@ -423,7 +432,6 @@ namespace Lina::Editor
 					progressText->CalculateTextSize();
 				});
 
-				m_editor->GetProjectManager().GenerateMissingAtlasImages(directory, false);
 				m_editor->GetProjectManager().SaveProjectChanges();
 
 				m_editor->GetProjectManager().QueueTask([this]() {
@@ -499,6 +507,7 @@ namespace Lina::Editor
 			return false;
 
 		m_editor->GetProjectManager().SaveProjectChanges();
+
 		RefreshDirectory();
 		m_controller->MakeVisibleRecursively(m_controller->GetItem(newCreated));
 		m_controller->SelectItem(m_controller->GetItem(newCreated), true, false);
@@ -526,6 +535,9 @@ namespace Lina::Editor
 			dir->name = str;
 			text->GetWidgetManager()->AddToKillList(inp);
 			dir->parent->SortChildren();
+			Resource* res = m_editor->GetResourceManagerV2().OpenResource(m_editor->GetProjectManager().GetProjectData(), dir->resourceTID, dir->resourceID, nullptr);
+			res->SetName(dir->name);
+			m_editor->GetResourceManagerV2().CloseResource(m_editor->GetProjectManager().GetProjectData(), res, true);
 			RefreshDirectory();
 			m_editor->GetProjectManager().SaveProjectChanges();
 		};
@@ -567,7 +579,6 @@ namespace Lina::Editor
 		for (ResourceDirectory* item : dirs)
 			ResourcePipeline::DuplicateResource(m_editor->GetProjectManager().GetProjectData(), &m_editor->GetResourceManagerV2(), item, item->parent);
 
-		m_editor->GetProjectManager().GenerateMissingAtlasImages(&m_editor->GetProjectManager().GetProjectData()->GetResourceRoot(), true);
 		m_editor->GetProjectManager().SaveProjectChanges();
 
 		m_editor->GetProjectManager().QueueTask([this]() {
@@ -581,7 +592,6 @@ namespace Lina::Editor
 	{
 		for (ResourceDirectory* item : dirs)
 		{
-			m_editor->GetProjectManager().RemoveDirectoryThumbnails(item);
 			item->parent->DestroyChild(item);
 		}
 

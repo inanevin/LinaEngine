@@ -1009,13 +1009,12 @@ namespace Lina::Editor
 			thumb->GetWidgetProps().colorBackground	 = Color::White;
 			thumb->GetWidgetProps().outlineThickness = 0.0f;
 			thumb->GetWidgetProps().rounding		 = 0.0f;
-			thumb->GetWidgetProps().textureAtlas	 = dir == nullptr ? nullptr : dir->_thumbnailAtlasImage;
 			thumb->SetCustomTooltipUserData(thumb);
 			thumb->SetBuildCustomTooltip(BIND(&CommonWidgets::BuildThumbnailTooltip, std::placeholders::_1));
 			layout->AddChild(thumb);
 
-			if (thumb->GetWidgetProps().textureAtlas == nullptr)
-				thumb->GetWidgetProps().textureAtlas = Editor::Get()->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "FileShaderSmall"_hs);
+			// if (thumb->GetWidgetProps().textureAtlas == nullptr)
+			// 	thumb->GetWidgetProps().textureAtlas = Editor::Get()->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "FileShaderSmall"_hs);
 
 			Text* txt = wm->Allocate<Text>("Titlessss");
 			txt->GetFlags().Set(WF_POS_ALIGN_Y);
@@ -1036,9 +1035,7 @@ namespace Lina::Editor
 					else
 						*rf.CastPtr<ResourceID>() = dir->resourceID;
 
-					thumb->GetWidgetProps().textureAtlas = dir->_thumbnailAtlasImage;
-					if (thumb->GetWidgetProps().textureAtlas == nullptr)
-						thumb->GetWidgetProps().textureAtlas = Editor::Get()->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "FileShaderSmall"_hs);
+					// thumb->GetWidgetProps().textureAtlas = Editor::Get()->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "FileShaderSmall"_hs);
 
 					txt->GetProps().text = dir->name;
 					txt->CalculateTextSize();

@@ -40,36 +40,34 @@ namespace Lina::Editor
 {
 	class Editor;
 
-    class PanelFontViewer : public PanelResourceViewer
+	class PanelFontViewer : public PanelResourceViewer
 	{
 	public:
-        PanelFontViewer() : PanelResourceViewer(PanelType::FontViewer, GetTypeID<Font>(), GetTypeID<PanelFontViewer>()) {};
+		PanelFontViewer() : PanelResourceViewer(PanelType::FontViewer, GetTypeID<Font>(), GetTypeID<PanelFontViewer>()){};
 		virtual ~PanelFontViewer() = default;
 
 		virtual void Construct() override;
 		virtual void Initialize() override;
 
-    protected:
-        
-        virtual void OnGeneralMetaChanged(const MetaType& meta, FieldBase* field)  override;
-        virtual void OnResourceMetaChanged(const MetaType& meta, FieldBase* field) override;
-        virtual void RegenGPU() override;
-        
-    private:
-        
-        void UpdateFontProps();
+	protected:
+		virtual void OnGeneralMetaChanged(const MetaType& meta, FieldBase* field) override;
+		virtual void OnResourceMetaChanged(const MetaType& meta, FieldBase* field) override;
+		virtual void RegenHW() override;
+
+	private:
+		void UpdateFontProps();
 
 	private:
 		LINA_REFLECTION_ACCESS(PanelFontViewer);
 
-        String             m_fontName                = "";
-		String			   m_fontSize				= "";
-		String			   m_displayString			= "Peace at home, peace at world.";
-		Text*			   m_fontDisplay			= nullptr;
+		String m_fontName	   = "";
+		String m_fontSize	   = "";
+		String m_displayString = "Peace at home, peace at world.";
+		Text*  m_fontDisplay   = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(PanelFontViewer, Hidden)
-    LINA_FIELD(PanelFontViewer, m_fontName, "Name", FieldType::StringFixed, 0)
+	LINA_FIELD(PanelFontViewer, m_fontName, "Name", FieldType::StringFixed, 0)
 	LINA_FIELD(PanelFontViewer, m_fontSize, "Size", FieldType::StringFixed, 0)
 	LINA_FIELD(PanelFontViewer, m_displayString, "Display String", FieldType::String, 0)
 	LINA_CLASS_END(PanelFontViewer)

@@ -301,6 +301,7 @@ namespace Lina::Editor
 			progText->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::LoadingCoreResources));
 			ResourceDefinitionList coreResources;
 			coreResources.insert({EDITOR_TEXTURE_CHECKERED_ID, EDITOR_TEXTURE_CHECKERED_PATH, GetTypeID<Texture>()});
+			coreResources.insert({EDITOR_TEXTURE_PROTOTYPE_DARK_ID, EDITOR_TEXTURE_PROTOTYPE_DARK_PATH, GetTypeID<Texture>()});
 			coreResources.insert({EDITOR_FONT_PLAY_ID, EDITOR_FONT_PLAY_PATH, GetTypeID<Font>()});
 			coreResources.insert({EDITOR_FONT_PLAY_BOLD_ID, EDITOR_FONT_PLAY_BOLD_PATH, GetTypeID<Font>()});
 			HashSet<Resource*> resources = m_resourceManagerV2.LoadResourcesFromFile(this, coreResources, [progText](uint32 loaded, const ResourceDef& current) { progText->UpdateTextAndCalcSize(current.name); });

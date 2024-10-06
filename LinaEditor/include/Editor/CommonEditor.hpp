@@ -78,6 +78,7 @@ namespace Lina::Editor
 #define EDITOR_TEXTURE_LINA_LOGO_BOTTOM_PATH "Resources/Editor/Textures/LogoBottom.png"
 #define EDITOR_TEXTURE_LINA_LOGO_LEFT_PATH	 "Resources/Editor/Textures/LogoLeft.png"
 #define EDITOR_TEXTURE_LINA_LOGO_RIGHT_PATH	 "Resources/Editor/Textures/LogoRight.png"
+#define EDITOR_TEXTURE_PROTOTYPE_DARK_PATH	 "Resources/Editor/Textures/PrototypeDark.png"
 
 #define EDITOR_TEXTURE_CHECKERED_ID		   RESOURCE_ID_EDITOR_TEXTURES
 #define EDITOR_TEXTURE_LINA_LOGO_ID		   RESOURCE_ID_EDITOR_TEXTURES + 1
@@ -86,6 +87,7 @@ namespace Lina::Editor
 #define EDITOR_TEXTURE_LINA_LOGO_LEFT_ID   RESOURCE_ID_EDITOR_TEXTURES + 4
 #define EDITOR_TEXTURE_LINA_LOGO_BOTTOM_ID RESOURCE_ID_EDITOR_TEXTURES + 5
 #define EDITOR_TEXTURE_LINA_LOGO_RIGHT_ID  RESOURCE_ID_EDITOR_TEXTURES + 6
+#define EDITOR_TEXTURE_PROTOTYPE_DARK_ID   RESOURCE_ID_EDITOR_TEXTURES + 7
 
 // Samplers
 #define EDITOR_SAMPLER_DEFAULT_PATH "DefaultSampler"
@@ -171,7 +173,9 @@ namespace Lina::Editor
 		AudioViewer,
 		ModelViewer,
 		ShaderViewer,
+		SamplerViewer,
 		MaterialViewer,
+		PhysicsMaterialViewer,
 	};
 
 	enum class PayloadType
