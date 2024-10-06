@@ -85,7 +85,7 @@ namespace Lina
 		uint64			  endTime	  = 0;
 	};
 
-typedef HashSet<ResourceDef, ResourceDefHash> ResourceDefinitionList;
-typedef HashSet<Resource*>                      ResourceList;
+	typedef HashSet<ResourceDef, ResourceDefHash> ResourceDefinitionList;
+	typedef HashSet<Resource*>					  ResourceList;
 
 } // namespace Lina

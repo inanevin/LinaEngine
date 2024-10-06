@@ -35,29 +35,25 @@ SOFTWARE.
 
 namespace Lina
 {
- 
-    
+
 	class TaskRunner
-    {
-    public:
-    
-        struct Task
-        {
-            Delegate<void()> task;
-        };
-        
-        ~TaskRunner() = default;
-     
-        void QueueTask(Delegate<void()> task);
-        void Poll();
-        
-    protected:
-    
-        JobExecutor m_executor;
-        Mutex m_queueMtx;
-        Vector<Task*> m_tasks;
-        Atomic<bool> m_tasksDirty;
-    };
+	{
+	public:
+		struct Task
+		{
+			Delegate<void()> task;
+		};
+
+		~TaskRunner() = default;
+
+		void QueueTask(Delegate<void()> task);
+		void Poll();
+
+	protected:
+		JobExecutor	  m_executor;
+		Mutex		  m_queueMtx;
+		Vector<Task*> m_tasks;
+		Atomic<bool>  m_tasksDirty;
+	};
 
 } // namespace Lina
-

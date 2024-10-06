@@ -71,21 +71,21 @@ namespace Lina::Editor
 #define EDITOR_SHADER_DEFAULT_LIGHTING_ID RESOURCE_ID_EDITOR_SHADERS + 4
 
 // Textures
-#define EDITOR_TEXTURE_CHECKERED_PATH	 "Resources/Editor/Textures/Checkered.png"
-#define EDITOR_TEXTURE_LINA_LOGO_PATH	 "Resources/Editor/Textures/LinaLogoTitle.png"
-#define EDITOR_TEXTURE_EMPTY_ALBEDO_PATH "Resources/Editor/Textures/EmptyAlbedo.png"
-#define EDITOR_TEXTURE_EMPTY_NORMAL_PATH "Resources/Editor/Textures/EmptyNormal.png"
+#define EDITOR_TEXTURE_CHECKERED_PATH		 "Resources/Editor/Textures/Checkered.png"
+#define EDITOR_TEXTURE_LINA_LOGO_PATH		 "Resources/Editor/Textures/LinaLogoTitle.png"
+#define EDITOR_TEXTURE_EMPTY_ALBEDO_PATH	 "Resources/Editor/Textures/EmptyAlbedo.png"
+#define EDITOR_TEXTURE_EMPTY_NORMAL_PATH	 "Resources/Editor/Textures/EmptyNormal.png"
 #define EDITOR_TEXTURE_LINA_LOGO_BOTTOM_PATH "Resources/Editor/Textures/LogoBottom.png"
-#define EDITOR_TEXTURE_LINA_LOGO_LEFT_PATH "Resources/Editor/Textures/LogoLeft.png"
-#define EDITOR_TEXTURE_LINA_LOGO_RIGHT_PATH "Resources/Editor/Textures/LogoRight.png"
+#define EDITOR_TEXTURE_LINA_LOGO_LEFT_PATH	 "Resources/Editor/Textures/LogoLeft.png"
+#define EDITOR_TEXTURE_LINA_LOGO_RIGHT_PATH	 "Resources/Editor/Textures/LogoRight.png"
 
-#define EDITOR_TEXTURE_CHECKERED_ID	   RESOURCE_ID_EDITOR_TEXTURES
-#define EDITOR_TEXTURE_LINA_LOGO_ID	   RESOURCE_ID_EDITOR_TEXTURES + 1
-#define EDITOR_TEXTURE_EMPTY_ALBEDO_ID RESOURCE_ID_EDITOR_TEXTURES + 2
-#define EDITOR_TEXTURE_EMPTY_NORMAL_ID RESOURCE_ID_EDITOR_TEXTURES + 3
-#define EDITOR_TEXTURE_LINA_LOGO_LEFT_ID RESOURCE_ID_EDITOR_TEXTURES + 4
+#define EDITOR_TEXTURE_CHECKERED_ID		   RESOURCE_ID_EDITOR_TEXTURES
+#define EDITOR_TEXTURE_LINA_LOGO_ID		   RESOURCE_ID_EDITOR_TEXTURES + 1
+#define EDITOR_TEXTURE_EMPTY_ALBEDO_ID	   RESOURCE_ID_EDITOR_TEXTURES + 2
+#define EDITOR_TEXTURE_EMPTY_NORMAL_ID	   RESOURCE_ID_EDITOR_TEXTURES + 3
+#define EDITOR_TEXTURE_LINA_LOGO_LEFT_ID   RESOURCE_ID_EDITOR_TEXTURES + 4
 #define EDITOR_TEXTURE_LINA_LOGO_BOTTOM_ID RESOURCE_ID_EDITOR_TEXTURES + 5
-#define EDITOR_TEXTURE_LINA_LOGO_RIGHT_ID RESOURCE_ID_EDITOR_TEXTURES + 6
+#define EDITOR_TEXTURE_LINA_LOGO_RIGHT_ID  RESOURCE_ID_EDITOR_TEXTURES + 6
 
 // Samplers
 #define EDITOR_SAMPLER_DEFAULT_PATH "DefaultSampler"
@@ -147,7 +147,7 @@ namespace Lina::Editor
 #define ICON_EXPORT				 "\u007A"
 #define ICON_IMPORT				 "\u007C"
 #define ICON_ROTATE				 "\u007B"
-#define ICON_ICONS                "\u007D"
+#define ICON_ICONS				 "\u007D"
 #define ICON_REVERT				 "\u007E"
 #define ICON_SORT_AZ			 "\u004a"
 #define ICON_STAR				 "\u004b"
