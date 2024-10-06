@@ -74,6 +74,7 @@ namespace Lina
 			uint8*	  valuePtr			  = nullptr;
 			uint8	  valueBits			  = 32;
 			bool	  valueUnsigned		  = false;
+			String*	  valueStr			  = nullptr;
 
 			bool centerText = false;
 			bool wrapText	= false;

@@ -59,6 +59,7 @@ namespace Lina
 			bool				  fetchWrapFromParent		= false;
 			bool				  wordWrap					= true;
 			bool				  delayOnClicked			= false;
+			String*				  valuePtr					= nullptr;
 
 			void SaveToStream(OStream& stream) const
 			{

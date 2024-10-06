@@ -45,8 +45,9 @@ namespace Lina
 		{
 			LinaGX::Format		 format				  = LinaGX::Format::R8G8B8A8_SRGB;
 			LinaGX::MipmapFilter mipFilter			  = LinaGX::MipmapFilter::Mitchell;
+			bool				 isLinear			  = false;
 			bool				 generateMipmaps	  = true;
-			bool				 force8Bit			  = true;
+			bool				 force8Bit			  = false;
 			bool				 isPremultipliedAlpha = false;
 
 			void SaveToStream(OStream& out) const;
@@ -123,6 +124,8 @@ namespace Lina
 
 	private:
 		ALLOCATOR_BUCKET_MEM;
+		LINA_REFLECTION_ACCESS(Texture);
+
 		Vector<LinaGX::TextureBuffer> m_allLevels;
 		uint32						  m_gpuHandle		 = 0;
 		uint32						  m_bytesPerPixel	 = 0;
@@ -135,20 +138,25 @@ namespace Lina
 	};
 
 	LINA_RESOURCE_BEGIN(Texture);
+	LINA_FIELD(Texture, m_meta, "Metadata", FieldType::UserClass, GetTypeID<Texture::Metadata>())
 	LINA_CLASS_END(Texture);
 
 	LINA_CLASS_BEGIN(TextureMeta)
-	LINA_FIELD(Texture::Metadata, format, "Format", FieldType::Enum, GetTypeID<LinaGX::Format>())
+	LINA_FIELD(Texture::Metadata, isLinear, "Is Linear", FieldType::Boolean, 0)
 	LINA_FIELD(Texture::Metadata, force8Bit, "Force 8 Bits", FieldType::Boolean, 0)
-	LINA_FIELD(Texture::Metadata, isPremultipliedAlpha, "Pre-multiplied Alpha", FieldType::Boolean, 0)
 	LINA_FIELD(Texture::Metadata, generateMipmaps, "Generate Mipmaps", FieldType::Boolean, 0)
+	LINA_FIELD(Texture::Metadata, isPremultipliedAlpha, "Pre-multiplied Alpha", FieldType::Boolean, 0)
 	LINA_FIELD(Texture::Metadata, mipFilter, "Mipmap Filter", FieldType::Enum, GetTypeID<LinaGX::MipmapFilter>())
+	LINA_FIELD_DEPENDENCY_POS(Texture::Metadata, isPremultipliedAlpha, "generateMipmaps", 1)
 	LINA_FIELD_DEPENDENCY_POS(Texture::Metadata, mipFilter, "generateMipmaps", 1)
-	LINA_FIELD_PROPERTY(Texture::Metadata,
-						format,
-						Vector<uint32>,
-						"OnlyShow",
-						(Vector<uint32>{(uint32)LinaGX::Format::R8_UNORM, (uint32)LinaGX::Format::R8G8_SNORM, (uint32)LinaGX::Format::R16G16B16A16_SFLOAT, (uint32)LinaGX::Format::R8G8B8A8_UNORM, (uint32)LinaGX::Format::R8G8B8A8_SRGB}))
 	LINA_CLASS_END(TextureMeta)
+
+	/*
+	 LINA_FIELD_PROPERTY(Texture::Metadata,
+						 format,
+						 Vector<uint32>,
+						 "OnlyShow",
+						 (Vector<uint32>{(uint32)LinaGX::Format::R8_UNORM, (uint32)LinaGX::Format::R8G8_SNORM, (uint32)LinaGX::Format::R16G16B16A16_SFLOAT, (uint32)LinaGX::Format::R8G8B8A8_UNORM, (uint32)LinaGX::Format::R8G8B8A8_SRGB}))
+	 */
 
 } // namespace Lina

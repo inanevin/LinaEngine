@@ -43,7 +43,7 @@ namespace Lina::Editor
 	class PanelColorWheel : public Panel
 	{
 	public:
-		PanelColorWheel() : Panel(PanelType::ColorWheel, 0, PF_FLOATING_POPUP){};
+		PanelColorWheel() : Panel(PanelType::ColorWheel, PF_FLOATING_POPUP){};
 		virtual ~PanelColorWheel() = default;
 
 		virtual void		Construct() override;

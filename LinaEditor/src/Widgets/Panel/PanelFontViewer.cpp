@@ -28,30 +28,62 @@ SOFTWARE.
 
 #include "Editor/Widgets/Panel/PanelFontViewer.hpp"
 #include "Editor/Editor.hpp"
-#include "Editor/EditorLocale.hpp"
-#include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
-#include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
-#include "Editor/IO/ThumbnailGenerator.hpp"
-
-#include "Core/Meta/ProjectData.hpp"
-#include "Core/Application.hpp"
-#include "Core/Platform/PlatformProcess.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
-#include "Core/GUI/Widgets/WidgetUtility.hpp"
-#include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
-#include "Core/GUI/Widgets/Layout/Popup.hpp"
-#include "Core/GUI/Widgets/Primitives/InputField.hpp"
-#include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
-#include "Core/GUI/Widgets/Primitives/Button.hpp"
-#include "Core/GUI/Widgets/Primitives/Text.hpp"
-#include "Editor/Widgets/CommonWidgets.hpp"
-#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
-#include "Common/FileSystem/FileSystem.hpp"
-#include "Core/Graphics/Resource/Font.hpp"
+#include "Core/GUI/Widgets/Primitives/Text.hpp"
+#include "Core/Application.hpp"
 
 namespace Lina::Editor
 {
+
+void PanelFontViewer::Construct()
+{
+    PanelResourceViewer::Construct();
+    m_fontDisplay = m_manager->Allocate<Text>("Display");
+    m_fontDisplay->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+    m_resourceBG->AddChild(m_fontDisplay);
+}
+
+void PanelFontViewer::Initialize()
+{
+    PanelResourceViewer::Initialize();
+    
+    if(!m_resource)
+        return;
+    
+    m_fontDisplay->GetProps().font = static_cast<Font*>(m_resource)->GetID();
+    m_fontDisplay->GetProps().valuePtr                = &m_displayString;
+    m_fontDisplay->GetProps().fetchWrapFromParent = true;
+    m_fontDisplay->GetProps().isDynamic            = true;
+    UpdateFontProps();
+}
+
+void PanelFontViewer::OnGeneralMetaChanged(const MetaType &meta, FieldBase *field) {
+    
+}
+
+void PanelFontViewer::OnResourceMetaChanged(const MetaType &meta, FieldBase *field) {
+    Application::GetLGX()->Join();
+    RegenGPU();
+}
+
+void PanelFontViewer::RegenGPU() {
+    UpdateFontProps();
+    Font* font = static_cast<Font*>(m_resource);
+    font->DestroyHW();
+    font->GenerateHW(m_editor->GetEditorRenderer().GetGUIBackend().GetLVGText());
+    m_editor->GetEditorRenderer().GetGUIBackend().ReuploadAtlases(m_editor->GetEditorRenderer().GetUploadQueue());
+    m_editor->GetEditorRenderer().MarkBindlessDirty();
+}
+
+void PanelFontViewer::UpdateFontProps()
+{
+    Font* font = static_cast<Font*>(m_resource);
+    m_fontName = font->GetName();
+    m_fontSize = UtilStr::FloatToString(static_cast<float>(font->GetFileSize()) / 1000.0f, 1) + " KB";
+}
+
+/*
 	void PanelFontViewer::Construct()
 	{
 		m_editor = Editor::Get();
@@ -339,4 +371,5 @@ namespace Lina::Editor
 	void PanelFontViewer::LoadLayoutFromStream(IStream& stream)
 	{
 	}
+ */
 } // namespace Lina::Editor

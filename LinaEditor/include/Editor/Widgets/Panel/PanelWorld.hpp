@@ -42,7 +42,7 @@ namespace Lina::Editor
 	class PanelWorld : public Panel
 	{
 	public:
-		PanelWorld() : Panel(PanelType::World, 0){};
+		PanelWorld() : Panel(PanelType::World){};
 		virtual ~PanelWorld() = default;
 
 		virtual void Construct() override;

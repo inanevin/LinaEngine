@@ -28,56 +28,49 @@ SOFTWARE.
 
 #pragma once
 
-#include "Editor/Widgets/Panel/Panel.hpp"
-#include "Core/Graphics/CommonGraphics.hpp"
+#include "Editor/Widgets/Panel/PanelResourceViewer.hpp"
+#include "Core/Graphics/Resource/Font.hpp"
 
 namespace Lina
 {
-	class Font;
 	class Text;
-	class DirectionalLayout;
-	class Button;
 } // namespace Lina
 
 namespace Lina::Editor
 {
 	class Editor;
-	class PanelFontViewer : public Panel
+
+    class PanelFontViewer : public PanelResourceViewer
 	{
 	public:
-		PanelFontViewer() : Panel(PanelType::FontViewer, 0){};
+        PanelFontViewer() : PanelResourceViewer(PanelType::FontViewer, GetTypeID<Font>(), GetTypeID<PanelFontViewer>()) {};
 		virtual ~PanelFontViewer() = default;
 
 		virtual void Construct() override;
 		virtual void Initialize() override;
-		virtual void Destruct() override;
 
-		virtual void SaveLayoutToStream(OStream& stream) override;
-		virtual void LoadLayoutFromStream(IStream& stream) override;
-
-	private:
-		void SetRuntimeDirty(bool isDirty);
-		void ReloadCPU(const String& path);
-		void ReloadGPU();
+    protected:
+        
+        virtual void OnGeneralMetaChanged(const MetaType& meta, FieldBase* field)  override;
+        virtual void OnResourceMetaChanged(const MetaType& meta, FieldBase* field) override;
+        virtual void RegenGPU() override;
+        
+    private:
+        
+        void UpdateFontProps();
 
 	private:
 		LINA_REFLECTION_ACCESS(PanelFontViewer);
 
-		String			   m_fontName				= "";
-		bool			   m_generalFold			= true;
-		bool			   m_fontFold				= true;
+        String             m_fontName                = "";
+		String			   m_fontSize				= "";
 		String			   m_displayString			= "Peace at home, peace at world.";
-		Button*			   m_saveButton				= nullptr;
-		Widget*			   m_fontPanel				= nullptr;
 		Text*			   m_fontDisplay			= nullptr;
-		Editor*			   m_editor					= nullptr;
-		Font*			   m_font					= nullptr;
-		DirectionalLayout* m_inspector				= nullptr;
-		bool			   m_containsRuntimeChanges = false;
 	};
 
 	LINA_WIDGET_BEGIN(PanelFontViewer, Hidden)
-	LINA_FIELD(PanelFontViewer, m_fontName, "Font Name", FieldType::StringFixed, 0)
+    LINA_FIELD(PanelFontViewer, m_fontName, "Name", FieldType::StringFixed, 0)
+	LINA_FIELD(PanelFontViewer, m_fontSize, "Size", FieldType::StringFixed, 0)
 	LINA_FIELD(PanelFontViewer, m_displayString, "Display String", FieldType::String, 0)
 	LINA_CLASS_END(PanelFontViewer)
 

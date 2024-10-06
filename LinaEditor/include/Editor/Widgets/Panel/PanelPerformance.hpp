@@ -40,7 +40,7 @@ namespace Lina::Editor
 	class PanelPerformance : public Panel
 	{
 	public:
-		PanelPerformance() : Panel(PanelType::Performance, 0){};
+		PanelPerformance() : Panel(PanelType::Performance){};
 		virtual ~PanelPerformance() = default;
 
 		virtual void Construct() override;

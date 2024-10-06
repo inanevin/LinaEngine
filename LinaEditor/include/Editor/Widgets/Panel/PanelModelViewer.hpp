@@ -49,7 +49,7 @@ namespace Lina::Editor
 	class PanelModelViewer : public Panel
 	{
 	public:
-		PanelModelViewer() : Panel(PanelType::ModelViewer, 0){};
+		PanelModelViewer() : Panel(PanelType::ModelViewer){};
 		virtual ~PanelModelViewer() = default;
 
 		virtual void Construct() override;

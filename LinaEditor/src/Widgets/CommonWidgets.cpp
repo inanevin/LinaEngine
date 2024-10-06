@@ -289,7 +289,6 @@ namespace Lina::Editor
 
 		fold->GetFlags().Set(WF_SIZE_ALIGN_X);
 		fold->SetAlignedSizeX(1.0f);
-		fold->GetProps().useTween	   = true;
 		fold->GetProps().tweenDuration = 0.25f;
 		fold->GetProps().tweenPower	   = Theme::GetDef().baseIndentInner;
 		fold->SetIsUnfolded(unfoldVal != nullptr ? *unfoldVal : false);
@@ -602,7 +601,6 @@ namespace Lina::Editor
 		fold->SetAlignedPosX(0.0f);
 		fold->SetAlignedSizeX(1.0f);
 		fold->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
-		fold->GetProps().useTween			= true;
 		fold->GetProps().tweenDuration		= 0.25f;
 		fold->GetProps().tweenPower			= Theme::GetDef().baseIndentInner;
 		fold->SetIsUnfolded(*foldValue);
@@ -695,10 +693,13 @@ namespace Lina::Editor
 		{
 			layout->GetFlags().Set(WF_MOUSE_PASSTHRU);
 			layout->GetProps().receiveInput = true;
-			layout->GetProps().onClicked	= [fold, layout]() {
+			layout->GetProps().onClicked	= [fold, layout, foldVal]() {
 				   const Vector2 mp = layout->GetWindow()->GetMousePosition();
 				   if (mp.x < layout->GetRect().GetCenter().x)
+				   {
 					   fold->SetIsUnfolded(!fold->GetIsUnfolded());
+					   *foldVal = fold->GetIsUnfolded();
+				   }
 			};
 		}
 
@@ -850,7 +851,7 @@ namespace Lina::Editor
 		WidgetManager* wm = src->GetWidgetManager();
 
 		FieldValue reflectionValue(memberVariablePtr);
-		const bool isFold	 = fieldType == FieldType::Vector || fieldType == FieldType::UserClass;
+		const bool isFold	 = fieldType == FieldType::Vector || (fieldType == FieldType::UserClass);
 		bool*	   foldValue = nullptr;
 
 		Widget* fieldLayout = BuildFieldLayout(src, CountDependencies(metaType, field) + (vectorElementIndex == -1 ? 0 : 1), title, isFold, field->GetFoldValuePtr());
@@ -1063,8 +1064,9 @@ namespace Lina::Editor
 		}
 		else if (fieldType == FieldType::StringFixed)
 		{
-			String* str = reflectionValue.CastPtr<String>();
-			Text*	txt = wm->Allocate<Text>();
+			String* str				 = reflectionValue.CastPtr<String>();
+			Text*	txt				 = wm->Allocate<Text>();
+			txt->GetProps().valuePtr = str;
 			txt->GetFlags().Set(WF_POS_ALIGN_Y);
 			txt->SetAlignedPosY(0.5f);
 			txt->SetAnchorY(Anchor::Center);

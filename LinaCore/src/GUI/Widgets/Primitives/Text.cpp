@@ -82,6 +82,9 @@ namespace Lina
 			}
 		}
 
+		if (m_props.valuePtr != nullptr)
+			UpdateTextAndCalcSize(*m_props.valuePtr);
+
 		if (m_lvgFont == nullptr)
 			return;
 

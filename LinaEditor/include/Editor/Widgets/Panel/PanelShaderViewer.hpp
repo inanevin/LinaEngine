@@ -49,7 +49,7 @@ namespace Lina::Editor
 	class PanelShaderViewer : public Panel
 	{
 	public:
-		PanelShaderViewer() : Panel(PanelType::ShaderViewer, 0){};
+		PanelShaderViewer() : Panel(PanelType::ShaderViewer){};
 		virtual ~PanelShaderViewer() = default;
 
 		virtual void Construct() override;

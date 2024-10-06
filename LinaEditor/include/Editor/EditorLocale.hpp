@@ -125,6 +125,7 @@ namespace Lina::Editor
 		ReImport,
 		Revert,
 		Reverting,
+		Reimporting,
 		New,
 		GUIWidget,
 		SelectWidget,

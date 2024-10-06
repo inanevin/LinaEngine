@@ -59,7 +59,7 @@ namespace Lina::Editor
 		};
 
 	public:
-		PanelWidgetEditor() : Panel(PanelType::WidgetEditor, 0){};
+		PanelWidgetEditor() : Panel(PanelType::WidgetEditor){};
 		virtual ~PanelWidgetEditor() = default;
 
 		virtual void Construct() override;

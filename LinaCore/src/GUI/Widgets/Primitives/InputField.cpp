@@ -92,6 +92,12 @@ namespace Lina
 			m_text->GetProps().text = UtilStr::FloatToString(GetValue(), m_props.decimals);
 			m_text->CalculateTextSize();
 		}
+
+		if (m_props.valueStr)
+		{
+			m_text->GetProps().text = *m_props.valueStr;
+			m_text->CalculateTextSize();
+		}
 	}
 
 	void InputField::CalculateSize(float delta)
@@ -138,11 +144,16 @@ namespace Lina
 			if (m_props.onValueChanged)
 				m_props.onValueChanged(GetValue(), true);
 		}
+
+		if (!m_isEditing && m_props.valueStr)
+		{
+			m_text->GetProps().text = *m_props.valueStr;
+			m_text->CalculateTextSize();
+		}
 	}
 
 	void InputField::Tick(float delta)
 	{
-
 		if (m_placeholderText->GetIsDisabled() && m_text->GetProps().text.empty())
 		{
 			m_placeholderText->GetProps().text	= m_props.placeHolderText;
@@ -299,6 +310,9 @@ namespace Lina
 		m_caretInsertPos	= 0;
 		m_isEditing			= false;
 		m_textOffset		= 0.0f;
+
+		if (m_props.valueStr && !m_props.isNumberField)
+			*m_props.valueStr = m_text->GetProps().text;
 
 		if (m_props.onEditEnd)
 			m_props.onEditEnd(m_text->GetProps().text);

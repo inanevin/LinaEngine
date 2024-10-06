@@ -87,6 +87,7 @@ namespace Lina
 			if (c->GetFlags().IsSet(WF_HIDE))
 				continue;
 
+			c->GetFlags().Remove(WF_POS_ALIGN_X);
 			c->SetPosX(x);
 			c->SetPosY(y);
 			y += c->GetSizeY() + GetWidgetProps().childPadding;

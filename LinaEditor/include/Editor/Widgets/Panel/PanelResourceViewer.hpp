@@ -35,6 +35,7 @@ namespace Lina
 {
 	class Resource;
 	class Button;
+	class FoldLayout;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -45,7 +46,7 @@ namespace Lina::Editor
 	{
 	public:
 		PanelResourceViewer() = default;
-		PanelResourceViewer(PanelType type, ResourceID subData, TypeID resourceTID, TypeID panelTID, uint32 flags = 0) : Panel(type, subData, flags), m_resourceTID(resourceTID), m_panelTID(panelTID){};
+		PanelResourceViewer(PanelType type, TypeID resourceTID, TypeID panelTID, uint32 flags = 0) : Panel(type, flags), m_resourceTID(resourceTID), m_panelTID(panelTID){};
 		virtual ~PanelResourceViewer() = default;
 
 		virtual void Construct() override;
@@ -58,7 +59,7 @@ namespace Lina::Editor
 		virtual void RegenGPU()													   = 0;
 
 		void	SaveResource();
-		void	RevertResource();
+		void	ReimportResource();
 		void	StoreBuffer();
 		void	BuildInspector();
 		void	SetRuntimeDirty(bool runtimeDirty);
@@ -66,20 +67,22 @@ namespace Lina::Editor
 		void	DisableRecursively(Widget* parent);
 
 	protected:
-		Resource* m_resource	= nullptr;
-		Widget*	  m_resourceBG	= nullptr;
-		Widget*	  m_inspector	= nullptr;
-		Editor*	  m_editor		= nullptr;
-		TypeID	  m_resourceTID = 0;
-		TypeID	  m_panelTID	= 0;
-		RawStream m_resourceBuffer;
-		Button*	  m_saveButton	 = nullptr;
-		Button*	  m_revertButton = nullptr;
-		bool	  m_previewOnly	 = false;
-		bool	  m_runtimeDirty = false;
+		FoldLayout* m_foldGeneral  = nullptr;
+		FoldLayout* m_foldResource = nullptr;
+		Resource*	m_resource	   = nullptr;
+		Widget*		m_resourceBG   = nullptr;
+		Widget*		m_inspector	   = nullptr;
+		Editor*		m_editor	   = nullptr;
+		TypeID		m_resourceTID  = 0;
+		TypeID		m_panelTID	   = 0;
+		RawStream	m_resourceBuffer;
+		Button*		m_saveButton	 = nullptr;
+		Button*		m_reimportButton = nullptr;
+		bool		m_previewOnly	 = false;
+		bool		m_runtimeDirty	 = false;
 
-		bool m_foldGeneral	= true;
-		bool m_foldResource = true;
+		bool m_foldGeneralVal  = true;
+		bool m_foldResourceVal = true;
 	};
 
 } // namespace Lina::Editor

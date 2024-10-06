@@ -45,7 +45,7 @@ namespace Lina
 			bool				 doubleClickChangesFold = true;
 			bool				 lookForChevron			= true;
 			float				 marginIncrease			= Theme::GetDef().baseIndentInner;
-			bool				 useTween				= false;
+			bool				 useTween				= true;
 			float				 tweenPower				= 6.0f;
 			float				 tweenDuration			= 0.25f;
 

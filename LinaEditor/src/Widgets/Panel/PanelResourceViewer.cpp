@@ -56,17 +56,29 @@ namespace Lina::Editor
 		horizontal->GetProps().mode		 = DirectionalLayout::Mode::Bordered;
 		AddChild(horizontal);
 
+		Widget* bg = m_manager->Allocate<Widget>("BG");
+		bg->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		bg->SetAlignedPos(Vector2::Zero);
+		bg->SetAlignedSize(Vector2(0.7f, 1.0f));
+		bg->GetWidgetProps().childMargins	  = TBLR::Eq(Theme::GetDef().baseIndent);
+		bg->GetWidgetProps().drawBackground	  = true;
+		bg->GetWidgetProps().colorBackground  = Theme::GetDef().background1;
+		bg->GetWidgetProps().outlineThickness = 0.0f;
+		bg->GetWidgetProps().rounding		  = 0.0f;
+		bg->GetWidgetProps().childMargins	  = TBLR::Eq(Theme::GetDef().baseIndent);
+		horizontal->AddChild(bg);
+
 		Widget* resBG = m_manager->Allocate<Widget>("ResBG");
 		resBG->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		resBG->SetAlignedPos(Vector2::Zero);
-		resBG->SetAlignedSize(Vector2(0.7f, 1.0f));
+		resBG->SetAlignedSize(Vector2::One);
 		resBG->GetWidgetProps().childMargins	 = TBLR::Eq(Theme::GetDef().baseIndent);
 		resBG->GetWidgetProps().drawBackground	 = true;
 		resBG->GetWidgetProps().colorBackground	 = Theme::GetDef().background0;
 		resBG->GetWidgetProps().outlineThickness = 0.0f;
 		resBG->GetWidgetProps().rounding		 = 0.0f;
 		resBG->GetWidgetProps().childMargins	 = TBLR::Eq(Theme::GetDef().baseIndent);
-		horizontal->AddChild(resBG);
+		bg->AddChild(resBG);
 
 		ScrollArea* scroll = m_manager->Allocate<ScrollArea>("Scroll");
 		scroll->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
@@ -113,7 +125,7 @@ namespace Lina::Editor
 		if (m_resource != nullptr)
 			return;
 
-		const bool dontExists = m_editor->GetProjectManager().GetProjectData() == nullptr || m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_subData);
+		const bool dontExists = m_editor->GetProjectManager().GetProjectData() == nullptr || !m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_subData);
 
 		if (dontExists)
 		{
@@ -184,38 +196,39 @@ namespace Lina::Editor
 
 		// General reflection.
 		{
-			FoldLayout* foldGeneral = CommonWidgets::BuildFoldTitle(m_inspector, Locale::GetStr(LocaleStr::General), &m_foldGeneral);
-			m_inspector->AddChild(foldGeneral);
+			m_foldGeneral = CommonWidgets::BuildFoldTitle(m_inspector, Locale::GetStr(LocaleStr::General), &m_foldGeneralVal);
+			m_inspector->AddChild(m_foldGeneral);
 
-			CommonWidgets::BuildClassReflection(foldGeneral, this, ReflectionSystem::Get().Resolve(m_panelTID), [this](const MetaType& meta, FieldBase* field) { OnGeneralMetaChanged(meta, field); });
+			CommonWidgets::BuildClassReflection(m_foldGeneral, this, ReflectionSystem::Get().Resolve(m_panelTID), [this](const MetaType& meta, FieldBase* field) { OnGeneralMetaChanged(meta, field); });
 
 			Widget* buttonLayout1 = buildButtonLayout();
-			foldGeneral->AddChild(buttonLayout1);
+			m_foldGeneral->AddChild(buttonLayout1);
 
-			m_revertButton = BuildButton(Locale::GetStr(LocaleStr::Revert), ICON_REVERT);
-			m_saveButton   = BuildButton(Locale::GetStr(LocaleStr::Save), ICON_SAVE);
-
+			m_reimportButton					   = BuildButton(Locale::GetStr(LocaleStr::ReImport), ICON_ROTATE);
+			m_reimportButton->GetProps().onClicked = [this]() { ReimportResource(); };
+			m_saveButton						   = BuildButton(Locale::GetStr(LocaleStr::Save), ICON_SAVE);
+			m_saveButton->GetProps().onClicked	   = [this]() { SaveResource(); };
+			m_saveButton->SetIsDisabled(!m_runtimeDirty);
 			buttonLayout1->AddChild(m_saveButton);
-			buttonLayout1->AddChild(m_revertButton);
-
-			m_revertButton->GetProps().onClicked = []() { RevertResource(); };
-
-			m_saveButton->GetProps().onClicked = []() { SaveResource(); };
+			buttonLayout1->AddChild(m_reimportButton);
 
 			if (m_previewOnly)
-				DisableRecursively(foldGeneral);
+				DisableRecursively(m_foldGeneral);
 		}
 
 		// Resource reflection
 		{
-			FoldLayout* foldResource = CommonWidgets::BuildFoldTitle(m_inspector, Locale::GetStr(LocaleStr::Resource), &m_foldResource);
-			m_inspector->AddChild(foldResource);
+			m_foldResource = CommonWidgets::BuildFoldTitle(m_inspector, Locale::GetStr(LocaleStr::Resource), &m_foldResourceVal);
+			m_inspector->AddChild(m_foldResource);
 
 			// Build resource reflection.
-			CommonWidgets::BuildClassReflection(foldResource, m_resource, ReflectionSystem::Get().Resolve(m_resourceTID), [this](const MetaType& meta, FieldBase* field) { OnResourceMetaChanged(meta, field); });
+			CommonWidgets::BuildClassReflection(m_foldResource, m_resource, ReflectionSystem::Get().Resolve(m_resourceTID), [this](const MetaType& meta, FieldBase* field) {
+				OnResourceMetaChanged(meta, field);
+				SetRuntimeDirty(true);
+			});
 
 			if (m_previewOnly)
-				DisableRecursively(foldResource);
+				DisableRecursively(m_foldResource);
 		}
 	}
 
@@ -233,8 +246,7 @@ namespace Lina::Editor
 		m_runtimeDirty = runtimeDirty;
 		Text* txt	   = GetWidgetOfType<Text>(m_saveButton);
 		txt->UpdateTextAndCalcSize(runtimeDirty ? (Locale::GetStr(LocaleStr::Save) + " *") : Locale::GetStr(LocaleStr::Save));
-		m_revertButton->SetIsDisabled(!runtimeDirty);
-		m_saveButton->SetIsDisabled(runtimeDirty);
+		m_saveButton->SetIsDisabled(!runtimeDirty);
 	}
 
 	void PanelResourceViewer::DisableRecursively(Widget* parent)
@@ -285,30 +297,26 @@ namespace Lina::Editor
 		m_editor->GetExecutor().RunMove(tf);
 	}
 
-	void PanelResourceViewer::RevertResource()
+	void PanelResourceViewer::ReimportResource()
 	{
 		// Add GUI lock.
 		Widget* lock = m_editor->GetWindowPanelManager().LockAllForegrounds(m_lgxWindow, Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow));
-		Widget* pp	 = CommonWidgets::BuildGenericPopupProgress(lock, Locale::GetStr(LocaleStr::Reverting), true);
+		Widget* pp	 = CommonWidgets::BuildGenericPopupProgress(lock, Locale::GetStr(LocaleStr::Reimporting), true);
 		lock->AddChild(pp);
 
 		Taskflow tf;
 		tf.emplace([this]() {
-			IStream stream;
-			stream.Create(m_resourceBuffer.GetRaw(), m_resourceBuffer.GetSize());
-			m_resource->LoadFromStream(stream);
-			stream.Destroy();
+			m_resource->LoadFromFile(m_resource->GetPath());
 
-			m_editor->QueueTask([this, dir]() {
+			m_editor->QueueTask([this]() {
 				// Gen & upload atlases, unlock GUI.
 				Application::GetLGX()->Join();
 				RegenGPU();
+				ResourceDirectory* dir = m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_resource->GetID());
 				m_editor->GetProjectManager().GenerateMissingAtlasImages(dir);
 				m_editor->GetAtlasManager().RefreshPoolAtlases();
 				m_editor->GetWindowPanelManager().UnlockAllForegrounds();
 				m_editor->GetProjectManager().NotifyProjectResourcesRefreshed();
-				SetRuntimeDirty(false);
-				BuildInspector();
 			});
 		});
 

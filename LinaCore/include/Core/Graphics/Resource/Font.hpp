@@ -95,8 +95,14 @@ namespace Lina
 			m_meta.LoadFromStream(stream);
 		}
 
+		inline size_t GetFileSize() const
+		{
+			return m_file.size();
+		}
+
 	private:
 		ALLOCATOR_BUCKET_MEM;
+		LINA_REFLECTION_ACCESS(Font);
 
 		Vector<LinaVG::Font*> m_lvgFonts = {};
 		Vector<char>		  m_file;
@@ -104,6 +110,7 @@ namespace Lina
 	};
 
 	LINA_RESOURCE_BEGIN(Font);
+	LINA_FIELD(Font, m_meta, "Metadata", FieldType::UserClass, GetTypeID<Font::Metadata>())
 	LINA_CLASS_END(Font);
 
 	LINA_CLASS_BEGIN(FontPointRef)

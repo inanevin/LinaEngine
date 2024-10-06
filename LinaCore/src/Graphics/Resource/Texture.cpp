@@ -117,7 +117,14 @@ namespace Lina
 			return false;
 		}
 
-		m_bytesPerPixel = outBuffer.bytesPerPixel;
+		if (outBuffer.bytesPerPixel > 4 && outBuffer.bytesPerPixel != 8)
+		{
+			LINA_ERR("Only 1-2-3-4 and 8 bytes per pixel is allowed!");
+			return false;
+		}
+
+		const LinaGX::Format target4Channel = m_meta.isLinear ? LinaGX::Format::R8G8B8A8_UNORM : LinaGX::Format::R8G8B8A8_SRGB;
+		m_bytesPerPixel						= outBuffer.bytesPerPixel;
 
 		if (m_importedChannels == 1)
 			m_meta.format = m_bytesPerPixel == 1 ? LinaGX::Format::R8_UNORM : LinaGX::Format::R16_UNORM;
@@ -138,11 +145,11 @@ namespace Lina
 				return false;
 			}
 
-			m_meta.format = m_bytesPerPixel == 4 ? LinaGX::Format::R8G8B8A8_SRGB : LinaGX::Format::R16G16B16A16_UNORM;
+			m_meta.format = m_bytesPerPixel == 4 ? target4Channel : LinaGX::Format::R16G16B16A16_UNORM;
 		}
 		else if (m_importedChannels == 4)
 		{
-			m_meta.format = m_bytesPerPixel == 4 ? LinaGX::Format::R8G8B8A8_SRGB : LinaGX::Format::R16G16B16A16_UNORM;
+			m_meta.format = m_bytesPerPixel == 4 ? target4Channel : LinaGX::Format::R16G16B16A16_UNORM;
 		}
 
 		m_size.x = outBuffer.width;

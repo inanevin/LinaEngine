@@ -122,6 +122,7 @@ namespace Lina::Editor
 		{LocaleStr::ReImport, "Reimport"},
 		{LocaleStr::Revert, "Revert"},
 		{LocaleStr::Reverting, "Reverting..."},
+		{LocaleStr::Reimporting, "Reimporting..."},
 		{LocaleStr::New, "New"},
 		{LocaleStr::GUIWidget, "GUIWidget"},
 		{LocaleStr::SelectWidget, "Select: GUIWidget"},

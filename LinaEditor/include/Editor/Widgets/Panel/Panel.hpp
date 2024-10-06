@@ -53,7 +53,7 @@ namespace Lina::Editor
 	{
 	public:
 		Panel() = default;
-		Panel(PanelType type, ResourceID subData, uint32 flags = 0) : m_panelType(type), m_subData(subData), m_panelFlags(flags), Widget(){};
+		Panel(PanelType type, uint32 flags = 0) : m_panelType(type), m_panelFlags(flags), Widget(){};
 		virtual ~Panel() = default;
 
 		virtual void SaveLayoutToStream(OStream& stream){};

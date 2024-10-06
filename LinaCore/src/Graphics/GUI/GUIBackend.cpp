@@ -78,6 +78,10 @@ namespace Lina
 		for (const Pair<LinaVG::Atlas*, FontTexture>& pair : m_fontAtlases)
 		{
 			const FontTexture& ft = pair.second;
+
+			if (ft.texture->GetAllLevels().empty())
+				continue;
+
 			if (!ft.texture->IsGPUValid())
 				ft.texture->GenerateHW();
 			ft.texture->AddToUploadQueue(queue, true);

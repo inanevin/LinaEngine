@@ -45,7 +45,7 @@ namespace Lina::Editor
 	class PanelEntities : public Panel, public EntityWorldListener, public FileMenuListener
 	{
 	public:
-		PanelEntities() : Panel(PanelType::Entities, 0){};
+		PanelEntities() : Panel(PanelType::Entities){};
 		virtual ~PanelEntities() = default;
 
 		virtual void Construct() override;

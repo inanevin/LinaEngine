@@ -46,7 +46,7 @@ namespace Lina::Editor
 	class PanelResourceBrowser : public Panel
 	{
 	public:
-		PanelResourceBrowser() : Panel(PanelType::ResourceBrowser, 0){};
+		PanelResourceBrowser() : Panel(PanelType::ResourceBrowser){};
 		virtual ~PanelResourceBrowser() = default;
 
 		virtual void Construct() override;
