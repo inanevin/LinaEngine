@@ -57,7 +57,8 @@ namespace Lina::Editor
 
 	private:
 		void SetRuntimeDirty(bool isDirty);
-		void RegenFont(const String& path);
+		void ReloadCPU(const String& path);
+		void ReloadGPU();
 
 	private:
 		LINA_REFLECTION_ACCESS(PanelFontViewer);

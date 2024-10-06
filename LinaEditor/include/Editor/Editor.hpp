@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Core/ApplicationDelegate.hpp"
 #include "Common/Data/HashMap.hpp"
+#include "Common/JobSystem/TaskRunner.hpp"
 #include "Meta/EditorSettings.hpp"
 #include "Editor/CommonEditor.hpp"
 #include "Atlas/AtlasManager.hpp"
@@ -61,7 +62,7 @@ namespace Lina::Editor
 	class DockArea;
 	class WorldRendererExtEditor;
 
-	class Editor : public ApplicationDelegate, public ResourceManagerListener
+	class Editor : public ApplicationDelegate, public TaskRunner
 	{
 
 	private:
@@ -86,9 +87,6 @@ namespace Lina::Editor
 		// Misc
 		void SaveSettings();
 		void RequestExit();
-
-		// Resources
-		virtual void OnResourcesLoaded(int32 taskID, const ResourceList& resources) override;
 
 		// Renderers
 		WorldRenderer* GetWorldRenderer(EntityWorld* world);
@@ -133,12 +131,17 @@ namespace Lina::Editor
 			return m_editorRenderer;
 		}
 
+		inline JobExecutor& GetExecutor()
+		{
+			return m_executor;
+		}
+
 	private:
 		void CreateWorldRenderer(EntityWorld* world);
 		void DestroyWorldRenderer(EntityWorld* world);
-		void CoreResourcesLoaded();
 
 	private:
+		JobExecutor							  m_executor;
 		ResourceManagerV2					  m_resourceManagerV2;
 		EditorRenderer						  m_editorRenderer;
 		WindowPanelManager					  m_windowPanelManager;
@@ -151,7 +154,6 @@ namespace Lina::Editor
 		LinaGX::Window*						  m_mainWindow			 = nullptr;
 		HashMap<EntityWorld*, WorldRenderer*> m_worldRenderers;
 		static Editor*						  s_editor;
-		bool								  m_coreResourcesOK = false;
 	};
 
 } // namespace Lina::Editor

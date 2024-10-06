@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Common/Data/String.hpp"
 #include "Common/Data/HashSet.hpp"
 #include "Common/Common.hpp"
+#include "Common/Data/HashSet.hpp"
 
 namespace Lina
 {
@@ -83,4 +84,8 @@ namespace Lina
 		uint64			  startTime	  = 0;
 		uint64			  endTime	  = 0;
 	};
+
+typedef HashSet<ResourceDef, ResourceDefHash> ResourceDefinitionList;
+typedef HashSet<Resource*>                      ResourceList;
+
 } // namespace Lina

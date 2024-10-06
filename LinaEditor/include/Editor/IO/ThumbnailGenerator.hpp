@@ -48,6 +48,7 @@ namespace Lina::Editor
 	{
 
 	public:
+		static void					 CreateThumbnailBuffer(RawStream& stream, LinaGX::TextureBuffer b);
 		static LinaGX::TextureBuffer GenerateThumbnailForResource(Resource* resource);
 		static LinaGX::TextureBuffer GenerateThumbnail(Texture* texture);
 		static LinaGX::TextureBuffer GenerateThumbnail(Model* model);

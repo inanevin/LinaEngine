@@ -43,7 +43,7 @@ namespace Lina::Editor
 	void EditorRenderer::Initialize(Editor* editor)
 	{
 		m_editor = editor;
-		m_guiBackend.Initialize(&m_editor->GetResourceManagerV2(), &m_uploadQueue);
+		m_guiBackend.Initialize(&m_editor->GetResourceManagerV2());
 		m_lgx				= Application::GetLGX();
 		m_resourceManagerV2 = &editor->GetResourceManagerV2();
 		m_guiSampler		= m_resourceManagerV2->CreateResource<TextureSampler>(m_resourceManagerV2->ConsumeResourceID(), "EditorRendererGUISampler");
@@ -62,8 +62,6 @@ namespace Lina::Editor
 
 		samplerData.magFilter = LinaGX::Filter::Anisotropic;
 		m_guiTextSampler->GenerateHW(samplerData);
-
-		m_resourceManagerV2->AddListener(this);
 
 		m_pipelineLayoutGlobal = m_lgx->CreatePipelineLayout(EditorGfxHelpers::GetPipelineLayoutDescriptionGlobal());
 		m_pipelineLayoutGUI	   = m_lgx->CreatePipelineLayout(EditorGfxHelpers::GetPipelineLayoutDescriptionGUI());
@@ -93,7 +91,6 @@ namespace Lina::Editor
 		m_resourceManagerV2->DestroyResource(m_guiSampler);
 		m_resourceManagerV2->DestroyResource(m_guiTextSampler);
 
-		m_resourceManagerV2->RemoveListener(this);
 		m_lgx->DestroyPipelineLayout(m_pipelineLayoutGlobal);
 		m_lgx->DestroyPipelineLayout(m_pipelineLayoutGUI);
 
@@ -333,20 +330,31 @@ namespace Lina::Editor
 	void EditorRenderer::OnResourcesUnloaded(const ResourceDefinitionList& resources)
 	{
 		bool bindlessDirty = false;
+		bool containsFont  = false;
 
 		for (const ResourceDef& def : resources)
 		{
 			if (def.tid == GetTypeID<Texture>() || def.tid == GetTypeID<TextureSampler>() || def.tid == GetTypeID<Material>())
 				bindlessDirty = true;
+
+			if (def.tid == GetTypeID<Font>())
+			{
+				containsFont  = true;
+				bindlessDirty = true;
+			}
 		}
+
+		if (containsFont)
+			m_guiBackend.ReuploadAtlases(m_uploadQueue);
 
 		if (bindlessDirty)
 			MarkBindlessDirty();
 	}
 
-	void EditorRenderer::OnResourcesLoaded(int32 taskID, const ResourceList& resources)
+	void EditorRenderer::OnResourcesLoaded(const ResourceList& resources)
 	{
 		bool bindlessDirty = false;
+		bool containsFont  = false;
 
 		for (Resource* res : resources)
 		{
@@ -367,6 +375,7 @@ namespace Lina::Editor
 			{
 				Font* font = static_cast<Font*>(res);
 				font->GenerateHW(m_guiBackend.GetLVGText());
+				containsFont  = true;
 				bindlessDirty = true;
 			}
 			else if (res->GetTID() == GetTypeID<Shader>())
@@ -375,6 +384,9 @@ namespace Lina::Editor
 				shd->GenerateHW();
 			}
 		}
+
+		if (containsFont)
+			m_guiBackend.ReuploadAtlases(m_uploadQueue);
 
 		if (bindlessDirty)
 			MarkBindlessDirty();

@@ -88,6 +88,10 @@ namespace Lina::Editor
 	protected:
 		virtual bool OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData) override;
 		virtual void OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
+		virtual void OnProjectOpened(ProjectData* data) override
+		{
+			RefreshDirectory();
+		}
 		virtual void OnProjectResourcesRefreshed() override
 		{
 			RefreshDirectory();

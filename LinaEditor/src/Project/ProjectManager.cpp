@@ -41,6 +41,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Platform/PlatformProcess.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
+#include "Core/Application.hpp"
 
 namespace Lina::Editor
 {
@@ -106,14 +107,7 @@ namespace Lina::Editor
 
 	void ProjectManager::PreTick()
 	{
-		if (m_resourceAtlasesNeedUpdate.load(std::memory_order_relaxed))
-		{
-			m_editor->GetWindowPanelManager().UnlockAllForegrounds();
-			m_editor->GetAtlasManager().RefreshPoolAtlases();
-			m_resourceAtlasesNeedUpdate.store(false);
-			for (ProjectManagerListener* listener : m_listeners)
-				listener->OnProjectResourcesRefreshed();
-		}
+		TaskRunner::Poll();
 	}
 
 	void ProjectManager::Shutdown()
@@ -195,7 +189,7 @@ namespace Lina::Editor
 			return;
 
 		RemoveDirectoryThumbnails(&m_currentProject->GetResourceRoot());
-		MarkResourceAtlasesNeedUpdate();
+		m_editor->GetAtlasManager().RefreshPoolAtlases();
 
 		delete m_currentProject;
 		m_currentProject = nullptr;
@@ -230,70 +224,87 @@ namespace Lina::Editor
 			updateProg(Locale::GetStr(LocaleStr::LoadingProjectData));
 			m_currentProject->LoadFromFile();
 
-			ResourceDirectory* linaAssets = m_currentProject->GetResourceRoot().GetChildByName(EDITOR_DEF_RESOURCES_FOLDER);
+			const Vector<ResourcePipeline::ResourceImportDef> desiredAssets = {
+				{
+					.path = EDITOR_FONT_ROBOTO_PATH,
+					.id	  = EDITOR_FONT_ROBOTO_ID,
+				},
+				{
+					.path = EDITOR_SHADER_DEFAULT_OBJECT_PATH,
+					.id	  = EDITOR_SHADER_DEFAULT_OBJECT_ID,
+				},
+				{
+					.path = EDITOR_SHADER_DEFAULT_SKY_PATH,
+					.id	  = EDITOR_SHADER_DEFAULT_SKY_ID,
+				},
+				{
+					.path = EDITOR_SHADER_DEFAULT_LIGHTING_PATH,
+					.id	  = EDITOR_SHADER_DEFAULT_LIGHTING_ID,
+				},
+				{
+					.path = EDITOR_MODEL_CUBE_PATH,
+					.id	  = EDITOR_MODEL_CUBE_ID,
+				},
+				{
+					.path = EDITOR_MODEL_SPHERE_PATH,
+					.id	  = EDITOR_MODEL_SPHERE_ID,
+				},
+				{
+					.path = EDITOR_MODEL_CYLINDER_PATH,
+					.id	  = EDITOR_MODEL_CYLINDER_ID,
+				},
+				{
+					.path = EDITOR_MODEL_PLANE_PATH,
+					.id	  = EDITOR_MODEL_PLANE_ID,
+				},
+				{
+					.path = EDITOR_MODEL_SKYCUBE_PATH,
+					.id	  = EDITOR_MODEL_SKYCUBE_ID,
+				},
+				{
+					.path = EDITOR_TEXTURE_EMPTY_ALBEDO_PATH,
+					.id	  = EDITOR_TEXTURE_EMPTY_ALBEDO_ID,
+				},
+				{
+					.path = EDITOR_TEXTURE_EMPTY_NORMAL_PATH,
+					.id	  = EDITOR_TEXTURE_EMPTY_NORMAL_ID,
+				},
+			};
 
+			Vector<ResourcePipeline::ResourceImportDef> importDefinitions;
+
+			ResourceDirectory* linaAssets = m_currentProject->GetResourceRoot().GetChildByName(EDITOR_DEF_RESOURCES_FOLDER);
 			if (linaAssets == nullptr)
 			{
-				ResourceDirectory* lina = m_currentProject->GetResourceRoot().CreateChild({
-					.name	  = EDITOR_DEF_RESOURCES_FOLDER,
-					.isFolder = true,
-				});
+				importDefinitions = desiredAssets;
+				linaAssets		  = m_currentProject->GetResourceRoot().CreateChild({
+						   .name	 = EDITOR_DEF_RESOURCES_FOLDER,
+						   .isFolder = true,
+				   });
+			}
+			else
+			{
+				for (const ResourcePipeline::ResourceImportDef& def : desiredAssets)
+				{
+					if (linaAssets->FindResource(def.id) == nullptr)
+						importDefinitions.push_back(def);
+				}
+			}
 
-				const Vector<ResourcePipeline::ResourceImportDef> importDefinitions = {
-					{
-						.path = EDITOR_FONT_ROBOTO_PATH,
-						.id	  = EDITOR_FONT_ROBOTO_ID,
-					},
-					{
-						.path = EDITOR_SHADER_DEFAULT_OBJECT_PATH,
-						.id	  = EDITOR_SHADER_DEFAULT_OBJECT_ID,
-					},
-					{
-						.path = EDITOR_SHADER_DEFAULT_SKY_PATH,
-						.id	  = EDITOR_SHADER_DEFAULT_SKY_ID,
-					},
-					{
-						.path = EDITOR_SHADER_DEFAULT_LIGHTING_PATH,
-						.id	  = EDITOR_SHADER_DEFAULT_LIGHTING_ID,
-					},
-					{
-						.path = EDITOR_MODEL_CUBE_PATH,
-						.id	  = EDITOR_MODEL_CUBE_ID,
-					},
-					{
-						.path = EDITOR_MODEL_SPHERE_PATH,
-						.id	  = EDITOR_MODEL_SPHERE_ID,
-					},
-					{
-						.path = EDITOR_MODEL_CYLINDER_PATH,
-						.id	  = EDITOR_MODEL_CYLINDER_ID,
-					},
-					{
-						.path = EDITOR_MODEL_PLANE_PATH,
-						.id	  = EDITOR_MODEL_PLANE_ID,
-					},
-					{
-						.path = EDITOR_MODEL_SKYCUBE_PATH,
-						.id	  = EDITOR_MODEL_SKYCUBE_ID,
-					},
-					{
-						.path = EDITOR_TEXTURE_EMPTY_ALBEDO_PATH,
-						.id	  = EDITOR_TEXTURE_EMPTY_ALBEDO_ID,
-					},
-					{
-						.path = EDITOR_TEXTURE_EMPTY_NORMAL_PATH,
-						.id	  = EDITOR_TEXTURE_EMPTY_NORMAL_ID,
-					},
-				};
-
+			if (!importDefinitions.empty())
+			{
 				updateProg(Locale::GetStr(LocaleStr::CreatingCoreResources));
-				ResourcePipeline::ImportResources(m_currentProject, lina, importDefinitions, [updateProg](uint32 count, const ResourcePipeline::ResourceImportDef& currentDef, bool isComplete) {
+				ResourcePipeline::ImportResources(m_currentProject, linaAssets, importDefinitions, [updateProg](uint32 count, const ResourcePipeline::ResourceImportDef& currentDef, bool isComplete) {
 					if (!currentDef.path.empty())
 						updateProg(currentDef.path);
 				});
+			}
 
+			// Custom sampler.
+			if (linaAssets->FindResource(EDITOR_SAMPLER_DEFAULT_ID) == nullptr)
+			{
 				updateProg(EDITOR_SAMPLER_DEFAULT_PATH);
-				ResourcePipeline::SaveNewResource(m_currentProject, lina, EDITOR_SAMPLER_DEFAULT_PATH, GetTypeID<TextureSampler>(), EDITOR_SAMPLER_DEFAULT_ID);
+				ResourcePipeline::SaveNewResource(m_currentProject, linaAssets, EDITOR_SAMPLER_DEFAULT_PATH, GetTypeID<TextureSampler>(), EDITOR_SAMPLER_DEFAULT_ID);
 			}
 
 			updateProg(Locale::GetStr(LocaleStr::VerifyingProjectResources));
@@ -309,10 +320,13 @@ namespace Lina::Editor
 			settings.SetLastProjectPath(m_currentProject->GetPath());
 			settings.SaveToFile();
 
-			MarkResourceAtlasesNeedUpdate();
-
-			for (ProjectManagerListener* listener : m_listeners)
-				listener->OnProjectOpened(m_currentProject);
+			TaskRunner::QueueTask([this]() {
+				m_editor->GetWindowPanelManager().UnlockAllForegrounds();
+				Application::GetLGX()->Join();
+				m_editor->GetAtlasManager().RefreshPoolAtlases();
+				for (ProjectManagerListener* listener : m_listeners)
+					listener->OnProjectOpened(m_currentProject);
+			});
 		});
 
 		m_executor.RunMove(tf);
@@ -373,10 +387,21 @@ namespace Lina::Editor
 		{
 			if (dir->_thumbnailAtlasImage == nullptr)
 			{
-				if (dir->resourceTID == GetTypeID<Font>())
-					dir->_thumbnailAtlasImage = m_editor->GetAtlasManager().AddImageToAtlas(dir->thumbnailBuffer.GetRaw(), Vector2ui(RESOURCE_THUMBNAIL_SIZE, RESOURCE_THUMBNAIL_SIZE), LinaGX::Format::R8_UNORM);
+				IStream stream;
+				stream.Create(dir->thumbnailBuffer.GetRaw(), dir->thumbnailBuffer.GetSize());
+				uint32 width = 0, height = 0, bytesPerPixel = 0;
+				stream >> width >> height >> bytesPerPixel;
+
+				const size_t sz		= static_cast<size_t>(width * height * bytesPerPixel);
+				uint8*		 pixels = new uint8[sz];
+				stream.ReadToRaw(pixels, sz);
+
+				if (bytesPerPixel == 1)
+					dir->_thumbnailAtlasImage = m_editor->GetAtlasManager().AddImageToAtlas(pixels, Vector2ui(width, height), LinaGX::Format::R8_UNORM);
 				else
-					dir->_thumbnailAtlasImage = m_editor->GetAtlasManager().AddImageToAtlas(dir->thumbnailBuffer.GetRaw(), Vector2ui(RESOURCE_THUMBNAIL_SIZE, RESOURCE_THUMBNAIL_SIZE), LinaGX::Format::R8G8B8A8_SRGB);
+					dir->_thumbnailAtlasImage = m_editor->GetAtlasManager().AddImageToAtlas(pixels, Vector2ui(width, height), LinaGX::Format::R8G8B8A8_SRGB);
+
+				stream.Destroy();
 			}
 		}
 		else
@@ -394,5 +419,11 @@ namespace Lina::Editor
 		dir->_thumbnailAtlasImage = nullptr;
 		for (ResourceDirectory* c : dir->children)
 			RemoveDirectoryThumbnails(c);
+	}
+
+	void ProjectManager::NotifyProjectResourcesRefreshed()
+	{
+		for (ProjectManagerListener* listener : m_listeners)
+			listener->OnProjectResourcesRefreshed();
 	}
 } // namespace Lina::Editor

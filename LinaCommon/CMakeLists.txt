@@ -76,6 +76,7 @@ set (SOURCES
 	
 	# Job System
 	src/JobSystem/JobSystem.cpp
+	src/JobSystem/TaskRunner.cpp
 
 	# System
 	src/System/Plugin.cpp
@@ -106,6 +107,7 @@ set(HEADERS
 
 	# Job System
 	include/Common/JobSystem/JobSystem.hpp
+	include/Common/JobSystem/TaskRunner.hpp
 
 	# Profiler
 	include/Common/Profiling/Profiler.hpp

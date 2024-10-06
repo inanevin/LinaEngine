@@ -34,7 +34,7 @@ SOFTWARE.
 
 namespace Lina
 {
-	struct TextureAtlasImage;
+	class Texture;
 }
 
 namespace Lina::Editor
@@ -65,16 +65,16 @@ namespace Lina::Editor
 		int32 m_action = -1;
 		Tween m_tween;
 
-		Props			   m_props		  = {};
-		Vector2			   m_leftOffset	  = Vector2::Zero;
-		Vector2			   m_rightOffset  = Vector2::Zero;
-		Vector2			   m_bottomOffset = Vector2::Zero;
-		Color			   m_rightTint	  = Color::White;
-		Color			   m_bottomTint	  = Color::White;
-		Color			   m_leftTint	  = Color::White;
-		TextureAtlasImage* m_imgLeft	  = nullptr;
-		TextureAtlasImage* m_imgRight	  = nullptr;
-		TextureAtlasImage* m_imgBottom	  = nullptr;
+		Props	 m_props		= {};
+		Vector2	 m_leftOffset	= Vector2::Zero;
+		Vector2	 m_rightOffset	= Vector2::Zero;
+		Vector2	 m_bottomOffset = Vector2::Zero;
+		Color	 m_rightTint	= Color::White;
+		Color	 m_bottomTint	= Color::White;
+		Color	 m_leftTint		= Color::White;
+		Texture* m_imgLeft		= nullptr;
+		Texture* m_imgRight		= nullptr;
+		Texture* m_imgBottom	= nullptr;
 	};
 	LINA_WIDGET_BEGIN(LinaLoading, Hidden)
 	LINA_CLASS_END(LinaLoading)

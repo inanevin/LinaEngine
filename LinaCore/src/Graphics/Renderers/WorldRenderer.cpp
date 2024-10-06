@@ -202,7 +202,7 @@ namespace Lina
 			}
 		}
 
-		m_guiBackend.Initialize(m_resourceManagerV2, &m_globalUploadQueue);
+		m_guiBackend.Initialize(m_resourceManagerV2);
 		m_meshManager.Initialize();
 		CreateSizeRelativeResources();
 		FetchRenderables();
@@ -878,6 +878,7 @@ namespace Lina
 	{
 		bool bindlessDirty	  = false;
 		bool meshManagerDirty = false;
+		bool containsFont	  = false;
 
 		for (const ResourceDef& def : resources)
 		{
@@ -886,7 +887,16 @@ namespace Lina
 
 			if (def.tid == GetTypeID<Model>())
 				meshManagerDirty = true;
+
+			if (def.tid == GetTypeID<Font>())
+			{
+				containsFont  = true;
+				bindlessDirty = true;
+			}
 		}
+
+		if (containsFont)
+			m_guiBackend.ReuploadAtlases(m_globalUploadQueue);
 
 		if (bindlessDirty)
 			MarkBindlessDirty();
@@ -897,10 +907,11 @@ namespace Lina
 		}
 	}
 
-	void WorldRenderer::OnResourcesLoaded(int32 taskID, const ResourceList& resources)
+	void WorldRenderer::OnResourcesLoaded(const ResourceList& resources)
 	{
 		bool bindlessDirty	  = false;
 		bool meshManagerDirty = false;
+		bool containsFont	  = false;
 
 		for (Resource* res : resources)
 		{
@@ -933,6 +944,7 @@ namespace Lina
 				Font* font = static_cast<Font*>(res);
 				font->GenerateHW(m_guiBackend.GetLVGText());
 				bindlessDirty = true;
+				containsFont  = true;
 			}
 			else if (res->GetTID() == GetTypeID<Model>())
 			{
@@ -945,6 +957,9 @@ namespace Lina
 				GUIWidget* wid = static_cast<GUIWidget*>(res);
 			}
 		}
+
+		if (containsFont)
+			m_guiBackend.ReuploadAtlases(m_globalUploadQueue);
 
 		if (bindlessDirty)
 			MarkBindlessDirty();

@@ -39,13 +39,13 @@ namespace Lina
 	void Texture::Metadata::SaveToStream(OStream& out) const
 	{
 		out << format << mipFilter;
-		out << generateMipmaps << force8Bit;
+		out << generateMipmaps << force8Bit << isPremultipliedAlpha;
 	}
 
 	void Texture::Metadata::LoadFromStream(IStream& in)
 	{
 		in >> format >> mipFilter;
-		in >> generateMipmaps >> force8Bit;
+		in >> generateMipmaps >> force8Bit >> isPremultipliedAlpha;
 	}
 
 	Texture::~Texture()
@@ -92,7 +92,7 @@ namespace Lina
 		if (m_meta.generateMipmaps)
 		{
 			LINAGX_VEC<LinaGX::TextureBuffer> mipData;
-			LinaGX::GenerateMipmaps(m_allLevels[0], mipData, m_meta.mipFilter, channels, m_meta.format == LinaGX::Format::R8G8B8A8_UNORM);
+			LinaGX::GenerateMipmaps(m_allLevels[0], mipData, m_meta.mipFilter, channels, m_meta.format == LinaGX::Format::R8G8B8A8_UNORM, 0, m_meta.isPremultipliedAlpha);
 			for (const auto& mp : mipData)
 				m_allLevels.push_back(mp);
 		}
@@ -152,7 +152,7 @@ namespace Lina
 		if (m_meta.generateMipmaps)
 		{
 			LINAGX_VEC<LinaGX::TextureBuffer> mipData;
-			LinaGX::GenerateMipmaps(outBuffer, mipData, m_meta.mipFilter, m_importedChannels, m_meta.format == LinaGX::Format::R8G8B8A8_UNORM);
+			LinaGX::GenerateMipmaps(outBuffer, mipData, m_meta.mipFilter, m_importedChannels, m_meta.format == LinaGX::Format::R8G8B8A8_UNORM, 0, m_meta.isPremultipliedAlpha);
 
 			for (const auto& mp : mipData)
 				m_allLevels.push_back(mp);

@@ -34,10 +34,9 @@ SOFTWARE.
 
 namespace Lina
 {
-	void GUIBackend::Initialize(ResourceManagerV2* resMan, ResourceUploadQueue* uploadQueue)
+	void GUIBackend::Initialize(ResourceManagerV2* resMan)
 	{
 		m_resourceManagerV2						  = resMan;
-		m_uploadQueue							  = uploadQueue;
 		m_lvgText.GetCallbacks().atlasNeedsUpdate = std::bind(&GUIBackend::FontAtlasNeedsUpdate, this, std::placeholders::_1);
 	}
 
@@ -72,9 +71,17 @@ namespace Lina
 
 		auto& ft = m_fontAtlases[atlas];
 		ft.texture->LoadFromBuffer(atlas->GetData(), width, height, 1);
-		if (!ft.texture->IsGPUValid())
-			ft.texture->GenerateHW();
-		ft.texture->AddToUploadQueue(*m_uploadQueue, true);
+	}
+
+	void GUIBackend::ReuploadAtlases(ResourceUploadQueue& queue)
+	{
+		for (const Pair<LinaVG::Atlas*, FontTexture>& pair : m_fontAtlases)
+		{
+			const FontTexture& ft = pair.second;
+			if (!ft.texture->IsGPUValid())
+				ft.texture->GenerateHW();
+			ft.texture->AddToUploadQueue(queue, true);
+		}
 	}
 
 } // namespace Lina

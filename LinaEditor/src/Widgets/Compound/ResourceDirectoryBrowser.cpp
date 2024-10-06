@@ -51,6 +51,7 @@ SOFTWARE.
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Physics/PhysicsMaterial.hpp"
 #include "Core/Platform/PlatformProcess.hpp"
+#include "Core/Application.hpp"
 
 namespace Lina::Editor
 {
@@ -210,9 +211,7 @@ namespace Lina::Editor
 			else
 			{
 				const bool hasChildren = child->children.empty();
-
-				TextureAtlasImage* img = child->_thumbnailAtlasImage ? child->_thumbnailAtlasImage : m_editor->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "FileShaderSmall"_hs);
-				Widget*			   w   = CommonWidgets::BuildTexturedListItem(this, child, margin, img, child->name);
+				Widget*	   w		   = CommonWidgets::BuildTexturedListItem(this, child, margin, child->_thumbnailAtlasImage, child->name);
 				m_controller->GetItem(dir)->GetParent()->AddChild(w);
 				m_controller->AddItem(w);
 			}
@@ -426,7 +425,13 @@ namespace Lina::Editor
 
 				m_editor->GetProjectManager().GenerateMissingAtlasImages(directory, false);
 				m_editor->GetProjectManager().SaveProjectChanges();
-				m_editor->GetProjectManager().MarkResourceAtlasesNeedUpdate();
+
+				m_editor->GetProjectManager().QueueTask([this]() {
+					m_editor->GetWindowPanelManager().UnlockAllForegrounds();
+					Application::GetLGX()->Join();
+					m_editor->GetAtlasManager().RefreshPoolAtlases();
+					RefreshDirectory();
+				});
 			});
 
 			m_executor.RunMove(tf);
@@ -564,7 +569,12 @@ namespace Lina::Editor
 
 		m_editor->GetProjectManager().GenerateMissingAtlasImages(&m_editor->GetProjectManager().GetProjectData()->GetResourceRoot(), true);
 		m_editor->GetProjectManager().SaveProjectChanges();
-		m_editor->GetProjectManager().MarkResourceAtlasesNeedUpdate();
+
+		m_editor->GetProjectManager().QueueTask([this]() {
+			Application::GetLGX()->Join();
+			m_editor->GetAtlasManager().RefreshPoolAtlases();
+			RefreshDirectory();
+		});
 	}
 
 	void ResourceDirectoryBrowser::DeleteItems(Vector<ResourceDirectory*> dirs)
@@ -576,7 +586,12 @@ namespace Lina::Editor
 		}
 
 		m_editor->GetProjectManager().SaveProjectChanges();
-		m_editor->GetProjectManager().MarkResourceAtlasesNeedUpdate();
+
+		m_editor->GetProjectManager().QueueTask([this]() {
+			Application::GetLGX()->Join();
+			m_editor->GetAtlasManager().RefreshPoolAtlases();
+			RefreshDirectory();
+		});
 	}
 
 	void ResourceDirectoryBrowser::DropPayload(ResourceDirectory* target)

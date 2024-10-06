@@ -138,9 +138,11 @@ namespace Lina::Editor
 			.id	 = m_subData,
 			.tid = GetTypeID<Texture>(),
 		};
-		m_editor->GetResourceManagerV2().LoadResourcesFromProject(m_editor, m_editor->GetProjectManager().GetProjectData(), {def}, 0);
-		m_editor->GetResourceManagerV2().WaitForAll();
-		m_texture										  = m_editor->GetResourceManagerV2().GetResource<Texture>(def.id);
+
+		m_editor->GetResourceManagerV2().LoadResourcesFromProject(m_editor, m_editor->GetProjectManager().GetProjectData(), {def}, NULL);
+		m_texture = m_editor->GetResourceManagerV2().GetResource<Texture>(def.id);
+		m_editor->GetEditorRenderer().OnResourcesLoaded({m_texture});
+
 		m_texturePanel->GetWidgetProps().drawBackground	  = true;
 		m_texturePanel->GetWidgetProps().fitTexture		  = true;
 		m_texturePanel->GetWidgetProps().rawTexture		  = m_texture;
@@ -167,8 +169,11 @@ namespace Lina::Editor
 		if (m_texture == nullptr)
 			return;
 
+		ResourceDef def = {.id = m_texture->GetID(), .tid = m_texture->GetTID(), .name = m_texture->GetName()};
 		delete[] m_textureBuffer.pixels;
 		m_editor->GetResourceManagerV2().UnloadResources({m_texture});
+		m_editor->GetEditorRenderer().OnResourcesUnloaded({def});
+		m_texture = nullptr;
 	}
 
 	void PanelTextureViewer::StoreBuffer()
@@ -201,11 +206,8 @@ namespace Lina::Editor
 		txt->CalculateTextSize();
 	}
 
-	void PanelTextureViewer::RegenTexture(const String& path)
+	void PanelTextureViewer::ReloadTextureSW(const String& path)
 	{
-		Application::GetLGX()->Join();
-		m_texture->DestroyHW();
-
 		if (path.empty())
 			m_texture->LoadFromBuffer(m_textureBuffer.pixels, m_textureBuffer.width, m_textureBuffer.height, m_textureBuffer.bytesPerPixel);
 		else
@@ -214,16 +216,20 @@ namespace Lina::Editor
 			m_texture->SetPath(path);
 			m_texture->SetName(FileSystem::GetFilenameOnlyFromPath(path));
 		}
+	}
 
+	void PanelTextureViewer::UploadTextureAndUpdateUI()
+	{
+		Application::GetLGX()->Join();
+		m_texture->DestroyHW();
 		m_texture->GenerateHW();
 		m_texture->AddToUploadQueue(m_editor->GetEditorRenderer().GetUploadQueue(), false);
 		m_editor->GetEditorRenderer().MarkBindlessDirty();
 
-		m_textureName			   = m_texture->GetName();
-		GetWidgetProps().debugName = "Texture: " + m_textureName;
-		m_textureSize			   = TO_STRING(m_texture->GetSize().x) + " x " + TO_STRING(m_texture->GetSize().y);
-		m_totalSizeKb			   = UtilStr::FloatToString(static_cast<float>(m_texture->GetTotalSize()) / 1000.0f, 1) + " KB";
-
+		m_textureName								 = m_texture->GetName();
+		GetWidgetProps().debugName					 = "Texture: " + m_textureName;
+		m_textureSize								 = TO_STRING(m_texture->GetSize().x) + " x " + TO_STRING(m_texture->GetSize().y);
+		m_totalSizeKb								 = UtilStr::FloatToString(static_cast<float>(m_texture->GetTotalSize()) / 1000.0f, 1) + " KB";
 		m_formatDropdown->GetText()->GetProps().text = ReflectionSystem::Get().Meta<LinaGX::Format>().GetProperty<String>(static_cast<StringID>(m_texture->GetMeta().format));
 		m_formatDropdown->GetText()->CalculateTextSize();
 		m_txtName->GetProps().text	 = m_textureName;
@@ -268,8 +274,20 @@ namespace Lina::Editor
 		m_inspector->AddChild(textureFold);
 
 		CommonWidgets::BuildClassReflection(textureFold, &m_texture->GetMeta(), ReflectionSystem::Get().Resolve<Texture::Metadata>(), [this](const MetaType& meta, FieldBase* field) {
-			RegenTexture("");
-			SetRuntimeDirty(true);
+			Widget* lock = m_editor->GetWindowPanelManager().LockAllForegrounds(m_lgxWindow, Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow));
+			Widget* pp	 = CommonWidgets::BuildGenericPopupProgress(lock, Locale::GetStr(LocaleStr::ApplyingChanges), true);
+			lock->AddChild(pp);
+
+			Taskflow tf;
+			tf.emplace([this]() {
+				ReloadTextureSW("");
+				m_editor->QueueTask([this]() {
+					m_editor->GetWindowPanelManager().UnlockAllForegrounds();
+					UploadTextureAndUpdateUI();
+					SetRuntimeDirty(true);
+				});
+			});
+			m_editor->GetExecutor().RunMove(tf);
 		});
 
 		auto buildButtonLayout = [this]() -> Widget* {
@@ -290,8 +308,6 @@ namespace Lina::Editor
 		Widget* buttonLayout2 = buildButtonLayout();
 		generalFold->AddChild(buttonLayout1);
 		generalFold->AddChild(buttonLayout2);
-		static_cast<DirectionalLayout*>(buttonLayout1)->GetProps().mode = DirectionalLayout::Mode::EqualSizes;
-		static_cast<DirectionalLayout*>(buttonLayout2)->GetProps().mode = DirectionalLayout::Mode::EqualSizes;
 
 		Button* importButton = WidgetUtility::BuildIconTextButton(this, ICON_IMPORT, Locale::GetStr(LocaleStr::Import));
 		importButton->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
@@ -312,18 +328,22 @@ namespace Lina::Editor
 			Widget* lock = m_editor->GetWindowPanelManager().LockAllForegrounds(m_lgxWindow, Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow));
 			Widget* pp	 = CommonWidgets::BuildGenericPopupProgress(lock, Locale::GetStr(LocaleStr::ImportingResources), true);
 			lock->AddChild(pp);
-			m_texturePanel->GetWidgetProps().drawBackground = false;
-			const String& path								= paths.front();
+
+			const String& path = paths.front();
 			Taskflow	  tf;
 			tf.emplace([this, path]() {
-				RegenTexture(path);
+				ReloadTextureSW(path);
 				StoreBuffer();
 				SetRuntimeDirty(true);
-				m_editor->GetWindowPanelManager().UnlockAllForegrounds();
-				m_texturePanel->GetWidgetProps().drawBackground = true;
+				m_editor->QueueTask([this]() {
+					m_editor->GetWindowPanelManager().UnlockAllForegrounds();
+					UploadTextureAndUpdateUI();
+				});
 			});
-			m_executor.RunMove(tf);
+
+			m_editor->GetExecutor().RunMove(tf);
 		};
+
 		buttonLayout1->AddChild(importButton);
 
 		Button* reimportButton = WidgetUtility::BuildIconTextButton(this, ICON_ROTATE, Locale::GetStr(LocaleStr::ReImport));
@@ -338,9 +358,23 @@ namespace Lina::Editor
 				CommonWidgets::ThrowInfoTooltip(Locale::GetStr(LocaleStr::FileNotFound), LogLevel::Error, 3.0f, reimportButton);
 				return;
 			}
-			RegenTexture(path);
-			StoreBuffer();
-			SetRuntimeDirty(true);
+
+			Widget* lock = m_editor->GetWindowPanelManager().LockAllForegrounds(m_lgxWindow, Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow));
+			Widget* pp	 = CommonWidgets::BuildGenericPopupProgress(lock, Locale::GetStr(LocaleStr::ImportingResources), true);
+			lock->AddChild(pp);
+
+			Taskflow tf;
+			tf.emplace([this, path]() {
+				ReloadTextureSW(path);
+				StoreBuffer();
+				SetRuntimeDirty(true);
+				m_editor->QueueTask([this]() {
+					m_editor->GetWindowPanelManager().UnlockAllForegrounds();
+					UploadTextureAndUpdateUI();
+				});
+			});
+
+			m_editor->GetExecutor().RunMove(tf);
 		};
 
 		buttonLayout1->AddChild(reimportButton);
@@ -351,31 +385,40 @@ namespace Lina::Editor
 		save->SetAlignedSizeY(1.0f);
 		save->SetFixedSizeX(Theme::GetDef().baseItemHeight * 4);
 		save->GetProps().onClicked = [this]() {
-			if (m_containsRuntimeChanges)
-			{
+			if (!m_containsRuntimeChanges)
+				return;
+
+			Widget* lock = m_editor->GetWindowPanelManager().LockAllForegrounds(m_lgxWindow, Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow));
+			Widget* pp	 = CommonWidgets::BuildGenericPopupProgress(lock, Locale::GetStr(LocaleStr::Saving), true);
+			lock->AddChild(pp);
+
+			Taskflow tf;
+			tf.emplace([this]() {
 				ResourceDirectory* dir = m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_texture->GetID());
 				m_resourceManager->SaveResource(m_editor->GetProjectManager().GetProjectData(), m_texture);
 
 				dir->name = m_texture->GetName();
 				dir->thumbnailBuffer.Destroy();
-				dir->_thumbnailAtlasImage = nullptr;
+				dir->parent->SortChildren();
+				m_editor->GetProjectManager().RemoveDirectoryThumbnails(dir);
 
 				const LinaGX::TextureBuffer thumb = ThumbnailGenerator::GenerateThumbnailForResource(m_texture);
-				if (thumb.pixels != nullptr)
-				{
-					OStream stream;
-					stream << thumb.width << thumb.height << thumb.bytesPerPixel;
-					stream.WriteRaw(thumb.pixels, thumb.width * thumb.height * thumb.bytesPerPixel);
-					dir->thumbnailBuffer.Create(stream);
-					stream.Destroy();
-				}
+				ThumbnailGenerator::CreateThumbnailBuffer(dir->thumbnailBuffer, thumb);
 
 				m_editor->GetProjectManager().SaveProjectChanges();
-				m_editor->GetProjectManager().RemoveDirectoryThumbnails(dir);
-				m_editor->GetProjectManager().GenerateMissingAtlasImages(dir);
-				m_editor->GetProjectManager().MarkResourceAtlasesNeedUpdate();
-				SetRuntimeDirty(false);
-			}
+
+				m_editor->QueueTask([this, dir]() {
+					Application::GetLGX()->Join();
+					m_editor->GetProjectManager().GenerateMissingAtlasImages(dir);
+					m_editor->GetAtlasManager().RefreshPoolAtlases();
+
+					m_editor->GetWindowPanelManager().UnlockAllForegrounds();
+					m_editor->GetProjectManager().NotifyProjectResourcesRefreshed();
+					SetRuntimeDirty(false);
+				});
+			});
+
+			m_editor->GetExecutor().RunMove(tf);
 		};
 
 		m_saveButton = save;

@@ -68,6 +68,7 @@ namespace Lina
 		TextureAtlasImage* AddImage(uint8* data, const Vector2ui& size, StringID sid = 0);
 		TextureAtlasImage* GetImage(StringID sid);
 		bool			   RemoveImage(TextureAtlasImage* rect);
+		void			   RefreshSW();
 		void			   RefreshGPU(ResourceUploadQueue& uploadQueue);
 
 		inline Texture* GetRaw() const

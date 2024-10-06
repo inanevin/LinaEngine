@@ -111,7 +111,7 @@ namespace Lina
 		void Render(uint32 frameIndex);
 		void Resize(const Vector2ui& newSize);
 
-		virtual void OnResourcesLoaded(int32 taskID, const ResourceList& resources) override;
+		virtual void OnResourcesLoaded(const ResourceList& resources) override;
 		virtual void OnResourcesUnloaded(const ResourceDefinitionList& resources) override;
 		virtual void OnComponentAdded(Component* c) override;
 		virtual void OnComponentRemoved(Component* c) override;

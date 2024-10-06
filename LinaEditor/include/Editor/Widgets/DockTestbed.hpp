@@ -43,7 +43,6 @@ namespace Lina::Editor
 		virtual ~DockTestbed() = default;
 
 		virtual void Construct() override;
-		virtual void Tick(float delta) override;
 
 	private:
 	};

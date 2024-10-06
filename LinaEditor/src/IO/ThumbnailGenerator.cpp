@@ -50,6 +50,18 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+	void ThumbnailGenerator::CreateThumbnailBuffer(RawStream& rawStream, LinaGX::TextureBuffer thumb)
+	{
+		if (thumb.pixels != nullptr)
+		{
+			OStream stream;
+			stream << thumb.width << thumb.height << thumb.bytesPerPixel;
+			stream.WriteRaw(thumb.pixels, thumb.width * thumb.height * thumb.bytesPerPixel);
+			rawStream.Create(stream);
+			stream.Destroy();
+		}
+	}
+
 	LinaGX::TextureBuffer ThumbnailGenerator::GenerateThumbnailForResource(Resource* resource)
 	{
 		if (resource->GetTID() == GetTypeID<Texture>())

@@ -131,6 +131,12 @@ namespace Lina
 		}
 	}
 
+	void Text::UpdateTextAndCalcSize(const String& txt)
+	{
+		m_props.text = txt;
+		CalculateTextSize();
+	}
+
 	void Text::CalculateTextSize()
 	{
 		const float dpiScale = m_lgxWindow->GetDPIScale();

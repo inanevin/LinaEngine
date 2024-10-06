@@ -81,7 +81,7 @@ namespace Lina
 		virtual void CalculateSize(float delta) override;
 		virtual void Draw() override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
-
+        void UpdateTextAndCalcSize(const String& txt);
 		void CalculateTextSize();
 
 		inline Properties& GetProps()

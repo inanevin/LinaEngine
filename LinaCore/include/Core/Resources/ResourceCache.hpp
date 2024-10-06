@@ -52,6 +52,7 @@ namespace Lina
 		virtual Resource* Create(ResourceID id, const String& name) = 0;
 		virtual Resource* Get(ResourceID id) const					= 0;
 		virtual void	  Destroy(ResourceID id)					= 0;
+		virtual Resource* GetIfExists(ResourceID id) const			= 0;
 
 		inline PackageType GetPackageType() const
 		{
@@ -105,6 +106,16 @@ namespace Lina
 		virtual Resource* Get(ResourceID id) const override
 		{
 			return m_resources.at(id);
+		}
+
+		virtual Resource* GetIfExists(ResourceID id) const override
+		{
+			auto it = m_resources.find(id);
+
+			if (it == m_resources.end())
+				return nullptr;
+
+			return it->second;
 		}
 
 		void View(Delegate<bool(T* res, uint32 index)>&& callback)

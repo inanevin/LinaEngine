@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Editor/Atlas/AtlasManager.hpp"
 #include "Editor/Editor.hpp"
-
+#include "Common/Math/Math.hpp"
 #include "Common/Math/Math.hpp"
 #include "Core/Graphics/Utility/TextureAtlas.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
@@ -75,40 +75,34 @@ namespace Lina::Editor
 		}
 	}
 
+	TextureAtlas* AtlasManager::AddCustomAtlas(const String& baseFolder, StringID sid, const Vector2ui& size)
+	{
+		TextureAtlas* atlas	 = new TextureAtlas(&m_editor->GetResourceManagerV2(), size, LinaGX::Format::R8G8B8A8_SRGB);
+		m_customAtlases[sid] = atlas;
+
+		Vector<String> files;
+		FileSystem::GetFilesInDirectory(baseFolder, files);
+
+		for (const String& file : files)
+		{
+			LinaGX::TextureBuffer buffer;
+			LinaGX::LoadImageFromFile(file.c_str(), buffer, 4);
+
+			if (buffer.pixels == nullptr)
+				continue;
+
+			const String filename = FileSystem::GetFilenameOnlyFromPath(file);
+			atlas->AddImage(buffer.pixels, Vector2ui(buffer.width, buffer.height), TO_SID(filename));
+			LinaGX::FreeImage(buffer.pixels);
+		}
+
+		atlas->RefreshSW();
+		return atlas;
+	}
+
 	void AtlasManager::Initialize(Editor* editor)
 	{
 		m_editor = editor;
-
-		auto addAtlas = [&](const String& directory, StringID sid, const Vector2ui& sz) -> TextureAtlas* {
-			TextureAtlas* atlas	 = new TextureAtlas(&m_editor->GetResourceManagerV2(), sz, LinaGX::Format::R8G8B8A8_SRGB);
-			m_customAtlases[sid] = atlas;
-
-			Vector<String> files;
-			FileSystem::GetFilesInDirectory(directory, files);
-
-			for (const String& file : files)
-			{
-				LinaGX::TextureBuffer buffer;
-				LinaGX::LoadImageFromFile(file.c_str(), buffer, 4);
-
-				if (buffer.pixels == nullptr)
-					continue;
-
-				const String filename = FileSystem::GetFilenameOnlyFromPath(file);
-				atlas->AddImage(buffer.pixels, Vector2ui(buffer.width, buffer.height), TO_SID(filename));
-				LinaGX::FreeImage(buffer.pixels);
-			}
-
-			return atlas;
-		};
-
-		addAtlas("Resources/Editor/Textures/Atlas/MiscTextures/", "MiscTextures"_hs, Vector2ui(1024, 1024));
-		addAtlas("Resources/Editor/Textures/Atlas/ProjectIcons/", "ProjectIcons"_hs, Vector2ui(2048, 2048));
-
-		for (Pair<StringID, TextureAtlas*> pair : m_customAtlases)
-			pair.second->RefreshGPU(m_editor->GetEditorRenderer().GetUploadQueue());
-
-		m_editor->GetEditorRenderer().MarkBindlessDirty();
 	}
 
 	TextureAtlasImage* AtlasManager::GetImageFromAtlas(StringID atlasSID, StringID image)
@@ -134,7 +128,10 @@ namespace Lina::Editor
 	void AtlasManager::RefreshPoolAtlases()
 	{
 		for (TextureAtlas* atlas : m_atlasPool)
+		{
+			atlas->RefreshSW();
 			atlas->RefreshGPU(m_editor->GetEditorRenderer().GetUploadQueue());
+		}
 
 		m_editor->GetEditorRenderer().MarkBindlessDirty();
 	}

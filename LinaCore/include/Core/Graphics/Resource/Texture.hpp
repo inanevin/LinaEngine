@@ -43,10 +43,11 @@ namespace Lina
 	public:
 		struct Metadata
 		{
-			LinaGX::Format		 format			 = LinaGX::Format::R8G8B8A8_SRGB;
-			LinaGX::MipmapFilter mipFilter		 = LinaGX::MipmapFilter::Mitchell;
-			bool				 generateMipmaps = true;
-			bool				 force8Bit		 = true;
+			LinaGX::Format		 format				  = LinaGX::Format::R8G8B8A8_SRGB;
+			LinaGX::MipmapFilter mipFilter			  = LinaGX::MipmapFilter::Mitchell;
+			bool				 generateMipmaps	  = true;
+			bool				 force8Bit			  = true;
+			bool				 isPremultipliedAlpha = false;
 
 			void SaveToStream(OStream& out) const;
 			void LoadFromStream(IStream& in);
@@ -139,6 +140,7 @@ namespace Lina
 	LINA_CLASS_BEGIN(TextureMeta)
 	LINA_FIELD(Texture::Metadata, format, "Format", FieldType::Enum, GetTypeID<LinaGX::Format>())
 	LINA_FIELD(Texture::Metadata, force8Bit, "Force 8 Bits", FieldType::Boolean, 0)
+	LINA_FIELD(Texture::Metadata, isPremultipliedAlpha, "Pre-multiplied Alpha", FieldType::Boolean, 0)
 	LINA_FIELD(Texture::Metadata, generateMipmaps, "Generate Mipmaps", FieldType::Boolean, 0)
 	LINA_FIELD(Texture::Metadata, mipFilter, "Mipmap Filter", FieldType::Enum, GetTypeID<LinaGX::MipmapFilter>())
 	LINA_FIELD_DEPENDENCY_POS(Texture::Metadata, mipFilter, "generateMipmaps", 1)

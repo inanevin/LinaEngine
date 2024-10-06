@@ -37,9 +37,9 @@ namespace Lina::Editor
 {
 	void LinaLoading::Construct()
 	{
-		m_imgLeft	= Editor::Get()->GetAtlasManager().GetImageFromAtlas("MiscTextures"_hs, "LogoLeft"_hs);
-		m_imgRight	= Editor::Get()->GetAtlasManager().GetImageFromAtlas("MiscTextures"_hs, "LogoRight"_hs);
-		m_imgBottom = Editor::Get()->GetAtlasManager().GetImageFromAtlas("MiscTextures"_hs, "LogoBottom"_hs);
+		m_imgLeft	= Editor::Get()->GetResourceManagerV2().GetResource<Texture>(EDITOR_TEXTURE_LINA_LOGO_LEFT_ID);
+		m_imgRight	= Editor::Get()->GetResourceManagerV2().GetResource<Texture>(EDITOR_TEXTURE_LINA_LOGO_RIGHT_ID);
+		m_imgBottom = Editor::Get()->GetResourceManagerV2().GetResource<Texture>(EDITOR_TEXTURE_LINA_LOGO_BOTTOM_ID);
 	}
 
 	void LinaLoading::Tick(float delta)
@@ -105,11 +105,11 @@ namespace Lina::Editor
 	{
 		LinaVG::StyleOptions opts;
 
-		auto draw = [&](TextureAtlasImage* img, const Vector2& offset, const Color& color) {
-			opts.textureHandle	 = img->atlas->GetRaw();
-			opts.textureUVOffset = img->rectUV.pos.AsLVG();
-			opts.textureUVTiling = img->rectUV.size.AsLVG();
-			opts.color			 = color.AsLVG4();
+		auto draw = [&](Texture* img, const Vector2& offset, const Color& color) {
+			opts.textureHandle = img;
+			// opts.textureUVOffset = img->rectUV.pos.AsLVG();
+			// opts.textureUVTiling = img->rectUV.size.AsLVG();
+			opts.color = color.AsLVG4();
 
 			const Vector2 start = m_rect.pos + offset;
 			const Vector2 end	= start + (m_rect.GetEnd() - m_rect.pos);

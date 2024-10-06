@@ -554,7 +554,7 @@ namespace Lina::Editor
 	Widget* CommonWidgets::BuildGenericPopupProgress(Widget* src, const String& desc, bool isRotatingCircle)
 	{
 		DirectionalLayout* layout = src->GetWidgetManager()->Allocate<DirectionalLayout>("Base");
-		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_Y_TOTAL_CHILDREN);
+		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_SIZE_Y_TOTAL_CHILDREN);
 		layout->SetAlignedPos(Vector2(0.5f, 0.5f));
 		layout->SetAlignedSize(1.0f);
 		layout->SetAnchorX(Anchor::Center);
@@ -567,12 +567,12 @@ namespace Lina::Editor
 		txt->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 		txt->SetAlignedPosX(0.5f);
 		txt->SetAnchorX(Anchor::Center);
-		txt->GetProps().text	  = desc;
-		txt->GetProps().font	  = EDITOR_FONT_PLAY_BIG_ID;
-		txt->GetProps().wrapWidth = static_cast<float>(src->GetWindow()->GetSize().x) * 0.5f;
+		txt->GetProps().text = desc;
+		txt->GetProps().font = EDITOR_FONT_PLAY_BIG_ID;
 		txt->CalculateTextSize();
-		layout->SetSizeX(txt->GetSizeX() * 1.25f);
 		layout->AddChild(txt);
+		layout->SetFixedSizeX(Theme::GetDef().baseItemHeight * 10);
+		txt->GetProps().wrapWidth = layout->GetFixedSizeX() * 0.9f;
 
 		ProgressCircleFill* fill = src->GetWidgetManager()->Allocate<ProgressCircleFill>("Fill");
 		fill->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_COPY_X);

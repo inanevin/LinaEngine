@@ -27,16 +27,20 @@ SOFTWARE.
 */
 
 #include "Editor/Editor.hpp"
+#include "Editor/EditorLocale.hpp"
 #include "Editor/Widgets/Screens/SplashScreen.hpp"
 #include "Editor/Widgets/EditorRoot.hpp"
 #include "Editor/Graphics/WorldRendererExtEditor.hpp"
 #include "Editor/Graphics/SurfaceRenderer.hpp"
+#include "Editor/Widgets/CommonWidgets.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Serialization/Serialization.hpp"
 #include "Core/Application.hpp"
+#include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/CommonCore.hpp"
+#include "Core/Graphics/Utility/TextureAtlas.hpp"
 #include "Core/Graphics/Resource/GUIWidget.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
@@ -240,14 +244,18 @@ namespace Lina::Editor
 	{
 		m_editorRenderer.Initialize(this);
 
-		Vector<ResourceDef> priorityResources;
-		priorityResources.push_back({EDITOR_SHADER_GUI_ID, EDITOR_SHADER_GUI_PATH, GetTypeID<Shader>()});
-		priorityResources.push_back({EDITOR_TEXTURE_LINA_LOGO_ID, EDITOR_TEXTURE_LINA_LOGO_PATH, GetTypeID<Texture>()});
-		priorityResources.push_back({EDITOR_FONT_ICON_ID, EDITOR_FONT_ICON_PATH, GetTypeID<Font>()});
-		priorityResources.push_back({EDITOR_FONT_ROBOTO_ID, EDITOR_FONT_ROBOTO_PATH, GetTypeID<Font>()});
-		priorityResources.push_back({EDITOR_FONT_ROBOTO_BOLD_ID, EDITOR_FONT_ROBOTO_BOLD_PATH, GetTypeID<Font>()});
-		m_resourceManagerV2.LoadResourcesFromFile(this, priorityResources, 0);
-		m_resourceManagerV2.WaitForAll();
+		ResourceDefinitionList priorityResources;
+		priorityResources.insert({EDITOR_SHADER_GUI_ID, EDITOR_SHADER_GUI_PATH, GetTypeID<Shader>()});
+		priorityResources.insert({EDITOR_TEXTURE_LINA_LOGO_ID, EDITOR_TEXTURE_LINA_LOGO_PATH, GetTypeID<Texture>()});
+		priorityResources.insert({EDITOR_TEXTURE_LINA_LOGO_BOTTOM_ID, EDITOR_TEXTURE_LINA_LOGO_BOTTOM_PATH, GetTypeID<Texture>()});
+		priorityResources.insert({EDITOR_TEXTURE_LINA_LOGO_LEFT_ID, EDITOR_TEXTURE_LINA_LOGO_LEFT_PATH, GetTypeID<Texture>()});
+		priorityResources.insert({EDITOR_TEXTURE_LINA_LOGO_RIGHT_ID, EDITOR_TEXTURE_LINA_LOGO_RIGHT_PATH, GetTypeID<Texture>()});
+		priorityResources.insert({EDITOR_FONT_ICON_ID, EDITOR_FONT_ICON_PATH, GetTypeID<Font>()});
+		priorityResources.insert({EDITOR_FONT_ROBOTO_ID, EDITOR_FONT_ROBOTO_PATH, GetTypeID<Font>()});
+		priorityResources.insert({EDITOR_FONT_ROBOTO_BOLD_ID, EDITOR_FONT_ROBOTO_BOLD_PATH, GetTypeID<Font>()});
+		priorityResources.insert({EDITOR_FONT_PLAY_BIG_ID, EDITOR_FONT_PLAY_BIG_PATH, GetTypeID<Font>()});
+		const ResourceList resources = m_resourceManagerV2.LoadResourcesFromFile(this, priorityResources, [](uint32 loaded, const ResourceDef& def) {});
+		m_editorRenderer.OnResourcesLoaded(resources);
 	}
 
 	void Editor::Initialize()
@@ -263,38 +271,67 @@ namespace Lina::Editor
 		Theme::GetDef().iconSliderHandle	  = ICON_CIRCLE_FILLED;
 		Theme::GetDef().iconColorWheelPointer = ICON_CIRCLE;
 
-		m_resourceManagerV2.AddListener(this);
-
 		m_atlasManager.Initialize(this);
 		m_windowPanelManager.Initialize(this);
 
 		m_mainWindow		   = m_app->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
 		m_primaryWidgetManager = &m_windowPanelManager.GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
 
-		// Push splash
-		Widget*		  root	 = m_primaryWidgetManager->GetRoot();
-		SplashScreen* splash = root->GetWidgetManager()->Allocate<SplashScreen>();
-		splash->Initialize();
-		root->AddChild(splash);
+		Widget* lock	 = m_windowPanelManager.LockAllForegrounds(m_mainWindow, Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow));
+		Widget* prog	 = CommonWidgets::BuildGenericPopupProgress(lock, Locale::GetStr(LocaleStr::LoadingEngine), true);
+		Text*	progText = static_cast<Text*>(prog->FindChildWithDebugName("Progress"));
+		lock->AddChild(prog);
 
-		// Load editor settings or create and save empty if non-existing.
-		const String userDataFolder = FileSystem::GetUserDataFolder() + "Editor/";
-		const String settingsPath	= userDataFolder + "EditorSettings.linameta";
-		m_settings.SetPath(settingsPath);
-		if (!FileSystem::FileOrPathExists(userDataFolder))
-			FileSystem::CreateFolderInPath(userDataFolder);
+		Taskflow tf;
 
-		if (FileSystem::FileOrPathExists(settingsPath))
-			m_settings.LoadFromFile();
-		else
-			m_settings.SaveToFile();
+		tf.emplace([this, progText]() {
+			progText->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::LoadingSettings));
 
-		Vector<ResourceDef> priorityResources;
-		priorityResources.push_back({EDITOR_TEXTURE_CHECKERED_ID, EDITOR_TEXTURE_CHECKERED_PATH, GetTypeID<Texture>()});
-		priorityResources.push_back({EDITOR_FONT_PLAY_ID, EDITOR_FONT_PLAY_PATH, GetTypeID<Font>()});
-		priorityResources.push_back({EDITOR_FONT_PLAY_BOLD_ID, EDITOR_FONT_PLAY_BOLD_PATH, GetTypeID<Font>()});
-		priorityResources.push_back({EDITOR_FONT_PLAY_BIG_ID, EDITOR_FONT_PLAY_BIG_PATH, GetTypeID<Font>()});
-		m_resourceManagerV2.LoadResourcesFromFile(this, priorityResources, RLID_CORE_RES);
+			// Load editor settings or create and save empty if non-existing.
+			const String userDataFolder = FileSystem::GetUserDataFolder() + "Editor/";
+			const String settingsPath	= userDataFolder + "EditorSettings.linameta";
+			m_settings.SetPath(settingsPath);
+			if (!FileSystem::FileOrPathExists(userDataFolder))
+				FileSystem::CreateFolderInPath(userDataFolder);
+			if (FileSystem::FileOrPathExists(settingsPath))
+				m_settings.LoadFromFile();
+			else
+				m_settings.SaveToFile();
+
+			progText->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::LoadingCoreResources));
+			ResourceDefinitionList coreResources;
+			coreResources.insert({EDITOR_TEXTURE_CHECKERED_ID, EDITOR_TEXTURE_CHECKERED_PATH, GetTypeID<Texture>()});
+			coreResources.insert({EDITOR_FONT_PLAY_ID, EDITOR_FONT_PLAY_PATH, GetTypeID<Font>()});
+			coreResources.insert({EDITOR_FONT_PLAY_BOLD_ID, EDITOR_FONT_PLAY_BOLD_PATH, GetTypeID<Font>()});
+			HashSet<Resource*> resources = m_resourceManagerV2.LoadResourcesFromFile(this, coreResources, [progText](uint32 loaded, const ResourceDef& current) { progText->UpdateTextAndCalcSize(current.name); });
+
+			progText->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::GeneratingAtlases));
+			TextureAtlas* atlas0 = m_atlasManager.AddCustomAtlas("Resources/Editor/Textures/Atlas/ProjectIcons/", "ProjectIcons"_hs, Vector2ui(2048, 2048));
+
+			resources.insert(atlas0->GetRaw());
+
+			TaskRunner::QueueTask([this, resources]() {
+				Application::GetLGX()->Join();
+				m_editorRenderer.OnResourcesLoaded(resources);
+				m_windowPanelManager.UnlockAllForegrounds();
+
+				// Resize window to work dims.
+				m_mainWindow->SetPosition(m_mainWindow->GetMonitorInfoFromWindow().workTopLeft);
+				m_mainWindow->AddSizeRequest(m_mainWindow->GetMonitorWorkSize());
+
+				// Insert editor root.
+				Widget* root = m_primaryWidgetManager->GetRoot();
+				m_editorRoot = root->GetWidgetManager()->Allocate<EditorRoot>("EditorRoot");
+				m_editorRoot->Initialize();
+				root->AddChild(m_editorRoot);
+
+				// Launch project
+				m_projectManager.Initialize(this);
+				m_settings.GetLayout().ApplyStoredLayout();
+			});
+		});
+
+		m_executor.RunMove(tf);
 	}
 
 	void Editor::OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size)
@@ -304,14 +341,9 @@ namespace Lina::Editor
 	}
 	void Editor::PreTick()
 	{
+		TaskRunner::Poll();
 		m_resourceManagerV2.Poll();
 		m_projectManager.PreTick();
-
-		if (m_editorRoot == nullptr && m_coreResourcesOK)
-		{
-			CoreResourcesLoaded();
-		}
-
 		m_windowPanelManager.PreTick();
 		m_editorRenderer.PreTick();
 	}
@@ -326,37 +358,12 @@ namespace Lina::Editor
 		m_editorRenderer.Render();
 	}
 
-	void Editor::CoreResourcesLoaded()
-	{
-		// Remove splash
-		Widget* root   = m_primaryWidgetManager->GetRoot();
-		Widget* splash = Widget::GetWidgetOfType<SplashScreen>(root);
-		root->RemoveChild(splash);
-		root->GetWidgetManager()->Deallocate(splash);
-
-		// Resize window to work dims.
-		m_mainWindow->SetPosition(m_mainWindow->GetMonitorInfoFromWindow().workTopLeft);
-		m_mainWindow->AddSizeRequest(m_mainWindow->GetMonitorWorkSize());
-
-		// Insert editor root.
-		m_editorRoot = root->GetWidgetManager()->Allocate<EditorRoot>("EditorRoot");
-		m_editorRoot->Initialize();
-		root->AddChild(m_editorRoot);
-
-		// Launch project
-		m_projectManager.Initialize(this);
-		m_settings.GetLayout().ApplyStoredLayout();
-	}
-
 	void Editor::PreShutdown()
 	{
-		m_resourceManagerV2.RemoveListener(this);
 		m_editorRenderer.Shutdown();
-
 		m_atlasManager.Shutdown();
 		m_windowPanelManager.Shutdown();
 		m_projectManager.Shutdown();
-
 		m_resourceManagerV2.Shutdown();
 	}
 
@@ -392,17 +399,6 @@ namespace Lina::Editor
 	WorldRenderer* Editor::GetWorldRenderer(EntityWorld* world)
 	{
 		return m_worldRenderers.at(world);
-	}
-
-	void Editor::OnResourcesLoaded(int32 taskID, const ResourceList& resources)
-	{
-		if (m_coreResourcesOK)
-			return;
-
-		if (taskID == RLID_CORE_RES)
-		{
-			m_coreResourcesOK = true;
-		}
 	}
 
 } // namespace Lina::Editor

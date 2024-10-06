@@ -53,7 +53,4 @@ namespace Lina::Editor
 		AddChild(area);
 	}
 
-	void DockTestbed::Tick(float delta)
-	{
-	}
 } // namespace Lina::Editor

@@ -74,74 +74,60 @@ namespace Lina
 		m_loadTasks.clear();
 	}
 
-	void ResourceManagerV2::LoadResourcesFromFile(ApplicationDelegate* delegate, const Vector<ResourceDef>& resourceDef, int32 taskID)
+	HashSet<Resource*> ResourceManagerV2::LoadResourcesFromFile(ApplicationDelegate* delegate, const ResourceDefinitionList& resourceDefs, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress)
 	{
-		LoadResourcesFromProject(delegate, nullptr, resourceDef, taskID);
-	}
-
-	void ResourceManagerV2::LoadResourcesFromProject(ApplicationDelegate* delegate, ProjectData* project, const Vector<ResourceDef>& resourceDefs, int32 taskID)
-	{
-		// No duplicates.
-		HashSet<ResourceDef, ResourceDefHash> resources;
-		for (const ResourceDef& def : resourceDefs)
-			resources.insert(def);
-
-		for (const ResourceDef& def : resources)
-			GetCache(def.tid)->Create(def.id, def.name);
-
-		for (ResourceManagerListener* listener : m_listeners)
-			listener->OnResourcesPreLoaded(taskID, resources);
-
-		ResourceLoadTask* loadTask = new ResourceLoadTask();
-		loadTask->id			   = taskID;
-		loadTask->startTime		   = PlatformTime::GetCPUCycles();
-		loadTask->resources.resize(resources.size());
-		m_loadTasks.push_back(loadTask);
+		HashSet<Resource*> resources;
 
 		uint32 idx = 0;
-		for (const ResourceDef& def : resources)
+		for (const ResourceDef& def : resourceDefs)
 		{
-			loadTask->tf.emplace([delegate, idx, def, this, loadTask, taskID, project]() {
-				auto&	  cache			 = m_caches.at(def.tid);
-				Resource* res			 = cache->Get(def.id);
-				loadTask->resources[idx] = res;
+			Resource* res = GetCache(def.tid)->Create(def.id, def.name);
+			resources.insert(res);
+			OStream metaStream;
+			if (delegate->FillResourceCustomMeta(def.id, metaStream))
+			{
+				IStream in;
+				in.Create(metaStream.GetDataRaw(), metaStream.GetCurrentSize());
+				res->SetCustomMeta(in);
+				in.Destroy();
+			}
+			metaStream.Destroy();
+			res->LoadFromFile(def.name);
+			res->SetID(def.id);
+			res->SetName(def.name);
+			LINA_TRACE("[Resource] -> Loaded resource: {0}", def.name);
+			onProgress(++idx, def);
+		}
+		return resources;
+	}
 
-				// Some resources have preliminary/initial metadata.
-				OStream metaStream;
-				if (delegate->FillResourceCustomMeta(def.id, metaStream))
-				{
-					IStream in;
-					in.Create(metaStream.GetDataRaw(), metaStream.GetCurrentSize());
-					res->SetCustomMeta(in);
-					in.Destroy();
-				}
-				metaStream.Destroy();
+	HashSet<Resource*> ResourceManagerV2::LoadResourcesFromProject(ApplicationDelegate* delegate, ProjectData* project, const ResourceDefinitionList& resourceDefs, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress)
+	{
+		HashSet<Resource*> resources;
+		uint32			   idx = 0;
+		for (const ResourceDef& def : resourceDefs)
+		{
+			Resource* res = GetCache(def.tid)->Create(def.id, def.name);
+			resources.insert(res);
+			OStream metaStream;
+			if (delegate->FillResourceCustomMeta(def.id, metaStream))
+			{
+				IStream in;
+				in.Create(metaStream.GetDataRaw(), metaStream.GetCurrentSize());
+				res->SetCustomMeta(in);
+				in.Destroy();
+			}
+			metaStream.Destroy();
+			IStream stream = Serialization::LoadFromFile(project->GetResourcePath(def.id).c_str());
+			res->LoadFromStream(stream);
+			stream.Destroy();
+			LINA_TRACE("[Resource] -> Loaded resource: {0}", def.name);
 
-				if (project == nullptr)
-				{
-					res->LoadFromFile(def.name);
-					res->SetID(def.id);
-					res->SetName(def.name);
-				}
-				else
-				{
-					IStream stream = Serialization::LoadFromFile(project->GetResourcePath(def.id).c_str());
-					res->LoadFromStream(stream);
-					stream.Destroy();
-				}
-
-				LINA_TRACE("[Resource] -> Loaded resource: {0}", def.name);
-				for (ResourceManagerListener* listener : m_listeners)
-					listener->OnResourceLoaded(taskID, def);
-			});
-
-			idx++;
+			if (onProgress)
+				onProgress(++idx, def);
 		}
 
-		m_executor.Run(loadTask->tf, [loadTask, this]() {
-			loadTask->isCompleted.store(true);
-			loadTask->endTime = PlatformTime::GetCPUCycles();
-		});
+		return resources;
 	}
 
 	void ResourceManagerV2::UnloadResources(const Vector<Resource*>& resources)
@@ -190,12 +176,12 @@ namespace Lina
 	{
 		LINA_TRACE("[Resource Manager] -> Load task complete: {0} seconds", PlatformTime::GetDeltaSeconds64(task->startTime, task->endTime));
 
-		HashSet<Resource*> resources;
-		for (Resource* r : task->resources)
-			resources.insert(r);
-
-		for (ResourceManagerListener* listener : m_listeners)
-			listener->OnResourcesLoaded(task->id, resources);
+		// HashSet<Resource*> resources;
+		// for (Resource* r : task->resources)
+		// 	resources.insert(r);
+		//
+		// for (ResourceManagerListener* listener : m_listeners)
+		// 	listener->OnResourcesLoaded(task->id, resources);
 	}
 
 	Resource* ResourceManagerV2::OpenResource(ProjectData* project, TypeID typeID, ResourceID resourceID, void* subdata)

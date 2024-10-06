@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
 #include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
+#include "Editor/IO/ThumbnailGenerator.hpp"
 
 #include "Core/Meta/ProjectData.hpp"
 #include "Core/Application.hpp"
@@ -142,8 +143,9 @@ namespace Lina::Editor
 			.tid = GetTypeID<Font>(),
 		};
 		m_editor->GetResourceManagerV2().LoadResourcesFromProject(m_editor, m_editor->GetProjectManager().GetProjectData(), {def}, 0);
-		m_editor->GetResourceManagerV2().WaitForAll();
-		m_font						   = m_editor->GetResourceManagerV2().GetResource<Font>(def.id);
+		m_font = m_editor->GetResourceManagerV2().GetResource<Font>(def.id);
+		m_editor->GetEditorRenderer().OnResourcesLoaded({m_font});
+
 		m_fontDisplay->GetProps().font = def.id;
 		GetWidgetProps().debugName	   = "Font: " + m_font->GetName();
 
@@ -160,9 +162,9 @@ namespace Lina::Editor
 		});
 
 		CommonWidgets::BuildClassReflection(foldFont, &m_font->GetMeta(), ReflectionSystem::Get().Resolve<Font::Metadata>(), [this](const MetaType& meta, FieldBase* field) {
-			const Font::Metadata& current = m_font->GetMeta();
+			ReloadCPU("");
+			ReloadGPU();
 			SetRuntimeDirty(true);
-			RegenFont("");
 		});
 
 		auto buildButtonLayout = [this]() -> Widget* {
@@ -202,9 +204,23 @@ namespace Lina::Editor
 			if (paths.empty())
 				return;
 
-			RegenFont(paths.front());
-			SetRuntimeDirty(true);
+			Widget* lock = m_editor->GetWindowPanelManager().LockAllForegrounds(m_lgxWindow, Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow));
+			Widget* pp	 = CommonWidgets::BuildGenericPopupProgress(lock, Locale::GetStr(LocaleStr::ApplyingChanges), true);
+			lock->AddChild(pp);
+
+			const String& path = paths.front();
+			Taskflow	  tf;
+			tf.emplace([this, path]() {
+				ReloadCPU(path);
+				m_editor->QueueTask([this]() {
+					m_editor->GetWindowPanelManager().UnlockAllForegrounds();
+					ReloadGPU();
+					SetRuntimeDirty(true);
+				});
+			});
+			m_editor->GetExecutor().RunMove(tf);
 		};
+
 		buttonLayout1->AddChild(importButton);
 
 		Button* reimportButton = WidgetUtility::BuildIconTextButton(this, ICON_ROTATE, Locale::GetStr(LocaleStr::ReImport));
@@ -220,8 +236,20 @@ namespace Lina::Editor
 				return;
 			}
 
-			RegenFont(path);
-			SetRuntimeDirty(true);
+			Widget* lock = m_editor->GetWindowPanelManager().LockAllForegrounds(m_lgxWindow, Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow));
+			Widget* pp	 = CommonWidgets::BuildGenericPopupProgress(lock, Locale::GetStr(LocaleStr::ApplyingChanges), true);
+			lock->AddChild(pp);
+
+			Taskflow tf;
+			tf.emplace([this, path]() {
+				ReloadCPU(path);
+				m_editor->QueueTask([this]() {
+					m_editor->GetWindowPanelManager().UnlockAllForegrounds();
+					ReloadGPU();
+					SetRuntimeDirty(true);
+				});
+			});
+			m_editor->GetExecutor().RunMove(tf);
 		};
 
 		buttonLayout1->AddChild(reimportButton);
@@ -232,15 +260,31 @@ namespace Lina::Editor
 		save->SetAlignedSizeY(1.0f);
 		save->SetFixedSizeX(Theme::GetDef().baseItemHeight * 4);
 		save->GetProps().onClicked = [this]() {
-			if (m_containsRuntimeChanges)
-			{
-				m_resourceManager->SaveResource(m_editor->GetProjectManager().GetProjectData(), m_font);
-				// m_editor->GetResourcePipeline().GenerateThumbnailForResource(m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_font->GetID()), m_font, true);
-				Panel* p = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::ResourceBrowser, 0);
-				if (p)
-					static_cast<PanelResourceBrowser*>(p)->GetBrowser()->RefreshDirectory();
+			if (!m_containsRuntimeChanges)
+				return;
+
+			ResourceDirectory* dir = m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_font->GetID());
+			m_resourceManager->SaveResource(m_editor->GetProjectManager().GetProjectData(), m_font);
+
+			dir->name = m_font->GetName();
+			dir->thumbnailBuffer.Destroy();
+			dir->parent->SortChildren();
+			m_editor->GetProjectManager().RemoveDirectoryThumbnails(dir);
+
+			const LinaGX::TextureBuffer thumb = ThumbnailGenerator::GenerateThumbnailForResource(m_font);
+			ThumbnailGenerator::CreateThumbnailBuffer(dir->thumbnailBuffer, thumb);
+
+			m_editor->GetProjectManager().SaveProjectChanges();
+
+			m_editor->QueueTask([this, dir]() {
+				Application::GetLGX()->Join();
+				m_editor->GetProjectManager().GenerateMissingAtlasImages(dir);
+				m_editor->GetAtlasManager().RefreshPoolAtlases();
+
+				m_editor->GetWindowPanelManager().UnlockAllForegrounds();
+				m_editor->GetProjectManager().NotifyProjectResourcesRefreshed();
 				SetRuntimeDirty(false);
-			}
+			});
 		};
 
 		m_saveButton = save;
@@ -254,7 +298,10 @@ namespace Lina::Editor
 		Panel::Destruct();
 		if (m_font == nullptr)
 			return;
+
+		ResourceDef def = {.id = m_font->GetID(), .tid = m_font->GetTID(), .name = m_font->GetName()};
 		m_editor->GetResourceManagerV2().UnloadResources({m_font});
+		m_editor->GetEditorRenderer().OnResourcesUnloaded({def});
 	}
 
 	void PanelFontViewer::SetRuntimeDirty(bool isDirty)
@@ -268,15 +315,18 @@ namespace Lina::Editor
 		txt->CalculateTextSize();
 	}
 
-	void PanelFontViewer::RegenFont(const String& path)
+	void PanelFontViewer::ReloadCPU(const String& path)
+	{
+		if (!path.empty())
+			m_font->LoadFromFile(path);
+	}
+
+	void PanelFontViewer::ReloadGPU()
 	{
 		Application::GetLGX()->Join();
 		m_font->DestroyHW();
-
-		if (!path.empty())
-			m_font->LoadFromFile(path);
-
 		m_font->GenerateHW(m_editor->GetEditorRenderer().GetGUIBackend().GetLVGText());
+		m_editor->GetEditorRenderer().GetGUIBackend().ReuploadAtlases(m_editor->GetEditorRenderer().GetUploadQueue());
 		m_editor->GetEditorRenderer().MarkBindlessDirty();
 		m_fontDisplay->GetProps().font = m_font->GetID();
 		m_fontDisplay->CalculateTextSize();

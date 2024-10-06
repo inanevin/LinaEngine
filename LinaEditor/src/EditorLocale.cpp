@@ -120,6 +120,8 @@ namespace Lina::Editor
 		{LocaleStr::WidgetEditor, "Widget Editor"},
 		{LocaleStr::Import, "Import"},
 		{LocaleStr::ReImport, "Reimport"},
+		{LocaleStr::Revert, "Revert"},
+		{LocaleStr::Reverting, "Reverting..."},
 		{LocaleStr::New, "New"},
 		{LocaleStr::GUIWidget, "GUIWidget"},
 		{LocaleStr::SelectWidget, "Select: GUIWidget"},
@@ -136,12 +138,18 @@ namespace Lina::Editor
 		{LocaleStr::ThisResourceNoLongerExists, "This resource no longer exists :("},
 		{LocaleStr::GenerateSDF, "Generate SDF"},
 		{LocaleStr::General, "General"},
+		{LocaleStr::Resource, "Resource"},
 		{LocaleStr::Working, "Working"},
 		{LocaleStr::WorkInProgressInAnotherWindow, "Work in progress in another window."},
 		{LocaleStr::LoadingProjectData, "Loading project data..."},
 		{LocaleStr::VerifyingProjectResources, "Verifying project resources..."},
 		{LocaleStr::CreatingCoreResources, "Creating core resources..."},
 		{LocaleStr::Saving, "Saving..."},
+		{LocaleStr::LoadingCoreResources, "Loading core resources..."},
+		{LocaleStr::LoadingEngine, "Loading engine..."},
+		{LocaleStr::LoadingSettings, "Loading settings..."},
+		{LocaleStr::GeneratingAtlases, "Generating atlases..."},
+		{LocaleStr::ApplyingChanges, "Applying changes..."},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

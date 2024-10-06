@@ -55,9 +55,6 @@ namespace Lina::Editor
 		virtual void Tick(float delta) override;
 		virtual void Draw() override;
 
-		virtual void OnResourcesPreLoaded(int32 taskID, const ResourceDefinitionList& idents) override;
-		virtual void OnResourceLoaded(int32 taskID, const ResourceDef& ident) override;
-
 	private:
 		Mutex	 m_loadMtx;
 		Texture* m_splashImage		   = nullptr;

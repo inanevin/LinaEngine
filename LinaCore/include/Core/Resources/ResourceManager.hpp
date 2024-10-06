@@ -48,9 +48,9 @@ namespace Lina
 		ResourceManagerV2(){};
 		~ResourceManagerV2(){};
 
-		void LoadResourcesFromFile(ApplicationDelegate* delegate, const Vector<ResourceDef>& resourceDef, int32 taskID);
-		void LoadResourcesFromProject(ApplicationDelegate* delegate, ProjectData* project, const Vector<ResourceDef>& resourceDef, int32 taskID);
-		void UnloadResources(const Vector<Resource*>& resources);
+		HashSet<Resource*> LoadResourcesFromFile(ApplicationDelegate* delegate, const ResourceDefinitionList& resourceDef, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress);
+		HashSet<Resource*> LoadResourcesFromProject(ApplicationDelegate* delegate, ProjectData* project, const ResourceDefinitionList& resourceDef, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress);
+		void			   UnloadResources(const Vector<Resource*>& resources);
 
 		void Poll();
 		void WaitForAll();
@@ -83,6 +83,11 @@ namespace Lina
 			return static_cast<T*>(GetCache<T>()->Get(id));
 		}
 
+		template <typename T> bool GetIfExists(ResourceID id)
+		{
+			return static_cast<T*>(GetCache<T>()->GetIfExists(id));
+		}
+
 		template <typename T> T* CreateResource(ResourceID id, const String& name = "")
 		{
 			T* res = static_cast<T*>(GetCache<T>()->Create(id, name));
@@ -97,6 +102,11 @@ namespace Lina
 		template <typename T> void DestroyResource(T* res)
 		{
 			GetCache<T>()->Destroy(res->GetID());
+		}
+
+		Resource* GetIfExists(TypeID tid, ResourceID id)
+		{
+			return GetCache(tid)->GetIfExists(id);
 		}
 
 		inline ResourceID ConsumeResourceID()

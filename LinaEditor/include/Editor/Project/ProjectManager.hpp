@@ -29,7 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Core/Resources/CommonResources.hpp"
-#include "Common/JobSystem/JobSystem.hpp"
+#include "Common/JobSystem/TaskRunner.hpp"
 
 namespace Lina
 {
@@ -49,7 +49,7 @@ namespace Lina::Editor
 		virtual void OnProjectResourcesRefreshed(){};
 	};
 
-	class ProjectManager
+	class ProjectManager : public TaskRunner
 	{
 	public:
 		enum class WorkState
@@ -72,11 +72,7 @@ namespace Lina::Editor
 
 		void AddListener(ProjectManagerListener* listener);
 		void RemoveListener(ProjectManagerListener* listener);
-
-		void MarkResourceAtlasesNeedUpdate()
-		{
-			m_resourceAtlasesNeedUpdate.store(true);
-		}
+		void NotifyProjectResourcesRefreshed();
 
 		inline ProjectData* GetProjectData() const
 		{
@@ -95,6 +91,5 @@ namespace Lina::Editor
 		Editor*							m_editor			   = nullptr;
 		ProjectData*					m_currentProject	   = nullptr;
 		Vector<ProjectManagerListener*> m_listeners;
-		Atomic<bool>					m_resourceAtlasesNeedUpdate = false;
 	};
 } // namespace Lina::Editor

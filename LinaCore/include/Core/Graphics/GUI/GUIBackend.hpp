@@ -63,9 +63,10 @@ namespace Lina
 		GUIBackend()  = default;
 		~GUIBackend() = default;
 
-		void Initialize(ResourceManagerV2* resourceManager, ResourceUploadQueue* uploadQueue);
+		void Initialize(ResourceManagerV2* resourceManager);
 		void Shutdown();
 		void FontAtlasNeedsUpdate(LinaVG::Atlas* atlas);
+		void ReuploadAtlases(ResourceUploadQueue& queue);
 
 		inline const FontTexture& GetFontTexture(LinaVG::Atlas* atlas) const
 		{
@@ -79,7 +80,6 @@ namespace Lina
 
 	private:
 		LinaVG::Text						 m_lvgText;
-		ResourceUploadQueue*				 m_uploadQueue;
 		StringID							 m_boundFontTexture	 = 0;
 		ResourceManagerV2*					 m_resourceManagerV2 = nullptr;
 		HashMap<LinaVG::Atlas*, FontTexture> m_fontAtlases;

@@ -74,6 +74,7 @@ include/Editor/Widgets/Panel/PanelShaderViewer.hpp
 include/Editor/Widgets/Panel/PanelResourceBrowser.hpp
 include/Editor/Widgets/Panel/PanelColorWheel.hpp
 include/Editor/Widgets/Panel/PanelFactory.hpp
+include/Editor/Widgets/Panel/PanelResourceViewer.hpp
 include/Editor/Widgets/FX/LinaLoading.hpp
 include/Editor/Widgets/FX/ProgressCircleFill.hpp
 include/Editor/Widgets/Layout/ItemController.hpp
@@ -142,6 +143,7 @@ src/Widgets/Panel/PanelShaderViewer.cpp
 src/Widgets/Panel/PanelResourceBrowser.cpp
 src/Widgets/Panel/PanelColorWheel.cpp
 src/Widgets/Panel/PanelFactory.cpp
+src/Widgets/Panel/PanelResourceViewer.cpp
 src/Widgets/FX/LinaLoading.cpp
 src/Widgets/FX/ProgressCircleFill.cpp
 src/Widgets/Layout/ItemController.cpp

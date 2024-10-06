@@ -123,6 +123,8 @@ namespace Lina::Editor
 		WidgetEditor,
 		Import,
 		ReImport,
+		Revert,
+		Reverting,
 		New,
 		GUIWidget,
 		SelectWidget,
@@ -139,12 +141,18 @@ namespace Lina::Editor
 		ThisResourceNoLongerExists,
 		GenerateSDF,
 		General,
+		Resource,
 		Working,
 		WorkInProgressInAnotherWindow,
 		LoadingProjectData,
 		VerifyingProjectResources,
 		CreatingCoreResources,
 		Saving,
+		LoadingEngine,
+		LoadingSettings,
+		LoadingCoreResources,
+		GeneratingAtlases,
+		ApplyingChanges,
 	};
 
 	class Locale
