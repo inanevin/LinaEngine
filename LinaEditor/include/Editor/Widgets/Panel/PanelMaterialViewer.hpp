@@ -34,7 +34,8 @@ SOFTWARE.
 
 namespace Lina
 {
-
+	class EntityWorld;
+	class WorldRenderer;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -49,6 +50,7 @@ namespace Lina::Editor
 		virtual ~PanelMaterialViewer() = default;
 
 		virtual void Construct() override;
+		virtual void Destruct() override;
 		virtual void Initialize() override;
 
 	protected:
@@ -62,7 +64,10 @@ namespace Lina::Editor
 	private:
 		LINA_REFLECTION_ACCESS(PanelMaterialViewer);
 
-		String m_materialName = "";
+		String			m_materialName	 = "";
+		WorldDisplayer* m_worldDisplayer = nullptr;
+		EntityWorld*	m_world			 = nullptr;
+		WorldRenderer*	m_worldRenderer	 = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(PanelMaterialViewer, Hidden)

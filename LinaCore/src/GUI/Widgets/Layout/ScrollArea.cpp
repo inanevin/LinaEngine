@@ -192,7 +192,7 @@ namespace Lina
 		if (Widget::OnMouseWheel(amt))
 			return true;
 
-		m_scrollAmount -= amt * 1.0f;
+		m_scrollAmount -= amt * m_totalChildSize * 0.01f;
 		ClampScroll();
 		return true;
 	}

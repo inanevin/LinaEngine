@@ -114,25 +114,19 @@ namespace Lina::Editor
 	{
 		TaskRunner::Poll();
 
-		// if(m_frameCtrForAtlases > 60 && !m_atlasGenWorking.load())
-		// {
-		//     m_frameCtrForAtlases = 0;
-		//     m_atlasGenWorking.store(true);
-		//
-		//     Taskflow tf;
-		//     tf.emplace([this](){
-		//         GenerateMissingAtlases(&m_currentProject->GetResourceRoot());
-		//         TaskRunner::QueueTask([this](){
-		//             m_frameCtrForAtlases = 0;
-		//             m_atlasGenWorking.store(false);
-		//             Application::GetLGX()->Join();
-		//             m_editor->GetAtlasManager().RefreshPoolAtlases();
-		//         });
-		//     });
-		//     m_executor.RunMove(tf);
-		// }
-		//
-		// m_frameCtrForAtlases++;
+		if (m_frameCtrThumbnails > 60)
+		{
+			m_frameCtrThumbnails = 0;
+			HandleThumbnailRequests();
+		}
+		m_frameCtrThumbnails++;
+
+		if (m_frameCtrThumbnailsClean > 6000)
+		{
+			m_frameCtrThumbnailsClean = 0;
+			HandleHandleRemoveUnusedThumbnails();
+		}
+		m_frameCtrThumbnailsClean++;
 	}
 
 	void ProjectManager::Shutdown()
@@ -236,129 +230,161 @@ namespace Lina::Editor
 		Text*	progressText = static_cast<Text*>(progress->FindChildWithDebugName("Progress"));
 		lock->AddChild(progress);
 
-		Taskflow tf;
-		tf.emplace([this, progressText]() {
-			auto updateProg = [progressText](const String& txt) {
-				progressText->GetProps().text = txt;
-				progressText->CalculateTextSize();
-			};
+		TaskRunner::AddTask(
+			[this, progressText]() {
+				auto updateProg = [progressText](const String& txt) {
+					progressText->GetProps().text = txt;
+					progressText->CalculateTextSize();
+				};
 
-			updateProg(Locale::GetStr(LocaleStr::LoadingProjectData));
-			m_currentProject->LoadFromFile();
+				updateProg(Locale::GetStr(LocaleStr::LoadingProjectData));
+				m_currentProject->LoadFromFile();
 
-			updateProg(Locale::GetStr(LocaleStr::VerifyingProjectResources));
-			VerifyProjectResources(m_currentProject);
+				updateProg(Locale::GetStr(LocaleStr::VerifyingProjectResources));
+				VerifyProjectResources(m_currentProject);
 
-			updateProg(Locale::GetStr(LocaleStr::CreatingCoreResources));
+				updateProg(Locale::GetStr(LocaleStr::CreatingCoreResources));
 
-			const Vector<ResourcePipeline::ResourceImportDef> desiredAssets = {
-				{
-					.path = EDITOR_FONT_ROBOTO_PATH,
-					.id	  = EDITOR_FONT_ROBOTO_ID,
-				},
-				{
-					.path = EDITOR_SHADER_DEFAULT_OBJECT_PATH,
-					.id	  = EDITOR_SHADER_DEFAULT_OBJECT_ID,
-				},
-				{
-					.path = EDITOR_SHADER_DEFAULT_SKY_PATH,
-					.id	  = EDITOR_SHADER_DEFAULT_SKY_ID,
-				},
-				{
-					.path = EDITOR_SHADER_DEFAULT_LIGHTING_PATH,
-					.id	  = EDITOR_SHADER_DEFAULT_LIGHTING_ID,
-				},
-				{
-					.path = EDITOR_MODEL_CUBE_PATH,
-					.id	  = EDITOR_MODEL_CUBE_ID,
-				},
-				{
-					.path = EDITOR_MODEL_SPHERE_PATH,
-					.id	  = EDITOR_MODEL_SPHERE_ID,
-				},
-				{
-					.path = EDITOR_MODEL_CYLINDER_PATH,
-					.id	  = EDITOR_MODEL_CYLINDER_ID,
-				},
-				{
-					.path = EDITOR_MODEL_PLANE_PATH,
-					.id	  = EDITOR_MODEL_PLANE_ID,
-				},
-				{
-					.path = EDITOR_MODEL_SKYCUBE_PATH,
-					.id	  = EDITOR_MODEL_SKYCUBE_ID,
-				},
-				{
-					.path = EDITOR_TEXTURE_EMPTY_ALBEDO_PATH,
-					.id	  = EDITOR_TEXTURE_EMPTY_ALBEDO_ID,
-				},
-				{
-					.path = EDITOR_TEXTURE_EMPTY_NORMAL_PATH,
-					.id	  = EDITOR_TEXTURE_EMPTY_NORMAL_ID,
-				},
-			};
+				const Vector<ResourcePipeline::ResourceImportDef> desiredAssets = {
+					{
+						.path = EDITOR_FONT_ROBOTO_PATH,
+						.id	  = EDITOR_FONT_ROBOTO_ID,
+					},
+					{
+						.path = EDITOR_SHADER_DEFAULT_OBJECT_PATH,
+						.id	  = EDITOR_SHADER_DEFAULT_OBJECT_ID,
+					},
+					{
+						.path = EDITOR_SHADER_DEFAULT_SKY_PATH,
+						.id	  = EDITOR_SHADER_DEFAULT_SKY_ID,
+					},
+					{
+						.path = EDITOR_SHADER_DEFAULT_LIGHTING_PATH,
+						.id	  = EDITOR_SHADER_DEFAULT_LIGHTING_ID,
+					},
+					{
+						.path = EDITOR_MODEL_CUBE_PATH,
+						.id	  = EDITOR_MODEL_CUBE_ID,
+					},
+					{
+						.path = EDITOR_MODEL_SPHERE_PATH,
+						.id	  = EDITOR_MODEL_SPHERE_ID,
+					},
+					{
+						.path = EDITOR_MODEL_CYLINDER_PATH,
+						.id	  = EDITOR_MODEL_CYLINDER_ID,
+					},
+					{
+						.path = EDITOR_MODEL_PLANE_PATH,
+						.id	  = EDITOR_MODEL_PLANE_ID,
+					},
+					{
+						.path = EDITOR_MODEL_SKYCUBE_PATH,
+						.id	  = EDITOR_MODEL_SKYCUBE_ID,
+					},
+					{
+						.path = EDITOR_MODEL_SKYSPHERE_PATH,
+						.id	  = EDITOR_MODEL_SKYSPHERE_ID,
+					},
+					{
+						.path = EDITOR_TEXTURE_EMPTY_ALBEDO_PATH,
+						.id	  = EDITOR_TEXTURE_EMPTY_ALBEDO_ID,
+					},
+					{
+						.path = EDITOR_TEXTURE_EMPTY_NORMAL_PATH,
+						.id	  = EDITOR_TEXTURE_EMPTY_NORMAL_ID,
+					},
+					{
+						.path = EDITOR_TEXTURE_EMPTY_AO_PATH,
+						.id	  = EDITOR_TEXTURE_EMPTY_AO_ID,
+					},
+					{
+						.path = EDITOR_TEXTURE_EMPTY_METALLIC_ROUGHNESS_PATH,
+						.id	  = EDITOR_TEXTURE_EMPTY_METALLIC_ROUGHNESS_ID,
+					},
+					{
+						.path = EDITOR_TEXTURE_EMPTY_EMISSIVE_PATH,
+						.id	  = EDITOR_TEXTURE_EMPTY_EMISSIVE_ID,
+					},
+				};
 
-			Vector<ResourcePipeline::ResourceImportDef> importDefinitions;
-			ResourceDirectory*							linaAssets = m_currentProject->GetResourceRoot().GetChildByName(EDITOR_DEF_RESOURCES_FOLDER);
-			if (linaAssets == nullptr)
-			{
-				importDefinitions = desiredAssets;
-				linaAssets		  = m_currentProject->GetResourceRoot().CreateChild({
-						   .name	 = EDITOR_DEF_RESOURCES_FOLDER,
-						   .isFolder = true,
-				   });
-			}
-			else
-			{
-				for (const ResourcePipeline::ResourceImportDef& def : desiredAssets)
+				Vector<ResourcePipeline::ResourceImportDef> importDefinitions;
+				ResourceDirectory*							linaAssets = m_currentProject->GetResourceRoot().GetChildByName(EDITOR_DEF_RESOURCES_FOLDER);
+				if (linaAssets == nullptr)
 				{
-					if (linaAssets->FindResource(def.id) == nullptr)
-						importDefinitions.push_back(def);
+					importDefinitions = desiredAssets;
+					linaAssets		  = m_currentProject->GetResourceRoot().CreateChild({
+							   .name	 = EDITOR_DEF_RESOURCES_FOLDER,
+							   .isFolder = true,
+					   });
 				}
-			}
+				else
+				{
+					for (const ResourcePipeline::ResourceImportDef& def : desiredAssets)
+					{
+						if (linaAssets->FindResource(def.id) == nullptr)
+							importDefinitions.push_back(def);
+					}
+				}
 
-			if (!importDefinitions.empty())
-			{
-				ResourcePipeline::ImportResources(m_currentProject, linaAssets, importDefinitions, [updateProg](uint32 count, const ResourcePipeline::ResourceImportDef& currentDef, bool isComplete) {
-					if (!currentDef.path.empty())
-						updateProg(currentDef.path);
-				});
-			}
+				if (!importDefinitions.empty())
+				{
+					ResourcePipeline::ImportResources(m_currentProject, linaAssets, importDefinitions, [updateProg](uint32 count, const ResourcePipeline::ResourceImportDef& currentDef, bool isComplete) {
+						if (!currentDef.path.empty())
+							updateProg(currentDef.path);
+					});
+				}
 
-			// Custom sampler.
-			if (linaAssets->FindResource(EDITOR_SAMPLER_DEFAULT_ID) == nullptr)
-			{
-				updateProg(EDITOR_SAMPLER_DEFAULT_PATH);
-				ResourcePipeline::SaveNewResource(m_currentProject, linaAssets, EDITOR_SAMPLER_DEFAULT_PATH, GetTypeID<TextureSampler>(), EDITOR_SAMPLER_DEFAULT_ID);
-			}
+				// Custom sampler.
+				if (linaAssets->FindResource(EDITOR_SAMPLER_DEFAULT_ID) == nullptr)
+				{
+					updateProg(EDITOR_SAMPLER_DEFAULT_PATH);
+					ResourcePipeline::SaveNewResource(m_currentProject, linaAssets, EDITOR_SAMPLER_DEFAULT_PATH, GetTypeID<TextureSampler>(), EDITOR_SAMPLER_DEFAULT_ID);
+				}
 
-			// updateProg(Locale::GetStr(LocaleStr::GeneratingThumbnails));
-			// GenerateMissingAtlasImages(&m_currentProject->GetResourceRoot());
+				// Custom material
+				if (linaAssets->FindResource(EDITOR_MATERIAL_DEFAULT_OBJ_ID) == nullptr)
+				{
+					updateProg(EDITOR_MATERIAL_DEFAULT_OBJ_PATH);
+					ResourcePipeline::SaveNewResource(m_currentProject, linaAssets, EDITOR_MATERIAL_DEFAULT_OBJ_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_OBJ_ID, EDITOR_SHADER_DEFAULT_OBJECT_ID);
+				}
 
-			updateProg(Locale::GetStr(LocaleStr::Saving));
-			m_currentProject->SaveToFile();
+				if (linaAssets->FindResource(EDITOR_MATERIAL_DEFAULT_SKY_ID) == nullptr)
+				{
+					updateProg(EDITOR_MATERIAL_DEFAULT_SKY_PATH);
+					ResourcePipeline::SaveNewResource(m_currentProject, linaAssets, EDITOR_MATERIAL_DEFAULT_SKY_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_SKY_ID, EDITOR_SHADER_DEFAULT_SKY_ID);
+				}
 
-			EditorSettings& settings = m_editor->GetSettings();
-			settings.SetLastProjectPath(m_currentProject->GetPath());
-			settings.SaveToFile();
+				if (linaAssets->FindResource(EDITOR_MATERIAL_DEFAULT_LIGHTING_ID) == nullptr)
+				{
+					updateProg(EDITOR_MATERIAL_DEFAULT_LIGHTING_PATH);
+					ResourcePipeline::SaveNewResource(m_currentProject, linaAssets, EDITOR_MATERIAL_DEFAULT_LIGHTING_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_LIGHTING_ID, EDITOR_SHADER_DEFAULT_LIGHTING_ID);
+				}
 
-			TaskRunner::QueueTask([this]() {
+				updateProg(Locale::GetStr(LocaleStr::GeneratingThumbnails));
+				GenerateInitialThumbnails(m_currentProject, &m_currentProject->GetResourceRoot());
+
+				updateProg(Locale::GetStr(LocaleStr::Saving));
+				m_currentProject->SaveToFile();
+
+				EditorSettings& settings = m_editor->GetSettings();
+				settings.SetLastProjectPath(m_currentProject->GetPath());
+				settings.SaveToFile();
+			},
+			[this]() {
 				m_editor->GetWindowPanelManager().UnlockAllForegrounds();
 				Application::GetLGX()->Join();
 				m_editor->GetAtlasManager().RefreshPoolAtlases();
 				for (ProjectManagerListener* listener : m_listeners)
 					listener->OnProjectOpened(m_currentProject);
 			});
-		});
-
-		m_executor.RunMove(tf);
 	}
 
 	void ProjectManager::VerifyProjectResources(ProjectData* projectData)
 	{
 		// Check if the actual resource file for a ResourceDirectory in the project exists, if not delete the directory.
 		ResourceDirectory* root = &projectData->GetResourceRoot();
-		VerifyResourceDirectory(projectData, root);
+		RemoveDandlingDirectories(projectData, root);
 
 		// Go through all the resource files in the cache directory.
 		// If the equivalent resource is not included in/used by the project delete the file to prevent littering.
@@ -381,7 +407,7 @@ namespace Lina::Editor
 		m_editor->GetProjectManager().SaveProjectChanges();
 	}
 
-	void ProjectManager::VerifyResourceDirectory(ProjectData* projectData, ResourceDirectory* dir)
+	void ProjectManager::RemoveDandlingDirectories(ProjectData* projectData, ResourceDirectory* dir)
 	{
 		Vector<ResourceDirectory*> killList;
 
@@ -396,11 +422,22 @@ namespace Lina::Editor
 				}
 			}
 			else
-				VerifyResourceDirectory(projectData, c);
+				RemoveDandlingDirectories(projectData, c);
 		}
 
 		for (ResourceDirectory* d : killList)
 			dir->DestroyChild(d);
+	}
+
+	void ProjectManager::GenerateInitialThumbnails(ProjectData* projectData, ResourceDirectory* dir)
+	{
+		for (ResourceDirectory* c : dir->children)
+			GenerateInitialThumbnails(projectData, c);
+
+		if (dir->isFolder)
+			return;
+
+		m_resourceThumbnails[dir->resourceID] = ThumbnailGenerator::GenerateThumbnail(projectData, dir->resourceID, dir->resourceTID, m_editor->GetAtlasManager());
 	}
 
 	void ProjectManager::NotifyProjectResourcesRefreshed()
@@ -419,57 +456,85 @@ namespace Lina::Editor
 		m_resourceThumbnails[dir->resourceID] = nullptr;
 	}
 
-	void ProjectManager::GenerateMissingAtlases(ResourceDirectory* dir)
+	void ProjectManager::AddToThumbnailQueue(ResourceID id)
 	{
-		for (ResourceDirectory* c : dir->children)
-			GenerateMissingAtlases(c);
+		m_thumbnailQueue.insert(id);
+	}
 
-		if (dir->isFolder)
+	void ProjectManager::HandleThumbnailRequests()
+	{
+		if (m_thumbnailQueue.empty())
 			return;
 
-		auto& thumb = m_resourceThumbnailsOnFlight[dir->resourceID];
+		if (m_thumbnailsWorking.load())
+			return;
 
-		if (thumb == nullptr)
+		// Convert thumbnail queue to resource id - type id pairs.
+		Vector<Pair<ResourceID, TypeID>> idPairs;
+		for (ResourceID id : m_thumbnailQueue)
 		{
+			ResourceDirectory* dir = m_currentProject->GetResourceRoot().FindResource(id);
+			if (dir == nullptr || dir->isFolder)
+				continue;
+			idPairs.push_back(linatl::make_pair(id, dir->resourceTID));
+		}
+		m_thumbnailQueue.clear();
 
-			if (dir->resourceTID == GetTypeID<Shader>())
-				thumb = m_editor->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "ShaderSmall"_hs);
-			else if (dir->resourceTID == GetTypeID<EntityWorld>())
-				thumb = m_editor->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "WorldSmall"_hs);
-			else if (dir->resourceTID == GetTypeID<PhysicsMaterial>())
-				thumb = m_editor->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "PhyMatSmall"_hs);
-			else if (dir->resourceTID == GetTypeID<TextureSampler>())
-				thumb = m_editor->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "SamplerSmall"_hs);
-			else if (dir->resourceTID == GetTypeID<GUIWidget>())
-				thumb = m_editor->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "WidgetSmall"_hs);
-			else
-			{
-				if (dir->thumbnailBuffer.IsEmpty())
+		if (idPairs.empty())
+			return;
+
+		m_thumbnailsWorking.store(true);
+
+		TaskRunner::AddTask(
+			[this, idPairs]() {
+				// Generate
+				m_resourceThumbnailsOnFlight.clear();
+				for (const Pair<ResourceID, TypeID>& pair : idPairs)
+					m_resourceThumbnailsOnFlight[pair.first] = ThumbnailGenerator::GenerateThumbnail(m_currentProject, pair.first, pair.second, m_editor->GetAtlasManager());
+			},
+			[this]() {
+				// Remove & replace if thumbnail already exists, add new ones.
+				for (auto [id, atlasImg] : m_resourceThumbnailsOnFlight)
 				{
-					LinaGX::TextureBuffer buf = {};
-					IStream				  stream;
-					stream.Create(dir->thumbnailBuffer.GetRaw(), dir->thumbnailBuffer.GetSize());
-					stream >> buf.width >> buf.height >> buf.bytesPerPixel;
-					const size_t sz = static_cast<size_t>(buf.width * buf.height * buf.bytesPerPixel);
-					buf.pixels		= new uint8[sz];
-					stream.ReadToRaw(buf.pixels, sz);
-
-					thumb = m_editor->GetAtlasManager().AddImageToAtlas(buf.pixels, Vector2ui(buf.width, buf.height), buf.bytesPerPixel == 4 ? LinaGX::Format::R8G8B8A8_SRGB : LinaGX::Format::R8_UNORM);
-
-					ThumbnailGenerator::CreateThumbnailBuffer(dir->thumbnailBuffer, buf);
-					delete[] buf.pixels;
-					stream.Destroy();
+					auto it = m_resourceThumbnails.find(id);
+					if (it != m_resourceThumbnails.end())
+						m_editor->GetAtlasManager().RemoveImage(it->second);
+					m_resourceThumbnails[id] = atlasImg;
 				}
-				else
-				{
-					LinaGX::TextureBuffer buf = ThumbnailGenerator::GenerateThumbnailForResource(dir->relativePathToProject, dir->resourceTID);
-					ThumbnailGenerator::CreateThumbnailBuffer(dir->thumbnailBuffer, buf);
 
-					thumb = m_editor->GetAtlasManager().AddImageToAtlas(buf.pixels, Vector2ui(buf.width, buf.height), buf.bytesPerPixel == 4 ? LinaGX::Format::R8G8B8A8_SRGB : LinaGX::Format::R8_UNORM);
+				Application::GetLGX()->Join();
+				m_editor->GetAtlasManager().RefreshPoolAtlases();
+				NotifyProjectResourcesRefreshed();
+				m_thumbnailsWorking.store(false);
+			});
+	}
 
-					delete[] buf.pixels;
-				}
-			}
+	void ProjectManager::HandleHandleRemoveUnusedThumbnails()
+	{
+		if (m_thumbnailsWorking.load())
+			return;
+
+		Vector<ResourceID> deadlist;
+
+		for (auto [id, atlasImg] : m_resourceThumbnails)
+		{
+			ResourceDirectory* dir = m_currentProject->GetResourceRoot().FindResource(id);
+			if (dir != nullptr)
+				continue;
+
+			m_editor->GetAtlasManager().RemoveImage(atlasImg);
+			deadlist.push_back(id);
+		}
+
+		if (!deadlist.empty())
+		{
+			for (ResourceID id : deadlist)
+				m_resourceThumbnails.erase(m_resourceThumbnails.find(id));
+
+			Application::GetLGX()->Join();
+			m_editor->GetAtlasManager().RefreshPoolAtlases();
+			NotifyProjectResourcesRefreshed();
 		}
 	}
+
 } // namespace Lina::Editor

@@ -78,7 +78,6 @@ namespace Lina
 		virtual void LoadFromStream(IStream& stream) override;
 		void		 SetShader(Shader* shader);
 		void		 SetShaderID(ResourceID id);
-		void		 ResetProperties();
 		size_t		 BufferDataInto(Buffer& buf, size_t padding, ResourceManagerV2* rm, BindlessContext* context);
 		Shader*		 GetShader(ResourceManagerV2* rm);
 
@@ -108,7 +107,6 @@ namespace Lina
 		ResRef<Shader>			m_shader;
 		DescriptorAllocation	m_descriptorSetContainer[FRAMES_IN_FLIGHT];
 		Vector<ShaderProperty*> m_properties;
-		ResourceID				m_loadedShaderID = 0;
 	};
 
 	LINA_RESOURCE_BEGIN(Material);

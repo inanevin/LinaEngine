@@ -39,7 +39,7 @@ namespace Lina::Editor
 		struct Props
 		{
 			float thickness			 = Theme::GetDef().baseOutlineThickness;
-			float barSpeed			 = 40.0f;
+			float barSpeed			 = 60.0f;
 			bool  includeLinaLoading = true;
 			bool  rotate			 = false;
 			Color colorProgress		 = Theme::GetDef().accentSecondary;
@@ -61,10 +61,11 @@ namespace Lina::Editor
 		}
 
 	private:
-		Props m_props		   = {};
-		float m_progress	   = 0.0f;
-		float m_targetProgress = 0.0f;
-		float m_rotation	   = 0.0f;
+		Widget* m_linaLoading	 = nullptr;
+		Props	m_props			 = {};
+		float	m_progress		 = 0.0f;
+		float	m_targetProgress = 0.0f;
+		float	m_rotation		 = 0.0f;
 	};
 	LINA_WIDGET_BEGIN(ProgressCircleFill, Hidden)
 	LINA_CLASS_END(ProgressCircleFill)

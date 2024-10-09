@@ -75,8 +75,8 @@ namespace Lina::Editor
 		}
 
 		// Application delegate
-		virtual void PreInitialize() override;
-		virtual void Initialize() override;
+		virtual bool PreInitialize() override;
+		virtual bool Initialize() override;
 		virtual void PreTick() override;
 		virtual void Tick(float delta) override;
 		virtual void PreShutdown() override;

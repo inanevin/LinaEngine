@@ -71,11 +71,16 @@ namespace Lina::Editor
 		if (m_worldRenderer == nullptr)
 			return;
 
+		m_worldRenderer->GetWorld()->Tick(dt, CF_RECEIVE_EDITOR_TICK);
+
 		// Screen setup
 		Screen& sc = m_worldRenderer->GetWorld()->GetScreen();
 		sc.SetOwnerWindow(m_lgxWindow);
 		sc.SetDisplaySize(m_rect.size);
 		sc.SetDisplayPos(m_rect.pos);
+
+		if (sc.GetRenderSize().x != m_rect.size.x && sc.GetRenderSize().y != m_rect.size.y)
+			m_worldRenderer->Resize(m_rect.size);
 
 		// Input setup
 		const bool worldHasFocus = m_manager->GetControlsOwner() == this && m_lgxWindow->HasFocus();

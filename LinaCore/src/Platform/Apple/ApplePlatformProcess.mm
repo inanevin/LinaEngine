@@ -90,6 +90,25 @@ CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp* in
 	*/
 }
 
+- (BOOL)canAccessFolder:(NSString*)folderPath
+{
+	NSFileManager* fileManager = [NSFileManager defaultManager];
+	return [fileManager isReadableFileAtPath:folderPath];
+}
+
+- (void)checkAndRequestFolderAccess:(NSString*)folderPath
+{
+	if (![self canAccessFolder:folderPath])
+	{
+		NSLog(@"Access denied. You may need to prompt the user or handle permission settings.");
+		// Optionally, guide the user to enable permissions
+	}
+	else
+	{
+		NSLog(@"Access granted.");
+	}
+}
+
 @end
 
 namespace
@@ -124,9 +143,27 @@ int main(int argc, char* argv[])
 		[app setDelegate:appDelegate];
 		// renderSemaphore = dispatch_semaphore_create(0);
 
+		[appDelegate checkAndRequestFolderAccess:@"Users"];
+
 		Lina::Application* linaApp = new Lina::Application();
-		linaApp->Initialize(Lina::Lina_GetInitInfo());
 		[appDelegate setMyApp:linaApp];
+		const bool appInitOK = linaApp->Initialize(Lina::Lina_GetInitInfo());
+
+		if (!appInitOK)
+		{
+			NSAlert* alert = [[NSAlert alloc] init];
+			[alert setMessageText:@"Error"];
+			[alert setInformativeText:@"Lina application initialization failed :/.\nCheck the logs for more information."];
+			[alert setAlertStyle:NSAlertStyleCritical];
+			[alert addButtonWithTitle:@"OK"];
+			[alert runModal];
+
+			delete linaApp;
+			[app terminate:nil];
+			return 0;
+		}
+
+		[[NSRunningApplication currentApplication] activateWithOptions:(NSApplicationActivateAllWindows | NSApplicationActivateIgnoringOtherApps)];
 
 		while (!linaApp->GetExitRequested())
 		{
@@ -153,6 +190,8 @@ int main(int argc, char* argv[])
 		delete linaApp;
 		[app terminate:nil];
 	}
+
+	return 0;
 }
 
 namespace Lina

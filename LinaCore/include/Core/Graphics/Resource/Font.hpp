@@ -100,6 +100,11 @@ namespace Lina
 			return m_file.size();
 		}
 
+		inline const Vector<char>& GetFileData() const
+		{
+			return m_file;
+		}
+
 	private:
 		ALLOCATOR_BUCKET_MEM;
 		LINA_REFLECTION_ACCESS(Font);

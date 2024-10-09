@@ -269,29 +269,26 @@ namespace Lina::Editor
 		Widget* pp	 = CommonWidgets::BuildGenericPopupProgress(lock, Locale::GetStr(LocaleStr::Saving), true);
 		lock->AddChild(pp);
 
-		Taskflow tf;
-		tf.emplace([this]() {
-			// Save resource
-			ResourceDirectory* dir = m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_resource->GetID());
-			m_resourceManager->SaveResource(m_editor->GetProjectManager().GetProjectData(), m_resource);
+		ResourceDirectory* dir = m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_resource->GetID());
 
-			// Restore buffer to latest.
-			StoreBuffer();
+		m_editor->AddTask(
+			[this, dir]() {
+				// Save resource
+				m_resourceManager->SaveResource(m_editor->GetProjectManager().GetProjectData(), m_resource);
 
-			// Generate new thumbnail.
-			m_editor->GetProjectManager().InvalidateThumbnail(dir);
+				// Restore buffer to latest.
+				StoreBuffer();
 
-			// Save project
-			m_editor->GetProjectManager().SaveProjectChanges();
+				// Save project
+				m_editor->GetProjectManager().SaveProjectChanges();
+			},
+			[this, dir]() {
+				m_editor->GetProjectManager().AddToThumbnailQueue(dir->resourceID);
 
-			m_editor->QueueTask([this, dir]() {
 				// Gen & upload atlases, unlock GUI.
 				m_editor->GetWindowPanelManager().UnlockAllForegrounds();
 				SetRuntimeDirty(false);
 			});
-		});
-
-		m_editor->GetExecutor().RunMove(tf);
 	}
 
 	void PanelResourceViewer::ReimportResource()
@@ -301,19 +298,12 @@ namespace Lina::Editor
 		Widget* pp	 = CommonWidgets::BuildGenericPopupProgress(lock, Locale::GetStr(LocaleStr::Reimporting), true);
 		lock->AddChild(pp);
 
-		Taskflow tf;
-		tf.emplace([this]() {
-			m_resource->LoadFromFile(m_resource->GetPath());
-
-			m_editor->QueueTask([this]() {
-				// Gen & upload atlases, unlock GUI.
-				Application::GetLGX()->Join();
-				RegenHW();
-				m_editor->GetWindowPanelManager().UnlockAllForegrounds();
-			});
-		});
-
-		m_editor->GetExecutor().RunMove(tf);
+		m_editor->AddTask([this]() { m_resource->LoadFromFile(m_resource->GetPath()); },
+						  [this]() {
+							  Application::GetLGX()->Join();
+							  RegenHW();
+							  m_editor->GetWindowPanelManager().UnlockAllForegrounds();
+						  });
 	}
 
 } // namespace Lina::Editor

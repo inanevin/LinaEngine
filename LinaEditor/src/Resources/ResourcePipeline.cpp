@@ -50,7 +50,7 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	ResourceDirectory* ResourcePipeline::SaveNewResource(ProjectData* project, ResourceDirectory* src, const String& name, TypeID tid, ResourceID inID, uint32 subType)
+	ResourceDirectory* ResourcePipeline::SaveNewResource(ProjectData* project, ResourceDirectory* src, const String& name, TypeID tid, ResourceID inID, ResourceID subType)
 	{
 		const ResourceID id	  = inID != 0 ? inID : project->ConsumeResourceID();
 		const String	 path = project->GetResourcePath(id);
@@ -72,8 +72,20 @@ namespace Lina::Editor
 		}
 		else if (tid == GetTypeID<Material>())
 		{
-			Material mat(id, name);
-			mat.SetShaderID(EDITOR_SHADER_DEFAULT_OBJECT_ID);
+			Material		 mat(id, name);
+			const ResourceID targetShader = subType == 0 ? EDITOR_SHADER_DEFAULT_OBJECT_ID : subType;
+
+			IStream shaderStream = Serialization::LoadFromFile(project->GetResourcePath(targetShader).c_str());
+
+			if (shaderStream.Empty())
+			{
+				LINA_ERR("Failed saving new material!");
+				src->DestroyChild(newCreated);
+				return nullptr;
+			}
+			Shader sh(0, "");
+			sh.LoadFromStream(shaderStream);
+			mat.SetShader(&sh);
 			mat.SaveToFileAsBinary(path);
 		}
 		else if (tid == GetTypeID<EntityWorld>())
@@ -103,6 +115,9 @@ namespace Lina::Editor
 			else if (subType == 3)
 			{
 			}
+			else if (subType == 4)
+			{
+			}
 			shader.SaveToFileAsBinary(path);
 		}
 		else if (tid == GetTypeID<PhysicsMaterial>())
@@ -114,9 +129,10 @@ namespace Lina::Editor
 		return newCreated;
 	}
 
-	void ResourcePipeline::ImportResources(ProjectData* projectData, ResourceDirectory* src, const Vector<ResourceImportDef>& defs, Delegate<void(uint32 imported, const ResourceImportDef& importDef, bool isCompleted)> onProgress)
+	Vector<ResourceDirectory*> ResourcePipeline::ImportResources(ProjectData* projectData, ResourceDirectory* src, const Vector<ResourceImportDef>& defs, Delegate<void(uint32 imported, const ResourceImportDef& importDef, bool isCompleted)> onProgress)
 	{
-		Shader* defaultShader = nullptr;
+		Shader*					   defaultShader = nullptr;
+		Vector<ResourceDirectory*> createdDirs;
 
 		const int32 sz = static_cast<int32>(defs.size());
 
@@ -157,6 +173,7 @@ namespace Lina::Editor
 					.resourceTID = resourceTID,
 					.name		 = FileSystem::GetFilenameOnlyFromPath(def.path) + "." + FileSystem::GetFileExtension(def.path),
 				});
+				createdDirs.push_back(dir);
 			};
 
 			if (resourceTID == GetTypeID<Shader>())
@@ -167,6 +184,41 @@ namespace Lina::Editor
 
 				shader.SetID(def.id == 0 ? projectData->ConsumeResourceID() : def.id);
 				shader.SetPath(def.path);
+
+				const Vector<ShaderProperty*> props = shader.GetProperties();
+
+				LinaTexture2D defaultTextureAlbedo = {
+					.texture = EDITOR_TEXTURE_EMPTY_ALBEDO_ID,
+					.sampler = EDITOR_SAMPLER_DEFAULT_ID,
+				};
+				LinaTexture2D defaultTextureNormal = {
+					.texture = EDITOR_TEXTURE_EMPTY_NORMAL_ID,
+					.sampler = EDITOR_SAMPLER_DEFAULT_ID,
+				};
+				LinaTexture2D defaultTextureMetallicRoughness = {
+					.texture = EDITOR_TEXTURE_EMPTY_METALLIC_ROUGHNESS_ID,
+					.sampler = EDITOR_SAMPLER_DEFAULT_ID,
+				};
+				LinaTexture2D defaultTextureAO = {
+					.texture = EDITOR_TEXTURE_EMPTY_AO_ID,
+					.sampler = EDITOR_SAMPLER_DEFAULT_ID,
+				};
+
+				for (ShaderProperty* p : props)
+				{
+					if (p->type == ShaderPropertyType::Texture2D)
+					{
+						const String lowername = UtilStr::ToLower(p->name);
+						if (lowername.find("normal") != String::npos)
+							MEMCPY(p->data.data(), &defaultTextureNormal, sizeof(LinaTexture2D));
+						else if (lowername.find("metallic") != String::npos || lowername.find("roughness") != String::npos)
+							MEMCPY(p->data.data(), &defaultTextureMetallicRoughness, sizeof(LinaTexture2D));
+						else if (lowername.find("ao") != String::npos)
+							MEMCPY(p->data.data(), &defaultTextureAO, sizeof(LinaTexture2D));
+						else
+							MEMCPY(p->data.data(), &defaultTextureAlbedo, sizeof(LinaTexture2D));
+					}
+				}
 
 				const ShaderType type = shader.GetMeta().shaderType;
 
@@ -325,30 +377,59 @@ namespace Lina::Editor
 					meta.materials[matIdx] = newID;
 
 					LinaTexture2D albedo = {
-						.texture = 0,
-						.sampler = 0,
+						.texture = EDITOR_TEXTURE_EMPTY_ALBEDO_ID,
+						.sampler = EDITOR_SAMPLER_DEFAULT_ID,
 					};
 
 					LinaTexture2D normal = {
-						.texture = 0,
-						.sampler = 0,
+						.texture = EDITOR_TEXTURE_EMPTY_NORMAL_ID,
+						.sampler = EDITOR_SAMPLER_DEFAULT_ID,
 					};
 
-					int32 outIndex	= -1;
-					int32 outIndex2 = -1;
+					LinaTexture2D metallicRoughness = {
+						.texture = EDITOR_TEXTURE_EMPTY_METALLIC_ROUGHNESS_ID,
+						.sampler = EDITOR_SAMPLER_DEFAULT_ID,
+					};
+
+					LinaTexture2D ao = {
+						.texture = EDITOR_TEXTURE_EMPTY_AO_ID,
+						.sampler = EDITOR_SAMPLER_DEFAULT_ID,
+					};
+
+					LinaTexture2D emissive = {
+						.texture = EDITOR_TEXTURE_EMPTY_EMISSIVE_ID,
+						.sampler = EDITOR_SAMPLER_DEFAULT_ID,
+					};
+
 					for (auto [textureType, textureIndex] : def.textureIndices)
 					{
 						if (textureType == static_cast<uint8>(LinaGX::GLTFTextureType::BaseColor))
 						{
 							albedo.texture = createdTextures[textureIndex];
-							outIndex	   = textureIndex;
 							continue;
 						}
 
 						if (textureType == static_cast<uint8>(LinaGX::GLTFTextureType::Normal))
 						{
 							normal.texture = createdTextures[textureIndex];
-							outIndex2	   = textureIndex;
+							continue;
+						}
+
+						if (textureType == static_cast<uint8>(LinaGX::GLTFTextureType::MetallicRoughness))
+						{
+							metallicRoughness.texture = createdTextures[textureIndex];
+							continue;
+						}
+
+						if (textureType == static_cast<uint8>(LinaGX::GLTFTextureType::Occlusion))
+						{
+							ao.texture = createdTextures[textureIndex];
+							continue;
+						}
+
+						if (textureType == static_cast<uint8>(LinaGX::GLTFTextureType::Emissive))
+						{
+							emissive.texture = createdTextures[textureIndex];
 							continue;
 						}
 					}
@@ -370,10 +451,13 @@ namespace Lina::Editor
 			delete defaultShader;
 
 		onProgress(sz, {}, true);
+		return createdDirs;
 	}
 
-	void ResourcePipeline::DuplicateResource(ProjectData* projectData, ResourceManagerV2* resourceManager, ResourceDirectory* directory, ResourceDirectory* newParent)
+	void ResourcePipeline::DuplicateResource(ProjectManager& projectManager, ResourceManagerV2* resourceManager, ResourceDirectory* directory, ResourceDirectory* newParent)
 	{
+		ProjectData* projectData = projectManager.GetProjectData();
+
 		ResourceDirectory* dup = new ResourceDirectory();
 		*dup				   = *directory;
 		dup->children.clear();
@@ -390,16 +474,11 @@ namespace Lina::Editor
 			Resource* res = static_cast<Resource*>(resourceManager->OpenResource(projectData, directory->resourceTID, newID, nullptr));
 			res->SetID(newID);
 			resourceManager->CloseResource(projectData, res, true);
-
-			if (!directory->thumbnailBuffer.IsEmpty())
-			{
-				dup->thumbnailBuffer = RawStream();
-				dup->thumbnailBuffer.Create(directory->thumbnailBuffer.GetRaw(), directory->thumbnailBuffer.GetSize());
-			}
+			projectManager.AddToThumbnailQueue(dup->resourceID);
 		}
 
 		for (ResourceDirectory* c : directory->children)
-			DuplicateResource(projectData, resourceManager, c, dup);
+			DuplicateResource(projectManager, resourceManager, c, dup);
 	}
 
 } // namespace Lina::Editor

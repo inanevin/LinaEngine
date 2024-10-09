@@ -478,14 +478,18 @@ namespace Lina
 
 		// Lighting pass specific.
 		{
+
+			Material* lightingMaterial = m_world->GetGfxSettings().lightingMaterial.raw;
+			Material* skyMaterial	   = m_world->GetGfxSettings().skyMaterial.raw;
+
 			GPUDataLightingPass renderPassData = {
 				.gBufAlbedo			  = GetBindlessIndex(currentFrame.gBufAlbedo),
 				.gBufPositionMetallic = GetBindlessIndex(currentFrame.gBufPosition),
 				.gBufNormalRoughness  = GetBindlessIndex(currentFrame.gBufNormal),
 				// .gBufDepth             = currentFrame.gBufDepth->GetBindlessIndex(),
 				.gBufSampler			   = GetBindlessIndex(m_gBufSampler),
-				.lightingMaterialByteIndex = GetBindlessIndex(m_world->GetGfxSettings().lightingMaterial.raw) / 4,
-				.skyMaterialByteIndex	   = GetBindlessIndex(m_world->GetGfxSettings().skyMaterial.raw) / 4,
+				.lightingMaterialByteIndex = GetBindlessIndex(lightingMaterial) / 4,
+				.skyMaterialByteIndex	   = GetBindlessIndex(skyMaterial) / 4,
 			};
 
 			m_lightingPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&renderPassData, sizeof(GPUDataLightingPass));
@@ -614,11 +618,21 @@ namespace Lina
 			BumpAndSendTransfers(frameIndex);
 	}
 
-	void WorldRenderer::Render(uint32 frameIndex)
+	bool WorldRenderer::Render(uint32 frameIndex)
 	{
 		auto& currentFrame = m_pfd[frameIndex];
 		currentFrame.copySemaphore.ResetModified();
 		currentFrame.signalSemaphore.ResetModified();
+
+		Material*		 lightingMaterial = m_world->GetGfxSettings().lightingMaterial.raw;
+		Material*		 skyMaterial	  = m_world->GetGfxSettings().skyMaterial.raw;
+		Model*			 skyModel		  = m_world->GetGfxSettings().skyModel.raw;
+		CameraComponent* camera			  = m_world->GetActiveCamera();
+
+		if (lightingMaterial == nullptr || skyMaterial == nullptr || skyModel == nullptr || camera == nullptr)
+		{
+			return false;
+		}
 
 		UpdateBindlessResources(frameIndex);
 		UpdateBuffers(frameIndex);
@@ -854,6 +868,8 @@ namespace Lina
 				.standaloneSubmission = m_standaloneSubmit,
 			});
 		}
+
+		return true;
 	}
 
 	uint64 WorldRenderer::BumpAndSendTransfers(uint32 frameIndex)

@@ -63,7 +63,10 @@ namespace Lina
 	IStream Serialization::LoadFromFile(const char* path)
 	{
 		if (!FileSystem::FileOrPathExists(path))
+		{
+			LINA_ERR("[Serialization] -> File doesn't exists: {0}", path);
 			return {};
+		}
 
 		std::ifstream rf(path, std::ios::out | std::ios::binary);
 
@@ -82,7 +85,11 @@ namespace Lina
 		rf.close();
 
 		if (!rf.good())
+		{
 			LINA_ERR("[Serialization] -> Error occured while reading the file! {0}", path);
+			readStream.Destroy();
+			return {};
+		}
 
 		IStream decompressedStream = Compressor::Decompress(readStream);
 		readStream.Destroy();

@@ -349,8 +349,9 @@ namespace Lina::Editor
 		{
 			outData = {
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::DeferredShader), .userData = userData},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::LightingShader), .userData = userData},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::ForwardShader), .userData = userData},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::LightingShader), .userData = userData},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::SkyShader), .userData = userData},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::PostProcessShader), .userData = userData},
 			};
 		}
@@ -418,31 +419,33 @@ namespace Lina::Editor
 			Text*				progressText = static_cast<Text*>(popup->FindChildWithDebugName("Progress"));
 			lock->AddChild(popup);
 
-			Taskflow tf;
-
 			ResourceDirectory* directory = selection.front();
 
-			tf.emplace([selection, importDefinitions, progress, progressText, directory, this]() {
-				const float totalSize = static_cast<float>(importDefinitions.size());
+			m_importingResources.clear();
 
-				ResourcePipeline::ImportResources(m_editor->GetProjectManager().GetProjectData(), directory, importDefinitions, [this, progress, progressText, totalSize](uint32 importedCount, const ResourcePipeline::ResourceImportDef& def, bool isComplete) {
-					const float p = static_cast<float>(importedCount) / totalSize;
-					progress->UpdateProgress(p);
-					progressText->GetProps().text = def.path;
-					progressText->CalculateTextSize();
-				});
+			m_editor->GetProjectManager().AddTask(
+				[selection, importDefinitions, progress, progressText, directory, this]() {
+					const float totalSize = static_cast<float>(importDefinitions.size());
 
-				m_editor->GetProjectManager().SaveProjectChanges();
+					m_importingResources = ResourcePipeline::ImportResources(
+						m_editor->GetProjectManager().GetProjectData(), directory, importDefinitions, [this, progress, progressText, totalSize](uint32 importedCount, const ResourcePipeline::ResourceImportDef& def, bool isComplete) {
+							const float p = static_cast<float>(importedCount) / totalSize;
+							progress->UpdateProgress(p);
+							progressText->GetProps().text = def.path;
+							progressText->CalculateTextSize();
+						});
 
-				m_editor->GetProjectManager().QueueTask([this]() {
+					m_editor->GetProjectManager().SaveProjectChanges();
+				},
+				[this]() {
+					for (ResourceDirectory* dir : m_importingResources)
+						m_editor->GetProjectManager().AddToThumbnailQueue(dir->resourceID);
+
 					m_editor->GetWindowPanelManager().UnlockAllForegrounds();
 					Application::GetLGX()->Join();
 					m_editor->GetAtlasManager().RefreshPoolAtlases();
 					RefreshDirectory();
 				});
-			});
-
-			m_executor.RunMove(tf);
 
 			return true;
 		}
@@ -491,20 +494,27 @@ namespace Lina::Editor
 		{
 			newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "DeferredShader", GetTypeID<Shader>(), 0, 0);
 		}
-		else if (sid == TO_SID(Locale::GetStr(LocaleStr::LightingShader)))
-		{
-			newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "LightingShader", GetTypeID<Shader>(), 0, 1);
-		}
 		else if (sid == TO_SID(Locale::GetStr(LocaleStr::ForwardShader)))
 		{
-			newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "ForwardShader", GetTypeID<Shader>(), 0, 2);
+			newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "ForwardShader", GetTypeID<Shader>(), 0, 1);
+		}
+		else if (sid == TO_SID(Locale::GetStr(LocaleStr::SkyShader)))
+		{
+			newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "SkyShader", GetTypeID<Shader>(), 0, 2);
+		}
+		else if (sid == TO_SID(Locale::GetStr(LocaleStr::LightingShader)))
+		{
+			newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "LightingShader", GetTypeID<Shader>(), 0, 3);
 		}
 		else if (sid == TO_SID(Locale::GetStr(LocaleStr::PostProcessShader)))
 		{
-			newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "PostProcessShader", GetTypeID<Shader>(), 0, 3);
+			newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "PostProcessShader", GetTypeID<Shader>(), 0, 4);
 		}
 		else
 			return false;
+
+		if (!newCreated->isFolder)
+			m_editor->GetProjectManager().AddToThumbnailQueue(newCreated->resourceID);
 
 		m_editor->GetProjectManager().SaveProjectChanges();
 
@@ -577,15 +587,9 @@ namespace Lina::Editor
 	void ResourceDirectoryBrowser::RequestDuplicate(Vector<ResourceDirectory*> dirs)
 	{
 		for (ResourceDirectory* item : dirs)
-			ResourcePipeline::DuplicateResource(m_editor->GetProjectManager().GetProjectData(), &m_editor->GetResourceManagerV2(), item, item->parent);
+			ResourcePipeline::DuplicateResource(m_editor->GetProjectManager(), &m_editor->GetResourceManagerV2(), item, item->parent);
 
 		m_editor->GetProjectManager().SaveProjectChanges();
-
-		m_editor->GetProjectManager().QueueTask([this]() {
-			Application::GetLGX()->Join();
-			m_editor->GetAtlasManager().RefreshPoolAtlases();
-			RefreshDirectory();
-		});
 	}
 
 	void ResourceDirectoryBrowser::DeleteItems(Vector<ResourceDirectory*> dirs)
@@ -596,12 +600,6 @@ namespace Lina::Editor
 		}
 
 		m_editor->GetProjectManager().SaveProjectChanges();
-
-		m_editor->GetProjectManager().QueueTask([this]() {
-			Application::GetLGX()->Join();
-			m_editor->GetAtlasManager().RefreshPoolAtlases();
-			RefreshDirectory();
-		});
 	}
 
 	void ResourceDirectoryBrowser::DropPayload(ResourceDirectory* target)

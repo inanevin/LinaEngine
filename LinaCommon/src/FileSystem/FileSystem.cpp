@@ -236,7 +236,16 @@ namespace Lina
 
 	String FileSystem::GetRunningDirectory()
 	{
-		return std::filesystem::current_path().string();
+		try
+		{
+			auto path = std::filesystem::current_path();
+			return path.string();
+		}
+		catch (std::exception e)
+		{
+			int a = 5;
+			return "";
+		}
 	}
 
 	String FileSystem::RemoveWhitespaces(const String& str)

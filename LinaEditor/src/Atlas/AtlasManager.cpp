@@ -75,6 +75,11 @@ namespace Lina::Editor
 		}
 	}
 
+	TextureAtlas* AtlasManager::GetCustomAtlas(StringID sid)
+	{
+		return m_customAtlases.at(sid);
+	}
+
 	TextureAtlas* AtlasManager::AddCustomAtlas(const String& baseFolder, StringID sid, const Vector2ui& size)
 	{
 		TextureAtlas* atlas	 = new TextureAtlas(&m_editor->GetResourceManagerV2(), size, LinaGX::Format::R8G8B8A8_SRGB);
@@ -87,7 +92,6 @@ namespace Lina::Editor
 		{
 			LinaGX::TextureBuffer buffer;
 			LinaGX::LoadImageFromFile(file.c_str(), buffer, 4);
-
 			if (buffer.pixels == nullptr)
 				continue;
 

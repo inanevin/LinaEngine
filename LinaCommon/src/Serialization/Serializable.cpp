@@ -39,11 +39,19 @@ namespace Lina
 		stream.Destroy();
 	}
 
-	void Serializable::LoadFromFile()
+	bool Serializable::LoadFromFile()
 	{
 		IStream stream = Serialization::LoadFromFile(m_serializedPath.c_str());
+
+		if (stream.Empty())
+		{
+			LINA_ERR("Could not load from file: {0}", m_serializedPath.c_str());
+			return false;
+		}
+
 		LoadFromStream(stream);
 		stream.Destroy();
+		return true;
 	}
 
 } // namespace Lina

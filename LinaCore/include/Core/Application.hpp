@@ -49,7 +49,7 @@ namespace Lina
 		Application(){};
 		~Application(){};
 
-		void		 Initialize(const SystemInitializationInfo& initInfo);
+		bool		 Initialize(const SystemInitializationInfo& initInfo);
 		void		 Tick();
 		void		 Render();
 		void		 Shutdown();

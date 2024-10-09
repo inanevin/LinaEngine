@@ -108,7 +108,7 @@ namespace Lina
 		~WorldRenderer();
 
 		void Tick(float delta);
-		void Render(uint32 frameIndex);
+		bool Render(uint32 frameIndex);
 		void Resize(const Vector2ui& newSize);
 
 		virtual void OnResourcesLoaded(const ResourceList& resources) override;

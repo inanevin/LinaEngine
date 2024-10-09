@@ -39,53 +39,127 @@ SOFTWARE.
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Audio/Audio.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
+#include "Core/Graphics/Resource/TextureSampler.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Data/Mesh.hpp"
 #include "Core/Graphics/Resource/Mesh.hpp"
 #include "Core/Graphics/Resource/GUIWidget.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
+#include "Core/Physics/PhysicsMaterial.hpp"
 #include "Core/Components/MeshComponent.hpp"
 #include "Core/Components/CameraComponent.hpp"
 #include "Core/World/EntityWorld.hpp"
 
 namespace Lina::Editor
 {
-	void ThumbnailGenerator::CreateThumbnailBuffer(RawStream& rawStream, LinaGX::TextureBuffer thumb)
+
+	TextureAtlasImage* ThumbnailGenerator::GenerateThumbnail(ProjectData* project, ResourceID id, TypeID typeID, AtlasManager& atlasManager)
 	{
-		if (thumb.pixels != nullptr)
+		if (typeID == GetTypeID<Shader>())
+			return atlasManager.GetImageFromAtlas("ProjectIcons"_hs, "ShaderSmall"_hs);
+		if (typeID == GetTypeID<EntityWorld>())
+			return atlasManager.GetImageFromAtlas("ProjectIcons"_hs, "WorldSmall"_hs);
+		if (typeID == GetTypeID<PhysicsMaterial>())
+			return atlasManager.GetImageFromAtlas("ProjectIcons"_hs, "PhyMatSmall"_hs);
+		if (typeID == GetTypeID<TextureSampler>())
+			return atlasManager.GetImageFromAtlas("ProjectIcons"_hs, "SamplerSmall"_hs);
+		if (typeID == GetTypeID<GUIWidget>())
+			return atlasManager.GetImageFromAtlas("ProjectIcons"_hs, "WidgetSmall"_hs);
+
+		const String path = project->GetResourcePath(id);
+		if (!FileSystem::FileOrPathExists(path))
 		{
-			OStream stream;
-			stream << thumb.width << thumb.height << thumb.bytesPerPixel;
-			stream.WriteRaw(thumb.pixels, thumb.width * thumb.height * thumb.bytesPerPixel);
-			rawStream.Create(stream);
-			stream.Destroy();
+			LINA_ERR("Failed generating thumbnail for resource: {0}", id);
+			return nullptr;
 		}
+
+		IStream stream = Serialization::LoadFromFile(path.c_str());
+
+		if (stream.Empty())
+		{
+			LINA_ERR("Failed generating thumbnail for resource: {0}", id);
+			return nullptr;
+		}
+
+		LinaGX::TextureBuffer buf = {};
+
+		if (typeID == GetTypeID<Texture>())
+		{
+			Texture res(0, "");
+			res.LoadFromStream(stream);
+			buf = GenerateThumbnail(&res);
+		}
+		else if (typeID == GetTypeID<Font>())
+		{
+			Font res(0, "");
+			res.LoadFromStream(stream);
+			buf = GenerateThumbnail(&res);
+		}
+		else if (typeID == GetTypeID<Model>())
+		{
+			Model res(0, "");
+			res.LoadFromStream(stream);
+			buf = GenerateThumbnail(&res);
+		}
+		else if (typeID == GetTypeID<Material>())
+		{
+			Material res(0, "");
+			res.LoadFromStream(stream);
+			buf = GenerateThumbnail(&res);
+		}
+		else if (typeID == GetTypeID<Audio>())
+		{
+			Audio res(0, "");
+			res.LoadFromStream(stream);
+			buf = GenerateThumbnail(&res);
+		}
+
+		if (buf.pixels == nullptr)
+		{
+			LINA_ERR("Failed generating thumbnail for resource: {0}", id);
+			return nullptr;
+		}
+
+		TextureAtlasImage* img = atlasManager.AddImageToAtlas(buf.pixels, Vector2ui(buf.width, buf.height), buf.bytesPerPixel == 1 ? LinaGX::Format::R8_UNORM : LinaGX::Format::R8G8B8A8_SRGB);
+		delete[] buf.pixels;
+		return img;
 	}
 
-	LinaGX::TextureBuffer ThumbnailGenerator::GenerateThumbnailForResource(const String& path, TypeID tid)
+	namespace
 	{
-		if (tid == GetTypeID<Texture>())
-			return GenerateThumbnailForTexture(path);
+		void ConvertRGBA16ToRGBA8(const uint16* src, uint8* dst, uint32 width, uint32 height)
+		{
+			for (int i = 0; i < width * height; ++i)
+			{
+				// Extract 16-bit RGBA values
+				uint16_t r16 = src[i * 4 + 0];
+				uint16_t g16 = src[i * 4 + 1];
+				uint16_t b16 = src[i * 4 + 2];
+				uint16_t a16 = src[i * 4 + 3];
 
-		if (tid == GetTypeID<Model>())
-			return GenerateThumbnailForModel(path);
-
-		if (tid == GetTypeID<Material>())
-			return GenerateThumbnailForMaterial(path);
-
-		if (tid == GetTypeID<Audio>())
-			return GenerateThumbnailForAudio(path);
-
-		if (tid == GetTypeID<Font>())
-			return GenerateThumbnailForFont(path);
-
-		return {};
-	}
-
-	LinaGX::TextureBuffer ThumbnailGenerator::GenerateThumbnailForTexture(const String& path)
+				// Convert to 8-bit and store in destination buffer
+				dst[i * 4 + 0] = r16 >> 8; // or r16 / 256
+				dst[i * 4 + 1] = g16 >> 8; // or g16 / 256
+				dst[i * 4 + 2] = b16 >> 8; // or b16 / 256
+				dst[i * 4 + 3] = a16 >> 8; // or a16 / 256
+			}
+		}
+	} // namespace
+	LinaGX::TextureBuffer ThumbnailGenerator::GenerateThumbnail(Texture* res)
 	{
 		LinaGX::TextureBuffer buffer = {};
-		LinaGX::LoadImageFromFile(path.c_str(), buffer, 4, nullptr, true);
+		buffer						 = res->GetAllLevels().front();
+
+		uint8* shrunkPixels = nullptr;
+
+		if (buffer.bytesPerPixel == 8)
+		{
+			shrunkPixels = new uint8[buffer.width * buffer.height * 4];
+			ConvertRGBA16ToRGBA8(reinterpret_cast<uint16*>(buffer.pixels), shrunkPixels, buffer.width, buffer.height);
+			buffer.pixels		 = shrunkPixels;
+			buffer.bytesPerPixel = 4;
+		}
+		// LinaGX::LoadImageFromFile(path.c_str(), buffer, 4, nullptr, true);
 
 		const float max	   = static_cast<float>(Math::Max(buffer.width, buffer.height));
 		const float min	   = static_cast<float>(Math::Min(buffer.width, buffer.height));
@@ -110,24 +184,27 @@ namespace Lina::Editor
 			LINA_ERR("Thumbnail Generator: Failed resizing image for thumbnail!");
 		}
 
+		if (shrunkPixels != nullptr)
+			delete[] shrunkPixels;
+
 		return resizedBuffer;
 	}
 
-	LinaGX::TextureBuffer ThumbnailGenerator::GenerateThumbnailForAudio(const String& path)
+	LinaGX::TextureBuffer ThumbnailGenerator::GenerateThumbnail(Audio* audio)
 	{
-		LinaGX::TextureBuffer buffer;
+		LinaGX::TextureBuffer buffer = {};
 		return buffer;
 	}
 
-	LinaGX::TextureBuffer ThumbnailGenerator::GenerateThumbnailForModel(const String& path)
+	LinaGX::TextureBuffer ThumbnailGenerator::GenerateThumbnail(Model* model)
 	{
-		LinaGX::TextureBuffer buffer;
+		LinaGX::TextureBuffer buffer = {};
 		return buffer;
 	}
 
-	LinaGX::TextureBuffer ThumbnailGenerator::GenerateThumbnailForMaterial(const String& path)
+	LinaGX::TextureBuffer ThumbnailGenerator::GenerateThumbnail(Material* mat)
 	{
-		LinaGX::TextureBuffer buffer;
+		LinaGX::TextureBuffer buffer = {};
 		return buffer;
 	}
 
@@ -225,9 +302,9 @@ namespace Lina::Editor
 			return {};
 		}
 	 */
-	LinaGX::TextureBuffer ThumbnailGenerator::GenerateThumbnailForFont(const String& absPath)
+	LinaGX::TextureBuffer ThumbnailGenerator::GenerateThumbnail(Font* font)
 	{
-		LinaGX::TextureBuffer thumbnailBuffer;
+		LinaGX::TextureBuffer thumbnailBuffer = {};
 
 		auto loadGlyph = [](FT_Face face, uint32 code, uint32& width, uint32& height) -> unsigned char* {
 			auto index = FT_Get_Char_Index(face, code);
@@ -273,11 +350,15 @@ namespace Lina::Editor
 			return buffer;
 		};
 
-		FT_Face face;
-		if (FT_New_Face(LinaVG::g_ftLib, absPath.c_str(), 0, &face))
+		FT_Face		 face;
+		Vector<char> fileData = font->GetFileData();
+
+		void* data = fileData.data();
+
+		if (FT_New_Memory_Face(LinaVG::g_ftLib, reinterpret_cast<FT_Byte*>(data), static_cast<FT_Long>(fileData.size()), 0, &face))
 		{
 			LINA_ERR("FileManager: Failed creating new font face for thumbnail!");
-			return;
+			return {};
 		}
 
 		FT_Error err = FT_Set_Pixel_Sizes(face, 0, RESOURCE_THUMBNAIL_SIZE / 2);
@@ -285,7 +366,7 @@ namespace Lina::Editor
 		if (err)
 		{
 			LINA_ERR("FileManager: Failed setting font pixel sizes for thumbnail!");
-			return;
+			return {};
 		}
 
 		err = FT_Select_Charmap(face, ft_encoding_unicode);
@@ -293,7 +374,7 @@ namespace Lina::Editor
 		if (err)
 		{
 			LINA_ERR("FileManager: Failed selecting font charmap for thumbnail!");
-			return;
+			return {};
 		}
 
 		uint32		   glyphW1 = 0;

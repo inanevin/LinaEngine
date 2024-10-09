@@ -48,7 +48,7 @@ namespace Lina
 	{
 		IStream stream = Serialization::LoadFromFile(path.c_str());
 
-		if (stream.GetDataRaw() != nullptr)
+		if (!stream.Empty())
 			LoadFromStream(stream);
 		else
 			return false;

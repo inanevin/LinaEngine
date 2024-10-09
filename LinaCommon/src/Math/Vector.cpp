@@ -54,6 +54,8 @@ namespace Lina
 	Vector2ui Vector2ui::One   = Vector2ui(1);
 	Vector2i  Vector2i::Zero   = Vector2i(0);
 	Vector2i  Vector2i::One	   = Vector2i(1);
+	Vector3i  Vector3i::Zero   = Vector3i(0);
+	Vector3i  Vector3i::One	   = Vector3i(1);
 	Vector4i  Vector4i::Zero   = Vector4i(0);
 	Vector4i  Vector4i::One	   = Vector4i(1);
 
@@ -461,6 +463,21 @@ namespace Lina
 	void Vector2i::LoadFromStream(IStream& stream)
 	{
 		stream >> x >> y;
+	}
+
+	bool Vector3i::Equals(const Vector3i& other, int epsilon) const
+	{
+		return Math::Equals(x, other.x, epsilon) && Math::Equals(y, other.y, epsilon) && Math::Equals(z, other.z, epsilon);
+	}
+
+	void Vector3i::SaveToStream(OStream& stream) const
+	{
+		stream << x << y << z;
+	}
+
+	void Vector3i::LoadFromStream(IStream& stream)
+	{
+		stream >> x >> y >> z;
 	}
 
 	void Vector4ui::SaveToStream(OStream& out) const

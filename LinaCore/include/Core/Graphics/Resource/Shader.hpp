@@ -137,6 +137,11 @@ namespace Lina
 			return m_meta;
 		}
 
+		inline const Vector<ShaderProperty*>& GetProperties() const
+		{
+			return m_properties;
+		}
+
 	private:
 		ALLOCATOR_BUCKET_MEM;
 		LINA_REFLECTION_ACCESS(Shader);

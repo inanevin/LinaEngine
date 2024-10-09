@@ -134,6 +134,55 @@ namespace Lina
 		return Vector2i((int)((float)v.x - scalar), (int)(((float)v.y - scalar)));
 	}
 
+	class Vector3i : public glm::ivec3
+	{
+	public:
+		Vector3i() = default;
+		Vector3i(int x, int y, int z) : glm::ivec3(x, y, z){};
+		Vector3i(const Vector3i& rhs) : glm::ivec3(rhs){};
+		Vector3i(unsigned int val) : glm::ivec3(val, val, val){};
+		Vector3i(const glm::vec3& rhs) : glm::ivec3(rhs.x, rhs.y, rhs.z){};
+
+		static Vector3i Zero;
+		static Vector3i One;
+
+		bool Equals(const Vector3i& other, int epsilon = 0) const;
+		void SaveToStream(OStream& stream) const;
+		void LoadFromStream(IStream& stream);
+
+		Vector3i& operator+=(Vector3i const& v)
+		{
+			this->x += v.x;
+			this->y += v.y;
+			this->z += v.z;
+			return *this;
+		}
+		Vector3i& operator-=(Vector3i const& v)
+		{
+			this->x -= v.x;
+			this->y -= v.y;
+			this->z -= v.z;
+			return *this;
+		}
+	};
+
+	inline Vector3i operator-(Vector3i const& v, Vector3i const& v2)
+	{
+		return Vector3i(v.x - v2.x, v.y - v2.y, v.z - v2.z);
+	}
+	inline Vector3i operator+(Vector3i const& v, Vector3i const& v2)
+	{
+		return Vector3i(v.x + v2.x, v.y + v2.y, v.z + v2.z);
+	}
+	inline Vector3i operator+(Vector3i const& v, float scalar)
+	{
+		return Vector3i((int)((float)v.x + scalar), (int)(((float)v.y + scalar)), (int)(((float)v.z + scalar)));
+	}
+	inline Vector3i operator-(Vector3i const& v, float scalar)
+	{
+		return Vector3i((int)((float)v.x - scalar), (int)(((float)v.y - scalar)), (int)((float)v.z - scalar));
+	}
+
 	class Vector2 : public glm::vec2
 	{
 	public:

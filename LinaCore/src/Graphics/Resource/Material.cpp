@@ -94,8 +94,41 @@ namespace Lina
 		m_shader.raw = shader;
 		m_shader.id	 = shader->GetID();
 
-		if (m_loadedShaderID != m_shader.id)
-			ResetProperties();
+		const Vector<ShaderProperty*>& properties = m_shader.raw->GetProperties();
+
+		// If property this material has does not exists in shader delete it from this material.
+		for (Vector<ShaderProperty*>::iterator it = m_properties.begin(); it != m_properties.end();)
+		{
+			ShaderProperty* p = *it;
+
+			auto found = linatl::find_if(properties.begin(), properties.end(), [p](ShaderProperty* prop) -> bool { return p->sid == prop->sid && p->type == prop->type; });
+			if (found == properties.end())
+			{
+				delete p;
+				it = m_properties.erase(it);
+			}
+			else
+				++it;
+		}
+
+		// If property shader has does not exists in this material add it.
+		Vector<ShaderProperty*> addList;
+		for (ShaderProperty* p : properties)
+		{
+			auto it = linatl::find_if(m_properties.begin(), m_properties.end(), [p](ShaderProperty* prop) -> bool { return p->sid == prop->sid && p->type == prop->type; });
+			if (it == m_properties.end())
+			{
+				ShaderProperty* prop = new ShaderProperty();
+				prop->type			 = p->type;
+				prop->sid			 = p->sid;
+				prop->name			 = p->name;
+				prop->data			 = {new uint8[p->data.size()], p->data.size()};
+				MEMCPY(prop->data.data(), p->data.data(), p->data.size());
+				addList.push_back(prop);
+			}
+		}
+		for (ShaderProperty* newProp : addList)
+			m_properties.push_back(newProp);
 	}
 
 	void Material::SetShaderID(ResourceID id)
@@ -103,20 +136,11 @@ namespace Lina
 		m_shader.id = id;
 	}
 
-	void Material::ResetProperties()
-	{
-		for (ShaderProperty* p : m_properties)
-			delete p;
-		m_properties.clear();
-		m_properties	 = m_shader.raw->CopyProperties();
-		m_loadedShaderID = m_shader.id;
-	}
-
 	bool Material::LoadFromFile(const String& path)
 	{
 		IStream stream = Serialization::LoadFromFile(path.c_str());
 
-		if (stream.GetDataRaw() != nullptr)
+		if (!stream.Empty())
 			LoadFromStream(stream);
 		else
 			return false;
@@ -140,7 +164,6 @@ namespace Lina
 		stream >> version;
 		stream >> m_shader;
 		stream >> m_properties;
-		m_loadedShaderID = m_shader.id;
 	}
 
 	Shader* Material::GetShader(ResourceManagerV2* rm)
@@ -154,6 +177,7 @@ namespace Lina
 	size_t Material::BufferDataInto(Buffer& buf, size_t padding, ResourceManagerV2* rm, BindlessContext* context)
 	{
 		size_t totalSize = 0;
+
 		for (ShaderProperty* prop : m_properties)
 		{
 			if (prop->type == ShaderPropertyType::Texture2D)

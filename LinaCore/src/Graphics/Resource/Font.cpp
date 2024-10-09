@@ -118,7 +118,7 @@ namespace Lina
 
 		m_file.clear();
 		FileSystem::ReadFileContentsToVector(path.c_str(), m_file);
-		return true;
+		return !m_file.empty();
 	}
 
 	void Font::LoadFromStream(IStream& stream)

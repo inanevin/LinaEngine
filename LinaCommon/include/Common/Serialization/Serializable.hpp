@@ -39,7 +39,7 @@ namespace Lina
 	{
 	public:
 		void SaveToFile();
-		void LoadFromFile();
+		bool LoadFromFile();
 
 		virtual void SaveToStream(OStream& out)	 = 0;
 		virtual void LoadFromStream(IStream& in) = 0;

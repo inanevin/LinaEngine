@@ -81,13 +81,16 @@ namespace Lina::Editor
 
 		TextureAtlasImage* GetThumbnail(ResourceDirectory* dir);
 		void			   InvalidateThumbnail(ResourceDirectory* dir);
+		void			   AddToThumbnailQueue(ResourceID id);
 
 	private:
 		void RemoveCurrentProject();
 		void CreateEmptyProjectAndOpen(const String& path);
 		void VerifyProjectResources(ProjectData* projectData);
-		void VerifyResourceDirectory(ProjectData* projectData, ResourceDirectory* dir);
-		void GenerateMissingAtlases(ResourceDirectory* dir);
+		void RemoveDandlingDirectories(ProjectData* projectData, ResourceDirectory* dir);
+		void GenerateInitialThumbnails(ProjectData* projectData, ResourceDirectory* dir);
+		void HandleThumbnailRequests();
+		void HandleHandleRemoveUnusedThumbnails();
 
 	private:
 		JobExecutor								m_executor;
@@ -95,9 +98,11 @@ namespace Lina::Editor
 		Editor*									m_editor			   = nullptr;
 		ProjectData*							m_currentProject	   = nullptr;
 		Vector<ProjectManagerListener*>			m_listeners;
-		uint32									m_frameCtrForAtlases = 0;
-		Atomic<bool>							m_atlasGenWorking	 = false;
+		uint32									m_frameCtrThumbnails	  = 0;
+		uint32									m_frameCtrThumbnailsClean = 0;
+		Atomic<bool>							m_thumbnailsWorking		  = false;
 		HashMap<ResourceID, TextureAtlasImage*> m_resourceThumbnails;
 		HashMap<ResourceID, TextureAtlasImage*> m_resourceThumbnailsOnFlight;
+		HashSet<ResourceID>						m_thumbnailQueue;
 	};
 } // namespace Lina::Editor

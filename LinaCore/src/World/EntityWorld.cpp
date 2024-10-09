@@ -178,8 +178,11 @@ namespace Lina
 	bool EntityWorld::LoadFromFile(const String& path)
 	{
 		IStream stream = Serialization::LoadFromFile(path.c_str());
-		if (stream.GetDataRaw() != nullptr)
+        if (!stream.Empty())
 			LoadFromStream(stream);
+        else
+            return false;
+        
 		stream.Destroy();
 		return true;
 	}
@@ -239,7 +242,6 @@ namespace Lina
 	void EntityWorld::OnCreateComponent(Component* c, Entity* e)
 	{
 		c->m_world			 = this;
-		c->m_resourceManager = &m_resourceManagerV2;
 		c->m_entity			 = e;
 		c->OnEvent({.type = ComponentEventType::Create});
 		for (auto* l : m_listeners)

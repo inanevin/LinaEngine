@@ -27,29 +27,40 @@ SOFTWARE.
 */
 
 #include "Common/JobSystem/TaskRunner.hpp"
+#include "Common/System/SystemInfo.hpp"
 
 namespace Lina
 {
 	void TaskRunner::Poll()
 	{
-		if (m_tasksDirty.load())
-		{
-			for (Task* t : m_tasks)
-			{
-				t->task();
-				delete t;
-			}
+		LINA_ASSERT(SystemInfo::IsMainThread(), "");
 
-			m_tasks.clear();
-			m_tasksDirty.store(false);
+		for (Vector<Task*>::iterator it = m_tasks.begin(); it != m_tasks.end();)
+		{
+			Task* task = *it;
+
+			if (task->isComplete.load())
+			{
+				if (task->onComplete)
+					task->onComplete();
+
+				it = m_tasks.erase(it);
+			}
+			else
+				++it;
 		}
 	}
 
-	void TaskRunner::QueueTask(Delegate<void()> task)
+	void TaskRunner::AddTask(Delegate<void()> task, Delegate<void()> onComplete)
 	{
-		m_tasksDirty.store(true);
-		Task* t = new Task();
-		t->task = task;
+		LINA_ASSERT(SystemInfo::IsMainThread(), "");
+		Task* t		  = new Task();
+		t->task		  = task;
+		t->onComplete = onComplete;
 		m_tasks.push_back(t);
+
+		Taskflow tf;
+		tf.emplace(t->task);
+		m_executor.RunMove(tf, [t]() { t->isComplete.store(true); });
 	}
 } // namespace Lina

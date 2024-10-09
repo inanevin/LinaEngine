@@ -53,8 +53,8 @@ namespace Lina
 		virtual ~ApplicationDelegate() = default;
 
 		// Loop
-		virtual void PreInitialize(){};
-		virtual void Initialize(){};
+		virtual bool PreInitialize(){};
+		virtual bool Initialize(){};
 		virtual void PreTick(){};
 		virtual void Tick(float delta){};
 		virtual void Render(){};

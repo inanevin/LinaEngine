@@ -81,9 +81,9 @@ namespace Lina
 		uint32 idx = 0;
 		for (const ResourceDef& def : resourceDefs)
 		{
-			Resource* res = GetCache(def.tid)->Create(def.id, def.name);
-			resources.insert(res);
-			OStream metaStream;
+			auto	  cache = GetCache(def.tid);
+			Resource* res	= cache->Create(def.id, def.name);
+			OStream	  metaStream;
 			if (delegate->FillResourceCustomMeta(def.id, metaStream))
 			{
 				IStream in;
@@ -92,11 +92,24 @@ namespace Lina
 				in.Destroy();
 			}
 			metaStream.Destroy();
-			res->LoadFromFile(def.name);
+
+			if (!res->LoadFromFile(def.name))
+			{
+				cache->Destroy(def.id);
+				LINA_ERR("[Resource] -> Failed loading resource: {0}", def.name);
+
+				if (onProgress)
+					onProgress(++idx, def);
+				continue;
+			}
+
+			resources.insert(res);
 			res->SetID(def.id);
 			res->SetName(def.name);
 			LINA_TRACE("[Resource] -> Loaded resource: {0}", def.name);
-			onProgress(++idx, def);
+
+			if (onProgress)
+				onProgress(++idx, def);
 		}
 		return resources;
 	}
@@ -107,9 +120,9 @@ namespace Lina
 		uint32			   idx = 0;
 		for (const ResourceDef& def : resourceDefs)
 		{
-			Resource* res = GetCache(def.tid)->Create(def.id, def.name);
-			resources.insert(res);
-			OStream metaStream;
+			auto	  cache = GetCache(def.tid);
+			Resource* res	= cache->Create(def.id, def.name);
+			OStream	  metaStream;
 			if (delegate->FillResourceCustomMeta(def.id, metaStream))
 			{
 				IStream in;
@@ -119,6 +132,19 @@ namespace Lina
 			}
 			metaStream.Destroy();
 			IStream stream = Serialization::LoadFromFile(project->GetResourcePath(def.id).c_str());
+
+			if (stream.Empty())
+			{
+				cache->Destroy(def.id);
+				LINA_ERR("[Resource] -> Failed loading resource: {0}", def.name);
+
+				if (onProgress)
+					onProgress(++idx, def);
+
+				continue;
+			}
+
+			resources.insert(res);
 			res->LoadFromStream(stream);
 			stream.Destroy();
 			LINA_TRACE("[Resource] -> Loaded resource: {0}", def.name);
@@ -194,6 +220,14 @@ namespace Lina
 		Resource*		   res	 = cache->Create(resourceID, "");
 		res->SetSubdata(subdata);
 		IStream stream = Serialization::LoadFromFile(path.c_str());
+
+		if (stream.Empty())
+		{
+			cache->Destroy(resourceID);
+			LINA_ERR("Failed opening resource. {0}", resourceID);
+			return nullptr;
+		}
+
 		res->LoadFromStream(stream);
 		stream.Destroy();
 		return res;

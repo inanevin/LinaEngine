@@ -107,6 +107,7 @@ namespace Lina::Editor
 		Sampler,
 		Shader,
 		DeferredShader,
+		SkyShader,
 		ForwardShader,
 		LightingShader,
 		PostProcessShader,
@@ -152,6 +153,7 @@ namespace Lina::Editor
 		LoadingEngine,
 		LoadingSettings,
 		LoadingCoreResources,
+		LoadingWorld,
 		GeneratingAtlases,
 		ApplyingChanges,
 	};

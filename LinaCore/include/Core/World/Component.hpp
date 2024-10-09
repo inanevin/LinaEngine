@@ -75,10 +75,9 @@ namespace Lina
 		virtual ~Component() = default;
 
 		ALLOCATOR_BUCKET_MEM;
-		Entity*			   m_entity			 = nullptr;
-		EntityWorld*	   m_world			 = nullptr;
-		ResourceManagerV2* m_resourceManager = nullptr;
-		Bitmask32		   m_flags			 = 0;
+		Entity*		 m_entity = nullptr;
+		EntityWorld* m_world  = nullptr;
+		Bitmask32	 m_flags  = 0;
 	};
 
 } // namespace Lina

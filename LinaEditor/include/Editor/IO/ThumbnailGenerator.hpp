@@ -38,23 +38,26 @@ namespace Lina
 	class Font;
 	class Model;
 	class Audio;
+	struct TextureAtlasImage;
 } // namespace Lina
 
 namespace Lina::Editor
 {
 	class Editor;
+	class AtlasManager;
 
 	class ThumbnailGenerator
 	{
 
 	public:
+		static TextureAtlasImage* GenerateThumbnail(ProjectData* project, ResourceID id, TypeID typeID, AtlasManager& atlasManager);
+
 		static void					 CreateThumbnailBuffer(RawStream& stream, LinaGX::TextureBuffer b);
-		static LinaGX::TextureBuffer GenerateThumbnailForResource(const String& path, TypeID tid);
-		static LinaGX::TextureBuffer GenerateThumbnailForTexture(const String& path);
-		static LinaGX::TextureBuffer GenerateThumbnailForModel(const String& path);
-		static LinaGX::TextureBuffer GenerateThumbnailForMaterial(const String& path);
-		static LinaGX::TextureBuffer GenerateThumbnailForAudio(const String& path);
-		static LinaGX::TextureBuffer GenerateThumbnailForFont(const String& absPath);
+		static LinaGX::TextureBuffer GenerateThumbnail(Texture* res);
+		static LinaGX::TextureBuffer GenerateThumbnail(Material* res);
+		static LinaGX::TextureBuffer GenerateThumbnail(Model* res);
+		static LinaGX::TextureBuffer GenerateThumbnail(Font* res);
+		static LinaGX::TextureBuffer GenerateThumbnail(Audio* res);
 	};
 
 } // namespace Lina::Editor

@@ -59,8 +59,8 @@ namespace Lina
 	void MeshComponent::SetMesh(ResourceID id, uint32 meshIndex)
 	{
 		m_entity->RemoveAABB(m_usedLocalAABB);
-		m_model.id		= id;
-		m_model.raw		= m_resourceManager->GetResource<Model>(m_model.id);
+		m_model.id = id;
+		// m_model.raw		= m_resourceManager->GetResource<Model>(m_model.id);
 		m_meshIndex		= meshIndex;
 		m_mesh			= m_model.raw->GetMesh(m_meshIndex);
 		m_usedLocalAABB = m_mesh->GetAABB();
@@ -80,8 +80,8 @@ namespace Lina
 
 	void MeshComponent::SetMaterial(ResourceID id)
 	{
-		m_material.id  = id;
-		m_material.raw = m_resourceManager->GetResource<Material>(m_material.id);
+		m_material.id = id;
+		// m_material.raw = m_resourceManager->GetResource<Material>(m_material.id);
 	}
 
 	void MeshComponent::SetMaterial(Material* mat)

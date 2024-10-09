@@ -40,7 +40,7 @@ namespace Lina
 {
 	LinaGX::Instance* Application::s_lgx = nullptr;
 
-	void Application::Initialize(const SystemInitializationInfo& initInfo)
+	bool Application::Initialize(const SystemInitializationInfo& initInfo)
 	{
 		m_appDelegate		 = initInfo.appDelegate;
 		m_appDelegate->m_app = this;
@@ -57,8 +57,16 @@ namespace Lina
 
 		// Pre-initialization
 		GfxHelpers::InitializeLinaVG();
-		s_lgx = GfxHelpers::InitializeLinaGX();
-		GetAppDelegate()->PreInitialize();
+		s_lgx				 = GfxHelpers::InitializeLinaGX();
+		const bool preInitOK = GetAppDelegate()->PreInitialize();
+
+		if (!preInitOK)
+		{
+			GfxHelpers::ShutdownLinaVG();
+			delete s_lgx;
+			s_lgx = nullptr;
+			return false;
+		}
 
 		// Main window
 		auto window = CreateApplicationWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, Vector2i::Zero, Vector2ui(initInfo.windowWidth, initInfo.windowHeight), static_cast<uint32>(initInfo.windowStyle));
@@ -67,7 +75,17 @@ namespace Lina
 		window->SetVisible(true);
 
 		// Initialization
-		GetAppDelegate()->Initialize();
+		const bool initOK = GetAppDelegate()->Initialize();
+
+		if (!initOK)
+		{
+			GfxHelpers::ShutdownLinaVG();
+			delete s_lgx;
+			s_lgx = nullptr;
+			return false;
+		}
+
+		return true;
 	}
 
 	void Application::LoadPlugins()

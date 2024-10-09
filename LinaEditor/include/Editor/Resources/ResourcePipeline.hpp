@@ -41,7 +41,7 @@ namespace Lina
 
 namespace Lina::Editor
 {
-
+	class ProjectManager;
 	class Editor;
 
 	class ResourcePipeline
@@ -53,9 +53,9 @@ namespace Lina::Editor
 			ResourceID id	= 0;
 		};
 
-		static ResourceDirectory* SaveNewResource(ProjectData* project, ResourceDirectory* src, const String& name, TypeID tid, ResourceID id = 0, uint32 subType = 0);
-		static void				  ImportResources(ProjectData* project, ResourceDirectory* src, const Vector<ResourceImportDef>& importDef, Delegate<void(uint32 imported, const ResourceImportDef& importDef, bool isCompleted)> onProgress);
-		static void				  DuplicateResource(ProjectData* project, ResourceManagerV2* resMan, ResourceDirectory* directory, ResourceDirectory* newParent);
+		static ResourceDirectory*		  SaveNewResource(ProjectData* project, ResourceDirectory* src, const String& name, TypeID tid, ResourceID id = 0, ResourceID subType = 0);
+		static Vector<ResourceDirectory*> ImportResources(ProjectData* project, ResourceDirectory* src, const Vector<ResourceImportDef>& importDef, Delegate<void(uint32 imported, const ResourceImportDef& importDef, bool isCompleted)> onProgress);
+		static void						  DuplicateResource(ProjectManager&, ResourceManagerV2* resMan, ResourceDirectory* directory, ResourceDirectory* newParent);
 	};
 
 } // namespace Lina::Editor

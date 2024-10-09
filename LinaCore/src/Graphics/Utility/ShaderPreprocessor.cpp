@@ -35,37 +35,37 @@ namespace Lina
 	{
 		bool FindShaderType(ShaderType& outType, const String& txt)
 		{
-			if (txt.find("#LINA_SHADER_DEFERRED_OBJECT"))
+			if (txt.find("#LINA_SHADER_DEFERRED_OBJECT") != String::npos)
 			{
 				outType = ShaderType::DeferredObject;
 				return true;
 			}
 
-			if (txt.find("#LINA_SHADER_FORWARD_OBJECT"))
+			if (txt.find("#LINA_SHADER_FORWARD_OBJECT") != String::npos)
 			{
 				outType = ShaderType::ForwardObject;
 				return true;
 			}
 
-			if (txt.find("#LINA_SHADER_LIGHTING"))
+			if (txt.find("#LINA_SHADER_LIGHTING") != String::npos)
 			{
 				outType = ShaderType::Lighting;
 				return true;
 			}
 
-			if (txt.find("#LINA_SHADER_SKY"))
+			if (txt.find("#LINA_SHADER_SKY") != String::npos)
 			{
 				outType = ShaderType::Sky;
 				return true;
 			}
 
-			if (txt.find("#LINA_SHADER_POST_PROCESS"))
+			if (txt.find("#LINA_SHADER_POST_PROCESS") != String::npos)
 			{
 				outType = ShaderType::PostProcess;
 				return true;
 			}
 
-			if (txt.find("#LINA_SHADER_CUSTOM"))
+			if (txt.find("#LINA_SHADER_CUSTOM") != String::npos)
 			{
 				outType = ShaderType::Custom;
 				return true;
@@ -107,10 +107,8 @@ namespace Lina
 				const size_t found = line.find(str);
 				if (found != String::npos)
 				{
-					const String rest = line.substr(found + str.length(), line.length() - found - str.length());
-					const size_t bgn  = rest.find_first_not_of(" ");
-					const size_t end  = rest.find_last_of(";");
-					outName			  = rest.substr(bgn, end - bgn);
+					const String trimmedLine = FileSystem::RemoveWhitespaces(line);
+					outName					 = trimmedLine.substr(propType.length(), trimmedLine.find(";") - propType.length());
 					return true;
 				}
 
@@ -120,6 +118,31 @@ namespace Lina
 			size_t materialBlockEnd = 0;
 
 			bool commentBlock = false;
+
+			auto fetchValuesFromString = [](String& str) -> Vector<float> {
+				Vector<float> vals;
+
+				if (str.empty())
+					return vals;
+
+				const size_t pBegin = str.find("(");
+
+				if (pBegin != String::npos)
+					str = str.substr(pBegin, str.length() - pBegin);
+
+				str.erase(linatl::remove(str.begin(), str.end(), ';'), str.end());
+				str.erase(linatl::remove(str.begin(), str.end(), '('), str.end());
+				str.erase(linatl::remove(str.begin(), str.end(), ')'), str.end());
+				Vector<String> valsStr = FileSystem::Split(str, ',');
+
+				for (const String& val : valsStr)
+				{
+					uint32 decimals = 0;
+					vals.push_back(UtilStr::StringToFloat(val, decimals));
+				}
+
+				return vals;
+			};
 
 			while (std::getline(f, line))
 			{
@@ -156,100 +179,111 @@ namespace Lina
 
 					if (property(line, "float", prop->name))
 					{
-						prop->type = ShaderPropertyType::Float;
-						prop->sid  = TO_SID(prop->name);
-						prop->data = {new uint8[sizeof(uint32)], sizeof(float)};
-						MEMSET(prop->data.data(), 0, sizeof(float));
+						float value = 0.0f;
+						prop->type	= ShaderPropertyType::Float;
+						prop->sid	= TO_SID(prop->name);
+						prop->data	= {new uint8[sizeof(uint32)], sizeof(float)};
+						MEMCPY(prop->data.data(), &value, sizeof(float));
 						outProperties.push_back(prop);
 						continue;
 					}
 
 					if (property(line, "uint", prop->name))
 					{
-						prop->type = ShaderPropertyType::UInt32;
-						prop->sid  = TO_SID(prop->name);
-						prop->data = {new uint8[sizeof(uint32)], sizeof(uint32)};
-						MEMSET(prop->data.data(), 0, sizeof(uint32));
+						uint32 value = 0;
+						prop->type	 = ShaderPropertyType::UInt32;
+						prop->sid	 = TO_SID(prop->name);
+						prop->data	 = {new uint8[sizeof(uint32)], sizeof(uint32)};
+						MEMCPY(prop->data.data(), &value, sizeof(uint32));
 						outProperties.push_back(prop);
 						continue;
 					}
 
 					if (property(line, "bool", prop->name))
 					{
+						bool value = false;
 						prop->type = ShaderPropertyType::Bool;
 						prop->sid  = TO_SID(prop->name);
 						prop->data = {new uint8[sizeof(uint32)], sizeof(uint32)};
 						MEMSET(prop->data.data(), 0, sizeof(uint32));
+						MEMCPY(prop->data.data(), &value, sizeof(bool));
 						outProperties.push_back(prop);
 						continue;
 					}
 
 					if (property(line, "vec2", prop->name))
 					{
-						prop->type = ShaderPropertyType::Vec2;
-						prop->sid  = TO_SID(prop->name);
-						prop->data = {new uint8[sizeof(Vector2)], sizeof(Vector2)};
-						MEMSET(prop->data.data(), 0, sizeof(Vector2));
+						Vector2 val = Vector2::Zero;
+						prop->type	= ShaderPropertyType::Vec2;
+						prop->sid	= TO_SID(prop->name);
+						prop->data	= {new uint8[sizeof(Vector2)], sizeof(Vector2)};
+						MEMCPY(prop->data.data(), &val, sizeof(Vector2));
 						outProperties.push_back(prop);
 						continue;
 					}
 
 					if (property(line, "vec3", prop->name))
 					{
-						prop->type = ShaderPropertyType::Vec3;
-						prop->sid  = TO_SID(prop->name);
-						prop->data = {new uint8[sizeof(uint32) * 3], sizeof(uint32) * 3};
-						MEMSET(prop->data.data(), 0, sizeof(uint32) * 3);
+						Vector3 val = Vector3::Zero;
+						prop->type	= ShaderPropertyType::Vec3;
+						prop->sid	= TO_SID(prop->name);
+						prop->data	= {new uint8[sizeof(uint32) * 3], sizeof(uint32) * 3};
+						MEMCPY(prop->data.data(), &val, sizeof(uint32) * 3);
 						outProperties.push_back(prop);
 						continue;
 					}
 
 					if (property(line, "vec4", prop->name))
 					{
-						prop->type = ShaderPropertyType::Vec4;
-						prop->sid  = TO_SID(prop->name);
-						prop->data = {new uint8[sizeof(Vector4)], sizeof(Vector4)};
-						MEMSET(prop->data.data(), 0, sizeof(Vector4));
+						Vector4 val = Vector4::Zero;
+						prop->type	= ShaderPropertyType::Vec4;
+						prop->sid	= TO_SID(prop->name);
+						prop->data	= {new uint8[sizeof(Vector4)], sizeof(Vector4)};
+						MEMCPY(prop->data.data(), &val, sizeof(Vector4));
 						outProperties.push_back(prop);
 						continue;
 					}
 
 					if (property(line, "ivec2", prop->name))
 					{
-						prop->type = ShaderPropertyType::IVec2;
-						prop->sid  = TO_SID(prop->name);
-						prop->data = {new uint8[sizeof(Vector2i)], sizeof(Vector2i)};
-						MEMSET(prop->data.data(), 0, sizeof(Vector2i));
+						Vector2i val = Vector2i::Zero;
+						prop->type	 = ShaderPropertyType::IVec2;
+						prop->sid	 = TO_SID(prop->name);
+						prop->data	 = {new uint8[sizeof(Vector2i)], sizeof(Vector2i)};
+						MEMCPY(prop->data.data(), &val, sizeof(Vector2i));
 						outProperties.push_back(prop);
 						continue;
 					}
 
 					if (property(line, "ivec3", prop->name))
 					{
-						prop->type = ShaderPropertyType::IVec3;
-						prop->sid  = TO_SID(prop->name);
-						prop->data = {new uint8[sizeof(uint32) * 3], sizeof(uint32) * 3};
-						MEMSET(prop->data.data(), 0, sizeof(uint32) * 3);
+						Vector3i val = Vector3i::Zero;
+						prop->type	 = ShaderPropertyType::IVec3;
+						prop->sid	 = TO_SID(prop->name);
+						prop->data	 = {new uint8[sizeof(Vector3i)], sizeof(Vector3i)};
+						MEMCPY(prop->data.data(), &val, sizeof(Vector3i));
 						outProperties.push_back(prop);
 						continue;
 					}
 
 					if (property(line, "ivec4", prop->name))
 					{
-						prop->type = ShaderPropertyType::IVec4;
-						prop->sid  = TO_SID(prop->name);
-						prop->data = {new uint8[sizeof(Vector4i)], sizeof(Vector4i)};
-						MEMSET(prop->data.data(), 0, sizeof(Vector4i));
+						Vector4i val = Vector4i::Zero;
+						prop->type	 = ShaderPropertyType::IVec4;
+						prop->sid	 = TO_SID(prop->name);
+						prop->data	 = {new uint8[sizeof(Vector4i)], sizeof(Vector4i)};
+						MEMCPY(prop->data.data(), &val, sizeof(Vector4i));
 						outProperties.push_back(prop);
 						continue;
 					}
 
 					if (property(line, "mat4", prop->name))
 					{
-						prop->type = ShaderPropertyType::Matrix4;
-						prop->sid  = TO_SID(prop->name);
-						prop->data = {new uint8[sizeof(Matrix4)], sizeof(Matrix4)};
-						MEMSET(prop->data.data(), 0, sizeof(Matrix4));
+						Matrix4 value = Matrix4::Identity();
+						prop->type	  = ShaderPropertyType::Matrix4;
+						prop->sid	  = TO_SID(prop->name);
+						prop->data	  = {new uint8[sizeof(Matrix4)], sizeof(Matrix4)};
+						MEMCPY(prop->data.data(), &value, sizeof(Matrix4));
 						outProperties.push_back(prop);
 						continue;
 					}

@@ -42,18 +42,19 @@ namespace Lina
 		struct Task
 		{
 			Delegate<void()> task;
+			Delegate<void()> onComplete;
+			Atomic<bool>	 isComplete = false;
 		};
 
 		~TaskRunner() = default;
 
-		void QueueTask(Delegate<void()> task);
+		void AddTask(Delegate<void()> task, Delegate<void()> onComplete);
 		void Poll();
 
 	protected:
 		JobExecutor	  m_executor;
 		Mutex		  m_queueMtx;
 		Vector<Task*> m_tasks;
-		Atomic<bool>  m_tasksDirty;
 	};
 
 } // namespace Lina

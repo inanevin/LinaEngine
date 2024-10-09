@@ -212,6 +212,8 @@ namespace Lina
 		void WaitForSimulation();
 
 	private:
+		ALLOCATOR_BUCKET_MEM;
+
 		AllocatorBucket<Entity, 1000> m_entityBucket;
 
 		ResourceManagerV2					 m_resourceManagerV2;
@@ -224,5 +226,8 @@ namespace Lina
 		Screen								 m_screen = {};
 		WorldInput							 m_worldInput;
 	};
+
+	LINA_RESOURCE_BEGIN(EntityWorld)
+	LINA_CLASS_END(EntityWorld)
 
 } // namespace Lina

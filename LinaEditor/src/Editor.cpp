@@ -240,10 +240,8 @@ namespace Lina::Editor
 		return false;
 	}
 
-	void Editor::PreInitialize()
+	bool Editor::PreInitialize()
 	{
-		m_editorRenderer.Initialize(this);
-
 		ResourceDefinitionList priorityResources;
 		priorityResources.insert({EDITOR_SHADER_GUI_ID, EDITOR_SHADER_GUI_PATH, GetTypeID<Shader>()});
 		priorityResources.insert({EDITOR_TEXTURE_LINA_LOGO_ID, EDITOR_TEXTURE_LINA_LOGO_PATH, GetTypeID<Texture>()});
@@ -255,10 +253,19 @@ namespace Lina::Editor
 		priorityResources.insert({EDITOR_FONT_ROBOTO_BOLD_ID, EDITOR_FONT_ROBOTO_BOLD_PATH, GetTypeID<Font>()});
 		priorityResources.insert({EDITOR_FONT_PLAY_BIG_ID, EDITOR_FONT_PLAY_BIG_PATH, GetTypeID<Font>()});
 		const ResourceList resources = m_resourceManagerV2.LoadResourcesFromFile(this, priorityResources, [](uint32 loaded, const ResourceDef& def) {});
+
+		if (resources.size() != priorityResources.size())
+		{
+			LINA_ERR("Loading priority editor resources went bad, aborting!");
+			return false;
+		}
+
+		m_editorRenderer.Initialize(this);
 		m_editorRenderer.OnResourcesLoaded(resources);
+		return true;
 	}
 
-	void Editor::Initialize()
+	bool Editor::Initialize()
 	{
 		s_editor							  = this;
 		Theme::GetDef().iconFont			  = EDITOR_FONT_ICON_ID;
@@ -284,35 +291,44 @@ namespace Lina::Editor
 
 		Taskflow tf;
 
-		tf.emplace([this, progText]() {
-			progText->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::LoadingSettings));
+		TaskRunner::AddTask(
+			[this, progText]() {
+				progText->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::LoadingSettings));
 
-			// Load editor settings or create and save empty if non-existing.
-			const String userDataFolder = FileSystem::GetUserDataFolder() + "Editor/";
-			const String settingsPath	= userDataFolder + "EditorSettings.linameta";
-			m_settings.SetPath(settingsPath);
-			if (!FileSystem::FileOrPathExists(userDataFolder))
-				FileSystem::CreateFolderInPath(userDataFolder);
-			if (FileSystem::FileOrPathExists(settingsPath))
-				m_settings.LoadFromFile();
-			else
-				m_settings.SaveToFile();
+				// Load editor settings or create and save empty if non-existing.
+				const String userDataFolder = FileSystem::GetUserDataFolder() + "Editor/";
+				const String settingsPath	= userDataFolder + "EditorSettings.linameta";
+				m_settings.SetPath(settingsPath);
+				if (!FileSystem::FileOrPathExists(userDataFolder))
+					FileSystem::CreateFolderInPath(userDataFolder);
+				if (FileSystem::FileOrPathExists(settingsPath))
+				{
+					if (!m_settings.LoadFromFile())
+						m_settings.SaveToFile();
+				}
+				else
+					m_settings.SaveToFile();
 
-			progText->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::LoadingCoreResources));
-			ResourceDefinitionList coreResources;
-			coreResources.insert({EDITOR_TEXTURE_CHECKERED_ID, EDITOR_TEXTURE_CHECKERED_PATH, GetTypeID<Texture>()});
-			coreResources.insert({EDITOR_TEXTURE_PROTOTYPE_DARK_ID, EDITOR_TEXTURE_PROTOTYPE_DARK_PATH, GetTypeID<Texture>()});
-			coreResources.insert({EDITOR_FONT_PLAY_ID, EDITOR_FONT_PLAY_PATH, GetTypeID<Font>()});
-			coreResources.insert({EDITOR_FONT_PLAY_BOLD_ID, EDITOR_FONT_PLAY_BOLD_PATH, GetTypeID<Font>()});
-			HashSet<Resource*> resources = m_resourceManagerV2.LoadResourcesFromFile(this, coreResources, [progText](uint32 loaded, const ResourceDef& current) { progText->UpdateTextAndCalcSize(current.name); });
+				progText->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::LoadingCoreResources));
+				ResourceDefinitionList coreResources;
+				coreResources.insert({EDITOR_TEXTURE_CHECKERED_ID, EDITOR_TEXTURE_CHECKERED_PATH, GetTypeID<Texture>()});
+				coreResources.insert({EDITOR_TEXTURE_PROTOTYPE_DARK_ID, EDITOR_TEXTURE_PROTOTYPE_DARK_PATH, GetTypeID<Texture>()});
+				coreResources.insert({EDITOR_FONT_PLAY_ID, EDITOR_FONT_PLAY_PATH, GetTypeID<Font>()});
+				coreResources.insert({EDITOR_FONT_PLAY_BOLD_ID, EDITOR_FONT_PLAY_BOLD_PATH, GetTypeID<Font>()});
+				m_resourceManagerV2.LoadResourcesFromFile(this, coreResources, [progText](uint32 loaded, const ResourceDef& current) { progText->UpdateTextAndCalcSize(current.name); });
 
-			progText->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::GeneratingAtlases));
-			TextureAtlas* atlas0 = m_atlasManager.AddCustomAtlas("Resources/Editor/Textures/Atlas/ProjectIcons/", "ProjectIcons"_hs, Vector2ui(2048, 2048));
-
-			resources.insert(atlas0->GetRaw());
-
-			TaskRunner::QueueTask([this, resources]() {
+				progText->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::GeneratingAtlases));
+				m_atlasManager.AddCustomAtlas("Resources/Editor/Textures/Atlas/ProjectIcons/", "ProjectIcons"_hs, Vector2ui(2048, 2048));
+			},
+			[this]() {
 				Application::GetLGX()->Join();
+
+				HashSet<Resource*> resources;
+				resources.insert(m_resourceManagerV2.GetResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID));
+				resources.insert(m_resourceManagerV2.GetResource<Texture>(EDITOR_TEXTURE_PROTOTYPE_DARK_ID));
+				resources.insert(m_resourceManagerV2.GetResource<Font>(EDITOR_FONT_PLAY_ID));
+				resources.insert(m_resourceManagerV2.GetResource<Font>(EDITOR_FONT_PLAY_BOLD_ID));
+				resources.insert(m_atlasManager.GetCustomAtlas("ProjectIcons"_hs)->GetRaw());
 				m_editorRenderer.OnResourcesLoaded(resources);
 				m_windowPanelManager.UnlockAllForegrounds();
 
@@ -330,9 +346,8 @@ namespace Lina::Editor
 				m_projectManager.Initialize(this);
 				m_settings.GetLayout().ApplyStoredLayout();
 			});
-		});
 
-		m_executor.RunMove(tf);
+		return true;
 	}
 
 	void Editor::OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size)

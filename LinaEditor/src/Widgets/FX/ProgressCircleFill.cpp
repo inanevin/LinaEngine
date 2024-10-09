@@ -41,6 +41,11 @@ namespace Lina::Editor
 	}
 	void ProgressCircleFill::Initialize()
 	{
+		Widget::Initialize();
+
+		if (m_linaLoading)
+			return;
+
 		if (m_props.includeLinaLoading)
 		{
 			LinaLoading* loading = m_manager->Allocate<LinaLoading>("Loading");
@@ -49,10 +54,9 @@ namespace Lina::Editor
 			loading->SetAlignedSize(Vector2(0.5f, 0.5f));
 			loading->SetAnchorX(Anchor::Center);
 			loading->SetAnchorY(Anchor::Center);
+			m_linaLoading = loading;
 			AddChild(loading);
 		}
-
-		Widget::Initialize();
 	}
 
 	void ProgressCircleFill::Tick(float delta)
@@ -70,6 +74,7 @@ namespace Lina::Editor
 		opts.aaEnabled	= true;
 		opts.color		= m_props.rotate ? m_props.colorProgress.AsLVG4() : GetWidgetProps().colorBackground.AsLVG();
 		opts.thickness	= m_props.thickness;
+		opts.rounding	= 0.0f;
 		const float rad = Math::Min(m_rect.size.x, m_rect.size.y) * 0.5f;
 
 		m_lvg->DrawCircle(m_rect.GetCenter().AsLVG(), rad, opts, 36, m_rotation, 100.0f, 450.0f, m_drawOrder);

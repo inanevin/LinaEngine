@@ -200,20 +200,16 @@ namespace Lina::Editor
 
 		auto& pfd = m_pfd[frameIndex];
 
-		// Taskflow tf;
-		// tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) {
-		// 	WorldRenderer* rend = m_worldRenderers.at(i);
-		// 	rend->Render(frameIndex);
-		// });
-		// m_editor->GetSystem()->GetMainExecutor()->RunAndWait(tf);
+		Vector<WorldRenderer*> validWorlds;
+		validWorlds.resize(m_worldRenderers.size());
 
-		for (WorldRenderer* wr : m_worldRenderers)
-		{
-			wr->Render(frameIndex);
-			m_lgx->WaitForUserSemaphore(wr->GetSubmitSemaphore(frameIndex).GetSemaphore(), wr->GetSubmitSemaphore(frameIndex).GetValue());
-		}
-
-		m_lgx->Join();
+		Taskflow tf;
+		tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) {
+			WorldRenderer* rend = m_worldRenderers.at(i);
+			if (rend->Render(frameIndex))
+				validWorlds[i] = rend;
+		});
+		m_editor->GetApp()->GetExecutor().RunAndWait(tf);
 
 		UpdateBindlessResources(frameIndex);
 		if (m_uploadQueue.FlushAll(pfd.copyStream))
@@ -225,12 +221,15 @@ namespace Lina::Editor
 		Vector<uint16> waitSemaphores;
 		Vector<uint64> waitValues;
 
-		// for (WorldRenderer* wr : m_worldRenderers)
-		// {
-		// 	const SemaphoreData sem = wr->GetSubmitSemaphore(frameIndex);
-		// 	waitSemaphores.push_back(sem.GetSemaphore());
-		// 	waitValues.push_back(sem.GetValue());
-		// }
+		for (WorldRenderer* wr : validWorlds)
+		{
+			if (wr == nullptr)
+				continue;
+
+			const SemaphoreData sem = wr->GetSubmitSemaphore(frameIndex);
+			waitSemaphores.push_back(sem.GetSemaphore());
+			waitValues.push_back(sem.GetValue());
+		}
 
 		Vector<LinaGX::CommandStream*> streams;
 		Vector<uint8>				   swapchains;
