@@ -35,9 +35,8 @@ namespace Lina
 {
 	class ProjectData;
 	class WidgetManager;
-	class ResourceDirectory;
+	struct ResourceDirectory;
 	struct TextureAtlasImage;
-
 } // namespace Lina
 namespace Lina::Editor
 {
@@ -84,6 +83,9 @@ namespace Lina::Editor
 		void			   AddToThumbnailQueue(ResourceID id);
 
 	private:
+		void OnPressedOpenProject();
+		void OnPressedCreateProject();
+
 		void RemoveCurrentProject();
 		void CreateEmptyProjectAndOpen(const String& path);
 		void VerifyProjectResources(ProjectData* projectData);

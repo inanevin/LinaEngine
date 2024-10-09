@@ -86,8 +86,6 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		app->Poll();
-		app->PreTick();
 		app->Tick();
 		app->Render();
 	}
@@ -217,21 +215,20 @@ namespace Lina
 		return success;
 	}
 
-	String PlatformProcess::OpenDialog(const PlatformProcess::DialogProperties& props)
+	Vector<String> PlatformProcess::OpenDialog(const PlatformProcess::DialogProperties& props)
 	{
 		HRESULT res = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 
 		// Create the File Open Dialog object
-		IFileOpenDialog* pFileOpenDialog;
-		HRESULT			 hr		= CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_PPV_ARGS(&pFileOpenDialog));
-		String			 retVal = "";
+		IFileOpenDialog*	pFileOpenDialog;
+		HRESULT				hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_PPV_ARGS(&pFileOpenDialog));
+		std::vector<String> retVal;
+		String				fileExtensions = "";
 
-		String fileExtensions = "";
-
+		// Build the file extensions filter string
 		for (size_t i = 0; i < props.extensions.size(); i++)
 		{
 			fileExtensions += "*." + props.extensions[i];
-
 			if (i != props.extensions.size() - 1)
 				fileExtensions += ";";
 		}
@@ -245,12 +242,16 @@ namespace Lina
 			// Set the dialog's options
 			DWORD dwOptions;
 			hr = pFileOpenDialog->GetOptions(&dwOptions);
-
-			if (props.mode == PlatformProcess::DialogMode::SelectDirectory)
-				dwOptions |= FOS_PICKFOLDERS;
-
 			if (SUCCEEDED(hr))
 			{
+				if (props.mode == PlatformProcess::DialogMode::SelectDirectory)
+					dwOptions |= FOS_PICKFOLDERS;
+				else
+				{
+					if (props.multiSelection)
+						dwOptions |= FOS_ALLOWMULTISELECT;
+				}
+
 				hr = pFileOpenDialog->SetOptions(dwOptions);
 			}
 
@@ -280,21 +281,35 @@ namespace Lina
 			hr = pFileOpenDialog->Show(NULL);
 			if (SUCCEEDED(hr))
 			{
-				// Get the selected file
-				IShellItem* pItem;
-				hr = pFileOpenDialog->GetResult(&pItem);
+				// Get the selected files
+				IShellItemArray* pItemArray;
+				hr = pFileOpenDialog->GetResults(&pItemArray);
 				if (SUCCEEDED(hr))
 				{
-					PWSTR pszFilePath;
-					hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+					DWORD itemCount;
+					hr = pItemArray->GetCount(&itemCount);
 					if (SUCCEEDED(hr))
 					{
-						auto* path = FileSystem::WCharToChar(pszFilePath);
-						retVal	   = path;
-						delete[] path;
-						CoTaskMemFree(pszFilePath);
+						for (DWORD i = 0; i < itemCount; i++)
+						{
+							IShellItem* pItem;
+							hr = pItemArray->GetItemAt(i, &pItem);
+							if (SUCCEEDED(hr))
+							{
+								PWSTR pszFilePath;
+								hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+								if (SUCCEEDED(hr))
+								{
+									auto* path = FileSystem::WCharToChar(pszFilePath);
+									retVal.push_back(path); // Add to the vector
+									delete[] path;
+									CoTaskMemFree(pszFilePath);
+								}
+								pItem->Release();
+							}
+						}
 					}
-					pItem->Release();
+					pItemArray->Release();
 				}
 			}
 			pFileOpenDialog->Release();

@@ -534,7 +534,7 @@ namespace Lina::Editor
 
 		for (const GenericPopupButton& def : buttonDefs)
 		{
-			Delegate<void()> cb = def.onPressed;
+			// Delegate<void()> cb = def.onPressed;
 
 			Button* button = src->GetWidgetManager()->Allocate<Button>("Button");
 			button->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X);
@@ -542,7 +542,7 @@ namespace Lina::Editor
 			button->SetAlignedSizeY(1.0f);
 			button->SetFixedSizeX(Theme::GetDef().baseItemHeight * 4);
 			button->GetText()->GetProps().text = def.title;
-			button->GetProps().onClicked	   = [cb]() { cb(); };
+			button->GetProps().onClicked	   = BIND(def.onPressed);
 			buttons->AddChild(button);
 		}
 
@@ -973,7 +973,7 @@ namespace Lina::Editor
 		{
 			const ResourceID resID = fieldType == FieldType::ResourceRef ? (reflectionValue.CastPtr<ResRefBase>()->id) : (reflectionValue.GetValue<ResourceID>());
 
-			ResourceDirectory* dir = Editor::Get()->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(resID);
+			ResourceDirectory* dir = Editor::Get()->GetProjectManager().GetProjectData()->GetResourceRoot().FindResourceDirectory(resID);
 
 			TypeID tid = 0;
 

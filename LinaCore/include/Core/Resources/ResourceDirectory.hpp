@@ -57,8 +57,8 @@ namespace Lina
 		void LoadFromStream(IStream& stream);
 
 		ResourceDirectory* GetChildByName(const String& name);
-		ResourceDirectory* FindResource(ResourceID id);
-		ResourceDirectory* CreateChild(ResourceDirectory desc);
+		ResourceDirectory* FindResourceDirectory(ResourceID id);
+		ResourceDirectory* CreateChild(const ResourceDirectory& desc);
 		void			   DestroyChild(ResourceDirectory* dir);
 		void			   AddChild(ResourceDirectory* dir);
 		void			   RemoveChild(ResourceDirectory* dir);

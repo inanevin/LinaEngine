@@ -140,7 +140,7 @@ namespace Lina::Editor
 		if (m_editor->GetProjectManager().GetProjectData() == nullptr)
 			return;
 
-		if (!m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_subData))
+		if (!m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResourceDirectory(m_subData))
 		{
 			Text* text = m_manager->Allocate<Text>("Info");
 			text->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
@@ -247,7 +247,7 @@ namespace Lina::Editor
 			if (m_containsRuntimeChanges)
 			{
 				m_resourceManager->SaveResource(m_editor->GetProjectManager().GetProjectData(), m_model);
-				// m_editor->GetResourcePipeline().GenerateThumbnailForResource(m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_model->GetID()), m_model, true);
+				// m_editor->GetResourcePipeline().GenerateThumbnailForResource(m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResourceDirectory(m_model->GetID()), m_model, true);
 				Panel* p = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::ResourceBrowser, 0);
 				if (p)
 					static_cast<PanelResourceBrowser*>(p)->GetBrowser()->RefreshDirectory();

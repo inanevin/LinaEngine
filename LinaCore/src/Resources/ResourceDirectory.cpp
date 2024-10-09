@@ -67,7 +67,7 @@ namespace Lina
 		SortChildren();
 	}
 
-	ResourceDirectory* ResourceDirectory::CreateChild(ResourceDirectory desc)
+	ResourceDirectory* ResourceDirectory::CreateChild(const ResourceDirectory& desc)
 	{
 		ResourceDirectory* child = new ResourceDirectory();
 		*child					 = desc;
@@ -121,14 +121,14 @@ namespace Lina
 		return *it;
 	}
 
-	ResourceDirectory* ResourceDirectory::FindResource(ResourceID id)
+	ResourceDirectory* ResourceDirectory::FindResourceDirectory(ResourceID id)
 	{
 		if (!isFolder && resourceID == id)
 			return this;
 
 		for (ResourceDirectory* c : children)
 		{
-			ResourceDirectory* d = c->FindResource(id);
+			ResourceDirectory* d = c->FindResourceDirectory(id);
 			if (d != nullptr)
 				return d;
 		}

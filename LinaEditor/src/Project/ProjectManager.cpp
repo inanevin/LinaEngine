@@ -63,44 +63,14 @@ namespace Lina::Editor
 			OpenProject(settings.GetLastProjectPath());
 		else
 		{
-
-			Vector<CommonWidgets::GenericPopupButton> buttons = {
+			const Vector<CommonWidgets::GenericPopupButton> buttons = {
 				{
-					.title = Locale::GetStr(LocaleStr::Open),
-					.onPressed =
-						[this]() {
-							const Vector<String> projectPaths = PlatformProcess::OpenDialog({
-								.title				   = Locale::GetStr(LocaleStr::OpenExistingProject),
-								.primaryButton		   = Locale::GetStr(LocaleStr::Open),
-								.extensionsDescription = "",
-								.extensions			   = {"linaproject"},
-								.mode				   = PlatformProcess::DialogMode::SelectFile,
-							});
-
-							if (!projectPaths.empty())
-							{
-								m_editor->GetWindowPanelManager().UnlockAllForegrounds();
-								OpenProject(projectPaths.front());
-							}
-						},
+					.title	   = Locale::GetStr(LocaleStr::Open),
+					.onPressed = BIND(&ProjectManager::OnPressedOpenProject, this),
 				},
 				{
-					.title = Locale::GetStr(LocaleStr::Create),
-					.onPressed =
-						[this]() {
-							const String path = PlatformProcess::SaveDialog({
-								.title				   = Locale::GetStr(LocaleStr::CreateNewProject),
-								.primaryButton		   = Locale::GetStr(LocaleStr::Create),
-								.extensionsDescription = "",
-								.extensions			   = {"linaproject"},
-							});
-
-							if (!path.empty())
-							{
-								m_editor->GetWindowPanelManager().UnlockAllForegrounds();
-								CreateEmptyProjectAndOpen(path);
-							}
-						},
+					.title	   = Locale::GetStr(LocaleStr::Create),
+					.onPressed = BIND(&ProjectManager::OnPressedCreateProject, this),
 				},
 			};
 
@@ -159,7 +129,7 @@ namespace Lina::Editor
 			.mode				   = PlatformProcess::DialogMode::SelectFile,
 		});
 
-		if (!projectPaths.empty())
+		if (!projectPaths.empty() && !projectPaths.front().empty())
 		{
 			OpenProject(projectPaths.front());
 		}
@@ -322,7 +292,7 @@ namespace Lina::Editor
 				{
 					for (const ResourcePipeline::ResourceImportDef& def : desiredAssets)
 					{
-						if (linaAssets->FindResource(def.id) == nullptr)
+						if (linaAssets->FindResourceDirectory(def.id) == nullptr)
 							importDefinitions.push_back(def);
 					}
 				}
@@ -336,26 +306,26 @@ namespace Lina::Editor
 				}
 
 				// Custom sampler.
-				if (linaAssets->FindResource(EDITOR_SAMPLER_DEFAULT_ID) == nullptr)
+				if (linaAssets->FindResourceDirectory(EDITOR_SAMPLER_DEFAULT_ID) == nullptr)
 				{
 					updateProg(EDITOR_SAMPLER_DEFAULT_PATH);
 					ResourcePipeline::SaveNewResource(m_currentProject, linaAssets, EDITOR_SAMPLER_DEFAULT_PATH, GetTypeID<TextureSampler>(), EDITOR_SAMPLER_DEFAULT_ID);
 				}
 
 				// Custom material
-				if (linaAssets->FindResource(EDITOR_MATERIAL_DEFAULT_OBJ_ID) == nullptr)
+				if (linaAssets->FindResourceDirectory(EDITOR_MATERIAL_DEFAULT_OBJ_ID) == nullptr)
 				{
 					updateProg(EDITOR_MATERIAL_DEFAULT_OBJ_PATH);
 					ResourcePipeline::SaveNewResource(m_currentProject, linaAssets, EDITOR_MATERIAL_DEFAULT_OBJ_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_OBJ_ID, EDITOR_SHADER_DEFAULT_OBJECT_ID);
 				}
 
-				if (linaAssets->FindResource(EDITOR_MATERIAL_DEFAULT_SKY_ID) == nullptr)
+				if (linaAssets->FindResourceDirectory(EDITOR_MATERIAL_DEFAULT_SKY_ID) == nullptr)
 				{
 					updateProg(EDITOR_MATERIAL_DEFAULT_SKY_PATH);
 					ResourcePipeline::SaveNewResource(m_currentProject, linaAssets, EDITOR_MATERIAL_DEFAULT_SKY_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_SKY_ID, EDITOR_SHADER_DEFAULT_SKY_ID);
 				}
 
-				if (linaAssets->FindResource(EDITOR_MATERIAL_DEFAULT_LIGHTING_ID) == nullptr)
+				if (linaAssets->FindResourceDirectory(EDITOR_MATERIAL_DEFAULT_LIGHTING_ID) == nullptr)
 				{
 					updateProg(EDITOR_MATERIAL_DEFAULT_LIGHTING_PATH);
 					ResourcePipeline::SaveNewResource(m_currentProject, linaAssets, EDITOR_MATERIAL_DEFAULT_LIGHTING_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_LIGHTING_ID, EDITOR_SHADER_DEFAULT_LIGHTING_ID);
@@ -399,7 +369,7 @@ namespace Lina::Editor
 				continue;
 			const String	   resID	= fileName.substr(under + 1, fileName.length() - under);
 			const ResourceID   resIDInt = static_cast<ResourceID>(UtilStr::StringToBigInt(resID));
-			ResourceDirectory* found	= root->FindResource(resIDInt);
+			ResourceDirectory* found	= root->FindResourceDirectory(resIDInt);
 			if (found == nullptr)
 				FileSystem::DeleteFileInPath(file);
 		}
@@ -461,6 +431,39 @@ namespace Lina::Editor
 		m_thumbnailQueue.insert(id);
 	}
 
+	void ProjectManager::OnPressedOpenProject()
+	{
+		const Vector<String> projectPaths = PlatformProcess::OpenDialog({
+			.title				   = Locale::GetStr(LocaleStr::OpenExistingProject),
+			.primaryButton		   = Locale::GetStr(LocaleStr::Open),
+			.extensionsDescription = "",
+			.extensions			   = {"linaproject"},
+			.mode				   = PlatformProcess::DialogMode::SelectFile,
+		});
+
+		if (!projectPaths.empty() && !projectPaths.front().empty())
+		{
+			m_editor->GetWindowPanelManager().UnlockAllForegrounds();
+			OpenProject(projectPaths.front());
+		}
+	}
+
+	void ProjectManager::OnPressedCreateProject()
+	{
+		const String path = PlatformProcess::SaveDialog({
+			.title				   = Locale::GetStr(LocaleStr::CreateNewProject),
+			.primaryButton		   = Locale::GetStr(LocaleStr::Create),
+			.extensionsDescription = "",
+			.extensions			   = {"linaproject"},
+		});
+
+		if (!path.empty())
+		{
+			m_editor->GetWindowPanelManager().UnlockAllForegrounds();
+			CreateEmptyProjectAndOpen(path);
+		}
+	}
+
 	void ProjectManager::HandleThumbnailRequests()
 	{
 		if (m_thumbnailQueue.empty())
@@ -473,7 +476,7 @@ namespace Lina::Editor
 		Vector<Pair<ResourceID, TypeID>> idPairs;
 		for (ResourceID id : m_thumbnailQueue)
 		{
-			ResourceDirectory* dir = m_currentProject->GetResourceRoot().FindResource(id);
+			ResourceDirectory* dir = m_currentProject->GetResourceRoot().FindResourceDirectory(id);
 			if (dir == nullptr || dir->isFolder)
 				continue;
 			idPairs.push_back(linatl::make_pair(id, dir->resourceTID));
@@ -518,7 +521,7 @@ namespace Lina::Editor
 
 		for (auto [id, atlasImg] : m_resourceThumbnails)
 		{
-			ResourceDirectory* dir = m_currentProject->GetResourceRoot().FindResource(id);
+			ResourceDirectory* dir = m_currentProject->GetResourceRoot().FindResourceDirectory(id);
 			if (dir != nullptr)
 				continue;
 

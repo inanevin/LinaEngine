@@ -285,7 +285,7 @@ namespace Lina
 
 	uint32 Texture::GetChannels()
 	{
-		if (m_meta.format == LinaGX::Format::R8_UNORM || m_meta.format == LinaGX::Format::R16_UNORM)
+		if (m_meta.format == LinaGX::Format::R8_UNORM || m_meta.format == LinaGX::Format::R16_UNORM)
 			return 1;
 		else if (m_meta.format == LinaGX::Format::R8G8_UNORM || m_meta.format == LinaGX::Format::R16G16_UNORM)
 			return 2;

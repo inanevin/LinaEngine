@@ -176,10 +176,10 @@ namespace Lina::Editor
 			.pixels		   = new uint8[width * height * 4],
 			.width		   = width,
 			.height		   = height,
-			.bytesPerPixel = 4,
+			.bytesPerPixel = buffer.bytesPerPixel,
 		};
 
-		if (!LinaGX::ResizeBuffer(buffer, resizedBuffer, width, height, LinaGX::MipmapFilter::Default, 4, true))
+		if (!LinaGX::ResizeBuffer(buffer, resizedBuffer, width, height, LinaGX::MipmapFilter::Default, buffer.bytesPerPixel, true))
 		{
 			LINA_ERR("Thumbnail Generator: Failed resizing image for thumbnail!");
 		}

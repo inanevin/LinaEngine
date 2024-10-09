@@ -33,7 +33,7 @@ SOFTWARE.
 
 namespace Lina
 {
-	class ResourceDirectory;
+	struct ResourceDirectory;
 	class ResourceManagerV2;
 	class Model;
 	class ProjectData;

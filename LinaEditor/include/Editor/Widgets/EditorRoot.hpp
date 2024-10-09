@@ -55,6 +55,7 @@ namespace Lina::Editor
 		virtual ~EditorRoot() = default;
 
 		virtual void Construct() override;
+		virtual void Destruct() override;
 		virtual void PreTick() override;
 		virtual void Tick(float delta) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;

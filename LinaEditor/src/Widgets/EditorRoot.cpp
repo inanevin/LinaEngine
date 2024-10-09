@@ -168,6 +168,11 @@ namespace Lina::Editor
 		Editor::Get()->GetProjectManager().AddListener(this);
 	}
 
+	void EditorRoot::Destruct()
+	{
+		Editor::Get()->GetProjectManager().RemoveListener(this);
+	}
+
 	void EditorRoot::PreTick()
 	{
 		m_dragRect				  = Rect(Vector2(m_fileMenu->GetRect().GetEnd().x, 0.0f), Vector2(m_windowButtons->GetPos().x - m_fileMenu->GetRect().GetEnd().x, m_fileMenu->GetParent()->GetSizeY()));

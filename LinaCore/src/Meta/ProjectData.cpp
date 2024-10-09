@@ -59,7 +59,9 @@ namespace Lina
 
 	String ProjectData::GetResourceDirectory()
 	{
-		return FileSystem::GetFilePath(GetPath()) + "_LinaResourceCache/";
+		auto p	= GetPath();
+		auto aq = FileSystem::GetFilePath(p);
+		return aq + "_LinaResourceCache/";
 	}
 
 	String ProjectData::GetResourcePath(ResourceID id)

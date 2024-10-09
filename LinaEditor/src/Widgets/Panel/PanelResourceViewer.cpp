@@ -114,7 +114,11 @@ namespace Lina::Editor
 
 		m_resourceBuffer.Destroy();
 
-		ResourceDef def = {.id = m_resource->GetID(), .tid = m_resource->GetTID(), .name = m_resource->GetName()};
+		const ResourceDef def = {
+			.id	  = m_resource->GetID(),
+			.name = m_resource->GetName(),
+			.tid  = m_resource->GetTID(),
+		};
 		m_editor->GetResourceManagerV2().UnloadResources({m_resource});
 		m_editor->GetEditorRenderer().OnResourcesUnloaded({def});
 		m_resource = nullptr;
@@ -125,7 +129,10 @@ namespace Lina::Editor
 		if (m_resource != nullptr)
 			return;
 
-		ResourceDirectory* resDir	  = m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_subData);
+		if (m_editor->GetProjectManager().GetProjectData() == nullptr)
+			return;
+
+		ResourceDirectory* resDir	  = m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResourceDirectory(m_subData);
 		const bool		   dontExists = m_editor->GetProjectManager().GetProjectData() == nullptr || !resDir;
 
 		if (dontExists)
@@ -269,7 +276,7 @@ namespace Lina::Editor
 		Widget* pp	 = CommonWidgets::BuildGenericPopupProgress(lock, Locale::GetStr(LocaleStr::Saving), true);
 		lock->AddChild(pp);
 
-		ResourceDirectory* dir = m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_resource->GetID());
+		ResourceDirectory* dir = m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResourceDirectory(m_resource->GetID());
 
 		m_editor->AddTask(
 			[this, dir]() {

@@ -56,10 +56,10 @@ namespace Lina::Editor
 		const String	 path = project->GetResourcePath(id);
 
 		ResourceDirectory* newCreated = src->CreateChild({
+			.name		 = name,
 			.isFolder	 = false,
 			.resourceID	 = id,
 			.resourceTID = tid,
-			.name		 = name,
 		});
 
 		LinaGX::TextureBuffer thumb = {};
@@ -168,10 +168,10 @@ namespace Lina::Editor
 
 			auto createDirectory = [&](ResourceID id) {
 				dir = src->CreateChild({
+					.name		 = FileSystem::GetFilenameOnlyFromPath(def.path) + "." + FileSystem::GetFileExtension(def.path),
 					.isFolder	 = false,
 					.resourceID	 = id,
 					.resourceTID = resourceTID,
-					.name		 = FileSystem::GetFilenameOnlyFromPath(def.path) + "." + FileSystem::GetFileExtension(def.path),
 				});
 				createdDirs.push_back(dir);
 			};
@@ -343,10 +343,10 @@ namespace Lina::Editor
 					const ResourceID newID = projectData->ConsumeResourceID();
 
 					ResourceDirectory* child = dir->parent->CreateChild({
+						.name		 = def.name,
 						.isFolder	 = false,
 						.resourceID	 = newID,
 						.resourceTID = GetTypeID<Texture>(),
-						.name		 = def.name,
 					});
 
 					const bool isColor = true;
@@ -368,10 +368,10 @@ namespace Lina::Editor
 					const ResourceID newID = projectData->ConsumeResourceID();
 
 					ResourceDirectory* child = dir->parent->CreateChild({
+						.name		 = def.name,
 						.isFolder	 = false,
 						.resourceID	 = newID,
 						.resourceTID = GetTypeID<Material>(),
-						.name		 = def.name,
 					});
 
 					meta.materials[matIdx] = newID;

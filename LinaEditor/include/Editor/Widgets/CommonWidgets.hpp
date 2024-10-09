@@ -41,7 +41,7 @@ namespace Lina
 	class Text;
 	class FoldLayout;
 	struct TextureAtlasImage;
-	class ResourceDirectory;
+	struct ResourceDirectory;
 
 	enum class FieldType;
 	class FieldBase;

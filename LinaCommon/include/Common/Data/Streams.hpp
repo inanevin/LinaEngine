@@ -220,13 +220,7 @@ namespace Lina
 
 	template <typename T> IStream& operator>>(IStream& stream, T& val)
 	{
-		if constexpr (std::is_same_v<T, std::size_t>)
-		{
-			uint32 sz = 0;
-			stream >> sz;
-			val = static_cast<size_t>(sz);
-		}
-		else if constexpr (std::is_arithmetic_v<T>)
+		if constexpr (std::is_arithmetic_v<T>)
 		{
 			stream.Read(val);
 			if (Endianness::ShouldSwap())
@@ -327,12 +321,7 @@ namespace Lina
 
 	template <typename T> OStream& operator<<(OStream& stream, T& val)
 	{
-		if constexpr (std::is_same_v<T, std::size_t>)
-		{
-			const uint32 sz = static_cast<uint32>(val);
-			stream << val;
-		}
-		else if constexpr (std::is_arithmetic_v<T>)
+		if constexpr (std::is_arithmetic_v<T>)
 		{
 			auto copy = const_cast<typename std::remove_const<T>::type&>(val);
 			if (Endianness::ShouldSwap())
@@ -375,12 +364,7 @@ namespace Lina
 
 	template <typename T> OStream& operator<<(OStream& stream, T&& val)
 	{
-		if constexpr (std::is_same_v<T, std::size_t>)
-		{
-			const uint32 sz = static_cast<uint32>(val);
-			stream << val;
-		}
-		else if constexpr (std::is_arithmetic_v<T>)
+		if constexpr (std::is_arithmetic_v<T>)
 		{
 			auto copy = const_cast<typename std::remove_const<T>::type&>(val);
 			if (Endianness::ShouldSwap())

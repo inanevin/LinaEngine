@@ -76,7 +76,7 @@ namespace Lina::Editor
 			return m_panelFlags;
 		}
 
-		inline ResourceID SetSubdata(ResourceID data)
+		inline void SetSubdata(ResourceID data)
 		{
 			m_subData = data;
 		}

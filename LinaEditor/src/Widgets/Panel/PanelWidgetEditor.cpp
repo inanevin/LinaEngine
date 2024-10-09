@@ -401,7 +401,7 @@ namespace Lina::Editor
 		if (m_currentWidget == nullptr)
 			return;
 
-		m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_currentWidget->GetID());
+		m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResourceDirectory(m_currentWidget->GetID());
 
 		Widget* sourceWidget = &m_currentWidget->GetRoot();
 		Widget* rootInEditor = CommonWidgets::BuildDefaultFoldItem(this, sourceWidget, Theme::GetDef().baseIndent, "", Color::White, sourceWidget->GetWidgetProps().debugName, true, &sourceWidget->_fold, true);
@@ -531,7 +531,7 @@ namespace Lina::Editor
 	bool PanelWidgetEditor::OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData)
 	{
 		if (m_currentWidget == nullptr)
-			return;
+			return false;
 
 		Vector<Widget*> selection = m_hierarchyController->GetSelectedUserData<Widget>();
 

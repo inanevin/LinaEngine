@@ -49,7 +49,10 @@ namespace Lina
 		Resource(ResourceID id, TypeID tid, const String& name) : m_id(id), m_tid(tid), m_name(name){};
 		virtual ~Resource() = default;
 
-		virtual bool LoadFromFile(const String& path){};
+		virtual bool LoadFromFile(const String& path)
+		{
+			return false;
+		};
 		virtual void LoadFromStream(IStream& stream)
 		{
 			stream >> m_id >> m_name >> m_path;

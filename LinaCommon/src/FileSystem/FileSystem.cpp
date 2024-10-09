@@ -149,9 +149,10 @@ namespace Lina
 
 	String FileSystem::GetFilePath(const String& fileName)
 	{
-		const char*	 cstr	   = fileName.c_str();
-		unsigned int strLength = (unsigned int)fileName.length();
-		unsigned int end	   = strLength - 1;
+		const String usedFilename = FixPath(fileName);
+		const char*	 cstr		  = usedFilename.c_str();
+		unsigned int strLength	  = (unsigned int)usedFilename.length();
+		unsigned int end		  = strLength - 1;
 
 		while (end != 0)
 		{
@@ -162,13 +163,13 @@ namespace Lina
 		}
 
 		if (end == 0)
-			return fileName;
+			return usedFilename;
 
 		else
 		{
 			unsigned int start = 0;
 			end				   = end + 1;
-			return FixPath(fileName.substr(start, end - start));
+			return usedFilename.substr(start, end - start);
 		}
 	}
 

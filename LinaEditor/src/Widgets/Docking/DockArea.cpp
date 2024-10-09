@@ -256,7 +256,7 @@ namespace Lina::Editor
 	bool DockArea::OnPayloadDropped(PayloadType type, Widget* payload)
 	{
 		if (m_containsFixedPanel)
-			return;
+			return false;
 
 		if (type == PayloadType::DockedPanel && m_preview)
 		{
