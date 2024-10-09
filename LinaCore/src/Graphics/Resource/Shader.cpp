@@ -127,17 +127,17 @@ namespace Lina
 	{
 		if (!FileSystem::FileOrPathExists(path))
 			return false;
-        
-        const String includePath = FileSystem::GetRunningDirectory();
-        
-        if(includePath.empty())
-            return false;
-        
-        String         txt         = FileSystem::ReadFileContentsAsString(path);
 
-        if(txt.empty())
-            return false;
-        
+		const String includePath = FileSystem::GetRunningDirectory();
+
+		if (includePath.empty())
+			return false;
+
+		String txt = FileSystem::ReadFileContentsAsString(path);
+
+		if (txt.empty())
+			return false;
+
 		LINAGX_MAP<LinaGX::ShaderStage, LinaGX::ShaderCompileData> data;
 		LINAGX_MAP<LinaGX::ShaderStage, String>					   blocks;
 
