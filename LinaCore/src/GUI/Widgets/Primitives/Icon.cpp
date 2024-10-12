@@ -49,7 +49,7 @@ namespace Lina
 		{
 			const Vector2 sz		 = m_parent->GetEndFromMargins() - m_parent->GetStartFromMargins();
 			const float	  targetSize = Math::Min(sz.x, sz.y) * m_props.dynamicSizeScale;
-			const float	  scale		 = targetSize / static_cast<float>(m_lvgFont->m_size);
+			const float	  scale		 = targetSize / static_cast<float>(m_lvgFont->size);
 			m_props.textScale		 = scale;
 			CalculateIconSize();
 		}
@@ -63,28 +63,23 @@ namespace Lina
 		if (m_lvgFont == nullptr)
 			return;
 
-		m_sdfOptions.color				 = m_props.color.AsLVG();
-		m_sdfOptions.sdfThickness		 = m_props.sdfThickness;
-		m_sdfOptions.sdfSoftness		 = m_props.sdfSoftness;
-		m_sdfOptions.sdfOutlineColor	 = m_props.sdfOutlineColor.AsLVG4();
-		m_sdfOptions.sdfOutlineThickness = m_props.sdfOutlineThickness;
-		m_sdfOptions.sdfOutlineSoftness	 = m_props.sdfOutlineSoftness;
-		m_sdfOptions.textScale			 = m_props.textScale;
-		m_sdfOptions.cpuClipping		 = m_props.customClip.AsLVG4();
+		m_textOptions.color				 = m_props.color.AsLVG();
+		m_textOptions.textScale			 = m_props.textScale;
+		m_textOptions.cpuClipping		 = m_props.customClip.AsLVG4();
 
 		if (m_props.enableHoverPressColors)
 		{
 			if (m_isHovered)
-				m_sdfOptions.color.start = m_sdfOptions.color.end = m_props.colorHovered.AsLVG4();
+				m_textOptions.color.start = m_textOptions.color.end = m_props.colorHovered.AsLVG4();
 
 			if (m_isPressed)
-				m_sdfOptions.color.start = m_sdfOptions.color.end = m_props.colorPressed.AsLVG4();
+				m_textOptions.color.start = m_textOptions.color.end = m_props.colorPressed.AsLVG4();
 		}
 
 		if (GetIsDisabled())
-			m_sdfOptions.color.start = m_sdfOptions.color.end = m_props.colorDisabled.AsLVG4();
+			m_textOptions.color.start = m_textOptions.color.end = m_props.colorDisabled.AsLVG4();
 
-		m_lvg->DrawTextSDF(m_props.icon.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), m_sdfOptions, 0.0f, m_drawOrder, m_props.isDynamic);
+        m_lvg->DrawText(m_props.icon.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), m_textOptions, 0.0f, m_drawOrder, m_props.isDynamic);
 
 		DrawTooltip();
 	}
@@ -99,8 +94,8 @@ namespace Lina
 			return;
 
 		m_calculatedDPIScale = dpiScale;
-		m_sdfOptions.font	 = m_lvgFont;
-		m_rect.size			 = static_cast<float>(Math::RoundToIntEven(m_lvgFont->m_size * m_props.textScale));
+		m_textOptions.font	 = m_lvgFont;
+		m_rect.size			 = static_cast<float>(Math::RoundToIntEven(m_lvgFont->size * m_props.textScale));
 	}
 
 	bool Icon::OnMouse(uint32 button, LinaGX::InputAction act)

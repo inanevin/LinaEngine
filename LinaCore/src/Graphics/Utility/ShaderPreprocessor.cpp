@@ -94,8 +94,7 @@ namespace Lina
 
 		void ProcessMaterialData(String& block, Vector<ShaderProperty*>& outProperties)
 		{
-			const String materialIdent	= "struct LINA_MATERIAL";
-			const String materialIdent2 = "layout(set = 2, binding = 0) uniform";
+			const String materialIdent = "struct LinaMaterial";
 
 			std::istringstream f(block.c_str());
 			std::string		   line = "";
@@ -167,7 +166,7 @@ namespace Lina
 					continue;
 				}
 
-				if (line.find(materialIdent) != String::npos || line.find(materialIdent2) != String::npos)
+				if (line.find(materialIdent) != String::npos)
 				{
 					parsingMaterialStruct = true;
 					continue;
@@ -309,15 +308,15 @@ namespace Lina
 						continue;
 
 					LINA_ASSERT(false, "Unknown type!");
-					LINA_ERR("LINA_MATERIAL has an unsupported property type!");
+					LINA_ERR("LinaMaterial has an unsupported property type!");
 				}
 			}
 
 			if (parsingMaterialStruct)
 			{
-				String materialCastFunction = "\nLINA_MATERIAL LINA_GET_MATERIAL(uint startOffset)\n";
+				String materialCastFunction = "\nLinaMaterial LINA_GET_MATERIAL(uint startOffset)\n";
 				materialCastFunction += "{\n";
-				materialCastFunction += "\tLINA_MATERIAL m;\n";
+				materialCastFunction += "\tLinaMaterial m;\n";
 				materialCastFunction += "\tuint index = startOffset;\n";
 
 				for (ShaderProperty* prop : outProperties)

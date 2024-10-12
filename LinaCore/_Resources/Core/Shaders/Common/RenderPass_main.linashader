@@ -38,15 +38,10 @@ layout(set = 1, binding = 0) uniform ViewData
 	vec4 padding2;
 } LINA_VIEW;
 
-struct Object
-{
-    mat4 modelMatrix;
-};
-
 layout(std140, set = 1, binding = 1) readonly buffer ObjectBuffer
 {
-    Object data[];
-} LINA_OBJECTS;
+    LinaEntity data[];
+} LINA_ENTITIES;
 
 layout(set = 1, binding = 2) readonly buffer IndirectArgumentsBuffer
 {

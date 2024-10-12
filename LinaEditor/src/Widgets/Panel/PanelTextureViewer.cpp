@@ -62,13 +62,13 @@ namespace Lina::Editor
 		m_texturePanel->GetWidgetProps().colorBackground  = Color::White;
 		m_texturePanel->GetWidgetProps().outlineThickness = 0.0f;
 		m_texturePanel->GetWidgetProps().rounding		  = 0.0f;
-		m_texturePanel->GetWidgetProps().textureUserData  = &m_displayUserData;
+		m_texturePanel->GetWidgetProps().lvgUserData	  = &m_guiUserData;
 	}
 
 	void PanelTextureViewer::OnGeneralMetaChanged(const MetaType& meta, FieldBase* field)
 	{
-		m_displayUserData.displayChannels = m_displayChannels;
-		m_displayUserData.mipLevel		  = m_mipLevel;
+		m_guiUserData.displayChannels = m_displayChannels;
+		m_guiUserData.mipLevel		  = m_mipLevel;
 	}
 
 	void PanelTextureViewer::OnResourceMetaChanged(const MetaType& meta, FieldBase* field)

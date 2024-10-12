@@ -215,6 +215,7 @@ namespace Lina
 			opts.outlineOptions.drawDirection = m_widgetProps.outlineIsInner ? LinaVG::OutlineDrawDirection::Inwards : LinaVG::OutlineDrawDirection::Outwards;
 			opts.outlineOptions.color		  = m_manager->IsControlsOwner(this) ? m_widgetProps.colorOutlineControls.AsLVG() : m_widgetProps.colorOutline.AsLVG();
 			opts.rounding = m_widgetProps.rounding = m_widgetProps.rounding;
+			opts.userData						   = m_widgetProps.lvgUserData;
 
 			if (m_widgetProps.hoveredIsDifferentColor && m_isHovered)
 				opts.color = m_widgetProps.colorHovered.AsLVG();
@@ -273,19 +274,18 @@ namespace Lina
 
 				if (m_widgetProps.rawTexture != nullptr)
 				{
-					if (m_widgetProps.rawTexture->GetMeta().format == LinaGX::Format::R8_UNORM)
-						opts.color.start.w = opts.color.end.w = GUI_IS_SINGLE_CHANNEL;
+					// if (m_widgetProps.rawTexture->GetMeta().format == LinaGX::Format::R8_UNORM)
+					//	opts.color.start.w = opts.color.end.w = GUI_IS_SINGLE_CHANNEL;
 					opts.textureHandle = m_widgetProps.rawTexture;
-					opts.userData	   = m_widgetProps.textureUserData;
 					textureSize		   = m_widgetProps.rawTexture->GetSizeF();
 				}
 				else if (m_widgetProps.textureAtlas != nullptr)
 				{
-					if (m_widgetProps.textureAtlas->atlas->GetRaw()->GetMeta().format == LinaGX::Format::R8_UNORM)
-						opts.color.start.w = opts.color.end.w = GUI_IS_SINGLE_CHANNEL;
-					opts.userData		 = m_widgetProps.textureUserData;
-					opts.textureHandle	 = m_widgetProps.textureAtlas->atlas->GetRaw();
-					opts.textureUVOffset = m_widgetProps.textureAtlas->rectUV.pos.AsLVG();
+					// if (m_widgetProps.textureAtlas->atlas->GetRaw()->GetMeta().format == LinaGX::Format::R8_UNORM)
+					//	opts.color.start.w = opts.color.end.w = GUI_IS_SINGLE_CHANNEL;
+					opts.textureHandle			  = m_widgetProps.textureAtlas->atlas->GetRaw();
+					opts.textureTilingAndOffset.z = m_widgetProps.textureAtlas->rectUV.pos.x;
+					opts.textureTilingAndOffset.w = m_widgetProps.textureAtlas->rectUV.pos.y;
 					textureTiling *= m_widgetProps.textureAtlas->rectUV.size;
 					textureSize = m_widgetProps.textureAtlas->rectUV.size * m_widgetProps.textureAtlas->atlas->GetRaw()->GetSizeF();
 				}
@@ -297,7 +297,8 @@ namespace Lina
 					textureTiling.y /= aspect;
 				}
 
-				opts.textureUVTiling = textureTiling.AsLVG();
+				opts.textureTilingAndOffset.x = textureTiling.x;
+				opts.textureTilingAndOffset.y = textureTiling.y;
 
 				// if (size.x < sz.x)
 				// {
@@ -554,7 +555,7 @@ namespace Lina
 		bg.outlineOptions.color		= Theme::GetDef().black.AsLVG4();
 		m_lvg->DrawRect(tooltipRect.pos.AsLVG(), tooltipRect.GetEnd().AsLVG(), bg, 0.0f, TOOLTIP_DRAW_ORDER);
 
-		m_lvg->DrawTextNormal(tooltip.c_str(), Vector2(tooltipRect.pos.x + Theme::GetDef().baseIndent, tooltipRect.GetCenter().y + textSize.y * 0.5f).AsLVG(), textOpts, 0.0f, TOOLTIP_DRAW_ORDER);
+		m_lvg->DrawText(tooltip.c_str(), Vector2(tooltipRect.pos.x + Theme::GetDef().baseIndent, tooltipRect.GetCenter().y + textSize.y * 0.5f).AsLVG(), textOpts, 0.0f, TOOLTIP_DRAW_ORDER);
 	}
 
 	void Widget::DebugDraw(int32 drawOrder)

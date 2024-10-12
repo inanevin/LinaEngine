@@ -29,15 +29,8 @@ SOFTWARE.
 layout (set = 0, binding = 0) uniform texture2D LINA_TEXTURES[];
 layout (set = 0, binding = 1) uniform sampler LINA_SAMPLERS[];
 
-struct GUIMaterialData
+struct LinaTexture2D
 {
-	vec4 color1;
-	vec4 color2;
-	vec4 floatPack1;
-	vec4 floatPack2;
-	vec4 clip;
-	vec2 canvasSize;
-	vec2 padding;
+	uint txt;
+	uint smp;
 };
-
-

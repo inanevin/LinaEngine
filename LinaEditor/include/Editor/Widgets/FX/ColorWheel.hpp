@@ -29,10 +29,15 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
+#include "Editor/Graphics/EditorGfxHelpers.hpp"
 
 namespace Lina
 {
 	class Icon;
+};
+
+namespace Lina::Editor
+{
 	class ColorWheel : public Widget
 	{
 	public:
@@ -80,9 +85,11 @@ namespace Lina
 	private:
 		LINA_REFLECTION_ACCESS(ColorWheel);
 
-		Properties m_props		= {};
-		Icon*	   m_icon		= nullptr;
-		Vector2	   m_pointerPos = Vector2::Zero;
+		Properties	m_props		 = {};
+		Icon*		m_icon		 = nullptr;
+		Vector2		m_pointerPos = Vector2::Zero;
+		GUIUserData m_guiUserData;
+		GUIUserData m_guiUserDataIcon;
 	};
 
 	LINA_WIDGET_BEGIN(ColorWheel, Primitive)
@@ -91,4 +98,4 @@ namespace Lina
 
 	LINA_CLASS_BEGIN(ColorWheelProperties)
 	LINA_CLASS_END(ColorWheelProperties)
-} // namespace Lina
+} // namespace Lina::Editor

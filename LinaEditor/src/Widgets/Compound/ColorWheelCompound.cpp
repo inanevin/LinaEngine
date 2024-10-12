@@ -29,10 +29,10 @@ SOFTWARE.
 #include "Editor/Widgets/Compound/ColorWheelCompound.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Editor.hpp"
+#include "Editor/Widgets/FX/ColorWheel.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/GUI/Widgets/Layout/Popup.hpp"
 #include "Core/GUI/Widgets/Primitives/ColorSlider.hpp"
-#include "Core/GUI/Widgets/Primitives/ColorWheel.hpp"
 #include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
@@ -129,7 +129,7 @@ namespace Lina::Editor
 		slider->GetProps().maxValue				= isHue ? 360.0f : 1.0f;
 		slider->GetProps().value				= val;
 		slider->GetProps().step					= 0.0f;
-		slider->GetProps().isHueShift			= isHue;
+		slider->GetWidgetProps().lvgUserData	= &m_colorSliderUserData;
 		slider->GetProps().onValueChanged		= [this](float val) { Recalculate(false); };
 		slider->GetWidgetProps().drawBackground = !isHue;
 
@@ -155,6 +155,7 @@ namespace Lina::Editor
 
 	void ColorWheelCompound::Construct()
 	{
+		m_colorSliderUserData.specialType = GUISpecialType::VerticalHue;
 		m_editor						  = Editor::Get();
 		const float		   baseItemHeight = Theme::GetDef().baseItemHeight;
 		DirectionalLayout* vertical		  = m_manager->Allocate<DirectionalLayout>();

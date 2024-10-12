@@ -80,6 +80,7 @@ include/Editor/Widgets/Panel/PanelColorWheel.hpp
 include/Editor/Widgets/Panel/PanelFactory.hpp
 include/Editor/Widgets/Panel/PanelResourceViewer.hpp
 include/Editor/Widgets/FX/LinaLoading.hpp
+include/Editor/Widgets/FX/ColorWheel.hpp
 include/Editor/Widgets/FX/ProgressCircleFill.hpp
 include/Editor/Widgets/Layout/ItemController.hpp
 include/Editor/Widgets/World/WorldDisplayer.hpp
@@ -153,6 +154,7 @@ src/Widgets/Panel/PanelColorWheel.cpp
 src/Widgets/Panel/PanelFactory.cpp
 src/Widgets/Panel/PanelResourceViewer.cpp
 src/Widgets/FX/LinaLoading.cpp
+src/Widgets/FX/ColorWheel.cpp
 src/Widgets/FX/ProgressCircleFill.cpp
 src/Widgets/Layout/ItemController.cpp
 src/Widgets/World/WorldDisplayer.cpp

@@ -54,7 +54,7 @@ struct LinaTexture2D
 struct IndirectArguments
 {
 	uint entityID;
-	uint materialBytePadding;
+	uint materiaIndex;
 };
 
 struct GUIMaterialData
@@ -68,4 +68,49 @@ struct GUIMaterialData
 	vec2 padding;
 };
 
+struct LinaEntity
+{
+    mat4 modelMatrix;
+};
 
+LinaEntity LINA_GET_ENTITY()
+{
+
+#ifdef LGX_COMPILE_HLSL
+   int argBufferIndex = LGX_DRAW_ID + gl_InstanceIndex;
+#else
+   int argBufferIndex = gl_InstanceIndex;
+#endif  
+
+    IndirectArguments argBuffer = LINA_INDIRECT_ARGUMENTS.data[argBufferIndex];
+    uint entityID = argBuffer.entityID;
+	return LINA_ENTITIES[entityID];
+}
+
+uint LINA_GET_MATERIAL_INDEX()
+{
+
+#ifdef LGX_COMPILE_HLSL
+   int argBufferIndex = LGX_DRAW_ID + gl_InstanceIndex;
+#else
+   int argBufferIndex = gl_InstanceIndex;
+#endif  
+
+    IndirectArguments argBuffer = LINA_INDIRECT_ARGUMENTS.data[argBufferIndex];
+	return argBuffer.materialIndex;
+}
+
+texture2D LINA_GET_TEXTURE(LinaTexture2D linaTxt)
+{
+	return LINA_TEXTURES[linaTxt.txt];
+}
+
+sampler LINA_GET_SAMPLER(LinaTexture2D linaTxt)
+{
+	return LINA_SAMPLERS[linaTxt.smp];
+}
+
+vec4 LINA_SAMPLE_TEXTURE(LinaTexture2D linaTxt, vec2 uv)
+{
+	return texture(sampler2D(LINA_TEXTURES[linaTxt.txt], LINA_SAMPLERS[linaTxt.smp]), uv);
+}

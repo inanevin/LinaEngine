@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
+#include "Editor/Graphics/EditorGfxHelpers.hpp"
 
 namespace Lina
 {
@@ -36,7 +37,6 @@ namespace Lina
 	class ColorSlider;
 	class DirectionalLayout;
 	class Stack;
-	class ColorWheel;
 	class InputField;
 	class Text;
 	class Dropdown;
@@ -46,6 +46,7 @@ namespace Lina
 namespace Lina::Editor
 {
 	class Editor;
+	class ColorWheel;
 
 	class ColorWheelCompound : public Widget
 	{
@@ -129,6 +130,7 @@ namespace Lina::Editor
 		Color					 m_editedColor255	   = Color::White;
 		Color					 m_oldColor			   = Color::White;
 		Color					 m_hsv				   = Color(0, 0, 0, 0);
+		GUIUserData				 m_colorSliderUserData = {};
 	};
 
 	LINA_WIDGET_BEGIN(ColorWheelCompound, Hidden)

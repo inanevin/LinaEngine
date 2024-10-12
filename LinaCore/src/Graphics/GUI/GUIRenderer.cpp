@@ -69,11 +69,7 @@ namespace Lina
 			data.guiIndexBuffer.Create(LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_GUI_INDICES * sizeof(LinaVG::Index), "GUIRenderer: IndexBuffer" + istr);
 		}
 
-		m_lvg.GetCallbacks().drawDefault	= BIND(&GUIRenderer::DrawDefault, this, std::placeholders::_1);
-		m_lvg.GetCallbacks().drawGradient	= BIND(&GUIRenderer::DrawGradient, this, std::placeholders::_1);
-		m_lvg.GetCallbacks().drawTextured	= BIND(&GUIRenderer::DrawTextured, this, std::placeholders::_1);
-		m_lvg.GetCallbacks().drawSimpleText = BIND(&GUIRenderer::DrawSimpleText, this, std::placeholders::_1);
-		m_lvg.GetCallbacks().drawSDFText	= BIND(&GUIRenderer::DrawSDFText, this, std::placeholders::_1);
+		m_lvg.GetCallbacks().draw = BIND(&GUIRenderer::DrawDefault, this, std::placeholders::_1);
 
 		m_widgetManager.Initialize(resourceManager, window, &m_lvg);
 	}
@@ -93,102 +89,70 @@ namespace Lina
 	void GUIRenderer::DrawDefault(LinaVG::DrawBuffer* buf)
 	{
 		auto& req = AddDrawRequest(buf);
+
+		const Vector4 uv	   = buf->textureUV;
+		const void*	  texture  = buf->textureHandle;
+		const Vector4 clip	   = Vector4(buf->clipPosX, buf->clipPosY, buf->clipSizeX, buf->clipSizeY);
+		const void*	  material = buf->userData;
 	}
+	/*
+		void GUIRenderer::DrawTextured(LinaVG::TextureDrawBuffer* buf)
+		{
+			auto& req				= AddDrawRequest(buf);
+			float drawBufferType	= static_cast<float>(buf->m_drawBufferType);
+			req.materialData.color1 = buf->m_tint;
+			float singleChannel		= 0.0f;
 
-	void GUIRenderer::DrawGradient(LinaVG::GradientDrawBuffer* buf)
-	{
-		auto& req				= AddDrawRequest(buf);
-		req.materialData.color1 = buf->m_color.start;
-		req.materialData.color2 = buf->m_color.end;
+			if (buf->m_textureHandle == &GUI_TEXTURE_HUE_HORIZONTAL)
+			{
+				drawBufferType = 5.0f; // special case :)
+			}
+			else if (buf->m_textureHandle == &GUI_TEXTURE_HUE_VERTICAL)
+			{
+				drawBufferType = 6.0f; // special case :)
+			}
+			else if (buf->m_textureHandle == &GUI_TEXTURE_COLORWHEEL)
+			{
+				drawBufferType = 7.0f; // special case :)
+			}
+			else
+			{
+				req.materialData.color2.x = static_cast<float>(m_bindlessContext->GetBindlessIndex(static_cast<Texture*>(buf->m_textureHandle)));
+				req.materialData.color2.y = static_cast<float>(m_bindlessContext->GetBindlessIndex(m_defaultGUISampler));
+			}
 
-		if (buf->m_color.gradientType == LinaVG::GradientType::Horizontal)
-		{
-			req.materialData.floatPack1 = Vector4(1.0f, 0.0f, 0.0f, 0.0f);
-			req.materialData.floatPack2 = Vector4(0.0f, buf->m_isAABuffer ? 1.0f : 0.0f, buf->m_color.radialSize, static_cast<float>(buf->m_drawBufferType));
-		}
-		else if (buf->m_color.gradientType == LinaVG::GradientType::Vertical)
-		{
-			req.materialData.floatPack1 = Vector4(0.0f, 1.0f, 0.0f, 0.0f);
-			req.materialData.floatPack2 = Vector4(0.0f, buf->m_isAABuffer ? 1.0f : 0.0f, buf->m_color.radialSize, static_cast<float>(buf->m_drawBufferType));
-		}
-		else if (buf->m_color.gradientType == LinaVG::GradientType::Radial)
-		{
-			req.materialData.floatPack1 = Vector4(0.0f, 0.0f, 0.5f, 0.5f);
-			req.materialData.floatPack2 = Vector4(1.0f, buf->m_isAABuffer ? 1.0f : 0.0f, buf->m_color.radialSize, static_cast<float>(buf->m_drawBufferType));
-		}
-		else if (buf->m_color.gradientType == LinaVG::GradientType::RadialCorner)
-		{
-			req.materialData.floatPack1 = Vector4(0.0f, 0.0f, 0.5f, 0.5f);
-			req.materialData.floatPack2 = Vector4(1.0f, buf->m_isAABuffer ? 1.0f : 0.0f, buf->m_color.radialSize, static_cast<float>(buf->m_drawBufferType));
-		}
-	}
+			if (Math::Equals(req.materialData.color1.w, GUI_IS_SINGLE_CHANNEL, 0.01f))
+				singleChannel = 1.0f;
 
-	void GUIRenderer::DrawTextured(LinaVG::TextureDrawBuffer* buf)
-	{
-		auto& req				= AddDrawRequest(buf);
-		float drawBufferType	= static_cast<float>(buf->m_drawBufferType);
-		req.materialData.color1 = buf->m_tint;
-		float singleChannel		= 0.0f;
+			DisplayChannels displayChannels = DisplayChannels::RGBA;
+			float			mipLevel		= 0.0f;
 
-		if (buf->m_textureHandle == &GUI_TEXTURE_HUE_HORIZONTAL)
-		{
-			drawBufferType = 5.0f; // special case :)
-		}
-		else if (buf->m_textureHandle == &GUI_TEXTURE_HUE_VERTICAL)
-		{
-			drawBufferType = 6.0f; // special case :)
-		}
-		else if (buf->m_textureHandle == &GUI_TEXTURE_COLORWHEEL)
-		{
-			drawBufferType = 7.0f; // special case :)
-		}
-		else
-		{
-			req.materialData.color2.x = static_cast<float>(m_bindlessContext->GetBindlessIndex(static_cast<Texture*>(buf->m_textureHandle)));
-			req.materialData.color2.y = static_cast<float>(m_bindlessContext->GetBindlessIndex(m_defaultGUISampler));
+			if (buf->userData != nullptr)
+			{
+				GUIRendererUserData* ud = static_cast<GUIRendererUserData*>(buf->userData);
+				displayChannels			= ud->displayChannels;
+				mipLevel				= static_cast<float>(ud->mipLevel);
+
+				if (ud->sampler != 0)
+					req.materialData.color2.y = static_cast<float>(m_bindlessContext->GetBindlessIndex(m_resourceManager->GetResource<TextureSampler>(ud->sampler)));
+			}
+
+			req.materialData.color2.z	= mipLevel;
+			req.materialData.floatPack1 = Vector4(buf->m_textureUVTiling.x, buf->m_textureUVTiling.y, buf->m_textureUVOffset.x, buf->m_textureUVOffset.y);
+			req.materialData.floatPack2 = Vector4(buf->m_isAABuffer, singleChannel, static_cast<uint32>(displayChannels), drawBufferType);
 		}
 
-		if (Math::Equals(req.materialData.color1.w, GUI_IS_SINGLE_CHANNEL, 0.01f))
-			singleChannel = 1.0f;
-
-		DisplayChannels displayChannels = DisplayChannels::RGBA;
-		float			mipLevel		= 0.0f;
-
-		if (buf->userData != nullptr)
+		void GUIRenderer::DrawText(LinaVG::DrawBufferText* buf)
 		{
-			GUIRendererUserData* ud = static_cast<GUIRendererUserData*>(buf->userData);
-			displayChannels			= ud->displayChannels;
-			mipLevel				= static_cast<float>(ud->mipLevel);
+			auto& req					  = AddDrawRequest(buf);
+			auto  txt					  = m_guiBackend->GetFontTexture(buf->font->atlas).texture;
+			req.materialData.floatPack2.w = static_cast<float>(buf->drawBufferType);
+			req.materialData.color2.x	  = static_cast<float>(m_bindlessContext->GetBindlessIndex(txt));
+			req.materialData.color2.y	  = static_cast<float>(m_bindlessContext->GetBindlessIndex(m_textGUISampler));
 
-			if (ud->sampler != 0)
-				req.materialData.color2.y = static_cast<float>(m_bindlessContext->GetBindlessIndex(m_resourceManager->GetResource<TextureSampler>(ud->sampler)));
+			void* sdfMaterial = buf->userData;
 		}
-
-		req.materialData.color2.z	= mipLevel;
-		req.materialData.floatPack1 = Vector4(buf->m_textureUVTiling.x, buf->m_textureUVTiling.y, buf->m_textureUVOffset.x, buf->m_textureUVOffset.y);
-		req.materialData.floatPack2 = Vector4(buf->m_isAABuffer, singleChannel, static_cast<uint32>(displayChannels), drawBufferType);
-	}
-
-	void GUIRenderer::DrawSimpleText(LinaVG::SimpleTextDrawBuffer* buf)
-	{
-		auto& req					  = AddDrawRequest(buf);
-		auto  txt					  = m_guiBackend->GetFontTexture(buf->m_font->m_atlas).texture;
-		req.materialData.floatPack2.w = static_cast<float>(buf->m_drawBufferType);
-		req.materialData.color2.x	  = static_cast<float>(m_bindlessContext->GetBindlessIndex(txt));
-		req.materialData.color2.y	  = static_cast<float>(m_bindlessContext->GetBindlessIndex(m_textGUISampler));
-	}
-
-	void GUIRenderer::DrawSDFText(LinaVG::SDFTextDrawBuffer* buf)
-	{
-		auto& req					= AddDrawRequest(buf);
-		auto  txt					= m_guiBackend->GetFontTexture(buf->m_font->m_atlas).texture;
-		req.materialData.color1		= buf->m_outlineColor;
-		req.materialData.floatPack1 = Vector4(buf->m_thickness, buf->m_softness, buf->m_outlineThickness, buf->m_outlineSoftness);
-		req.materialData.floatPack2 = Vector4(buf->m_flipAlpha ? 1.0f : 0.0f, 0.0f, 0.0f, static_cast<float>(buf->m_drawBufferType));
-		req.materialData.color2.x	= static_cast<float>(m_bindlessContext->GetBindlessIndex(txt));
-		req.materialData.color2.y	= static_cast<float>(m_bindlessContext->GetBindlessIndex(m_textGUISampler));
-	}
-
+	*/
 	void GUIRenderer::Destroy()
 	{
 		m_widgetManager.Shutdown();
@@ -206,13 +170,13 @@ namespace Lina
 		auto&		 pfd   = m_pfd[frame];
 		m_drawRequests.push_back({});
 		auto& req		 = m_drawRequests.back();
-		req.indexCount	 = static_cast<uint32>(buf->m_indexBuffer.m_size);
+		req.indexCount	 = static_cast<uint32>(buf->indexBuffer.m_size);
 		req.vertexOffset = pfd.vertexCounter;
 		req.firstIndex	 = pfd.indexCounter;
-		pfd.guiVertexBuffer.BufferData(pfd.vertexCounter * sizeof(LinaVG::Vertex), (uint8*)buf->m_vertexBuffer.m_data, buf->m_vertexBuffer.m_size * sizeof(LinaVG::Vertex));
-		pfd.guiIndexBuffer.BufferData(pfd.indexCounter * sizeof(LinaVG::Index), (uint8*)buf->m_indexBuffer.m_data, buf->m_indexBuffer.m_size * sizeof(LinaVG::Index));
+		pfd.guiVertexBuffer.BufferData(pfd.vertexCounter * sizeof(LinaVG::Vertex), (uint8*)buf->vertexBuffer.m_data, buf->vertexBuffer.m_size * sizeof(LinaVG::Vertex));
+		pfd.guiIndexBuffer.BufferData(pfd.indexCounter * sizeof(LinaVG::Index), (uint8*)buf->indexBuffer.m_data, buf->indexBuffer.m_size * sizeof(LinaVG::Index));
 		pfd.indexCounter += req.indexCount;
-		pfd.vertexCounter += static_cast<uint32>(buf->m_vertexBuffer.m_size);
+		pfd.vertexCounter += static_cast<uint32>(buf->vertexBuffer.m_size);
 		req.materialData.clip = Vector4(buf->clipPosX, buf->clipPosY, buf->clipSizeX, buf->clipSizeY);
 		return req;
 	}

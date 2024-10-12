@@ -30,11 +30,12 @@ SOFTWARE.
 
 #include "Common/StringID.hpp"
 #include "Common/Math/Vector.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
 #include "Core/Graphics/Pipeline/Buffer.hpp"
 #include "Core/Graphics/Data/RenderData.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
-#include "Core/Graphics/GUI/GUIRenderer.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/Graphics/ResourceUploadQueue.hpp"
 
 namespace LinaGX
@@ -63,8 +64,30 @@ namespace Lina::Editor
 			LinaGX::CommandStream* gfxStream	 = nullptr;
 			LinaGX::CommandStream* copyStream	 = nullptr;
 			SemaphoreData		   copySemaphore = {};
+            Buffer guiVertexBuffer = {};
+            Buffer guiIndexBuffer = {};
 		};
 
+        struct DrawRequest
+        {
+            uint32 startVertex = 0;
+            uint32 startIndex = 0;
+            uint32 vertexCount = 0;
+            uint32 indexCount = 0;
+            size_t materialOffset = 0;
+        };
+        
+        struct DrawBatch
+        {
+            Vector<DrawRequest> drawRequests;
+            size_t indirectBufferOffset = 0;
+            
+            void Clear()
+            {
+                indirectBufferOffset = 0;
+                drawRequests.clear();
+            }
+        };
 	public:
 		SurfaceRenderer(Editor* editor, LinaGX::Window* window, const Color& clearColor);
 		virtual ~SurfaceRenderer();
@@ -87,12 +110,12 @@ namespace Lina::Editor
 
 		inline Widget* GetGUIRoot()
 		{
-			return m_guiRenderer.GetGUIRoot();
+            return m_widgetManager.GetRoot();
 		}
 
 		inline WidgetManager& GetWidgetManager()
 		{
-			return m_guiRenderer.GetWidgetManager();
+            return m_widgetManager;
 		}
 
 		LinaGX::Window* GetWindow() const
@@ -102,6 +125,7 @@ namespace Lina::Editor
 
 	private:
 		void UpdateBuffers(uint32 frameIndex);
+        void DrawDefault(LinaVG::DrawBuffer* buf);
 
 	protected:
 		Editor*				m_editor			= nullptr;
@@ -115,7 +139,21 @@ namespace Lina::Editor
 		uint8				m_swapchain = 0;
 		bool				m_isVisible = false;
 		RenderPass			m_guiPass	= {};
-		GUIRenderer			m_guiRenderer;
+        
+        LinaVG::Drawer m_lvgDrawer;
+        WidgetManager m_widgetManager;
+        
+        HashMap<Shader*, DrawBatch> m_drawData;
+        
+        Shader* m_guiDefault = nullptr;
+        Shader* m_guiColorWheel = nullptr;
+        Shader* m_guiHue = nullptr;
+        Shader* m_guiText = nullptr;
+        Shader* m_guiSDF = nullptr;
+        
+        uint32 m_frameVertexCounter = 0;
+        uint32 m_frameIndexCounter = 0;
+        size_t m_frameMaterialBufferCounter = 0;
 	};
 
 } // namespace Lina::Editor

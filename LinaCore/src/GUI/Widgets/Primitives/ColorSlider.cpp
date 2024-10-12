@@ -37,29 +37,19 @@ namespace Lina
 {
 	void ColorSlider::Initialize()
 	{
-		if (m_props.backgroundTexture != nullptr || m_props.isHueShift)
+		if (m_props.backgroundTexture != nullptr)
 		{
 			Widget* bg = m_manager->Allocate<Widget>("TextureBG");
 			bg->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 			bg->SetAlignedPos(Vector2::Zero);
 			bg->SetAlignedSize(Vector2::One);
-			bg->GetWidgetProps().drawBackground	  = true;
-			bg->GetWidgetProps().colorBackground  = Color::White;
-			bg->GetWidgetProps().outlineThickness = 0.0f;
-			bg->GetWidgetProps().rounding		  = 0.0f;
-			bg->GetWidgetProps().textureTiling	  = m_props.isHueShift ? Vector2::One : Vector2(3.0f, 3.0f);
-
-			if (m_props.isHueShift)
-			{
-				bg->GetWidgetProps().specialTexture		 = m_widgetProps.colorBackgroundDirection == DirectionOrientation::Horizontal ? &GUI_TEXTURE_HUE_HORIZONTAL : &GUI_TEXTURE_HUE_VERTICAL;
-				bg->GetWidgetProps().useSpecialTexture	 = true;
-				bg->GetWidgetProps().activeTextureTiling = false;
-			}
-			else
-			{
-				bg->GetWidgetProps().activeTextureTiling = true;
-				bg->GetWidgetProps().rawTexture			 = m_props.backgroundTexture;
-			}
+			bg->GetWidgetProps().drawBackground		 = true;
+			bg->GetWidgetProps().colorBackground	 = Color::White;
+			bg->GetWidgetProps().outlineThickness	 = 0.0f;
+			bg->GetWidgetProps().rounding			 = 0.0f;
+			bg->GetWidgetProps().textureTiling		 = Vector2(3.0f, 3.0f);
+			bg->GetWidgetProps().activeTextureTiling = true;
+			bg->GetWidgetProps().rawTexture			 = m_props.backgroundTexture;
 			AddChild(bg);
 		}
 	}
@@ -94,6 +84,7 @@ namespace Lina
 
 	void ColorSlider::Draw()
 	{
+		/*
 		if (m_props.backgroundTexture || m_props.isHueShift)
 		{
 			if (!m_children.empty())
@@ -107,6 +98,8 @@ namespace Lina
 		{
 			Widget::Draw();
 		}
+*/
+		Widget::Draw();
 
 		if (!m_props.value)
 			return;

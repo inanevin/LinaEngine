@@ -81,10 +81,6 @@ namespace Lina
 		void					   PreTick();
 		void					   Tick(float delta, const Vector2ui& size);
 		void					   DrawDefault(LinaVG::DrawBuffer* buf);
-		void					   DrawGradient(LinaVG::GradientDrawBuffer* buf);
-		void					   DrawTextured(LinaVG::TextureDrawBuffer* buf);
-		void					   DrawSimpleText(LinaVG::SimpleTextDrawBuffer* buf);
-		void					   DrawSDFText(LinaVG::SDFTextDrawBuffer* buf);
 		const Vector<DrawRequest>& FlushGUI(uint32 frameIndex, size_t indirectBufferOffset, const Vector2ui& size);
 		bool					   CopyVertexIndex(uint32 frameIndex, LinaGX::CommandStream* copyStream);
 		void					   AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue);

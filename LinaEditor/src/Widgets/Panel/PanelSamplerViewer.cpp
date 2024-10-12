@@ -54,7 +54,7 @@ namespace Lina::Editor
 		texture->GetWidgetProps().colorBackground  = Color::White;
 		texture->GetWidgetProps().outlineThickness = 0.0f;
 		texture->GetWidgetProps().rounding		   = 0.0f;
-		texture->GetWidgetProps().textureUserData  = &m_displayUserData;
+		texture->GetWidgetProps().lvgUserData	   = &m_guiUserData;
 
 		m_resourceBG->AddChild(texture);
 	}
@@ -66,7 +66,7 @@ namespace Lina::Editor
 			return;
 
 		UpdateSamplerProps();
-		m_displayUserData.sampler = m_resource->GetID();
+		m_guiUserData.sampler = m_resource->GetID();
 	}
 
 	void PanelSamplerViewer::OnGeneralMetaChanged(const MetaType& meta, FieldBase* field)

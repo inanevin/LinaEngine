@@ -88,50 +88,27 @@ namespace Lina
 		if (m_lvgFont == nullptr)
 			return;
 
-		if (m_isSDF)
-		{
-			LinaVG::SDFTextOptions opts;
-			opts.font	   = m_lvgFont;
-			opts.textScale = m_props.textScale;
-			opts.alignment = m_props.alignment;
-			opts.wrapWidth = m_props.wrapWidth;
+        LinaVG::TextOptions opts;
+        opts.font            = m_lvgFont;
+        opts.textScale        = m_props.textScale;
+        opts.alignment        = m_props.alignment;
+        opts.wrapWidth        = m_props.wrapWidth;
+        opts.newLineSpacing = 0.0f;
 
-			if (GetIsDisabled())
-				opts.color = m_props.colorDisabled.AsLVG4();
-			else
-				opts.color = m_props.color.AsLVG();
+        if (GetIsDisabled())
+            opts.color = m_props.colorDisabled.AsLVG4();
+        else
+            opts.color = m_props.color.AsLVG();
 
-			opts.cpuClipping = m_props.customClip.AsLVG4();
-			opts.wordWrap	 = m_props.wordWrap;
+        opts.cpuClipping = m_props.customClip.AsLVG4();
+        opts.wordWrap     = m_props.wordWrap;
 
-			if (GetIsDisabled())
-				opts.color = m_props.colorDisabled.AsLVG4();
+        if (GetIsDisabled())
+            opts.color = m_props.colorDisabled.AsLVG4();
+        
+        auto p = (m_rect.pos + Vector2(0.0f, m_rect.size.y));
+        m_lvg->DrawText(m_props.text.c_str(), p.AsLVG(), opts, 0.0f, m_drawOrder, m_props.isDynamic);
 
-			m_lvg->DrawTextSDF(m_props.text.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), opts, 0.0f, m_drawOrder, m_props.isDynamic);
-		}
-		else
-		{
-			LinaVG::TextOptions opts;
-			opts.font			= m_lvgFont;
-			opts.textScale		= m_props.textScale;
-			opts.alignment		= m_props.alignment;
-			opts.wrapWidth		= m_props.wrapWidth;
-			opts.newLineSpacing = 0.0f;
-
-			if (GetIsDisabled())
-				opts.color = m_props.colorDisabled.AsLVG4();
-			else
-				opts.color = m_props.color.AsLVG();
-
-			opts.cpuClipping = m_props.customClip.AsLVG4();
-			opts.wordWrap	 = m_props.wordWrap;
-
-			if (GetIsDisabled())
-				opts.color = m_props.colorDisabled.AsLVG4();
-
-			auto p = (m_rect.pos + Vector2(0.0f, m_rect.size.y));
-			m_lvg->DrawTextNormal(m_props.text.c_str(), p.AsLVG(), opts, 0.0f, m_drawOrder, m_props.isDynamic);
-		}
 	}
 
 	void Text::UpdateTextAndCalcSize(const String& txt)
@@ -150,26 +127,14 @@ namespace Lina
 		if (m_lvgFont == nullptr)
 			return;
 
-		m_isSDF = m_lvgFont->m_isSDF;
+		m_isSDF = m_lvgFont->isSDF;
 
-		if (m_isSDF)
-		{
-			LinaVG::SDFTextOptions opts;
-			opts.font	   = m_lvgFont;
-			opts.textScale = m_props.textScale;
-			opts.wrapWidth = m_props.wrapWidth;
-			opts.wordWrap  = m_props.wordWrap;
-			m_rect.size	   = m_lvg->CalculateTextSize(m_props.text.c_str(), opts);
-		}
-		else
-		{
-			LinaVG::TextOptions opts;
-			opts.font	   = m_lvgFont;
-			opts.textScale = m_props.textScale;
-			opts.wrapWidth = m_props.wrapWidth;
-			opts.wordWrap  = m_props.wordWrap;
-			m_rect.size	   = m_lvg->CalculateTextSize(m_props.text.c_str(), opts);
-		}
+        LinaVG::TextOptions opts;
+        opts.font       = m_lvgFont;
+        opts.textScale = m_props.textScale;
+        opts.wrapWidth = m_props.wrapWidth;
+        opts.wordWrap  = m_props.wordWrap;
+        m_rect.size       = m_lvg->CalculateTextSize(m_props.text.c_str(), opts);
 	}
 
 	bool Text::OnMouse(uint32 button, LinaGX::InputAction act)

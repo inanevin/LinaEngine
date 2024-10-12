@@ -62,7 +62,6 @@ namespace Lina::Editor
 	private:
 		LINA_REFLECTION_ACCESS(PanelAudioViewer);
 
-		GUIRendererUserData m_displayUserData;
 		String				m_audioName = "";
 	};
 

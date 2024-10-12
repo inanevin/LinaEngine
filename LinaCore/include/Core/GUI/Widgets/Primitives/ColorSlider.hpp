@@ -50,7 +50,6 @@ namespace Lina
 
 			Color	 colorLine		   = Theme::GetDef().foreground0;
 			Color	 colorLineOutline  = Theme::GetDef().background0;
-			bool	 isHueShift		   = false;
 			Texture* backgroundTexture = nullptr;
 			float*	 value			   = nullptr;
 			float	 minValue		   = 0.0f;
@@ -60,13 +59,13 @@ namespace Lina
 			void SaveToStream(OStream& stream) const
 			{
 				stream << colorLine;
-				stream << isHueShift << minValue << maxValue << step;
+				stream << minValue << maxValue << step;
 			}
 
 			void LoadFromStream(IStream& stream)
 			{
 				stream >> colorLine;
-				stream >> isHueShift >> minValue >> maxValue >> step;
+				stream >> minValue >> maxValue >> step;
 			}
 		};
 
@@ -106,7 +105,6 @@ namespace Lina
 	LINA_CLASS_BEGIN(ColorSliderProperties)
 	LINA_FIELD(ColorSlider::Properties, colorLine, "Line Color", FieldType::Color, 0)
 	LINA_FIELD(ColorSlider::Properties, colorLineOutline, "Line Outline Color", FieldType::Color, 0)
-	LINA_FIELD(ColorSlider::Properties, isHueShift, "Is Hue Shift", FieldType::Boolean, 0)
 	LINA_FIELD(ColorSlider::Properties, minValue, "Min Value", FieldType::Float, 0)
 	LINA_FIELD(ColorSlider::Properties, maxValue, "Max Value", FieldType::Float, 0)
 	LINA_FIELD(ColorSlider::Properties, step, "Step", FieldType::Float, 0)

@@ -342,15 +342,15 @@ namespace Lina
 		if (w->m_isHovered)
 		{
 			const Vector2 sz = m_lvg->CalculateTextSize(w->GetWidgetProps().debugName.c_str(), textOpts);
-			m_lvg->DrawTextNormal(w->GetWidgetProps().debugName.c_str(), (mp + Vector2(15, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, DEBUG_DRAW_ORDER);
+			m_lvg->DrawText(w->GetWidgetProps().debugName.c_str(), (mp + Vector2(15, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, DEBUG_DRAW_ORDER);
 
 			const String  rectStr = "Pos: (" + UtilStr::FloatToString(w->GetPos().x, 1) + ", " + UtilStr::FloatToString(w->GetPos().y, 1) + ") Size: (" + UtilStr::FloatToString(w->GetSize().x, 1) + ", " + UtilStr::FloatToString(w->GetSize().y, 1) + ")";
 			const Vector2 sz2	  = m_lvg->CalculateTextSize(rectStr.c_str(), textOpts);
-			m_lvg->DrawTextNormal(rectStr.c_str(), (mp + Vector2(15 + sz.x + 15, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, DEBUG_DRAW_ORDER);
+			m_lvg->DrawText(rectStr.c_str(), (mp + Vector2(15 + sz.x + 15, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, DEBUG_DRAW_ORDER);
 
 			const String drawOrder = "DO: " + TO_STRING(w->GetDrawOrder());
-			m_lvg->DrawTextNormal(drawOrder.c_str(), (mp + Vector2(15 + sz.x + 15 + sz2.x + 15, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, DEBUG_DRAW_ORDER);
-			m_debugDrawYOffset += lvgFont->m_size * 1.5f;
+			m_lvg->DrawText(drawOrder.c_str(), (mp + Vector2(15 + sz.x + 15 + sz2.x + 15, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, DEBUG_DRAW_ORDER);
+			m_debugDrawYOffset += lvgFont->size * 1.5f;
 		}
 
 		if (drawRects)

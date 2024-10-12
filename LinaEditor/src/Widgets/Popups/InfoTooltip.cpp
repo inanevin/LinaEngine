@@ -60,9 +60,7 @@ namespace Lina::Editor
 		m_icon->GetFlags().Set(WF_POS_ALIGN_Y);
 		m_icon->SetAnchorY(Anchor::Center);
 		m_icon->SetAlignedPosY(0.5f);
-		m_icon->GetProps().textScale	= 0.6f;
-		m_icon->GetProps().sdfSoftness	= 0.025f;
-		m_icon->GetProps().sdfThickness = 0.52f;
+		m_icon->GetProps().textScale = 0.6f;
 
 		if (m_tooltipProps.level == LogLevel::Error)
 		{

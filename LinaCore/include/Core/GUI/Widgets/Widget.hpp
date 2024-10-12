@@ -137,7 +137,7 @@ namespace Lina
 		float				 outlineThickness			 = Theme::GetDef().baseOutlineThickness;
 		float				 rounding					 = 0.0f;
 		float				 childPadding				 = 0.0f;
-		void*				 textureUserData			 = nullptr;
+		void*				 lvgUserData			 = nullptr;
 		int32				 drawOrderIncrement			 = 0;
 		String				 tooltip					 = "";
 		String				 debugName					 = "";

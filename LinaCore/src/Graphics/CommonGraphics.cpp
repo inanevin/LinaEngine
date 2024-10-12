@@ -30,7 +30,5 @@ SOFTWARE.
 
 namespace Lina
 {
-	uint32 GUI_TEXTURE_HUE_HORIZONTAL = 0;
-	uint32 GUI_TEXTURE_HUE_VERTICAL	  = 0;
-	uint32 GUI_TEXTURE_COLORWHEEL	  = 0;
+
 } // namespace Lina

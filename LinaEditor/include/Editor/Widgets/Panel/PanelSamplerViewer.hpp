@@ -30,7 +30,7 @@ SOFTWARE.
 
 #include "Editor/Widgets/Panel/PanelResourceViewer.hpp"
 #include "Core/Graphics/Resource/TextureSampler.hpp"
-#include "Core/Graphics/CommonGraphics.hpp"
+#include "Editor/Graphics/EditorGfxHelpers.hpp"
 
 namespace Lina
 {
@@ -62,8 +62,8 @@ namespace Lina::Editor
 	private:
 		LINA_REFLECTION_ACCESS(PanelSamplerViewer);
 
-		GUIRendererUserData m_displayUserData;
 		String				m_samplerName = "";
+        GUIUserData m_guiUserData;
 	};
 
 	LINA_WIDGET_BEGIN(PanelSamplerViewer, Hidden)

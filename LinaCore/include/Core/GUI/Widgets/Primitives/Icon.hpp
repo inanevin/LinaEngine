@@ -58,29 +58,24 @@ namespace Lina
 			bool			 isDynamic				= true;
 			bool			 enableHoverPressColors = false;
 
-			Color sdfOutlineColor	  = Color::White;
-			float sdfThickness		  = 0.5f;
-			float sdfSoftness		  = 0.024f;
-			float sdfOutlineThickness = 0.0f;
-			float sdfOutlineSoftness  = 0.0f;
-
 			Vector4 customClip			= Vector4::Zero;
 			bool	dynamicSizeToParent = false;
 			float	dynamicSizeScale	= 1.0f;
 
 			void SaveToStream(OStream& stream) const
 			{
-				stream << color << colorHovered << colorPressed << colorDisabled << sdfOutlineColor << customClip;
+				stream << color << colorHovered << colorPressed << colorDisabled << customClip;
 				stream << icon;
-				stream << font << textScale << isDynamic << enableHoverPressColors << sdfThickness << sdfSoftness << sdfOutlineThickness << sdfOutlineSoftness;
+				stream << font << textScale << isDynamic << enableHoverPressColors;
 				stream << dynamicSizeToParent << dynamicSizeScale;
 			}
 
 			void LoadFromStream(IStream& stream)
 			{
-				stream >> color >> colorHovered >> colorPressed >> colorDisabled >> sdfOutlineColor >> customClip;
+				stream >> color >> colorHovered >> colorPressed >> colorDisabled >> customClip;
 				stream >> icon;
-				stream >> font >> textScale >> isDynamic >> enableHoverPressColors >> sdfThickness >> sdfSoftness >> sdfOutlineThickness >> sdfOutlineSoftness;
+				stream >> font >> textScale >> isDynamic >> enableHoverPressColors;
+				;
 				stream >> dynamicSizeToParent >> dynamicSizeScale;
 			}
 		};
@@ -117,10 +112,10 @@ namespace Lina
 	private:
 		LINA_REFLECTION_ACCESS(Icon);
 
-		Properties			   m_props				= {};
-		LinaVG::SDFTextOptions m_sdfOptions			= {};
-		float				   m_calculatedDPIScale = 0.0f;
-		LinaVG::Font*		   m_lvgFont			= nullptr;
+		Properties			m_props				 = {};
+		LinaVG::TextOptions m_textOptions		 = {};
+		float				m_calculatedDPIScale = 0.0f;
+		LinaVG::Font*		m_lvgFont			 = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(Icon, Primitive)
@@ -140,11 +135,6 @@ namespace Lina
 	LINA_FIELD(Icon::Properties, customClip, "Custom Clip", FieldType::Rect, 0)
 	LINA_FIELD(Icon::Properties, dynamicSizeToParent, "Dynamic Size To Parent", FieldType::Boolean, 0)
 	LINA_FIELD(Icon::Properties, dynamicSizeScale, "Scale", FieldType::Float, 0)
-	LINA_FIELD(Icon::Properties, sdfOutlineColor, "SDF Outline Color", FieldType::Color, 0)
-	LINA_FIELD(Icon::Properties, sdfThickness, "SDF Thickness", FieldType::Float, 0)
-	LINA_FIELD(Icon::Properties, sdfSoftness, "SDF Softness", FieldType::Float, 0)
-	LINA_FIELD(Icon::Properties, sdfOutlineThickness, "SDF Outline Thickness", FieldType::Float, 0)
-	LINA_FIELD(Icon::Properties, sdfOutlineSoftness, "SDF Outline Softness", FieldType::Float, 0)
 
 	LINA_FIELD_DEPENDENCY_POS(Icon::Properties, colorHovered, "enableHoverPressColors", 1)
 	LINA_FIELD_DEPENDENCY_POS(Icon::Properties, colorPressed, "enableHoverPressColors", 1)

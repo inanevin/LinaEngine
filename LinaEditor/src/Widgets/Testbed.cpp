@@ -47,6 +47,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Common/Math/Math.hpp"
+#include "Editor/Graphics/EditorGfxHelpers.hpp"
 
 namespace Lina::Editor
 {
@@ -234,14 +235,16 @@ namespace Lina::Editor
 			layout->AddChild(cs);
 		}
 
+		static GUIUserData ud1, ud2;
+		ud1.specialType = GUISpecialType::HorizontalHue;
+		ud2.specialType = GUISpecialType::VerticalHue;
 		// Color slider
 		{
-			static float value		  = 0.0f;
-			ColorSlider* cs			  = m_manager->Allocate<ColorSlider>("ColorSlider");
-			cs->GetProps().isHueShift = true;
-			cs->GetProps().value	  = &value;
-			cs->GetProps().minValue	  = 0.0f;
-			cs->GetProps().maxValue	  = 1.0f;
+			static float value				 = 0.0f;
+			ColorSlider* cs					 = m_manager->Allocate<ColorSlider>("ColorSlider");
+			cs->GetWidgetProps().lvgUserData = &ud1;
+			cs->GetProps().minValue			 = 0.0f;
+			cs->GetProps().maxValue			 = 1.0f;
 			setFlags(cs);
 			layout->AddChild(cs);
 		}
@@ -253,7 +256,7 @@ namespace Lina::Editor
 			cs->GetWidgetProps().colorBackground.start	  = Color::Green;
 			cs->GetWidgetProps().colorBackground.end	  = Color::Blue;
 			cs->GetWidgetProps().colorBackgroundDirection = DirectionOrientation::Vertical;
-			cs->GetProps().isHueShift					  = true;
+			cs->GetWidgetProps().lvgUserData			  = &ud2;
 			cs->GetProps().minValue						  = 0.0f;
 			cs->GetProps().maxValue						  = 1.0f;
 			cs->GetProps().value						  = &value;

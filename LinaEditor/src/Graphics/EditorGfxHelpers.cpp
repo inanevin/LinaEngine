@@ -45,11 +45,19 @@ namespace Lina::Editor
 						   },
 							   {
 								   .bufferType	 = LinaGX::ResourceTypeHint::TH_StorageBuffer,
-								   .debugName	 = "RP: GUI - GUIMaterials",
-								   .size		 = sizeof(GPUMaterialGUI) * 250,
+								   .debugName	 = "RP: GUI - Materials",
+								   .size		 = 1000,
 								   .stagingOnly	 = false,
 								   .bindingIndex = 1,
 								   .ident		 = "GUIMaterials"_hs,
+						   },
+							   {
+								   .bufferType	 = LinaGX::ResourceTypeHint::TH_StorageBuffer,
+								   .debugName	 = "RP: GUI - IndirectArguments",
+								   .size		 = sizeof(GPUIndirectArgumentsGUI) * 100,
+								   .stagingOnly	 = false,
+								   .bindingIndex = 2,
+								   .ident		 = "IndirectArguments"_hs,
 						   },
 							   {
 								   .bufferType	 = LinaGX::ResourceTypeHint::TH_IndirectBuffer,

@@ -29,8 +29,8 @@ SOFTWARE.
 #pragma once
 
 #include "Editor/Widgets/Panel/PanelResourceViewer.hpp"
-#include "Core/Graphics/CommonGraphics.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
+#include "Editor/Graphics/EditorGfxHelpers.hpp"
 
 namespace Lina
 {
@@ -72,7 +72,7 @@ namespace Lina::Editor
 		uint32			m_mipLevel			= 0;
 		DisplayChannels m_displayChannels	= DisplayChannels::RGBA;
 
-		GUIRendererUserData m_displayUserData;
+		GUIUserData m_guiUserData;
 
 		Dropdown* m_formatDropdown = nullptr;
 		Widget*	  m_texturePanel   = nullptr;

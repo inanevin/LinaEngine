@@ -33,6 +33,89 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+	struct GPUIndirectArgumentsGUI
+	{
+		uint32 inMaterialIndex;
+	};
+
+	struct GPUMaterialGUIColorWheel
+	{
+		Vector4 clip;
+		float	wheelRadius;
+		float	edgeSmoothness;
+	};
+
+	struct GPUMaterialGUIDefault
+	{
+		Vector4		  clip;
+		Vector4		  uvTilingAndOffset;
+		uint32		  hasTexture;
+		uint32		  displayChannels;
+		uint32		  displayLod;
+		LinaTexture2D diffuse;
+	};
+
+	struct GPUMaterialGUIHueDisplay
+	{
+		Vector4 clip;
+		Vector2 uvContribution;
+	};
+
+	struct GPUMaterialGUISDFText
+	{
+		Vector4		  clip;
+		LinaTexture2D diffuse;
+		Vector4		  outlineColor;
+		float		  thickness;
+		float		  softness;
+		float		  outlineThickness;
+		float		  outlineSoftness;
+	};
+
+	struct GPUMaterialGUIText
+	{
+		Vector4		  clip;
+		LinaTexture2D diffuse;
+	};
+
+	enum class GUISpecialType
+	{
+		None,
+		HorizontalHue,
+		VerticalHue,
+		ColorWheel,
+	};
+
+	enum class DisplayChannels
+	{
+		RGBA,
+		R,
+		G,
+		B,
+		A
+	};
+
+	LINA_CLASS_BEGIN(DisplayChannels)
+	LINA_PROPERTY_STRING(DisplayChannels, 0, "RGBA")
+	LINA_PROPERTY_STRING(DisplayChannels, 1, "R")
+	LINA_PROPERTY_STRING(DisplayChannels, 2, "G")
+	LINA_PROPERTY_STRING(DisplayChannels, 3, "B")
+	LINA_PROPERTY_STRING(DisplayChannels, 4, "A")
+	LINA_CLASS_END(DisplayChannels)
+
+	struct GUIUserData
+	{
+		GUISpecialType	specialType			= GUISpecialType::None;
+		DisplayChannels displayChannels		= DisplayChannels::RGBA;
+		uint32			mipLevel			= 0;
+		ResourceID		sampler				= 0;
+		float			sdfThickness		= 0.5f;
+		float			sdfSoftness			= 0.02f;
+		float			sdfOutlineThickness = 0.0f;
+		float			sdfOutlineSoftness	= 0.0f;
+		Color			sdfOutlineColor		= Color::Black;
+	};
+
 	class EditorGfxHelpers
 	{
 	public:

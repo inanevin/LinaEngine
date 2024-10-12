@@ -26,7 +26,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/GUI/Widgets/Primitives/ColorWheel.hpp"
+#include "Editor/Widgets/FX/ColorWheel.hpp"
+#include "Editor/CommonEditor.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Common/Math/Math.hpp"
@@ -34,24 +35,26 @@ SOFTWARE.
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
-namespace Lina
+namespace Lina::Editor
 {
 	void ColorWheel::Construct()
 	{
-		m_icon								   = m_manager->Allocate<Icon>();
-		m_icon->GetProps().icon				   = Theme::GetDef().iconColorWheelPointer;
-		m_icon->GetProps().sdfOutlineColor	   = Theme::GetDef().background0;
-		m_icon->GetProps().sdfThickness		   = 0.6f;
-		m_icon->GetProps().sdfSoftness		   = 0.5f;
-		m_icon->GetProps().sdfOutlineThickness = 0.525f;
-		m_icon->GetProps().sdfOutlineSoftness  = 0.2f;
+		m_icon								 = m_manager->Allocate<Icon>();
+		m_icon->GetProps().icon				 = ICON_CIRCLE;
+		m_icon->GetWidgetProps().lvgUserData = &m_guiUserData;
 		AddChild(m_icon);
 
-		GetWidgetProps().drawBackground	   = true;
-		GetWidgetProps().specialTexture	   = &GUI_TEXTURE_COLORWHEEL;
-		GetWidgetProps().useSpecialTexture = true;
-		GetWidgetProps().outlineThickness  = 0.0f;
-		GetWidgetProps().rounding		   = 0.0f;
+		GetWidgetProps().drawBackground	  = true;
+		GetWidgetProps().lvgUserData	  = &m_guiUserData;
+		GetWidgetProps().outlineThickness = 0.0f;
+		GetWidgetProps().rounding		  = 0.0f;
+
+		m_guiUserData.specialType			  = GUISpecialType::ColorWheel;
+		m_guiUserDataIcon.sdfOutlineColor	  = Theme::GetDef().background0;
+		m_guiUserDataIcon.sdfThickness		  = 0.6f;
+		m_guiUserDataIcon.sdfSoftness		  = 0.5f;
+		m_guiUserDataIcon.sdfOutlineThickness = 0.525f;
+		m_guiUserDataIcon.sdfOutlineSoftness  = 0.2f;
 	}
 
 	void ColorWheel::PreTick()
@@ -121,4 +124,4 @@ namespace Lina
 
 		return false;
 	}
-} // namespace Lina
+} // namespace Lina::Editor

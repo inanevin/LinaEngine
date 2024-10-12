@@ -31,7 +31,17 @@ layout(set = 1, binding = 0) uniform ViewData
 	mat4 proj;
 } LINA_VIEW;
 
-layout(set = 1, binding = 1) readonly buffer GUIMaterialBuffer
+layout (set = 1, binding = 1) readonly buffer MaterialBuffer
 {
-   GUIMaterialData data[];
-} LINA_GUI_MATERIALS;
+	uint data[];
+} LINA_MATERIALS;
+
+struct LinaIndirectArguments
+{
+	uint materiaIndex;
+};
+
+layout(set = 1, binding = 2) readonly buffer LinaIndirectArgumentsBuffer
+{
+    LinaIndirectArguments data[];
+} LINA_INDIRECT_ARGUMENTS;

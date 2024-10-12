@@ -35,12 +35,6 @@ SOFTWARE.
 namespace Lina
 {
 
-	extern uint32 GUI_TEXTURE_HUE_HORIZONTAL;
-	extern uint32 GUI_TEXTURE_HUE_VERTICAL;
-	extern uint32 GUI_TEXTURE_COLORWHEEL;
-
-#define GUI_IS_SINGLE_CHANNEL 2.0f
-
 #define LINA_MAIN_SWAPCHAIN UINT32_MAX - 1
 #define DEFAULT_CLEAR_CLR	Color(0.3f, 0.3f, 0.5f, 1.0f)
 #define IDEAL_RT			16667
@@ -57,22 +51,6 @@ namespace Lina
 		Lighting,
 		Forward,
 		Max,
-	};
-
-	enum class DisplayChannels
-	{
-		RGBA,
-		R,
-		G,
-		B,
-		A
-	};
-
-	struct GUIRendererUserData
-	{
-		DisplayChannels displayChannels = DisplayChannels::RGBA;
-		uint32			mipLevel		= 0;
-		ResourceID		sampler			= 0;
 	};
 
 	constexpr const char* RPTypeToString(RenderPassDescriptorType type)
@@ -193,13 +171,5 @@ namespace Lina
 		Matrix4,
 		Texture2D,
 	};
-
-	LINA_CLASS_BEGIN(DisplayChannels)
-	LINA_PROPERTY_STRING(DisplayChannels, 0, "RGBA")
-	LINA_PROPERTY_STRING(DisplayChannels, 1, "R")
-	LINA_PROPERTY_STRING(DisplayChannels, 2, "G")
-	LINA_PROPERTY_STRING(DisplayChannels, 3, "B")
-	LINA_PROPERTY_STRING(DisplayChannels, 4, "A")
-	LINA_CLASS_END(DisplayChannels)
 
 } // namespace Lina

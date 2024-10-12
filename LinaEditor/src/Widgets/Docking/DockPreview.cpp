@@ -69,8 +69,7 @@ namespace Lina::Editor
 			{
 				outOptions.color.start		  = start.AsLVG4();
 				outOptions.color.end		  = end.AsLVG4();
-				outOptions.color.gradientType = LinaVG::GradientType::Radial;
-				outOptions.color.radialSize	  = 1.0f;
+				outOptions.color.gradientType = LinaVG::GradientType::Horizontal;
 			}
 		};
 	} // namespace

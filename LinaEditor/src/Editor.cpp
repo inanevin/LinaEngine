@@ -103,7 +103,7 @@ namespace Lina::Editor
 		};
 		// NOTE: 160, 380 is the glyph range for nunito sans
 
-		if (id == EDITOR_SHADER_GUI_ID)
+		if (id == EDITOR_SHADER_GUI_DEFAULT_ID || id == EDITOR_SHADER_GUI_COLOR_WHEEL_ID || id == EDITOR_SHADER_GUI_HUE_DISPLAY_ID || id == EDITOR_SHADER_GUI_TEXT_ID || id == EDITOR_SHADER_GUI_SDF_TEXT_ID)
 		{
 			Shader::Metadata meta;
 
@@ -243,7 +243,8 @@ namespace Lina::Editor
 	bool Editor::PreInitialize()
 	{
 		ResourceDefinitionList priorityResources;
-		priorityResources.insert({EDITOR_SHADER_GUI_ID, EDITOR_SHADER_GUI_PATH, GetTypeID<Shader>()});
+		priorityResources.insert({EDITOR_SHADER_GUI_DEFAULT_ID, EDITOR_SHADER_GUI_DEFAULT_PATH, GetTypeID<Shader>()});
+		priorityResources.insert({EDITOR_SHADER_GUI_TEXT_ID, EDITOR_SHADER_GUI_TEXT_PATH, GetTypeID<Shader>()});
 		priorityResources.insert({EDITOR_TEXTURE_LINA_LOGO_ID, EDITOR_TEXTURE_LINA_LOGO_PATH, GetTypeID<Texture>()});
 		priorityResources.insert({EDITOR_TEXTURE_LINA_LOGO_BOTTOM_ID, EDITOR_TEXTURE_LINA_LOGO_BOTTOM_PATH, GetTypeID<Texture>()});
 		priorityResources.insert({EDITOR_TEXTURE_LINA_LOGO_LEFT_ID, EDITOR_TEXTURE_LINA_LOGO_LEFT_PATH, GetTypeID<Texture>()});
@@ -267,16 +268,15 @@ namespace Lina::Editor
 
 	bool Editor::Initialize()
 	{
-		s_editor							  = this;
-		Theme::GetDef().iconFont			  = EDITOR_FONT_ICON_ID;
-		Theme::GetDef().defaultFont			  = EDITOR_FONT_ROBOTO_ID;
-		Theme::GetDef().defaultBoldFont		  = EDITOR_FONT_ROBOTO_BOLD_ID;
-		Theme::GetDef().altFont				  = EDITOR_FONT_PLAY_BOLD_ID;
-		Theme::GetDef().altBigFont			  = EDITOR_FONT_PLAY_BIG_ID;
-		Theme::GetDef().iconDropdown		  = ICON_ARROW_DOWN;
-		Theme::GetDef().iconCircleFilled	  = ICON_CIRCLE_FILLED;
-		Theme::GetDef().iconSliderHandle	  = ICON_CIRCLE_FILLED;
-		Theme::GetDef().iconColorWheelPointer = ICON_CIRCLE;
+		s_editor						 = this;
+		Theme::GetDef().iconFont		 = EDITOR_FONT_ICON_ID;
+		Theme::GetDef().defaultFont		 = EDITOR_FONT_ROBOTO_ID;
+		Theme::GetDef().defaultBoldFont	 = EDITOR_FONT_ROBOTO_BOLD_ID;
+		Theme::GetDef().altFont			 = EDITOR_FONT_PLAY_BOLD_ID;
+		Theme::GetDef().altBigFont		 = EDITOR_FONT_PLAY_BIG_ID;
+		Theme::GetDef().iconDropdown	 = ICON_ARROW_DOWN;
+		Theme::GetDef().iconCircleFilled = ICON_CIRCLE_FILLED;
+		Theme::GetDef().iconSliderHandle = ICON_CIRCLE_FILLED;
 
 		m_atlasManager.Initialize(this);
 		m_windowPanelManager.Initialize(this);
@@ -311,12 +311,14 @@ namespace Lina::Editor
 
 				progText->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::LoadingCoreResources));
 				ResourceDefinitionList coreResources;
+				coreResources.insert({EDITOR_SHADER_GUI_SDF_TEXT_ID, EDITOR_SHADER_GUI_SDF_TEXT_PATH, GetTypeID<Shader>()});
+				coreResources.insert({EDITOR_SHADER_GUI_HUE_DISPLAY_ID, EDITOR_SHADER_GUI_HUE_DISPLAY_PATH, GetTypeID<Shader>()});
+				coreResources.insert({EDITOR_SHADER_GUI_COLOR_WHEEL_ID, EDITOR_SHADER_GUI_COLOR_WHEEL_PATH, GetTypeID<Shader>()});
 				coreResources.insert({EDITOR_TEXTURE_CHECKERED_ID, EDITOR_TEXTURE_CHECKERED_PATH, GetTypeID<Texture>()});
 				coreResources.insert({EDITOR_TEXTURE_PROTOTYPE_DARK_ID, EDITOR_TEXTURE_PROTOTYPE_DARK_PATH, GetTypeID<Texture>()});
 				coreResources.insert({EDITOR_FONT_PLAY_ID, EDITOR_FONT_PLAY_PATH, GetTypeID<Font>()});
 				coreResources.insert({EDITOR_FONT_PLAY_BOLD_ID, EDITOR_FONT_PLAY_BOLD_PATH, GetTypeID<Font>()});
 				m_resourceManagerV2.LoadResourcesFromFile(this, coreResources, [progText](uint32 loaded, const ResourceDef& current) { progText->UpdateTextAndCalcSize(current.name); });
-
 				progText->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::GeneratingAtlases));
 				m_atlasManager.AddCustomAtlas("Resources/Editor/Textures/Atlas/ProjectIcons/", "ProjectIcons"_hs, Vector2ui(2048, 2048));
 			},
@@ -324,6 +326,9 @@ namespace Lina::Editor
 				Application::GetLGX()->Join();
 
 				HashSet<Resource*> resources;
+				resources.insert(m_resourceManagerV2.GetResource<Shader>(EDITOR_SHADER_GUI_SDF_TEXT_ID));
+				resources.insert(m_resourceManagerV2.GetResource<Shader>(EDITOR_SHADER_GUI_HUE_DISPLAY_ID));
+				resources.insert(m_resourceManagerV2.GetResource<Shader>(EDITOR_SHADER_GUI_COLOR_WHEEL_ID));
 				resources.insert(m_resourceManagerV2.GetResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID));
 				resources.insert(m_resourceManagerV2.GetResource<Texture>(EDITOR_TEXTURE_PROTOTYPE_DARK_ID));
 				resources.insert(m_resourceManagerV2.GetResource<Font>(EDITOR_FONT_PLAY_ID));
