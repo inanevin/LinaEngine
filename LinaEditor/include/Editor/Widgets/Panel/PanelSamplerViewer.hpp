@@ -62,8 +62,8 @@ namespace Lina::Editor
 	private:
 		LINA_REFLECTION_ACCESS(PanelSamplerViewer);
 
-		String				m_samplerName = "";
-        GUIUserData m_guiUserData;
+		String		m_samplerName = "";
+		GUIUserData m_guiUserData;
 	};
 
 	LINA_WIDGET_BEGIN(PanelSamplerViewer, Hidden)

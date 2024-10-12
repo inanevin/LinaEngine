@@ -92,14 +92,14 @@ namespace Lina
 			float popupAnimTime		   = 0.1f;
 			float baseBorderThickness  = 6.0f;
 
-			ResourceID defaultFont			 = 0;
-			ResourceID defaultBoldFont		 = 0;
-			ResourceID altFont				 = 0;
-			ResourceID altBigFont			 = 0;
-			ResourceID iconFont				 = 0;
-			String	   iconDropdown			 = "";
-			String	   iconCircleFilled		 = "";
-			String	   iconSliderHandle		 = "";
+			ResourceID defaultFont		= 0;
+			ResourceID defaultBoldFont	= 0;
+			ResourceID altFont			= 0;
+			ResourceID altBigFont		= 0;
+			ResourceID iconFont			= 0;
+			String	   iconDropdown		= "";
+			String	   iconCircleFilled = "";
+			String	   iconSliderHandle = "";
 		};
 
 		static ThemeDef& GetDef()

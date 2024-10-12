@@ -62,7 +62,7 @@ namespace Lina::Editor
 	private:
 		LINA_REFLECTION_ACCESS(PanelAudioViewer);
 
-		String				m_audioName = "";
+		String m_audioName = "";
 	};
 
 	LINA_WIDGET_BEGIN(PanelAudioViewer, Hidden)

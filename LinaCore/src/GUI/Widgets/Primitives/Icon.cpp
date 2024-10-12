@@ -63,9 +63,9 @@ namespace Lina
 		if (m_lvgFont == nullptr)
 			return;
 
-		m_textOptions.color				 = m_props.color.AsLVG();
-		m_textOptions.textScale			 = m_props.textScale;
-		m_textOptions.cpuClipping		 = m_props.customClip.AsLVG4();
+		m_textOptions.color		  = m_props.color.AsLVG();
+		m_textOptions.textScale	  = m_props.textScale;
+		m_textOptions.cpuClipping = m_props.customClip.AsLVG4();
 
 		if (m_props.enableHoverPressColors)
 		{
@@ -79,7 +79,7 @@ namespace Lina
 		if (GetIsDisabled())
 			m_textOptions.color.start = m_textOptions.color.end = m_props.colorDisabled.AsLVG4();
 
-        m_lvg->DrawText(m_props.icon.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), m_textOptions, 0.0f, m_drawOrder, m_props.isDynamic);
+		m_lvg->DrawText(m_props.icon.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), m_textOptions, 0.0f, m_drawOrder, m_props.isDynamic);
 
 		DrawTooltip();
 	}
