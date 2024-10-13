@@ -571,30 +571,30 @@ namespace Lina
 		{
 			// Buffer& indirectBuffer = m_forwardPass.GetBuffer(frameIndex, "IndirectBuffer"_hs);
 			// Buffer& materialBuffer = m_forwardPass.GetBuffer(frameIndex, "GUIMaterials"_hs);
-//
+			//
 			// size_t indirectBufferOffset	   = 0;
 			// size_t guiMaterialBufferOffset = 0;
 			// uint32 drawID				   = 0;
 			// uint32 constantsCount		   = 0;
-//
+			//
 			// for (auto* wc : m_widgetComponents)
 			// {
 			// 	const Vector<GUIRenderer::DrawRequest>& drawRequests = wc->GetGUIRenderer().FlushGUI(frameIndex, indirectBufferOffset, wc->GetCanvasSize());
-//
+			//
 			// 	for (const auto& req : drawRequests)
 			// 	{
 			// 		m_lgx->BufferIndexedIndirectCommandData(indirectBuffer.GetMapped(), indirectBufferOffset, drawID, req.indexCount, 1, req.firstIndex, req.vertexOffset, drawID);
 			// 		indirectBuffer.MarkDirty();
-//
+			//
 			// 		materialBuffer.BufferData(guiMaterialBufferOffset, (uint8*)&req.materialData, sizeof(GPUMaterialGUI));
 			// 		guiMaterialBufferOffset += sizeof(GPUMaterialGUI);
-//
+			//
 			// 		GPUIndirectConstants0 constants = {
 			// 			.entityID = GetBindlessIndex(wc->GetEntity()),
 			// 		};
-//
+			//
 			// 		m_forwardPass.GetBuffer(frameIndex, "IndirectConstants"_hs).BufferData(constantsCount * sizeof(GPUIndirectConstants0), (uint8*)&constants, sizeof(GPUIndirectConstants0));
-//
+			//
 			// 		indirectBufferOffset += m_lgx->GetIndexedIndirectCommandSize();
 			// 		drawID++;
 			// 		constantsCount++;
