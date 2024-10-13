@@ -32,7 +32,6 @@ SOFTWARE.
 #include "Core/Graphics/Resource/GUIWidget.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
-#include "Core/Graphics/GUI/GUIRenderer.hpp"
 
 namespace Lina
 {
@@ -55,11 +54,6 @@ namespace Lina
 			return m_targetWidget.raw;
 		}
 
-		inline GUIRenderer& GetGUIRenderer()
-		{
-			return m_guiRenderer;
-		}
-
 		inline void SetCanvasSize(const Vector2ui& sz)
 		{
 			m_canvasSize = sz;
@@ -78,7 +72,6 @@ namespace Lina
 	private:
 		ResRef<GUIWidget> m_targetWidget;
 		ResRef<Material>  m_material;
-		GUIRenderer		  m_guiRenderer;
 		Vector2ui		  m_canvasSize = Vector2ui(100, 100);
 	};
 

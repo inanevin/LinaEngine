@@ -48,7 +48,7 @@ namespace Lina::Editor
 					{
 						.bufferType	  = LinaGX::ResourceTypeHint::TH_StorageBuffer,
 						.debugName	  = "RP: GUI - Materials",
-						.size		  = 50000,
+						.size		  = 10000,
 						.stagingOnly  = false,
 						.bindingIndex = 1,
 						.ident		  = "GUIMaterials"_hs,

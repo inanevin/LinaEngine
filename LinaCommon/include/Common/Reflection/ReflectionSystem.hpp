@@ -226,8 +226,10 @@ namespace Lina
 			m_propertyCacheManager.Destroy();
 		}
 
-		virtual void	   SaveToStream(OStream& stream, void* obj) = 0;
-		virtual FieldValue Value(void* obj)							= 0;
+		virtual void	   SaveToStream(OStream& stream, void* obj)	  = 0;
+		virtual void	   LoadFromStream(IStream& stream, void* obj) = 0;
+		virtual FieldValue Value(void* obj)							  = 0;
+		virtual size_t	   GetTypeSize() const						  = 0;
 
 		template <typename T> inline void AddProperty(StringID sid, T param)
 		{
@@ -316,10 +318,21 @@ namespace Lina
 		Field()			 = default;
 		virtual ~Field() = default;
 
+		virtual size_t GetTypeSize() const override
+		{
+			return sizeof(T);
+		}
+
 		inline virtual void SaveToStream(OStream& stream, void* obj) override
 		{
-			T*		 addr = static_cast<T*>(Value(obj).GetPtr());
-			const T& val  = *addr;
+			FieldValue value = Value(obj);
+			stream << value.GetValue<T>();
+		}
+
+		inline virtual void LoadFromStream(IStream& stream, void* obj)
+		{
+			FieldValue value = Value(obj);
+			// stream >> *(value.GetPtr());
 		}
 
 		inline virtual FieldValue Value(void* obj) override

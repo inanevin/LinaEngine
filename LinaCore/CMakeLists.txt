@@ -35,7 +35,6 @@ src/Graphics/MeshManager.cpp
 src/Graphics/BindlessContext.cpp
 
 src/Graphics/GUI/GUIBackend.cpp
-src/Graphics/GUI/GUIRenderer.cpp
 src/Graphics/Utility/ShaderPreprocessor.cpp
 src/Graphics/Utility/GfxHelpers.cpp
 src/Graphics/Utility/TextureAtlas.cpp
@@ -160,7 +159,6 @@ include/Core/Graphics/MeshManager.hpp
 include/Core/Graphics/BindlessContext.hpp
 
 include/Core/Graphics/GUI/GUIBackend.hpp
-include/Core/Graphics/GUI/GUIRenderer.hpp
 include/Core/Graphics/Utility/ShaderPreprocessor.hpp
 include/Core/Graphics/Utility/GfxHelpers.hpp
 include/Core/Graphics/Utility/TextureAtlas.hpp
