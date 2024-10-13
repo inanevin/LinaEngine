@@ -84,8 +84,8 @@ namespace Lina
 
 	void ColorSlider::Draw()
 	{
-		/*
-		if (m_props.backgroundTexture || m_props.isHueShift)
+
+		if (m_props.backgroundTexture || GetWidgetProps().lvgUserData != nullptr)
 		{
 			if (!m_children.empty())
 				m_children[0]->DrawBackground();
@@ -98,8 +98,6 @@ namespace Lina
 		{
 			Widget::Draw();
 		}
-*/
-		Widget::Draw();
 
 		if (!m_props.value)
 			return;

@@ -39,14 +39,11 @@ layout (location = 2) in vec4 col;
 
 layout (location = 0) out vec4 outCol;
 layout (location = 1) out vec2 outUV;
-layout (location = 2) flat out uint outMaterialIndex;
 
 void main()
 {
    outCol = col;
    outUV = uv;
-   uint argBufferIndex = LGX_DRAW_ID;
-   outMaterialIndex = indirectArgumentsArray[argBufferIndex].materialIndex;
    gl_Position = LINA_VIEW.proj * vec4(pos.x, pos.y, 0.0f, 1.0);
 }
 
@@ -59,18 +56,8 @@ void main()
 
 layout (location = 0) in vec4 inCol;
 layout (location = 1) in vec2 inUV;
-layout (location = 2) flat in uint inMaterialIndex;
 
 layout (location = 0) out vec4 outFragColor;
-
-// BufferType 0: Default
-// BufferType 1: Gradient
-// BufferType 2: Textured
-// BufferType 3: Text
-// BufferType 4: SDF Text
-// BufferType 5: Horizontal hue
-// BufferType 6: Vertical hue
-// BufferType 7: Circular wheel hue
 
 vec3 hueSaturationToRGB(float hue, float saturation) {
     float angle = hue * 6.0;
@@ -88,12 +75,14 @@ struct LinaMaterial
    float edgeSmoothness;
 };
 
-// 0.5
-// 0.005
+layout( push_constant ) uniform constants
+{
+	uint materialIndex;
+} PushConstants;
 
 void main()
 {
-   LinaMaterial material = LINA_GET_MATERIAL(inMaterialIndex);
+   LinaMaterial material = LINA_GET_MATERIAL(PushConstants.materialIndex);
 
    if(material.clip.z > 0 && material.clip.w > 0)
    {

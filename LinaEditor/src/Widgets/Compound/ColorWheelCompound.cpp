@@ -129,9 +129,9 @@ namespace Lina::Editor
 		slider->GetProps().maxValue				= isHue ? 360.0f : 1.0f;
 		slider->GetProps().value				= val;
 		slider->GetProps().step					= 0.0f;
-		slider->GetWidgetProps().lvgUserData	= &m_colorSliderUserData;
+		slider->GetWidgetProps().lvgUserData	= isHue ? &m_colorSliderUserData : nullptr;
 		slider->GetProps().onValueChanged		= [this](float val) { Recalculate(false); };
-		slider->GetWidgetProps().drawBackground = !isHue;
+		slider->GetWidgetProps().drawBackground = true;
 
 		// Layout
 		DirectionalLayout* layout			  = m_manager->Allocate<DirectionalLayout>("SaturationValueLayout");

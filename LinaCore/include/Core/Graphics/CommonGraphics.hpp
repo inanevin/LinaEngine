@@ -156,6 +156,12 @@ namespace Lina
 		}
 	};
 
+	struct LinaTexture2DBinding
+	{
+		uint32 textureIndex = 0;
+		uint32 samplerIndex = 0;
+	};
+
 	enum class ShaderPropertyType
 	{
 		Bool,

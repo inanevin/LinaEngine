@@ -33,9 +33,9 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	struct GPUIndirectArgumentsGUI
+	struct GPUEditorGUIPushConstants
 	{
-		uint32 inMaterialIndex;
+		uint32 materialIndex;
 	};
 
 	struct GPUMaterialGUIColorWheel
@@ -47,12 +47,12 @@ namespace Lina::Editor
 
 	struct GPUMaterialGUIDefault
 	{
-		Vector4		  clip;
-		Vector4		  uvTilingAndOffset;
-		uint32		  hasTexture;
-		uint32		  displayChannels;
-		uint32		  displayLod;
-		LinaTexture2D diffuse;
+		Vector4				 clip;
+		Vector4				 uvTilingAndOffset;
+		uint32				 hasTexture;
+		uint32				 displayChannels;
+		uint32				 displayLod;
+		LinaTexture2DBinding diffuse;
 	};
 
 	struct GPUMaterialGUIHueDisplay
@@ -63,19 +63,19 @@ namespace Lina::Editor
 
 	struct GPUMaterialGUISDFText
 	{
-		Vector4		  clip;
-		LinaTexture2D diffuse;
-		Vector4		  outlineColor;
-		float		  thickness;
-		float		  softness;
-		float		  outlineThickness;
-		float		  outlineSoftness;
+		Vector4				 clip;
+		LinaTexture2DBinding diffuse;
+		Vector4				 outlineColor;
+		float				 thickness;
+		float				 softness;
+		float				 outlineThickness;
+		float				 outlineSoftness;
 	};
 
 	struct GPUMaterialGUIText
 	{
-		Vector4		  clip;
-		LinaTexture2D diffuse;
+		Vector4				 clip;
+		LinaTexture2DBinding diffuse;
 	};
 
 	enum class GUISpecialType

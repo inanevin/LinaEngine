@@ -26,11 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-struct IndirectArguments
-{
-	uint materialIndex;
-};
-
 layout(set = 1, binding = 0) uniform ViewData
 {
 	mat4 proj;
@@ -40,8 +35,3 @@ layout (set = 1, binding = 1) readonly buffer MaterialBuffer
 {
 	uint data[];
 } LINA_MATERIALS;
-
-layout(set = 1, binding = 2) readonly buffer IndirectArgumentsBuffer
-{
-   IndirectArguments indirectArgumentsArray[];
-};

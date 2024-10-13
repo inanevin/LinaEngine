@@ -164,7 +164,7 @@ namespace Lina::Editor
 		pfd.guiVertexBuffer.BufferData(m_frameVertexCounter * sizeof(LinaVG::Vertex), (uint8*)buf->vertexBuffer.m_data, vtxSize * sizeof(LinaVG::Vertex));
 		pfd.guiIndexBuffer.BufferData(m_frameIndexCounter * sizeof(LinaVG::Index), (uint8*)buf->indexBuffer.m_data, idxSize * sizeof(LinaVG::Index));
 
-		const DrawRequest drawRequest = DrawRequest{
+		DrawRequest drawRequest = DrawRequest{
 			.startVertex	= m_frameVertexCounter,
 			.startIndex		= m_frameIndexCounter,
 			.vertexCount	= vtxSize,
@@ -196,8 +196,8 @@ namespace Lina::Editor
 						  .hasTexture		 = hasTexture,
 						  .diffuse =
 							  {
-								  .texture = hasTexture ? context->GetBindlessIndex(static_cast<Texture*>(buf->textureHandle)) : 0,
-								  .sampler = hasTexture ? context->GetBindlessIndex(m_editor->GetEditorRenderer().GetGUISampler()) : 0,
+								  .textureIndex = hasTexture ? context->GetBindlessIndex(static_cast<Texture*>(buf->textureHandle)) : 0,
+								  .samplerIndex = hasTexture ? context->GetBindlessIndex(m_editor->GetEditorRenderer().GetGUISampler()) : 0,
 							  },
 					  };
 
@@ -205,18 +205,16 @@ namespace Lina::Editor
 					material.displayChannels = static_cast<uint32>(guiUserData->displayChannels);
 
 					if (guiUserData->sampler != 0)
-						material.diffuse.sampler = context->GetBindlessIndex(rm.GetResource<TextureSampler>(guiUserData->sampler));
+						material.diffuse.samplerIndex = context->GetBindlessIndex(rm.GetResource<TextureSampler>(guiUserData->sampler));
 
-					DrawBatch& batch = m_drawData[m_guiDefault];
-					batch.drawRequests.emplace_back(drawRequest);
+					drawRequest.shader = m_guiDefault;
 
 					materialBuffer.BufferData(m_frameMaterialBufferCounter, (uint8*)&material, sizeof(GPUMaterialGUIDefault));
 					m_frameMaterialBufferCounter += sizeof(GPUMaterialGUIDefault);
 				}
 				else if (guiUserData->specialType == GUISpecialType::ColorWheel)
 				{
-					DrawBatch& batch = m_drawData[m_guiColorWheel];
-					batch.drawRequests.emplace_back(drawRequest);
+					drawRequest.shader = m_guiColorWheel;
 
 					GPUMaterialGUIColorWheel material = {
 						.clip			= Vector4(buf->clipPosX, buf->clipPosY, buf->clipSizeX, buf->clipSizeY),
@@ -229,8 +227,7 @@ namespace Lina::Editor
 				}
 				else if (guiUserData->specialType == GUISpecialType::VerticalHue || guiUserData->specialType == GUISpecialType::HorizontalHue)
 				{
-					DrawBatch& batch = m_drawData[m_guiHue];
-					batch.drawRequests.emplace_back(drawRequest);
+					drawRequest.shader = m_guiHue;
 
 					const bool				 isVertical = guiUserData->specialType == GUISpecialType::VerticalHue;
 					GPUMaterialGUIHueDisplay material	= {
@@ -244,8 +241,7 @@ namespace Lina::Editor
 			}
 			else
 			{
-				DrawBatch& batch = m_drawData[m_guiDefault];
-				batch.drawRequests.emplace_back(drawRequest);
+				drawRequest.shader = m_guiDefault;
 
 				const bool			  hasTexture = buf->textureHandle != nullptr;
 				GPUMaterialGUIDefault material	 = {
@@ -256,8 +252,8 @@ namespace Lina::Editor
 					  .hasTexture		 = hasTexture,
 					  .diffuse =
 						  {
-							  .texture = hasTexture ? context->GetBindlessIndex(static_cast<Texture*>(buf->textureHandle)) : 0,
-							  .sampler = hasTexture ? context->GetBindlessIndex(m_editor->GetEditorRenderer().GetGUISampler()) : 0,
+							  .textureIndex = hasTexture ? context->GetBindlessIndex(static_cast<Texture*>(buf->textureHandle)) : 0,
+							  .samplerIndex = hasTexture ? context->GetBindlessIndex(m_editor->GetEditorRenderer().GetGUISampler()) : 0,
 						  },
 				  };
 
@@ -267,22 +263,14 @@ namespace Lina::Editor
 		}
 		else if (buf->shapeType == LinaVG::DrawBufferShapeType::Text)
 		{
-			DrawBatch& batch = m_drawData[m_guiText];
-
-			batch.drawRequests.emplace_back(DrawRequest{
-				.startVertex	= m_frameVertexCounter,
-				.startIndex		= m_frameIndexCounter,
-				.vertexCount	= vtxSize,
-				.indexCount		= idxSize,
-				.materialOffset = m_frameMaterialBufferCounter,
-			});
+			drawRequest.shader = m_guiText;
 
 			GPUMaterialGUIText material = {
 				.clip = Vector4(buf->clipPosX, buf->clipPosY, buf->clipSizeX, buf->clipSizeY),
 				.diffuse =
 					{
-						.texture = context->GetBindlessIndex(guiBackend.GetFontTexture(static_cast<LinaVG::Atlas*>(buf->textureHandle)).texture),
-						.sampler = context->GetBindlessIndex(m_editor->GetEditorRenderer().GetGUITextSampler()),
+						.textureIndex = context->GetBindlessIndex(guiBackend.GetFontTexture(static_cast<LinaVG::Atlas*>(buf->textureHandle)).texture),
+						.samplerIndex = context->GetBindlessIndex(m_editor->GetEditorRenderer().GetGUITextSampler()),
 					},
 			};
 
@@ -291,22 +279,14 @@ namespace Lina::Editor
 		}
 		else if (buf->shapeType == LinaVG::DrawBufferShapeType::SDFText)
 		{
-			DrawBatch& batch = m_drawData[m_guiSDF];
-
-			batch.drawRequests.emplace_back(DrawRequest{
-				.startVertex	= m_frameVertexCounter,
-				.startIndex		= m_frameIndexCounter,
-				.vertexCount	= vtxSize,
-				.indexCount		= idxSize,
-				.materialOffset = m_frameMaterialBufferCounter,
-			});
+			drawRequest.shader = m_guiSDF;
 
 			GPUMaterialGUISDFText material = {
 				.clip = Vector4(buf->clipPosX, buf->clipPosY, buf->clipSizeX, buf->clipSizeY),
 				.diffuse =
 					{
-						.texture = context->GetBindlessIndex(guiBackend.GetFontTexture(static_cast<LinaVG::Atlas*>(buf->textureHandle)).texture),
-						.sampler = context->GetBindlessIndex(m_editor->GetEditorRenderer().GetGUITextSampler()),
+						.textureIndex = context->GetBindlessIndex(guiBackend.GetFontTexture(static_cast<LinaVG::Atlas*>(buf->textureHandle)).texture),
+						.samplerIndex = context->GetBindlessIndex(m_editor->GetEditorRenderer().GetGUITextSampler()),
 					},
 				.outlineColor	  = Vector4(0, 0, 0, 0),
 				.thickness		  = 0.5f,
@@ -328,6 +308,8 @@ namespace Lina::Editor
 			m_frameMaterialBufferCounter += sizeof(GPUMaterialGUISDFText);
 		}
 
+		m_drawRequests.emplace_back(drawRequest);
+
 		m_frameVertexCounter += vtxSize;
 		m_frameIndexCounter += idxSize;
 	}
@@ -340,43 +322,14 @@ namespace Lina::Editor
 		GPUDataGUIView view = {.proj = GfxHelpers::GetProjectionFromSize(m_window->GetSize())};
 		m_guiPass.GetBuffer(frameIndex, "GUIViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataGUIView));
 
+		m_drawRequests.clear();
 		m_frameMaterialBufferCounter = 0;
 		m_frameVertexCounter		 = 0;
 		m_frameIndexCounter			 = 0;
-		for (auto& [shader, batch] : m_drawData)
-			batch.Clear();
 
 		m_widgetManager.Draw();
 		m_lvgDrawer.FlushBuffers();
 		m_lvgDrawer.ResetFrame();
-
-		Buffer& indirectBuffer	  = m_guiPass.GetBuffer(frameIndex, "IndirectBuffer"_hs);
-		Buffer& indirectArguments = m_guiPass.GetBuffer(frameIndex, "IndirectArguments"_hs);
-
-		size_t indirectBufferOffset = 0;
-		uint32 drawID				= 0;
-
-		for (auto& [shader, batch] : m_drawData)
-		{
-			batch.indirectBufferOffset = indirectBufferOffset;
-
-			for (const DrawRequest& req : batch.drawRequests)
-			{
-				m_lgx->BufferIndexedIndirectCommandData(indirectBuffer.GetMapped(), indirectBufferOffset, drawID, req.indexCount, 1, req.startIndex, req.startVertex, drawID);
-
-				const GPUIndirectArgumentsGUI args = {
-					.inMaterialIndex = static_cast<uint32>(req.materialOffset / sizeof(uint32)),
-				};
-
-				indirectArguments.BufferData(drawID * sizeof(GPUIndirectArgumentsGUI), (uint8*)&args, sizeof(GPUIndirectArgumentsGUI));
-
-				indirectBufferOffset += m_lgx->GetIndexedIndirectCommandSize();
-				drawID++;
-			}
-		}
-
-		indirectBuffer.MarkDirty();
-		indirectArguments.MarkDirty();
 
 		m_uploadQueue.AddBufferRequest(&currentFrame.guiIndexBuffer);
 		m_uploadQueue.AddBufferRequest(&currentFrame.guiVertexBuffer);
@@ -446,24 +399,36 @@ namespace Lina::Editor
 		currentFrame.guiVertexBuffer.BindVertex(currentFrame.gfxStream, static_cast<uint32>(sizeof(LinaVG::Vertex)));
 		currentFrame.guiIndexBuffer.BindIndex(currentFrame.gfxStream, LinaGX::IndexType::Uint16);
 
-		Buffer& indirectBuffer = m_guiPass.GetBuffer(frameIndex, "IndirectBuffer"_hs);
+		Shader* lastBound = nullptr;
 
-		for (auto& [shader, batch] : m_drawData)
+		GPUEditorGUIPushConstants constants = {};
+
+		for (const DrawRequest& request : m_drawRequests)
 		{
-			shader->Bind(currentFrame.gfxStream, shader->GetGPUHandle());
+			constants.materialIndex = static_cast<uint32>(request.materialOffset / sizeof(uint32));
 
-			LinaGX::CMDDrawIndexedIndirect* draw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawIndexedIndirect>();
-			draw->count							 = static_cast<uint32>(batch.drawRequests.size());
-			draw->indirectBuffer				 = indirectBuffer.GetGPUResource();
-			draw->indirectBufferOffset			 = static_cast<uint32>(batch.indirectBufferOffset);
+			if (lastBound != request.shader)
+			{
+				lastBound = request.shader;
+				lastBound->Bind(currentFrame.gfxStream, lastBound->GetGPUHandle());
+			}
+
+			LinaGX::CMDBindConstants* pc = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindConstants>();
+			pc->size					 = static_cast<uint32>(sizeof(GPUEditorGUIPushConstants));
+			pc->stagesSize				 = 1;
+			pc->stages					 = currentFrame.gfxStream->EmplaceAuxMemory(LinaGX::ShaderStage::Fragment);
+			pc->data					 = currentFrame.gfxStream->EmplaceAuxMemory<GPUEditorGUIPushConstants>((uint8*)&constants, sizeof(GPUEditorGUIPushConstants));
+
+			LinaGX::CMDDrawIndexedInstanced* draw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
+			draw->instanceCount					  = 1;
+			draw->indexCountPerInstance			  = request.indexCount;
+			draw->startInstanceLocation			  = 0;
+			draw->startIndexLocation			  = request.startIndex;
+			draw->baseVertexLocation			  = request.startVertex;
 
 #ifdef LINA_DEBUG
-			uint32 totalIndices = 0;
-			for (const DrawRequest& req : batch.drawRequests)
-				totalIndices += req.indexCount;
-			PROFILER_ADD_DRAWCALL(totalIndices / 3, "Surface Renderer Indirect", draw->count);
+			PROFILER_ADD_DRAWCALL(request.indexCount / 3, "Surface Renderer", 0);
 #endif
-			batch.Clear();
 		}
 
 		// End render pass

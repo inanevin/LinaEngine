@@ -35,38 +35,25 @@ namespace Lina::Editor
 	RenderPassDescription EditorGfxHelpers::GetGUIPassDescription()
 	{
 		return {
-			.buffers		= {{
-								   .bufferType	 = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
-								   .debugName	 = "RP: GUI - ViewData",
-								   .size		 = sizeof(GPUDataGUIView),
-								   .stagingOnly	 = true,
-								   .bindingIndex = 0,
-								   .ident		 = "GUIViewData"_hs,
-						   },
-							   {
-								   .bufferType	 = LinaGX::ResourceTypeHint::TH_StorageBuffer,
-								   .debugName	 = "RP: GUI - Materials",
-								   .size		 = 50000,
-								   .stagingOnly	 = false,
-								   .bindingIndex = 1,
-								   .ident		 = "GUIMaterials"_hs,
-						   },
-							   {
-								   .bufferType	 = LinaGX::ResourceTypeHint::TH_StorageBuffer,
-								   .debugName	 = "RP: GUI - IndirectArguments",
-								   .size		 = sizeof(GPUIndirectArgumentsGUI) * 5000,
-								   .stagingOnly	 = false,
-								   .bindingIndex = 2,
-								   .ident		 = "IndirectArguments"_hs,
-						   },
-							   {
-								   .bufferType	 = LinaGX::ResourceTypeHint::TH_IndirectBuffer,
-								   .debugName	 = "RP: GUI - IndirectBuffer",
-								   .size		 = Application::GetLGX()->GetIndexedIndirectCommandSize() * static_cast<size_t>(5000),
-								   .stagingOnly	 = false,
-								   .bindingIndex = -1,
-								   .ident		 = "IndirectBuffer"_hs,
-						   }},
+			.buffers =
+				{
+					{
+						.bufferType	  = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
+						.debugName	  = "RP: GUI - ViewData",
+						.size		  = sizeof(GPUDataGUIView),
+						.stagingOnly  = true,
+						.bindingIndex = 0,
+						.ident		  = "GUIViewData"_hs,
+					},
+					{
+						.bufferType	  = LinaGX::ResourceTypeHint::TH_StorageBuffer,
+						.debugName	  = "RP: GUI - Materials",
+						.size		  = 50000,
+						.stagingOnly  = false,
+						.bindingIndex = 1,
+						.ident		  = "GUIMaterials"_hs,
+					},
+				},
 			.setDescription = GetSetDescriptionGUI(),
 		};
 	}
@@ -113,6 +100,10 @@ namespace Lina::Editor
 	{
 		return {
 			.descriptorSetDescriptions = {GetSetDescriptionGlobal(), GetSetDescriptionGUI()},
+			.constantRanges			   = {{
+						   .stages = {LinaGX::ShaderStage::Fragment},
+						   .size   = static_cast<uint32>(sizeof(GPUEditorGUIPushConstants)),
+			   }},
 			.debugName				   = "GUILayout",
 		};
 	}
