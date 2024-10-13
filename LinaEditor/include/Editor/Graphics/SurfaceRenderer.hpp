@@ -70,6 +70,7 @@ namespace Lina::Editor
 
 		struct DrawRequest
 		{
+            Shader* shader = nullptr;
 			uint32 startVertex	  = 0;
 			uint32 startIndex	  = 0;
 			uint32 vertexCount	  = 0;
@@ -133,7 +134,6 @@ namespace Lina::Editor
 		ResourceManagerV2*	m_resourceManagerV2 = nullptr;
 		LinaGX::Instance*	m_lgx				= nullptr;
 		ResourceUploadQueue m_uploadQueue;
-		Shader*				m_guiShader = nullptr;
 		Vector2ui			m_size		= Vector2ui::Zero;
 		PerFrameData		m_pfd[FRAMES_IN_FLIGHT];
 		LinaGX::Window*		m_window	= nullptr;
@@ -145,6 +145,7 @@ namespace Lina::Editor
 		WidgetManager  m_widgetManager;
 
 		HashMap<Shader*, DrawBatch> m_drawData;
+        Vector<DrawRequest> m_drawRequests;
 
 		Shader* m_guiDefault	= nullptr;
 		Shader* m_guiColorWheel = nullptr;

@@ -45,7 +45,8 @@ void main()
 {
    outCol = col;
    outUV = uv;
-   outMaterialIndex = 0;
+   uint argBufferIndex = LGX_DRAW_ID;
+   outMaterialIndex = indirectArgumentsArray[argBufferIndex].materialIndex;
    gl_Position = LINA_VIEW.proj * vec4(pos.x, pos.y, 0.0f, 1.0);
 }
 

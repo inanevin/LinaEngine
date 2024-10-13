@@ -50,8 +50,7 @@ void main()
     outWorldPos = vec3(object.modelMatrix * vec4(inPos, 1.0));
     outNormal = inNormal;
     outUV = vec2(1.0 - inUV.x, inUV.y);
-    outMaterialIndex = LINA_GET_MATERIAL_INDEX();
-
+    outMaterialIndex = 0;
     gl_Position = LINA_VIEW.proj * LINA_VIEW.view *  vec4(outWorldPos, 1.0);
 }
 
@@ -81,7 +80,7 @@ struct LinaMaterial
 
 void main()
 {
-   LinaMaterial material = LINA_GET_MATERIAL(inMaterialIndex);
+   LinaMaterial material;
 
    vec4 albedo = LINA_SAMPLE_TEXTURE(material.txtAlbedo, inUV) * material.color;
    vec4 normal = LINA_SAMPLE_TEXTURE(material.txtNormal, inUV) * material.color;

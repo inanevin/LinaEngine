@@ -243,6 +243,9 @@ namespace Lina::Editor
 	bool Editor::PreInitialize()
 	{
 		ResourceDefinitionList priorityResources;
+		priorityResources.insert({EDITOR_SHADER_GUI_SDF_TEXT_ID, EDITOR_SHADER_GUI_SDF_TEXT_PATH, GetTypeID<Shader>()});
+		priorityResources.insert({EDITOR_SHADER_GUI_HUE_DISPLAY_ID, EDITOR_SHADER_GUI_HUE_DISPLAY_PATH, GetTypeID<Shader>()});
+		priorityResources.insert({EDITOR_SHADER_GUI_COLOR_WHEEL_ID, EDITOR_SHADER_GUI_COLOR_WHEEL_PATH, GetTypeID<Shader>()});
 		priorityResources.insert({EDITOR_SHADER_GUI_DEFAULT_ID, EDITOR_SHADER_GUI_DEFAULT_PATH, GetTypeID<Shader>()});
 		priorityResources.insert({EDITOR_SHADER_GUI_TEXT_ID, EDITOR_SHADER_GUI_TEXT_PATH, GetTypeID<Shader>()});
 		priorityResources.insert({EDITOR_TEXTURE_LINA_LOGO_ID, EDITOR_TEXTURE_LINA_LOGO_PATH, GetTypeID<Texture>()});
@@ -311,9 +314,6 @@ namespace Lina::Editor
 
 				progText->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::LoadingCoreResources));
 				ResourceDefinitionList coreResources;
-				coreResources.insert({EDITOR_SHADER_GUI_SDF_TEXT_ID, EDITOR_SHADER_GUI_SDF_TEXT_PATH, GetTypeID<Shader>()});
-				coreResources.insert({EDITOR_SHADER_GUI_HUE_DISPLAY_ID, EDITOR_SHADER_GUI_HUE_DISPLAY_PATH, GetTypeID<Shader>()});
-				coreResources.insert({EDITOR_SHADER_GUI_COLOR_WHEEL_ID, EDITOR_SHADER_GUI_COLOR_WHEEL_PATH, GetTypeID<Shader>()});
 				coreResources.insert({EDITOR_TEXTURE_CHECKERED_ID, EDITOR_TEXTURE_CHECKERED_PATH, GetTypeID<Texture>()});
 				coreResources.insert({EDITOR_TEXTURE_PROTOTYPE_DARK_ID, EDITOR_TEXTURE_PROTOTYPE_DARK_PATH, GetTypeID<Texture>()});
 				coreResources.insert({EDITOR_FONT_PLAY_ID, EDITOR_FONT_PLAY_PATH, GetTypeID<Font>()});
@@ -326,9 +326,6 @@ namespace Lina::Editor
 				Application::GetLGX()->Join();
 
 				HashSet<Resource*> resources;
-				resources.insert(m_resourceManagerV2.GetResource<Shader>(EDITOR_SHADER_GUI_SDF_TEXT_ID));
-				resources.insert(m_resourceManagerV2.GetResource<Shader>(EDITOR_SHADER_GUI_HUE_DISPLAY_ID));
-				resources.insert(m_resourceManagerV2.GetResource<Shader>(EDITOR_SHADER_GUI_COLOR_WHEEL_ID));
 				resources.insert(m_resourceManagerV2.GetResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID));
 				resources.insert(m_resourceManagerV2.GetResource<Texture>(EDITOR_TEXTURE_PROTOTYPE_DARK_ID));
 				resources.insert(m_resourceManagerV2.GetResource<Font>(EDITOR_FONT_PLAY_ID));

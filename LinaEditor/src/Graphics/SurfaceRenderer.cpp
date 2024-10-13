@@ -95,14 +95,13 @@ namespace Lina::Editor
 
 		// RP
 		m_guiPass.Create(EditorGfxHelpers::GetGUIPassDescription());
-
-		m_lvgDrawer.GetCallbacks().draw = BIND(&SurfaceRenderer::DrawDefault, this, std::placeholders::_1);
-
 		m_widgetManager.Initialize(&m_editor->GetResourceManagerV2(), m_window, &m_lvgDrawer);
+		m_lvgDrawer.GetCallbacks().draw = BIND(&SurfaceRenderer::DrawDefault, this, std::placeholders::_1);
 	}
 
 	SurfaceRenderer::~SurfaceRenderer()
 	{
+		m_widgetManager.Shutdown();
 		m_guiPass.Destroy();
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
@@ -341,10 +340,11 @@ namespace Lina::Editor
 		GPUDataGUIView view = {.proj = GfxHelpers::GetProjectionFromSize(m_window->GetSize())};
 		m_guiPass.GetBuffer(frameIndex, "GUIViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataGUIView));
 
-		m_frameVertexCounter = 0;
-		m_frameIndexCounter	 = 0;
-		for (Pair<Shader*, DrawBatch> pair : m_drawData)
-			pair.second.Clear();
+		m_frameMaterialBufferCounter = 0;
+		m_frameVertexCounter		 = 0;
+		m_frameIndexCounter			 = 0;
+		for (auto& [shader, batch] : m_drawData)
+			batch.Clear();
 
 		m_widgetManager.Draw();
 		m_lvgDrawer.FlushBuffers();
@@ -356,10 +356,8 @@ namespace Lina::Editor
 		size_t indirectBufferOffset = 0;
 		uint32 drawID				= 0;
 
-		for (Pair<Shader*, DrawBatch> pair : m_drawData)
+		for (auto& [shader, batch] : m_drawData)
 		{
-			Shader*	   shader		   = pair.first;
-			DrawBatch& batch		   = pair.second;
 			batch.indirectBufferOffset = indirectBufferOffset;
 
 			for (const DrawRequest& req : batch.drawRequests)
@@ -367,7 +365,7 @@ namespace Lina::Editor
 				m_lgx->BufferIndexedIndirectCommandData(indirectBuffer.GetMapped(), indirectBufferOffset, drawID, req.indexCount, 1, req.startIndex, req.startVertex, drawID);
 
 				const GPUIndirectArgumentsGUI args = {
-					.inMaterialIndex = static_cast<uint32>(req.materialOffset) / 4,
+					.inMaterialIndex = static_cast<uint32>(req.materialOffset / sizeof(uint32)),
 				};
 
 				indirectArguments.BufferData(drawID * sizeof(GPUIndirectArgumentsGUI), (uint8*)&args, sizeof(GPUIndirectArgumentsGUI));
@@ -376,6 +374,9 @@ namespace Lina::Editor
 				drawID++;
 			}
 		}
+
+		indirectBuffer.MarkDirty();
+		indirectArguments.MarkDirty();
 
 		m_uploadQueue.AddBufferRequest(&currentFrame.guiIndexBuffer);
 		m_uploadQueue.AddBufferRequest(&currentFrame.guiVertexBuffer);
@@ -447,21 +448,23 @@ namespace Lina::Editor
 
 		Buffer& indirectBuffer = m_guiPass.GetBuffer(frameIndex, "IndirectBuffer"_hs);
 
-		for (Pair<Shader*, DrawBatch> pair : m_drawData)
+		for (auto& [shader, batch] : m_drawData)
 		{
-			Shader*	   shader = pair.first;
-			DrawBatch& batch  = pair.second;
-
-			shader->Bind(currentFrame.gfxStream, m_guiShader->GetGPUHandle());
+			shader->Bind(currentFrame.gfxStream, shader->GetGPUHandle());
 
 			LinaGX::CMDDrawIndexedIndirect* draw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawIndexedIndirect>();
 			draw->count							 = static_cast<uint32>(batch.drawRequests.size());
 			draw->indirectBuffer				 = indirectBuffer.GetGPUResource();
 			draw->indirectBufferOffset			 = static_cast<uint32>(batch.indirectBufferOffset);
-		}
 
-		// m_guiShader->Bind(currentFrame.gfxStream, m_guiShader->GetGPUHandle());
-		// m_guiRenderer.Render(currentFrame.gfxStream, m_guiPass.GetBuffer(frameIndex, "IndirectBuffer"_hs), frameIndex, m_window->GetSize());
+#ifdef LINA_DEBUG
+			uint32 totalIndices = 0;
+			for (const DrawRequest& req : batch.drawRequests)
+				totalIndices += req.indexCount;
+			PROFILER_ADD_DRAWCALL(totalIndices / 3, "Surface Renderer Indirect", draw->count);
+#endif
+			batch.Clear();
+		}
 
 		// End render pass
 		m_guiPass.End(currentFrame.gfxStream);

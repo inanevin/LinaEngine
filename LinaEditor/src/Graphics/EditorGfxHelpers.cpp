@@ -46,7 +46,7 @@ namespace Lina::Editor
 							   {
 								   .bufferType	 = LinaGX::ResourceTypeHint::TH_StorageBuffer,
 								   .debugName	 = "RP: GUI - Materials",
-								   .size		 = 1000,
+								   .size		 = 50000,
 								   .stagingOnly	 = false,
 								   .bindingIndex = 1,
 								   .ident		 = "GUIMaterials"_hs,
@@ -54,7 +54,7 @@ namespace Lina::Editor
 							   {
 								   .bufferType	 = LinaGX::ResourceTypeHint::TH_StorageBuffer,
 								   .debugName	 = "RP: GUI - IndirectArguments",
-								   .size		 = sizeof(GPUIndirectArgumentsGUI) * 100,
+								   .size		 = sizeof(GPUIndirectArgumentsGUI) * 5000,
 								   .stagingOnly	 = false,
 								   .bindingIndex = 2,
 								   .ident		 = "IndirectArguments"_hs,
@@ -62,7 +62,7 @@ namespace Lina::Editor
 							   {
 								   .bufferType	 = LinaGX::ResourceTypeHint::TH_IndirectBuffer,
 								   .debugName	 = "RP: GUI - IndirectBuffer",
-								   .size		 = Application::GetLGX()->GetIndexedIndirectCommandSize() * static_cast<size_t>(250),
+								   .size		 = Application::GetLGX()->GetIndexedIndirectCommandSize() * static_cast<size_t>(5000),
 								   .stagingOnly	 = false,
 								   .bindingIndex = -1,
 								   .ident		 = "IndirectBuffer"_hs,
@@ -101,7 +101,12 @@ namespace Lina::Editor
 			.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 		};
 
-		return {.bindings = {guiBinding0, guiBinding1}};
+		LinaGX::DescriptorBinding guiBinding2 = {
+			.type	= LinaGX::DescriptorType::SSBO,
+			.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+		};
+
+		return {.bindings = {guiBinding0, guiBinding1, guiBinding2}};
 	}
 
 	LinaGX::PipelineLayoutDesc EditorGfxHelpers::GetPipelineLayoutDescriptionGUI()

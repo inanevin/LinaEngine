@@ -214,24 +214,23 @@ namespace Lina::Editor
 				VerifyProjectResources(m_currentProject);
 
 				updateProg(Locale::GetStr(LocaleStr::CreatingCoreResources));
-
 				const Vector<ResourcePipeline::ResourceImportDef> desiredAssets = {
 					{
 						.path = EDITOR_FONT_ROBOTO_PATH,
 						.id	  = EDITOR_FONT_ROBOTO_ID,
 					},
-					{
-						.path = EDITOR_SHADER_DEFAULT_OBJECT_PATH,
-						.id	  = EDITOR_SHADER_DEFAULT_OBJECT_ID,
-					},
-					{
-						.path = EDITOR_SHADER_DEFAULT_SKY_PATH,
-						.id	  = EDITOR_SHADER_DEFAULT_SKY_ID,
-					},
-					{
-						.path = EDITOR_SHADER_DEFAULT_LIGHTING_PATH,
-						.id	  = EDITOR_SHADER_DEFAULT_LIGHTING_ID,
-					},
+					// {
+					// 	.path = EDITOR_SHADER_DEFAULT_OBJECT_PATH,
+					// 	.id	  = EDITOR_SHADER_DEFAULT_OBJECT_ID,
+					// },
+					//{
+					//	.path = EDITOR_SHADER_DEFAULT_SKY_PATH,
+					//	.id	  = EDITOR_SHADER_DEFAULT_SKY_ID,
+					//},
+					//{
+					//	.path = EDITOR_SHADER_DEFAULT_LIGHTING_PATH,
+					//	.id	  = EDITOR_SHADER_DEFAULT_LIGHTING_ID,
+					//},
 					{
 						.path = EDITOR_MODEL_CUBE_PATH,
 						.id	  = EDITOR_MODEL_CUBE_ID,
