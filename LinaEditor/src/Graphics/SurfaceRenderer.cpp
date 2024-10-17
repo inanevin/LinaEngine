@@ -181,27 +181,27 @@ namespace Lina::Editor
 		GUIBackend&		   guiBackend	  = m_editor->GetEditorRenderer().GetGUIBackend();
 		Buffer&			   materialBuffer = m_guiPass.GetBuffer(frameIndex, "GUIMaterials"_hs);
 
-        Texture* texture = buf->textureHandle == nullptr ? nullptr : static_cast<Texture*>(buf->textureHandle);
-        
+		Texture* texture = buf->textureHandle == nullptr ? nullptr : static_cast<Texture*>(buf->textureHandle);
+
 		if (buf->shapeType == LinaVG::DrawBufferShapeType::Shape || buf->shapeType == LinaVG::DrawBufferShapeType::AA)
 		{
 			if (guiUserData)
 			{
 				if (guiUserData->specialType == GUISpecialType::None)
 				{
-					GPUMaterialGUIDefault material	 = {
-						  .clip				 = Vector4(buf->clipPosX, buf->clipPosY, buf->clipSizeX, buf->clipSizeY),
-						  .uvTilingAndOffset = buf->textureUV,
-						  .displayChannels	 = 0,
-						  .displayLod		 = 0,
-						  .hasTexture		 = texture != nullptr,
-                          .singleChannel	 = texture == nullptr ? (uint32)0 : (uint32)(texture->GetMeta().format == LinaGX::Format::R8_UNORM),
-						  .diffuse =
-							  {
-								  .textureIndex = texture != nullptr ? context->GetBindlessIndex(texture) : 0,
-								  .samplerIndex = texture != nullptr ? context->GetBindlessIndex(m_editor->GetEditorRenderer().GetGUISampler()) : 0,
-							  },
-					  };
+					GPUMaterialGUIDefault material = {
+						.clip			   = Vector4(buf->clipPosX, buf->clipPosY, buf->clipSizeX, buf->clipSizeY),
+						.uvTilingAndOffset = buf->textureUV,
+						.displayChannels   = 0,
+						.displayLod		   = 0,
+						.hasTexture		   = texture != nullptr,
+						.singleChannel	   = texture == nullptr ? (uint32)0 : (uint32)(texture->GetMeta().format == LinaGX::Format::R8_UNORM),
+						.diffuse =
+							{
+								.textureIndex = texture != nullptr ? context->GetBindlessIndex(texture) : 0,
+								.samplerIndex = texture != nullptr ? context->GetBindlessIndex(m_editor->GetEditorRenderer().GetGUISampler()) : 0,
+							},
+					};
 
 					material.displayLod		 = guiUserData->mipLevel;
 					material.displayChannels = static_cast<uint32>(guiUserData->displayChannels);
@@ -245,19 +245,19 @@ namespace Lina::Editor
 			{
 				drawRequest.shader = m_guiDefault;
 
-				GPUMaterialGUIDefault material	 = {
-					  .clip				 = Vector4(buf->clipPosX, buf->clipPosY, buf->clipSizeX, buf->clipSizeY),
-					  .uvTilingAndOffset = buf->textureUV,
-					  .displayChannels	 = 0,
-					  .displayLod		 = 0,
-					  .hasTexture		 = texture != nullptr,
-                      .singleChannel     = texture == nullptr ? (uint32)0 : (uint32)(texture->GetMeta().format == LinaGX::Format::R8_UNORM),
-					  .diffuse =
-						  {
-							  .textureIndex = texture != nullptr ? context->GetBindlessIndex(texture) : 0,
-							  .samplerIndex = texture != nullptr ? context->GetBindlessIndex(m_editor->GetEditorRenderer().GetGUISampler()) : 0,
-						  },
-				  };
+				GPUMaterialGUIDefault material = {
+					.clip			   = Vector4(buf->clipPosX, buf->clipPosY, buf->clipSizeX, buf->clipSizeY),
+					.uvTilingAndOffset = buf->textureUV,
+					.displayChannels   = 0,
+					.displayLod		   = 0,
+					.hasTexture		   = texture != nullptr,
+					.singleChannel	   = texture == nullptr ? (uint32)0 : (uint32)(texture->GetMeta().format == LinaGX::Format::R8_UNORM),
+					.diffuse =
+						{
+							.textureIndex = texture != nullptr ? context->GetBindlessIndex(texture) : 0,
+							.samplerIndex = texture != nullptr ? context->GetBindlessIndex(m_editor->GetEditorRenderer().GetGUISampler()) : 0,
+						},
+				};
 
 				materialBuffer.BufferData(m_frameMaterialBufferCounter, (uint8*)&material, sizeof(GPUMaterialGUIDefault));
 				m_frameMaterialBufferCounter += sizeof(GPUMaterialGUIDefault);
