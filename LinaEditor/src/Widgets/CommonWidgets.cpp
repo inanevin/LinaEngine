@@ -60,15 +60,10 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Layout/GridLayout.hpp"
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
-#include "Core/Graphics/Utility/TextureAtlas.hpp"
 #include "Core/Resources/ResourceDirectory.hpp"
 
 namespace Lina::Editor
 {
-
-	GUIUserData CommonWidgets::s_singleChannelUserData = {
-		.isSingleChannel = true,
-	};
 
 	DirectionalLayout* CommonWidgets::BuildWindowButtons(Widget* source)
 	{
@@ -403,11 +398,6 @@ namespace Lina::Editor
 		bg->GetWidgetProps().colorBackground  = Color::White;
 		bg->SetCustomTooltipUserData(bg);
 		bg->SetBuildCustomTooltip(BIND(&CommonWidgets::BuildThumbnailTooltip, std::placeholders::_1));
-
-		if (img && img->atlas->GetFormat() == LinaGX::Format::R8_UNORM)
-		{
-			bg->GetWidgetProps().lvgUserData = &s_singleChannelUserData;
-		}
 
 		layout->AddChild(bg);
 

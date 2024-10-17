@@ -95,6 +95,5 @@ namespace Lina::Editor
 		static Widget* BuildThumbnailTooltip(void* thumbnailOwner);
 
 	private:
-		static GUIUserData s_singleChannelUserData;
 	};
 } // namespace Lina::Editor

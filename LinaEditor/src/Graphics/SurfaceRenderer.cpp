@@ -181,24 +181,25 @@ namespace Lina::Editor
 		GUIBackend&		   guiBackend	  = m_editor->GetEditorRenderer().GetGUIBackend();
 		Buffer&			   materialBuffer = m_guiPass.GetBuffer(frameIndex, "GUIMaterials"_hs);
 
+        Texture* texture = buf->textureHandle == nullptr ? nullptr : static_cast<Texture*>(buf->textureHandle);
+        
 		if (buf->shapeType == LinaVG::DrawBufferShapeType::Shape || buf->shapeType == LinaVG::DrawBufferShapeType::AA)
 		{
 			if (guiUserData)
 			{
 				if (guiUserData->specialType == GUISpecialType::None)
 				{
-					const bool			  hasTexture = buf->textureHandle != nullptr;
 					GPUMaterialGUIDefault material	 = {
 						  .clip				 = Vector4(buf->clipPosX, buf->clipPosY, buf->clipSizeX, buf->clipSizeY),
 						  .uvTilingAndOffset = buf->textureUV,
 						  .displayChannels	 = 0,
 						  .displayLod		 = 0,
-						  .hasTexture		 = hasTexture,
-						  .singleChannel	 = (uint32)guiUserData->isSingleChannel,
+						  .hasTexture		 = texture != nullptr,
+                          .singleChannel	 = texture == nullptr ? (uint32)0 : (uint32)(texture->GetMeta().format == LinaGX::Format::R8_UNORM),
 						  .diffuse =
 							  {
-								  .textureIndex = hasTexture ? context->GetBindlessIndex(static_cast<Texture*>(buf->textureHandle)) : 0,
-								  .samplerIndex = hasTexture ? context->GetBindlessIndex(m_editor->GetEditorRenderer().GetGUISampler()) : 0,
+								  .textureIndex = texture != nullptr ? context->GetBindlessIndex(texture) : 0,
+								  .samplerIndex = texture != nullptr ? context->GetBindlessIndex(m_editor->GetEditorRenderer().GetGUISampler()) : 0,
 							  },
 					  };
 
@@ -244,18 +245,17 @@ namespace Lina::Editor
 			{
 				drawRequest.shader = m_guiDefault;
 
-				const bool			  hasTexture = buf->textureHandle != nullptr;
 				GPUMaterialGUIDefault material	 = {
 					  .clip				 = Vector4(buf->clipPosX, buf->clipPosY, buf->clipSizeX, buf->clipSizeY),
 					  .uvTilingAndOffset = buf->textureUV,
 					  .displayChannels	 = 0,
 					  .displayLod		 = 0,
-					  .hasTexture		 = hasTexture,
-					  .singleChannel	 = 0,
+					  .hasTexture		 = texture != nullptr,
+                      .singleChannel     = texture == nullptr ? (uint32)0 : (uint32)(texture->GetMeta().format == LinaGX::Format::R8_UNORM),
 					  .diffuse =
 						  {
-							  .textureIndex = hasTexture ? context->GetBindlessIndex(static_cast<Texture*>(buf->textureHandle)) : 0,
-							  .samplerIndex = hasTexture ? context->GetBindlessIndex(m_editor->GetEditorRenderer().GetGUISampler()) : 0,
+							  .textureIndex = texture != nullptr ? context->GetBindlessIndex(texture) : 0,
+							  .samplerIndex = texture != nullptr ? context->GetBindlessIndex(m_editor->GetEditorRenderer().GetGUISampler()) : 0,
 						  },
 				  };
 
