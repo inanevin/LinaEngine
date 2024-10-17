@@ -1,11 +1,11 @@
 /*
-This file is a part of: Lina Engine
-https://github.com/inanevin/LinaEngine
+This file is a part of: LinaGX
+https://github.com/inanevin/LinaGX
 
 Author: Inan Evin
 http://www.inanevin.com
 
-Copyright (c) [2018-] [Inan Evin]
+Copyright (c) [2023-] [Inan Evin]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,37 +26,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+layout (location = 0) in vec3 inWorldPos;
+layout (location = 1) in vec3 inNormal;
+layout (location = 2) in vec2 inUV;
+layout (location = 3) flat in uint inMaterialIndex;
 
-#include "Editor/Widgets/Panel/Panel.hpp"
+layout (location = 0) out vec4 outFragColor;
 
-namespace Lina
+void main()
 {
+   LinaFragInput fragInput;
+   fragInput.materialID = inMaterialIndex;
+   fragInput.uv = inUV;
+   
+   LinaFragOutput fragOutput;
+   LINA_FRAG_FUNC(fragInput, fragOutput);
 
-} // namespace Lina
-
-namespace Lina::Editor
-{
-	class Editor;
-	class ColorWheelCompound;
-
-	class PanelColorWheel : public Panel
-	{
-	public:
-		PanelColorWheel() : Panel(PanelType::ColorWheel, PF_FLOATING_POPUP){};
-		virtual ~PanelColorWheel() = default;
-
-		virtual void		Construct() override;
-		ColorWheelCompound* GetWheel() const
-		{
-			return m_colorWheel;
-		}
-
-	private:
-		ColorWheelCompound* m_colorWheel = nullptr;
-	};
-
-	LINA_WIDGET_BEGIN(PanelColorWheel, Hidden)
-	LINA_CLASS_END(PanelColorWheel)
-
-} // namespace Lina::Editor
+   outFragColor = fragOutput.color;
+}

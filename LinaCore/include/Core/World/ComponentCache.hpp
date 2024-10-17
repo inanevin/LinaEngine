@@ -161,7 +161,7 @@ namespace Lina
 
 			m_componentBucket.View([&](T* comp, uint32 index) -> bool {
 				comp->SaveToStream(stream);
-				stream << comp->GetEntity()->GetTransientID();
+				stream << comp->GetEntity()->GetGUID();
 				return false;
 			});
 		}
@@ -175,9 +175,16 @@ namespace Lina
 			{
 				T* comp = Create();
 				comp->LoadFromStream(stream);
-				uint32 entityID = 0;
+				EntityID entityID = 0;
 				stream >> entityID;
-				comp->m_entity = entities[entityID];
+
+				auto it = linatl::find_if(entities.begin(), entities.end(), [entityID](Entity* e) -> bool { return e->GetGUID() == entityID; });
+				if (it == entities.end())
+				{
+					LINA_ERR("Could not found component entity!");
+				}
+				else
+					comp->m_entity = *it;
 			}
 		}
 

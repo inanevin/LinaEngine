@@ -136,6 +136,11 @@ namespace Lina
 			return m_parent;
 		}
 
+		inline EntityID GetGUID() const
+		{
+			return m_guid;
+		}
+
 	private:
 		void UpdateGlobalPosition();
 		void UpdateLocalPosition();

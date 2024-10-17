@@ -42,9 +42,4 @@ namespace Lina::Editor
 		m_colorWheel = cw;
 	}
 
-	void PanelColorWheel::SetTarget(Color* color)
-	{
-		m_colorWheel->GetProps().onValueChanged = [color](const Color& linearColor) { *color = linearColor; };
-		m_colorWheel->SetTargetColor(*color);
-	}
 } // namespace Lina::Editor

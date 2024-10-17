@@ -1399,9 +1399,11 @@ namespace Lina::Editor
 		startButton->CreateIcon(ICON_PALETTE);
 		startButton->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::StartColor);
 		startButton->GetProps().onClicked	  = [src, color, onFieldChanged, &metaType, field]() {
-			PanelColorWheel* panel = static_cast<PanelColorWheel*>(Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::ColorWheel, 0, src));
-			panel->SetTarget(&color->start);
-			panel->GetWheel()->GetProps().onValueChanged = [color, onFieldChanged, &metaType, field](const Color& col) { onFieldChanged(metaType, field); };
+			PanelColorWheel* panel						 = static_cast<PanelColorWheel*>(Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::ColorWheel, 0, src));
+			panel->GetWheel()->GetProps().onValueChanged = [color, onFieldChanged, &metaType, field](const Color& col) {
+				color->start = col;
+				onFieldChanged(metaType, field);
+			};
 		};
 		layout->AddChild(startButton);
 
@@ -1412,8 +1414,7 @@ namespace Lina::Editor
 		middleButton->CreateIcon(ICON_PALETTE);
 		middleButton->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::Both);
 		middleButton->GetProps().onClicked	   = [src, color, onFieldChanged, &metaType, field]() {
-			PanelColorWheel* panel = static_cast<PanelColorWheel*>(Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::ColorWheel, 0, src));
-			panel->SetTarget(&color->start);
+			PanelColorWheel* panel						 = static_cast<PanelColorWheel*>(Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::ColorWheel, 0, src));
 			panel->GetWheel()->GetProps().onValueChanged = [color, onFieldChanged, &metaType, field](const Color& col) {
 				color->start = color->end = col;
 				onFieldChanged(metaType, field);
@@ -1429,8 +1430,10 @@ namespace Lina::Editor
 		endButton->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::EndColor);
 		endButton->GetProps().onClicked		= [src, color, onFieldChanged, &metaType, field]() {
 			PanelColorWheel* panel						 = static_cast<PanelColorWheel*>(Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::ColorWheel, 0, src));
-			panel->GetWheel()->GetProps().onValueChanged = [color, onFieldChanged, &metaType, field](const Color& col) { onFieldChanged(metaType, field); };
-			panel->SetTarget(&color->end);
+			panel->GetWheel()->GetProps().onValueChanged = [color, onFieldChanged, &metaType, field](const Color& col) {
+				color->end = col;
+				onFieldChanged(metaType, field);
+			};
 		};
 		layout->AddChild(endButton);
 

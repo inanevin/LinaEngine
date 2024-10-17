@@ -140,8 +140,11 @@ namespace Lina::Editor
 				shader.GetMeta().shaderType = ShaderType::PostProcess;
 			}
 
+			shader.SetPath(savePath);
+			shader.SetName(FileSystem::GetFilenameOnlyFromPath(savePath));
 			shader.LoadFromFile(savePath);
 			shader.SaveToFileAsBinary(path);
+			newCreated->name = shader.GetName();
 		}
 		else if (tid == GetTypeID<PhysicsMaterial>())
 		{
@@ -196,6 +199,7 @@ namespace Lina::Editor
 					.resourceID	 = id,
 					.resourceTID = resourceTID,
 				});
+
 				createdDirs.push_back(dir);
 			};
 
@@ -211,6 +215,8 @@ namespace Lina::Editor
 					shader.GetMeta().shaderType = ShaderType::Sky;
 				else if (def.subType == 3)
 					shader.GetMeta().shaderType = ShaderType::PostProcess;
+				else if (def.subType == 4)
+					shader.GetMeta().shaderType = ShaderType::Lighting;
 
 				if (!shader.LoadFromFile(def.path))
 					continue;

@@ -26,37 +26,66 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#lina_vs
 
-#include "Editor/Widgets/Panel/Panel.hpp"
-
-namespace Lina
+// do not modify
+struct LinaVertexInput
 {
+   vec3 pos;
+   vec3 normal;
+   vec2 uv;
+   uint entityID;
+   uint materialID;
+};
 
-} // namespace Lina
-
-namespace Lina::Editor
+// do not modify
+struct LinaVertexOutput
 {
-	class Editor;
-	class ColorWheelCompound;
+   vec4 pos;
+   vec3 normal;
+   vec2 uv;
+};
 
-	class PanelColorWheel : public Panel
-	{
-	public:
-		PanelColorWheel() : Panel(PanelType::ColorWheel, PF_FLOATING_POPUP){};
-		virtual ~PanelColorWheel() = default;
+void LINA_VERTEX_FUNC(in LinaVertexInput inVertex, out LinaVertexOutput outVertex)
+{
+   outVertex.pos = vec4(inVertex.pos, 1.0);
+   outVertex.normal = inVertex.normal;
+   outVertex.uv = inVertex.uv;
+}
 
-		virtual void		Construct() override;
-		ColorWheelCompound* GetWheel() const
-		{
-			return m_colorWheel;
-		}
+#lina_end
 
-	private:
-		ColorWheelCompound* m_colorWheel = nullptr;
-	};
+#lina_fs
 
-	LINA_WIDGET_BEGIN(PanelColorWheel, Hidden)
-	LINA_CLASS_END(PanelColorWheel)
+// do not modify
+struct LinaFragInput
+{
+   uint materialID;
+   vec2 uv;
+};
 
-} // namespace Lina::Editor
+// do not modify
+struct LinaFragOutput
+{
+   vec4 color;
+   vec3 normal;
+   uint isUnlit;
+};
+
+struct LinaMaterial
+{
+   vec4 color;
+   vec4 tilingAndOffset;
+   LinaTexture2D txtAlbedo;
+   LinaTexture2D txtNormal;
+};
+
+void LINA_FRAG_FUNC(in LinaFragInput inFrag, out LinaFragOutput outFrag)
+{
+   LinaMaterial material = LINA_GET_MATERIAL(inFrag.materialID);
+   outFrag.color = LINA_SAMPLE_TEXTURE(material.txtAlbedo, inFrag.uv) * material.color;
+   outFrag.normal = LINA_SAMPLE_TEXTURE(material.txtNormal, inFrag.uv).rgb;
+   outFrag.isUnlit = 0;
+}
+
+#lina_end

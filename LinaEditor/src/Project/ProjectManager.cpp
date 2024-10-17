@@ -235,6 +235,11 @@ namespace Lina::Editor
 						.subType = 2,
 					},
 					{
+						.path	 = EDITOR_SHADER_DEFAULT_LIGHTING_PATH,
+						.id		 = EDITOR_SHADER_DEFAULT_LIGHTING_ID,
+						.subType = 4,
+					},
+					{
 						.path = EDITOR_MODEL_CUBE_PATH,
 						.id	  = EDITOR_MODEL_CUBE_ID,
 					},
@@ -314,23 +319,23 @@ namespace Lina::Editor
 					ResourcePipeline::SaveNewResource(m_currentProject, linaAssets, EDITOR_SAMPLER_DEFAULT_PATH, GetTypeID<TextureSampler>(), EDITOR_SAMPLER_DEFAULT_ID);
 				}
 
-				// Custom material
-				if (linaAssets->FindResourceDirectory(EDITOR_MATERIAL_DEFAULT_OBJ_ID) == nullptr)
+				if (linaAssets->FindResourceDirectory(EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID) == nullptr)
 				{
-					updateProg(EDITOR_MATERIAL_DEFAULT_OBJ_PATH);
-					ResourcePipeline::SaveNewResource(m_currentProject, linaAssets, EDITOR_MATERIAL_DEFAULT_OBJ_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_OBJ_ID, EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_ID);
+					updateProg(EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_PATH);
+					ResourcePipeline::SaveNewResource(m_currentProject, linaAssets, EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID, EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_ID);
+				}
+
+				// Custom material
+				if (linaAssets->FindResourceDirectory(EDITOR_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_ID) == nullptr)
+				{
+					updateProg(EDITOR_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_PATH);
+					ResourcePipeline::SaveNewResource(m_currentProject, linaAssets, EDITOR_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_ID, EDITOR_SHADER_DEFAULT_TRANSPARENT_SURFACE_ID);
 				}
 
 				if (linaAssets->FindResourceDirectory(EDITOR_MATERIAL_DEFAULT_SKY_ID) == nullptr)
 				{
 					updateProg(EDITOR_MATERIAL_DEFAULT_SKY_PATH);
 					ResourcePipeline::SaveNewResource(m_currentProject, linaAssets, EDITOR_MATERIAL_DEFAULT_SKY_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_SKY_ID, EDITOR_SHADER_DEFAULT_SKY_ID);
-				}
-
-				if (linaAssets->FindResourceDirectory(EDITOR_MATERIAL_DEFAULT_LIGHTING_ID) == nullptr)
-				{
-					updateProg(EDITOR_MATERIAL_DEFAULT_LIGHTING_PATH);
-					ResourcePipeline::SaveNewResource(m_currentProject, linaAssets, EDITOR_MATERIAL_DEFAULT_LIGHTING_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_LIGHTING_ID, EDITOR_SHADER_DEFAULT_LIGHTING_ID);
 				}
 
 				updateProg(Locale::GetStr(LocaleStr::GeneratingThumbnails));

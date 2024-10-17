@@ -578,6 +578,13 @@ namespace Lina
 			return;
 		}
 
+		if (type == RenderPassDescriptorType::Forward)
+		{
+			const String rpHeader = "#include \"Resources/Core/Shaders/Common/RenderPass_Forward.linashader\"\n";
+			input.insert(insertPos, rpHeader.c_str());
+			return;
+		}
+
 		if (type == RenderPassDescriptorType::Lighting)
 		{
 			const String rpHeader = "#include \"Resources/Core/Shaders/Common/RenderPass_Lighting.linashader\"\n";
@@ -593,6 +600,12 @@ namespace Lina
 		if (type == ShaderType::OpaqueSurface)
 		{
 			input += "#include \"Resources/Core/Shaders/Common/MainVertex_Deferred.linashader\"\n";
+			return;
+		}
+
+		if (type == ShaderType::TransparentSurface)
+		{
+			input += "#include \"Resources/Core/Shaders/Common/MainVertex_Forward.linashader\"\n";
 			return;
 		}
 
@@ -613,6 +626,12 @@ namespace Lina
 			return;
 		}
 
+		if (type == ShaderType::TransparentSurface)
+		{
+			input += "#include \"Resources/Core/Shaders/Common/MainVertexSkinned_Forward.linashader\"\n";
+			return;
+		}
+
 		if (type == ShaderType::Sky)
 		{
 			LINA_ASSERT(false, "");
@@ -627,6 +646,12 @@ namespace Lina
 		if (type == ShaderType::OpaqueSurface)
 		{
 			input += "#include \"Resources/Core/Shaders/Common/MainFrag_Deferred.linashader\"\n";
+			return;
+		}
+
+		if (type == ShaderType::TransparentSurface)
+		{
+			input += "#include \"Resources/Core/Shaders/Common/MainFrag_Forward.linashader\"\n";
 			return;
 		}
 

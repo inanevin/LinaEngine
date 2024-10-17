@@ -56,6 +56,11 @@ namespace Lina
 				DestroyEntity(e);
 			return false;
 		});
+
+		for (Pair<TypeID, ComponentCacheBase*> pair : m_componentCaches)
+		{
+			delete pair.second;
+		}
 	}
 
 	Entity* EntityWorld::CreateEntity(const String& name)
@@ -73,6 +78,11 @@ namespace Lina
 		if (e->m_parent != nullptr)
 			e->m_parent->RemoveChild(e);
 		DestroyEntityData(e);
+
+		for (auto& [tid, cache] : m_componentCaches)
+		{
+			cache->Destroy(e);
+		}
 	}
 
 	void EntityWorld::DestroyEntityData(Entity* e)
@@ -103,6 +113,15 @@ namespace Lina
 				stream << 0;
 			return false;
 		});
+
+		const uint32 cacheSize = static_cast<uint32>(m_componentCaches.size());
+		stream << cacheSize;
+
+		for (auto& [tid, cache] : m_componentCaches)
+		{
+			stream << tid;
+			cache->SaveToStream(stream);
+		}
 	}
 
 	bool EntityWorld::LoadFromFile(const String& path)
@@ -150,6 +169,23 @@ namespace Lina
 					parent->AddChild(tempEntities[i]);
 			}
 		}
+
+		uint32 cachesSize = 0;
+		stream >> cachesSize;
+
+		for (uint32 i = 0; i < cachesSize; i++)
+		{
+			TypeID tid = 0;
+			stream >> tid;
+
+			MetaType&			type  = ReflectionSystem::Get().Resolve(tid);
+			void*				ptr	  = type.GetFunction<void*(EntityWorld*)>("CreateComponentCache"_hs)(this);
+			ComponentCacheBase* cache = static_cast<ComponentCacheBase*>(ptr);
+			cache->LoadFromStream(stream, tempEntities);
+			m_componentCaches[tid] = cache;
+
+			cache->ForEach([this](Component* c) { OnCreateComponent(c, c->m_entity); });
+		}
 	}
 
 	void EntityWorld::AddListener(EntityWorldListener* listener)
@@ -160,6 +196,22 @@ namespace Lina
 	void EntityWorld::RemoveListener(EntityWorldListener* listener)
 	{
 		m_listeners.erase(linatl::find_if(m_listeners.begin(), m_listeners.end(), [listener](EntityWorldListener* list) -> bool { return list == listener; }));
+	}
+
+	void EntityWorld::OnCreateComponent(Component* c, Entity* e)
+	{
+		c->m_world	= this;
+		c->m_entity = e;
+		c->OnEvent({.type = ComponentEventType::Create});
+		for (auto* l : m_listeners)
+			l->OnComponentAdded(c);
+	}
+
+	void EntityWorld::OnDestroyComponent(Component* c, Entity* e)
+	{
+		c->OnEvent({.type = ComponentEventType::Destroy});
+		for (auto* l : m_listeners)
+			l->OnComponentRemoved(c);
 	}
 
 	namespace

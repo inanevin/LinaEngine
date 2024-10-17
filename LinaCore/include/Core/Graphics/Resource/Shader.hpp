@@ -76,6 +76,7 @@ namespace Lina
 		TransparentSurface,
 		Sky,
 		PostProcess,
+        Lighting,
 		Custom
 	};
 

@@ -254,6 +254,101 @@ namespace Lina
 		}
 		else if (type == ShaderType::TransparentSurface)
 		{
+			ShaderPreprocessor::InjectRenderPassInputs(vertexBlock, RenderPassDescriptorType::Forward);
+			ShaderPreprocessor::InjectRenderPassInputs(fragBlock, RenderPassDescriptorType::Forward);
+			// Forward default
+			{
+				ShaderVariant& variant = m_meta.variants["ForwardDefault"_hs];
+				variant				   = ShaderVariant{
+								   .blendDisable		= false,
+								   .blendSrcFactor		= LinaGX::BlendFactor::SrcAlpha,
+								   .blendDstFactor		= LinaGX::BlendFactor::OneMinusSrcAlpha,
+								   .blendColorOp		= LinaGX::BlendOp::Add,
+								   .blendSrcAlphaFactor = LinaGX::BlendFactor::One,
+								   .blendDstAlphaFactor = LinaGX::BlendFactor::One,
+								   .blendAlphaOp		= LinaGX::BlendOp::Add,
+								   .depthTest			= true,
+								   .depthWrite			= true,
+								   .targets				= {{.format = DEFAULT_RT_FORMAT}},
+								   .cullMode			= LinaGX::CullMode::None,
+								   .frontFace			= LinaGX::FrontFace::CCW,
+								   .indirectEnabled		= true,
+				   };
+
+				String vertex	= vertexBlock;
+				String fragment = fragBlock;
+
+				ShaderPreprocessor::InjectVertexMain(vertex, ShaderType::TransparentSurface);
+				ShaderPreprocessor::InjectFragMain(fragment, ShaderType::TransparentSurface);
+
+				variant._compileData[LinaGX::ShaderStage::Vertex] = {
+					.includePath = includePath.c_str(),
+					.text		 = vertex,
+				};
+				variant._compileData[LinaGX::ShaderStage::Fragment] = {
+					.includePath = includePath.c_str(),
+					.text		 = fragment,
+				};
+			}
+
+			// Forward default
+			{
+				ShaderVariant& variant = m_meta.variants["ForwardSkinned"_hs];
+				variant				   = ShaderVariant{
+								   .blendDisable		= false,
+								   .blendSrcFactor		= LinaGX::BlendFactor::SrcAlpha,
+								   .blendDstFactor		= LinaGX::BlendFactor::OneMinusSrcAlpha,
+								   .blendColorOp		= LinaGX::BlendOp::Add,
+								   .blendSrcAlphaFactor = LinaGX::BlendFactor::One,
+								   .blendDstAlphaFactor = LinaGX::BlendFactor::One,
+								   .blendAlphaOp		= LinaGX::BlendOp::Add,
+								   .depthTest			= true,
+								   .depthWrite			= true,
+								   .targets				= {{.format = DEFAULT_RT_FORMAT}},
+								   .cullMode			= LinaGX::CullMode::None,
+								   .frontFace			= LinaGX::FrontFace::CCW,
+								   .indirectEnabled		= true,
+				   };
+
+				String vertex	= vertexBlock;
+				String fragment = fragBlock;
+
+				ShaderPreprocessor::InjectSkinnedVertexMain(vertex, ShaderType::TransparentSurface);
+				ShaderPreprocessor::InjectFragMain(fragment, ShaderType::TransparentSurface);
+
+				variant._compileData[LinaGX::ShaderStage::Vertex] = {
+					.includePath = includePath.c_str(),
+					.text		 = vertex,
+				};
+
+				variant._compileData[LinaGX::ShaderStage::Fragment] = {
+					.includePath = includePath.c_str(),
+					.text		 = fragment,
+				};
+			}
+		}
+		else if (type == ShaderType::Lighting)
+		{
+			ShaderVariant& variant = m_meta.variants["Default"_hs];
+			variant				   = ShaderVariant{
+							   .blendDisable	= false,
+							   .depthTest		= false,
+							   .depthWrite		= false,
+							   .targets			= {{.format = DEFAULT_RT_FORMAT}},
+							   .cullMode		= LinaGX::CullMode::None,
+							   .frontFace		= LinaGX::FrontFace::CW,
+							   .indirectEnabled = false,
+			   };
+
+			variant._compileData[LinaGX::ShaderStage::Vertex] = {
+				.includePath = includePath.c_str(),
+				.text		 = vertexBlock,
+			};
+
+			variant._compileData[LinaGX::ShaderStage::Fragment] = {
+				.includePath = includePath.c_str(),
+				.text		 = fragBlock,
+			};
 		}
 		else if (type == ShaderType::PostProcess)
 		{

@@ -35,8 +35,8 @@ SOFTWARE.
 #include "Common/Memory/MemoryAllocatorPool.hpp"
 #include "Common/ObjectWrapper.hpp"
 #include "Core/Physics/PhysicsWorld.hpp"
-#include "Common/Event/GameEventDispatcher.hpp"
 #include "Core/World/CommonWorld.hpp"
+#include "Core/World/ComponentCache.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
 #include "Core/Resources/ResourceManager.hpp"
@@ -55,7 +55,7 @@ namespace Lina
 	};
 
 	// Actual game state
-	class EntityWorld : public Resource, public GameEventDispatcher
+	class EntityWorld : public Resource
 	{
 	public:
 		struct GfxSettings
@@ -111,6 +111,68 @@ namespace Lina
 		void		 RemoveListener(EntityWorldListener* listener);
 		Entity*		 AddModelToWorld(Model* model, const Vector<Material*>& materials);
 
+		template <typename T> T* GetComponent(Entity* e)
+		{
+			return GetCache<T>()->Get();
+		}
+
+		template <typename T> T* AddComponent(Entity* e, const T& t)
+		{
+			auto* cache = GetCache<T>();
+			T*	  comp	= cache->Get(e);
+			if (comp != nullptr)
+			{
+				LINA_WARN("Can't add component as it already exists!");
+				return comp;
+			}
+			comp  = cache->Create();
+			*comp = t;
+			OnCreateComponent(comp, e);
+			return comp;
+		}
+
+		template <typename T> T* AddComponent(Entity* e)
+		{
+			auto* cache = GetCache<T>();
+			T*	  comp	= cache->Get(e);
+
+			if (comp != nullptr)
+			{
+				LINA_WARN("Can't add component as it already exists!");
+				return comp;
+			}
+
+			comp = cache->Create();
+			OnCreateComponent(comp, e);
+			return comp;
+		}
+
+		template <typename T> void RemoveComponent(Entity* e)
+		{
+			ComponentCache<T>* cache = GetCache<T>();
+			T*				   comp	 = cache->Get(e);
+
+			if (comp == nullptr)
+			{
+				LINA_ERR("Can't remove component as it doesn't exist!");
+				return;
+			}
+
+			OnDestroyComponent(comp, e);
+			cache->Destroy(comp);
+		}
+
+		template <typename T> ComponentCache<T>* GetCache()
+		{
+			const TypeID tid = GetTypeID<T>();
+
+			if (m_componentCaches.find(tid) == m_componentCaches.end())
+				m_componentCaches[tid] = new ComponentCache<T>(this);
+
+			ComponentCache<T>* cache = static_cast<ComponentCache<T>*>(m_componentCaches[tid]);
+			return cache;
+		}
+
 		inline uint32 GetActiveEntityCount() const
 		{
 			return m_entityBucket.GetActiveItemCount();
@@ -153,20 +215,22 @@ namespace Lina
 
 	private:
 		void DestroyEntityData(Entity* e);
+		void OnCreateComponent(Component* c, Entity* e);
+		void OnDestroyComponent(Component* c, Entity* e);
 
 	private:
 		ALLOCATOR_BUCKET_MEM;
 
-		AllocatorBucket<Entity, 1000> m_entityBucket;
-
-		EntityID					 m_entityGUIDCounter = 1;
-		ResourceManagerV2			 m_resourceManagerV2;
-		PhysicsWorld				 m_physicsWorld;
-		Bitmask32					 m_flags = 0;
-		Vector<EntityWorldListener*> m_listeners;
-		GfxSettings					 m_gfxSettings;
-		Screen						 m_screen = {};
-		WorldInput					 m_worldInput;
+		AllocatorBucket<Entity, 1000>		 m_entityBucket;
+		HashMap<TypeID, ComponentCacheBase*> m_componentCaches;
+		EntityID							 m_entityGUIDCounter = 1;
+		ResourceManagerV2					 m_resourceManagerV2;
+		PhysicsWorld						 m_physicsWorld;
+		Bitmask32							 m_flags = 0;
+		Vector<EntityWorldListener*>		 m_listeners;
+		GfxSettings							 m_gfxSettings;
+		Screen								 m_screen = {};
+		WorldInput							 m_worldInput;
 	};
 
 	LINA_RESOURCE_BEGIN(EntityWorld)
