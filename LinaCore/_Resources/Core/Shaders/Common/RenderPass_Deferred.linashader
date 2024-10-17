@@ -26,38 +26,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-layout(set = 0, binding = 0) uniform GlobalData
+layout(set = 1, binding = 0) uniform ViewData
 {
-	vec4 mouseScreen;
-	vec4 deltaElapsed;
-} LINA_GLOBAL;
+	mat4 view;
+	mat4 proj;
+	mat4 viewProj;
+	vec4 cameraPositionAndNear;
+	vec4 cameraDirectionAndFar;
+	vec2 size;
+	vec2 padding;
+	vec4 padding2;
+} LINA_VIEW;
 
-layout (set = 0, binding = 1) readonly buffer MaterialBuffer
+layout(std140, set = 1, binding = 1) readonly buffer ObjectBuffer
 {
-	uint data[];
-} LINA_MATERIALS;
+    LinaEntity data[];
+} LINA_ENTITIES;
 
-layout (set = 0, binding = 2) uniform texture2D LINA_TEXTURES[];
-layout (set = 0, binding = 3) uniform sampler LINA_SAMPLERS[];
-
-struct LinaTexture2D
+layout(set = 1, binding = 2) readonly buffer IndirectArgumentsBuffer
 {
-	uint txt;
-	uint smp;
-};
+    IndirectArguments data[];
+} LINA_INDIRECT_ARGUMENTS;
 
-struct IndirectArguments
+LinaEntity LINA_GET_ENTITY(uint entityID)
 {
-	uint entityID;
-	uint materialID;
-};
-
-struct LinaEntity
-{
-    mat4 modelMatrix;
-};
-
-vec4 LINA_SAMPLE_TEXTURE(LinaTexture2D linaTxt, vec2 uv)
-{
-	return texture(sampler2D(LINA_TEXTURES[linaTxt.txt], LINA_SAMPLERS[linaTxt.smp]), uv);
+	return LINA_ENTITIES.data[entityID];
 }

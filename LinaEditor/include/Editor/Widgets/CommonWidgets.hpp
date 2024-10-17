@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Common/Data/String.hpp"
 #include "Common/Math/Color.hpp"
+#include "Editor/Graphics/EditorGfxHelpers.hpp"
 
 namespace Lina
 {
@@ -94,5 +95,6 @@ namespace Lina::Editor
 		static Widget* BuildThumbnailTooltip(void* thumbnailOwner);
 
 	private:
+		static GUIUserData s_singleChannelUserData;
 	};
 } // namespace Lina::Editor

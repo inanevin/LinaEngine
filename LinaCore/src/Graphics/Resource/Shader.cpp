@@ -33,7 +33,7 @@ SOFTWARE.
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
 #include "Core/Graphics/Pipeline/DescriptorSet.hpp"
 
-#include "Common/FileSystem//FileSystem.hpp"
+#include "Common/FileSystem/FileSystem.hpp"
 
 namespace Lina
 {
@@ -57,17 +57,30 @@ namespace Lina
 		stream.ReadToRaw(data);
 	}
 
+	bool ShaderProperty::VerifySimilarity(const Vector<ShaderProperty*>& v1, const Vector<ShaderProperty*>& v2)
+	{
+		if (v1.empty() || v2.empty())
+			return true;
+
+		for (ShaderProperty* p : v1)
+		{
+			auto it = linatl::find_if(v2.begin(), v2.end(), [p](ShaderProperty* prop) -> bool { return p->type == prop->type && p->sid == prop->sid; });
+			if (it == v2.end())
+				return false;
+		}
+
+		return true;
+	}
+
 	void Shader::Metadata::SaveToStream(OStream& stream) const
 	{
 		stream << variants;
-		stream << drawIndirectEnabled;
 		stream << shaderType;
 	}
 
 	void Shader::Metadata::LoadFromStream(IStream& stream)
 	{
 		stream >> variants;
-		stream >> drawIndirectEnabled;
 		stream >> shaderType;
 	}
 
@@ -129,44 +142,187 @@ namespace Lina
 			return false;
 
 		const String includePath = FileSystem::GetRunningDirectory();
-
 		if (includePath.empty())
 			return false;
 
-		String txt = FileSystem::ReadFileContentsAsString(path);
-
+		const String txt = FileSystem::ReadFileContentsAsString(path);
 		if (txt.empty())
 			return false;
 
-		LINAGX_MAP<LinaGX::ShaderStage, LinaGX::ShaderCompileData> data;
-		LINAGX_MAP<LinaGX::ShaderStage, String>					   blocks;
-
-		HashMap<LinaGX::ShaderStage, String> outStages;
-
-		bool success = ShaderPreprocessor::Preprocess(txt, outStages, m_properties, m_meta.shaderType);
-		if (!success)
+		if (!ShaderPreprocessor::VerifyFullShader(txt))
 			return false;
 
-		for (const auto& [stg, text] : outStages)
+		String vertexBlock = "", fragBlock = "";
+		if (!ShaderPreprocessor::ExtractVertexFrag(txt, vertexBlock, fragBlock))
+			return false;
+
+		ShaderPreprocessor::InjectVersionAndExtensions(vertexBlock);
+		ShaderPreprocessor::InjectVersionAndExtensions(fragBlock);
+
+		Vector<ShaderProperty*> vertexProperties = {}, fragProperties = {};
+		ShaderPreprocessor::InjectMaterialIfRequired(vertexBlock, vertexProperties);
+		ShaderPreprocessor::InjectMaterialIfRequired(fragBlock, fragProperties);
+
+		if (!ShaderProperty::VerifySimilarity(vertexProperties, fragProperties))
 		{
-			LinaGX::ShaderCompileData compData;
-			compData.includePath = includePath.c_str();
-			compData.text		 = text.c_str();
-			data[stg]			 = compData;
+			LINA_ERR("LinaMaterial structs in vertex and fragment shaders are different!");
+			return false;
 		}
 
-		success = LinaGX::Instance::CompileShader(data, m_outCompiledBlobs, m_layout);
+		m_properties = fragProperties;
+
+		const ShaderType type	 = m_meta.shaderType;
+		bool			 success = true;
+
+		auto clearVariants = [this]() {
+			for (auto& [sid, variant] : m_meta.variants)
+			{
+				for (auto& [stage, blob] : variant._outCompiledBlobs)
+				{
+					if (blob.ptr != nullptr)
+						delete[] blob.ptr;
+				}
+				variant._outCompiledBlobs.clear();
+			}
+		};
+
+		if (type == ShaderType::OpaqueSurface)
+		{
+
+			ShaderPreprocessor::InjectRenderPassInputs(vertexBlock, RenderPassDescriptorType::Deferred);
+			ShaderPreprocessor::InjectRenderPassInputs(fragBlock, RenderPassDescriptorType::Deferred);
+
+			// Deferred default
+			{
+				ShaderVariant& variant = m_meta.variants["DeferredDefault"_hs];
+				variant				   = ShaderVariant{
+								   .blendDisable	= true,
+								   .depthTest		= true,
+								   .depthWrite		= true,
+								   .targets			= {{.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}},
+								   .cullMode		= LinaGX::CullMode::Back,
+								   .frontFace		= LinaGX::FrontFace::CW,
+								   .indirectEnabled = true,
+				   };
+
+				String vertex	= vertexBlock;
+				String fragment = fragBlock;
+
+				ShaderPreprocessor::InjectVertexMain(vertex, ShaderType::OpaqueSurface);
+				ShaderPreprocessor::InjectFragMain(fragment, ShaderType::OpaqueSurface);
+
+				variant._compileData[LinaGX::ShaderStage::Vertex] = {
+					.includePath = includePath.c_str(),
+					.text		 = vertex,
+				};
+
+				variant._compileData[LinaGX::ShaderStage::Fragment] = {
+					.includePath = includePath.c_str(),
+					.text		 = fragment,
+				};
+			}
+
+			// Deferred skinned
+			{
+				ShaderVariant& variant = m_meta.variants["DeferredSkinned"_hs];
+				variant				   = ShaderVariant{
+								   .blendDisable	= true,
+								   .depthTest		= true,
+								   .depthWrite		= true,
+								   .targets			= {{.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}},
+								   .cullMode		= LinaGX::CullMode::Back,
+								   .frontFace		= LinaGX::FrontFace::CW,
+								   .indirectEnabled = true,
+				   };
+
+				String vertex	= vertexBlock;
+				String fragment = fragBlock;
+
+				ShaderPreprocessor::InjectSkinnedVertexMain(vertex, ShaderType::OpaqueSurface);
+				ShaderPreprocessor::InjectFragMain(fragment, ShaderType::OpaqueSurface);
+
+				variant._compileData[LinaGX::ShaderStage::Vertex] = {
+					.includePath = includePath.c_str(),
+					.text		 = vertex,
+				};
+
+				variant._compileData[LinaGX::ShaderStage::Fragment] = {
+					.includePath = includePath.c_str(),
+					.text		 = fragment,
+				};
+			}
+		}
+		else if (type == ShaderType::TransparentSurface)
+		{
+		}
+		else if (type == ShaderType::PostProcess)
+		{
+		}
+		else if (type == ShaderType::Sky)
+		{
+			ShaderPreprocessor::InjectRenderPassInputs(vertexBlock, RenderPassDescriptorType::Lighting);
+			ShaderPreprocessor::InjectRenderPassInputs(fragBlock, RenderPassDescriptorType::Lighting);
+
+			ShaderVariant& variant = m_meta.variants["Default"_hs];
+			variant				   = ShaderVariant{
+							   .blendDisable	  = true,
+							   .depthTest		  = true,
+							   .depthWrite		  = false,
+							   .targets			  = {{.format = DEFAULT_RT_FORMAT}},
+							   .depthOp			  = LinaGX::CompareOp::Equal,
+							   .cullMode		  = LinaGX::CullMode::Back,
+							   .frontFace		  = LinaGX::FrontFace::CW,
+							   .depthBiasEnable	  = true,
+							   .depthBiasConstant = 5.0f,
+							   .indirectEnabled	  = false,
+			   };
+
+			String vertex	= vertexBlock;
+			String fragment = fragBlock;
+
+			ShaderPreprocessor::InjectVertexMain(vertex, ShaderType::Sky);
+			ShaderPreprocessor::InjectFragMain(fragment, ShaderType::Sky);
+
+			variant._compileData[LinaGX::ShaderStage::Vertex] = {
+				.includePath = includePath.c_str(),
+				.text		 = vertex,
+			};
+
+			variant._compileData[LinaGX::ShaderStage::Fragment] = {
+				.includePath = includePath.c_str(),
+				.text		 = fragment,
+			};
+		}
+		else if (type == ShaderType::Custom)
+		{
+			for (auto& [sid, variant] : m_meta.variants)
+			{
+				variant._compileData[LinaGX::ShaderStage::Vertex] = {
+					.includePath = includePath.c_str(),
+					.text		 = vertexBlock,
+				};
+
+				variant._compileData[LinaGX::ShaderStage::Fragment] = {
+					.includePath = includePath.c_str(),
+					.text		 = fragBlock,
+				};
+			}
+		}
+
+		for (auto& [sid, variant] : m_meta.variants)
+		{
+			success = LinaGX::Instance::CompileShader(variant._compileData, variant._outCompiledBlobs, variant._outLayout);
+
+			if (!success)
+			{
+				LINA_ERR("Failed compiling shader! {0}", m_name);
+				break;
+			}
+		}
 
 		if (!success)
 		{
-			LINA_ERR("Shader: Failed compiling shader! {0}", m_name);
-
-			for (auto& [stage, blob] : m_outCompiledBlobs)
-			{
-				if (blob.ptr != nullptr)
-					delete[] blob.ptr;
-			}
-
+			clearVariants();
 			return false;
 		}
 
@@ -178,18 +334,6 @@ namespace Lina
 		Resource::SaveToStream(stream);
 		stream << VERSION;
 		stream << m_meta;
-
-		const uint32 size = static_cast<uint32>(m_outCompiledBlobs.size());
-		stream << size;
-
-		for (const auto& [stage, blob] : m_outCompiledBlobs)
-		{
-			stream << stage;
-			stream << static_cast<uint32>(blob.size);
-			stream.WriteRawEndianSafe(blob.ptr, blob.size);
-		}
-
-		SaveLinaGXShaderLayout(stream, m_layout);
 		stream << m_properties;
 	}
 
@@ -199,30 +343,6 @@ namespace Lina
 		uint32 version = 0;
 		stream >> version;
 		stream >> m_meta;
-
-		uint32 size = 0;
-		stream >> size;
-
-		for (uint32 i = 0; i < size; i++)
-		{
-			uint32				sz = 0;
-			LinaGX::ShaderStage stage;
-			stream >> stage;
-			stream >> sz;
-
-			LinaGX::DataBlob blob = {.ptr = nullptr, .size = static_cast<size_t>(sz)};
-
-			if (blob.size != 0)
-			{
-				blob.ptr = new uint8[blob.size];
-				stream.ReadToRawEndianSafe(blob.ptr, blob.size);
-			}
-
-			m_outCompiledBlobs[stage] = blob;
-		}
-
-		m_layout = {};
-		LoadLinaGXShaderLayout(stream, m_layout);
 		stream >> m_properties;
 	}
 
@@ -235,17 +355,17 @@ namespace Lina
 		 Materials will use this layout when binding descriptor sets for this shader.
 		 */
 
-		if (m_layout.descriptorSetLayouts.size() > 2)
-		{
-			const auto& setLayout = m_layout.descriptorSetLayouts[2];
-
-			m_materialSetInfo = m_layout.descriptorSetLayouts[2];
-			m_materialSetDesc = {};
-			for (const auto& b : setLayout.bindings)
-				m_materialSetDesc.bindings.push_back(GfxHelpers::GetBindingFromShaderBinding(b));
-
-			m_materialSetDesc.allocationCount = 1;
-		}
+		// if (m_layout.descriptorSetLayouts.size() > 2)
+		// {
+		// 	const auto& setLayout = m_layout.descriptorSetLayouts[2];
+		//
+		// 	m_materialSetInfo = m_layout.descriptorSetLayouts[2];
+		// 	m_materialSetDesc = {};
+		// 	for (const auto& b : setLayout.bindings)
+		// 		m_materialSetDesc.bindings.push_back(GfxHelpers::GetBindingFromShaderBinding(b));
+		//
+		// 	m_materialSetDesc.allocationCount = 1;
+		// }
 
 		m_descriptorSets.push_back(new DescriptorSet());
 		m_descriptorSets[0]->Create(m_materialSetDesc);
@@ -283,10 +403,10 @@ namespace Lina
 			};
 
 			variant._gpuHandle = Application::GetLGX()->CreateShader({
-				.stages					 = m_outCompiledBlobs,
+				.stages					 = variant._outCompiledBlobs,
 				.colorAttachments		 = colorAttachments,
 				.depthStencilDesc		 = depthStencilAtt,
-				.layout					 = m_layout,
+				.layout					 = variant._outLayout,
 				.polygonMode			 = LinaGX::PolygonMode::Fill,
 				.cullMode				 = variant.cullMode,
 				.frontFace				 = variant.frontFace,
@@ -295,17 +415,17 @@ namespace Lina
 				.depthBiasConstant		 = variant.depthBiasConstant,
 				.depthBiasClamp			 = variant.depthBiasClamp,
 				.depthBiasSlope			 = variant.depthBiasSlope,
-				.drawIndirectEnabled	 = m_meta.drawIndirectEnabled,
+				.drawIndirectEnabled	 = variant.indirectEnabled,
 				.useCustomPipelineLayout = false,
 				.debugName				 = m_name.c_str(),
 			});
 
 			variant._gpuHandleExists = true;
-		}
 
-		for (auto& [stage, blob] : m_outCompiledBlobs)
-		{
-			delete[] blob.ptr;
+			for (auto& [stage, blob] : variant._outCompiledBlobs)
+				delete[] blob.ptr;
+
+			variant._outCompiledBlobs.clear();
 		}
 	}
 

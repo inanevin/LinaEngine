@@ -36,16 +36,11 @@ SOFTWARE.
 namespace Lina
 {
 
-#define ENTITY_MAX		 ((uint32_t)-2)
-#define ENTITY_NULL		 ((uint32_t)-1)
-#define ENTITY_POOL_SIZE 500
+	typedef uint64 EntityID;
 
 	enum EntityFlags
 	{
-		EF_VISIBLE			= 1 << 0,
-		EF_STATIC			= 1 << 1,
-		EF_NEEDS_VIS_UPDATE = 1 << 2,
-		EF_TRANSIENT		= 1 << 3,
+		EF_NONE = 0,
 	};
 
 	enum ComponentFlags

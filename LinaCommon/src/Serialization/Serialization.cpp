@@ -33,6 +33,24 @@ SOFTWARE.
 
 namespace Lina
 {
+	bool Serialization::WriteToFile(const String& fileInput, const String& targetFilePath)
+	{
+		std::ofstream outFile(targetFilePath.c_str());
+
+		if (outFile.is_open())
+		{
+			outFile << fileInput;
+			outFile.close();
+		}
+		else
+		{
+			LINA_ERR("Failed writing to file! {0}", targetFilePath);
+			return false;
+		}
+
+		return true;
+	}
+
 	bool Serialization::SaveToFile(const char* path, OStream& stream)
 	{
 		if (FileSystem::FileOrPathExists(path))

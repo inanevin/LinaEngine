@@ -57,6 +57,8 @@ namespace Lina
 		ShaderProperty(const ShaderProperty& other)		 = delete;
 		ShaderProperty& operator=(ShaderProperty const&) = delete;
 
+		static bool VerifySimilarity(const Vector<ShaderProperty*>& v1, const Vector<ShaderProperty*>& v2);
+
 		~ShaderProperty()
 		{
 			if (data.data() != nullptr)
@@ -70,9 +72,8 @@ namespace Lina
 
 	enum class ShaderType
 	{
-		DeferredObject,
-		ForwardObject,
-		Lighting,
+		OpaqueSurface,
+		TransparentSurface,
 		Sky,
 		PostProcess,
 		Custom
@@ -84,8 +85,7 @@ namespace Lina
 		struct Metadata
 		{
 			HashMap<StringID, ShaderVariant> variants;
-			bool							 drawIndirectEnabled = false;
-			ShaderType						 shaderType			 = ShaderType::DeferredObject;
+			ShaderType						 shaderType = ShaderType::Custom;
 
 			void SaveToStream(OStream& out) const;
 			void LoadFromStream(IStream& in);
@@ -146,13 +146,11 @@ namespace Lina
 		ALLOCATOR_BUCKET_MEM;
 		LINA_REFLECTION_ACCESS(Shader);
 
-		LINAGX_MAP<LinaGX::ShaderStage, LinaGX::DataBlob> m_outCompiledBlobs;
-		LinaGX::ShaderLayout							  m_layout			= {};
-		LinaGX::DescriptorSetDesc						  m_materialSetDesc = {};
-		LinaGX::ShaderDescriptorSetLayout				  m_materialSetInfo = {};
-		Metadata										  m_meta			= {};
-		Vector<DescriptorSet*>							  m_descriptorSets;
-		Vector<ShaderProperty*>							  m_properties;
+		LinaGX::DescriptorSetDesc		  m_materialSetDesc = {};
+		LinaGX::ShaderDescriptorSetLayout m_materialSetInfo = {};
+		Metadata						  m_meta			= {};
+		Vector<DescriptorSet*>			  m_descriptorSets;
+		Vector<ShaderProperty*>			  m_properties;
 	};
 
 	LINA_RESOURCE_BEGIN(Shader);
@@ -160,6 +158,5 @@ namespace Lina
 	LINA_CLASS_END(Shader);
 
 	LINA_CLASS_BEGIN(ShaderMetadata)
-	LINA_FIELD(Shader::Metadata, drawIndirectEnabled, "DrawIndirect", FieldType::Boolean, 0)
 	LINA_CLASS_END(ShaderMetadata)
 } // namespace Lina

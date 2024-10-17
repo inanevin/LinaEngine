@@ -36,6 +36,7 @@ namespace Lina
 	class Serialization
 	{
 	public:
+		static bool	   WriteToFile(const String& fileInput, const String& targetFilePath);
 		static bool	   SaveToFile(const char* path, OStream& stream);
 		static IStream LoadFromFile(const char* path);
 	};

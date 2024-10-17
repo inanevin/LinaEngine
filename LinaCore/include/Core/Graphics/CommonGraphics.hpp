@@ -47,7 +47,7 @@ namespace Lina
 
 	enum RenderPassDescriptorType
 	{
-		Main = 0,
+		Deferred = 0,
 		Lighting,
 		Forward,
 		Max,
@@ -57,7 +57,7 @@ namespace Lina
 	{
 		switch (type)
 		{
-		case Main:
+		case Deferred:
 			return "Main";
 		case Lighting:
 			return "Lighting";

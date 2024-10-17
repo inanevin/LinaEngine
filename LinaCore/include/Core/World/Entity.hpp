@@ -44,29 +44,26 @@ namespace Lina
 	class Entity final
 	{
 	public:
-		void		   AddChild(Entity* e);
-		void		   RemoveChild(Entity* e);
-		void		   RemoveFromParent();
-		void		   SetTransformation(const Matrix4& mat, bool omitScale = false);
-		void		   SetLocalTransformation(const Matrix4& mat, bool omitScale = false);
-		void		   AddRotation(const Vector3& angles);
-		void		   AddLocalRotation(const Vector3& angles);
-		void		   AddPosition(const Vector3& loc);
-		void		   AddLocalPosition(const Vector3& loc);
-		void		   SetLocalPosition(const Vector3& loc);
-		void		   SetPosition(const Vector3& loc);
-		void		   SetLocalRotation(const Quaternion& rot, bool isThisPivot = true);
-		void		   SetLocalRotationAngles(const Vector3& angles, bool isThisPivot = true);
-		void		   SetRotation(const Quaternion& rot, bool isThisPivot = true);
-		void		   SetRotationAngles(const Vector3& angles, bool isThisPivot = true);
-		void		   SetLocalScale(const Vector3& scale, bool isThisPivot = true);
-		void		   SetScale(const Vector3& scale, bool isThisPivot = true);
-		void		   SetVisible(bool visible);
-		void		   SetStatic(bool isStatic);
-		Transformation GetInterpolated(float interpolation);
-		bool		   HasChildInTree(Entity* other) const;
-		void		   AddAABB(const AABB& aabb);
-		void		   RemoveAABB(const AABB& aabb);
+		void AddChild(Entity* e);
+		void RemoveChild(Entity* e);
+		void RemoveFromParent();
+		void SetTransformation(const Matrix4& mat, bool omitScale = false);
+		void SetLocalTransformation(const Matrix4& mat, bool omitScale = false);
+		void AddRotation(const Vector3& angles);
+		void AddLocalRotation(const Vector3& angles);
+		void AddPosition(const Vector3& loc);
+		void AddLocalPosition(const Vector3& loc);
+		void SetLocalPosition(const Vector3& loc);
+		void SetPosition(const Vector3& loc);
+		void SetLocalRotation(const Quaternion& rot, bool isThisPivot = true);
+		void SetLocalRotationAngles(const Vector3& angles, bool isThisPivot = true);
+		void SetRotation(const Quaternion& rot, bool isThisPivot = true);
+		void SetRotationAngles(const Vector3& angles, bool isThisPivot = true);
+		void SetLocalScale(const Vector3& scale, bool isThisPivot = true);
+		void SetScale(const Vector3& scale, bool isThisPivot = true);
+		bool HasChildInTree(Entity* other) const;
+		void AddAABB(const AABB& aabb);
+		void RemoveAABB(const AABB& aabb);
 
 		void SaveToStream(OStream& stream);
 		void LoadFromStream(IStream& stream);
@@ -79,16 +76,6 @@ namespace Lina
 		inline const String& GetName()
 		{
 			return m_name;
-		}
-
-		inline bool IsVisible()
-		{
-			return m_mask.IsSet(EntityFlags::EF_VISIBLE);
-		}
-
-		inline bool IsStatic()
-		{
-			return m_mask.IsSet(EntityFlags::EF_STATIC);
 		}
 
 		inline const Vector3& GetLocalRotationAngles() const
@@ -129,19 +116,9 @@ namespace Lina
 			return m_transform;
 		}
 
-		inline const Transformation& GetPrevTransform() const
-		{
-			return m_prevTransform;
-		}
-
 		inline void SetName(const String& name)
 		{
 			m_name = name;
-		}
-
-		inline bool IsMaskSet(uint16 mask)
-		{
-			return m_mask.IsSet(mask);
 		}
 
 		inline Bitmask16 GetEntityFlags()
@@ -159,11 +136,6 @@ namespace Lina
 			return m_parent;
 		}
 
-		inline uint32 GetTransientID() const
-		{
-			return m_transientID;
-		}
-
 	private:
 		void UpdateGlobalPosition();
 		void UpdateLocalPosition();
@@ -175,11 +147,6 @@ namespace Lina
 	private:
 		friend class WorldRenderer;
 
-		inline void SyncPrevTransform()
-		{
-			m_prevTransform = m_transform;
-		}
-
 	private:
 		friend class EntityWorld;
 
@@ -187,13 +154,14 @@ namespace Lina
 		~Entity() = default;
 
 		ALLOCATOR_BUCKET_MEM;
-		uint32			m_transientID = 0;
-		EntityWorld*	m_world		  = nullptr;
-		Entity*			m_parent	  = nullptr;
-		String			m_name		  = "";
+		ALLOCATOR_BUCKET_GET;
+
+		EntityID		m_guid	 = 0;
+		EntityWorld*	m_world	 = nullptr;
+		Entity*			m_parent = nullptr;
+		String			m_name	 = "";
 		Vector<Entity*> m_children;
 		Transformation	m_transform;
-		Transformation	m_prevTransform;
 		Bitmask16		m_mask;
 		AABB			m_totalAABB;
 	};

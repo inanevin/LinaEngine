@@ -91,6 +91,7 @@ include/Editor/Meta/EditorLayout.hpp
 
 # Resources
 include/Editor/Resources/ResourcePipeline.hpp
+include/Editor/Resources/EditorResources.hpp
 )
 
 set(SOURCES
@@ -165,6 +166,7 @@ src/Meta/EditorLayout.cpp
 
 # Resources
 src/Resources/ResourcePipeline.cpp
+src/Resources/EditorResources.cpp
 )
 
 #--------------------------------------------------------------------

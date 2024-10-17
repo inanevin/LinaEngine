@@ -51,7 +51,9 @@ namespace Lina
 
 #define ALLOCATOR_BUCKET_MEM                                                                                                                                                                                                                                       \
 	template <typename U, int N> friend class AllocatorBucket;                                                                                                                                                                                                     \
-	BucketIdentifier			   m_bucketIdent = {};                                                                                                                                                                                                             \
+	BucketIdentifier m_bucketIdent = {};
+
+#define ALLOCATOR_BUCKET_GET                                                                                                                                                                                                                                       \
 	inline const BucketIdentifier& GetBucketIdent()                                                                                                                                                                                                                \
 	{                                                                                                                                                                                                                                                              \
 		return m_bucketIdent;                                                                                                                                                                                                                                      \

@@ -70,13 +70,6 @@ namespace Lina::Editor
 		m_worldRenderer = new WorldRenderer(m_world, Vector2ui(4, 4));
 		m_worldDisplayer->DisplayWorld(m_worldRenderer);
 		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer);
-
-		// Setup camera.
-		Entity*			   cameraEntity = m_world->CreateEntity("Camera");
-		FlyCameraMovement* flyCamera	= m_world->AddComponent<FlyCameraMovement>(cameraEntity);
-		flyCamera->GetFlags().Set(CF_RECEIVE_EDITOR_TICK);
-		CameraComponent* cameraComp = m_world->AddComponent<CameraComponent>(cameraEntity);
-		m_world->SetActiveCamera(cameraComp);
 	}
 
 	void PanelMaterialViewer::Destruct()

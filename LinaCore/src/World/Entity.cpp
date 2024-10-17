@@ -106,15 +106,6 @@ namespace Lina
 		SetLocalPosition(GetLocalPosition() + loc);
 	}
 
-	Transformation Entity::GetInterpolated(float interpolation)
-	{
-		Transformation t;
-		t.SetPosition(Vector3::Lerp(m_prevTransform.GetPosition(), m_transform.GetPosition(), interpolation));
-		t.SetScale(Vector3::Lerp(m_prevTransform.GetScale(), m_transform.GetScale(), interpolation));
-		t.SetRotation(Quaternion::PitchYawRoll(Vector3::Lerp(m_prevTransform.GetRotationAngles(), m_transform.GetRotation().GetPitchYawRoll(), interpolation)));
-		return t;
-	}
-
 	bool Entity::HasChildInTree(Entity* other) const
 	{
 		auto it = linatl::find_if(m_children.begin(), m_children.end(), [other](Entity* e) { return e == other || e->HasChildInTree(other); });
@@ -131,8 +122,6 @@ namespace Lina
 	}
 	void Entity::SetPosition(const Vector3& loc)
 	{
-		m_mask.Set(EF_NEEDS_VIS_UPDATE);
-
 		m_transform.SetPosition(loc);
 		UpdateLocalPosition();
 
@@ -173,8 +162,6 @@ namespace Lina
 
 	void Entity::SetRotation(const Quaternion& rot, bool isThisPivot)
 	{
-		m_mask.Set(EF_NEEDS_VIS_UPDATE);
-
 		m_transform.SetRotation(rot);
 		m_transform.SetRotationAngles(rot.GetPitchYawRoll());
 		UpdateLocalRotation();
@@ -219,8 +206,6 @@ namespace Lina
 
 	void Entity::SetScale(const Vector3& scale, bool isThisPivot)
 	{
-		m_mask.Set(EF_NEEDS_VIS_UPDATE);
-
 		m_transform.SetScale(scale);
 		UpdateLocalScale();
 
@@ -340,27 +325,5 @@ namespace Lina
 			m_transform.SetLocalRotation(q);
 			m_transform.SetLocalRotationAngles(m_transform.GetLocalRotation().GetPitchYawRoll());
 		}
-	}
-
-	void Entity::SetVisible(bool visible)
-	{
-		if (visible)
-			m_mask.Set(EF_VISIBLE);
-		else
-			m_mask.Remove(EF_VISIBLE);
-
-		for (auto c : m_children)
-			c->SetVisible(visible);
-	}
-
-	void Entity::SetStatic(bool isStatic)
-	{
-		if (isStatic)
-			m_mask.Set(EF_STATIC);
-		else
-			m_mask.Remove(EF_STATIC);
-
-		for (auto c : m_children)
-			c->SetStatic(isStatic);
 	}
 } // namespace Lina

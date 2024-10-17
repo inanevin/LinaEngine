@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Serialization/Serialization.hpp"
 #include "Core/Meta/ProjectData.hpp"
+#include "Core/Platform/PlatformProcess.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/Resource/GUIWidget.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
@@ -73,7 +74,7 @@ namespace Lina::Editor
 		else if (tid == GetTypeID<Material>())
 		{
 			Material		 mat(id, name);
-			const ResourceID targetShader = subType == 0 ? EDITOR_SHADER_DEFAULT_OBJECT_ID : subType;
+			const ResourceID targetShader = subType == 0 ? EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_ID : subType;
 
 			IStream shaderStream = Serialization::LoadFromFile(project->GetResourcePath(targetShader).c_str());
 
@@ -102,22 +103,44 @@ namespace Lina::Editor
 		{
 			Shader shader(id, name);
 
+			const String savePath = PlatformProcess::SaveDialog({
+				.title		   = Locale::GetStr(LocaleStr::CreateANewShader),
+				.primaryButton = Locale::GetStr(LocaleStr::Create),
+				.extensions	   = {"linashader"},
+				.mode		   = PlatformProcess::DialogMode::SelectFile,
+			});
+
 			// Load default text.
 			if (subType == 0)
 			{
+				// Opaque surface
+				const String shaderTxt = FileSystem::ReadFileContentsAsString(EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_PATH);
+				Serialization::WriteToFile(shaderTxt, savePath);
+				shader.GetMeta().shaderType = ShaderType::OpaqueSurface;
 			}
 			else if (subType == 1)
 			{
+				// Transparent surface
+				const String shaderTxt = FileSystem::ReadFileContentsAsString(EDITOR_SHADER_DEFAULT_TRANSPARENT_SURFACE_PATH);
+				Serialization::WriteToFile(shaderTxt, savePath);
+				shader.GetMeta().shaderType = ShaderType::TransparentSurface;
 			}
 			else if (subType == 2)
 			{
+				// Sky
+				const String shaderTxt = FileSystem::ReadFileContentsAsString(EDITOR_SHADER_DEFAULT_SKY_PATH);
+				Serialization::WriteToFile(shaderTxt, savePath);
+				shader.GetMeta().shaderType = ShaderType::Sky;
 			}
 			else if (subType == 3)
 			{
+				// Post process
+				const String shaderTxt = FileSystem::ReadFileContentsAsString(EDITOR_SHADER_DEFAULT_POSTPROCESS_PATH);
+				Serialization::WriteToFile(shaderTxt, savePath);
+				shader.GetMeta().shaderType = ShaderType::PostProcess;
 			}
-			else if (subType == 4)
-			{
-			}
+
+			shader.LoadFromFile(savePath);
 			shader.SaveToFileAsBinary(path);
 		}
 		else if (tid == GetTypeID<PhysicsMaterial>())
@@ -163,12 +186,12 @@ namespace Lina::Editor
 			else
 				continue;
 
-			const String	   name = FileSystem::GetFilenameOnlyFromPath(def.path) + "." + FileSystem::GetFileExtension(def.path);
+			const String	   name = FileSystem::GetFilenameOnlyFromPath(def.path);
 			ResourceDirectory* dir	= nullptr;
 
 			auto createDirectory = [&](ResourceID id) {
 				dir = src->CreateChild({
-					.name		 = FileSystem::GetFilenameOnlyFromPath(def.path) + "." + FileSystem::GetFileExtension(def.path),
+					.name		 = name,
 					.isFolder	 = false,
 					.resourceID	 = id,
 					.resourceTID = resourceTID,
@@ -179,107 +202,21 @@ namespace Lina::Editor
 			if (resourceTID == GetTypeID<Shader>())
 			{
 				Shader shader(0, name);
+
+				if (def.subType == 0)
+					shader.GetMeta().shaderType = ShaderType::OpaqueSurface;
+				else if (def.subType == 1)
+					shader.GetMeta().shaderType = ShaderType::TransparentSurface;
+				else if (def.subType == 2)
+					shader.GetMeta().shaderType = ShaderType::Sky;
+				else if (def.subType == 3)
+					shader.GetMeta().shaderType = ShaderType::PostProcess;
+
 				if (!shader.LoadFromFile(def.path))
 					continue;
 
 				shader.SetID(def.id == 0 ? projectData->ConsumeResourceID() : def.id);
 				shader.SetPath(def.path);
-
-				const Vector<ShaderProperty*> props = shader.GetProperties();
-
-				LinaTexture2D defaultTextureAlbedo = {
-					.texture = EDITOR_TEXTURE_EMPTY_ALBEDO_ID,
-					.sampler = EDITOR_SAMPLER_DEFAULT_ID,
-				};
-				LinaTexture2D defaultTextureNormal = {
-					.texture = EDITOR_TEXTURE_EMPTY_NORMAL_ID,
-					.sampler = EDITOR_SAMPLER_DEFAULT_ID,
-				};
-				LinaTexture2D defaultTextureMetallicRoughness = {
-					.texture = EDITOR_TEXTURE_EMPTY_METALLIC_ROUGHNESS_ID,
-					.sampler = EDITOR_SAMPLER_DEFAULT_ID,
-				};
-				LinaTexture2D defaultTextureAO = {
-					.texture = EDITOR_TEXTURE_EMPTY_AO_ID,
-					.sampler = EDITOR_SAMPLER_DEFAULT_ID,
-				};
-
-				for (ShaderProperty* p : props)
-				{
-					if (p->type == ShaderPropertyType::Texture2D)
-					{
-						const String lowername = UtilStr::ToLower(p->name);
-						if (lowername.find("normal") != String::npos)
-							MEMCPY(p->data.data(), &defaultTextureNormal, sizeof(LinaTexture2D));
-						else if (lowername.find("metallic") != String::npos || lowername.find("roughness") != String::npos)
-							MEMCPY(p->data.data(), &defaultTextureMetallicRoughness, sizeof(LinaTexture2D));
-						else if (lowername.find("ao") != String::npos)
-							MEMCPY(p->data.data(), &defaultTextureAO, sizeof(LinaTexture2D));
-						else
-							MEMCPY(p->data.data(), &defaultTextureAlbedo, sizeof(LinaTexture2D));
-					}
-				}
-
-				const ShaderType type = shader.GetMeta().shaderType;
-
-				if (type == ShaderType::DeferredObject)
-				{
-					shader.GetMeta().variants["RenderTarget"_hs] = {
-						.blendDisable = true,
-						.depthTest	  = true,
-						.depthWrite	  = true,
-						.targets	  = {{.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}},
-						.cullMode	  = LinaGX::CullMode::Back,
-						.frontFace	  = LinaGX::FrontFace::CW,
-					};
-					shader.GetMeta().drawIndirectEnabled = true;
-				}
-				else if (type == ShaderType::ForwardObject)
-				{
-					shader.GetMeta().variants["RenderTarget"_hs] = {
-						.blendDisable = true,
-						.depthTest	  = true,
-						.depthWrite	  = true,
-						.targets	  = {{.format = DEFAULT_RT_FORMAT}},
-						.cullMode	  = LinaGX::CullMode::Back,
-						.frontFace	  = LinaGX::FrontFace::CW,
-					};
-					shader.GetMeta().drawIndirectEnabled = true;
-				}
-				else if (type == ShaderType::Lighting)
-				{
-					shader.GetMeta().variants["RenderTarget"_hs] = {
-						.blendDisable = false,
-						.depthTest	  = false,
-						.depthWrite	  = false,
-						.targets	  = {{.format = DEFAULT_RT_FORMAT}},
-						.cullMode	  = LinaGX::CullMode::None,
-						.frontFace	  = LinaGX::FrontFace::CW,
-					};
-					shader.GetMeta().drawIndirectEnabled = false;
-				}
-				else if (type == ShaderType::Sky)
-				{
-					shader.GetMeta().variants["RenderTarget"_hs] = {
-						.blendDisable	   = true,
-						.depthTest		   = true,
-						.depthWrite		   = false,
-						.targets		   = {{.format = DEFAULT_RT_FORMAT}},
-						.depthOp		   = LinaGX::CompareOp::Equal,
-						.cullMode		   = LinaGX::CullMode::Back,
-						.frontFace		   = LinaGX::FrontFace::CW,
-						.depthBiasEnable   = true,
-						.depthBiasConstant = 5.0f,
-					};
-					shader.GetMeta().drawIndirectEnabled = false;
-				}
-				else if (type == ShaderType::PostProcess)
-				{
-				}
-				else if (type == ShaderType::Custom)
-				{
-				}
-
 				shader.SaveToFileAsBinary(projectData->GetResourcePath(shader.GetID()));
 				createDirectory(shader.GetID());
 			}
@@ -328,8 +265,8 @@ namespace Lina::Editor
 
 				if (defaultShader == nullptr)
 				{
-					defaultShader = new Shader(EDITOR_SHADER_DEFAULT_OBJECT_ID, EDITOR_SHADER_DEFAULT_OBJECT_PATH);
-					defaultShader->LoadFromFile(EDITOR_SHADER_DEFAULT_OBJECT_PATH);
+					defaultShader = new Shader(EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_ID, EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_PATH);
+					defaultShader->LoadFromFile(EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_PATH);
 				}
 
 				const Vector<ModelMaterial>&	   matDefs	   = model.GetMaterialDefs();

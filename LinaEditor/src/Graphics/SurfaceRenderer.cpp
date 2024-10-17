@@ -194,6 +194,7 @@ namespace Lina::Editor
 						  .displayChannels	 = 0,
 						  .displayLod		 = 0,
 						  .hasTexture		 = hasTexture,
+						  .singleChannel	 = (uint32)guiUserData->isSingleChannel,
 						  .diffuse =
 							  {
 								  .textureIndex = hasTexture ? context->GetBindlessIndex(static_cast<Texture*>(buf->textureHandle)) : 0,
@@ -250,6 +251,7 @@ namespace Lina::Editor
 					  .displayChannels	 = 0,
 					  .displayLod		 = 0,
 					  .hasTexture		 = hasTexture,
+					  .singleChannel	 = 0,
 					  .diffuse =
 						  {
 							  .textureIndex = hasTexture ? context->GetBindlessIndex(static_cast<Texture*>(buf->textureHandle)) : 0,

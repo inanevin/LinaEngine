@@ -1,11 +1,11 @@
 /*
-This file is a part of: Lina Engine
-https://github.com/inanevin/LinaEngine
+This file is a part of: LinaGX
+https://github.com/inanevin/LinaGX
 
 Author: Inan Evin
 http://www.inanevin.com
 
-Copyright (c) [2018-] [Inan Evin]
+Copyright (c) [2023-] [Inan Evin]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,41 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#LINA_SHADER_DEFERRED_OBJECT
-
-#lina_vs
-
-#include "Resources/Core/Shaders/Common/GlobalData.linashader"
-#include "Resources/Core/Shaders/Common/RenderPass_main.linashader"
-
-layout (location = 0) in vec3 inPos;
-layout (location = 1) in vec3 inNormal;
-layout (location = 2) in vec2 inUV;
-
-layout (location = 0) out vec3 outWorldPos;
-layout (location = 1) out vec3 outNormal;
-layout (location = 2) out vec2 outUV;
-layout (location = 3) flat out uint outMaterialIndex;
-
-
-void main()
-{
-    LinaEntity object = LINA_GET_ENTITY();
-    
-    outWorldPos = vec3(object.modelMatrix * vec4(inPos, 1.0));
-    outNormal = inNormal;
-    outUV = vec2(1.0 - inUV.x, inUV.y);
-    outMaterialIndex = 0;
-    gl_Position = LINA_VIEW.proj * LINA_VIEW.view *  vec4(outWorldPos, 1.0);
-}
-
-#lina_end
-
-#lina_fs
-
-#include "Resources/Core/Shaders/Common/GlobalData.linashader"
-#include "Resources/Core/Shaders/Common/RenderPass_main.linashader"
-
 layout (location = 0) in vec3 inWorldPos;
 layout (location = 1) in vec3 inNormal;
 layout (location = 2) in vec2 inUV;
@@ -70,23 +35,19 @@ layout (location = 0) out vec4 outAlbedo;
 layout (location = 1) out vec4 outPosition;
 layout (location = 2) out vec4 outNormal;
 
-struct LinaMaterial
-{
-   vec4 color;
-   vec4 tilingAndOffset;
-   LinaTexture2D txtAlbedo;
-   LinaTexture2D txtNormal;
-};
-
 void main()
 {
-   LinaMaterial material;
+   LinaFragInput fragInput;
+   fragInput.materialID = inMaterialIndex;
+   fragInput.uv = inUV;
+   
+   LinaFragOutput fragOutput;
+   LINA_FRAG_FUNC(fragInput, fragOutput);
 
-   vec4 albedo = LINA_SAMPLE_TEXTURE(material.txtAlbedo, inUV) * material.color;
-   vec4 normal = LINA_SAMPLE_TEXTURE(material.txtNormal, inUV) * material.color;
-   outAlbedo = vec4(albedo.rgb, 1.0);
+   if(fragOutput.color.a < 0.99f)
+      discard;
+
+   outAlbedo = vec4(fragOutput.color.rgb, fragOutput.isUnlit);
    outPosition = vec4(inWorldPos, 0.0);
-   outNormal = vec4(inNormal, 0.0);
+   outNormal = vec4(fragOutput.normal, 0.0);
 }
-
-#lina_end

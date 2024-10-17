@@ -109,10 +109,6 @@ namespace Lina
 		virtual bool LoadFromFile(const String& path) override;
 		void		 AddListener(EntityWorldListener* listener);
 		void		 RemoveListener(EntityWorldListener* listener);
-		void		 PlayBeginComponents();
-		void		 PlayEndComponents();
-		void		 PreTick(uint32 flags);
-		void		 Tick(float deltaTime, uint32 flags);
 		Entity*		 AddModelToWorld(Model* model, const Vector<Material*>& materials);
 
 		inline uint32 GetActiveEntityCount() const
@@ -128,57 +124,6 @@ namespace Lina
 		inline Bitmask32& GetFlags()
 		{
 			return m_flags;
-		}
-
-		inline void SetActiveCamera(CameraComponent* cam)
-		{
-			m_activeCamera = cam;
-		}
-
-		inline CameraComponent* GetActiveCamera() const
-		{
-			return m_activeCamera;
-		}
-
-		template <typename T> T* GetComponent(Entity* e)
-		{
-			return GetCache<T>()->Get();
-		}
-
-		template <typename T> T* AddComponent(Entity* e, const T& t)
-		{
-			T* comp = GetCache<T>()->Create();
-			*comp	= t;
-			OnCreateComponent(comp, e);
-			return comp;
-		}
-
-		template <typename T> T* AddComponent(Entity* e)
-		{
-			T* ptr = GetCache<T>()->Create();
-			OnCreateComponent(ptr, e);
-			return ptr;
-		}
-
-		template <typename T> void RemoveComponent(Entity* e)
-		{
-			ComponentCache<T>* cache = GetCache<T>();
-			T*				   comp	 = cache->Get(e);
-			OnDestroyComponent(comp, e);
-			if (comp == m_activeCamera)
-				m_activeCamera = nullptr;
-			cache->Destroy(comp);
-		}
-
-		template <typename T> ComponentCache<T>* GetCache()
-		{
-			const TypeID tid = GetTypeID<T>();
-
-			if (m_componentCaches.find(tid) == m_componentCaches.end())
-				m_componentCaches[tid] = new ComponentCache<T>(this);
-
-			ComponentCache<T>* cache = static_cast<ComponentCache<T>*>(m_componentCaches[tid]);
-			return cache;
 		}
 
 		inline GfxSettings& GetGfxSettings()
@@ -201,30 +146,27 @@ namespace Lina
 			return m_worldInput;
 		}
 
-	private:
-		void OnCreateComponent(Component* c, Entity* e);
-		void OnDestroyComponent(Component* c, Entity* e);
+		inline EntityID ConsumeEntityGUID()
+		{
+			return m_entityGUIDCounter++;
+		}
 
 	private:
 		void DestroyEntityData(Entity* e);
-		void Simulate(float fixedDelta);
-
-		void WaitForSimulation();
 
 	private:
 		ALLOCATOR_BUCKET_MEM;
 
 		AllocatorBucket<Entity, 1000> m_entityBucket;
 
-		ResourceManagerV2					 m_resourceManagerV2;
-		PhysicsWorld						 m_physicsWorld;
-		HashMap<TypeID, ComponentCacheBase*> m_componentCaches;
-		CameraComponent*					 m_activeCamera = nullptr;
-		Bitmask32							 m_flags		= 0;
-		Vector<EntityWorldListener*>		 m_listeners;
-		GfxSettings							 m_gfxSettings;
-		Screen								 m_screen = {};
-		WorldInput							 m_worldInput;
+		EntityID					 m_entityGUIDCounter = 1;
+		ResourceManagerV2			 m_resourceManagerV2;
+		PhysicsWorld				 m_physicsWorld;
+		Bitmask32					 m_flags = 0;
+		Vector<EntityWorldListener*> m_listeners;
+		GfxSettings					 m_gfxSettings;
+		Screen						 m_screen = {};
+		WorldInput					 m_worldInput;
 	};
 
 	LINA_RESOURCE_BEGIN(EntityWorld)

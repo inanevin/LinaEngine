@@ -34,6 +34,7 @@ struct LinaVertexInput
    vec3 pos;
    vec3 normal;
    vec2 uv;
+   uint entityID;
    uint materialID;
 };
 
@@ -67,23 +68,24 @@ struct LinaFragInput
 struct LinaFragOutput
 {
    vec4 color;
+   vec3 normal;
+   uint isUnlit;
 };
 
 struct LinaMaterial
 {
-   vec4 topColor;
-   vec4 horizonColor;
-   vec4 groundColor;
-   float horizonDiffusion;
+   vec4 color;
+   vec4 tilingAndOffset;
+   LinaTexture2D txtAlbedo;
+   LinaTexture2D txtNormal;
 };
 
 void LINA_FRAG_FUNC(in LinaFragInput inFrag, out LinaFragOutput outFrag)
 {
    LinaMaterial material = LINA_GET_MATERIAL(inFrag.materialID);
-   vec3 skyColor = vec3(0.0);
-   skyColor = mix(material.groundColor, material.topColor, inFrag.uv.g).rgb;
-   outFrag.color = vec4(inFrag.uv.r, inFrag.uv.g, 0, 1);
+   outFrag.color = LINA_SAMPLE_TEXTURE(material.txtAlbedo, inFrag.uv) * material.color;
+   outFrag.normal = LINA_SAMPLE_TEXTURE(material.txtNormal, inFrag.uv).rgb;
+   outFrag.isUnlit = 0;
 }
 
 #lina_end
-

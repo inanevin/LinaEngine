@@ -158,7 +158,7 @@ namespace Lina
 
 	LinaGX::DescriptorSetDesc GfxHelpers::GetSetDescPersistentRenderPass(RenderPassDescriptorType type)
 	{
-		if (type == RenderPassDescriptorType::Main)
+		if (type == RenderPassDescriptorType::Deferred)
 		{
 			LinaGX::DescriptorBinding binding0 = {
 				.type	= LinaGX::DescriptorType::UBO,
@@ -354,7 +354,7 @@ namespace Lina
 	{
 		LinaGX::DescriptorSetDesc setDesc = GfxHelpers::GetSetDescPersistentRenderPass(type);
 
-		if (type == RenderPassDescriptorType::Main)
+		if (type == RenderPassDescriptorType::Deferred)
 		{
 			// 1 is object buffer reserved.
 			return {
@@ -440,14 +440,6 @@ namespace Lina
 									   .stagingOnly	 = false,
 									   .bindingIndex = 2,
 									   .ident		 = "IndirectConstants"_hs,
-							   },
-								   {
-									   .bufferType	 = LinaGX::ResourceTypeHint::TH_StorageBuffer,
-									   .debugName	 = "RP: FWTransparency - GUIMaterials",
-									   .size		 = 100 * sizeof(GPUMaterialGUI),
-									   .stagingOnly	 = false,
-									   .bindingIndex = 3,
-									   .ident		 = "GUIMaterials"_hs,
 							   }},
 				.setDescription = setDesc,
 			};

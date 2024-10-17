@@ -159,7 +159,7 @@ namespace Lina::Editor
 			m_previewOnly = true;
 		else
 		{
-			HashSet<Resource*> resources = m_editor->GetResourceManagerV2().LoadResourcesFromProject(m_editor, m_editor->GetProjectManager().GetProjectData(), {def}, NULL);
+			HashSet<Resource*> resources = m_editor->GetResourceManagerV2().LoadResourcesFromProject(m_editor->GetProjectManager().GetProjectData(), {def}, NULL);
 			r							 = *resources.begin();
 			m_editor->GetEditorRenderer().OnResourcesLoaded({r});
 		}

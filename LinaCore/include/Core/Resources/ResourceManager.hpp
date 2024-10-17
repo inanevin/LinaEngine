@@ -48,14 +48,10 @@ namespace Lina
 		ResourceManagerV2(){};
 		~ResourceManagerV2(){};
 
-		HashSet<Resource*> LoadResourcesFromFile(ApplicationDelegate* delegate, const ResourceDefinitionList& resourceDef, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress);
-		HashSet<Resource*> LoadResourcesFromProject(ApplicationDelegate* delegate, ProjectData* project, const ResourceDefinitionList& resourceDef, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress);
+		HashSet<Resource*> LoadResourcesFromFile(const ResourceDefinitionList& resourceDef, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress);
+		HashSet<Resource*> LoadResourcesFromProject(ProjectData* project, const ResourceDefinitionList& resourceDef, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress);
 		void			   UnloadResources(const Vector<Resource*>& resources);
 
-		void Poll();
-		void WaitForAll();
-		void AddListener(ResourceManagerListener* listener);
-		void RemoveListener(ResourceManagerListener* listener);
 		void Shutdown();
 
 		Resource* OpenResource(ProjectData* project, TypeID typeID, ResourceID resourceID, void* subdata);
@@ -122,10 +118,7 @@ namespace Lina
 
 	private:
 		ResourceID							m_customResourceID = RESOURCE_ID_CUSTOM_SPACE;
-		Vector<ResourceLoadTask*>			m_loadTasks;
-		JobExecutor							m_executor;
 		HashMap<TypeID, ResourceCacheBase*> m_caches;
-		Vector<ResourceManagerListener*>	m_listeners;
 	};
 
 } // namespace Lina

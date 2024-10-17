@@ -56,21 +56,15 @@ namespace Lina
 				DestroyEntity(e);
 			return false;
 		});
-
-		for (Pair<TypeID, ComponentCacheBase*> pair : m_componentCaches)
-		{
-			delete pair.second;
-		}
 	}
 
 	Entity* EntityWorld::CreateEntity(const String& name)
 	{
 		const uint32 id = m_entityBucket.GetActiveItemCount();
 		Entity*		 e	= m_entityBucket.Allocate();
-		e->SetVisible(true);
-		e->SetStatic(true);
-		e->m_world = this;
-		e->m_name  = name;
+		e->m_guid		= ConsumeEntityGUID();
+		e->m_world		= this;
+		e->m_name		= name;
 		return e;
 	}
 
@@ -85,94 +79,30 @@ namespace Lina
 	{
 		for (auto child : e->m_children)
 			DestroyEntityData(child);
-
-		for (auto& [tid, cache] : m_componentCaches)
-		{
-			cache->Destroy(e);
-		}
-
 		m_entityBucket.Free(e);
-	}
-
-	void EntityWorld::Simulate(float fixedDelta)
-	{
-		m_physicsWorld.Simulate();
-	}
-
-	void EntityWorld::PlayBeginComponents()
-	{
-		for (const auto& [tid, cache] : m_componentCaches)
-		{
-			cache->PlayBegin();
-		}
-	}
-
-	void EntityWorld::PlayEndComponents()
-	{
-		for (const auto& [tid, cache] : m_componentCaches)
-		{
-			cache->PlayEnd();
-		}
-	}
-
-	void EntityWorld::PreTick(uint32 flags)
-	{
-		m_resourceManagerV2.Poll();
-
-		for (const auto& [tid, cache] : m_componentCaches)
-		{
-			cache->PreTick(flags);
-		}
-	}
-
-	void EntityWorld::Tick(float deltaTime, uint32 flags)
-	{
-		for (const auto& [tid, cache] : m_componentCaches)
-		{
-			cache->Tick(deltaTime, flags);
-		}
-
-		for (const auto& [tid, cache] : m_componentCaches)
-		{
-			cache->PostTick(deltaTime, flags);
-		}
-	}
-
-	void EntityWorld::WaitForSimulation()
-	{
-		m_physicsWorld.WaitForSimulation();
 	}
 
 	void EntityWorld::SaveToStream(OStream& stream) const
 	{
 		Resource::SaveToStream(stream);
 		stream << VERSION;
+		stream << m_entityGUIDCounter;
 
 		const uint32 entitiesSize = m_entityBucket.GetActiveItemCount();
 		stream << entitiesSize;
 
 		m_entityBucket.View([&](Entity* e, uint32 index) -> bool {
 			e->SaveToStream(stream);
-			e->m_transientID = index;
 			return false;
 		});
 
 		m_entityBucket.View([&](Entity* e, uint32 index) -> bool {
 			if (e->GetParent() != nullptr)
-				stream << index + 1;
+				stream << e->m_guid;
 			else
 				stream << 0;
 			return false;
 		});
-
-		const uint32 cacheSize = static_cast<uint32>(m_componentCaches.size());
-		stream << cacheSize;
-
-		for (auto& [tid, cache] : m_componentCaches)
-		{
-			stream << tid;
-			cache->SaveToStream(stream);
-		}
 	}
 
 	bool EntityWorld::LoadFromFile(const String& path)
@@ -192,68 +122,34 @@ namespace Lina
 		Resource::LoadFromStream(stream);
 		uint32 version = 0;
 		stream >> version;
+		stream >> m_entityGUIDCounter;
 
 		m_entityBucket.Clear();
-		m_componentCaches.clear();
 
 		uint32 entitiesSize = 0;
 		stream >> entitiesSize;
-
-		Vector<Entity*> entities;
-		entities.resize(entitiesSize);
+		Vector<Entity*> tempEntities;
+		tempEntities.resize(static_cast<size_t>(entitiesSize));
 
 		for (uint32 i = 0; i < entitiesSize; i++)
 		{
 			Entity* e = CreateEntity("");
 			e->LoadFromStream(stream);
-			entities[i] = e;
+			tempEntities[i] = e;
 		}
 
 		for (uint32 i = 0; i < entitiesSize; i++)
 		{
-			uint32 parentID = 0;
-			stream >> parentID;
+			EntityID parentGUID = 0;
+			stream >> parentGUID;
 
-			if (parentID != 0)
+			if (parentGUID != 0)
 			{
-				const uint32 actualID = parentID - 1;
-				entities[actualID]->AddChild(entities[i]);
+				Entity* parent = m_entityBucket.Find([parentGUID](Entity* e) -> bool { return e->m_guid == parentGUID; });
+				if (parent != nullptr)
+					parent->AddChild(tempEntities[i]);
 			}
 		}
-
-		uint32 cachesSize = 0;
-		stream >> cachesSize;
-
-		for (uint32 i = 0; i < cachesSize; i++)
-		{
-			TypeID tid = 0;
-			stream >> tid;
-
-			MetaType&			type  = ReflectionSystem::Get().Resolve(tid);
-			void*				ptr	  = type.GetFunction<void*(EntityWorld*)>("CreateComponentCache"_hs)(this);
-			ComponentCacheBase* cache = static_cast<ComponentCacheBase*>(ptr);
-			cache->LoadFromStream(stream, entities);
-			m_componentCaches[tid] = cache;
-
-			cache->ForEach([this](Component* c) { OnCreateComponent(c, c->m_entity); });
-		}
-	}
-
-	void EntityWorld::OnCreateComponent(Component* c, Entity* e)
-	{
-		c->m_world	= this;
-		c->m_entity = e;
-		c->OnEvent({.type = ComponentEventType::Create});
-		for (auto* l : m_listeners)
-			l->OnComponentAdded(c);
-	}
-
-	void EntityWorld::OnDestroyComponent(Component* c, Entity* e)
-	{
-		c->OnEvent({.type = ComponentEventType::Destroy});
-
-		for (auto* l : m_listeners)
-			l->OnComponentRemoved(c);
 	}
 
 	void EntityWorld::AddListener(EntityWorldListener* listener)
@@ -279,11 +175,11 @@ namespace Lina
 
 			if (mesh != nullptr)
 			{
-				const uint32   matIdx = model->GetMesh(node->GetMeshIndex())->GetPrimitives().front().GetMaterialIndex();
-				MeshComponent* mc	  = world->AddComponent<MeshComponent>(nodeEntity);
-				mc->SetMesh(model, node->GetMeshIndex());
-				mc->SetMaterial(materials[matIdx]);
-				LINA_TRACE("Added mesh to world, mesh {0}, material {1}", mesh->GetName(), materials[matIdx]->GetName());
+				const uint32 matIdx = model->GetMesh(node->GetMeshIndex())->GetPrimitives().front().GetMaterialIndex();
+				// MeshComponent* mc	  = world->AddComponent<MeshComponent>(nodeEntity);
+				// mc->SetMesh(model, node->GetMeshIndex());
+				// mc->SetMaterial(materials[matIdx]);
+				// LINA_TRACE("Added mesh to world, mesh {0}, material {1}", mesh->GetName(), materials[matIdx]->GetName());
 			}
 
 			for (ModelNode* child : node->GetChildren())

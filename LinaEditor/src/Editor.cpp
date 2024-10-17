@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Editor/Editor.hpp"
 #include "Editor/EditorLocale.hpp"
+#include "Editor/Resources/EditorResources.hpp"
 #include "Editor/Widgets/Screens/SplashScreen.hpp"
 #include "Editor/Widgets/EditorRoot.hpp"
 #include "Editor/Graphics/WorldRendererExtEditor.hpp"
@@ -61,15 +62,14 @@ namespace Lina
 		vsync.vulkanVsync = LinaGX::VKVsync::None;
 
 		return SystemInitializationInfo{
-			.appName					 = "Lina Editor",
-			.windowWidth				 = w,
-			.windowHeight				 = h,
-			.windowStyle				 = LinaGX::WindowStyle::BorderlessApplication,
-			.vsyncStyle					 = vsync,
-			.allowTearing				 = true,
-			.appDelegate				 = new Lina::Editor::Editor(),
-			.resourceManagerUseMetacache = false,
-			.clearColor					 = Theme::GetDef().background0,
+			.appName	  = "Lina Editor",
+			.windowWidth  = w,
+			.windowHeight = h,
+			.windowStyle  = LinaGX::WindowStyle::BorderlessApplication,
+			.vsyncStyle	  = vsync,
+			.allowTearing = true,
+			.appDelegate  = new Lina::Editor::Editor(),
+			.clearColor	  = Theme::GetDef().background0,
 		};
 	}
 } // namespace Lina
@@ -78,187 +78,10 @@ namespace Lina::Editor
 {
 	Editor* Editor::s_editor = nullptr;
 
-	bool Editor::FillResourceCustomMeta(ResourceID id, OStream& stream)
-	{
-		if (id == EDITOR_FONT_ROBOTO_ID || id == EDITOR_FONT_ROBOTO_BOLD_ID)
-		{
-			Font::Metadata customMeta = {
-				.points = {{.size = 14, .dpiLimit = 1.0f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 14, .dpiLimit = 10.0f}},
-				.isSDF	= false,
-
-			};
-			stream << customMeta;
-			return true;
-		}
-
-		if (id == EDITOR_FONT_PLAY_BIG_ID)
-		{
-			Font::Metadata customMeta = {
-				.points = {{.size = 20, .dpiLimit = 10.1f}, {.size = 20, .dpiLimit = 1.8f}, {.size = 20, .dpiLimit = 10.0f}},
-				.isSDF	= false,
-
-			};
-			stream << customMeta;
-			return true;
-		};
-		// NOTE: 160, 380 is the glyph range for nunito sans
-
-		if (id == EDITOR_SHADER_GUI_DEFAULT_ID || id == EDITOR_SHADER_GUI_COLOR_WHEEL_ID || id == EDITOR_SHADER_GUI_HUE_DISPLAY_ID || id == EDITOR_SHADER_GUI_TEXT_ID || id == EDITOR_SHADER_GUI_SDF_TEXT_ID)
-		{
-			Shader::Metadata meta;
-
-			meta.variants["Swapchain"_hs] = ShaderVariant{
-				.blendDisable = false,
-				.depthTest	  = false,
-				.depthWrite	  = false,
-				.depthFormat  = LinaGX::Format::UNDEFINED,
-				.targets	  = {{.format = DEFAULT_SWAPCHAIN_FORMAT}},
-				.cullMode	  = LinaGX::CullMode::None,
-				.frontFace	  = LinaGX::FrontFace::CCW,
-			};
-
-			meta.drawIndirectEnabled = true;
-			stream << meta;
-			return true;
-		}
-		/*
-				if (id == DEFAULT_SHADER_GUI3D_ID)
-				{
-					Shader::Metadata meta;
-
-					meta.variants["RenderTarget"_hs] = ShaderVariant{
-						.blendDisable		 = false,
-						.blendSrcFactor		 = LinaGX::BlendFactor::SrcAlpha,
-						.blendDstFactor		 = LinaGX::BlendFactor::OneMinusSrcAlpha,
-						.blendColorOp		 = LinaGX::BlendOp::Add,
-						.blendSrcAlphaFactor = LinaGX::BlendFactor::One,
-						.blendDstAlphaFactor = LinaGX::BlendFactor::One,
-						.blendAlphaOp		 = LinaGX::BlendOp::Add,
-						.depthTest			 = true,
-						.depthWrite			 = true,
-						.targets			 = {{.format = DEFAULT_RT_FORMAT}},
-						.cullMode			 = LinaGX::CullMode::None,
-						.frontFace			 = LinaGX::FrontFace::CCW,
-					};
-
-					meta.drawIndirectEnabled		  = true;
-					meta.descriptorSetAllocationCount = 1;
-					stream << meta;
-					return true;
-				}
-		*/
-		if (id == EDITOR_SHADER_DEFAULT_OBJECT_ID)
-		{
-			Shader::Metadata meta;
-			meta.variants["RenderTarget"_hs] = ShaderVariant{
-				.blendDisable = true,
-				.depthTest	  = true,
-				.depthWrite	  = true,
-				.targets	  = {{.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}},
-				.cullMode	  = LinaGX::CullMode::Back,
-				.frontFace	  = LinaGX::FrontFace::CW,
-			};
-
-			meta.drawIndirectEnabled = true;
-			stream << meta;
-			return true;
-		}
-
-		if (id == EDITOR_SHADER_DEFAULT_LIGHTING_ID)
-		{
-			Shader::Metadata meta;
-			meta.variants["RenderTarget"_hs] = ShaderVariant{
-				.blendDisable = false,
-				.depthTest	  = false,
-				.depthWrite	  = false,
-				.targets	  = {{.format = DEFAULT_RT_FORMAT}},
-				.cullMode	  = LinaGX::CullMode::None,
-				.frontFace	  = LinaGX::FrontFace::CW,
-			};
-			meta.drawIndirectEnabled = false;
-			stream << meta;
-			return true;
-		}
-
-		if (id == EDITOR_SHADER_DEFAULT_SKY_ID)
-		{
-			Shader::Metadata meta;
-			meta.variants["RenderTarget"_hs] = ShaderVariant{
-				.blendDisable	   = true,
-				.depthTest		   = true,
-				.depthWrite		   = false,
-				.targets		   = {{.format = DEFAULT_RT_FORMAT}},
-				.depthOp		   = LinaGX::CompareOp::Equal,
-				.cullMode		   = LinaGX::CullMode::Back,
-				.frontFace		   = LinaGX::FrontFace::CW,
-				.depthBiasEnable   = true,
-				.depthBiasConstant = 5.0f,
-			};
-
-			meta.drawIndirectEnabled = false;
-			stream << meta;
-			return true;
-		}
-
-		if (id == EDITOR_FONT_ICON_ID)
-		{
-			Font::Metadata customMeta = {
-				.points = {{.size = 32, .dpiLimit = 10.0f}},
-				.isSDF	= true,
-			};
-			stream << customMeta;
-			return true;
-		}
-
-		if (id == EDITOR_FONT_PLAY_ID || id == EDITOR_FONT_PLAY_BOLD_ID)
-		{
-			Font::Metadata customMeta = {
-				.points = {{.size = 14, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
-				.isSDF	= false,
-			};
-			stream << customMeta;
-			return true;
-		}
-
-		if (id == EDITOR_SHADER_LINES_ID)
-		{
-			Shader::Metadata meta;
-			meta.variants["RenderTarget"_hs] = ShaderVariant{
-				.blendDisable = false,
-
-				.depthTest	= true,
-				.depthWrite = true,
-				.targets	= {{.format = DEFAULT_RT_FORMAT}},
-				.cullMode	= LinaGX::CullMode::None,
-				.frontFace	= LinaGX::FrontFace::CCW,
-			};
-
-			meta.drawIndirectEnabled = false;
-			stream << meta;
-			return true;
-		}
-		return false;
-	}
-
 	bool Editor::PreInitialize()
 	{
-		ResourceDefinitionList priorityResources;
-		priorityResources.insert({EDITOR_SHADER_GUI_SDF_TEXT_ID, EDITOR_SHADER_GUI_SDF_TEXT_PATH, GetTypeID<Shader>()});
-		priorityResources.insert({EDITOR_SHADER_GUI_HUE_DISPLAY_ID, EDITOR_SHADER_GUI_HUE_DISPLAY_PATH, GetTypeID<Shader>()});
-		priorityResources.insert({EDITOR_SHADER_GUI_COLOR_WHEEL_ID, EDITOR_SHADER_GUI_COLOR_WHEEL_PATH, GetTypeID<Shader>()});
-		priorityResources.insert({EDITOR_SHADER_GUI_DEFAULT_ID, EDITOR_SHADER_GUI_DEFAULT_PATH, GetTypeID<Shader>()});
-		priorityResources.insert({EDITOR_SHADER_GUI_TEXT_ID, EDITOR_SHADER_GUI_TEXT_PATH, GetTypeID<Shader>()});
-		priorityResources.insert({EDITOR_TEXTURE_LINA_LOGO_ID, EDITOR_TEXTURE_LINA_LOGO_PATH, GetTypeID<Texture>()});
-		priorityResources.insert({EDITOR_TEXTURE_LINA_LOGO_BOTTOM_ID, EDITOR_TEXTURE_LINA_LOGO_BOTTOM_PATH, GetTypeID<Texture>()});
-		priorityResources.insert({EDITOR_TEXTURE_LINA_LOGO_LEFT_ID, EDITOR_TEXTURE_LINA_LOGO_LEFT_PATH, GetTypeID<Texture>()});
-		priorityResources.insert({EDITOR_TEXTURE_LINA_LOGO_RIGHT_ID, EDITOR_TEXTURE_LINA_LOGO_RIGHT_PATH, GetTypeID<Texture>()});
-		priorityResources.insert({EDITOR_FONT_ICON_ID, EDITOR_FONT_ICON_PATH, GetTypeID<Font>()});
-		priorityResources.insert({EDITOR_FONT_ROBOTO_ID, EDITOR_FONT_ROBOTO_PATH, GetTypeID<Font>()});
-		priorityResources.insert({EDITOR_FONT_ROBOTO_BOLD_ID, EDITOR_FONT_ROBOTO_BOLD_PATH, GetTypeID<Font>()});
-		priorityResources.insert({EDITOR_FONT_PLAY_BIG_ID, EDITOR_FONT_PLAY_BIG_PATH, GetTypeID<Font>()});
-		const ResourceList resources = m_resourceManagerV2.LoadResourcesFromFile(this, priorityResources, [](uint32 loaded, const ResourceDef& def) {});
-
-		if (resources.size() != priorityResources.size())
+		ResourceList resources;
+		if (!EditorResources::LoadPriorityResources(m_resourceManagerV2, resources))
 		{
 			LINA_ERR("Loading priority editor resources went bad, aborting!");
 			return false;
@@ -313,12 +136,10 @@ namespace Lina::Editor
 					m_settings.SaveToFile();
 
 				progText->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::LoadingCoreResources));
-				ResourceDefinitionList coreResources;
-				coreResources.insert({EDITOR_TEXTURE_CHECKERED_ID, EDITOR_TEXTURE_CHECKERED_PATH, GetTypeID<Texture>()});
-				coreResources.insert({EDITOR_TEXTURE_PROTOTYPE_DARK_ID, EDITOR_TEXTURE_PROTOTYPE_DARK_PATH, GetTypeID<Texture>()});
-				coreResources.insert({EDITOR_FONT_PLAY_ID, EDITOR_FONT_PLAY_PATH, GetTypeID<Font>()});
-				coreResources.insert({EDITOR_FONT_PLAY_BOLD_ID, EDITOR_FONT_PLAY_BOLD_PATH, GetTypeID<Font>()});
-				m_resourceManagerV2.LoadResourcesFromFile(this, coreResources, [progText](uint32 loaded, const ResourceDef& current) { progText->UpdateTextAndCalcSize(current.name); });
+
+				ResourceList coreResources;
+				EditorResources::LoadCoreResources(m_resourceManagerV2, coreResources);
+
 				progText->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::GeneratingAtlases));
 				m_atlasManager.AddCustomAtlas("Resources/Editor/Textures/Atlas/ProjectIcons/", "ProjectIcons"_hs, Vector2ui(2048, 2048));
 			},
@@ -360,7 +181,6 @@ namespace Lina::Editor
 	void Editor::PreTick()
 	{
 		TaskRunner::Poll();
-		m_resourceManagerV2.Poll();
 		m_projectManager.PreTick();
 		m_windowPanelManager.PreTick();
 		m_editorRenderer.PreTick();

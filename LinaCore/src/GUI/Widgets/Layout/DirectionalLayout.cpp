@@ -411,6 +411,9 @@ namespace Lina
 
 	float DirectionalLayout::CalculateChildrenSize()
 	{
+		if (m_children.empty())
+			return 0.0f;
+
 		float sz = 0.0f;
 		for (auto* c : m_children)
 		{

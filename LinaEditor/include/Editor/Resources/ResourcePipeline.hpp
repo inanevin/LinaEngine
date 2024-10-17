@@ -49,8 +49,9 @@ namespace Lina::Editor
 	public:
 		struct ResourceImportDef
 		{
-			String	   path = "";
-			ResourceID id	= 0;
+			String	   path	   = "";
+			ResourceID id	   = 0;
+			uint32	   subType = 0;
 		};
 
 		static ResourceDirectory*		  SaveNewResource(ProjectData* project, ResourceDirectory* src, const String& name, TypeID tid, ResourceID id = 0, ResourceID subType = 0);

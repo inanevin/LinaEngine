@@ -85,8 +85,7 @@ namespace Lina
 		m_world->AddListener(this);
 		m_size				= viewSize;
 		m_resourceManagerV2 = &world->GetResourceManagerV2();
-		m_resourceManagerV2->AddListener(this);
-		m_gBufSampler = m_resourceManagerV2->CreateResource<TextureSampler>(world->GetResourceManagerV2().ConsumeResourceID(), "World Renderer GBuf Sampler");
+		m_gBufSampler		= m_resourceManagerV2->CreateResource<TextureSampler>(world->GetResourceManagerV2().ConsumeResourceID(), "World Renderer GBuf Sampler");
 
 		// Create checker null texture
 		{
@@ -137,7 +136,7 @@ namespace Lina
 			data.copySemaphore	 = SemaphoreData(m_lgx->CreateUserSemaphore());
 		}
 
-		m_mainPass.Create(GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::Main));
+		m_mainPass.Create(GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::Deferred));
 		m_lightingPass.Create(GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::Lighting));
 		m_forwardPass.Create(GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::Forward));
 
@@ -212,7 +211,6 @@ namespace Lina
 	{
 		m_resourceManagerV2->DestroyResource(m_gBufSampler);
 		m_resourceManagerV2->DestroyResource(m_nullTexture);
-		m_resourceManagerV2->RemoveListener(this);
 
 		m_guiBackend.Shutdown();
 		m_meshManager.Shutdown();
@@ -342,15 +340,15 @@ namespace Lina
 		m_meshComponents.clear();
 		m_widgetComponents.clear();
 
-		m_world->GetCache<MeshComponent>()->View([&](MeshComponent* comp, uint32 index) -> bool {
-			m_meshComponents.push_back(comp);
-			return false;
-		});
-
-		m_world->GetCache<WidgetComponent>()->View([&](WidgetComponent* comp, uint32 index) -> bool {
-			m_widgetComponents.push_back(comp);
-			return false;
-		});
+		// m_world->GetCache<MeshComponent>()->View([&](MeshComponent* comp, uint32 index) -> bool {
+		// 	m_meshComponents.push_back(comp);
+		// 	return false;
+		// });
+		//
+		// m_world->GetCache<WidgetComponent>()->View([&](WidgetComponent* comp, uint32 index) -> bool {
+		// 	m_widgetComponents.push_back(comp);
+		// 	return false;
+		// });
 	}
 
 	void WorldRenderer::OnComponentAdded(Component* c)
@@ -375,9 +373,9 @@ namespace Lina
 		for (auto* ext : m_extensions)
 			ext->Tick(delta);
 
-		CameraComponent* activeCamera = m_world->GetActiveCamera();
-		if (activeCamera)
-			CalculateViewProj(activeCamera, m_mainPassView, m_mainPassProj);
+		// CameraComponent* activeCamera = m_world->GetActiveCamera();
+		// if (activeCamera)
+		//	CalculateViewProj(activeCamera, m_mainPassView, m_mainPassProj);
 	}
 
 	void WorldRenderer::Resize(const Vector2ui& newSize)
@@ -458,7 +456,7 @@ namespace Lina
 
 		// View data.
 		{
-			CameraComponent* camera = m_world->GetActiveCamera();
+			CameraComponent* camera = nullptr; // m_world->GetActiveCamera();
 			GPUDataView		 view	= {};
 			if (camera != nullptr)
 			{
@@ -627,7 +625,7 @@ namespace Lina
 		Material*		 lightingMaterial = m_world->GetGfxSettings().lightingMaterial.raw;
 		Material*		 skyMaterial	  = m_world->GetGfxSettings().skyMaterial.raw;
 		Model*			 skyModel		  = m_world->GetGfxSettings().skyModel.raw;
-		CameraComponent* camera			  = m_world->GetActiveCamera();
+		CameraComponent* camera			  = nullptr; // m_world->GetActiveCamera();
 
 		if (lightingMaterial == nullptr || skyMaterial == nullptr || skyModel == nullptr || camera == nullptr)
 		{
@@ -677,7 +675,7 @@ namespace Lina
 
 		// Global vertex/index buffers.
 		m_mainPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
-		m_mainPass.BindDescriptors(currentFrame.gfxStream, frameIndex, currentFrame.pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Main]);
+		m_mainPass.BindDescriptors(currentFrame.gfxStream, frameIndex, currentFrame.pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Deferred]);
 
 		m_meshManager.BindBuffers(currentFrame.gfxStream, 0);
 

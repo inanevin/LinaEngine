@@ -348,9 +348,8 @@ namespace Lina::Editor
 		else if (sid == TO_SID(Locale::GetStr(LocaleStr::Shader)))
 		{
 			outData = {
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::DeferredShader), .userData = userData},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::ForwardShader), .userData = userData},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::LightingShader), .userData = userData},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::OpaqueSurfaceShader), .userData = userData},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::TransparentSurfaceShader), .userData = userData},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::SkyShader), .userData = userData},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::PostProcessShader), .userData = userData},
 			};
@@ -490,11 +489,11 @@ namespace Lina::Editor
 		{
 			newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "TextureSampler", GetTypeID<TextureSampler>());
 		}
-		else if (sid == TO_SID(Locale::GetStr(LocaleStr::DeferredShader)))
+		else if (sid == TO_SID(Locale::GetStr(LocaleStr::OpaqueSurfaceShader)))
 		{
 			newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "DeferredShader", GetTypeID<Shader>(), 0, 0);
 		}
-		else if (sid == TO_SID(Locale::GetStr(LocaleStr::ForwardShader)))
+		else if (sid == TO_SID(Locale::GetStr(LocaleStr::TransparentSurfaceShader)))
 		{
 			newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "ForwardShader", GetTypeID<Shader>(), 0, 1);
 		}
@@ -502,13 +501,9 @@ namespace Lina::Editor
 		{
 			newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "SkyShader", GetTypeID<Shader>(), 0, 2);
 		}
-		else if (sid == TO_SID(Locale::GetStr(LocaleStr::LightingShader)))
-		{
-			newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "LightingShader", GetTypeID<Shader>(), 0, 3);
-		}
 		else if (sid == TO_SID(Locale::GetStr(LocaleStr::PostProcessShader)))
 		{
-			newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "PostProcessShader", GetTypeID<Shader>(), 0, 4);
+			newCreated = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), front, "PostProcessShader", GetTypeID<Shader>(), 0, 3);
 		}
 		else
 			return false;

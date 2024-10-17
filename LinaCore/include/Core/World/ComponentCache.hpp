@@ -159,10 +159,8 @@ namespace Lina
 			uint32 totalCount = m_componentBucket.GetActiveItemCount();
 			stream << totalCount;
 
-			MetaType& meta = ReflectionSystem::Get().Resolve<T>();
-
 			m_componentBucket.View([&](T* comp, uint32 index) -> bool {
-				meta.GetFunction<void(OStream&, void*)>("SaveToStream"_hs)(stream, comp);
+				comp->SaveToStream(stream);
 				stream << comp->GetEntity()->GetTransientID();
 				return false;
 			});
@@ -173,12 +171,10 @@ namespace Lina
 			uint32 totalCount = 0;
 			stream >> totalCount;
 
-			MetaType& meta = ReflectionSystem::Get().Resolve<T>();
-
 			for (uint32 i = 0; i < totalCount; i++)
 			{
 				T* comp = Create();
-				meta.GetFunction<void(OStream&, void*)>("LoadFromStream"_hs)(stream, comp);
+				comp->LoadFromStream(stream);
 				uint32 entityID = 0;
 				stream >> entityID;
 				comp->m_entity = entities[entityID];

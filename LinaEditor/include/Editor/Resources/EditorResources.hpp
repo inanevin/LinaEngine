@@ -26,64 +26,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#lina_vs
+#pragma once
 
-// do not modify
-struct LinaVertexInput
-{
-   vec3 pos;
-   vec3 normal;
-   vec2 uv;
-   uint materialID;
-};
+#include "Core/Resources/CommonResources.hpp"
+#include "Common/Data/CommonData.hpp"
 
-// do not modify
-struct LinaVertexOutput
+namespace Lina
 {
-   vec4 pos;
-   vec3 normal;
-   vec2 uv;
-};
-
-void LINA_VERTEX_FUNC(in LinaVertexInput inVertex, out LinaVertexOutput outVertex)
-{
-   outVertex.pos = vec4(inVertex.pos, 1.0);
-   outVertex.normal = inVertex.normal;
-   outVertex.uv = inVertex.uv;
+	class ResourceManagerV2;
 }
 
-#lina_end
-
-#lina_fs
-
-// do not modify
-struct LinaFragInput
+namespace Lina::Editor
 {
-   uint materialID;
-   vec2 uv;
-};
-
-// do not modify
-struct LinaFragOutput
-{
-   vec4 color;
-};
-
-struct LinaMaterial
-{
-   vec4 topColor;
-   vec4 horizonColor;
-   vec4 groundColor;
-   float horizonDiffusion;
-};
-
-void LINA_FRAG_FUNC(in LinaFragInput inFrag, out LinaFragOutput outFrag)
-{
-   LinaMaterial material = LINA_GET_MATERIAL(inFrag.materialID);
-   vec3 skyColor = vec3(0.0);
-   skyColor = mix(material.groundColor, material.topColor, inFrag.uv.g).rgb;
-   outFrag.color = vec4(inFrag.uv.r, inFrag.uv.g, 0, 1);
-}
-
-#lina_end
-
+	class EditorResources
+	{
+	public:
+		static bool LoadPriorityResources(ResourceManagerV2& resourceManager, ResourceList& outResources);
+		static bool LoadCoreResources(ResourceManagerV2& resourceManager, ResourceList& outResources);
+	};
+} // namespace Lina::Editor

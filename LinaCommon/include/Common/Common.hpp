@@ -46,7 +46,6 @@ namespace Lina
 		LinaGX::VSyncStyle	 vsyncStyle					 = {};
 		bool				 allowTearing				 = false;
 		ApplicationDelegate* appDelegate				 = nullptr;
-		bool				 resourceManagerUseMetacache = true;
 		Color				 clearColor					 = Color::Black;
 	};
 

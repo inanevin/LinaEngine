@@ -157,8 +157,7 @@ namespace Lina::Editor
 			.id	 = m_subData,
 			.tid = GetTypeID<Model>(),
 		};
-		m_editor->GetResourceManagerV2().LoadResourcesFromProject(m_editor, m_editor->GetProjectManager().GetProjectData(), {def}, 0);
-		m_editor->GetResourceManagerV2().WaitForAll();
+		m_editor->GetResourceManagerV2().LoadResourcesFromProject(m_editor->GetProjectManager().GetProjectData(), {def}, 0);
 		m_model					   = m_editor->GetResourceManagerV2().GetResource<Model>(def.id);
 		m_modelName				   = m_model->GetName();
 		GetWidgetProps().debugName = "Model: " + m_model->GetName();
@@ -418,16 +417,12 @@ namespace Lina::Editor
 			m_worldRenderer->Resize(m_lastWorldSize);
 			m_editor->GetEditorRenderer().RefreshDynamicTextures();
 		}
-
-		m_world->PreTick(ComponentFlags::CF_RECEIVE_EDITOR_TICK);
 	}
 
 	void PanelModelViewer::Tick(float delta)
 	{
 		if (m_world == nullptr)
 			return;
-
-		m_world->Tick(delta, ComponentFlags::CF_RECEIVE_EDITOR_TICK);
 	}
 
 	void PanelModelViewer::SetRuntimeDirty(bool isDirty)

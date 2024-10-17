@@ -149,6 +149,24 @@ namespace Lina
 				m_nextBucket->View(std::move(callback), idx);
 		}
 
+		T* Find(Delegate<bool(T* inst)> predicate) const
+		{
+			for (uint32 i = 0; i < N; i++)
+			{
+				uint8* ptr = m_span.data() + i * sizeof(T);
+				T*	   obj = reinterpret_cast<T*>(ptr);
+
+				if (obj->m_bucketIdent.isValid == 0)
+					continue;
+
+				if (predicate(obj))
+					return obj;
+			}
+
+			if (m_nextBucket != nullptr)
+				m_nextBucket->Find(std::move(predicate));
+		}
+
 		uint32 GetActiveItemCount(uint32 prior = 0) const
 		{
 			const uint32 active = prior + m_head - static_cast<uint32>(m_freeIDs.size());

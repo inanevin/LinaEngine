@@ -48,4 +48,4 @@ layout(set = 1, binding = 1) uniform PassData
 	uint skyMaterialByteIndex;
 	uint pad3;
 	uint pad4;
-} LINA_PASS_DATA;
+} LINA_LIGHT_PASS;

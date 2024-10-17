@@ -71,8 +71,6 @@ namespace Lina::Editor
 		if (m_worldRenderer == nullptr)
 			return;
 
-		m_worldRenderer->GetWorld()->Tick(dt, CF_RECEIVE_EDITOR_TICK);
-
 		// Screen setup
 		Screen& sc = m_worldRenderer->GetWorld()->GetScreen();
 		sc.SetOwnerWindow(m_lgxWindow);

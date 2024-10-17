@@ -26,38 +26,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-layout(set = 0, binding = 0) uniform GlobalData
-{
-	vec4 mouseScreen;
-	vec4 deltaElapsed;
-} LINA_GLOBAL;
+layout (location = 0) in vec3 inPos;
+layout (location = 1) in vec3 inNormal;
+layout (location = 2) in vec2 inUV;
 
-layout (set = 0, binding = 1) readonly buffer MaterialBuffer
-{
-	uint data[];
-} LINA_MATERIALS;
+layout (location = 1) out vec2 outUV;
+layout (location = 2) flat out uint outMaterialIndex;
 
-layout (set = 0, binding = 2) uniform texture2D LINA_TEXTURES[];
-layout (set = 0, binding = 3) uniform sampler LINA_SAMPLERS[];
-
-struct LinaTexture2D
+void main()
 {
-	uint txt;
-	uint smp;
-};
+   LinaVertexInput vertexInput;
+   vertexInput.pos = inPos;
+   vertexInput.normal = inNormal;
+   vertexInput.uv = inUV;
+   vertexInput.materialID = LINA_LIGHT_PASS.skyMaterialByteIndex;
 
-struct IndirectArguments
-{
-	uint entityID;
-	uint materialID;
-};
+   LinaVertexOutput vertexOutput;
+   LINA_VERTEX_FUNC(vertexInput, vertexOutput);
 
-struct LinaEntity
-{
-    mat4 modelMatrix;
-};
+   outUV = vertexOutput.uv;
+   outMaterialIndex = LINA_LIGHT_PASS.skyMaterialByteIndex;
 
-vec4 LINA_SAMPLE_TEXTURE(LinaTexture2D linaTxt, vec2 uv)
-{
-	return texture(sampler2D(LINA_TEXTURES[linaTxt.txt], LINA_SAMPLERS[linaTxt.smp]), uv);
+   mat4 rotView = mat4(mat3(LINA_VIEW.view));
+   vec4 clipPos = LINA_VIEW.proj * rotView * vertexOutput.pos;
+   gl_Position = clipPos.xyww;
 }

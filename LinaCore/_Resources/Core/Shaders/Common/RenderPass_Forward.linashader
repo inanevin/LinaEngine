@@ -47,3 +47,8 @@ layout(set = 1, binding = 2) readonly buffer IndirectArgumentsBuffer
 {
     IndirectArguments data[];
 } LINA_INDIRECT_ARGUMENTS;
+
+LinaEntity LINA_GET_ENTITY(uint entityID)
+{
+	return LINA_ENTITIES.data[entityID];
+}

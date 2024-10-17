@@ -67,6 +67,7 @@ struct LinaMaterial
    uint hasTexture;
    uint displayChannels;
    uint displayLod;
+   uint singleChannel;
    LinaTexture2D diffuse;
 };
 
@@ -92,6 +93,9 @@ void main()
       vec2 uv = inUV * material.uvTilingAndOffset.rg + material.uvTilingAndOffset.ba;
       vec4 sampledTexture = textureLod(sampler2D(LINA_TEXTURES[material.diffuse.txt], LINA_SAMPLERS[material.diffuse.smp]), uv, material.displayLod);
       color *= sampledTexture;
+
+      if(material.singleChannel == 1)
+         color = vec4(color.r, color.r, color.r, 1.0);
 
       if(material.displayChannels == 1)
          color = vec4(color.r, color.r, color.r, 1.0);

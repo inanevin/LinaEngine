@@ -52,6 +52,7 @@ namespace Lina::Editor
 		uint32				 hasTexture;
 		uint32				 displayChannels;
 		uint32				 displayLod;
+		uint32				 singleChannel;
 		LinaTexture2DBinding diffuse;
 	};
 
@@ -114,6 +115,7 @@ namespace Lina::Editor
 		float			sdfOutlineThickness = 0.0f;
 		float			sdfOutlineSoftness	= 0.0f;
 		Color			sdfOutlineColor		= Color::Black;
+		bool			isSingleChannel		= false;
 	};
 
 	class EditorGfxHelpers

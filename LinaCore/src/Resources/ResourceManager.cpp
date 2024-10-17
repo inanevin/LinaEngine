@@ -51,30 +51,7 @@ namespace Lina
 			delete cache;
 	}
 
-	void ResourceManagerV2::AddListener(ResourceManagerListener* listener)
-	{
-		m_listeners.push_back(listener);
-	}
-
-	void ResourceManagerV2::RemoveListener(ResourceManagerListener* listener)
-	{
-		m_listeners.erase(linatl::find_if(m_listeners.begin(), m_listeners.end(), [listener](ResourceManagerListener* list) -> bool { return list == listener; }));
-	}
-
-	void ResourceManagerV2::WaitForAll()
-	{
-		m_executor.Wait();
-
-		for (ResourceLoadTask* task : m_loadTasks)
-		{
-			DispatchLoadTaskEvent(task);
-			delete task;
-		}
-
-		m_loadTasks.clear();
-	}
-
-	HashSet<Resource*> ResourceManagerV2::LoadResourcesFromFile(ApplicationDelegate* delegate, const ResourceDefinitionList& resourceDefs, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress)
+	HashSet<Resource*> ResourceManagerV2::LoadResourcesFromFile(const ResourceDefinitionList& resourceDefs, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress)
 	{
 		HashSet<Resource*> resources;
 
@@ -83,15 +60,6 @@ namespace Lina
 		{
 			auto	  cache = GetCache(def.tid);
 			Resource* res	= cache->Create(def.id, def.name);
-			OStream	  metaStream;
-			if (delegate->FillResourceCustomMeta(def.id, metaStream))
-			{
-				IStream in;
-				in.Create(metaStream.GetDataRaw(), metaStream.GetCurrentSize());
-				res->SetCustomMeta(in);
-				in.Destroy();
-			}
-			metaStream.Destroy();
 
 			if (!res->LoadFromFile(def.name))
 			{
@@ -114,24 +82,15 @@ namespace Lina
 		return resources;
 	}
 
-	HashSet<Resource*> ResourceManagerV2::LoadResourcesFromProject(ApplicationDelegate* delegate, ProjectData* project, const ResourceDefinitionList& resourceDefs, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress)
+	HashSet<Resource*> ResourceManagerV2::LoadResourcesFromProject(ProjectData* project, const ResourceDefinitionList& resourceDefs, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress)
 	{
 		HashSet<Resource*> resources;
 		uint32			   idx = 0;
 		for (const ResourceDef& def : resourceDefs)
 		{
-			auto	  cache = GetCache(def.tid);
-			Resource* res	= cache->Create(def.id, def.name);
-			OStream	  metaStream;
-			if (delegate->FillResourceCustomMeta(def.id, metaStream))
-			{
-				IStream in;
-				in.Create(metaStream.GetDataRaw(), metaStream.GetCurrentSize());
-				res->SetCustomMeta(in);
-				in.Destroy();
-			}
-			metaStream.Destroy();
-			IStream stream = Serialization::LoadFromFile(project->GetResourcePath(def.id).c_str());
+			auto	  cache	 = GetCache(def.tid);
+			Resource* res	 = cache->Create(def.id, def.name);
+			IStream	  stream = Serialization::LoadFromFile(project->GetResourcePath(def.id).c_str());
 
 			if (stream.Empty())
 			{
@@ -163,9 +122,6 @@ namespace Lina
 		for (Resource* res : resources)
 			resourcesToUnload.insert(res);
 
-		for (ResourceManagerListener* listener : m_listeners)
-			listener->OnResourcesPreUnloaded(resourcesToUnload);
-
 		HashSet<ResourceDef, ResourceDefHash> defs;
 		for (Resource* res : resources)
 		{
@@ -177,37 +133,6 @@ namespace Lina
 			ResourceCacheBase* cache = GetCache(res->GetTID());
 			cache->Destroy(res->GetID());
 		}
-
-		for (ResourceManagerListener* listener : m_listeners)
-			listener->OnResourcesUnloaded(defs);
-	}
-
-	void ResourceManagerV2::Poll()
-	{
-		for (Vector<ResourceLoadTask*>::iterator it = m_loadTasks.begin(); it != m_loadTasks.end();)
-		{
-			ResourceLoadTask* task = *it;
-			if (task->isCompleted.load())
-			{
-				DispatchLoadTaskEvent(task);
-				it = m_loadTasks.erase(it);
-				delete task;
-			}
-			else
-				++it;
-		}
-	}
-
-	void ResourceManagerV2::DispatchLoadTaskEvent(ResourceLoadTask* task)
-	{
-		LINA_TRACE("[Resource Manager] -> Load task complete: {0} seconds", PlatformTime::GetDeltaSeconds64(task->startTime, task->endTime));
-
-		// HashSet<Resource*> resources;
-		// for (Resource* r : task->resources)
-		// 	resources.insert(r);
-		//
-		// for (ResourceManagerListener* listener : m_listeners)
-		// 	listener->OnResourcesLoaded(task->id, resources);
 	}
 
 	Resource* ResourceManagerV2::OpenResource(ProjectData* project, TypeID typeID, ResourceID resourceID, void* subdata)

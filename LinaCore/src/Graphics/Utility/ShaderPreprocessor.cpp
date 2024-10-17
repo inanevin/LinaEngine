@@ -31,45 +31,48 @@ SOFTWARE.
 
 namespace Lina
 {
+
+#define HEADER_END "//lina_##_header_##_end\n"
+
 	namespace
 	{
 		bool FindShaderType(ShaderType& outType, const String& txt)
 		{
-			if (txt.find("#LINA_SHADER_DEFERRED_OBJECT") != String::npos)
-			{
-				outType = ShaderType::DeferredObject;
-				return true;
-			}
-
-			if (txt.find("#LINA_SHADER_FORWARD_OBJECT") != String::npos)
-			{
-				outType = ShaderType::ForwardObject;
-				return true;
-			}
-
-			if (txt.find("#LINA_SHADER_LIGHTING") != String::npos)
-			{
-				outType = ShaderType::Lighting;
-				return true;
-			}
-
-			if (txt.find("#LINA_SHADER_SKY") != String::npos)
-			{
-				outType = ShaderType::Sky;
-				return true;
-			}
-
-			if (txt.find("#LINA_SHADER_POST_PROCESS") != String::npos)
-			{
-				outType = ShaderType::PostProcess;
-				return true;
-			}
-
-			if (txt.find("#LINA_SHADER_CUSTOM") != String::npos)
-			{
-				outType = ShaderType::Custom;
-				return true;
-			}
+			// if (txt.find("#LINA_SHADER_DEFERRED_OBJECT") != String::npos)
+			// {
+			// 	outType = ShaderType::DeferredObject;
+			// 	return true;
+			// }
+			//
+			// if (txt.find("#LINA_SHADER_FORWARD_OBJECT") != String::npos)
+			// {
+			// 	outType = ShaderType::ForwardObject;
+			// 	return true;
+			// }
+			//
+			// if (txt.find("#LINA_SHADER_LIGHTING") != String::npos)
+			// {
+			// 	outType = ShaderType::Lighting;
+			// 	return true;
+			// }
+			//
+			// if (txt.find("#LINA_SHADER_SKY") != String::npos)
+			// {
+			// 	outType = ShaderType::Sky;
+			// 	return true;
+			// }
+			//
+			// if (txt.find("#LINA_SHADER_POST_PROCESS") != String::npos)
+			// {
+			// 	outType = ShaderType::PostProcess;
+			// 	return true;
+			// }
+			//
+			// if (txt.find("#LINA_SHADER_CUSTOM") != String::npos)
+			// {
+			// 	outType = ShaderType::Custom;
+			// 	return true;
+			// }
 
 			return false;
 		}
@@ -96,6 +99,9 @@ namespace Lina
 		{
 			const String materialIdent = "struct LinaMaterial";
 
+			if (block.find(materialIdent) == String::npos)
+				return;
+
 			std::istringstream f(block.c_str());
 			std::string		   line = "";
 
@@ -115,8 +121,7 @@ namespace Lina
 			};
 
 			size_t materialBlockEnd = 0;
-
-			bool commentBlock = false;
+			bool   commentBlock		= false;
 
 			auto fetchValuesFromString = [](String& str) -> Vector<float> {
 				Vector<float> vals;
@@ -488,5 +493,147 @@ namespace Lina
 		}
 
 		return true;
+	}
+
+	bool ShaderPreprocessor::VerifyFullShader(const String& input)
+	{
+		if (input.find("#version") != String::npos)
+		{
+			LINA_ERR("Shaders can't have version directives, they are internally managed.");
+			return false;
+		}
+
+		if (input.find("#extension") != String::npos)
+		{
+			LINA_ERR("Shaders can't have extension directives, they are internally managed.");
+			return false;
+		}
+
+		return true;
+	}
+
+	bool ShaderPreprocessor::ExtractVertexFrag(const String& input, String& outVertex, String& outFrag)
+	{
+		outVertex.clear();
+		outFrag.clear();
+		outVertex = ExtractBlock(input, "#lina_vs", "#lina_end");
+		outFrag	  = ExtractBlock(input, "#lina_fs", "#lina_end");
+
+		if (outVertex.empty())
+		{
+			LINA_ERR("Vertex block could not be found, double check #lina_vs and #lina_end directives.");
+			return false;
+		}
+
+		if (outFrag.empty())
+		{
+			LINA_ERR("Frag block could not be found, double check #lina_fs and #lina_end directives.");
+			return false;
+		}
+
+		// Normalize line endings.
+		outVertex.erase(linatl::remove(outVertex.begin(), outVertex.end(), '\r'), outVertex.end());
+		outFrag.erase(linatl::remove(outFrag.begin(), outFrag.end(), '\r'), outFrag.end());
+
+		return true;
+	}
+
+	void ShaderPreprocessor::InjectVersionAndExtensions(String& input)
+	{
+		const String versionDirective	   = "#version 460 \n";
+		const String dynamicIndexDirective = "#extension GL_EXT_nonuniform_qualifier : enable\n";
+
+		size_t sz = 0;
+
+		input.insert(0, versionDirective.c_str());
+		sz += versionDirective.size();
+
+		input.insert(sz, dynamicIndexDirective.c_str());
+		sz += dynamicIndexDirective.size();
+
+		// end.
+		input.insert(sz, HEADER_END);
+	}
+
+	void ShaderPreprocessor::InjectMaterialIfRequired(String& input, Vector<ShaderProperty*>& outProperties)
+	{
+		outProperties.clear();
+		ProcessMaterialData(input, outProperties);
+	}
+
+	void ShaderPreprocessor::InjectRenderPassInputs(String& input, RenderPassDescriptorType type)
+	{
+		const String headerEnd(HEADER_END);
+		const size_t headerEndPos = input.find(HEADER_END);
+		size_t		 insertPos	  = headerEndPos + headerEnd.size() + 1;
+
+		const String globalHeader = "#include \"Resources/Core/Shaders/Common/GlobalData.linashader\"\n";
+		input.insert(insertPos, globalHeader.c_str());
+		insertPos += globalHeader.size();
+
+		if (type == RenderPassDescriptorType::Deferred)
+		{
+			const String rpHeader = "#include \"Resources/Core/Shaders/Common/RenderPass_Deferred.linashader\"\n";
+			input.insert(insertPos, rpHeader.c_str());
+			return;
+		}
+
+		if (type == RenderPassDescriptorType::Lighting)
+		{
+			const String rpHeader = "#include \"Resources/Core/Shaders/Common/RenderPass_Lighting.linashader\"\n";
+			input.insert(insertPos, rpHeader.c_str());
+			return;
+		}
+	}
+
+	void ShaderPreprocessor::InjectVertexMain(String& input, ShaderType type)
+	{
+		input += "\n";
+
+		if (type == ShaderType::OpaqueSurface)
+		{
+			input += "#include \"Resources/Core/Shaders/Common/MainVertex_Deferred.linashader\"\n";
+			return;
+		}
+
+		if (type == ShaderType::Sky)
+		{
+			input += "#include \"Resources/Core/Shaders/Common/MainVertex_Sky.linashader\"\n";
+			return;
+		}
+	}
+
+	void ShaderPreprocessor::InjectSkinnedVertexMain(String& input, ShaderType type)
+	{
+		input += "\n";
+
+		if (type == ShaderType::OpaqueSurface)
+		{
+			input += "#include \"Resources/Core/Shaders/Common/MainVertexSkinned_Deferred.linashader\"\n";
+			return;
+		}
+
+		if (type == ShaderType::Sky)
+		{
+			LINA_ASSERT(false, "");
+			return;
+		}
+	}
+
+	void ShaderPreprocessor::InjectFragMain(String& input, ShaderType type)
+	{
+		input += "\n";
+
+		if (type == ShaderType::OpaqueSurface)
+		{
+			input += "#include \"Resources/Core/Shaders/Common/MainFrag_Deferred.linashader\"\n";
+			return;
+		}
+
+		if (type == ShaderType::Sky)
+		{
+			input += "#include \"Resources/Core/Shaders/Common/MainFrag_Sky.linashader\"\n";
+			return;
+		}
 	}
 } // namespace Lina

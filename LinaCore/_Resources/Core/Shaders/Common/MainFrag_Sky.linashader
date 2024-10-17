@@ -26,30 +26,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-layout(set = 1, binding = 0) uniform ViewData
-{
-	mat4 view;
-	mat4 proj;
-	mat4 viewProj;
-	vec4 cameraPositionAndNear;
-	vec4 cameraDirectionAndFar;
-	vec2 size;
-	vec2 padding;
-	vec4 padding2;
-} LINA_VIEW;
+layout (location = 0) in vec2 inUV;
+layout (location = 1) flat in uint inMaterialIndex;
 
-layout(std140, set = 1, binding = 1) readonly buffer ObjectBuffer
-{
-    LinaEntity data[];
-} LINA_ENTITIES;
+layout (location = 0) out vec4 outFragColor;
 
-layout(set = 1, binding = 2) readonly buffer IndirectArgumentsBuffer
+void main()
 {
-    IndirectArguments data[];
-} LINA_INDIRECT_ARGUMENTS;
+   LinaFragInput fragInput;
+   fragInput.materialID = inMaterialIndex;
+   fragInput.uv = inUV;
+   
+   LinaFragOutput fragOutput;
+   LINA_FRAG_FUNC(fragInput, fragOutput);
 
-layout(set = 1, binding = 3) readonly buffer GUIMaterialBuffer
-{
-   GUIMaterialData data[];
-} LINA_GUI_MATERIALS;
-
+   outFragColor = fragOutput.color;
+}

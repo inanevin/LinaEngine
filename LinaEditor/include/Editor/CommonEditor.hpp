@@ -59,25 +59,29 @@ namespace Lina::Editor
 #define EDITOR_FONT_PLAY_BOLD_ID   RESOURCE_ID_EDITOR_FONTS + 5
 
 // Shaders
-#define EDITOR_SHADER_GUI_DEFAULT_PATH		"Resources/Editor/Shaders/GUI/GUIDefault.linashader"
-#define EDITOR_SHADER_GUI_COLOR_WHEEL_PATH	"Resources/Editor/Shaders/GUI/ColorWheel.linashader"
-#define EDITOR_SHADER_GUI_HUE_DISPLAY_PATH	"Resources/Editor/Shaders/GUI/HueDisplay.linashader"
-#define EDITOR_SHADER_GUI_SDF_TEXT_PATH		"Resources/Editor/Shaders/GUI/SDFText.linashader"
-#define EDITOR_SHADER_GUI_TEXT_PATH			"Resources/Editor/Shaders/GUI/Text.linashader"
-#define EDITOR_SHADER_LINES_PATH			"Resources/Editor/Shaders/Lines.linashader"
-#define EDITOR_SHADER_DEFAULT_OBJECT_PATH	"Resources/Editor/Shaders/DefaultObject.linashader"
-#define EDITOR_SHADER_DEFAULT_SKY_PATH		"Resources/Editor/Shaders/DefaultSky.linashader"
-#define EDITOR_SHADER_DEFAULT_LIGHTING_PATH "Resources/Editor/Shaders/DefaultLighting.linashader"
+#define EDITOR_SHADER_GUI_DEFAULT_PATH				   "Resources/Editor/Shaders/GUI/GUIDefault.linashader"
+#define EDITOR_SHADER_GUI_COLOR_WHEEL_PATH			   "Resources/Editor/Shaders/GUI/ColorWheel.linashader"
+#define EDITOR_SHADER_GUI_HUE_DISPLAY_PATH			   "Resources/Editor/Shaders/GUI/HueDisplay.linashader"
+#define EDITOR_SHADER_GUI_SDF_TEXT_PATH				   "Resources/Editor/Shaders/GUI/SDFText.linashader"
+#define EDITOR_SHADER_GUI_TEXT_PATH					   "Resources/Editor/Shaders/GUI/Text.linashader"
+#define EDITOR_SHADER_LINES_PATH					   "Resources/Editor/Shaders/Lines.linashader"
+#define EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_PATH	   "Resources/Editor/Shaders/DefaultOpaqueSurface.linashader"
+#define EDITOR_SHADER_DEFAULT_TRANSPARENT_SURFACE_PATH "Resources/Editor/Shaders/DefaultTransparentSurface.linashader"
+#define EDITOR_SHADER_DEFAULT_SKY_PATH				   "Resources/Editor/Shaders/DefaultSky.linashader"
+#define EDITOR_SHADER_DEFAULT_LIGHTING_PATH			   "Resources/Editor/Shaders/DefaultLighting.linashader"
+#define EDITOR_SHADER_DEFAULT_POSTPROCESS_PATH		   "Resources/Editor/Shaders/DefaultPostProcess.linashader"
 
-#define EDITOR_SHADER_GUI_DEFAULT_ID	  RESOURCE_ID_EDITOR_SHADERS
-#define EDITOR_SHADER_GUI_COLOR_WHEEL_ID  RESOURCE_ID_EDITOR_SHADERS + 1
-#define EDITOR_SHADER_GUI_HUE_DISPLAY_ID  RESOURCE_ID_EDITOR_SHADERS + 2
-#define EDITOR_SHADER_GUI_SDF_TEXT_ID	  RESOURCE_ID_EDITOR_SHADERS + 3
-#define EDITOR_SHADER_GUI_TEXT_ID		  RESOURCE_ID_EDITOR_SHADERS + 4
-#define EDITOR_SHADER_LINES_ID			  RESOURCE_ID_EDITOR_SHADERS + 5
-#define EDITOR_SHADER_DEFAULT_OBJECT_ID	  RESOURCE_ID_EDITOR_SHADERS + 6
-#define EDITOR_SHADER_DEFAULT_SKY_ID	  RESOURCE_ID_EDITOR_SHADERS + 7
-#define EDITOR_SHADER_DEFAULT_LIGHTING_ID RESOURCE_ID_EDITOR_SHADERS + 8
+#define EDITOR_SHADER_GUI_DEFAULT_ID				 RESOURCE_ID_EDITOR_SHADERS
+#define EDITOR_SHADER_GUI_COLOR_WHEEL_ID			 RESOURCE_ID_EDITOR_SHADERS + 1
+#define EDITOR_SHADER_GUI_HUE_DISPLAY_ID			 RESOURCE_ID_EDITOR_SHADERS + 2
+#define EDITOR_SHADER_GUI_SDF_TEXT_ID				 RESOURCE_ID_EDITOR_SHADERS + 3
+#define EDITOR_SHADER_GUI_TEXT_ID					 RESOURCE_ID_EDITOR_SHADERS + 4
+#define EDITOR_SHADER_LINES_ID						 RESOURCE_ID_EDITOR_SHADERS + 5
+#define EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_ID		 RESOURCE_ID_EDITOR_SHADERS + 6
+#define EDITOR_SHADER_DEFAULT_TRANSPARENT_SURFACE_ID RESOURCE_ID_EDITOR_SHADERS + 7
+#define EDITOR_SHADER_DEFAULT_SKY_ID				 RESOURCE_ID_EDITOR_SHADERS + 8
+#define EDITOR_SHADER_DEFAULT_LIGHTING_ID			 RESOURCE_ID_EDITOR_SHADERS + 9
+#define EDITOR_SHADER_DEFAULT_POSTPROCESS_ID		 RESOURCE_ID_EDITOR_SHADERS + 10
 
 // Textures
 #define EDITOR_TEXTURE_CHECKERED_PATH				 "Resources/Editor/Textures/Checkered.png"
