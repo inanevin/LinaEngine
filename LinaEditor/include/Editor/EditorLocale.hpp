@@ -60,7 +60,7 @@ namespace Lina::Editor
 		SelectDirectory,
 		CreateANewProject,
 		CreateANewWorld,
-        CreateANewShader,
+		CreateANewShader,
 		SelectProjectFile,
 		DirectoryNotFound,
 		FileNotFound,

@@ -45,18 +45,18 @@ namespace Lina
 		stream << blendDisable << depthTest << depthWrite << cullMode << frontFace << depthOp << depthBiasEnable << depthBiasClamp << depthBiasConstant << depthBiasSlope << depthFormat << topology;
 		stream << name;
 		stream << targets;
-        stream << indirectEnabled;
-        
-        const uint32 size = static_cast<uint32>(_outCompiledBlobs.size());
-        stream << size;
+		stream << indirectEnabled;
 
-        for (const auto& [stage, blob] : _outCompiledBlobs)
-        {
-            stream << stage;
-            stream << static_cast<uint32>(blob.size);
-            stream.WriteRawEndianSafe(blob.ptr, blob.size);
-        }
-        SaveLinaGXShaderLayout(stream, _outLayout);
+		const uint32 size = static_cast<uint32>(_outCompiledBlobs.size());
+		stream << size;
+
+		for (const auto& [stage, blob] : _outCompiledBlobs)
+		{
+			stream << stage;
+			stream << static_cast<uint32>(blob.size);
+			stream.WriteRawEndianSafe(blob.ptr, blob.size);
+		}
+		SaveLinaGXShaderLayout(stream, _outLayout);
 	}
 
 	void ShaderVariant::LoadFromStream(IStream& stream)
@@ -64,31 +64,31 @@ namespace Lina
 		stream >> blendDisable >> depthTest >> depthWrite >> cullMode >> frontFace >> depthOp >> depthBiasEnable >> depthBiasClamp >> depthBiasConstant >> depthBiasSlope >> depthFormat >> topology;
 		stream >> name;
 		stream >> targets;
-        stream >> indirectEnabled;
-        
-        uint32 size = 0;
-        stream >> size;
+		stream >> indirectEnabled;
 
-        for (uint32 i = 0; i < size; i++)
-        {
-            uint32                sz = 0;
-            LinaGX::ShaderStage stage;
-            stream >> stage;
-            stream >> sz;
+		uint32 size = 0;
+		stream >> size;
 
-            LinaGX::DataBlob blob = {.ptr = nullptr, .size = static_cast<size_t>(sz)};
+		for (uint32 i = 0; i < size; i++)
+		{
+			uint32				sz = 0;
+			LinaGX::ShaderStage stage;
+			stream >> stage;
+			stream >> sz;
 
-            if (blob.size != 0)
-            {
-                blob.ptr = new uint8[blob.size];
-                stream.ReadToRawEndianSafe(blob.ptr, blob.size);
-            }
+			LinaGX::DataBlob blob = {.ptr = nullptr, .size = static_cast<size_t>(sz)};
 
-            _outCompiledBlobs[stage] = blob;
-        }
-        
-        _outLayout = {};
-        LoadLinaGXShaderLayout(stream, _outLayout);
+			if (blob.size != 0)
+			{
+				blob.ptr = new uint8[blob.size];
+				stream.ReadToRawEndianSafe(blob.ptr, blob.size);
+			}
+
+			_outCompiledBlobs[stage] = blob;
+		}
+
+		_outLayout = {};
+		LoadLinaGXShaderLayout(stream, _outLayout);
 	}
 
 } // namespace Lina

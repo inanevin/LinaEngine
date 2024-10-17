@@ -63,7 +63,6 @@ namespace Lina::Editor
 
 	void SplashScreen::Destruct()
 	{
-		
 	}
 
 	void SplashScreen::Tick(float delta)
