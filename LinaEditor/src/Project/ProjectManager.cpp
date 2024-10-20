@@ -285,32 +285,24 @@ namespace Lina::Editor
 					},
 				};
 
-				Vector<ResourcePipeline::ResourceImportDef> importDefinitions;
-				ResourceDirectory*							linaAssets = m_currentProject->GetResourceRoot().GetChildByName(EDITOR_DEF_RESOURCES_FOLDER);
+				ResourceDirectory* linaAssets = m_currentProject->GetResourceRoot().GetChildByName(EDITOR_DEF_RESOURCES_FOLDER);
 				if (linaAssets == nullptr)
 				{
-					importDefinitions = desiredAssets;
-					linaAssets		  = m_currentProject->GetResourceRoot().CreateChild({
-							   .name	 = EDITOR_DEF_RESOURCES_FOLDER,
-							   .isFolder = true,
-					   });
-				}
-				else
-				{
-					for (const ResourcePipeline::ResourceImportDef& def : desiredAssets)
-					{
-						if (linaAssets->FindResourceDirectory(def.id) == nullptr)
-							importDefinitions.push_back(def);
-					}
-				}
-
-				if (!importDefinitions.empty())
-				{
-					ResourcePipeline::ImportResources(m_currentProject, linaAssets, importDefinitions, [updateProg](uint32 count, const ResourcePipeline::ResourceImportDef& currentDef, bool isComplete) {
-						if (!currentDef.path.empty())
-							updateProg(currentDef.path);
+					linaAssets = m_currentProject->GetResourceRoot().CreateChild({
+						.name	  = EDITOR_DEF_RESOURCES_FOLDER,
+						.isFolder = true,
 					});
 				}
+
+				// Recreate must resources everytime.
+				for (ResourceDirectory* c : linaAssets->children)
+					FileSystem::DeleteFileInPath(m_currentProject->GetResourcePath(c->resourceID));
+				linaAssets->DestroyChildren();
+
+				ResourcePipeline::ImportResources(m_currentProject, linaAssets, desiredAssets, [updateProg](uint32 count, const ResourcePipeline::ResourceImportDef& currentDef, bool isComplete) {
+					if (!currentDef.path.empty())
+						updateProg(currentDef.path);
+				});
 
 				// Custom sampler.
 				if (linaAssets->FindResourceDirectory(EDITOR_SAMPLER_DEFAULT_ID) == nullptr)
@@ -336,6 +328,12 @@ namespace Lina::Editor
 				{
 					updateProg(EDITOR_MATERIAL_DEFAULT_SKY_PATH);
 					ResourcePipeline::SaveNewResource(m_currentProject, linaAssets, EDITOR_MATERIAL_DEFAULT_SKY_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_SKY_ID, EDITOR_SHADER_DEFAULT_SKY_ID);
+				}
+
+				if (linaAssets->FindResourceDirectory(EDITOR_MATERIAL_DEFAULT_LIGHTING_ID) == nullptr)
+				{
+					updateProg(EDITOR_MATERIAL_DEFAULT_LIGHTING_PATH);
+					ResourcePipeline::SaveNewResource(m_currentProject, linaAssets, EDITOR_MATERIAL_DEFAULT_LIGHTING_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_LIGHTING_ID, EDITOR_SHADER_DEFAULT_LIGHTING_ID);
 				}
 
 				updateProg(Locale::GetStr(LocaleStr::GeneratingThumbnails));

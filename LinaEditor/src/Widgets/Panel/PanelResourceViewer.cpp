@@ -147,11 +147,6 @@ namespace Lina::Editor
 			return;
 		}
 
-		ResourceDef def = {
-			.id	 = m_subData,
-			.tid = m_resourceTID,
-		};
-
 		Resource* r = m_editor->GetResourceManagerV2().GetIfExists(m_resourceTID, m_subData);
 
 		// Can not modify the resource if its alive in editor.
@@ -159,7 +154,7 @@ namespace Lina::Editor
 			m_previewOnly = true;
 		else
 		{
-			HashSet<Resource*> resources = m_editor->GetResourceManagerV2().LoadResourcesFromProject(m_editor->GetProjectManager().GetProjectData(), {def}, NULL);
+			HashSet<Resource*> resources = m_editor->GetResourceManagerV2().LoadResourcesFromProject(m_editor->GetProjectManager().GetProjectData(), {m_subData}, NULL);
 			r							 = *resources.begin();
 			m_editor->GetEditorRenderer().OnResourcesLoaded({r});
 		}

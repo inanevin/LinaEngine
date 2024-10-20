@@ -33,10 +33,7 @@ namespace Lina
 
 	ResourceDirectory::~ResourceDirectory()
 	{
-		thumbnailBuffer.Destroy();
-
-		for (ResourceDirectory* c : children)
-			delete c;
+		DestroyChildren();
 	}
 
 	void ResourceDirectory::SaveToStream(OStream& stream)
@@ -48,7 +45,6 @@ namespace Lina
 		stream << resourceID;
 		stream << resourceTID;
 		stream << children;
-		stream << thumbnailBuffer;
 	}
 
 	void ResourceDirectory::LoadFromStream(IStream& stream)
@@ -61,7 +57,6 @@ namespace Lina
 		stream >> resourceID;
 		stream >> resourceTID;
 		stream >> children;
-		stream >> thumbnailBuffer;
 		for (ResourceDirectory* c : children)
 			c->parent = this;
 		SortChildren();
@@ -93,6 +88,13 @@ namespace Lina
 	{
 		RemoveChild(dir);
 		delete dir;
+	}
+
+	void ResourceDirectory::DestroyChildren()
+	{
+		for (ResourceDirectory* c : children)
+			delete c;
+		children.clear();
 	}
 
 	void ResourceDirectory::SortChildren()

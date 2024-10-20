@@ -28,7 +28,7 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/Components/RenderableComponent.hpp"
+#include "Core/World/Component.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Common/Math/AABB.hpp"
@@ -37,40 +37,63 @@ namespace Lina
 {
 	class MeshDefault;
 
-	class MeshComponent : public RenderableComponent
+	class MeshComponent : public Component
 	{
 	public:
 		virtual void OnEvent(const ComponentEvent& event) override;
 
-		virtual void SaveToStream(OStream& stream) const override;
-		virtual void LoadFromStream(IStream& stream) override;
+		virtual void CollectReferences(HashSet<ResourceID>& refs) override
+		{
+			refs.insert(m_model);
+			refs.insert(m_material);
+		}
 
-		void SetMesh(ResourceID model, uint32 meshIndex);
-		void SetMesh(Model* model, uint32 meshIndex);
-		void SetMaterial(ResourceID id);
-		void SetMaterial(Material* mat);
+		virtual void SaveToStream(OStream& stream) const override
+		{
+			stream << m_model << m_material << m_meshIndex;
+		}
+
+		virtual void LoadFromStream(IStream& stream) override
+		{
+			stream >> m_model >> m_material >> m_meshIndex;
+		}
+
+		inline void SetMesh(ResourceID model, uint32 meshIndex)
+		{
+			m_model		= model;
+			m_meshIndex = meshIndex;
+		}
+
+		inline void SetMaterial(ResourceID id)
+		{
+			m_material = id;
+		}
 
 		virtual TypeID GetComponentType() override
 		{
 			return GetTypeID<MeshComponent>();
 		}
 
-		inline Material* GetMaterialRaw() const
+		inline ResourceID GetModel() const
 		{
-			return m_material.raw;
+			return m_model;
 		}
 
-		inline MeshDefault* GetMeshRaw() const
+		inline ResourceID GetMaterial() const
 		{
-			return m_mesh;
+			return m_material;
+		}
+
+		inline uint32 GetMeshIndex() const
+		{
+			return m_meshIndex;
 		}
 
 	private:
-		ResRef<Model>	 m_model;
-		ResRef<Material> m_material;
-		MeshDefault*	 m_mesh		 = nullptr;
-		uint32			 m_meshIndex = 0;
-		AABB			 m_usedLocalAABB;
+		ResourceID m_model;
+		ResourceID m_material;
+		uint32	   m_meshIndex = 0;
+		AABB	   m_usedLocalAABB;
 	};
 
 } // namespace Lina

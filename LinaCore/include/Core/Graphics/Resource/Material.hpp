@@ -45,31 +45,47 @@ namespace Lina
 	// Version changes
 	// 0: initial
 
+	struct MaterialProperty
+	{
+		ShaderPropertyDefinition propDef;
+		Span<uint8>				 data;
+
+		MaterialProperty(){};
+		MaterialProperty(const MaterialProperty& other)		 = delete;
+		MaterialProperty& operator=(MaterialProperty const&) = delete;
+
+		~MaterialProperty()
+		{
+			if (data.data() != nullptr)
+				delete[] data.data();
+			data = {};
+		}
+
+		void SaveToStream(OStream& stream) const
+		{
+			stream << propDef;
+			stream << static_cast<uint32>(data.size());
+			stream.WriteRaw(data);
+		}
+
+		void LoadFromStream(IStream& stream)
+		{
+			stream >> propDef;
+
+			uint32 size = 0;
+			stream >> size;
+
+			const size_t sz = static_cast<size_t>(size);
+			data			= {new uint8[sz], sz};
+			stream.ReadToRaw(data);
+		}
+	};
+
 	class Material : public Resource
 	{
-	private:
-		struct DescriptorAllocation
-		{
-			DescriptorSet* set		  = nullptr;
-			uint32		   allocIndex = 0;
-		};
 
 	public:
 		static constexpr uint32 VERSION = 0;
-
-		struct BindingBuffers
-		{
-			Vector<Buffer> buffers;
-		};
-
-		struct BindingData
-		{
-			BindingBuffers	 bufferData[FRAMES_IN_FLIGHT];
-			Vector<StringID> textures;
-			Vector<StringID> samplers;
-			void			 SaveToStream(OStream& stream) const;
-			void			 LoadFromStream(IStream& stream);
-		};
 
 		Material(ResourceID id, const String& name) : Resource(id, GetTypeID<Material>(), name){};
 		virtual ~Material();
@@ -77,36 +93,40 @@ namespace Lina
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
 		void		 SetShader(Shader* shader);
-		void		 SetShaderID(ResourceID id);
 		size_t		 BufferDataInto(Buffer& buf, size_t padding, ResourceManagerV2* rm, BindlessContext* context);
-		Shader*		 GetShader(ResourceManagerV2* rm);
 
 		template <typename T> void SetProperty(StringID sid, T val)
 		{
-			auto it = linatl::find_if(m_properties.begin(), m_properties.end(), [sid](ShaderProperty* p) -> bool { return p->sid == sid; });
+			auto it = linatl::find_if(m_properties.begin(), m_properties.end(), [sid](MaterialProperty* p) -> bool { return p->propDef.sid == sid; });
 			LINA_ASSERT(it != m_properties.end(), "Property not found!");
 
-			ShaderProperty* prop = *it;
-			// LINA_ASSERT(prop->data.size() == sizeof(T), "Property size mismatch!");
-
+			MaterialProperty* prop = *it;
 			MEMCPY(prop->data.data(), &val, sizeof(T));
 		}
 
-		inline ResourceID GetShaderID() const
+		inline ResourceID GetShader() const
 		{
-			return m_shader.id;
+			return m_shader;
 		}
 
-		inline const Vector<ShaderProperty*>& GetProperties() const
+		inline const Vector<MaterialProperty*>& GetProperties() const
 		{
 			return m_properties;
 		}
 
+		inline ShaderType GetShaderType() const
+		{
+			return m_shaderType;
+		}
+
+	private:
+		void DestroyProperties();
+
 	private:
 		ALLOCATOR_BUCKET_MEM;
-		ResRef<Shader>			m_shader;
-		DescriptorAllocation	m_descriptorSetContainer[FRAMES_IN_FLIGHT];
-		Vector<ShaderProperty*> m_properties;
+		ResourceID				  m_shader	   = 0;
+		ShaderType				  m_shaderType = ShaderType::OpaqueSurface;
+		Vector<MaterialProperty*> m_properties;
 	};
 
 	LINA_RESOURCE_BEGIN(Material);

@@ -37,6 +37,8 @@ namespace Lina
 	class ResourceManagerV2;
 	class Model;
 	class ProjectData;
+class Material;
+class MaterialProperty;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -54,6 +56,8 @@ namespace Lina::Editor
 			uint32	   subType = 0;
 		};
 
+        static void TrySetMaterialProperty(MaterialProperty* prop);
+        static void ChangeMaterialShader(ProjectData* project, Material* material, ResourceID newShader);
 		static ResourceDirectory*		  SaveNewResource(ProjectData* project, ResourceDirectory* src, const String& name, TypeID tid, ResourceID id = 0, ResourceID subType = 0);
 		static Vector<ResourceDirectory*> ImportResources(ProjectData* project, ResourceDirectory* src, const Vector<ResourceImportDef>& importDef, Delegate<void(uint32 imported, const ResourceImportDef& importDef, bool isCompleted)> onProgress);
 		static void						  DuplicateResource(ProjectManager&, ResourceManagerV2* resMan, ResourceDirectory* directory, ResourceDirectory* newParent);

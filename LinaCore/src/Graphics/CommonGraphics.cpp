@@ -30,5 +30,18 @@ SOFTWARE.
 
 namespace Lina
 {
+	bool ShaderPropertyDefinition::VerifySimilarity(const Vector<ShaderPropertyDefinition>& v1, const Vector<ShaderPropertyDefinition>& v2)
+	{
+		if (v1.empty() || v2.empty())
+			return true;
+
+		for (const ShaderPropertyDefinition& def : v1)
+		{
+			auto it = linatl::find_if(v2.begin(), v2.end(), [def](const ShaderPropertyDefinition& propDef) -> bool { return def.type == propDef.type && def.sid == propDef.sid; });
+			if (it == v2.end())
+				return false;
+		}
+		return true;
+	}
 
 } // namespace Lina

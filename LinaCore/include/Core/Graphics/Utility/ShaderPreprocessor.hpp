@@ -38,11 +38,10 @@ namespace Lina
 	class ShaderPreprocessor
 	{
 	public:
-		static bool Preprocess(const String& text, HashMap<LinaGX::ShaderStage, String>& outStages, Vector<ShaderProperty*>& outProperties, ShaderType& outShaderType);
 		static bool VerifyFullShader(const String& input);
 		static bool ExtractVertexFrag(const String& input, String& outVertex, String& outFrag);
 		static void InjectVersionAndExtensions(String& input);
-		static void InjectMaterialIfRequired(String& input, Vector<ShaderProperty*>& outProperties);
+		static void InjectMaterialIfRequired(String& input, Vector<ShaderPropertyDefinition>& outProperties);
 		static void InjectRenderPassInputs(String& input, RenderPassDescriptorType type);
 		static void InjectSkinnedVertexMain(String& input, ShaderType type);
 		static void InjectVertexMain(String& input, ShaderType type);

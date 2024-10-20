@@ -477,8 +477,8 @@ namespace Lina
 		// Lighting pass specific.
 		{
 
-			Material* lightingMaterial = m_world->GetGfxSettings().lightingMaterial.raw;
-			Material* skyMaterial	   = m_world->GetGfxSettings().skyMaterial.raw;
+			Material* lightingMaterial = m_world->GetResourceManagerV2().GetResource<Material>(m_world->GetGfxSettings().lightingMaterial);
+			Material* skyMaterial	   = m_world->GetResourceManagerV2().GetResource<Material>(m_world->GetGfxSettings().skyMaterial);
 
 			GPUDataLightingPass renderPassData = {
 				.gBufAlbedo			  = GetBindlessIndex(currentFrame.gBufAlbedo),
@@ -511,15 +511,16 @@ namespace Lina
 
 		for (auto* mc : m_meshComponents)
 		{
-			MeshDefault* mesh	  = mc->GetMeshRaw();
-			Material*	 material = mc->GetMaterialRaw();
+			Model*		 model	  = m_world->GetResourceManagerV2().GetResource<Model>(mc->GetModel());
+			MeshDefault* mesh	  = model->GetMesh(mc->GetMeshIndex());
+			Material*	 material = m_world->GetResourceManagerV2().GetResource<Material>(mc->GetMaterial());
 
 			const Vector3 pos = mc->GetEntity()->GetPosition();
 
 			if (material == nullptr)
 				continue;
 
-			Shader* shader = material->GetShader(m_resourceManagerV2);
+			Shader* shader = m_world->GetResourceManagerV2().GetResource<Shader>(material->GetShader());
 			auto&	vec	   = m_drawData[shader];
 
 			auto it = linatl::find_if(vec.begin(), vec.end(), [mesh](const DrawDataMeshDefault& dd) -> bool { return dd.mesh == mesh; });
@@ -622,9 +623,9 @@ namespace Lina
 		currentFrame.copySemaphore.ResetModified();
 		currentFrame.signalSemaphore.ResetModified();
 
-		Material*		 lightingMaterial = m_world->GetGfxSettings().lightingMaterial.raw;
-		Material*		 skyMaterial	  = m_world->GetGfxSettings().skyMaterial.raw;
-		Model*			 skyModel		  = m_world->GetGfxSettings().skyModel.raw;
+		Material*		 lightingMaterial = m_world->GetResourceManagerV2().GetResource<Material>(m_world->GetGfxSettings().lightingMaterial);
+		Material*		 skyMaterial	  = m_world->GetResourceManagerV2().GetResource<Material>(m_world->GetGfxSettings().skyMaterial);
+		Model*			 skyModel		  = m_world->GetResourceManagerV2().GetResource<Model>(m_world->GetGfxSettings().skyModel);
 		CameraComponent* camera			  = nullptr; // m_world->GetActiveCamera();
 
 		if (lightingMaterial == nullptr || skyMaterial == nullptr || skyModel == nullptr || camera == nullptr)
@@ -728,7 +729,7 @@ namespace Lina
 		m_lightingPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
 		m_lightingPass.BindDescriptors(currentFrame.gfxStream, frameIndex, currentFrame.pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Lighting]);
 
-		Shader* lighting = m_world->GetGfxSettings().lightingMaterial.raw->GetShader(m_resourceManagerV2);
+		Shader* lighting = m_resourceManagerV2->GetResource<Shader>(lightingMaterial->GetShader());
 		lighting->Bind(currentFrame.gfxStream, lighting->GetGPUHandle());
 
 		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Lighting Pass: Fullscreen");
@@ -739,12 +740,12 @@ namespace Lina
 		lightingDraw->vertexCountPerInstance   = 3;
 		DEBUG_LABEL_END(currentFrame.gfxStream);
 
-		Shader* skyShader = m_world->GetGfxSettings().skyMaterial.raw->GetShader(m_resourceManagerV2);
+		Shader* skyShader = m_resourceManagerV2->GetResource<Shader>(skyMaterial->GetShader());
 		skyShader->Bind(currentFrame.gfxStream, skyShader->GetGPUHandle());
 
 		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Lighting Pass: SkyCube");
 
-		MeshDefault*					 skyMesh = m_world->GetGfxSettings().skyModel.raw->GetMeshes().front();
+		MeshDefault*					 skyMesh = skyModel->GetMesh(0);
 		LinaGX::CMDDrawIndexedInstanced* skyDraw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
 		skyDraw->baseVertexLocation				 = skyMesh->GetVertexOffset();
 		skyDraw->indexCountPerInstance			 = skyMesh->GetIndexCount();
@@ -950,7 +951,7 @@ namespace Lina
 			else if (res->GetTID() == GetTypeID<Material>())
 			{
 				Material* mat = static_cast<Material*>(res);
-				mat->SetShader(m_resourceManagerV2->GetResource<Shader>(mat->GetShaderID()));
+				mat->SetShader(m_resourceManagerV2->GetResource<Shader>(mat->GetShader()));
 				bindlessDirty = true;
 			}
 			else if (res->GetTID() == GetTypeID<Font>())

@@ -70,6 +70,23 @@ namespace Lina::Editor
 		m_worldRenderer = new WorldRenderer(m_world, Vector2ui(4, 4));
 		m_worldDisplayer->DisplayWorld(m_worldRenderer);
 		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer);
+
+		// Load models.
+		const HashSet<ResourceID> initialResources = {
+			EDITOR_MODEL_CUBE_ID,
+			EDITOR_MODEL_SPHERE_ID,
+			EDITOR_MODEL_PLANE_ID,
+			EDITOR_MODEL_CYLINDER_ID,
+			m_resource->GetID(),
+		};
+
+		m_world->LoadMissingResources(m_editor->GetProjectManager().GetProjectData(), initialResources);
+
+		Entity*			   cameraEntity	   = m_world->CreateEntity("Camera");
+		CameraComponent*   cameraComponent = m_world->AddComponent<CameraComponent>(cameraEntity);
+		FlyCameraMovement* cameraMovement  = m_world->AddComponent<FlyCameraMovement>(cameraEntity);
+		cameraEntity->SetPosition(Vector3(0, 0, 5));
+		cameraEntity->SetRotation(Quaternion::PitchYawRoll(0, 180, 0));
 	}
 
 	void PanelMaterialViewer::Destruct()

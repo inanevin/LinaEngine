@@ -181,14 +181,14 @@ namespace Lina::Editor
 		GUIBackend&		   guiBackend	  = m_editor->GetEditorRenderer().GetGUIBackend();
 		Buffer&			   materialBuffer = m_guiPass.GetBuffer(frameIndex, "GUIMaterials"_hs);
 
-		Texture* texture = buf->textureHandle == nullptr ? nullptr : static_cast<Texture*>(buf->textureHandle);
-
 		if (buf->shapeType == LinaVG::DrawBufferShapeType::Shape || buf->shapeType == LinaVG::DrawBufferShapeType::AA)
 		{
 			if (guiUserData)
 			{
 				if (guiUserData->specialType == GUISpecialType::None)
 				{
+					Texture* texture = buf->textureHandle == nullptr ? nullptr : static_cast<Texture*>(buf->textureHandle);
+
 					GPUMaterialGUIDefault material = {
 						.clip			   = Vector4(buf->clipPosX, buf->clipPosY, buf->clipSizeX, buf->clipSizeY),
 						.uvTilingAndOffset = buf->textureUV,
@@ -244,6 +244,7 @@ namespace Lina::Editor
 			else
 			{
 				drawRequest.shader = m_guiDefault;
+				Texture* texture   = buf->textureHandle == nullptr ? nullptr : static_cast<Texture*>(buf->textureHandle);
 
 				GPUMaterialGUIDefault material = {
 					.clip			   = Vector4(buf->clipPosX, buf->clipPosY, buf->clipSizeX, buf->clipSizeY),
@@ -267,11 +268,12 @@ namespace Lina::Editor
 		{
 			drawRequest.shader = m_guiText;
 
+			LinaVG::Atlas*	   atlas	= static_cast<LinaVG::Atlas*>(buf->textureHandle);
 			GPUMaterialGUIText material = {
 				.clip = Vector4(buf->clipPosX, buf->clipPosY, buf->clipSizeX, buf->clipSizeY),
 				.diffuse =
 					{
-						.textureIndex = context->GetBindlessIndex(guiBackend.GetFontTexture(static_cast<LinaVG::Atlas*>(buf->textureHandle)).texture),
+						.textureIndex = context->GetBindlessIndex(guiBackend.GetFontTexture(atlas).texture),
 						.samplerIndex = context->GetBindlessIndex(m_editor->GetEditorRenderer().GetGUITextSampler()),
 					},
 			};

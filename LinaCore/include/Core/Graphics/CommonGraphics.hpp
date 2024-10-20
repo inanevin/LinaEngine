@@ -162,6 +162,16 @@ namespace Lina
 		uint32 samplerIndex = 0;
 	};
 
+	enum class ShaderType
+	{
+		OpaqueSurface,
+		TransparentSurface,
+		Sky,
+		PostProcess,
+		Lighting,
+		Custom
+	};
+
 	enum class ShaderPropertyType
 	{
 		Bool,
@@ -176,6 +186,30 @@ namespace Lina
 		IVec4,
 		Matrix4,
 		Texture2D,
+	};
+
+	struct ShaderPropertyDefinition
+	{
+		String			   name = "";
+		StringID		   sid	= 0;
+		ShaderPropertyType type = ShaderPropertyType::Bool;
+
+		bool operator==(const ShaderPropertyDefinition& other) const
+		{
+			return sid == other.sid && type == other.type;
+		}
+
+		static bool VerifySimilarity(const Vector<ShaderPropertyDefinition>& v1, const Vector<ShaderPropertyDefinition>& v2);
+
+		void SaveToStream(OStream& stream) const
+		{
+			stream << name << sid << type;
+		}
+
+		void LoadFromStream(IStream& stream)
+		{
+			stream >> name >> sid >> type;
+		}
 	};
 
 } // namespace Lina

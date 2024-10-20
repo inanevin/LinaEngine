@@ -153,12 +153,8 @@ namespace Lina::Editor
 			return;
 		}
 
-		ResourceDef def = {
-			.id	 = m_subData,
-			.tid = GetTypeID<Model>(),
-		};
-		m_editor->GetResourceManagerV2().LoadResourcesFromProject(m_editor->GetProjectManager().GetProjectData(), {def}, 0);
-		m_model					   = m_editor->GetResourceManagerV2().GetResource<Model>(def.id);
+		m_editor->GetResourceManagerV2().LoadResourcesFromProject(m_editor->GetProjectManager().GetProjectData(), {m_subData}, NULL);
+		m_model					   = m_editor->GetResourceManagerV2().GetResource<Model>(m_subData);
 		m_modelName				   = m_model->GetName();
 		GetWidgetProps().debugName = "Model: " + m_model->GetName();
 

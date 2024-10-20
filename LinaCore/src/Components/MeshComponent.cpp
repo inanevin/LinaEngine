@@ -39,55 +39,10 @@ namespace Lina
 		switch (event.type)
 		{
 		case ComponentEventType::Destroy:
-			m_entity->RemoveAABB(m_usedLocalAABB);
 			break;
 		default:
 			break;
 		}
-	}
-
-	void MeshComponent::SaveToStream(OStream& stream) const
-	{
-		stream << m_model << m_material << m_meshIndex;
-	}
-
-	void MeshComponent::LoadFromStream(IStream& stream)
-	{
-		stream >> m_model >> m_material >> m_meshIndex;
-	}
-
-	void MeshComponent::SetMesh(ResourceID id, uint32 meshIndex)
-	{
-		m_entity->RemoveAABB(m_usedLocalAABB);
-		m_model.id = id;
-		// m_model.raw		= m_resourceManager->GetResource<Model>(m_model.id);
-		m_meshIndex		= meshIndex;
-		m_mesh			= m_model.raw->GetMesh(m_meshIndex);
-		m_usedLocalAABB = m_mesh->GetAABB();
-		m_entity->AddAABB(m_usedLocalAABB);
-	}
-
-	void MeshComponent::SetMesh(Model* model, uint32 meshIndex)
-	{
-		m_entity->RemoveAABB(m_usedLocalAABB);
-		m_model.id		= model->GetID();
-		m_model.raw		= model;
-		m_meshIndex		= meshIndex;
-		m_mesh			= m_model.raw->GetMesh(m_meshIndex);
-		m_usedLocalAABB = m_mesh->GetAABB();
-		m_entity->AddAABB(m_usedLocalAABB);
-	}
-
-	void MeshComponent::SetMaterial(ResourceID id)
-	{
-		m_material.id = id;
-		// m_material.raw = m_resourceManager->GetResource<Material>(m_material.id);
-	}
-
-	void MeshComponent::SetMaterial(Material* mat)
-	{
-		m_material.id  = mat->GetID();
-		m_material.raw = mat;
 	}
 
 } // namespace Lina

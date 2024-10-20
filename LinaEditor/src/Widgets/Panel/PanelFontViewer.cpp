@@ -60,6 +60,7 @@ namespace Lina::Editor
 
 	void PanelFontViewer::OnGeneralMetaChanged(const MetaType& meta, FieldBase* field)
 	{
+		m_fontDisplay->GetProps().textScale = m_scale;
 	}
 
 	void PanelFontViewer::OnResourceMetaChanged(const MetaType& meta, FieldBase* field)

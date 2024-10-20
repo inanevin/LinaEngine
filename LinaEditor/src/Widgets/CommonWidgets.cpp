@@ -1299,7 +1299,7 @@ namespace Lina::Editor
 			cf->GetProps().onClicked		 = [cf, col, src, &metaType, field, onFieldChanged]() {
 				PanelColorWheel* panel						 = static_cast<PanelColorWheel*>(Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::ColorWheel, 0, src));
 				panel->GetWheel()->GetProps().onValueChanged = [&metaType, field, onFieldChanged](const Color& col) { onFieldChanged(metaType, field); };
-				panel->SetTarget(col);
+				// panel->SetTarget(col);
 			};
 			rightSide->AddChild(cf);
 		}

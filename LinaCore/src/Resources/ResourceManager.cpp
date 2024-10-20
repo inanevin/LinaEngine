@@ -82,37 +82,61 @@ namespace Lina
 		return resources;
 	}
 
-	HashSet<Resource*> ResourceManagerV2::LoadResourcesFromProject(ProjectData* project, const ResourceDefinitionList& resourceDefs, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress)
+	HashSet<Resource*> ResourceManagerV2::LoadResourcesFromProject(ProjectData* project, const HashSet<ResourceID>& resources, Delegate<void(uint32 loaded, Resource* currentItem)> onProgress)
 	{
-		HashSet<Resource*> resources;
+		HashSet<Resource*> loadedResources;
 		uint32			   idx = 0;
-		for (const ResourceDef& def : resourceDefs)
+		for (ResourceID id : resources)
 		{
-			auto	  cache	 = GetCache(def.tid);
-			Resource* res	 = cache->Create(def.id, def.name);
-			IStream	  stream = Serialization::LoadFromFile(project->GetResourcePath(def.id).c_str());
+			ResourceDirectory* dir = project->GetResourceRoot().FindResourceDirectory(id);
 
-			if (stream.Empty())
+			if (dir == nullptr)
 			{
-				cache->Destroy(def.id);
-				LINA_ERR("[Resource] -> Failed loading resource: {0}", def.name);
+				LINA_ERR("Can't find resource to load from project! {0}", id);
 
 				if (onProgress)
-					onProgress(++idx, def);
+					onProgress(++idx, nullptr);
 
 				continue;
 			}
 
-			resources.insert(res);
+			auto cache = GetCache(dir->resourceTID);
+
+			Resource* res = cache->GetIfExists(id);
+
+			if (res != nullptr)
+			{
+				if (onProgress)
+					onProgress(++idx, res);
+
+				continue;
+			}
+
+			res			   = cache->Create(id, dir->name);
+			IStream stream = Serialization::LoadFromFile(project->GetResourcePath(id).c_str());
+
+			if (stream.Empty())
+			{
+				cache->Destroy(id);
+				LINA_ERR("[Resource] -> Failed loading resource: {0}", id);
+
+				if (onProgress)
+					onProgress(++idx, res);
+
+				continue;
+			}
+
+			loadedResources.insert(res);
 			res->LoadFromStream(stream);
 			stream.Destroy();
-			LINA_TRACE("[Resource] -> Loaded resource: {0}", def.name);
 
 			if (onProgress)
-				onProgress(++idx, def);
+				onProgress(++idx, res);
+
+			LINA_TRACE("[Resource] -> Loaded resource: {0}", res->GetPath());
 		}
 
-		return resources;
+		return loadedResources;
 	}
 
 	void ResourceManagerV2::UnloadResources(const Vector<Resource*>& resources)

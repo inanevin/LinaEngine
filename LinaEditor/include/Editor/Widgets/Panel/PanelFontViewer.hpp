@@ -64,11 +64,13 @@ namespace Lina::Editor
 		String m_fontSize	   = "";
 		String m_displayString = "Peace at home, peace at world.";
 		Text*  m_fontDisplay   = nullptr;
+		float  m_scale		   = 1.0f;
 	};
 
 	LINA_WIDGET_BEGIN(PanelFontViewer, Hidden)
 	LINA_FIELD(PanelFontViewer, m_fontName, "Name", FieldType::StringFixed, 0)
 	LINA_FIELD(PanelFontViewer, m_fontSize, "Size", FieldType::StringFixed, 0)
+	LINA_FIELD(PanelFontViewer, m_scale, "Scale", FieldType::Float, 0)
 	LINA_FIELD(PanelFontViewer, m_displayString, "Display String", FieldType::String, 0)
 	LINA_CLASS_END(PanelFontViewer)
 

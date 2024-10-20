@@ -95,7 +95,7 @@ namespace Lina
 			return source.substr(startPos, endPos - startPos);
 		}
 
-		void ProcessMaterialData(String& block, Vector<ShaderProperty*>& outProperties)
+		void ProcessMaterialData(String& block, Vector<ShaderPropertyDefinition>& outProperties)
 		{
 			const String materialIdent = "struct LinaMaterial";
 
@@ -148,6 +148,20 @@ namespace Lina
 				return vals;
 			};
 
+			const HashMap<String, ShaderPropertyType> nameToPropType = {
+				linatl::make_pair("float", ShaderPropertyType::Float),
+				linatl::make_pair("bool", ShaderPropertyType::Bool),
+				linatl::make_pair("uint", ShaderPropertyType::UInt32),
+				linatl::make_pair("vec2", ShaderPropertyType::Vec2),
+				linatl::make_pair("vec3", ShaderPropertyType::Vec3),
+				linatl::make_pair("vec4", ShaderPropertyType::Vec4),
+				linatl::make_pair("ivec2", ShaderPropertyType::IVec2),
+				linatl::make_pair("ivec3", ShaderPropertyType::IVec3),
+				linatl::make_pair("ivec4", ShaderPropertyType::IVec4),
+				linatl::make_pair("mat4", ShaderPropertyType::Matrix4),
+				linatl::make_pair("LinaTexture2D", ShaderPropertyType::Texture2D),
+			};
+
 			while (std::getline(f, line))
 			{
 				// + 1 \n
@@ -179,135 +193,26 @@ namespace Lina
 
 				if (parsingMaterialStruct)
 				{
-					ShaderProperty* prop = new ShaderProperty();
+					ShaderPropertyDefinition def = {};
 
-					if (property(line, "float", prop->name))
+					bool found = false;
+					for (const auto& [str, propType] : nameToPropType)
 					{
-						float value = 0.0f;
-						prop->type	= ShaderPropertyType::Float;
-						prop->sid	= TO_SID(prop->name);
-						prop->data	= {new uint8[sizeof(uint32)], sizeof(float)};
-						MEMCPY(prop->data.data(), &value, sizeof(float));
-						outProperties.push_back(prop);
-						continue;
+						if (property(line, str, def.name))
+						{
+							def.sid	 = TO_SID(def.name);
+							def.type = propType;
+							outProperties.push_back(def);
+							found = true;
+							break;
+						}
 					}
 
-					if (property(line, "uint", prop->name))
-					{
-						uint32 value = 0;
-						prop->type	 = ShaderPropertyType::UInt32;
-						prop->sid	 = TO_SID(prop->name);
-						prop->data	 = {new uint8[sizeof(uint32)], sizeof(uint32)};
-						MEMCPY(prop->data.data(), &value, sizeof(uint32));
-						outProperties.push_back(prop);
+					if (found)
 						continue;
-					}
-
-					if (property(line, "bool", prop->name))
-					{
-						bool value = false;
-						prop->type = ShaderPropertyType::Bool;
-						prop->sid  = TO_SID(prop->name);
-						prop->data = {new uint8[sizeof(uint32)], sizeof(uint32)};
-						MEMSET(prop->data.data(), 0, sizeof(uint32));
-						MEMCPY(prop->data.data(), &value, sizeof(bool));
-						outProperties.push_back(prop);
-						continue;
-					}
-
-					if (property(line, "vec2", prop->name))
-					{
-						Vector2 val = Vector2::Zero;
-						prop->type	= ShaderPropertyType::Vec2;
-						prop->sid	= TO_SID(prop->name);
-						prop->data	= {new uint8[sizeof(Vector2)], sizeof(Vector2)};
-						MEMCPY(prop->data.data(), &val, sizeof(Vector2));
-						outProperties.push_back(prop);
-						continue;
-					}
-
-					if (property(line, "vec3", prop->name))
-					{
-						Vector3 val = Vector3::Zero;
-						prop->type	= ShaderPropertyType::Vec3;
-						prop->sid	= TO_SID(prop->name);
-						prop->data	= {new uint8[sizeof(uint32) * 3], sizeof(uint32) * 3};
-						MEMCPY(prop->data.data(), &val, sizeof(uint32) * 3);
-						outProperties.push_back(prop);
-						continue;
-					}
-
-					if (property(line, "vec4", prop->name))
-					{
-						Vector4 val = Vector4::Zero;
-						prop->type	= ShaderPropertyType::Vec4;
-						prop->sid	= TO_SID(prop->name);
-						prop->data	= {new uint8[sizeof(Vector4)], sizeof(Vector4)};
-						MEMCPY(prop->data.data(), &val, sizeof(Vector4));
-						outProperties.push_back(prop);
-						continue;
-					}
-
-					if (property(line, "ivec2", prop->name))
-					{
-						Vector2i val = Vector2i::Zero;
-						prop->type	 = ShaderPropertyType::IVec2;
-						prop->sid	 = TO_SID(prop->name);
-						prop->data	 = {new uint8[sizeof(Vector2i)], sizeof(Vector2i)};
-						MEMCPY(prop->data.data(), &val, sizeof(Vector2i));
-						outProperties.push_back(prop);
-						continue;
-					}
-
-					if (property(line, "ivec3", prop->name))
-					{
-						Vector3i val = Vector3i::Zero;
-						prop->type	 = ShaderPropertyType::IVec3;
-						prop->sid	 = TO_SID(prop->name);
-						prop->data	 = {new uint8[sizeof(Vector3i)], sizeof(Vector3i)};
-						MEMCPY(prop->data.data(), &val, sizeof(Vector3i));
-						outProperties.push_back(prop);
-						continue;
-					}
-
-					if (property(line, "ivec4", prop->name))
-					{
-						Vector4i val = Vector4i::Zero;
-						prop->type	 = ShaderPropertyType::IVec4;
-						prop->sid	 = TO_SID(prop->name);
-						prop->data	 = {new uint8[sizeof(Vector4i)], sizeof(Vector4i)};
-						MEMCPY(prop->data.data(), &val, sizeof(Vector4i));
-						outProperties.push_back(prop);
-						continue;
-					}
-
-					if (property(line, "mat4", prop->name))
-					{
-						Matrix4 value = Matrix4::Identity();
-						prop->type	  = ShaderPropertyType::Matrix4;
-						prop->sid	  = TO_SID(prop->name);
-						prop->data	  = {new uint8[sizeof(Matrix4)], sizeof(Matrix4)};
-						MEMCPY(prop->data.data(), &value, sizeof(Matrix4));
-						outProperties.push_back(prop);
-						continue;
-					}
-
-					if (property(line, "LinaTexture2D", prop->name))
-					{
-						prop->type = ShaderPropertyType::Texture2D;
-						prop->sid  = TO_SID(prop->name);
-						prop->data = {new uint8[sizeof(ResourceID) * 2], sizeof(ResourceID) * 2};
-						MEMSET(prop->data.data(), 0, sizeof(ResourceID) * 2);
-						outProperties.push_back(prop);
-						continue;
-					}
-
-					delete prop;
 
 					if (line.find("}") != String::npos)
-					{
 						break;
-					}
 
 					if (line.find("{") != String::npos)
 						continue;
@@ -324,106 +229,106 @@ namespace Lina
 				materialCastFunction += "\tLinaMaterial m;\n";
 				materialCastFunction += "\tuint index = startOffset;\n";
 
-				for (ShaderProperty* prop : outProperties)
+				for (const ShaderPropertyDefinition& prop : outProperties)
 				{
-					if (prop->type == ShaderPropertyType::Float)
+					if (prop.type == ShaderPropertyType::Float)
 					{
-						materialCastFunction += "\tm." + prop->name + " = uintBitsToFloat(LINA_MATERIALS.data[index++]);\n\n";
+						materialCastFunction += "\tm." + prop.name + " = uintBitsToFloat(LINA_MATERIALS.data[index++]);\n\n";
 						continue;
 					}
 
-					if (prop->type == ShaderPropertyType::UInt32)
+					if (prop.type == ShaderPropertyType::UInt32)
 					{
-						materialCastFunction += "\tm." + prop->name + " = LINA_MATERIALS.data[index++];\n\n";
+						materialCastFunction += "\tm." + prop.name + " = LINA_MATERIALS.data[index++];\n\n";
 						continue;
 					}
 
-					if (prop->type == ShaderPropertyType::Bool)
+					if (prop.type == ShaderPropertyType::Bool)
 					{
-						materialCastFunction += "\tm." + prop->name + " = LINA_MATERIALS.data[index] != 0u;\n";
+						materialCastFunction += "\tm." + prop.name + " = LINA_MATERIALS.data[index] != 0u;\n";
 						materialCastFunction += "\tindex += 1;\n\n";
 						continue;
 					}
 
-					if (prop->type == ShaderPropertyType::Vec2)
+					if (prop.type == ShaderPropertyType::Vec2)
 					{
-						materialCastFunction += "\tm." + prop->name + ".x = uintBitsToFloat(LINA_MATERIALS.data[index++]);\n";
-						materialCastFunction += "\tm." + prop->name + ".y = uintBitsToFloat(LINA_MATERIALS.data[index++]);\n\n";
+						materialCastFunction += "\tm." + prop.name + ".x = uintBitsToFloat(LINA_MATERIALS.data[index++]);\n";
+						materialCastFunction += "\tm." + prop.name + ".y = uintBitsToFloat(LINA_MATERIALS.data[index++]);\n\n";
 						continue;
 					}
 
-					if (prop->type == ShaderPropertyType::Vec3)
+					if (prop.type == ShaderPropertyType::Vec3)
 					{
-						materialCastFunction += "\tm." + prop->name + ".x = uintBitsToFloat(LINA_MATERIALS.data[index++]);\n";
-						materialCastFunction += "\tm." + prop->name + ".y = uintBitsToFloat(LINA_MATERIALS.data[index++]);\n";
-						materialCastFunction += "\tm." + prop->name + ".z = uintBitsToFloat(LINA_MATERIALS.data[index++]);\n\n";
+						materialCastFunction += "\tm." + prop.name + ".x = uintBitsToFloat(LINA_MATERIALS.data[index++]);\n";
+						materialCastFunction += "\tm." + prop.name + ".y = uintBitsToFloat(LINA_MATERIALS.data[index++]);\n";
+						materialCastFunction += "\tm." + prop.name + ".z = uintBitsToFloat(LINA_MATERIALS.data[index++]);\n\n";
 						continue;
 					}
 
-					if (prop->type == ShaderPropertyType::Vec4)
+					if (prop.type == ShaderPropertyType::Vec4)
 					{
-						materialCastFunction += "\tm." + prop->name + ".x = uintBitsToFloat(LINA_MATERIALS.data[index++]);\n";
-						materialCastFunction += "\tm." + prop->name + ".y = uintBitsToFloat(LINA_MATERIALS.data[index++]);\n";
-						materialCastFunction += "\tm." + prop->name + ".z = uintBitsToFloat(LINA_MATERIALS.data[index++]);\n";
-						materialCastFunction += "\tm." + prop->name + ".w = uintBitsToFloat(LINA_MATERIALS.data[index++]);\n\n";
+						materialCastFunction += "\tm." + prop.name + ".x = uintBitsToFloat(LINA_MATERIALS.data[index++]);\n";
+						materialCastFunction += "\tm." + prop.name + ".y = uintBitsToFloat(LINA_MATERIALS.data[index++]);\n";
+						materialCastFunction += "\tm." + prop.name + ".z = uintBitsToFloat(LINA_MATERIALS.data[index++]);\n";
+						materialCastFunction += "\tm." + prop.name + ".w = uintBitsToFloat(LINA_MATERIALS.data[index++]);\n\n";
 						continue;
 					}
 
-					if (prop->type == ShaderPropertyType::IVec2)
+					if (prop.type == ShaderPropertyType::IVec2)
 					{
-						materialCastFunction += "\tm." + prop->name + ".x = LINA_MATERIALS.data[index++];\n";
-						materialCastFunction += "\tm." + prop->name + ".y = LINA_MATERIALS.data[index++];\n\n";
+						materialCastFunction += "\tm." + prop.name + ".x = LINA_MATERIALS.data[index++];\n";
+						materialCastFunction += "\tm." + prop.name + ".y = LINA_MATERIALS.data[index++];\n\n";
 						continue;
 					}
 
-					if (prop->type == ShaderPropertyType::IVec3)
+					if (prop.type == ShaderPropertyType::IVec3)
 					{
-						materialCastFunction += "\tm." + prop->name + ".x = LINA_MATERIALS.data[index++];\n";
-						materialCastFunction += "\tm." + prop->name + ".y = LINA_MATERIALS.data[index++];\n";
-						materialCastFunction += "\tm." + prop->name + ".z = LINA_MATERIALS.data[index++];\n\n";
+						materialCastFunction += "\tm." + prop.name + ".x = LINA_MATERIALS.data[index++];\n";
+						materialCastFunction += "\tm." + prop.name + ".y = LINA_MATERIALS.data[index++];\n";
+						materialCastFunction += "\tm." + prop.name + ".z = LINA_MATERIALS.data[index++];\n\n";
 						continue;
 					}
 
-					if (prop->type == ShaderPropertyType::IVec4)
+					if (prop.type == ShaderPropertyType::IVec4)
 					{
-						materialCastFunction += "\tm." + prop->name + ".x = LINA_MATERIALS.data[index++];\n";
-						materialCastFunction += "\tm." + prop->name + ".y = LINA_MATERIALS.data[index++];\n";
-						materialCastFunction += "\tm." + prop->name + ".z = LINA_MATERIALS.data[index++];\n";
-						materialCastFunction += "\tm." + prop->name + ".w = LINA_MATERIALS.data[index++];\n\n";
+						materialCastFunction += "\tm." + prop.name + ".x = LINA_MATERIALS.data[index++];\n";
+						materialCastFunction += "\tm." + prop.name + ".y = LINA_MATERIALS.data[index++];\n";
+						materialCastFunction += "\tm." + prop.name + ".z = LINA_MATERIALS.data[index++];\n";
+						materialCastFunction += "\tm." + prop.name + ".w = LINA_MATERIALS.data[index++];\n\n";
 						continue;
 					}
 
-					if (prop->type == ShaderPropertyType::Texture2D)
+					if (prop.type == ShaderPropertyType::Texture2D)
 					{
-						materialCastFunction += "\tm." + prop->name + ".txt = LINA_MATERIALS.data[index++];\n";
-						materialCastFunction += "\tm." + prop->name + ".smp = LINA_MATERIALS.data[index++];\n\n";
+						materialCastFunction += "\tm." + prop.name + ".txt = LINA_MATERIALS.data[index++];\n";
+						materialCastFunction += "\tm." + prop.name + ".smp = LINA_MATERIALS.data[index++];\n\n";
 						continue;
 					}
 
-					if (prop->type == ShaderPropertyType::Matrix4)
+					if (prop.type == ShaderPropertyType::Matrix4)
 					{
-						materialCastFunction += "\tm." + prop->name + "[0] = vec4(\n";
+						materialCastFunction += "\tm." + prop.name + "[0] = vec4(\n";
 						materialCastFunction += "\t\tuintBitsToFloat(LINA_MATERIALS.data[index++]),\n";
 						materialCastFunction += "\t\tuintBitsToFloat(LINA_MATERIALS.data[index++]),\n";
 						materialCastFunction += "\t\tuintBitsToFloat(LINA_MATERIALS.data[index++]),\n";
 						materialCastFunction += "\t\tuintBitsToFloat(LINA_MATERIALS.data[index++])\n";
 						materialCastFunction += "\t);\n\n";
 
-						materialCastFunction += "\tm." + prop->name + "[1] = vec4(\n";
+						materialCastFunction += "\tm." + prop.name + "[1] = vec4(\n";
 						materialCastFunction += "\t\tuintBitsToFloat(LINA_MATERIALS.data[index++]),\n";
 						materialCastFunction += "\t\tuintBitsToFloat(LINA_MATERIALS.data[index++]),\n";
 						materialCastFunction += "\t\tuintBitsToFloat(LINA_MATERIALS.data[index++]),\n";
 						materialCastFunction += "\t\tuintBitsToFloat(LINA_MATERIALS.data[index++])\n";
 						materialCastFunction += "\t);\n\n";
 
-						materialCastFunction += "\tm." + prop->name + "[2] = vec4(\n";
+						materialCastFunction += "\tm." + prop.name + "[2] = vec4(\n";
 						materialCastFunction += "\t\tuintBitsToFloat(LINA_MATERIALS.data[index++]),\n";
 						materialCastFunction += "\t\tuintBitsToFloat(LINA_MATERIALS.data[index++]),\n";
 						materialCastFunction += "\t\tuintBitsToFloat(LINA_MATERIALS.data[index++]),\n";
 						materialCastFunction += "\t\tuintBitsToFloat(LINA_MATERIALS.data[index++])\n";
 						materialCastFunction += "\t);\n\n";
 
-						materialCastFunction += "\tm." + prop->name + "[3] = vec4(\n";
+						materialCastFunction += "\tm." + prop.name + "[3] = vec4(\n";
 						materialCastFunction += "\t\tuintBitsToFloat(LINA_MATERIALS.data[index++]),\n";
 						materialCastFunction += "\t\tuintBitsToFloat(LINA_MATERIALS.data[index++]),\n";
 						materialCastFunction += "\t\tuintBitsToFloat(LINA_MATERIALS.data[index++]),\n";
@@ -439,61 +344,6 @@ namespace Lina
 			}
 		}
 	} // namespace
-
-	bool ShaderPreprocessor::Preprocess(const String& text, HashMap<LinaGX::ShaderStage, String>& outStages, Vector<ShaderProperty*>& outProperties, ShaderType& outShaderType)
-	{
-		if (text.find("#version") != String::npos)
-		{
-			LINA_ASSERT(false, "Shaders can't have version directives, these are internally injected by Lina!");
-			return false;
-		}
-
-		std::istringstream f(text.c_str());
-		std::string		   line	 = "";
-		bool			   isCmt = false;
-
-		if (!FindShaderType(outShaderType, text))
-		{
-			LINA_ERR("Shader type can't be found!");
-			return false;
-		}
-
-		HashMap<LinaGX::ShaderStage, String> blockIdentifiers;
-		blockIdentifiers[LinaGX::ShaderStage::Fragment] = "#lina_fs";
-		blockIdentifiers[LinaGX::ShaderStage::Vertex]	= "#lina_vs";
-		blockIdentifiers[LinaGX::ShaderStage::Compute]	= "#lina_cs";
-		blockIdentifiers[LinaGX::ShaderStage::Geometry] = "#lina_gs";
-
-		auto getInclude = [](const char* path) -> String {
-			String		 include	 = FileSystem::ReadFileContentsAsString(path);
-			const size_t commentsEnd = include.find("*/") + 2;
-			include					 = include.substr(commentsEnd, include.size() - commentsEnd);
-			return include;
-		};
-
-		const String versionDirective	   = "#version 460 \n";
-		const String dynamicIndexDirective = "#extension GL_EXT_nonuniform_qualifier : enable";
-
-		for (const auto& [stage, ident] : blockIdentifiers)
-		{
-			String block = ExtractBlock(text.c_str(), ident.c_str(), "#lina_end");
-
-			// Normalize line endings
-			block.erase(linatl::remove(block.begin(), block.end(), '\r'), block.end());
-
-			if (outProperties.empty())
-				ProcessMaterialData(block, outProperties);
-
-			if (!block.empty())
-			{
-				block.insert(0, versionDirective);
-				block.insert(versionDirective.size(), dynamicIndexDirective);
-				outStages[stage] = block;
-			}
-		}
-
-		return true;
-	}
 
 	bool ShaderPreprocessor::VerifyFullShader(const String& input)
 	{
@@ -555,7 +405,7 @@ namespace Lina
 		input.insert(sz, HEADER_END);
 	}
 
-	void ShaderPreprocessor::InjectMaterialIfRequired(String& input, Vector<ShaderProperty*>& outProperties)
+	void ShaderPreprocessor::InjectMaterialIfRequired(String& input, Vector<ShaderPropertyDefinition>& outProperties)
 	{
 		outProperties.clear();
 		ProcessMaterialData(input, outProperties);

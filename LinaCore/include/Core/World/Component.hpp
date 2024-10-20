@@ -37,10 +37,12 @@ SOFTWARE.
 #include "Common/Memory/CommonMemory.hpp"
 #include "Core/Resources/Resource.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
+
 namespace LinaGX
 {
 	class Input;
 }
+
 namespace Lina
 {
 	class Entity;
@@ -51,9 +53,10 @@ namespace Lina
 	class Component
 	{
 	public:
-		virtual void SaveToStream(OStream& stream) const {};
-		virtual void LoadFromStream(IStream& stream){};
 		virtual void OnEvent(const ComponentEvent& event){};
+		virtual void CollectReferences(HashSet<ResourceID>& refs){};
+		virtual void LoadFromStream(IStream& stream){};
+		virtual void SaveToStream(OStream& stream) const {};
 
 		virtual TypeID GetComponentType() = 0;
 

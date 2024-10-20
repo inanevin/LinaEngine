@@ -37,57 +37,9 @@ SOFTWARE.
 
 namespace Lina
 {
-	void ShaderProperty::SaveToStream(OStream& stream) const
-	{
-		stream << sid;
-		stream << type;
-		stream << name;
-		stream << static_cast<uint32>(data.size());
-		stream.WriteRaw(data);
-	}
-
-	void ShaderProperty::LoadFromStream(IStream& stream)
-	{
-		stream >> sid;
-		stream >> type;
-		stream >> name;
-		uint32 sz = 0;
-		stream >> sz;
-		data = {new uint8[static_cast<size_t>(sz)], static_cast<size_t>(sz)};
-		stream.ReadToRaw(data);
-	}
-
-	bool ShaderProperty::VerifySimilarity(const Vector<ShaderProperty*>& v1, const Vector<ShaderProperty*>& v2)
-	{
-		if (v1.empty() || v2.empty())
-			return true;
-
-		for (ShaderProperty* p : v1)
-		{
-			auto it = linatl::find_if(v2.begin(), v2.end(), [p](ShaderProperty* prop) -> bool { return p->type == prop->type && p->sid == prop->sid; });
-			if (it == v2.end())
-				return false;
-		}
-
-		return true;
-	}
-
-	void Shader::Metadata::SaveToStream(OStream& stream) const
-	{
-		stream << variants;
-		stream << shaderType;
-	}
-
-	void Shader::Metadata::LoadFromStream(IStream& stream)
-	{
-		stream >> variants;
-		stream >> shaderType;
-	}
-
 	Shader::~Shader()
 	{
-		for (ShaderProperty* p : m_properties)
-			delete p;
+		m_propertyDefinitions.clear();
 		DestroyHW();
 	}
 
@@ -95,45 +47,6 @@ namespace Lina
 	{
 		LinaGX::CMDBindPipeline* bind = stream->AddCommand<LinaGX::CMDBindPipeline>();
 		bind->shader				  = gpuHandle;
-	}
-
-	void Shader::AllocateDescriptorSet(DescriptorSet*& outSet, uint32& outIndex)
-	{
-		/*
-		 Return any set that has available allocations.
-		 Consumer will use the set pointer and returned allocation index to free up the allocation.
-		 */
-		for (auto* set : m_descriptorSets)
-		{
-			if (set->IsAvailable())
-			{
-				outSet = set;
-				set->Allocate(outIndex);
-				return;
-			}
-		}
-
-		// Grow if needed.
-		DescriptorSet* set = new DescriptorSet();
-		set->Create(m_materialSetDesc);
-		m_descriptorSets.push_back(set);
-		outSet = set;
-		set->Allocate(outIndex);
-	}
-
-	void Shader::FreeDescriptorSet(DescriptorSet* set, uint32 index)
-	{
-		set->Free(index);
-
-		// Shrink if not used anymore.
-		if (set->IsEmpty())
-		{
-			auto it = linatl::find_if(m_descriptorSets.begin(), m_descriptorSets.end(), [set](DescriptorSet* s) -> bool { return s == set; });
-			LINA_ASSERT(it != m_descriptorSets.end(), "");
-			set->Destroy();
-			delete set;
-			m_descriptorSets.erase(it);
-		}
 	}
 
 	bool Shader::LoadFromFile(const String& path)
@@ -159,17 +72,17 @@ namespace Lina
 		ShaderPreprocessor::InjectVersionAndExtensions(vertexBlock);
 		ShaderPreprocessor::InjectVersionAndExtensions(fragBlock);
 
-		Vector<ShaderProperty*> vertexProperties = {}, fragProperties = {};
+		Vector<ShaderPropertyDefinition> vertexProperties = {}, fragProperties = {};
 		ShaderPreprocessor::InjectMaterialIfRequired(vertexBlock, vertexProperties);
 		ShaderPreprocessor::InjectMaterialIfRequired(fragBlock, fragProperties);
 
-		if (!ShaderProperty::VerifySimilarity(vertexProperties, fragProperties))
+		if (!ShaderPropertyDefinition::VerifySimilarity(vertexProperties, fragProperties))
 		{
 			LINA_ERR("LinaMaterial structs in vertex and fragment shaders are different!");
 			return false;
 		}
 
-		m_properties = fragProperties;
+		m_propertyDefinitions = fragProperties.empty() ? vertexProperties : fragProperties;
 
 		const ShaderType type	 = m_meta.shaderType;
 		bool			 success = true;
@@ -429,7 +342,7 @@ namespace Lina
 		Resource::SaveToStream(stream);
 		stream << VERSION;
 		stream << m_meta;
-		stream << m_properties;
+		stream << m_propertyDefinitions;
 	}
 
 	void Shader::LoadFromStream(IStream& stream)
@@ -438,33 +351,11 @@ namespace Lina
 		uint32 version = 0;
 		stream >> version;
 		stream >> m_meta;
-		stream >> m_properties;
+		stream >> m_propertyDefinitions;
 	}
 
 	void Shader::GenerateHW()
 	{
-
-		/*
-		   Create a descriptor set description from the reflection info, this will be used to create descritor sets for the materials using this shader.
-			Create a pipeline layout, using global set description, description of the render pass we are using, and the material set description.
-		 Materials will use this layout when binding descriptor sets for this shader.
-		 */
-
-		// if (m_layout.descriptorSetLayouts.size() > 2)
-		// {
-		// 	const auto& setLayout = m_layout.descriptorSetLayouts[2];
-		//
-		// 	m_materialSetInfo = m_layout.descriptorSetLayouts[2];
-		// 	m_materialSetDesc = {};
-		// 	for (const auto& b : setLayout.bindings)
-		// 		m_materialSetDesc.bindings.push_back(GfxHelpers::GetBindingFromShaderBinding(b));
-		//
-		// 	m_materialSetDesc.allocationCount = 1;
-		// }
-
-		m_descriptorSets.push_back(new DescriptorSet());
-		m_descriptorSets[0]->Create(m_materialSetDesc);
-
 		// Create variants
 		for (auto& [sid, variant] : m_meta.variants)
 		{
@@ -534,29 +425,6 @@ namespace Lina
 			var._gpuHandleExists = false;
 			Application::GetLGX()->DestroyShader(var._gpuHandle);
 		}
-
-		for (const auto& d : m_descriptorSets)
-		{
-			d->Destroy();
-			delete d;
-		}
 	}
 
-	Vector<ShaderProperty*> Shader::CopyProperties()
-	{
-		Vector<ShaderProperty*> props;
-
-		for (ShaderProperty* property : m_properties)
-		{
-			ShaderProperty* copy = new ShaderProperty();
-			copy->name			 = property->name;
-			copy->sid			 = property->sid;
-			copy->type			 = property->type;
-			copy->data			 = {new uint8[property->data.size()], property->data.size()};
-			MEMCPY(copy->data.data(), property->data.data(), property->data.size());
-			props.push_back(copy);
-		}
-
-		return props;
-	}
 } // namespace Lina

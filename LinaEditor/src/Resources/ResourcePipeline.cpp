@@ -51,6 +51,80 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+	void ResourcePipeline::TrySetMaterialProperty(MaterialProperty* prop)
+	{
+		if (prop->propDef.type == ShaderPropertyType::Vec4)
+		{
+			const String lowerName = UtilStr::ToLower(prop->propDef.name);
+
+			if (lowerName.find("tiling") != String::npos || lowerName.find("uv") != String::npos)
+			{
+				Vector4 data = Vector4(1.0f, 1.0f, 0.0f, 0.0f);
+				MEMCPY(prop->data.data(), &data, sizeof(Vector4));
+			}
+		}
+		else if (prop->propDef.type == ShaderPropertyType::Texture2D)
+		{
+			ResourceID textureID = EDITOR_TEXTURE_EMPTY_ALBEDO_ID;
+
+			const String lowerName = UtilStr::ToLower(prop->propDef.name);
+
+			if (lowerName.find("normal") != String::npos)
+				textureID = EDITOR_TEXTURE_EMPTY_NORMAL_ID;
+			else if (lowerName.find("ao") != String::npos)
+				textureID = EDITOR_TEXTURE_EMPTY_AO_ID;
+			else if (lowerName.find("metallic") != String::npos || lowerName.find("roughness") != String::npos)
+				textureID = EDITOR_TEXTURE_EMPTY_METALLIC_ROUGHNESS_ID;
+			else if (lowerName.find("emissive") != String::npos)
+				textureID = EDITOR_TEXTURE_EMPTY_EMISSIVE_ID;
+
+			const LinaTexture2D txt = {
+				.texture = textureID,
+				.sampler = EDITOR_SAMPLER_DEFAULT_ID,
+			};
+
+			MEMCPY(prop->data.data(), &txt, sizeof(LinaTexture2D));
+		}
+	}
+
+	void ResourcePipeline::ChangeMaterialShader(ProjectData* project, Material* material, ResourceID newShader)
+	{
+		IStream shaderStream = Serialization::LoadFromFile(project->GetResourcePath(newShader).c_str());
+
+		if (shaderStream.Empty())
+		{
+			LINA_ERR("Failed changing material shader!");
+			return nullptr;
+		}
+
+		Shader sh(0, "");
+		sh.LoadFromStream(shaderStream);
+
+		const Vector<ShaderPropertyDefinition>& propDefs   = sh.GetPropertyDefinitions();
+		const Vector<MaterialProperty*>			properties = material->GetProperties();
+
+		// These are the new properties that'll be added to the material, we will not modify the existing ones.
+		Vector<StringID> newProperties;
+		for (const ShaderPropertyDefinition& def : propDefs)
+		{
+			auto it = linatl::find_if(properties.begin(), properties.end(), [def](MaterialProperty* p) -> bool { return p->propDef == def; });
+			if (it == properties.end())
+				newProperties.push_back(def.sid);
+		}
+
+		material->SetShader(&sh);
+		const Vector<MaterialProperty*> currentMaterialProperties = material->GetProperties();
+		for (StringID prop : newProperties)
+		{
+
+			auto it = linatl::find_if(currentMaterialProperties.begin(), currentMaterialProperties.end(), [prop](MaterialProperty* p) -> bool { return p->propDef.sid == prop; });
+			if (it != currentMaterialProperties.end())
+				TrySetMaterialProperty(*it);
+		}
+
+		shaderStream.Destroy();
+	}
+
 	ResourceDirectory* ResourcePipeline::SaveNewResource(ProjectData* project, ResourceDirectory* src, const String& name, TypeID tid, ResourceID inID, ResourceID subType)
 	{
 		const ResourceID id	  = inID != 0 ? inID : project->ConsumeResourceID();
@@ -84,10 +158,17 @@ namespace Lina::Editor
 				src->DestroyChild(newCreated);
 				return nullptr;
 			}
+
 			Shader sh(0, "");
 			sh.LoadFromStream(shaderStream);
 			mat.SetShader(&sh);
+
+			// Try set defaults
+			for (MaterialProperty* prop : mat.GetProperties())
+				TrySetMaterialProperty(prop);
+
 			mat.SaveToFileAsBinary(path);
+			shaderStream.Destroy();
 		}
 		else if (tid == GetTypeID<EntityWorld>())
 		{
@@ -292,10 +373,14 @@ namespace Lina::Editor
 						.resourceTID = GetTypeID<Texture>(),
 					});
 
-					const bool isColor = true;
+					const String lowerName = UtilStr::ToLower(def.name);
+					bool		 isColor   = true;
+					if (lowerName.find("normal") != String::npos || lowerName.find("roughness") != String::npos || lowerName.find("metallic") != String::npos)
+						isColor = false;
 
 					Texture texture(newID, def.name);
-					texture.GetMeta().format = isColor ? LinaGX::Format::R8G8B8A8_SRGB : LinaGX::Format::R8G8B8A8_UNORM;
+					texture.GetMeta().format	= isColor ? LinaGX::Format::R8G8B8A8_SRGB : LinaGX::Format::R8G8B8A8_UNORM;
+					texture.GetMeta().force8Bit = true;
 					texture.LoadFromBuffer(def.buffer.pixels, def.buffer.width, def.buffer.height, def.buffer.bytesPerPixel);
 					texture.SaveToFileAsBinary(projectData->GetResourcePath(newID));
 

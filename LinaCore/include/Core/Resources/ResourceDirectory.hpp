@@ -51,7 +51,6 @@ namespace Lina
 		TypeID					   resourceTID			 = 0;
 		Vector<ResourceDirectory*> children;
 		ResourceDirectory*		   parent = nullptr;
-		RawStream				   thumbnailBuffer;
 
 		void SaveToStream(OStream& stream);
 		void LoadFromStream(IStream& stream);
@@ -60,6 +59,7 @@ namespace Lina
 		ResourceDirectory* FindResourceDirectory(ResourceID id);
 		ResourceDirectory* CreateChild(const ResourceDirectory& desc);
 		void			   DestroyChild(ResourceDirectory* dir);
+		void			   DestroyChildren();
 		void			   AddChild(ResourceDirectory* dir);
 		void			   RemoveChild(ResourceDirectory* dir);
 		void			   SortChildren();

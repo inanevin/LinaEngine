@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Core/Audio/Audio.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Components/MeshComponent.hpp"
+#include "Core/Components/CameraComponent.hpp"
 
 #include "Common/System/SystemInfo.hpp"
 
@@ -97,6 +98,7 @@ namespace Lina
 		Resource::SaveToStream(stream);
 		stream << VERSION;
 		stream << m_entityGUIDCounter;
+		stream << m_gfxSettings;
 
 		const uint32 entitiesSize = m_entityBucket.GetActiveItemCount();
 		stream << entitiesSize;
@@ -142,6 +144,7 @@ namespace Lina
 		uint32 version = 0;
 		stream >> version;
 		stream >> m_entityGUIDCounter;
+		stream >> m_gfxSettings;
 
 		m_entityBucket.Clear();
 
@@ -209,6 +212,9 @@ namespace Lina
 
 	void EntityWorld::OnDestroyComponent(Component* c, Entity* e)
 	{
+		if (c == m_activeCamera)
+			m_activeCamera = nullptr;
+
 		c->OnEvent({.type = ComponentEventType::Destroy});
 		for (auto* l : m_listeners)
 			l->OnComponentRemoved(c);
@@ -216,7 +222,7 @@ namespace Lina
 
 	namespace
 	{
-		void ProcessModelNode(Model* model, EntityWorld* world, Entity* parent, ModelNode* node, const Vector<Material*>& materials)
+		void ProcessModelNode(Model* model, EntityWorld* world, Entity* parent, ModelNode* node, const Vector<ResourceID>& materials)
 		{
 			Entity* nodeEntity = world->CreateEntity(node->GetName());
 			parent->AddChild(nodeEntity);
@@ -227,11 +233,12 @@ namespace Lina
 
 			if (mesh != nullptr)
 			{
-				const uint32 matIdx = model->GetMesh(node->GetMeshIndex())->GetPrimitives().front().GetMaterialIndex();
-				// MeshComponent* mc	  = world->AddComponent<MeshComponent>(nodeEntity);
-				// mc->SetMesh(model, node->GetMeshIndex());
-				// mc->SetMaterial(materials[matIdx]);
-				// LINA_TRACE("Added mesh to world, mesh {0}, material {1}", mesh->GetName(), materials[matIdx]->GetName());
+				const uint32   matIdx = model->GetMesh(node->GetMeshIndex())->GetPrimitives().front().GetMaterialIndex();
+				MeshComponent* mc	  = world->AddComponent<MeshComponent>(nodeEntity);
+				mc->SetMesh(model->GetID(), node->GetMeshIndex());
+
+				if (materials.size() > matIdx)
+					mc->SetMaterial(materials[matIdx]);
 			}
 
 			for (ModelNode* child : node->GetChildren())
@@ -239,7 +246,7 @@ namespace Lina
 		}
 	} // namespace
 
-	Entity* EntityWorld::AddModelToWorld(Model* model, const Vector<Material*>& materials)
+	Entity* EntityWorld::AddModelToWorld(Model* model, const Vector<ResourceID>& materials)
 	{
 		LINA_ASSERT(materials.size() >= model->GetMeta().materials.size(), "");
 
@@ -250,4 +257,54 @@ namespace Lina
 		return base;
 	}
 
+	void EntityWorld::CollectResourceNeeds(HashSet<ResourceID>& outResources)
+	{
+		for (auto [tid, cache] : m_componentCaches)
+		{
+			cache->ForEach([&](Component* c) { c->CollectReferences(outResources); });
+		}
+
+		outResources.insert(m_gfxSettings.lightingMaterial);
+		outResources.insert(m_gfxSettings.skyMaterial);
+		outResources.insert(m_gfxSettings.skyModel);
+	}
+
+	void EntityWorld::LoadMissingResources(ProjectData* project, const HashSet<ResourceID>& extraResources)
+	{
+		HashSet<ResourceID> resources = extraResources;
+		CollectResourceNeeds(resources);
+
+		// First load whatever is requested + needed by the components.
+		if (!resources.empty())
+			m_resourceManagerV2.LoadResourcesFromProject(project, resources, [](uint32 loaded, Resource* current) {});
+
+		// Load materials required by the models.
+		HashSet<ResourceID>	  modelMaterials;
+		ResourceCache<Model>* modelCache = m_resourceManagerV2.GetCache<Model>();
+		modelCache->View([&modelMaterials](Model* model, uint32 index) -> bool {
+			for (ResourceID mat : model->GetMeta().materials)
+				modelMaterials.insert(mat);
+
+			return false;
+		});
+		m_resourceManagerV2.LoadResourcesFromProject(project, modelMaterials, [](uint32 loaded, Resource* current) {});
+
+		// Load shaders, textures and samplers required by the materials.
+		HashSet<ResourceID>		 materialDependencies;
+		ResourceCache<Material>* materialCache = m_resourceManagerV2.GetCache<Material>();
+		materialCache->View([&materialDependencies](Material* mat, uint32 index) -> bool {
+			materialDependencies.insert(mat->GetShader());
+			const Vector<MaterialProperty*> props = mat->GetProperties();
+			for (MaterialProperty* prop : props)
+			{
+				if (prop->propDef.type == ShaderPropertyType::Texture2D)
+				{
+					LinaTexture2D* txt = reinterpret_cast<LinaTexture2D*>(prop->data.data());
+					materialDependencies.insert(txt->texture);
+					materialDependencies.insert(txt->sampler);
+				}
+			}
+			return false;
+		});
+	}
 } // namespace Lina

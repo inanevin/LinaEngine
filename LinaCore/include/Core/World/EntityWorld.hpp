@@ -60,39 +60,18 @@ namespace Lina
 	public:
 		struct GfxSettings
 		{
-			ResRef<Material> skyMaterial;
-			ResRef<Material> lightingMaterial;
-			ResRef<Model>	 skyModel;
+			ResourceID skyMaterial;
+			ResourceID lightingMaterial;
+			ResourceID skyModel;
 
-			void SaveToStream(OStream& stream)
+			void SaveToStream(OStream& stream) const
 			{
 				stream << skyMaterial << lightingMaterial << skyModel;
 			}
 
-			void LoadFromStream(IStream& stream, ResourceManagerV2* rm)
+			void LoadFromStream(IStream& stream)
 			{
 				stream >> skyMaterial >> lightingMaterial >> skyModel;
-				skyMaterial.raw		 = rm->GetResource<Material>(skyMaterial.id);
-				lightingMaterial.raw = rm->GetResource<Material>(lightingMaterial.id);
-				skyModel.raw		 = rm->GetResource<Model>(skyModel.id);
-			}
-
-			inline void SetSkyMaterial(Material* mat)
-			{
-				skyMaterial.raw = mat;
-				skyMaterial.id	= mat->GetID();
-			}
-
-			inline void SetSkyModel(Model* m)
-			{
-				skyModel.raw = m;
-				skyModel.id	 = m->GetID();
-			}
-
-			inline void SetLightingMaterial(Material* mat)
-			{
-				lightingMaterial.raw = mat;
-				lightingMaterial.id	 = mat->GetID();
 			}
 		};
 
@@ -109,7 +88,9 @@ namespace Lina
 		virtual bool LoadFromFile(const String& path) override;
 		void		 AddListener(EntityWorldListener* listener);
 		void		 RemoveListener(EntityWorldListener* listener);
-		Entity*		 AddModelToWorld(Model* model, const Vector<Material*>& materials);
+		Entity*		 AddModelToWorld(Model* model, const Vector<ResourceID>& materials);
+		void		 CollectResourceNeeds(HashSet<ResourceID>& outResources);
+		void		 LoadMissingResources(ProjectData* project, const HashSet<ResourceID>& extraResources);
 
 		template <typename T> T* GetComponent(Entity* e)
 		{
@@ -213,6 +194,16 @@ namespace Lina
 			return m_entityGUIDCounter++;
 		}
 
+		inline void SetActiveCamera(CameraComponent* comp)
+		{
+			m_activeCamera = comp;
+		}
+
+		inline CameraComponent* GetActiveCamera()
+		{
+			return m_activeCamera;
+		}
+
 	private:
 		void DestroyEntityData(Entity* e);
 		void OnCreateComponent(Component* c, Entity* e);
@@ -221,6 +212,7 @@ namespace Lina
 	private:
 		ALLOCATOR_BUCKET_MEM;
 
+		CameraComponent*					 m_activeCamera = nullptr;
 		AllocatorBucket<Entity, 1000>		 m_entityBucket;
 		HashMap<TypeID, ComponentCacheBase*> m_componentCaches;
 		EntityID							 m_entityGUIDCounter = 1;

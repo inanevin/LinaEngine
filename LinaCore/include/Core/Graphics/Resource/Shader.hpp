@@ -46,40 +46,6 @@ namespace Lina
 {
 	class DescriptorSet;
 
-	struct ShaderProperty
-	{
-		ShaderPropertyType type = ShaderPropertyType::Bool;
-		String			   name = "";
-		Span<uint8>		   data;
-		StringID		   sid = 0;
-
-		ShaderProperty(){};
-		ShaderProperty(const ShaderProperty& other)		 = delete;
-		ShaderProperty& operator=(ShaderProperty const&) = delete;
-
-		static bool VerifySimilarity(const Vector<ShaderProperty*>& v1, const Vector<ShaderProperty*>& v2);
-
-		~ShaderProperty()
-		{
-			if (data.data() != nullptr)
-				delete[] data.data();
-			data = {};
-		}
-
-		void SaveToStream(OStream& out) const;
-		void LoadFromStream(IStream& in);
-	};
-
-	enum class ShaderType
-	{
-		OpaqueSurface,
-		TransparentSurface,
-		Sky,
-		PostProcess,
-        Lighting,
-		Custom
-	};
-
 	class Shader : public Resource
 	{
 	public:
@@ -88,8 +54,15 @@ namespace Lina
 			HashMap<StringID, ShaderVariant> variants;
 			ShaderType						 shaderType = ShaderType::Custom;
 
-			void SaveToStream(OStream& out) const;
-			void LoadFromStream(IStream& in);
+			void SaveToStream(OStream& out) const
+			{
+				out << variants << shaderType;
+			}
+
+			void LoadFromStream(IStream& in)
+			{
+				in >> variants >> shaderType;
+			}
 		};
 
 	public:
@@ -106,26 +79,13 @@ namespace Lina
 			m_meta.LoadFromStream(stream);
 		}
 
-		void					GenerateHW();
-		void					DestroyHW();
-		void					Bind(LinaGX::CommandStream* stream, uint32 gpuHandle);
-		void					AllocateDescriptorSet(DescriptorSet*& outSet, uint32& outIndex);
-		void					FreeDescriptorSet(DescriptorSet* set, uint32 index);
-		Vector<ShaderProperty*> CopyProperties();
+		void GenerateHW();
+		void DestroyHW();
+		void Bind(LinaGX::CommandStream* stream, uint32 gpuHandle);
 
 		inline uint32 GetGPUHandle() const
 		{
 			return m_meta.variants.begin()->second._gpuHandle;
-		}
-
-		inline const LinaGX::DescriptorSetDesc& GetMaterialSetDesc() const
-		{
-			return m_materialSetDesc;
-		}
-
-		inline const LinaGX::ShaderDescriptorSetLayout GetMaterialSetInfo() const
-		{
-			return m_materialSetInfo;
 		}
 
 		inline const Metadata& GetMeta() const
@@ -138,20 +98,17 @@ namespace Lina
 			return m_meta;
 		}
 
-		inline const Vector<ShaderProperty*>& GetProperties() const
+		inline const Vector<ShaderPropertyDefinition>& GetPropertyDefinitions() const
 		{
-			return m_properties;
+			return m_propertyDefinitions;
 		}
 
 	private:
 		ALLOCATOR_BUCKET_MEM;
 		LINA_REFLECTION_ACCESS(Shader);
 
-		LinaGX::DescriptorSetDesc		  m_materialSetDesc = {};
-		LinaGX::ShaderDescriptorSetLayout m_materialSetInfo = {};
-		Metadata						  m_meta			= {};
-		Vector<DescriptorSet*>			  m_descriptorSets;
-		Vector<ShaderProperty*>			  m_properties;
+		Metadata						 m_meta = {};
+		Vector<ShaderPropertyDefinition> m_propertyDefinitions;
 	};
 
 	LINA_RESOURCE_BEGIN(Shader);

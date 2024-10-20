@@ -49,7 +49,7 @@ namespace Lina
 		~ResourceManagerV2(){};
 
 		HashSet<Resource*> LoadResourcesFromFile(const ResourceDefinitionList& resourceDef, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress);
-		HashSet<Resource*> LoadResourcesFromProject(ProjectData* project, const ResourceDefinitionList& resourceDef, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress);
+		HashSet<Resource*> LoadResourcesFromProject(ProjectData* project, const HashSet<ResourceID>& resources, Delegate<void(uint32 loaded, Resource* currentItem)> onProgress);
 		void			   UnloadResources(const Vector<Resource*>& resources);
 
 		void Shutdown();
