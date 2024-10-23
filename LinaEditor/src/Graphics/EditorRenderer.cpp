@@ -206,8 +206,8 @@ namespace Lina::Editor
 		Taskflow tf;
 		tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) {
 			WorldRenderer* rend = m_worldRenderers.at(i);
-			if (rend->Render(frameIndex))
-				validWorlds[i] = rend;
+			rend->Render(frameIndex);
+			validWorlds[i] = rend;
 		});
 		m_editor->GetApp()->GetExecutor().RunAndWait(tf);
 
@@ -223,9 +223,6 @@ namespace Lina::Editor
 
 		for (WorldRenderer* wr : validWorlds)
 		{
-			if (wr == nullptr)
-				continue;
-
 			const SemaphoreData sem = wr->GetSubmitSemaphore(frameIndex);
 			waitSemaphores.push_back(sem.GetSemaphore());
 			waitValues.push_back(sem.GetValue());

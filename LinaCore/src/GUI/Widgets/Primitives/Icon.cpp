@@ -27,7 +27,6 @@ SOFTWARE.
 */
 
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
-#include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Common/Math/Math.hpp"
 #include <LinaGX/Core/InputMappings.hpp>

@@ -87,39 +87,6 @@ namespace Lina
 		m_resourceManagerV2 = &world->GetResourceManagerV2();
 		m_gBufSampler		= m_resourceManagerV2->CreateResource<TextureSampler>(world->GetResourceManagerV2().ConsumeResourceID(), "World Renderer GBuf Sampler");
 
-		// Create checker null texture
-		{
-			m_nullTexture		= m_resourceManagerV2->CreateResource<Texture>(world->GetResourceManagerV2().ConsumeResourceID(), "World Renderer Null Texture");
-			m_nullNormalTexture = m_resourceManagerV2->CreateResource<Texture>(world->GetResourceManagerV2().ConsumeResourceID(), "World Renderer Null Normal Texture");
-
-			const uint32 nullTextureWidth		 = 16;
-			const uint32 nullTextureHeight		 = 16;
-			uint8*		 nullTextureBuffer		 = new uint8[nullTextureWidth * nullTextureHeight * 4];
-			uint8*		 nullNormalTextureBuffer = new uint8[nullTextureWidth * nullTextureHeight * 4];
-
-			uint8 nullTextureColor[4]		= {255, 255, 255, 255};
-			uint8 nullTextureNormalColor[4] = {128, 128, 255, 255};
-
-			for (uint32 row = 0; row < nullTextureHeight; row++)
-			{
-				for (uint32 col = 0; col < nullTextureWidth; col++)
-				{
-					const uint32 pixel = row * nullTextureWidth + col;
-					const size_t addr  = pixel * 4;
-					MEMCPY(nullTextureBuffer + addr, nullTextureColor, sizeof(uint8) * 4);
-					MEMCPY(nullNormalTextureBuffer + addr, nullTextureNormalColor, sizeof(uint8) * 4);
-				}
-			}
-			m_nullTexture->LoadFromBuffer(nullTextureBuffer, nullTextureWidth, nullTextureHeight, 4);
-			m_nullNormalTexture->LoadFromBuffer(nullNormalTextureBuffer, nullTextureWidth, nullTextureHeight, 4);
-			m_nullTexture->GenerateHW();
-			m_nullNormalTexture->GenerateHW();
-			m_nullTexture->AddToUploadQueue(m_globalUploadQueue, true);
-			m_nullNormalTexture->AddToUploadQueue(m_globalUploadQueue, true);
-			delete[] nullTextureBuffer;
-			delete[] nullNormalTextureBuffer;
-		}
-
 		LinaGX::SamplerDesc gBufSampler = {
 			.anisotropy = 1,
 		};
@@ -210,7 +177,6 @@ namespace Lina
 	WorldRenderer::~WorldRenderer()
 	{
 		m_resourceManagerV2->DestroyResource(m_gBufSampler);
-		m_resourceManagerV2->DestroyResource(m_nullTexture);
 
 		m_guiBackend.Shutdown();
 		m_meshManager.Shutdown();
@@ -340,15 +306,15 @@ namespace Lina
 		m_meshComponents.clear();
 		m_widgetComponents.clear();
 
-		// m_world->GetCache<MeshComponent>()->View([&](MeshComponent* comp, uint32 index) -> bool {
-		// 	m_meshComponents.push_back(comp);
-		// 	return false;
-		// });
-		//
-		// m_world->GetCache<WidgetComponent>()->View([&](WidgetComponent* comp, uint32 index) -> bool {
-		// 	m_widgetComponents.push_back(comp);
-		// 	return false;
-		// });
+		m_world->GetCache<MeshComponent>()->View([&](MeshComponent* comp, uint32 index) -> bool {
+			m_meshComponents.push_back(comp);
+			return false;
+		});
+
+		m_world->GetCache<WidgetComponent>()->View([&](WidgetComponent* comp, uint32 index) -> bool {
+			m_widgetComponents.push_back(comp);
+			return false;
+		});
 	}
 
 	void WorldRenderer::OnComponentAdded(Component* c)
@@ -372,10 +338,6 @@ namespace Lina
 	{
 		for (auto* ext : m_extensions)
 			ext->Tick(delta);
-
-		// CameraComponent* activeCamera = m_world->GetActiveCamera();
-		// if (activeCamera)
-		//	CalculateViewProj(activeCamera, m_mainPassView, m_mainPassProj);
 	}
 
 	void WorldRenderer::Resize(const Vector2ui& newSize)
@@ -383,7 +345,6 @@ namespace Lina
 		if (m_size.Equals(newSize))
 			return;
 
-		m_world->GetScreen().SetRenderSize(newSize);
 		m_size = newSize;
 		DestroySizeRelativeResources();
 		CreateSizeRelativeResources();
@@ -456,19 +417,15 @@ namespace Lina
 
 		// View data.
 		{
-			CameraComponent* camera = nullptr; // m_world->GetActiveCamera();
-			GPUDataView		 view	= {};
-			if (camera != nullptr)
-			{
-				const Vector3& camPos	   = camera->GetEntity()->GetPosition();
-				const Vector3& camDir	   = camera->GetEntity()->GetRotation().GetForward();
-				view.view				   = m_mainPassView;
-				view.proj				   = m_mainPassProj;
-				view.viewProj			   = view.proj * view.view;
-				view.cameraPositionAndNear = Vector4(camPos.x, camPos.y, camPos.z, camera->GetNear());
-				view.cameraDirectionAndFar = Vector4(camDir.x, camDir.y, camDir.z, camera->GetFar());
-				view.size				   = Vector2(static_cast<float>(m_size.x), static_cast<float>(m_size.y));
-			}
+			Camera&		worldCam = m_world->GetWorldCamera();
+			GPUDataView view	 = {};
+			CalculateViewProj(worldCam, m_world->GetScreen(), view.view, view.proj);
+			const Vector3& camPos	   = worldCam.worldPosition;
+			const Vector3& camDir	   = worldCam.worldRotation.GetForward();
+			view.viewProj			   = view.proj * view.view;
+			view.cameraPositionAndNear = Vector4(camPos.x, camPos.y, camPos.z, worldCam.zNear);
+			view.cameraDirectionAndFar = Vector4(camDir.x, camDir.y, camDir.z, worldCam.zFar);
+			view.size				   = Vector2(static_cast<float>(m_size.x), static_cast<float>(m_size.y));
 			m_lightingPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
 			m_mainPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
 			m_forwardPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
@@ -617,21 +574,15 @@ namespace Lina
 			BumpAndSendTransfers(frameIndex);
 	}
 
-	bool WorldRenderer::Render(uint32 frameIndex)
+	void WorldRenderer::Render(uint32 frameIndex)
 	{
 		auto& currentFrame = m_pfd[frameIndex];
 		currentFrame.copySemaphore.ResetModified();
 		currentFrame.signalSemaphore.ResetModified();
 
-		Material*		 lightingMaterial = m_world->GetResourceManagerV2().GetResource<Material>(m_world->GetGfxSettings().lightingMaterial);
-		Material*		 skyMaterial	  = m_world->GetResourceManagerV2().GetResource<Material>(m_world->GetGfxSettings().skyMaterial);
-		Model*			 skyModel		  = m_world->GetResourceManagerV2().GetResource<Model>(m_world->GetGfxSettings().skyModel);
-		CameraComponent* camera			  = nullptr; // m_world->GetActiveCamera();
-
-		if (lightingMaterial == nullptr || skyMaterial == nullptr || skyModel == nullptr || camera == nullptr)
-		{
-			return false;
-		}
+		Material* lightingMaterial = m_world->GetResourceManagerV2().GetResource<Material>(m_world->GetGfxSettings().lightingMaterial);
+		Material* skyMaterial	   = m_world->GetResourceManagerV2().GetResource<Material>(m_world->GetGfxSettings().skyMaterial);
+		Model*	  skyModel		   = m_world->GetResourceManagerV2().GetResource<Model>(m_world->GetGfxSettings().skyModel);
 
 		UpdateBindlessResources(frameIndex);
 		UpdateBuffers(frameIndex);
@@ -729,30 +680,35 @@ namespace Lina
 		m_lightingPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
 		m_lightingPass.BindDescriptors(currentFrame.gfxStream, frameIndex, currentFrame.pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Lighting]);
 
-		Shader* lighting = m_resourceManagerV2->GetResource<Shader>(lightingMaterial->GetShader());
-		lighting->Bind(currentFrame.gfxStream, lighting->GetGPUHandle());
+		if (lightingMaterial)
+		{
+			Shader* lighting = m_resourceManagerV2->GetResource<Shader>(lightingMaterial->GetShader());
+			lighting->Bind(currentFrame.gfxStream, lighting->GetGPUHandle());
 
-		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Lighting Pass: Fullscreen");
-		LinaGX::CMDDrawInstanced* lightingDraw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawInstanced>();
-		lightingDraw->instanceCount			   = 1;
-		lightingDraw->startInstanceLocation	   = 0;
-		lightingDraw->startVertexLocation	   = 0;
-		lightingDraw->vertexCountPerInstance   = 3;
-		DEBUG_LABEL_END(currentFrame.gfxStream);
+			DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Lighting Pass: Fullscreen");
+			LinaGX::CMDDrawInstanced* lightingDraw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawInstanced>();
+			lightingDraw->instanceCount			   = 1;
+			lightingDraw->startInstanceLocation	   = 0;
+			lightingDraw->startVertexLocation	   = 0;
+			lightingDraw->vertexCountPerInstance   = 3;
+			DEBUG_LABEL_END(currentFrame.gfxStream);
+		}
 
-		Shader* skyShader = m_resourceManagerV2->GetResource<Shader>(skyMaterial->GetShader());
-		skyShader->Bind(currentFrame.gfxStream, skyShader->GetGPUHandle());
+		if (skyMaterial && skyModel)
+		{
+			Shader* skyShader = m_resourceManagerV2->GetResource<Shader>(skyMaterial->GetShader());
+			skyShader->Bind(currentFrame.gfxStream, skyShader->GetGPUHandle());
 
-		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Lighting Pass: SkyCube");
-
-		MeshDefault*					 skyMesh = skyModel->GetMesh(0);
-		LinaGX::CMDDrawIndexedInstanced* skyDraw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
-		skyDraw->baseVertexLocation				 = skyMesh->GetVertexOffset();
-		skyDraw->indexCountPerInstance			 = skyMesh->GetIndexCount();
-		skyDraw->instanceCount					 = 1;
-		skyDraw->startIndexLocation				 = skyMesh->GetIndexOffset();
-		skyDraw->startInstanceLocation			 = 0;
-		DEBUG_LABEL_END(currentFrame.gfxStream);
+			DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Lighting Pass: SkyCube");
+			MeshDefault*					 skyMesh = skyModel->GetMesh(0);
+			LinaGX::CMDDrawIndexedInstanced* skyDraw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
+			skyDraw->baseVertexLocation				 = skyMesh->GetVertexOffset();
+			skyDraw->indexCountPerInstance			 = skyMesh->GetIndexCount();
+			skyDraw->instanceCount					 = 1;
+			skyDraw->startIndexLocation				 = skyMesh->GetIndexOffset();
+			skyDraw->startInstanceLocation			 = 0;
+			DEBUG_LABEL_END(currentFrame.gfxStream);
+		}
 
 		m_lightingPass.End(currentFrame.gfxStream);
 
@@ -867,8 +823,6 @@ namespace Lina
 				.standaloneSubmission = m_standaloneSubmit,
 			});
 		}
-
-		return true;
 	}
 
 	uint64 WorldRenderer::BumpAndSendTransfers(uint32 frameIndex)
@@ -889,26 +843,70 @@ namespace Lina
 		return currentFrame.copySemaphore.GetValue();
 	}
 
-	void WorldRenderer::OnResourcesUnloaded(const ResourceDefinitionList& resources)
+	void WorldRenderer::VerifyResourcesHW()
 	{
 		bool bindlessDirty	  = false;
 		bool meshManagerDirty = false;
 		bool containsFont	  = false;
 
-		for (const ResourceDef& def : resources)
-		{
-			if (def.tid == GetTypeID<Texture>() || def.tid == GetTypeID<TextureSampler>() || def.tid == GetTypeID<Material>())
-				bindlessDirty = true;
+		ResourceManagerV2& rm = m_world->GetResourceManagerV2();
 
-			if (def.tid == GetTypeID<Model>())
-				meshManagerDirty = true;
+		ResourceCache<Texture>*		   textureCache	 = rm.GetCache<Texture>();
+		ResourceCache<TextureSampler>* samplerCache	 = rm.GetCache<TextureSampler>();
+		ResourceCache<Material>*	   materialCache = rm.GetCache<Material>();
+		ResourceCache<Model>*		   modelCache	 = rm.GetCache<Model>();
+		ResourceCache<Shader>*		   shaderCache	 = rm.GetCache<Shader>();
+		ResourceCache<Font>*		   fontCache	 = rm.GetCache<Font>();
 
-			if (def.tid == GetTypeID<Font>())
+		textureCache->View([&](Texture* res, uint32 index) -> bool {
+			if (!res->IsGPUValid())
 			{
-				containsFont  = true;
+				res->GenerateHW();
+				res->AddToUploadQueue(m_globalUploadQueue, true);
 				bindlessDirty = true;
 			}
-		}
+			return false;
+		});
+
+		samplerCache->View([&](TextureSampler* res, uint32 index) -> bool {
+			if (!res->IsGPUValid())
+			{
+				res->GenerateHW();
+				bindlessDirty = true;
+			}
+			return false;
+		});
+
+		materialCache->View([&](Material* res, uint32 index) -> bool {
+			bindlessDirty = true;
+			return true;
+		});
+
+		modelCache->View([&](Model* res, uint32 index) -> bool {
+			if (!res->IsUploaded())
+			{
+				res->UploadNodes(m_meshManager);
+				meshManagerDirty = true;
+			}
+			return false;
+		});
+
+		shaderCache->View([&](Shader* res, uint32 index) -> bool {
+			if (!res->IsGPUValid())
+				res->GenerateHW();
+			return false;
+		});
+
+		fontCache->View([&](Font* res, uint32 index) -> bool {
+			if (!res->IsGPUValid())
+			{
+				res->GenerateHW(m_guiBackend.GetLVGText());
+				bindlessDirty = true;
+				containsFont  = true;
+			}
+
+			return false;
+		});
 
 		if (containsFont)
 			m_guiBackend.ReuploadAtlases(m_globalUploadQueue);
@@ -917,85 +915,19 @@ namespace Lina
 			MarkBindlessDirty();
 
 		if (meshManagerDirty)
-		{
-			// TODO:
-		}
-	}
-
-	void WorldRenderer::OnResourcesLoaded(const ResourceList& resources)
-	{
-		bool bindlessDirty	  = false;
-		bool meshManagerDirty = false;
-		bool containsFont	  = false;
-
-		for (Resource* res : resources)
-		{
-			if (res->GetTID() == GetTypeID<Texture>())
-			{
-				Texture* txt = static_cast<Texture*>(res);
-				txt->GenerateHW();
-				txt->AddToUploadQueue(m_globalUploadQueue, true);
-				bindlessDirty = true;
-			}
-			else if (res->GetTID() == GetTypeID<TextureSampler>())
-			{
-				TextureSampler* smp = static_cast<TextureSampler*>(res);
-				smp->GenerateHW();
-				bindlessDirty = true;
-			}
-			else if (res->GetTID() == GetTypeID<Shader>())
-			{
-				Shader* shd = static_cast<Shader*>(res);
-				shd->GenerateHW();
-			}
-			else if (res->GetTID() == GetTypeID<Material>())
-			{
-				Material* mat = static_cast<Material*>(res);
-				mat->SetShader(m_resourceManagerV2->GetResource<Shader>(mat->GetShader()));
-				bindlessDirty = true;
-			}
-			else if (res->GetTID() == GetTypeID<Font>())
-			{
-				Font* font = static_cast<Font*>(res);
-				font->GenerateHW(m_guiBackend.GetLVGText());
-				bindlessDirty = true;
-				containsFont  = true;
-			}
-			else if (res->GetTID() == GetTypeID<Model>())
-			{
-				Model* model = static_cast<Model*>(res);
-				model->UploadNodes(m_meshManager);
-				meshManagerDirty = true;
-			}
-			else if (res->GetTID() == GetTypeID<GUIWidget>())
-			{
-				GUIWidget* wid = static_cast<GUIWidget*>(res);
-			}
-		}
-
-		if (containsFont)
-			m_guiBackend.ReuploadAtlases(m_globalUploadQueue);
-
-		if (bindlessDirty)
-			MarkBindlessDirty();
-
-		if (meshManagerDirty)
-		{
 			m_meshManager.AddToUploadQueue(m_globalUploadQueue);
-		}
 	}
 
-	void WorldRenderer::CalculateViewProj(CameraComponent* camera, Matrix4& outView, Matrix4& outProj)
+	void WorldRenderer::CalculateViewProj(const Camera& worldCamera, const Screen& screen, Matrix4& outView, Matrix4& outProj)
 	{
-		Matrix4 rotMat			  = Matrix4(camera->GetEntity()->GetRotation().Inverse());
-		Matrix4 translationMatrix = Matrix4::Translate(-camera->GetEntity()->GetPosition());
-		outView					  = rotMat * translationMatrix;
-		const Vector2ui& sz		  = m_world->GetScreen().GetRenderSize();
-
+		const Vector2ui& sz = m_world->GetScreen().GetRenderSize();
 		if (sz.x == 0 || sz.y == 0)
 			return;
 
-		outProj = Matrix4::Perspective(camera->GetFOV() / 2, static_cast<float>(sz.x) / static_cast<float>(sz.y), camera->GetNear(), camera->GetFar());
+		Matrix4 rotMat			  = Matrix4(worldCamera.worldRotation.Inverse());
+		Matrix4 translationMatrix = Matrix4::Translate(-worldCamera.worldPosition);
+		outView					  = rotMat * translationMatrix;
+		outProj					  = Matrix4::Perspective(worldCamera.fovDegrees / 2, static_cast<float>(sz.x) / static_cast<float>(sz.y), worldCamera.zNear, worldCamera.zFar);
 	}
 
 } // namespace Lina

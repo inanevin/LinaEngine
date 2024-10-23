@@ -153,7 +153,6 @@ namespace Lina
 	size_t Material::BufferDataInto(Buffer& buf, size_t padding, ResourceManagerV2* rm, BindlessContext* context)
 	{
 		size_t totalSize = 0;
-
 		for (MaterialProperty* prop : m_properties)
 		{
 			if (prop->propDef.type == ShaderPropertyType::Texture2D)

@@ -62,6 +62,11 @@ namespace Lina::Editor
 				Vector4 data = Vector4(1.0f, 1.0f, 0.0f, 0.0f);
 				MEMCPY(prop->data.data(), &data, sizeof(Vector4));
 			}
+			else if (lowerName.find("color") != String::npos)
+			{
+				Vector4 data = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+				MEMCPY(prop->data.data(), &data, sizeof(Vector4));
+			}
 		}
 		else if (prop->propDef.type == ShaderPropertyType::Texture2D)
 		{

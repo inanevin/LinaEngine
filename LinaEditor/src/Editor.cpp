@@ -167,7 +167,6 @@ namespace Lina::Editor
 
 				// Launch project
 				m_projectManager.Initialize(this);
-				m_settings.GetLayout().ApplyStoredLayout();
 			});
 
 		return true;

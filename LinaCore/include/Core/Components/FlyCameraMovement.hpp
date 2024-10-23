@@ -37,7 +37,7 @@ namespace Lina
 	public:
 		FlyCameraMovement() : Component(CF_RECEIVE_TICK){};
 
-		virtual void OnEvent(const ComponentEvent& ev) override;
+		virtual void OnTick(float deltaTime) override;
 
 		virtual TypeID GetComponentType() override
 		{

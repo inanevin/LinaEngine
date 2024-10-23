@@ -96,6 +96,11 @@ namespace Lina
 			return Color(x * v, y * v, z * v, w * v);
 		}
 
+		float& operator[](unsigned int i)
+		{
+			return (&x)[i];
+		}
+
 		Color	HS2SRGB() const;
 		Color	SRGB2HSV() const;
 		Color	HSV2SRGB() const;

@@ -33,5 +33,13 @@ SOFTWARE.
 
 namespace Lina
 {
-
+	void CameraComponent::OnPostTick(float delta)
+	{
+		Camera& worldCamera		  = m_world->GetWorldCamera();
+		worldCamera.fovDegrees	  = m_fieldOfView;
+		worldCamera.zFar		  = m_zFar;
+		worldCamera.zNear		  = m_zNear;
+		worldCamera.worldPosition = m_entity->GetPosition();
+		worldCamera.worldRotation = m_entity->GetRotation();
+	}
 } // namespace Lina

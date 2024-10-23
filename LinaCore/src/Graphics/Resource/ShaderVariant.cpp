@@ -57,6 +57,16 @@ namespace Lina
 			stream.WriteRawEndianSafe(blob.ptr, blob.size);
 		}
 		SaveLinaGXShaderLayout(stream, _outLayout);
+
+		const uint32 compileDataSize = static_cast<uint32>(_compileData.size());
+		stream << compileDataSize;
+
+		for (const auto& [stage, data] : _compileData)
+		{
+			stream << stage;
+			stream << data.text;
+			stream << data.includePath;
+		}
 	}
 
 	void ShaderVariant::LoadFromStream(IStream& stream)
@@ -89,6 +99,18 @@ namespace Lina
 
 		_outLayout = {};
 		LoadLinaGXShaderLayout(stream, _outLayout);
+
+		uint32 compileDataSz = 0;
+		stream >> compileDataSz;
+
+		for (uint32 i = 0; i < compileDataSz; i++)
+		{
+			LinaGX::ShaderStage stage = {};
+			stream >> stage;
+			auto& data = _compileData[stage];
+			stream >> data.text;
+			stream >> data.includePath;
+		}
 	}
 
 } // namespace Lina

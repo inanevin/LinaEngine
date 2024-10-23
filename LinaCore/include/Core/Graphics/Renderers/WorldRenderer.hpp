@@ -43,6 +43,8 @@ namespace LinaGX
 {
 	class CommandStream;
 	class Instance;
+	struct Camera;
+	class Screen;
 } // namespace LinaGX
 
 namespace Lina
@@ -72,7 +74,7 @@ namespace Lina
 		WorldRenderer* m_worldRenderer = nullptr;
 	};
 
-	class WorldRenderer : public EntityWorldListener, public ResourceManagerListener, public BindlessContext
+	class WorldRenderer : public EntityWorldListener, public BindlessContext
 	{
 	private:
 		struct PerFrameData
@@ -108,13 +110,13 @@ namespace Lina
 		~WorldRenderer();
 
 		void Tick(float delta);
-		bool Render(uint32 frameIndex);
+		void Render(uint32 frameIndex);
 		void Resize(const Vector2ui& newSize);
 
-		virtual void OnResourcesLoaded(const ResourceList& resources) override;
-		virtual void OnResourcesUnloaded(const ResourceDefinitionList& resources) override;
 		virtual void OnComponentAdded(Component* c) override;
 		virtual void OnComponentRemoved(Component* c) override;
+
+		void VerifyResourcesHW();
 
 		inline SemaphoreData GetSubmitSemaphore(uint32 frameIndex)
 		{
@@ -182,7 +184,7 @@ namespace Lina
 		}
 
 	private:
-		void   CalculateViewProj(CameraComponent* camera, Matrix4& outView, Matrix4& outProj);
+		void   CalculateViewProj(const Camera& camera, const Screen& screen, Matrix4& outView, Matrix4& outProj);
 		void   UpdateBindlessResources(uint32 frameIndex);
 		void   UpdateBuffers(uint32 frameIndex);
 		void   FetchRenderables();
@@ -191,8 +193,6 @@ namespace Lina
 		uint64 BumpAndSendTransfers(uint32 frameIndex);
 
 	private:
-		Matrix4										  m_mainPassView = {};
-		Matrix4										  m_mainPassProj = {};
 		GUIBackend									  m_guiBackend;
 		MeshManager									  m_meshManager;
 		ResourceManagerV2*							  m_resourceManagerV2 = nullptr;
@@ -212,10 +212,8 @@ namespace Lina
 		TextureSampler*								  m_gBufSampler			   = nullptr;
 		Shader*										  m_deferredLightingShader = nullptr;
 		Vector<WorldRendererExtension*>				  m_extensions;
-		Buffer*										  m_snapshotBuffer	  = nullptr;
-		Texture*									  m_nullTexture		  = nullptr;
-		Texture*									  m_nullNormalTexture = nullptr;
-		bool										  m_standaloneSubmit  = false;
+		Buffer*										  m_snapshotBuffer	 = nullptr;
+		bool										  m_standaloneSubmit = false;
 	};
 
 } // namespace Lina

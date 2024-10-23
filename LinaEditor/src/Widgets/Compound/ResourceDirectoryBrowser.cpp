@@ -594,6 +594,7 @@ namespace Lina::Editor
 			item->parent->DestroyChild(item);
 		}
 
+		RefreshDirectory();
 		m_editor->GetProjectManager().SaveProjectChanges();
 	}
 

@@ -53,24 +53,8 @@ namespace Lina
 
 	enum WorldFlags
 	{
-		WORLD_FLAGS_NONE = 1 << 0,
-	};
-
-	enum class ComponentEventType
-	{
-		Create,
-		Destroy,
-		PlayBegin,
-		PlayEnd,
-		PreTick,
-		Tick,
-		PostTick,
-	};
-
-	struct ComponentEvent
-	{
-		ComponentEventType type = ComponentEventType::Create;
-		float			   data = 0.0f;
+		WORLD_FLAGS_NONE	= 1 << 0,
+		WORLD_FLAGS_LOADING = 1 << 1,
 	};
 
 } // namespace Lina

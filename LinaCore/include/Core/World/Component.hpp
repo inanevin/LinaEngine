@@ -53,7 +53,13 @@ namespace Lina
 	class Component
 	{
 	public:
-		virtual void OnEvent(const ComponentEvent& event){};
+		virtual void OnBeginPlay(){};
+		virtual void OnEndPlay(){};
+		virtual void OnCreate(){};
+		virtual void OnDestroy(){};
+		virtual void OnTick(float deltaTime){};
+		virtual void OnPostTick(float deltaTime){};
+
 		virtual void CollectReferences(HashSet<ResourceID>& refs){};
 		virtual void LoadFromStream(IStream& stream){};
 		virtual void SaveToStream(OStream& stream) const {};

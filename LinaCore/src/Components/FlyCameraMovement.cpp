@@ -33,15 +33,8 @@ SOFTWARE.
 
 namespace Lina
 {
-	void FlyCameraMovement::OnEvent(const ComponentEvent& ev)
-	{
-		if (ev.type != ComponentEventType::Tick)
-			return;
 
-		Tick(ev.data);
-	}
-
-	void FlyCameraMovement::Tick(float delta)
+	void FlyCameraMovement::OnTick(float delta)
 	{
 		WorldInput& worldInput = m_world->GetInput();
 

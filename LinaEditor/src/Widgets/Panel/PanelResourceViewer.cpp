@@ -112,8 +112,6 @@ namespace Lina::Editor
 		if (m_previewOnly)
 			return;
 
-		m_resourceBuffer.Destroy();
-
 		const ResourceDef def = {
 			.id	  = m_resource->GetID(),
 			.name = m_resource->GetName(),
@@ -164,78 +162,85 @@ namespace Lina::Editor
 
 		m_resource				   = r;
 		GetWidgetProps().debugName = m_resource->GetName();
-		StoreBuffer();
-		BuildInspector();
+		OnResourceVerified();
+
+		m_foldGeneral = CommonWidgets::BuildFoldTitle(m_inspector, Locale::GetStr(LocaleStr::General), &m_foldGeneralVal);
+		m_inspector->AddChild(m_foldGeneral);
+		RebuildGeneralReflection();
+
+		m_foldResource = CommonWidgets::BuildFoldTitle(m_inspector, Locale::GetStr(LocaleStr::Resource), &m_foldResourceVal);
+		m_inspector->AddChild(m_foldResource);
+		RebuildResourceReflection();
+
 		Panel::Initialize();
 	}
 
-	void PanelResourceViewer::StoreBuffer()
+	void PanelResourceViewer::RebuildGeneralReflection()
 	{
-		if (m_previewOnly)
-			return;
+		const Vector<Widget*>& children = m_foldGeneral->GetChildren();
+		Widget*				   first	= children.at(0);
+		for (size_t i = 1; i < children.size(); i++)
+			m_manager->Deallocate(children.at(i));
+		m_foldGeneral->RemoveAllChildren();
+		m_foldGeneral->AddChild(first);
 
-		OStream stream;
-		m_resource->SaveToStream(stream);
-		m_resourceBuffer.Destroy();
-		m_resourceBuffer.Create(stream);
-		stream.Destroy();
+		CommonWidgets::BuildClassReflection(m_foldGeneral, this, ReflectionSystem::Get().Resolve(m_panelTID), [this](const MetaType& meta, FieldBase* field) { OnGeneralMetaChanged(meta, field); });
+
+		Widget* buttonLayout1 = BuildButtonLayout();
+		m_foldGeneral->AddChild(buttonLayout1);
+
+		m_reimportButton					   = BuildButton(Locale::GetStr(LocaleStr::ReImport), ICON_ROTATE);
+		m_reimportButton->GetProps().onClicked = [this]() { ReimportResource(); };
+		m_saveButton						   = BuildButton(Locale::GetStr(LocaleStr::Save), ICON_SAVE);
+		m_saveButton->GetProps().onClicked	   = [this]() { SaveResource(); };
+		m_saveButton->SetIsDisabled(!m_runtimeDirty);
+		buttonLayout1->AddChild(m_saveButton);
+		buttonLayout1->AddChild(m_reimportButton);
+
+		OnGeneralFoldBuilt();
+
+		if (m_previewOnly)
+			DisableRecursively(m_foldGeneral);
+
+		m_foldGeneral->Initialize();
 	}
 
-	void PanelResourceViewer::BuildInspector()
+	void PanelResourceViewer::RebuildResourceReflection()
 	{
-		m_inspector->DeallocAllChildren();
-		m_inspector->RemoveAllChildren();
+		const Vector<Widget*>& children = m_foldResource->GetChildren();
+		Widget*				   first	= children.at(0);
+		for (size_t i = 1; i < children.size(); i++)
+			m_manager->Deallocate(children.at(i));
+		m_foldResource->RemoveAllChildren();
+		m_foldResource->AddChild(first);
 
-		auto buildButtonLayout = [this]() -> Widget* {
-			DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>();
-			layout->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-			layout->SetAlignedPosX(0.0f);
-			layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-			layout->SetAlignedSizeX(1.0f);
-			layout->GetProps().mode						= DirectionalLayout::Mode::EqualSizes;
-			layout->GetProps().direction				= DirectionOrientation::Horizontal;
-			layout->GetWidgetProps().childMargins.left	= Theme::GetDef().baseIndent;
-			layout->GetWidgetProps().childMargins.right = Theme::GetDef().baseIndent;
-			layout->GetWidgetProps().childPadding		= Theme::GetDef().baseIndent;
-			return layout;
-		};
+		// Build resource reflection.
+		CommonWidgets::BuildClassReflection(m_foldResource, m_resource, ReflectionSystem::Get().Resolve(m_resourceTID), [this](const MetaType& meta, FieldBase* field) {
+			OnResourceMetaChanged(meta, field);
+			SetRuntimeDirty(true);
+		});
 
-		// General reflection.
-		{
-			m_foldGeneral = CommonWidgets::BuildFoldTitle(m_inspector, Locale::GetStr(LocaleStr::General), &m_foldGeneralVal);
-			m_inspector->AddChild(m_foldGeneral);
+		OnResourceFoldBuilt();
 
-			CommonWidgets::BuildClassReflection(m_foldGeneral, this, ReflectionSystem::Get().Resolve(m_panelTID), [this](const MetaType& meta, FieldBase* field) { OnGeneralMetaChanged(meta, field); });
+		if (m_previewOnly)
+			DisableRecursively(m_foldResource);
 
-			Widget* buttonLayout1 = buildButtonLayout();
-			m_foldGeneral->AddChild(buttonLayout1);
+		m_foldResource->Initialize();
+	}
 
-			m_reimportButton					   = BuildButton(Locale::GetStr(LocaleStr::ReImport), ICON_ROTATE);
-			m_reimportButton->GetProps().onClicked = [this]() { ReimportResource(); };
-			m_saveButton						   = BuildButton(Locale::GetStr(LocaleStr::Save), ICON_SAVE);
-			m_saveButton->GetProps().onClicked	   = [this]() { SaveResource(); };
-			m_saveButton->SetIsDisabled(!m_runtimeDirty);
-			buttonLayout1->AddChild(m_saveButton);
-			buttonLayout1->AddChild(m_reimportButton);
-
-			if (m_previewOnly)
-				DisableRecursively(m_foldGeneral);
-		}
-
-		// Resource reflection
-		{
-			m_foldResource = CommonWidgets::BuildFoldTitle(m_inspector, Locale::GetStr(LocaleStr::Resource), &m_foldResourceVal);
-			m_inspector->AddChild(m_foldResource);
-
-			// Build resource reflection.
-			CommonWidgets::BuildClassReflection(m_foldResource, m_resource, ReflectionSystem::Get().Resolve(m_resourceTID), [this](const MetaType& meta, FieldBase* field) {
-				OnResourceMetaChanged(meta, field);
-				SetRuntimeDirty(true);
-			});
-
-			if (m_previewOnly)
-				DisableRecursively(m_foldResource);
-		}
+	Widget* PanelResourceViewer::BuildButtonLayout()
+	{
+		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>();
+		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+		layout->SetAlignedPosX(0.0f);
+		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		layout->SetAlignedSizeX(1.0f);
+		layout->GetProps().mode						= DirectionalLayout::Mode::EqualSizes;
+		layout->GetProps().direction				= DirectionOrientation::Horizontal;
+		layout->GetWidgetProps().childMargins.left	= Theme::GetDef().baseIndent;
+		layout->GetWidgetProps().childMargins.right = Theme::GetDef().baseIndent;
+		layout->GetWidgetProps().childPadding		= Theme::GetDef().baseIndent;
+		return layout;
 	}
 
 	Button* PanelResourceViewer::BuildButton(const String& title, const String& icon)
@@ -278,9 +283,6 @@ namespace Lina::Editor
 				// Save resource
 				m_resourceManager->SaveResource(m_editor->GetProjectManager().GetProjectData(), m_resource);
 
-				// Restore buffer to latest.
-				StoreBuffer();
-
 				// Save project
 				m_editor->GetProjectManager().SaveProjectChanges();
 			},
@@ -300,12 +302,18 @@ namespace Lina::Editor
 		Widget* pp	 = CommonWidgets::BuildGenericPopupProgress(lock, Locale::GetStr(LocaleStr::Reimporting), true);
 		lock->AddChild(pp);
 
-		m_editor->AddTask([this]() { m_resource->LoadFromFile(m_resource->GetPath()); },
-						  [this]() {
-							  Application::GetLGX()->Join();
-							  RegenHW();
-							  m_editor->GetWindowPanelManager().UnlockAllForegrounds();
-						  });
+		m_editor->AddTask(
+			[this]() {
+				if (m_resource->GetPath().empty())
+					m_resource->LoadFromFile(m_editor->GetProjectManager().GetProjectData()->GetResourcePath(m_resource->GetID()));
+				else
+					m_resource->LoadFromFile(m_resource->GetPath());
+			},
+			[this]() {
+				Application::GetLGX()->Join();
+				RegenHW();
+				m_editor->GetWindowPanelManager().UnlockAllForegrounds();
+			});
 	}
 
 } // namespace Lina::Editor

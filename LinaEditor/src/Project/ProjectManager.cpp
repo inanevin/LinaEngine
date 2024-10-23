@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Editor/Resources/ResourcePipeline.hpp"
 #include "Editor/IO/ThumbnailGenerator.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
+#include "Common/Serialization/Serialization.hpp"
 #include "Core/Meta/ProjectData.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Core/Graphics/Resource/TextureSampler.hpp"
@@ -352,6 +353,7 @@ namespace Lina::Editor
 				m_editor->GetAtlasManager().RefreshPoolAtlases();
 				for (ProjectManagerListener* listener : m_listeners)
 					listener->OnProjectOpened(m_currentProject);
+				m_editor->GetSettings().GetLayout().ApplyStoredLayout();
 			});
 	}
 

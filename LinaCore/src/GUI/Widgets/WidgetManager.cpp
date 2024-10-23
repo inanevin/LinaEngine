@@ -187,6 +187,9 @@ namespace Lina
 		if (IsControlsOwner(widget))
 			ReleaseControls(widget);
 
+		if (widget->m_destructHook)
+			widget->m_destructHook();
+
 		// if (m_lastControlsManager == widget)
 		// 	m_lastControlsManager = nullptr;
 

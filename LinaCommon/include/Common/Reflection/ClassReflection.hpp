@@ -56,11 +56,11 @@ namespace Lina
 		Enum,
 		Color,
 		ColorGrad,
-		Resource,
 		Vector2,
 		Vector2ui,
 		Vector2i,
 		Vector3,
+		Vector3i,
 		Vector3ui,
 		Vector4,
 		Vector4ui,
@@ -70,7 +70,6 @@ namespace Lina
 		Recti,
 		TBLR,
 		Bitmask32,
-		ResourceRef,
 		ResourceID,
 	};
 

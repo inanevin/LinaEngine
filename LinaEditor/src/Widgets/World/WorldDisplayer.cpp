@@ -28,9 +28,14 @@ SOFTWARE.
 
 #include "Editor/Widgets/World/WorldDisplayer.hpp"
 #include "Editor/Editor.hpp"
+#include "Editor/EditorLocale.hpp"
+#include "Editor/Widgets/CommonWidgets.hpp"
+#include "Editor/World/EditorCamera.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
+#include "Core/Graphics/Utility/GfxHelpers.hpp"
 #include "Core/Application.hpp"
+#include "Common/Math/Math.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor
@@ -41,6 +46,9 @@ namespace Lina::Editor
 		GetFlags().Set(WF_KEY_PASSTHRU | WF_MOUSE_PASSTHRU);
 		GetWidgetProps().outlineThickness = Theme::GetDef().baseOutlineThickness;
 		GetWidgetProps().rounding		  = 0.025f;
+
+		m_loading = CommonWidgets::BuildGenericPopupProgress(this, Locale::GetStr(LocaleStr::LoadingWorld), true);
+		AddChild(m_loading);
 	}
 
 	void WorldDisplayer::DisplayWorld(WorldRenderer* renderer)
@@ -60,16 +68,19 @@ namespace Lina::Editor
 	{
 		if (m_mouseConfined && !m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_1))
 		{
-			m_lgxWindow->FreeMouse();
+			// m_lgxWindow->FreeMouse();
 			m_lgxWindow->SetMouseVisible(true);
 			m_mouseConfined = false;
 		}
-	}
 
-	void WorldDisplayer::Tick(float dt)
-	{
 		if (m_worldRenderer == nullptr)
 			return;
+
+		// Input setup
+		const bool worldHasFocus = m_manager->GetControlsOwner() == this && m_lgxWindow->HasFocus();
+		m_worldRenderer->GetWorld()->GetInput().SetIsActive(worldHasFocus);
+
+		m_loading->SetVisible(m_worldRenderer->GetWorld()->GetFlags().IsSet(WORLD_FLAGS_LOADING));
 
 		// Screen setup
 		Screen& sc = m_worldRenderer->GetWorld()->GetScreen();
@@ -77,14 +88,17 @@ namespace Lina::Editor
 		sc.SetDisplaySize(m_rect.size);
 		sc.SetDisplayPos(m_rect.pos);
 
-		if (sc.GetRenderSize().x != m_rect.size.x && sc.GetRenderSize().y != m_rect.size.y)
-			m_worldRenderer->Resize(m_rect.size);
+		const Vector2ui displayerSize = Vector2ui(Math::FloorToInt(m_rect.size.x), Math::FloorToInt(m_rect.size.y));
+		if (sc.GetRenderSize().x != displayerSize.x || sc.GetRenderSize().y != displayerSize.y)
+		{
+			Application::GetLGX()->Join();
+			m_worldRenderer->Resize(displayerSize);
+			sc.SetRenderSize(displayerSize);
+			Editor::Get()->GetEditorRenderer().RefreshDynamicTextures();
+		}
 
-		// Input setup
-		const bool worldHasFocus = m_manager->GetControlsOwner() == this && m_lgxWindow->HasFocus();
-		m_worldRenderer->GetWorld()->GetInput().SetIsActive(worldHasFocus);
-
-		Texture* target				= m_worldRenderer->GetLightingPassOutput(Application::GetLGX()->GetCurrentFrameIndex());
+		const uint32 frameIndex		= Application::GetLGX()->GetCurrentFrameIndex();
+		Texture*	 target			= m_worldRenderer->GetLightingPassOutput(frameIndex);
 		GetWidgetProps().rawTexture = target;
 	}
 
@@ -94,8 +108,8 @@ namespace Lina::Editor
 		{
 			m_manager->GrabControls(this);
 
-			const LinaGX::LGXVector2ui center = {static_cast<uint32>(m_lgxWindow->GetMousePosition().x), static_cast<uint32>(m_lgxWindow->GetMousePosition().y)};
-			m_lgxWindow->ConfineMouseToPoint(center);
+			// const LinaGX::LGXVector2ui center = {static_cast<uint32>(m_lgxWindow->GetMousePosition().x), // static_cast<uint32>(m_lgxWindow->GetMousePosition().y)};
+			// m_lgxWindow->ConfineMouseToPoint(center);
 			m_lgxWindow->SetMouseVisible(false);
 			m_mouseConfined = true;
 			return true;

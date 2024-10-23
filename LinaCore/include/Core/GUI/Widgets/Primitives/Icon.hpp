@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Common/Data/String.hpp"
+#include "Core/Graphics/Resource/Font.hpp"
 
 #include "Common/Platform/LinaVGIncl.hpp"
 
@@ -124,7 +125,7 @@ namespace Lina
 
 	LINA_CLASS_BEGIN(IconProperties)
 	LINA_FIELD(Icon::Properties, icon, "Icon", FieldType::String, 0)
-	LINA_FIELD(Icon::Properties, font, "Font", FieldType::Resource, 0)
+	LINA_FIELD(Icon::Properties, font, "Font", FieldType::ResourceID, GetTypeID<Font>())
 	LINA_FIELD(Icon::Properties, textScale, "Scale", FieldType::Float, 0)
 	LINA_FIELD(Icon::Properties, isDynamic, "Dynamic", FieldType::Boolean, 0)
 	LINA_FIELD(Icon::Properties, enableHoverPressColors, "Enable Hover/Press Colors", FieldType::Boolean, 0)

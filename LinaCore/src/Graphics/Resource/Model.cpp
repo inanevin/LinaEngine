@@ -242,6 +242,7 @@ namespace Lina
 
 	void Model::UploadNodes(MeshManager& meshManager)
 	{
+		m_isUploaded = true;
 		for (ModelNode* node : m_rootNodes)
 			UploadNode(meshManager, node);
 	}

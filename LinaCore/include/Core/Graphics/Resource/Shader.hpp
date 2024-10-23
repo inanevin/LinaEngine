@@ -103,12 +103,18 @@ namespace Lina
 			return m_propertyDefinitions;
 		}
 
+		inline bool IsGPUValid() const
+		{
+			return m_hwExists;
+		}
+
 	private:
 		ALLOCATOR_BUCKET_MEM;
 		LINA_REFLECTION_ACCESS(Shader);
 
 		Metadata						 m_meta = {};
 		Vector<ShaderPropertyDefinition> m_propertyDefinitions;
+		bool							 m_hwExists = false;
 	};
 
 	LINA_RESOURCE_BEGIN(Shader);

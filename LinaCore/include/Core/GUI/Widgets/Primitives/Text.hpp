@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Common/Data/String.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
+#include "Core/Graphics/Resource/Font.hpp"
 
 namespace Lina
 {
@@ -124,7 +125,7 @@ namespace Lina
 
 	LINA_CLASS_BEGIN(TextProperties)
 	LINA_FIELD(Text::Properties, text, "Text", FieldType::String, 0)
-	LINA_FIELD(Text::Properties, font, "Font", FieldType::Resource, 0)
+	LINA_FIELD(Text::Properties, font, "Font", FieldType::ResourceID, GetTypeID<Font>())
 	LINA_FIELD(Text::Properties, alignment, "Alignment", FieldType::Enum, GetTypeID<LinaVG::TextAlignment>())
 	LINA_FIELD(Text::Properties, textScale, "Scale", FieldType::Float, 0)
 	LINA_FIELD(Text::Properties, wrapWidth, "Wrap Width", FieldType::Float, 0)

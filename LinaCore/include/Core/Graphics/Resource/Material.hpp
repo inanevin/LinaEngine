@@ -124,12 +124,15 @@ namespace Lina
 
 	private:
 		ALLOCATOR_BUCKET_MEM;
+		LINA_REFLECTION_ACCESS(Material);
+
 		ResourceID				  m_shader	   = 0;
 		ShaderType				  m_shaderType = ShaderType::OpaqueSurface;
 		Vector<MaterialProperty*> m_properties;
 	};
 
 	LINA_RESOURCE_BEGIN(Material);
+	LINA_FIELD(Material, m_shader, "Shader", FieldType::ResourceID, GetTypeID<Shader>())
 	LINA_CLASS_END(Material);
 
 } // namespace Lina

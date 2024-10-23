@@ -40,8 +40,6 @@ namespace Lina
 	class MeshComponent : public Component
 	{
 	public:
-		virtual void OnEvent(const ComponentEvent& event) override;
-
 		virtual void CollectReferences(HashSet<ResourceID>& refs) override
 		{
 			refs.insert(m_model);

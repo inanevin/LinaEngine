@@ -54,6 +54,11 @@ namespace Lina
 			return m_gpuHandle;
 		}
 
+		inline bool IsGPUValid() const
+		{
+			return m_hwExists;
+		}
+
 	private:
 		ALLOCATOR_BUCKET_MEM;
 		LINA_REFLECTION_ACCESS(TextureSampler);

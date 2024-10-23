@@ -89,6 +89,7 @@ namespace Lina
 				delete font;
 		}
 		m_lvgFonts.clear();
+		m_hwExists = false;
 	}
 
 	void Font::GenerateHW(LinaVG::Text& lvgText)
@@ -109,6 +110,7 @@ namespace Lina
 			else
 				m_lvgFonts[i] = lvgText.LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.points[i].size, customRangeVec.data(), static_cast<int32>(m_meta.glyphRanges.size()) * 2);
 		}
+		m_hwExists = true;
 	}
 
 	bool Font::LoadFromFile(const String& path)

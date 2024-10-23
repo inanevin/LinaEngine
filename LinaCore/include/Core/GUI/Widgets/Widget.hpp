@@ -473,6 +473,11 @@ namespace Lina
 			return m_cacheIndex;
 		}
 
+		inline void SetDestructHook(Delegate<void()> hook)
+		{
+			m_destructHook = hook;
+		}
+
 		V2_GET_MUTATE(FixedSize, m_fixedSize);
 		V2_GET_MUTATE(AlignedSize, m_alignedSize);
 		V2_INCREMENTERS(AlignedSize, m_alignedSize);
@@ -507,6 +512,7 @@ namespace Lina
 		Delegate<Widget*(void*)>	m_buildCustomTooltip;
 		Vector<Widget*>				m_children;
 		Vector<Delegate<void()>>	m_executeNextFrame;
+		Delegate<void()>			m_destructHook;
 		Delegate<void(float delta)> m_tickHook;
 		Vector<Delegate<void()>>	m_preTickHooks;
 		Rect						m_rect					= {};

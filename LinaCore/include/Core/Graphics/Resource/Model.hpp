@@ -115,6 +115,11 @@ namespace Lina
 			return m_meta;
 		}
 
+		inline bool IsUploaded() const
+		{
+			return m_isUploaded;
+		}
+
 	private:
 		void	   ProcessNode(LinaGX::ModelNode* lgxNode, ModelNode* parent);
 		void	   UploadNode(MeshManager& meshManager, ModelNode* node);
@@ -128,6 +133,7 @@ namespace Lina
 		Vector<ModelMaterial> m_materialDefs;
 		Vector<ModelTexture>  m_textureDefs;
 		AABB				  m_totalAABB;
+		bool				  m_isUploaded = false;
 	};
 	LINA_RESOURCE_BEGIN(Model);
 	LINA_CLASS_END(Model);

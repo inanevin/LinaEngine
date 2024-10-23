@@ -30,6 +30,8 @@ SOFTWARE.
 #include "Editor/Editor.hpp"
 #include "Editor/Widgets/Panel/Panel.hpp"
 #include "Editor/Widgets/Panel/PanelFactory.hpp"
+#include "Editor/Widgets/Compound/ColorWheelCompound.hpp"
+#include "Editor/Widgets/Panel/PanelColorWheel.hpp"
 #include "Editor/Widgets/Docking/DockArea.hpp"
 #include "Editor/Widgets/EditorRoot.hpp"
 #include "Editor/Widgets/Compound/WindowBar.hpp"
@@ -292,6 +294,20 @@ namespace Lina::Editor
 		return foundPanel;
 	}
 
+	PanelColorWheel* WindowPanelManager::OpenColorWheelPanel(Widget* requester)
+	{
+		PanelColorWheel* wh	   = static_cast<PanelColorWheel*>(OpenPanel(PanelType::ColorWheel, 0, requester));
+		m_panelColorWheel	   = wh;
+		m_panelColorWheelOwner = requester;
+
+		requester->SetDestructHook([this]() {
+			if (m_panelColorWheel)
+				m_panelColorWheel->GetWheel()->GetProps().onValueChanged = [](const Color& linearColor) {};
+		});
+
+		return wh;
+	}
+
 	Panel* WindowPanelManager::OpenPanel(PanelType type, ResourceID subData, Widget* requestingWidget)
 	{
 		DockArea* owningArea = nullptr;
@@ -405,8 +421,17 @@ namespace Lina::Editor
 		m_windowCloseRequests.push_back(sid);
 	}
 
-	void WindowPanelManager::StorePanelWindowInfo(Panel* panel)
+	void WindowPanelManager::OnPanelDestruct(Panel* panel)
 	{
+		if (panel->GetType() == PanelType::ColorWheel)
+		{
+			if (m_panelColorWheelOwner)
+				m_panelColorWheelOwner->SetDestructHook(NULL);
+
+			m_panelColorWheel	   = nullptr;
+			m_panelColorWheelOwner = nullptr;
+		}
+
 		WindowPanelInfo& inf = m_windowPanelInfos[panel->GetType()];
 		inf.position		 = panel->GetWindow()->GetPosition();
 		inf.size			 = panel->GetWindow()->GetSize();

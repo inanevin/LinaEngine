@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/GUI/Widgets/Layout/Popup.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
+#include "Core/Graphics/Resource/TextureSampler.hpp"
 #include "Editor/CommonEditor.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Editor.hpp"
@@ -751,6 +752,30 @@ namespace Lina::Editor
 		return isFoldLayout ? static_cast<Widget*>(fold) : static_cast<Widget*>(layout);
 	}
 
+	Widget* CommonWidgets::BuildFieldLayoutWithRightSide(Widget* src, uint32 dependencies, const String& title, bool isFoldLayout, bool* foldValue, float horizontalSz)
+	{
+		Widget*		   fieldLayout = BuildFieldLayout(src, dependencies, title, isFoldLayout, foldValue);
+		WidgetManager* wm		   = src->GetWidgetManager();
+
+		DirectionalLayout* rightSide = nullptr;
+		rightSide					 = wm->Allocate<DirectionalLayout>("RightSide");
+		rightSide->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_ALIGN_X);
+		rightSide->GetProps().direction			 = DirectionOrientation::Horizontal;
+		rightSide->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
+		rightSide->SetAlignedPosX(1.0f);
+		rightSide->SetAlignedPosY(0.0f);
+		rightSide->SetAlignedSizeX(horizontalSz);
+		rightSide->SetAlignedSizeY(1.0f);
+		rightSide->SetAnchorX(Anchor::End);
+		rightSide->GetWidgetProps().debugName = title;
+		if (isFoldLayout)
+			fieldLayout->GetChildren().front()->AddChild(rightSide);
+		else
+			fieldLayout->AddChild(rightSide);
+
+		return fieldLayout;
+	}
+
 	namespace
 	{
 		uint32 CountDependencies(MetaType& type, FieldBase* field)
@@ -847,76 +872,148 @@ namespace Lina::Editor
 		}
 	}
 
-	Widget* CommonWidgets::BuildField(Widget* src, const String& title, void* memberVariablePtr, MetaType& metaType, FieldBase* field, FieldType fieldType, Delegate<void(const MetaType& meta, FieldBase* field)> onFieldChanged, int32 vectorElementIndex)
+	Widget* CommonWidgets::BuildResourceField(Widget* src, ResourceID* currentResourceID, TypeID targetType, Delegate<void(ResourceDirectory*)> onSelected)
 	{
-		WidgetManager* wm = src->GetWidgetManager();
+		WidgetManager*	   wm			   = src->GetWidgetManager();
+		ResourceDirectory* currentResource = Editor::Get()->GetProjectManager().GetProjectData()->GetResourceRoot().FindResourceDirectory(*currentResourceID);
 
-		FieldValue reflectionValue(memberVariablePtr);
-		const bool isFold	 = fieldType == FieldType::Vector || (fieldType == FieldType::UserClass);
-		bool*	   foldValue = nullptr;
+		Button* btn = wm->Allocate<Button>();
+		btn->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		btn->SetAlignedSize(Vector2(0.0f, 1.0f));
+		btn->SetAlignedPosY(0.0f);
+		btn->RemoveText();
 
-		Widget* fieldLayout = BuildFieldLayout(src, CountDependencies(metaType, field) + (vectorElementIndex == -1 ? 0 : 1), title, isFold, field->GetFoldValuePtr());
+		DirectionalLayout* layout				   = wm->Allocate<DirectionalLayout>("Layout");
+		layout->GetWidgetProps().childMargins.left = Theme::GetDef().baseIndent;
+		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		layout->SetAlignedPos(Vector2::Zero);
+		layout->SetAlignedSize(Vector2::One);
+		layout->GetWidgetProps().childPadding		= Theme::GetDef().baseIndent;
+		layout->GetWidgetProps().childMargins.left	= Theme::GetDef().baseIndent;
+		layout->GetWidgetProps().childMargins.right = Theme::GetDef().baseIndent;
+		btn->AddChild(layout);
 
-		DirectionalLayout* rightSide = nullptr;
-		rightSide					 = wm->Allocate<DirectionalLayout>("RightSide");
-		rightSide->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_ALIGN_X);
-		rightSide->GetProps().direction			 = DirectionOrientation::Horizontal;
-		rightSide->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
-		rightSide->SetAlignedPosX(1.0f);
-		rightSide->SetAlignedPosY(0.0f);
-		rightSide->SetAlignedSizeX(0.5f);
-		rightSide->SetAlignedSizeY(1.0f);
-		rightSide->SetAnchorX(Anchor::End);
-		rightSide->GetWidgetProps().debugName = title;
-		if (isFold)
-			fieldLayout->GetChildren().front()->AddChild(rightSide);
-		else
-			fieldLayout->AddChild(rightSide);
+		Widget* thumb = wm->Allocate<Widget>("Thumb");
+		thumb->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_X_COPY_Y);
+		thumb->SetAlignedPosY(0.5f);
+		thumb->SetAlignedSizeY(0.5f);
+		thumb->SetAnchorY(Anchor::Center);
+		thumb->GetWidgetProps().drawBackground	 = true;
+		thumb->GetWidgetProps().colorBackground	 = Color::White;
+		thumb->GetWidgetProps().outlineThickness = 0.0f;
+		thumb->GetWidgetProps().rounding		 = 0.0f;
+		thumb->SetCustomTooltipUserData(thumb);
+		thumb->GetWidgetProps().textureAtlas = Editor::Get()->GetProjectManager().GetThumbnail(currentResource);
+		thumb->SetBuildCustomTooltip(BIND(&CommonWidgets::BuildThumbnailTooltip, std::placeholders::_1));
+		layout->AddChild(thumb);
 
-		bool  hasLimits = false;
-		float minFloat = 0.0f, maxFloat = 0.0f, stepFloat = 0.0f;
-		if (field->HasProperty<float>("Min"_hs))
+		Text* txt = wm->Allocate<Text>("Title");
+		txt->GetFlags().Set(WF_POS_ALIGN_Y);
+		txt->SetAlignedPosY(0.5f);
+		txt->SetAnchorY(Anchor::Center);
+		txt->GetProps().text = currentResource == nullptr ? "(NoResource)" : currentResource->name;
+		txt->CalculateTextSize();
+		txt->GetProps().fetchCustomClipFromParent = true;
+		txt->GetProps().isDynamic				  = true;
+		layout->AddChild(txt);
+
+		btn->GetProps().onClicked = [src, targetType, onSelected, txt, thumb, currentResourceID]() {
+			ThrowResourceSelector(src, *currentResourceID, targetType, [txt, thumb, onSelected, currentResourceID](ResourceDirectory* dir) {
+				if (dir == nullptr)
+					return;
+
+				if (dir->resourceID == *currentResourceID)
+					return;
+
+				thumb->GetWidgetProps().textureAtlas = Editor::Get()->GetProjectManager().GetThumbnail(dir);
+				txt->UpdateTextAndCalcSize(dir->name);
+				onSelected(dir);
+			});
+		};
+
+		return btn;
+	}
+
+	Widget* CommonWidgets::BuildTextureField(Widget* src, ProjectData* project, LinaTexture2D* txt, uint32 dependencies, const String& title, bool* foldVal, Delegate<void()> onValueChanged)
+	{
+		FoldLayout*		   fold				 = static_cast<FoldLayout*>(BuildFieldLayout(src, dependencies, title, true, foldVal));
+		DirectionalLayout* txtField			 = static_cast<DirectionalLayout*>(BuildFieldLayoutWithRightSide(src, dependencies, "Texture", false, nullptr));
+		DirectionalLayout* smpField			 = static_cast<DirectionalLayout*>(BuildFieldLayoutWithRightSide(src, dependencies, "Sampler", false, nullptr));
+		DirectionalLayout* txtFieldRightSide = Widget::GetWidgetOfType<DirectionalLayout>(txtField);
+		DirectionalLayout* smpFieldRightSide = Widget::GetWidgetOfType<DirectionalLayout>(smpField);
+
+		fold->AddChild(txtField);
+		fold->AddChild(smpField);
+
+		Widget* txtResField = CommonWidgets::BuildResourceField(txtFieldRightSide, &txt->texture, GetTypeID<Texture>(), [txt, onValueChanged](ResourceDirectory* d) {
+			if (!d)
+				return;
+
+			if (d->resourceID == txt->texture)
+				return;
+
+			LinaTexture2D* edited = reinterpret_cast<LinaTexture2D*>(txt);
+			edited->texture		  = d->resourceID;
+			onValueChanged();
+		});
+
+		txtFieldRightSide->AddChild(txtResField);
+
+		Widget* smpResField = CommonWidgets::BuildResourceField(smpFieldRightSide, &txt->sampler, GetTypeID<TextureSampler>(), [txt, onValueChanged](ResourceDirectory* d) {
+			if (!d)
+				return;
+
+			if (d->resourceID == txt->sampler)
+				return;
+
+			LinaTexture2D* edited = reinterpret_cast<LinaTexture2D*>(txt);
+			edited->sampler		  = d->resourceID;
+			onValueChanged();
+		});
+
+		smpFieldRightSide->AddChild(smpResField);
+
+		return fold;
+	}
+
+	InputField* CommonWidgets::BuildFloatField(Widget* src, void* ptr, uint8 bits, bool isInt, bool isUnsigned, bool hasLimits, float minLimit, float maxLimit, float step, bool canSelectThemeValues)
+	{
+		WidgetManager* wm  = src->GetWidgetManager();
+		InputField*	   inp = wm->Allocate<InputField>();
+		inp->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		inp->SetAlignedSize(Vector2(0.0f, 1.0f));
+		inp->SetAlignedPosY(0.0f);
+		inp->GetProps().isNumberField = true;
+		inp->GetProps().clampNumber	  = true;
+
+		// inp->GetProps().onEditEnd = [onFieldChanged, field, &metaType](const String& str) { onFieldChanged(metaType, field); };
+
+		if (hasLimits)
 		{
-			minFloat  = field->GetProperty<float>("Min"_hs);
-			maxFloat  = field->GetProperty<float>("Max"_hs);
-			stepFloat = field->GetProperty<float>("Step"_hs);
-			hasLimits = true;
+			inp->GetProps().disableNumberSlider = Math::Equals(step, 0.0f, 0.001f);
+			inp->GetProps().valueMin			= minLimit;
+			inp->GetProps().valueMax			= maxLimit;
+			inp->GetProps().valueStep			= step;
+		}
+		else
+		{
+			inp->GetProps().disableNumberSlider = true;
+			inp->GetProps().valueMin			= isUnsigned ? 0 : INPF_VALUE_MIN - 1.0f;
+			inp->GetProps().valueMax			= INPF_VALUE_MAX + 1.0f;
+			inp->GetProps().valueStep			= 0.0f;
 		}
 
-		auto getValueField = [wm, hasLimits, minFloat, maxFloat, stepFloat, onFieldChanged, &metaType, field](void* ptr, uint8 bits, bool isInt = false, bool isUnsigned = false) -> InputField* {
-			InputField* inp = wm->Allocate<InputField>();
-			inp->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-			inp->SetAlignedSize(Vector2(0.0f, 1.0f));
-			inp->SetAlignedPosY(0.0f);
-			inp->GetProps().isNumberField = true;
-			inp->GetProps().clampNumber	  = true;
+		inp->GetProps().valuePtr	  = reinterpret_cast<uint8*>(ptr);
+		inp->GetProps().valueBits	  = bits;
+		inp->GetProps().valueUnsigned = isUnsigned;
 
-			inp->GetProps().onEditEnd = [onFieldChanged, field, &metaType](const String& str) { onFieldChanged(metaType, field); };
+		// inp->GetProps().onValueChanged = [onValueChanged](float val, bool fromSlider) {
+		//    if(onValueChanged)
+		//        onValueChanged(val);
+		// };
 
-			if (hasLimits)
-			{
-				inp->GetProps().disableNumberSlider = Math::Equals(stepFloat, 0.0f, 0.001f);
-				inp->GetProps().valueMin			= minFloat;
-				inp->GetProps().valueMax			= maxFloat;
-				inp->GetProps().valueStep			= stepFloat;
-			}
-			else
-			{
-				inp->GetProps().disableNumberSlider = true;
-				inp->GetProps().valueMin			= isUnsigned ? 0 : INPF_VALUE_MIN - 1.0f;
-				inp->GetProps().valueMax			= INPF_VALUE_MAX + 1.0f;
-				inp->GetProps().valueStep			= 0.0f;
-			}
-
-			inp->GetProps().valuePtr	  = reinterpret_cast<uint8*>(ptr);
-			inp->GetProps().valueBits	  = bits;
-			inp->GetProps().valueUnsigned = isUnsigned;
-
-			inp->GetProps().onValueChanged = [onFieldChanged, field, &metaType](float val, bool fromSlider) {
-				if (fromSlider)
-					onFieldChanged(metaType, field);
-			};
-
+		if (canSelectThemeValues)
+		{
 			inp->GetProps().onRightClick = [wm, inp]() {
 				Popup* popup				   = wm->Allocate<Popup>("Popup");
 				popup->GetProps().selectedIcon = ICON_CIRCLE_FILLED;
@@ -953,28 +1050,47 @@ namespace Lina::Editor
 				wm->AddToForeground(popup);
 				wm->GrabControls(popup);
 			};
+		}
 
+		return inp;
+	}
+
+	Widget* CommonWidgets::BuildField(Widget* src, const String& title, void* memberVariablePtr, MetaType& metaType, FieldBase* field, FieldType fieldType, Delegate<void(const MetaType& meta, FieldBase* field)> onFieldChanged, int32 vectorElementIndex)
+	{
+		WidgetManager* wm = src->GetWidgetManager();
+
+		FieldValue reflectionValue(memberVariablePtr);
+		const bool isFold	 = fieldType == FieldType::Vector || (fieldType == FieldType::UserClass);
+		bool*	   foldValue = nullptr;
+
+		// Widget* fieldLayout = BuildFieldLayout(src, CountDependencies(metaType, field) + (vectorElementIndex == -1 ? 0 : 1), title, isFold, field->GetFoldValuePtr());
+		Widget*			   fieldLayout = BuildFieldLayoutWithRightSide(src, CountDependencies(metaType, field) + (vectorElementIndex == -1 ? 0 : 1), title, isFold, field->GetFoldValuePtr(), 0.6f);
+		DirectionalLayout* rightSide   = Widget::GetWidgetOfType<DirectionalLayout>(fieldLayout);
+
+		bool  hasLimits = false;
+		float minFloat = 0.0f, maxFloat = 0.0f, stepFloat = 0.0f;
+		if (field->HasProperty<float>("Min"_hs))
+		{
+			minFloat  = field->GetProperty<float>("Min"_hs);
+			maxFloat  = field->GetProperty<float>("Max"_hs);
+			stepFloat = field->GetProperty<float>("Step"_hs);
+			hasLimits = true;
+		}
+
+		auto getValueField = [src, wm, hasLimits, minFloat, maxFloat, stepFloat, onFieldChanged, &metaType, field](void* ptr, uint8 bits, bool isInt = false, bool isUnsigned = false) -> InputField* {
+			InputField* inp				   = BuildFloatField(src, ptr, bits, isInt, isUnsigned, hasLimits, minFloat, maxFloat, stepFloat, true);
+			inp->GetProps().onEditEnd	   = [onFieldChanged, field, &metaType](const String& str) { onFieldChanged(metaType, field); };
+			inp->GetProps().onValueChanged = [onFieldChanged, field, &metaType](float val, bool fromSlider) {
+				if (fromSlider)
+					onFieldChanged(metaType, field);
+			};
 			return inp;
 		};
 
-		auto buildResField = [wm, src, onFieldChanged, &metaType, field](TypeID resType) -> Button* {
-			Button* btn								= wm->Allocate<Button>();
-			btn->GetWidgetProps().childMargins.left = Theme::GetDef().baseIndent;
-			btn->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-			btn->SetAlignedSize(Vector2(0.0f, 1.0f));
-			btn->GetText()->SetAnchorX(Anchor::Start);
-			btn->SetAlignedPosY(0.0f);
-			btn->GetText()->GetProps().text = "Resource";
-			btn->GetText()->SetAlignedPosX(0.0f);
-			btn->GetProps().onClicked = [src, resType, onFieldChanged, &metaType, field]() { ThrowResourceSelector(src, resType, [onFieldChanged, &metaType, field](ResourceDirectory* dir) { onFieldChanged(metaType, field); }); };
-			return btn;
-		};
-
-		if (fieldType == FieldType::ResourceRef || fieldType == FieldType::ResourceID)
+		if (fieldType == FieldType::ResourceID)
 		{
-			const ResourceID resID = fieldType == FieldType::ResourceRef ? (reflectionValue.CastPtr<ResRefBase>()->id) : (reflectionValue.GetValue<ResourceID>());
-
-			ResourceDirectory* dir = Editor::Get()->GetProjectManager().GetProjectData()->GetResourceRoot().FindResourceDirectory(resID);
+			ResourceID*		   rid = reflectionValue.CastPtr<ResourceID>();
+			ResourceDirectory* dir = Editor::Get()->GetProjectManager().GetProjectData()->GetResourceRoot().FindResourceDirectory(*rid);
 
 			TypeID tid = 0;
 
@@ -984,66 +1100,13 @@ namespace Lina::Editor
 			if (tid == 0)
 				tid = field->GetProperty<TypeID>("SubTypeTID"_hs);
 
-			Button* btn = wm->Allocate<Button>();
-			btn->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-			btn->SetAlignedSize(Vector2(0.0f, 1.0f));
-			btn->SetAlignedPosY(0.0f);
-			btn->RemoveText();
-
-			DirectionalLayout* layout = wm->Allocate<DirectionalLayout>("ResRefField");
-			layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-			layout->SetAlignedPos(Vector2::Zero);
-			layout->GetProps().direction = DirectionOrientation::Horizontal;
-			layout->SetAlignedSize(Vector2(1.0f, 1.0f));
-			layout->GetWidgetProps().childPadding		= Theme::GetDef().baseIndent;
-			layout->GetWidgetProps().childMargins.left	= Theme::GetDef().baseIndent;
-			layout->GetWidgetProps().childMargins.right = Theme::GetDef().baseIndent;
-			// layout->GetWidgetProps().clipChildren		= true;
-			btn->AddChild(layout);
-
-			Widget* thumb = wm->Allocate<Widget>("Thumb");
-			thumb->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_X_COPY_Y);
-			thumb->SetAlignedPosY(0.5f);
-			thumb->SetAlignedSizeY(0.5f);
-			thumb->SetAnchorY(Anchor::Center);
-			thumb->GetWidgetProps().drawBackground	 = true;
-			thumb->GetWidgetProps().colorBackground	 = Color::White;
-			thumb->GetWidgetProps().outlineThickness = 0.0f;
-			thumb->GetWidgetProps().rounding		 = 0.0f;
-			thumb->SetCustomTooltipUserData(thumb);
-			thumb->SetBuildCustomTooltip(BIND(&CommonWidgets::BuildThumbnailTooltip, std::placeholders::_1));
-			layout->AddChild(thumb);
-
-			// if (thumb->GetWidgetProps().textureAtlas == nullptr)
-			// 	thumb->GetWidgetProps().textureAtlas = Editor::Get()->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "FileShaderSmall"_hs);
-
-			Text* txt = wm->Allocate<Text>("Titlessss");
-			txt->GetFlags().Set(WF_POS_ALIGN_Y);
-			txt->SetAlignedPosY(0.5f);
-			txt->SetAnchorY(Anchor::Center);
-			txt->GetProps().text = dir == nullptr ? "(NoResource)" : dir->name;
-			txt->CalculateTextSize();
-			txt->GetProps().fetchCustomClipFromParent = true;
-			txt->GetProps().isDynamic				  = true;
-			layout->AddChild(txt);
-
-			btn->GetProps().onClicked = [src, onFieldChanged, &metaType, field, memberVariablePtr, fieldType, tid, thumb, txt]() {
-				ThrowResourceSelector(src, tid, [onFieldChanged, &metaType, field, memberVariablePtr, fieldType, thumb, txt](ResourceDirectory* dir) {
-					onFieldChanged(metaType, field);
-					FieldValue rf(memberVariablePtr);
-					if (fieldType == FieldType::ResourceRef)
-						(rf.CastPtr<ResRefBase>())->id = dir->resourceID;
-					else
-						*rf.CastPtr<ResourceID>() = dir->resourceID;
-
-					// thumb->GetWidgetProps().textureAtlas = Editor::Get()->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "FileShaderSmall"_hs);
-
-					txt->GetProps().text = dir->name;
-					txt->CalculateTextSize();
-				});
-			};
-
-			rightSide->AddChild(btn);
+			Widget* f = BuildResourceField(src, rid, tid, [rid, onFieldChanged, field, &metaType](ResourceDirectory* selected) {
+				if (!selected)
+					return;
+				*rid = selected->resourceID;
+				onFieldChanged(metaType, field);
+			});
+			rightSide->AddChild(f);
 		}
 		else if (fieldType == FieldType::UserClass)
 		{
@@ -1055,10 +1118,6 @@ namespace Lina::Editor
 				tid = field->GetProperty<TypeID>("SubTypeTID"_hs);
 
 			CommonWidgets::BuildClassReflection(fieldLayout, reflectionValue.GetPtr(), ReflectionSystem::Get().Resolve(tid), onFieldChanged);
-		}
-		else if (fieldType == FieldType::Resource)
-		{
-			rightSide->AddChild(buildResField(field->GetProperty<TypeID>("SubType"_hs)));
 		}
 		else if (fieldType == FieldType::StringFixed)
 		{
@@ -1231,6 +1290,13 @@ namespace Lina::Editor
 			rightSide->AddChild(getValueField(&val->y, 32, true, true));
 			rightSide->AddChild(getValueField(&val->z, 32, true, true));
 		}
+		else if (fieldType == FieldType::Vector3i)
+		{
+			Vector3i* val = reflectionValue.CastPtr<Vector3i>();
+			rightSide->AddChild(getValueField(&val->x, 32, true));
+			rightSide->AddChild(getValueField(&val->y, 32, true));
+			rightSide->AddChild(getValueField(&val->z, 32, true));
+		}
 		else if (fieldType == FieldType::Vector4)
 		{
 			Vector4* val = reflectionValue.CastPtr<Vector4>();
@@ -1297,9 +1363,8 @@ namespace Lina::Editor
 			cf->GetProps().backgroundTexture = Editor::Get()->GetResourceManagerV2().GetResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID);
 			cf->GetProps().value			 = col;
 			cf->GetProps().onClicked		 = [cf, col, src, &metaType, field, onFieldChanged]() {
-				PanelColorWheel* panel						 = static_cast<PanelColorWheel*>(Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::ColorWheel, 0, src));
+				PanelColorWheel* panel						 = Editor::Get()->GetWindowPanelManager().OpenColorWheelPanel(cf);
 				panel->GetWheel()->GetProps().onValueChanged = [&metaType, field, onFieldChanged](const Color& col) { onFieldChanged(metaType, field); };
-				// panel->SetTarget(col);
 			};
 			rightSide->AddChild(cf);
 		}
@@ -1398,8 +1463,8 @@ namespace Lina::Editor
 		startButton->SetAlignedSizeY(1.0f);
 		startButton->CreateIcon(ICON_PALETTE);
 		startButton->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::StartColor);
-		startButton->GetProps().onClicked	  = [src, color, onFieldChanged, &metaType, field]() {
-			PanelColorWheel* panel						 = static_cast<PanelColorWheel*>(Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::ColorWheel, 0, src));
+		startButton->GetProps().onClicked	  = [src, color, onFieldChanged, &metaType, field, startButton]() {
+			PanelColorWheel* panel						 = Editor::Get()->GetWindowPanelManager().OpenColorWheelPanel(startButton);
 			panel->GetWheel()->GetProps().onValueChanged = [color, onFieldChanged, &metaType, field](const Color& col) {
 				color->start = col;
 				onFieldChanged(metaType, field);
@@ -1413,8 +1478,8 @@ namespace Lina::Editor
 		middleButton->SetAlignedSizeY(1.0f);
 		middleButton->CreateIcon(ICON_PALETTE);
 		middleButton->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::Both);
-		middleButton->GetProps().onClicked	   = [src, color, onFieldChanged, &metaType, field]() {
-			PanelColorWheel* panel						 = static_cast<PanelColorWheel*>(Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::ColorWheel, 0, src));
+		middleButton->GetProps().onClicked	   = [src, color, onFieldChanged, &metaType, field, middleButton]() {
+			PanelColorWheel* panel						 = Editor::Get()->GetWindowPanelManager().OpenColorWheelPanel(middleButton);
 			panel->GetWheel()->GetProps().onValueChanged = [color, onFieldChanged, &metaType, field](const Color& col) {
 				color->start = color->end = col;
 				onFieldChanged(metaType, field);
@@ -1428,8 +1493,8 @@ namespace Lina::Editor
 		endButton->SetAlignedSizeY(1.0f);
 		endButton->CreateIcon(ICON_PALETTE);
 		endButton->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::EndColor);
-		endButton->GetProps().onClicked		= [src, color, onFieldChanged, &metaType, field]() {
-			PanelColorWheel* panel						 = static_cast<PanelColorWheel*>(Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::ColorWheel, 0, src));
+		endButton->GetProps().onClicked		= [src, color, onFieldChanged, &metaType, field, endButton]() {
+			PanelColorWheel* panel						 = Editor::Get()->GetWindowPanelManager().OpenColorWheelPanel(endButton);
 			panel->GetWheel()->GetProps().onValueChanged = [color, onFieldChanged, &metaType, field](const Color& col) {
 				color->end = col;
 				onFieldChanged(metaType, field);
@@ -1496,7 +1561,7 @@ namespace Lina::Editor
 		}
 	}
 
-	Widget* CommonWidgets::ThrowResourceSelector(Widget* src, TypeID resourceType, Delegate<void(ResourceDirectory*)>&& onSelected)
+	Widget* CommonWidgets::ThrowResourceSelector(Widget* src, ResourceID currentResourceID, TypeID resourceType, Delegate<void(ResourceDirectory*)>&& onSelected)
 	{
 		WidgetManager*	   wm		 = src->GetWidgetManager();
 		DirectionalLayout* layout	 = wm->Allocate<DirectionalLayout>();
@@ -1592,6 +1657,18 @@ namespace Lina::Editor
 		layout->Initialize();
 		wm->AddToForeground(layout);
 		wm->GrabControls(layout);
+
+		if (currentResourceID != 0)
+		{
+			ResourceDirectory* currentDir = Editor::Get()->GetProjectManager().GetProjectData()->GetResourceRoot().FindResourceDirectory(currentResourceID);
+			Widget*			   it		  = bw->GetItemController()->GetItem(currentDir);
+			if (it)
+			{
+				bw->GetItemController()->MakeVisibleRecursively(it);
+				bw->GetItemController()->SelectItem(it, true, false);
+			}
+		}
+
 		return layout;
 	}
 } // namespace Lina::Editor

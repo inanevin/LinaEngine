@@ -40,6 +40,8 @@ namespace Lina
 	public:
 		CameraComponent() : Component(0){};
 
+		virtual void OnPostTick(float delta) override;
+
 		virtual TypeID GetComponentType() override
 		{
 			return GetTypeID<CameraComponent>();
@@ -73,16 +75,9 @@ namespace Lina
 	private:
 		friend class CameraSystem;
 		LINA_REFLECTION_ACCESS(CameraComponent);
-		float	   m_fieldOfView = DEFAULT_FOV;
-		float	   m_zNear		 = 0.01f;
-		float	   m_zFar		 = 500.0f;
-		float	   m_targetX	 = 0.0f;
-		float	   m_targetY	 = 0.0f;
-		float	   m_targetXPos	 = 0.0f;
-		float	   m_targetZPos	 = 0.0f;
-		float	   m_angleX		 = 0.0f;
-		float	   m_angleY		 = 0.0f;
-		Quaternion m_rotation	 = Quaternion();
+		float m_fieldOfView = DEFAULT_FOV;
+		float m_zNear		= 0.01f;
+		float m_zFar		= 500.0f;
 	};
 
 } // namespace Lina

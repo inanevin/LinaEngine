@@ -36,7 +36,7 @@ namespace Lina::Editor
 {
 	void Panel::Destruct()
 	{
-		Editor::Get()->GetWindowPanelManager().StorePanelWindowInfo(this);
+		Editor::Get()->GetWindowPanelManager().OnPanelDestruct(this);
 	}
 
 	void Panel::RefreshTab()

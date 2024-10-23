@@ -122,18 +122,22 @@ namespace Lina
 		// Number field slider movement.
 		if (m_middlePressed && !m_isEditing && m_props.isNumberField && m_props.valuePtr)
 		{
-			const Vector2 mouse		= m_lgxWindow->GetMousePosition();
-			const float	  perc		= Math::Remap(mouse.x, m_rect.pos.x, m_rect.pos.x + m_rect.size.x, 0.0f, 1.0f);
-			float		  targetVal = Math::Remap(perc, 0.0f, 1.0f, m_props.valueMin, m_props.valueMax);
+			const float step = Math::IsZero(m_props.valueStep) == false ? m_props.valueStep : 1.0f;
+			const float prev = GetValue();
 
-			if (!Math::IsZero(m_props.valueStep))
+			if (!m_props.disableNumberSlider)
 			{
-				const float prev = GetValue();
-				const float diff = targetVal - prev;
-				SetValue(prev + m_props.valueStep * Math::FloorToFloat(diff / m_props.valueStep));
+				const Vector2 mouse		= m_lgxWindow->GetMousePosition();
+				const float	  perc		= Math::Remap(mouse.x, m_rect.pos.x, m_rect.pos.x + m_rect.size.x, 0.0f, 1.0f);
+				float		  targetVal = Math::Remap(perc, 0.0f, 1.0f, m_props.valueMin, m_props.valueMax);
+				const float	  diff		= targetVal - prev;
+				SetValue(prev + step * Math::FloorToFloat(diff / step));
 			}
 			else
-				SetValue(targetVal);
+			{
+				const Vector2 md = m_lgxWindow->GetMouseDelta();
+				SetValue(prev + step * md.x);
+			}
 
 			if (m_props.clampNumber)
 			{

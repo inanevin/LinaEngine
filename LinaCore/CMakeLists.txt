@@ -83,6 +83,7 @@ src/World/ComponentCache.cpp
 src/World/Screen.cpp
 src/World/WorldInput.cpp
 src/World/EntityWorld.cpp
+src/World/Camera.cpp
 
 
 # Physics
@@ -193,6 +194,7 @@ include/Core/World/Screen.hpp
 include/Core/World/WorldInput.hpp
 include/Core/World/EntityWorld.hpp
 include/Core/World/CommonWorld.hpp
+include/Core/World/Camera.hpp
 
 # Physics
 include/Core/Physics/PhysicsWorld.hpp

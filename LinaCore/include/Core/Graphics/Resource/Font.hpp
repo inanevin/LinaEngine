@@ -105,13 +105,19 @@ namespace Lina
 			return m_file;
 		}
 
+		inline bool IsGPUValid() const
+		{
+			return m_hwExists;
+		}
+
 	private:
 		ALLOCATOR_BUCKET_MEM;
 		LINA_REFLECTION_ACCESS(Font);
 
 		Vector<LinaVG::Font*> m_lvgFonts = {};
 		Vector<char>		  m_file;
-		Metadata			  m_meta = {};
+		Metadata			  m_meta	 = {};
+		bool				  m_hwExists = false;
 	};
 
 	LINA_RESOURCE_BEGIN(Font);

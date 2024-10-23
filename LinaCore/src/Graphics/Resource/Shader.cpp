@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Core/Graphics/Pipeline/DescriptorSet.hpp"
 
 #include "Common/FileSystem/FileSystem.hpp"
+#include <LinaGX/Utility/SPIRVUtility.hpp>
 
 namespace Lina
 {
@@ -319,6 +320,14 @@ namespace Lina
 
 		for (auto& [sid, variant] : m_meta.variants)
 		{
+
+			for (auto& [stg, compileData] : variant._compileData)
+			{
+				String fullText = "";
+				LinaGX::SPIRVUtility::GetShaderTextWithIncludes(fullText, compileData.text, compileData.includePath);
+				compileData.text = fullText;
+			}
+
 			success = LinaGX::Instance::CompileShader(variant._compileData, variant._outCompiledBlobs, variant._outLayout);
 
 			if (!success)
@@ -413,6 +422,8 @@ namespace Lina
 
 			variant._outCompiledBlobs.clear();
 		}
+
+		m_hwExists = true;
 	}
 
 	void Shader::DestroyHW()
@@ -425,6 +436,7 @@ namespace Lina
 			var._gpuHandleExists = false;
 			Application::GetLGX()->DestroyShader(var._gpuHandle);
 		}
+		m_hwExists = false;
 	}
 
 } // namespace Lina

@@ -47,6 +47,8 @@ namespace Lina
 	enum class FieldType;
 	class FieldBase;
 	class MetaType;
+	class InputField;
+	class ProjectData;
 } // namespace Lina
 
 namespace LinaGX
@@ -84,14 +86,19 @@ namespace Lina::Editor
 		static Widget* BuildDefaultListItem(Widget* src, void* userData, float margin, const String& icon, const Color& iconColor, const String& title, bool foldNudge);
 		static Widget* BuildTexturedListItem(Widget* src, void* userData, float margin, TextureAtlasImage* txt, const String& title);
 
+		static InputField* BuildFloatField(Widget* src, void* ptr, uint8 bits, bool isInt, bool isUnsigned, bool hasLimits, float minLimit = 0.0f, float maxLimit = 1.0f, float step = 0.1f, bool canSelectThemeValues = false);
+		static Widget*	   BuildTextureField(Widget* src, ProjectData* project, LinaTexture2D* txt, uint32 dependencies, const String& title, bool* foldVal, Delegate<void()> onValueChanged);
+		static Widget*	   BuildResourceField(Widget* src, ResourceID* currentResourceID, TypeID targetType, Delegate<void(ResourceDirectory*)> onSelected);
+
 		static Widget*	   BuildFieldLayout(Widget* src, uint32 dependencies, const String& title, bool isFoldLayout, bool* foldVal = nullptr);
+		static Widget*	   BuildFieldLayoutWithRightSide(Widget* src, uint32 dependencies, const String& title, bool isFoldLayout, bool* foldVal = nullptr, float horizontalSz = 0.5f);
 		static Widget*	   BuildField(Widget* src, const String& title, void* memberVariablePtr, MetaType& metaType, FieldBase* field, FieldType fieldType, Delegate<void(const MetaType& meta, FieldBase* field)> onFieldChanged, int32 vectorElementIndex = -1);
 		static FoldLayout* BuildFoldTitle(Widget* src, const String& title, bool* foldValue);
 		static Widget*	   BuildColorGradSlider(Widget* src, ColorGrad* color, MetaType& meta, FieldBase* field, Delegate<void(const MetaType& meta, FieldBase* field)> onFieldChanged);
 		static void		   BuildClassReflection(Widget* owner, void* obj, MetaType& meta, Delegate<void(const MetaType& meta, FieldBase* field)> onFieldChanged);
 		static void		   RefreshVector(Widget* owningFold, FieldBase* field, void* vectorPtr, MetaType* meta, FieldType subType, int32 elementIndex, Delegate<void(const MetaType& meta, FieldBase* field)> onFieldChanged, bool disallowAddDelete);
 
-		static Widget* ThrowResourceSelector(Widget* src, TypeID reosurceType, Delegate<void(ResourceDirectory*)>&& onSelected);
+		static Widget* ThrowResourceSelector(Widget* src, ResourceID currentResourceID, TypeID resourceType, Delegate<void(ResourceDirectory*)>&& onSelected);
 		static Widget* BuildThumbnailTooltip(void* thumbnailOwner);
 
 	private:

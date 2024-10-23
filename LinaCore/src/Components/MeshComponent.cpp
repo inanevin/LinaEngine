@@ -34,15 +34,5 @@ SOFTWARE.
 
 namespace Lina
 {
-	void MeshComponent::OnEvent(const ComponentEvent& event)
-	{
-		switch (event.type)
-		{
-		case ComponentEventType::Destroy:
-			break;
-		default:
-			break;
-		}
-	}
 
 } // namespace Lina

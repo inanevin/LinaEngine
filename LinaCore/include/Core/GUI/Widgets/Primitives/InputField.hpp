@@ -69,7 +69,7 @@ namespace Lina
 			bool	  clampNumber		  = false;
 			float	  valueMin			  = 0.0f;
 			float	  valueMax			  = 10.0f;
-			float	  valueStep			  = 0.0f;
+			float	  valueStep			  = 0.1f;
 			uint32	  decimals			  = 3;
 			uint8*	  valuePtr			  = nullptr;
 			uint8	  valueBits			  = 32;

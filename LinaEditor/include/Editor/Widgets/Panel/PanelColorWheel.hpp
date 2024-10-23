@@ -52,8 +52,19 @@ namespace Lina::Editor
 			return m_colorWheel;
 		}
 
+		inline void SetRequester(Widget* w)
+		{
+			m_requester = w;
+		}
+
+		inline Widget* GetRequester() const
+		{
+			return m_requester;
+		}
+
 	private:
 		ColorWheelCompound* m_colorWheel = nullptr;
+		Widget*				m_requester	 = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(PanelColorWheel, Hidden)

@@ -47,11 +47,6 @@ namespace Lina
 		ComponentCacheBase()		  = default;
 		virtual ~ComponentCacheBase() = default;
 
-		virtual void PlayBegin()													  = 0;
-		virtual void PlayEnd()														  = 0;
-		virtual void PreTick(uint32 flags)											  = 0;
-		virtual void Tick(float delta, uint32 flags)								  = 0;
-		virtual void PostTick(float delta, uint32 flags)							  = 0;
 		virtual void LoadFromStream(IStream& stream, const Vector<Entity*>& entities) = 0;
 		virtual void SaveToStream(OStream& stream)									  = 0;
 		virtual void Destroy(Entity* e)												  = 0;
@@ -68,49 +63,6 @@ namespace Lina
 
 		virtual ~ComponentCache()
 		{
-		}
-
-		virtual void PlayBegin() override
-		{
-			m_componentBucket.View([](T* comp, uint32 index) -> bool {
-				comp->OnEvent({.type = ComponentEventType::PlayBegin});
-				return false;
-			});
-		}
-
-		virtual void PlayEnd() override
-		{
-			m_componentBucket.View([](T* comp, uint32 index) -> bool {
-				comp->OnEvent({.type = ComponentEventType::PlayEnd});
-				return false;
-			});
-		}
-
-		virtual void PreTick(uint32 flags) override
-		{
-			m_componentBucket.View([flags](T* comp, uint32 index) -> bool {
-				if (comp->GetFlags().IsSet(flags))
-					comp->OnEvent({.type = ComponentEventType::PreTick});
-				return false;
-			});
-		}
-
-		virtual void Tick(float delta, uint32 flags) override
-		{
-			m_componentBucket.View([delta, flags](T* comp, uint32 index) -> bool {
-				if (comp->GetFlags().IsSet(flags))
-					comp->OnEvent({.type = ComponentEventType::Tick, .data = delta});
-				return false;
-			});
-		}
-
-		virtual void PostTick(float delta, uint32 flags) override
-		{
-			m_componentBucket.View([delta, flags](T* comp, uint32 index) -> bool {
-				if (comp->GetFlags().IsSet(flags))
-					comp->OnEvent({.type = ComponentEventType::PostTick, .data = delta});
-				return false;
-			});
 		}
 
 		inline T* Create()

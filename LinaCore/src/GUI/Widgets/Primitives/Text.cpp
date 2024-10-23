@@ -27,7 +27,6 @@ SOFTWARE.
 */
 
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
-#include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Common/System/SystemInfo.hpp"
 #include "Common/Math/Math.hpp"

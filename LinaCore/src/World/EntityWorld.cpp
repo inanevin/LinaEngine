@@ -64,6 +64,35 @@ namespace Lina
 		}
 	}
 
+	void EntityWorld::BeginPlay()
+	{
+		for (auto [tid, cache] : m_componentCaches)
+		{
+			cache->ForEach([](Component* c) { c->OnBeginPlay(); });
+		}
+	}
+
+	void EntityWorld::EndPlay()
+	{
+		for (auto [tid, cache] : m_componentCaches)
+		{
+			cache->ForEach([](Component* c) { c->OnEndPlay(); });
+		}
+	}
+
+	void EntityWorld::TickPlay(float deltaTime)
+	{
+		for (auto [tid, cache] : m_componentCaches)
+		{
+			cache->ForEach([deltaTime](Component* c) { c->OnTick(deltaTime); });
+		}
+
+		for (auto [tid, cache] : m_componentCaches)
+		{
+			cache->ForEach([deltaTime](Component* c) { c->OnPostTick(deltaTime); });
+		}
+	}
+
 	Entity* EntityWorld::CreateEntity(const String& name)
 	{
 		const uint32 id = m_entityBucket.GetActiveItemCount();
@@ -205,17 +234,14 @@ namespace Lina
 	{
 		c->m_world	= this;
 		c->m_entity = e;
-		c->OnEvent({.type = ComponentEventType::Create});
+		c->OnCreate();
 		for (auto* l : m_listeners)
 			l->OnComponentAdded(c);
 	}
 
 	void EntityWorld::OnDestroyComponent(Component* c, Entity* e)
 	{
-		if (c == m_activeCamera)
-			m_activeCamera = nullptr;
-
-		c->OnEvent({.type = ComponentEventType::Destroy});
+		c->OnDestroy();
 		for (auto* l : m_listeners)
 			l->OnComponentRemoved(c);
 	}
@@ -306,5 +332,6 @@ namespace Lina
 			}
 			return false;
 		});
+		m_resourceManagerV2.LoadResourcesFromProject(project, materialDependencies, [](uint32 loaded, Resource* current) {});
 	}
 } // namespace Lina

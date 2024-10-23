@@ -83,8 +83,9 @@ struct LinaMaterial
 void LINA_FRAG_FUNC(in LinaFragInput inFrag, out LinaFragOutput outFrag)
 {
    LinaMaterial material = LINA_GET_MATERIAL(inFrag.materialID);
-   outFrag.color = LINA_SAMPLE_TEXTURE(material.txtAlbedo, inFrag.uv) * material.color;
-   outFrag.normal = LINA_SAMPLE_TEXTURE(material.txtNormal, inFrag.uv).rgb;
+   vec2 uv = inFrag.uv * material.tilingAndOffset.xy + material.tilingAndOffset.zw;
+   outFrag.color = LINA_SAMPLE_TEXTURE(material.txtAlbedo, uv) * material.color;
+   outFrag.normal = LINA_SAMPLE_TEXTURE(material.txtNormal, uv).rgb;
    outFrag.isUnlit = 0;
 }
 

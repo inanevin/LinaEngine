@@ -148,7 +148,7 @@ namespace Lina::Editor
 		btnLoad->SetAlignedPosY(0.5f);
 		btnLoad->SetAnchorY(Anchor::Center);
 		btnLoad->SetAlignedSizeY(1.0f);
-		btnLoad->GetProps().onClicked = [this]() { CommonWidgets::ThrowResourceSelector(this, GetTypeID<GUIWidget>(), [this](ResourceDirectory* dir) { CheckSaveCurrent([this, dir]() { OpenWidget(dir->resourceID); }); }); };
+		btnLoad->GetProps().onClicked = [this]() { CommonWidgets::ThrowResourceSelector(this, 0, GetTypeID<GUIWidget>(), [this](ResourceDirectory* dir) { CheckSaveCurrent([this, dir]() { OpenWidget(dir->resourceID); }); }); };
 		buttons->AddChild(btnLoad);
 
 		Button* btnSave = WidgetUtility::BuildIconTextButton(this, ICON_SAVE, Locale::GetStr(LocaleStr::Save));

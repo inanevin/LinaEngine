@@ -29,9 +29,10 @@ SOFTWARE.
 #pragma once
 
 #include "Core/Resources/Resource.hpp"
-#include "ComponentCache.hpp"
-#include "Screen.hpp"
-#include "WorldInput.hpp"
+#include "Core/World/ComponentCache.hpp"
+#include "Core/World/Screen.hpp"
+#include "Core/World/Camera.hpp"
+#include "Core/World/WorldInput.hpp"
 #include "Common/Memory/MemoryAllocatorPool.hpp"
 #include "Common/ObjectWrapper.hpp"
 #include "Core/Physics/PhysicsWorld.hpp"
@@ -91,6 +92,10 @@ namespace Lina
 		Entity*		 AddModelToWorld(Model* model, const Vector<ResourceID>& materials);
 		void		 CollectResourceNeeds(HashSet<ResourceID>& outResources);
 		void		 LoadMissingResources(ProjectData* project, const HashSet<ResourceID>& extraResources);
+
+		void BeginPlay();
+		void EndPlay();
+		void TickPlay(float deltaTime);
 
 		template <typename T> T* GetComponent(Entity* e)
 		{
@@ -194,14 +199,9 @@ namespace Lina
 			return m_entityGUIDCounter++;
 		}
 
-		inline void SetActiveCamera(CameraComponent* comp)
+		inline Camera& GetWorldCamera()
 		{
-			m_activeCamera = comp;
-		}
-
-		inline CameraComponent* GetActiveCamera()
-		{
-			return m_activeCamera;
+			return m_camera;
 		}
 
 	private:
@@ -212,7 +212,6 @@ namespace Lina
 	private:
 		ALLOCATOR_BUCKET_MEM;
 
-		CameraComponent*					 m_activeCamera = nullptr;
 		AllocatorBucket<Entity, 1000>		 m_entityBucket;
 		HashMap<TypeID, ComponentCacheBase*> m_componentCaches;
 		EntityID							 m_entityGUIDCounter = 1;
@@ -223,6 +222,7 @@ namespace Lina
 		GfxSettings							 m_gfxSettings;
 		Screen								 m_screen = {};
 		WorldInput							 m_worldInput;
+		Camera								 m_camera = {};
 	};
 
 	LINA_RESOURCE_BEGIN(EntityWorld)

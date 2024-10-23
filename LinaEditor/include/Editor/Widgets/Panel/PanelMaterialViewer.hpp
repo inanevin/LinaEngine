@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Editor/Widgets/Panel/PanelResourceViewer.hpp"
+#include "Editor/World/EditorCamera.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
 
@@ -52,26 +53,36 @@ namespace Lina::Editor
 		virtual void Construct() override;
 		virtual void Destruct() override;
 		virtual void Initialize() override;
+		virtual void Tick(float dt) override;
 
 	protected:
 		virtual void OnGeneralMetaChanged(const MetaType& meta, FieldBase* field) override;
 		virtual void OnResourceMetaChanged(const MetaType& meta, FieldBase* field) override;
+		virtual void OnResourceFoldBuilt() override;
+		virtual void OnResourceVerified() override;
 		virtual void RegenHW() override;
 
 	private:
-		void UpdateMaterialProps();
+		void SetupWorld();
+		void RefreshMaterialInWorld();
 
 	private:
 		LINA_REFLECTION_ACCESS(PanelMaterialViewer);
 
-		String			m_materialName	 = "";
-		WorldDisplayer* m_worldDisplayer = nullptr;
-		EntityWorld*	m_world			 = nullptr;
-		WorldRenderer*	m_worldRenderer	 = nullptr;
+		String			m_materialName	  = "";
+		WorldDisplayer* m_worldDisplayer  = nullptr;
+		EntityWorld*	m_world			  = nullptr;
+		WorldRenderer*	m_worldRenderer	  = nullptr;
+		String			m_shaderType	  = "";
+		EditorCamera	m_editorCamera	  = {};
+		Material*		m_materialInWorld = nullptr;
+		Vector<uint32>	m_propertyFoldValues;
+		ResourceID		m_storedShaderID = 0;
 	};
 
 	LINA_WIDGET_BEGIN(PanelMaterialViewer, Hidden)
 	LINA_FIELD(PanelMaterialViewer, m_materialName, "Name", FieldType::StringFixed, 0)
+	LINA_FIELD(PanelMaterialViewer, m_shaderType, "Shader Type", FieldType::StringFixed, 0)
 	LINA_CLASS_END(PanelMaterialViewer)
 
 } // namespace Lina::Editor
