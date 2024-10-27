@@ -159,38 +159,6 @@ namespace Lina
 		}
 	}
 
-	Resource* ResourceManagerV2::OpenResource(ProjectData* project, TypeID typeID, ResourceID resourceID, void* subdata)
-	{
-		const String path = project->GetResourcePath(resourceID);
-		if (!FileSystem::FileOrPathExists(path))
-			return nullptr;
-
-		ResourceCacheBase* cache = GetCache(typeID);
-		Resource*		   res	 = cache->Create(resourceID, "");
-		res->SetSubdata(subdata);
-		IStream stream = Serialization::LoadFromFile(path.c_str());
-
-		if (stream.Empty())
-		{
-			cache->Destroy(resourceID);
-			LINA_ERR("Failed opening resource. {0}", resourceID);
-			return nullptr;
-		}
-
-		res->LoadFromStream(stream);
-		stream.Destroy();
-		return res;
-	}
-
-	void ResourceManagerV2::CloseResource(ProjectData* project, Resource* res, bool save)
-	{
-		ResourceCacheBase* cache = GetCache(res->GetTID());
-		if (save)
-			res->SaveToFileAsBinary(project->GetResourcePath(res->GetID()).c_str());
-
-		cache->Destroy(res->GetID());
-	}
-
 	ResourceCacheBase* ResourceManagerV2::GetCache(TypeID tid)
 	{
 		auto			   it	 = m_caches.find(tid);
@@ -206,11 +174,6 @@ namespace Lina
 			cache = it->second;
 
 		return cache;
-	}
-
-	void ResourceManagerV2::SaveResource(ProjectData* project, Resource* res)
-	{
-		res->SaveToFileAsBinary(project->GetResourcePath(res->GetID()).c_str());
 	}
 
 } // namespace Lina

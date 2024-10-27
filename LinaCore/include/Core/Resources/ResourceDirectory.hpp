@@ -51,8 +51,9 @@ namespace Lina
 		ResourceID				   resourceID				   = 0;
 		TypeID					   resourceTID				   = 0;
 		Vector<ResourceDirectory*> children;
-		ResourceDirectory*		   parent		= nullptr;
-		ResourceType			   resourceType = ResourceType::ExternalSource;
+		ResourceDirectory*		   parent		   = nullptr;
+		ResourceType			   resourceType	   = ResourceType::ExternalSource;
+		StringID				   lastModifiedSID = 0;
 
 		void SaveToStream(OStream& stream);
 		void LoadFromStream(IStream& stream);

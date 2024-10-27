@@ -53,6 +53,7 @@ SOFTWARE.
 #include "Core/Physics/PhysicsMaterial.hpp"
 #include "Core/Platform/PlatformProcess.hpp"
 #include "Core/Application.hpp"
+#include "Common/Serialization/Serialization.hpp"
 
 namespace Lina::Editor
 {
@@ -235,15 +236,20 @@ namespace Lina::Editor
 		ResourceDirectory& root = currentProject->GetResourceRoot();
 		ResourceDirectory* lina = root.GetChildByName(EDITOR_DEF_RESOURCES_FOLDER);
 
-		bool renameDisabled	   = false;
-		bool createDisabled	   = false;
-		bool deleteDisabled	   = false;
-		bool duplicateDisabled = false;
-		bool favDisabled	   = false;
-		bool alreadyInFav	   = false;
-		bool importDisabled	   = false;
+		bool renameDisabled		 = false;
+		bool createDisabled		 = false;
+		bool deleteDisabled		 = false;
+		bool duplicateDisabled	 = false;
+		bool favDisabled		 = false;
+		bool alreadyInFav		 = false;
+		bool importDisabled		 = false;
+		bool reimportAllDisabled = false;
 
 		Vector<ResourceDirectory*> selection = m_controller->GetSelectedUserData<ResourceDirectory>();
+
+		if (selection.empty() || selection.size() != 1 || !selection.front()->isFolder)
+			reimportAllDisabled = true;
+
 		if (CheckIfContainsEngineResource(selection))
 		{
 			renameDisabled	  = true;
@@ -296,6 +302,13 @@ namespace Lina::Editor
 				.text		 = Locale::GetStr(LocaleStr::Import),
 				.hasDropdown = false,
 				.isDisabled	 = importDisabled,
+				.userData	 = userData,
+			});
+
+			outData.push_back(FileMenuItem::Data{
+				.text		 = Locale::GetStr(LocaleStr::ReimportChangedFiles),
+				.hasDropdown = false,
+				.isDisabled	 = reimportAllDisabled,
 				.userData	 = userData,
 			});
 
@@ -389,6 +402,12 @@ namespace Lina::Editor
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Duplicate)))
 		{
 			RequestDuplicate(roots);
+			return true;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::ReimportChangedFiles)))
+		{
+			m_editor->GetProjectManager().ReimportChangedSources(selection.front());
 			return true;
 		}
 
@@ -540,9 +559,21 @@ namespace Lina::Editor
 			dir->name = str;
 			text->GetWidgetManager()->AddToKillList(inp);
 			dir->parent->SortChildren();
-			Resource* res = m_editor->GetResourceManagerV2().OpenResource(m_editor->GetProjectManager().GetProjectData(), dir->resourceTID, dir->resourceID, nullptr);
-			res->SetName(dir->name);
-			m_editor->GetResourceManagerV2().CloseResource(m_editor->GetProjectManager().GetProjectData(), res, true);
+
+			// Open, modify, close resource.
+			MetaType&	 meta	 = ReflectionSystem::Get().Resolve(dir->resourceTID);
+			Resource*	 res	 = static_cast<Resource*>(meta.GetFunction<void*()>("Allocate"_hs)());
+			const String resPath = m_editor->GetProjectManager().GetProjectData()->GetResourcePath(dir->resourceID);
+			IStream		 stream	 = Serialization::LoadFromFile(resPath.c_str());
+			if (!stream.Empty())
+			{
+				res->LoadFromStream(stream);
+				res->SetName(dir->name);
+				res->SaveToFileAsBinary(resPath);
+			}
+			stream.Destroy();
+			meta.GetFunction<void(void*)>("Deallocate"_hs)(res);
+
 			RefreshDirectory();
 			m_editor->GetProjectManager().SaveProjectChanges();
 		};

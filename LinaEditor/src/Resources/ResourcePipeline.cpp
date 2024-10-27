@@ -141,22 +141,24 @@ namespace Lina::Editor
 		const String	 path = project->GetResourcePath(id);
 
 		ResourceDirectory* newCreated = src->CreateChild({
-			.name		  = name,
-			.isFolder	  = false,
-			.resourceID	  = id,
-			.resourceTID  = tid,
-			.resourceType = ResourceType::EngineCreated,
+			.name			 = name,
+			.isFolder		 = false,
+			.resourceID		 = id,
+			.resourceTID	 = tid,
+			.resourceType	 = ResourceType::EngineCreated,
+			.lastModifiedSID = 0,
 		});
 
 		LinaGX::TextureBuffer thumb = {};
 
-		if (tid == GetTypeID<GUIWidget>())
-		{
-			GUIWidget w(id, name);
-			w.GetRoot().GetWidgetProps().debugName = "Root";
-			w.SaveToFileAsBinary(path);
-		}
-		else if (tid == GetTypeID<Material>())
+		auto saveDefault = [&]() {
+			MetaType& meta = ReflectionSystem::Get().Resolve(tid);
+			Resource* res  = static_cast<Resource*>(meta.GetFunction<void*()>("Allocate"_hs)());
+			res->SaveToFileAsBinary(path);
+			meta.GetFunction<void(void*)>("Deallocate"_hs)(res);
+		};
+
+		if (tid == GetTypeID<Material>())
 		{
 			Material		 mat(id, name);
 			const ResourceID targetShader = subType == 0 ? EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_ID : subType;
@@ -180,16 +182,6 @@ namespace Lina::Editor
 
 			mat.SaveToFileAsBinary(path);
 			shaderStream.Destroy();
-		}
-		else if (tid == GetTypeID<EntityWorld>())
-		{
-			EntityWorld world(id, name);
-			world.SaveToFileAsBinary(path);
-		}
-		else if (tid == GetTypeID<TextureSampler>())
-		{
-			TextureSampler sampler(id, name);
-			sampler.SaveToFileAsBinary(path);
 		}
 		else if (tid == GetTypeID<Shader>())
 		{
@@ -238,11 +230,8 @@ namespace Lina::Editor
 			shader.SaveToFileAsBinary(path);
 			newCreated->name = shader.GetName();
 		}
-		else if (tid == GetTypeID<PhysicsMaterial>())
-		{
-			PhysicsMaterial mat(id, name);
-			mat.SaveToFileAsBinary(path);
-		}
+		else
+			saveDefault();
 
 		return newCreated;
 	}
@@ -294,9 +283,23 @@ namespace Lina::Editor
 					.resourceID					 = id,
 					.resourceTID				 = resourceTID,
 					.resourceType				 = ResourceType::ExternalSource,
+					.lastModifiedSID			 = TO_SID(FileSystem::GetLastModifiedDate(def.path)),
 				});
 
 				createdDirs.push_back(dir);
+			};
+
+			auto loadDefault = [&]() {
+				MetaType& meta = ReflectionSystem::Get().Resolve(resourceTID);
+				Resource* res  = static_cast<Resource*>(meta.GetFunction<void*()>("Allocate"_hs)());
+				if (res->LoadFromFile(def.path))
+				{
+					res->SetID(def.id == 0 ? projectData->ConsumeResourceID() : def.id);
+					res->SetPath(def.path);
+					res->SaveToFileAsBinary(projectData->GetResourcePath(res->GetID()));
+					createDirectory(res->GetID());
+				}
+				meta.GetFunction<void(void*)>("Deallocate"_hs)(res);
 			};
 
 			if (resourceTID == GetTypeID<Shader>())
@@ -321,39 +324,6 @@ namespace Lina::Editor
 				shader.SetPath(def.path);
 				shader.SaveToFileAsBinary(projectData->GetResourcePath(shader.GetID()));
 				createDirectory(shader.GetID());
-			}
-			else if (resourceTID == GetTypeID<Texture>())
-			{
-				Texture txt(0, name);
-				if (!txt.LoadFromFile(def.path))
-					continue;
-
-				txt.SetID(def.id == 0 ? projectData->ConsumeResourceID() : def.id);
-				txt.SetPath(def.path);
-				txt.SaveToFileAsBinary(projectData->GetResourcePath(txt.GetID()));
-				createDirectory(txt.GetID());
-			}
-			else if (resourceTID == GetTypeID<Font>())
-			{
-				Font font(0, name);
-				if (!font.LoadFromFile(def.path))
-					continue;
-
-				font.SetID(def.id == 0 ? projectData->ConsumeResourceID() : def.id);
-				font.SetPath(def.path);
-				font.SaveToFileAsBinary(projectData->GetResourcePath(font.GetID()));
-				createDirectory(font.GetID());
-			}
-			else if (resourceTID == GetTypeID<Audio>())
-			{
-				Audio aud(0, name);
-				if (aud.LoadFromFile(def.path))
-					continue;
-
-				aud.SetID(def.id == 0 ? projectData->ConsumeResourceID() : def.id);
-				aud.SetPath(def.path);
-				aud.SaveToFileAsBinary(projectData->GetResourcePath(aud.GetID()));
-				createDirectory(aud.GetID());
 			}
 			else if (resourceTID == GetTypeID<Model>())
 			{
@@ -488,6 +458,10 @@ namespace Lina::Editor
 				model.SaveToFileAsBinary(projectData->GetResourcePath(model.GetID()));
 				model.DestroyTextureDefs();
 			}
+			else
+			{
+				loadDefault();
+			}
 		}
 
 		if (defaultShader)
@@ -514,9 +488,19 @@ namespace Lina::Editor
 			dup->resourceID				= newID;
 			FileSystem::ChangeDirectoryName(duplicated, projectData->GetResourcePath(newID));
 
-			Resource* res = static_cast<Resource*>(resourceManager->OpenResource(projectData, directory->resourceTID, newID, nullptr));
-			res->SetID(newID);
-			resourceManager->CloseResource(projectData, res, true);
+			MetaType& refMeta = ReflectionSystem::Get().Resolve(directory->resourceTID);
+
+			Resource* res	 = static_cast<Resource*>(refMeta.GetFunction<void*()>("Allocate"_hs)());
+			IStream	  stream = Serialization::LoadFromFile(projectData->GetResourcePath(newID).c_str());
+			if (!stream.Empty())
+			{
+				res->LoadFromStream(stream);
+				res->SetID(newID);
+				res->SaveToFileAsBinary(projectData->GetResourcePath(newID));
+			}
+			refMeta.GetFunction<void(void* ptr)>("Deallocate"_hs)(res);
+
+			stream.Destroy();
 			projectManager.AddToThumbnailQueue(dup->resourceID);
 		}
 

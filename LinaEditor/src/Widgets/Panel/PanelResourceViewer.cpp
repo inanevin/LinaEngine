@@ -282,7 +282,7 @@ namespace Lina::Editor
 		m_editor->AddTask(
 			[this, dir]() {
 				// Save resource
-				m_resourceManager->SaveResource(m_editor->GetProjectManager().GetProjectData(), m_resource);
+				m_resource->SaveToFileAsBinary(m_editor->GetProjectManager().GetProjectData()->GetResourcePath(m_resource->GetID()));
 
 				// Save project
 				m_editor->GetProjectManager().SaveProjectChanges();

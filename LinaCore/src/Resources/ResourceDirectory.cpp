@@ -45,6 +45,7 @@ namespace Lina
 		stream << resourceID;
 		stream << resourceTID;
 		stream << resourceType;
+		stream << lastModifiedSID;
 		stream << children;
 	}
 
@@ -58,6 +59,7 @@ namespace Lina
 		stream >> resourceID;
 		stream >> resourceTID;
 		stream >> resourceType;
+		stream >> lastModifiedSID;
 		stream >> children;
 		for (ResourceDirectory* c : children)
 			c->parent = this;

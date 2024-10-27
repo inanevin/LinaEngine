@@ -121,6 +121,7 @@ namespace Lina::Editor
 		{LocaleStr::WidgetEditor, "Widget Editor"},
 		{LocaleStr::Import, "Import"},
 		{LocaleStr::ReImport, "Reimport"},
+		{LocaleStr::ReimportChangedFiles, "Reimport Modified Sources"},
 		{LocaleStr::Revert, "Revert"},
 		{LocaleStr::Reverting, "Reverting..."},
 		{LocaleStr::Reimporting, "Reimporting..."},

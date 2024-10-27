@@ -54,15 +54,6 @@ namespace Lina
 
 		void Shutdown();
 
-		Resource* OpenResource(ProjectData* project, TypeID typeID, ResourceID resourceID, void* subdata);
-		void	  CloseResource(ProjectData* project, Resource* res, bool save);
-		void	  SaveResource(ProjectData* project, Resource* res);
-
-		template <typename T> T* OpenResource(ProjectData* project, ResourceID id, void* subdata)
-		{
-			return static_cast<T*>(OpenResource(project, GetTypeID<T>(), id, subdata));
-		}
-
 		template <typename T> ResourceCache<T>* GetCache()
 		{
 			const TypeID tid = GetTypeID<T>();

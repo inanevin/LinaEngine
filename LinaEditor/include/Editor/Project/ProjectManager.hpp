@@ -81,6 +81,7 @@ namespace Lina::Editor
 		TextureAtlasImage* GetThumbnail(ResourceDirectory* dir);
 		void			   InvalidateThumbnail(ResourceDirectory* dir);
 		void			   AddToThumbnailQueue(ResourceID id);
+		void			   ReimportChangedSources(ResourceDirectory* root);
 
 	private:
 		void OnPressedOpenProject();

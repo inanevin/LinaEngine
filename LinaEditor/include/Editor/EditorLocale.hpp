@@ -124,6 +124,7 @@ namespace Lina::Editor
 		WidgetEditor,
 		Import,
 		ReImport,
+		ReimportChangedFiles,
 		Revert,
 		Reverting,
 		Reimporting,

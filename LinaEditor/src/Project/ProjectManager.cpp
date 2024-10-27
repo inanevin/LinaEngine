@@ -551,4 +551,36 @@ namespace Lina::Editor
 		}
 	}
 
+	void ProjectManager::ReimportChangedSources(ResourceDirectory* root)
+	{
+		m_editor->AddTask(
+			[]() {
+
+			},
+			[]() {
+
+			});
+
+		for (ResourceDirectory* c : root->children)
+		{
+			if (c->isFolder)
+				continue;
+
+			if (c->resourceType != ResourceType::ExternalSource)
+				continue;
+
+			const String path = FileSystem::GetFilePath(m_currentProject->GetPath()) + c->sourcePathRelativeToProject;
+
+			if (!FileSystem::FileOrPathExists(path))
+				continue;
+
+			const StringID lastModifiedSID = TO_SID(FileSystem::GetLastModifiedDate(path));
+
+			if (lastModifiedSID == c->lastModifiedSID)
+				continue;
+
+			c->lastModifiedSID = lastModifiedSID;
+		}
+	}
+
 } // namespace Lina::Editor

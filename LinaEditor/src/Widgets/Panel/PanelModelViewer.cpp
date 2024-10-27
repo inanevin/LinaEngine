@@ -241,7 +241,7 @@ namespace Lina::Editor
 		save->GetProps().onClicked = [this]() {
 			if (m_containsRuntimeChanges)
 			{
-				m_resourceManager->SaveResource(m_editor->GetProjectManager().GetProjectData(), m_model);
+				m_model->SaveToFileAsBinary(m_editor->GetProjectManager().GetProjectData()->GetResourcePath(m_model->GetID()));
 				// m_editor->GetResourcePipeline().GenerateThumbnailForResource(m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResourceDirectory(m_model->GetID()), m_model, true);
 				Panel* p = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::ResourceBrowser, 0);
 				if (p)
