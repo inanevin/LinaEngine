@@ -130,6 +130,7 @@ namespace Lina::Editor
 #define EDITOR_MODEL_SKYCUBE_PATH	"Resources/Editor/Models/SkyCube.glb"
 #define EDITOR_MODEL_PLANE_PATH		"Resources/Editor/Models/Plane.glb"
 #define EDITOR_MODEL_SKYSPHERE_PATH "Resources/Editor/Models/SkySphere.glb"
+#define EDITOR_MODEL_CAPSULE_PATH	"Resources/Editor/Models/Capsule.glb"
 
 #define EDITOR_MODEL_CUBE_ID	  RESOURCE_ID_EDITOR_MODELS
 #define EDITOR_MODEL_CYLINDER_ID  RESOURCE_ID_EDITOR_MODELS + 1
@@ -137,6 +138,7 @@ namespace Lina::Editor
 #define EDITOR_MODEL_SKYCUBE_ID	  RESOURCE_ID_EDITOR_MODELS + 3
 #define EDITOR_MODEL_PLANE_ID	  RESOURCE_ID_EDITOR_MODELS + 4
 #define EDITOR_MODEL_SKYSPHERE_ID RESOURCE_ID_EDITOR_MODELS + 5
+#define EDITOR_MODEL_CAPSULE_ID	  RESOURCE_ID_EDITOR_MODELS + 6
 
 // Icons
 #define ICON_LINA_LOGO			 "\u0041"

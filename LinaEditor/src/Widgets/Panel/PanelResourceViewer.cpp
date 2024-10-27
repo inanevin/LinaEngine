@@ -41,6 +41,7 @@ SOFTWARE.
 #include "Core/Resources/Resource.hpp"
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
 #include "Core/Application.hpp"
+#include "Common/FileSystem/FileSystem.hpp"
 
 namespace Lina::Editor
 {
@@ -304,10 +305,16 @@ namespace Lina::Editor
 
 		m_editor->AddTask(
 			[this]() {
-				if (m_resource->GetPath().empty())
-					m_resource->LoadFromFile(m_editor->GetProjectManager().GetProjectData()->GetResourcePath(m_resource->GetID()));
+				ResourceDirectory* dir = m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResourceDirectory(m_resource->GetID());
+
+				if (dir->resourceType == ResourceType::ExternalSource)
+				{
+					const String path = FileSystem::GetFilePath(m_editor->GetProjectManager().GetProjectData()->GetPath()) + dir->sourcePathRelativeToProject;
+					if (FileSystem::FileOrPathExists(path))
+						m_resource->LoadFromFile(path);
+				}
 				else
-					m_resource->LoadFromFile(m_resource->GetPath());
+					m_resource->LoadFromFile(m_editor->GetProjectManager().GetProjectData()->GetResourcePath(m_resource->GetID()));
 			},
 			[this]() {
 				Application::GetLGX()->Join();

@@ -39,11 +39,12 @@ namespace Lina
 	void ResourceDirectory::SaveToStream(OStream& stream)
 	{
 		stream << VERSION;
-		stream << relativePathToProject;
+		stream << sourcePathRelativeToProject;
 		stream << name;
 		stream << isFolder;
 		stream << resourceID;
 		stream << resourceTID;
+		stream << resourceType;
 		stream << children;
 	}
 
@@ -51,11 +52,12 @@ namespace Lina
 	{
 		uint32 ver = 0;
 		stream >> ver;
-		stream >> relativePathToProject;
+		stream >> sourcePathRelativeToProject;
 		stream >> name;
 		stream >> isFolder;
 		stream >> resourceID;
 		stream >> resourceTID;
+		stream >> resourceType;
 		stream >> children;
 		for (ResourceDirectory* c : children)
 			c->parent = this;

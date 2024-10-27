@@ -48,6 +48,7 @@ SOFTWARE.
 #include "Core/Components/FlyCameraMovement.hpp"
 #include "Core/Components/CameraComponent.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
+#include "Editor/Resources/ResourcePipeline.hpp"
 
 namespace Lina::Editor
 {
@@ -89,6 +90,7 @@ namespace Lina::Editor
 					EDITOR_MODEL_SPHERE_ID,
 					EDITOR_MODEL_PLANE_ID,
 					EDITOR_MODEL_CYLINDER_ID,
+					EDITOR_MODEL_CAPSULE_ID,
 					m_resource->GetID(),
 				};
 
@@ -108,9 +110,12 @@ namespace Lina::Editor
 
 	void PanelMaterialViewer::SetupWorld()
 	{
-		Material* mat	  = static_cast<Material*>(m_resource);
-		m_materialInWorld = m_world->GetResourceManagerV2().GetResource<Material>(m_resource->GetID());
+		if (m_displayEntity != nullptr)
+			m_world->DestroyEntity(m_displayEntity);
+		m_displayEntity = nullptr;
 
+		Material* mat				= static_cast<Material*>(m_resource);
+		m_materialInWorld			= m_world->GetResourceManagerV2().GetResource<Material>(m_resource->GetID());
 		const ShaderType shaderType = mat->GetShaderType();
 
 		if (shaderType == ShaderType::Sky)
@@ -119,11 +124,21 @@ namespace Lina::Editor
 		}
 		else
 		{
-			Material* defaultSky = m_world->GetResourceManagerV2().GetResource<Material>(EDITOR_MATERIAL_DEFAULT_SKY_ID);
+			Material* defaultSky				  = m_world->GetResourceManagerV2().GetResource<Material>(EDITOR_MATERIAL_DEFAULT_SKY_ID);
+			m_world->GetGfxSettings().skyMaterial = defaultSky->GetID();
 			defaultSky->SetProperty("topColor"_hs, Color::Color255(238, 242, 243, 255));
 			defaultSky->SetProperty("groundColor"_hs, Color::Color255(142, 158, 171, 255));
 
-			Entity* cube = m_world->AddModelToWorld(m_world->GetResourceManagerV2().GetResource<Model>(EDITOR_MODEL_CUBE_ID), {m_resource->GetID()});
+			if (m_displayType == MaterialViewerDisplayType::Cube)
+				m_displayEntity = m_world->AddModelToWorld(m_world->GetResourceManagerV2().GetResource<Model>(EDITOR_MODEL_CUBE_ID), {m_resource->GetID()});
+			else if (m_displayType == MaterialViewerDisplayType::Sphere)
+				m_displayEntity = m_world->AddModelToWorld(m_world->GetResourceManagerV2().GetResource<Model>(EDITOR_MODEL_SPHERE_ID), {m_resource->GetID()});
+			if (m_displayType == MaterialViewerDisplayType::Cylinder)
+				m_displayEntity = m_world->AddModelToWorld(m_world->GetResourceManagerV2().GetResource<Model>(EDITOR_MODEL_CYLINDER_ID), {m_resource->GetID()});
+			if (m_displayType == MaterialViewerDisplayType::Capsule)
+				m_displayEntity = m_world->AddModelToWorld(m_world->GetResourceManagerV2().GetResource<Model>(EDITOR_MODEL_CAPSULE_ID), {m_resource->GetID()});
+			if (m_displayType == MaterialViewerDisplayType::Plane)
+				m_displayEntity = m_world->AddModelToWorld(m_world->GetResourceManagerV2().GetResource<Model>(EDITOR_MODEL_PLANE_ID), {m_resource->GetID()});
 		}
 	}
 
@@ -143,7 +158,6 @@ namespace Lina::Editor
 
 	void PanelMaterialViewer::RefreshMaterialInWorld()
 	{
-
 		Material* mat = static_cast<Material*>(m_resource);
 
 		const Vector<MaterialProperty*> propsInResource = mat->GetProperties();
@@ -166,19 +180,25 @@ namespace Lina::Editor
 		Material* mat	 = static_cast<Material*>(m_resource);
 		m_materialName	 = m_resource->GetName();
 		m_storedShaderID = mat->GetShader();
+		m_shaderType	 = mat->GetShaderType();
 
 		if (mat->GetShaderType() == ShaderType::OpaqueSurface)
-			m_shaderType = "Opaque Surface";
+			m_shaderTypeStr = "Opaque Surface";
 		else if (mat->GetShaderType() == ShaderType::TransparentSurface)
-			m_shaderType = "Transparent Surface";
+			m_shaderTypeStr = "Transparent Surface";
 		else if (mat->GetShaderType() == ShaderType::Sky)
-			m_shaderType = "Sky";
+			m_shaderTypeStr = "Sky";
 		else if (mat->GetShaderType() == ShaderType::Lighting)
-			m_shaderType = "Lighting";
+			m_shaderTypeStr = "Lighting";
 		else
-			m_shaderType = "Custom";
+			m_shaderTypeStr = "Custom";
 
 		m_propertyFoldValues.resize(mat->GetProperties().size());
+	}
+
+	void PanelMaterialViewer::OnGeneralFoldBuilt()
+	{
+		m_foldGeneral->FindChildWithDebugName("Display Type")->SetIsDisabled(m_shaderType == ShaderType::Sky);
 	}
 
 	void PanelMaterialViewer::OnResourceFoldBuilt()
@@ -307,13 +327,14 @@ namespace Lina::Editor
 			}
 			else if (p->propDef.type == ShaderPropertyType::Texture2D)
 			{
-				LinaTexture2D* txt		= reinterpret_cast<LinaTexture2D*>(p->data.data());
-				Widget*		   txtField = CommonWidgets::BuildTextureField(this, m_editor->GetProjectManager().GetProjectData(), txt, 0, p->propDef.name, reinterpret_cast<bool*>(&m_propertyFoldValues[i]), [this]() {
-					   RefreshMaterialInWorld();
-					   m_world->LoadMissingResources(m_editor->GetProjectManager().GetProjectData(), {});
-					   m_worldRenderer->VerifyResourcesHW();
-					   SetRuntimeDirty(true);
-				   });
+				LinaTexture2D* txt = reinterpret_cast<LinaTexture2D*>(p->data.data());
+
+				Widget* txtField = CommonWidgets::BuildTextureField(this, m_editor->GetProjectManager().GetProjectData(), txt, 0, p->propDef.name, reinterpret_cast<bool*>(&m_propertyFoldValues[i]), [this]() {
+					RefreshMaterialInWorld();
+					m_world->LoadMissingResources(m_editor->GetProjectManager().GetProjectData(), {});
+					m_worldRenderer->VerifyResourcesHW();
+					SetRuntimeDirty(true);
+				});
 				m_foldResource->AddChild(txtField);
 			}
 
@@ -328,6 +349,7 @@ namespace Lina::Editor
 
 	void PanelMaterialViewer::OnGeneralMetaChanged(const MetaType& meta, FieldBase* field)
 	{
+		SetupWorld();
 	}
 
 	void PanelMaterialViewer::OnResourceMetaChanged(const MetaType& meta, FieldBase* field)
@@ -337,7 +359,24 @@ namespace Lina::Editor
 		{
 			m_storedShaderID = mat->GetShader();
 
-			// need to fetch new properties from the shader.
+			// Make sure newly set shader is in the world.
+			Shader* shader = m_world->GetResourceManagerV2().GetIfExists<Shader>(m_storedShaderID);
+
+			if (shader == nullptr)
+			{
+				m_world->GetResourceManagerV2().LoadResourcesFromProject(m_editor->GetProjectManager().GetProjectData(), {m_storedShaderID}, NULL);
+				shader = m_world->GetResourceManagerV2().GetResource<Shader>(m_storedShaderID);
+				m_worldRenderer->VerifyResourcesHW();
+			}
+
+			// Set shaders & sync materials.
+			ResourcePipeline::ChangeMaterialShader(m_editor->GetProjectManager().GetProjectData(), mat, m_storedShaderID);
+			ResourcePipeline::ChangeMaterialShader(m_editor->GetProjectManager().GetProjectData(), m_materialInWorld, m_storedShaderID);
+
+			RegenHW();
+			RebuildGeneralReflection();
+			m_world->LoadMissingResources(m_editor->GetProjectManager().GetProjectData(), {});
+			m_worldRenderer->VerifyResourcesHW();
 		}
 	}
 
@@ -347,7 +386,6 @@ namespace Lina::Editor
 		RebuildResourceReflection();
 		OnResourceVerified();
 		RefreshMaterialInWorld();
-		// m_world->LoadMissingResources(m_editor->GetProjectManager().GetProjectData(), {});
-		// m_worldRenderer->VerifyResourcesHW();
+		SetupWorld();
 	}
 } // namespace Lina::Editor

@@ -265,6 +265,10 @@ namespace Lina::Editor
 						.id	  = EDITOR_MODEL_SKYSPHERE_ID,
 					},
 					{
+						.path = EDITOR_MODEL_CAPSULE_PATH,
+						.id	  = EDITOR_MODEL_CAPSULE_ID,
+					},
+					{
 						.path = EDITOR_TEXTURE_EMPTY_ALBEDO_PATH,
 						.id	  = EDITOR_TEXTURE_EMPTY_ALBEDO_ID,
 					},

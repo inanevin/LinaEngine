@@ -52,7 +52,7 @@ namespace Lina
 		m_localMatrix = ToLocalMatrix();
 	}
 
-	void Transformation::SaveToStream(OStream& stream)
+	void Transformation::SaveToStream(OStream& stream) const
 	{
 		stream << m_position << m_rotation << m_scale;
 		stream << m_localPosition << m_localRotation << m_localScale;

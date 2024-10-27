@@ -172,6 +172,9 @@ namespace Lina
 		m_meshManager.Initialize();
 		CreateSizeRelativeResources();
 		FetchRenderables();
+
+		m_mainPassDrawCollector.Initialize(m_lgx, m_world, this);
+		m_forwardPassDrawCollector.Initialize(m_lgx, m_world, this);
 	}
 
 	WorldRenderer::~WorldRenderer()
@@ -464,108 +467,23 @@ namespace Lina
 		}
 
 		// Draw data map.
-		m_drawData.clear();
+		Buffer& mainPassIndirectBuffer	  = m_mainPass.GetBuffer(frameIndex, "IndirectBuffer"_hs);
+		Buffer& mainPassIndirectConstants = m_mainPass.GetBuffer(frameIndex, "IndirectConstants"_hs);
+		m_mainPassDrawCollector.Clear();
+		m_mainPassDrawCollector.CollectStaticMeshes(m_meshComponents, ShaderType::OpaqueSurface);
+		m_mainPassDrawCollector.RecordIndirectCommands(mainPassIndirectBuffer, mainPassIndirectConstants);
 
-		for (auto* mc : m_meshComponents)
-		{
-			Model*		 model	  = m_world->GetResourceManagerV2().GetResource<Model>(mc->GetModel());
-			MeshDefault* mesh	  = model->GetMesh(mc->GetMeshIndex());
-			Material*	 material = m_world->GetResourceManagerV2().GetResource<Material>(mc->GetMaterial());
-
-			const Vector3 pos = mc->GetEntity()->GetPosition();
-
-			if (material == nullptr)
-				continue;
-
-			Shader* shader = m_world->GetResourceManagerV2().GetResource<Shader>(material->GetShader());
-			auto&	vec	   = m_drawData[shader];
-
-			auto it = linatl::find_if(vec.begin(), vec.end(), [mesh](const DrawDataMeshDefault& dd) -> bool { return dd.mesh == mesh; });
-
-			if (it != vec.end())
-				it->instances.push_back({material, GetBindlessIndex(mc->GetEntity())});
-			else
-			{
-				DrawDataMeshDefault drawData = {
-					.mesh	   = mesh,
-					.instances = {{material, GetBindlessIndex(mc->GetEntity())}},
-				};
-				vec.push_back(drawData);
-			}
-		}
-
-		// Indirect commands.
-		uint32 constantsCount = 0;
-		uint32 drawID		  = 0;
-		uint32 indirectAmount = 0;
-
-		Buffer& mainPassIndirectBuffer = m_mainPass.GetBuffer(frameIndex, "IndirectBuffer"_hs);
-
-		for (const auto& [shader, meshVector] : m_drawData)
-		{
-			for (const auto& md : meshVector)
-			{
-				m_lgx->BufferIndexedIndirectCommandData(
-					mainPassIndirectBuffer.GetMapped(), indirectAmount * m_lgx->GetIndexedIndirectCommandSize(), drawID, md.mesh->GetIndexCount(), static_cast<uint32>(md.instances.size()), md.mesh->GetIndexOffset(), md.mesh->GetVertexOffset(), drawID);
-				mainPassIndirectBuffer.MarkDirty();
-
-				indirectAmount++;
-				for (const InstanceData& inst : md.instances)
-				{
-					GPUIndirectConstants0 constants = {
-						.entityID		   = inst.entityIndex,
-						.materialByteIndex = GetBindlessIndex(inst.material) / 4,
-					};
-					m_mainPass.GetBuffer(frameIndex, "IndirectConstants"_hs).BufferData(constantsCount * sizeof(GPUIndirectConstants0), (uint8*)&constants, sizeof(GPUIndirectConstants0));
-					constantsCount++;
-					drawID++;
-				}
-			}
-		}
-
-		// Forward Transparency pass.
-		{
-			// Buffer& indirectBuffer = m_forwardPass.GetBuffer(frameIndex, "IndirectBuffer"_hs);
-			// Buffer& materialBuffer = m_forwardPass.GetBuffer(frameIndex, "GUIMaterials"_hs);
-			//
-			// size_t indirectBufferOffset	   = 0;
-			// size_t guiMaterialBufferOffset = 0;
-			// uint32 drawID				   = 0;
-			// uint32 constantsCount		   = 0;
-			//
-			// for (auto* wc : m_widgetComponents)
-			// {
-			// 	const Vector<GUIRenderer::DrawRequest>& drawRequests = wc->GetGUIRenderer().FlushGUI(frameIndex, indirectBufferOffset, wc->GetCanvasSize());
-			//
-			// 	for (const auto& req : drawRequests)
-			// 	{
-			// 		m_lgx->BufferIndexedIndirectCommandData(indirectBuffer.GetMapped(), indirectBufferOffset, drawID, req.indexCount, 1, req.firstIndex, req.vertexOffset, drawID);
-			// 		indirectBuffer.MarkDirty();
-			//
-			// 		materialBuffer.BufferData(guiMaterialBufferOffset, (uint8*)&req.materialData, sizeof(GPUMaterialGUI));
-			// 		guiMaterialBufferOffset += sizeof(GPUMaterialGUI);
-			//
-			// 		GPUIndirectConstants0 constants = {
-			// 			.entityID = GetBindlessIndex(wc->GetEntity()),
-			// 		};
-			//
-			// 		m_forwardPass.GetBuffer(frameIndex, "IndirectConstants"_hs).BufferData(constantsCount * sizeof(GPUIndirectConstants0), (uint8*)&constants, sizeof(GPUIndirectConstants0));
-			//
-			// 		indirectBufferOffset += m_lgx->GetIndexedIndirectCommandSize();
-			// 		drawID++;
-			// 		constantsCount++;
-			// 	}
-			// }
-		}
+		Buffer& forwardPassIndirectBuffer	 = m_forwardPass.GetBuffer(frameIndex, "IndirectBuffer"_hs);
+		Buffer& forwardPassIndirectConstants = m_forwardPass.GetBuffer(frameIndex, "IndirectConstants"_hs);
+		m_forwardPassDrawCollector.Clear();
+		m_forwardPassDrawCollector.CollectStaticMeshes(m_meshComponents, ShaderType::TransparentSurface);
+		m_forwardPassDrawCollector.RecordIndirectCommands(forwardPassIndirectBuffer, forwardPassIndirectConstants);
 
 		m_uploadQueue.AddBufferRequest(&currentFrame.globalDataBuffer);
 		m_uploadQueue.AddBufferRequest(&currentFrame.objectBuffer);
 		m_mainPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
 		m_forwardPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
 		m_lightingPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
-
-		// for (auto* wc : m_widgetComponents)
-		// 	wc->GetGUIRenderer().AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
 
 		for (auto* ext : m_extensions)
 			ext->AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
@@ -630,36 +548,11 @@ namespace Lina
 		m_mainPass.BindDescriptors(currentFrame.gfxStream, frameIndex, currentFrame.pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Deferred]);
 
 		m_meshManager.BindBuffers(currentFrame.gfxStream, 0);
-
-		Shader*	  lastBoundShader	= nullptr;
-		Material* lastBoundMaterial = nullptr;
-
-		const uint32 mainPassIndirectBuffer = m_mainPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).GetGPUResource();
-		uint32		 mainPassIndirectOffset = 0;
+		Buffer& mainPassIndirectBuffer = m_mainPass.GetBuffer(frameIndex, "IndirectBuffer"_hs);
 
 		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Main Deferred Pass: Objects");
 
-		for (auto& [shader, meshVec] : m_drawData)
-		{
-			if (shader != lastBoundShader)
-			{
-				shader->Bind(currentFrame.gfxStream, shader->GetGPUHandle());
-				lastBoundShader = shader;
-			}
-
-			LinaGX::CMDDrawIndexedIndirect* draw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawIndexedIndirect>();
-			draw->count							 = static_cast<uint32>(meshVec.size());
-			draw->indirectBuffer				 = mainPassIndirectBuffer;
-			draw->indirectBufferOffset			 = mainPassIndirectOffset;
-			mainPassIndirectOffset += draw->count * static_cast<uint32>(m_lgx->GetIndexedIndirectCommandSize());
-
-#ifdef LINA_DEBUG
-			uint32 totalTris = 0;
-			for (const auto& md : meshVec)
-				totalTris += md.mesh->GetIndexCount() / 3;
-			PROFILER_ADD_DRAWCALL(totalTris, "WorldRenderer", 0);
-#endif
-		}
+		m_mainPassDrawCollector.Draw(currentFrame.gfxStream, mainPassIndirectBuffer);
 
 		DEBUG_LABEL_END(currentFrame.gfxStream);
 
@@ -714,24 +607,11 @@ namespace Lina
 
 		m_forwardPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
 		m_forwardPass.BindDescriptors(currentFrame.gfxStream, frameIndex, currentFrame.pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Forward]);
+		Buffer& forwardPassIndirectBuffer = m_forwardPass.GetBuffer(frameIndex, "IndirectBuffer"_hs);
 
-		// Vector<WidgetComponent*> widgets = m_widgetComponents;
-		// linatl::sort(widgets.begin(), widgets.end(), [](WidgetComponent* c1, WidgetComponent* c2) -> bool { return c1->GetMaterial()->GetShaderID() < c2->GetMaterial()->GetShaderID(); });
-		//
-		// Shader* lastBoundWidgetShader = nullptr;
-		//
-		// for (auto* wc : widgets)
-		// {
-		// 	Shader* widgetShader = wc->GetMaterial()->GetShader(m_resourceManagerV2);
-		//
-		// 	if (lastBoundWidgetShader != widgetShader)
-		// 	{
-		// 		lastBoundWidgetShader = widgetShader;
-		// 		lastBoundWidgetShader->Bind(currentFrame.gfxStream, lastBoundWidgetShader->GetGPUHandle());
-		// 	}
-		//
-		// 	wc->GetGUIRenderer().Render(currentFrame.gfxStream, m_forwardPass.GetBuffer(frameIndex, "IndirectBuffer"_hs), frameIndex, wc->GetCanvasSize());
-		// }
+		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Forward Pass: Objects");
+		m_forwardPassDrawCollector.Draw(currentFrame.gfxStream, forwardPassIndirectBuffer);
+		DEBUG_LABEL_END(currentFrame.gfxStream);
 
 		for (auto* ext : m_extensions)
 			ext->RenderForward(frameIndex, currentFrame.gfxStream);

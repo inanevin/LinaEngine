@@ -85,6 +85,12 @@ namespace Lina
 		uint64			  endTime	  = 0;
 	};
 
+	enum class ResourceType
+	{
+		ExternalSource,
+		EngineCreated,
+	};
+
 	typedef HashSet<ResourceDef, ResourceDefHash> ResourceDefinitionList;
 	typedef HashSet<Resource*>					  ResourceList;
 

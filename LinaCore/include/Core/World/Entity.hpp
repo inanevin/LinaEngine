@@ -65,8 +65,11 @@ namespace Lina
 		void AddAABB(const AABB& aabb);
 		void RemoveAABB(const AABB& aabb);
 
-		void SaveToStream(OStream& stream);
+		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);
+
+		void SetVisible(bool isVisible);
+		bool GetVisible() const;
 
 		ObjectWrapper<EntityWorld> GetWorld()
 		{
@@ -121,7 +124,7 @@ namespace Lina
 			m_name = name;
 		}
 
-		inline Bitmask16 GetEntityFlags()
+		inline Bitmask32& GetFlags()
 		{
 			return m_mask;
 		}
@@ -167,7 +170,7 @@ namespace Lina
 		String			m_name	 = "";
 		Vector<Entity*> m_children;
 		Transformation	m_transform;
-		Bitmask16		m_mask;
+		Bitmask32		m_mask;
 		AABB			m_totalAABB;
 	};
 

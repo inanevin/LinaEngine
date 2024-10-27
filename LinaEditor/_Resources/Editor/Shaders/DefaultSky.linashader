@@ -80,7 +80,8 @@ struct LinaMaterial
 void LINA_FRAG_FUNC(in LinaFragInput inFrag, out LinaFragOutput outFrag)
 {
    LinaMaterial material = LINA_GET_MATERIAL(inFrag.materialID);
-   vec4 skyColor = mix(material.topColor, material.groundColor, inFrag.uv.y);
+   vec4 targetColor = inFrag.uv.y > 0.5 ? material.groundColor : material.topColor;
+   vec4 skyColor = mix(material.horizonColor, targetColor, abs(inFrag.uv.y - 0.5) + 0.5);
    outFrag.color = skyColor;
 }
 

@@ -47,11 +47,12 @@ namespace Lina
 		ComponentCacheBase()		  = default;
 		virtual ~ComponentCacheBase() = default;
 
-		virtual void LoadFromStream(IStream& stream, const Vector<Entity*>& entities) = 0;
-		virtual void SaveToStream(OStream& stream)									  = 0;
-		virtual void Destroy(Entity* e)												  = 0;
-		virtual void Destroy(Component* c)											  = 0;
-		virtual void ForEach(Delegate<void(Component* c)>&& cb)						  = 0;
+		virtual void	   LoadFromStream(IStream& stream, const Vector<Entity*>& entities) = 0;
+		virtual void	   SaveToStream(OStream& stream)									= 0;
+		virtual Component* Get(Entity* e)													= 0;
+		virtual void	   Destroy(Entity* e)												= 0;
+		virtual void	   Destroy(Component* c)											= 0;
+		virtual void	   ForEach(Delegate<void(Component* c)>&& cb)						= 0;
 	};
 
 	template <typename T> class ComponentCache : public ComponentCacheBase
@@ -86,12 +87,7 @@ namespace Lina
 				m_componentBucket.Free(component);
 		}
 
-		virtual void Destroy(Component* c) override
-		{
-			m_componentBucket.Free(static_cast<T*>(c));
-		}
-
-		inline T* Get(Entity* e)
+		virtual Component* Get(Entity* e) override
 		{
 			T* component = nullptr;
 			m_componentBucket.View([&](T* comp, uint32 index) -> bool {
@@ -104,6 +100,11 @@ namespace Lina
 			});
 
 			return component;
+		}
+
+		virtual void Destroy(Component* c) override
+		{
+			m_componentBucket.Free(static_cast<T*>(c));
 		}
 
 		virtual void SaveToStream(OStream& stream) override

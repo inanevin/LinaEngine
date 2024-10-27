@@ -138,7 +138,7 @@ namespace Lina
 		return Vector4(x, y, z, w);
 	}
 
-	void Quaternion::SaveToStream(OStream& stream)
+	void Quaternion::SaveToStream(OStream& stream) const
 	{
 		stream << x << y << z << w;
 	}

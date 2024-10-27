@@ -903,7 +903,7 @@ namespace Lina::Editor
 		thumb->GetWidgetProps().outlineThickness = 0.0f;
 		thumb->GetWidgetProps().rounding		 = 0.0f;
 		thumb->SetCustomTooltipUserData(thumb);
-		thumb->GetWidgetProps().textureAtlas = Editor::Get()->GetProjectManager().GetThumbnail(currentResource);
+		thumb->GetWidgetProps().textureAtlas = currentResource == nullptr ? nullptr : Editor::Get()->GetProjectManager().GetThumbnail(currentResource);
 		thumb->SetBuildCustomTooltip(BIND(&CommonWidgets::BuildThumbnailTooltip, std::placeholders::_1));
 		layout->AddChild(thumb);
 

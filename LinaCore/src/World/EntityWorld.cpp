@@ -108,17 +108,24 @@ namespace Lina
 		if (e->m_parent != nullptr)
 			e->m_parent->RemoveChild(e);
 		DestroyEntityData(e);
-
-		for (auto& [tid, cache] : m_componentCaches)
-		{
-			cache->Destroy(e);
-		}
 	}
 
 	void EntityWorld::DestroyEntityData(Entity* e)
 	{
 		for (auto child : e->m_children)
 			DestroyEntityData(child);
+
+		for (auto& [tid, cache] : m_componentCaches)
+		{
+			Component* c = cache->Get(e);
+
+			if (c == nullptr)
+				continue;
+
+			OnDestroyComponent(c, e);
+			cache->Destroy(c);
+		}
+
 		m_entityBucket.Free(e);
 	}
 

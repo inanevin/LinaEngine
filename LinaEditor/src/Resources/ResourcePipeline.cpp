@@ -92,6 +92,32 @@ namespace Lina::Editor
 		}
 	}
 
+	void ResourcePipeline::ChangeMaterialShader(ProjectData* project, Material* material, Shader* shader)
+	{
+
+		const Vector<ShaderPropertyDefinition>& propDefs   = shader->GetPropertyDefinitions();
+		const Vector<MaterialProperty*>			properties = material->GetProperties();
+
+		// These are the new properties that'll be added to the material, we will not modify the existing ones.
+		Vector<StringID> newProperties;
+		for (const ShaderPropertyDefinition& def : propDefs)
+		{
+			auto it = linatl::find_if(properties.begin(), properties.end(), [def](MaterialProperty* p) -> bool { return p->propDef == def; });
+			if (it == properties.end())
+				newProperties.push_back(def.sid);
+		}
+
+		material->SetShader(shader);
+		const Vector<MaterialProperty*> currentMaterialProperties = material->GetProperties();
+		for (StringID prop : newProperties)
+		{
+
+			auto it = linatl::find_if(currentMaterialProperties.begin(), currentMaterialProperties.end(), [prop](MaterialProperty* p) -> bool { return p->propDef.sid == prop; });
+			if (it != currentMaterialProperties.end())
+				TrySetMaterialProperty(*it);
+		}
+	}
+
 	void ResourcePipeline::ChangeMaterialShader(ProjectData* project, Material* material, ResourceID newShader)
 	{
 		IStream shaderStream = Serialization::LoadFromFile(project->GetResourcePath(newShader).c_str());
@@ -104,28 +130,7 @@ namespace Lina::Editor
 
 		Shader sh(0, "");
 		sh.LoadFromStream(shaderStream);
-
-		const Vector<ShaderPropertyDefinition>& propDefs   = sh.GetPropertyDefinitions();
-		const Vector<MaterialProperty*>			properties = material->GetProperties();
-
-		// These are the new properties that'll be added to the material, we will not modify the existing ones.
-		Vector<StringID> newProperties;
-		for (const ShaderPropertyDefinition& def : propDefs)
-		{
-			auto it = linatl::find_if(properties.begin(), properties.end(), [def](MaterialProperty* p) -> bool { return p->propDef == def; });
-			if (it == properties.end())
-				newProperties.push_back(def.sid);
-		}
-
-		material->SetShader(&sh);
-		const Vector<MaterialProperty*> currentMaterialProperties = material->GetProperties();
-		for (StringID prop : newProperties)
-		{
-
-			auto it = linatl::find_if(currentMaterialProperties.begin(), currentMaterialProperties.end(), [prop](MaterialProperty* p) -> bool { return p->propDef.sid == prop; });
-			if (it != currentMaterialProperties.end())
-				TrySetMaterialProperty(*it);
-		}
+		ChangeMaterialShader(project, material, &sh);
 
 		shaderStream.Destroy();
 	}
@@ -136,10 +141,11 @@ namespace Lina::Editor
 		const String	 path = project->GetResourcePath(id);
 
 		ResourceDirectory* newCreated = src->CreateChild({
-			.name		 = name,
-			.isFolder	 = false,
-			.resourceID	 = id,
-			.resourceTID = tid,
+			.name		  = name,
+			.isFolder	  = false,
+			.resourceID	  = id,
+			.resourceTID  = tid,
+			.resourceType = ResourceType::EngineCreated,
 		});
 
 		LinaGX::TextureBuffer thumb = {};
@@ -246,6 +252,8 @@ namespace Lina::Editor
 		Shader*					   defaultShader = nullptr;
 		Vector<ResourceDirectory*> createdDirs;
 
+		const String projectRoot = FileSystem::GetFilePath(projectData->GetPath());
+
 		const int32 sz = static_cast<int32>(defs.size());
 
 		for (int32 i = 0; i < sz; i++)
@@ -280,10 +288,12 @@ namespace Lina::Editor
 
 			auto createDirectory = [&](ResourceID id) {
 				dir = src->CreateChild({
-					.name		 = name,
-					.isFolder	 = false,
-					.resourceID	 = id,
-					.resourceTID = resourceTID,
+					.name						 = name,
+					.sourcePathRelativeToProject = FileSystem::GetRelative(projectRoot, def.path),
+					.isFolder					 = false,
+					.resourceID					 = id,
+					.resourceTID				 = resourceTID,
+					.resourceType				 = ResourceType::ExternalSource,
 				});
 
 				createdDirs.push_back(dir);

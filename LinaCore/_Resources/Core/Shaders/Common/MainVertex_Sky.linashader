@@ -44,7 +44,7 @@ void main()
    LinaVertexOutput vertexOutput;
    LINA_VERTEX_FUNC(vertexInput, vertexOutput);
 
-   outUV = vertexOutput.uv;
+   outUV = vec2(1.0 - vertexOutput.uv.x, vertexOutput.uv.y);
    outMaterialIndex = LINA_LIGHT_PASS.skyMaterialByteIndex;
 
    mat4 rotView = mat4(mat3(LINA_VIEW.view));

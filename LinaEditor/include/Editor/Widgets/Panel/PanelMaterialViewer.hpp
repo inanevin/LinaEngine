@@ -37,12 +37,22 @@ namespace Lina
 {
 	class EntityWorld;
 	class WorldRenderer;
+	class Entity;
 } // namespace Lina
 
 namespace Lina::Editor
 {
 	class Editor;
 	class WorldDisplayer;
+
+	enum class MaterialViewerDisplayType
+	{
+		Cube,
+		Sphere,
+		Plane,
+		Capsule,
+		Cylinder,
+	};
 
 	class PanelMaterialViewer : public PanelResourceViewer
 	{
@@ -58,6 +68,7 @@ namespace Lina::Editor
 	protected:
 		virtual void OnGeneralMetaChanged(const MetaType& meta, FieldBase* field) override;
 		virtual void OnResourceMetaChanged(const MetaType& meta, FieldBase* field) override;
+		virtual void OnGeneralFoldBuilt() override;
 		virtual void OnResourceFoldBuilt() override;
 		virtual void OnResourceVerified() override;
 		virtual void RegenHW() override;
@@ -69,20 +80,32 @@ namespace Lina::Editor
 	private:
 		LINA_REFLECTION_ACCESS(PanelMaterialViewer);
 
-		String			m_materialName	  = "";
-		WorldDisplayer* m_worldDisplayer  = nullptr;
-		EntityWorld*	m_world			  = nullptr;
-		WorldRenderer*	m_worldRenderer	  = nullptr;
-		String			m_shaderType	  = "";
-		EditorCamera	m_editorCamera	  = {};
-		Material*		m_materialInWorld = nullptr;
-		Vector<uint32>	m_propertyFoldValues;
-		ResourceID		m_storedShaderID = 0;
+		Entity*					  m_displayEntity	= nullptr;
+		MaterialViewerDisplayType m_displayType		= MaterialViewerDisplayType::Cube;
+		String					  m_materialName	= "";
+		WorldDisplayer*			  m_worldDisplayer	= nullptr;
+		EntityWorld*			  m_world			= nullptr;
+		WorldRenderer*			  m_worldRenderer	= nullptr;
+		ShaderType				  m_shaderType		= ShaderType::OpaqueSurface;
+		String					  m_shaderTypeStr	= "";
+		EditorCamera			  m_editorCamera	= {};
+		Material*				  m_materialInWorld = nullptr;
+		Vector<uint32>			  m_propertyFoldValues;
+		ResourceID				  m_storedShaderID = 0;
 	};
+
+	LINA_CLASS_BEGIN(MaterialViewerDisplayType)
+	LINA_PROPERTY_STRING(MaterialViewerDisplayType, 0, "Cube")
+	LINA_PROPERTY_STRING(MaterialViewerDisplayType, 1, "Sphere")
+	LINA_PROPERTY_STRING(MaterialViewerDisplayType, 2, "Plane")
+	LINA_PROPERTY_STRING(MaterialViewerDisplayType, 3, "Capsule")
+	LINA_PROPERTY_STRING(MaterialViewerDisplayType, 4, "Cylinder")
+	LINA_CLASS_END(MaterialViewerDisplayType)
 
 	LINA_WIDGET_BEGIN(PanelMaterialViewer, Hidden)
 	LINA_FIELD(PanelMaterialViewer, m_materialName, "Name", FieldType::StringFixed, 0)
-	LINA_FIELD(PanelMaterialViewer, m_shaderType, "Shader Type", FieldType::StringFixed, 0)
+	LINA_FIELD(PanelMaterialViewer, m_shaderTypeStr, "Shader Type", FieldType::StringFixed, 0)
+	LINA_FIELD(PanelMaterialViewer, m_displayType, "Display Type", FieldType::Enum, GetTypeID<MaterialViewerDisplayType>())
 	LINA_CLASS_END(PanelMaterialViewer)
 
 } // namespace Lina::Editor

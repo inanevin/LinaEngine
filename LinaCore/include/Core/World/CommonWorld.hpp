@@ -40,7 +40,8 @@ namespace Lina
 
 	enum EntityFlags
 	{
-		EF_NONE = 0,
+		EF_NONE		 = 0,
+		EF_INVISIBLE = 1,
 	};
 
 	enum ComponentFlags

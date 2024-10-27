@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "CommonResources.hpp"
 #include "Common/Data/Streams.hpp"
+#include "Core/Resources/CommonResources.hpp"
 
 namespace Lina
 {
@@ -43,14 +44,15 @@ namespace Lina
 
 		~ResourceDirectory();
 
-		String					   name					 = "";
-		String					   relativePathToProject = "";
-		bool					   isFolder				 = false;
-		bool					   unfolded				 = false;
-		ResourceID				   resourceID			 = 0;
-		TypeID					   resourceTID			 = 0;
+		String					   name						   = "";
+		String					   sourcePathRelativeToProject = "";
+		bool					   isFolder					   = false;
+		bool					   unfolded					   = false;
+		ResourceID				   resourceID				   = 0;
+		TypeID					   resourceTID				   = 0;
 		Vector<ResourceDirectory*> children;
-		ResourceDirectory*		   parent = nullptr;
+		ResourceDirectory*		   parent		= nullptr;
+		ResourceType			   resourceType = ResourceType::ExternalSource;
 
 		void SaveToStream(OStream& stream);
 		void LoadFromStream(IStream& stream);

@@ -58,6 +58,7 @@ namespace Lina
 		static String GetUserDataFolder();
 		static String FixPath(const String& str);
 		static String Duplicate(const String& path);
+		static String GetRelative(const String& src, const String& target);
 		static void	  PerformMove(const String& targetFile, const String& targetDirectory);
 
 		// Utility

@@ -120,7 +120,7 @@ namespace Lina
 		template <typename T> T* AddComponent(Entity* e)
 		{
 			auto* cache = GetCache<T>();
-			T*	  comp	= cache->Get(e);
+			T*	  comp	= static_cast<T*>(cache->Get(e));
 
 			if (comp != nullptr)
 			{
@@ -136,7 +136,7 @@ namespace Lina
 		template <typename T> void RemoveComponent(Entity* e)
 		{
 			ComponentCache<T>* cache = GetCache<T>();
-			T*				   comp	 = cache->Get(e);
+			T*				   comp	 = static_cast<T*>(cache->Get(e));
 
 			if (comp == nullptr)
 			{

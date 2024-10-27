@@ -159,6 +159,10 @@ namespace Lina
 			{
 				LinaTexture2D* txt = reinterpret_cast<LinaTexture2D*>(prop->data.data());
 
+				if (txt->texture == 0 || txt->sampler == 0)
+				{
+					int a = 5;
+				}
 				Texture*		texture = rm->GetResource<Texture>(txt->texture);
 				TextureSampler* sampler = rm->GetResource<TextureSampler>(txt->sampler);
 

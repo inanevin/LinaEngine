@@ -370,6 +370,15 @@ namespace Lina
 			LINA_ERR("Exception processing path! {0}", path);
 		}
 	}
+
+	String FileSystem::GetRelative(const String& src, const String& target)
+	{
+		std::filesystem::path sourcePath(src);
+		std::filesystem::path targetPath(target);
+		std::filesystem::path relativePath = std::filesystem::relative(targetPath, sourcePath);
+		return relativePath.string();
+	}
+
 	void FileSystem::PerformMove(const String& targetFile, const String& targetDirectory)
 	{
 		try

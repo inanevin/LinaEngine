@@ -299,7 +299,7 @@ namespace Lina
 		}
 	}
 
-	void Entity::SaveToStream(OStream& stream)
+	void Entity::SaveToStream(OStream& stream) const
 	{
 		stream << m_mask << m_transform << m_name;
 	}
@@ -325,5 +325,17 @@ namespace Lina
 			m_transform.SetLocalRotation(q);
 			m_transform.SetLocalRotationAngles(m_transform.GetLocalRotation().GetPitchYawRoll());
 		}
+	}
+
+	void Entity::SetVisible(bool isVisible)
+	{
+		m_mask.Set(EF_INVISIBLE, !isVisible);
+		for (Entity* c : m_children)
+			c->SetVisible(isVisible);
+	}
+
+	bool Entity::GetVisible() const
+	{
+		return !m_mask.IsSet(EF_INVISIBLE);
 	}
 } // namespace Lina

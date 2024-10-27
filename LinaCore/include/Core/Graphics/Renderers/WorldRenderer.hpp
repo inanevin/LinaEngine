@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Core/Graphics/ResourceUploadQueue.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Graphics/MeshManager.hpp"
+#include "Core/Graphics/Renderers/DrawCollector.hpp"
 #include "Core/Resources/ResourceManagerListener.hpp"
 #include "Common/Data/Map.hpp"
 #include "Core/Graphics/GUI/GUIBackend.hpp"
@@ -193,27 +194,28 @@ namespace Lina
 		uint64 BumpAndSendTransfers(uint32 frameIndex);
 
 	private:
-		GUIBackend									  m_guiBackend;
-		MeshManager									  m_meshManager;
-		ResourceManagerV2*							  m_resourceManagerV2 = nullptr;
-		LinaGX::Instance*							  m_lgx				  = nullptr;
-		ResourceUploadQueue							  m_uploadQueue;
-		ResourceUploadQueue							  m_globalUploadQueue;
-		PerFrameData								  m_pfd[FRAMES_IN_FLIGHT] = {};
-		RenderPass									  m_mainPass			  = {};
-		RenderPass									  m_lightingPass		  = {};
-		RenderPass									  m_forwardPass			  = {};
-		Vector2ui									  m_size				  = Vector2ui::Zero;
-		EntityWorld*								  m_world				  = nullptr;
-		Vector<MeshComponent*>						  m_meshComponents;
-		Vector<WidgetComponent*>					  m_widgetComponents;
-		Vector<GPUDataObject>						  m_objects = {};
-		HashMap<Shader*, Vector<DrawDataMeshDefault>> m_drawData;
-		TextureSampler*								  m_gBufSampler			   = nullptr;
-		Shader*										  m_deferredLightingShader = nullptr;
-		Vector<WorldRendererExtension*>				  m_extensions;
-		Buffer*										  m_snapshotBuffer	 = nullptr;
-		bool										  m_standaloneSubmit = false;
+		GUIBackend						m_guiBackend;
+		MeshManager						m_meshManager;
+		ResourceManagerV2*				m_resourceManagerV2 = nullptr;
+		LinaGX::Instance*				m_lgx				= nullptr;
+		ResourceUploadQueue				m_uploadQueue;
+		ResourceUploadQueue				m_globalUploadQueue;
+		PerFrameData					m_pfd[FRAMES_IN_FLIGHT] = {};
+		RenderPass						m_mainPass				= {};
+		RenderPass						m_lightingPass			= {};
+		RenderPass						m_forwardPass			= {};
+		Vector2ui						m_size					= Vector2ui::Zero;
+		EntityWorld*					m_world					= nullptr;
+		Vector<MeshComponent*>			m_meshComponents;
+		Vector<WidgetComponent*>		m_widgetComponents;
+		Vector<GPUDataObject>			m_objects = {};
+		DrawCollector					m_mainPassDrawCollector;
+		DrawCollector					m_forwardPassDrawCollector;
+		TextureSampler*					m_gBufSampler			 = nullptr;
+		Shader*							m_deferredLightingShader = nullptr;
+		Vector<WorldRendererExtension*> m_extensions;
+		Buffer*							m_snapshotBuffer   = nullptr;
+		bool							m_standaloneSubmit = false;
 	};
 
 } // namespace Lina

@@ -138,7 +138,7 @@ namespace Lina
 		static Quaternion Slerp(const Quaternion& from, const Quaternion& dest, float t);
 		static Quaternion LookAt(const Vector3& from, const Vector3& to, const Vector3& up);
 
-		void SaveToStream(OStream& stream);
+		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);
 	};
 

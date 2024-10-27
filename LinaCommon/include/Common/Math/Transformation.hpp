@@ -67,7 +67,7 @@ namespace Lina
 		void SetMatrix(Matrix4& mat);
 		void UpdateLocalMatrix();
 		void UpdateGlobalMatrix();
-		void SaveToStream(OStream& stream);
+		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);
 
 		inline Matrix4 ToMatrix() const

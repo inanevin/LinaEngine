@@ -79,7 +79,7 @@ namespace Lina
 			return static_cast<T*>(GetCache<T>()->Get(id));
 		}
 
-		template <typename T> bool GetIfExists(ResourceID id)
+		template <typename T> T* GetIfExists(ResourceID id)
 		{
 			return static_cast<T*>(GetCache<T>()->GetIfExists(id));
 		}
