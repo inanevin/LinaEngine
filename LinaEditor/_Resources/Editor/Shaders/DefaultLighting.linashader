@@ -26,6 +26,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#LINA_SHADER_LIGHTING
+
 #lina_vs
 
 #include "Resources/Core/Shaders/Common/GlobalData.linashader"

@@ -45,8 +45,8 @@ namespace Lina
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
 		virtual bool LoadFromFile(const String& path) override;
-		void		 DestroyHW();
-		void		 GenerateHW();
+		virtual void GenerateHW() override;
+		virtual void DestroyHW() override;
 		void		 GenerateHW(const LinaGX::SamplerDesc& desc);
 
 		inline uint32 GetGPUHandle() const
@@ -54,17 +54,11 @@ namespace Lina
 			return m_gpuHandle;
 		}
 
-		inline bool IsGPUValid() const
-		{
-			return m_hwExists;
-		}
-
 	private:
 		ALLOCATOR_BUCKET_MEM;
 		LINA_REFLECTION_ACCESS(TextureSampler);
 		uint32				m_gpuHandle	  = 0;
 		LinaGX::SamplerDesc m_samplerDesc = {};
-		bool				m_hwExists	  = false;
 	};
 
 	LINA_RESOURCE_BEGIN(TextureSampler);

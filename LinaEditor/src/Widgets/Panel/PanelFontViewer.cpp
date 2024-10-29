@@ -74,7 +74,7 @@ namespace Lina::Editor
 		UpdateFontProps();
 		Font* font = static_cast<Font*>(m_resource);
 		font->DestroyHW();
-		font->GenerateHW(m_editor->GetEditorRenderer().GetGUIBackend().GetLVGText());
+		font->Upload(m_editor->GetEditorRenderer().GetGUIBackend().GetLVGText());
 		m_editor->GetEditorRenderer().GetGUIBackend().ReuploadAtlases(m_editor->GetEditorRenderer().GetUploadQueue());
 		m_editor->GetEditorRenderer().MarkBindlessDirty();
 	}

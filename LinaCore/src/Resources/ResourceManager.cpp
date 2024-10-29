@@ -44,17 +44,38 @@ SOFTWARE.
 
 namespace Lina
 {
-
 	void ResourceManagerV2::Shutdown()
 	{
 		for (auto [tid, cache] : m_caches)
 			delete cache;
 	}
 
-	HashSet<Resource*> ResourceManagerV2::LoadResourcesFromFile(const ResourceDefinitionList& resourceDefs, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress)
+	void ResourceManagerV2::ReloadResources(ProjectData* project, const HashSet<ResourceID>& resources)
 	{
-		HashSet<Resource*> resources;
+		Application::GetLGX()->Join();
 
+		for (ResourceID rid : resources)
+		{
+			for (auto [tid, cache] : m_caches)
+			{
+				Resource* res = cache->GetIfExists(rid);
+				if (res == nullptr)
+					continue;
+
+				IStream stream = Serialization::LoadFromFile(project->GetResourcePath(rid).c_str());
+				if (!stream.Empty())
+				{
+					res->LoadFromStream(stream);
+					res->SetIsReloaded(true);
+				}
+				stream.Destroy();
+				break;
+			}
+		}
+	}
+
+	void ResourceManagerV2::LoadResourcesFromFile(const ResourceDefinitionList& resourceDefs, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress)
+	{
 		uint32 idx = 0;
 		for (const ResourceDef& def : resourceDefs)
 		{
@@ -71,7 +92,6 @@ namespace Lina
 				continue;
 			}
 
-			resources.insert(res);
 			res->SetID(def.id);
 			res->SetName(def.name);
 			LINA_TRACE("[Resource] -> Loaded resource: {0}", def.name);
@@ -79,13 +99,11 @@ namespace Lina
 			if (onProgress)
 				onProgress(++idx, def);
 		}
-		return resources;
 	}
 
-	HashSet<Resource*> ResourceManagerV2::LoadResourcesFromProject(ProjectData* project, const HashSet<ResourceID>& resources, Delegate<void(uint32 loaded, Resource* currentItem)> onProgress)
+	void ResourceManagerV2::LoadResourcesFromProject(ProjectData* project, const HashSet<ResourceID>& resources, Delegate<void(uint32 loaded, Resource* currentItem)> onProgress)
 	{
-		HashSet<Resource*> loadedResources;
-		uint32			   idx = 0;
+		uint32 idx = 0;
 		for (ResourceID id : resources)
 		{
 			ResourceDirectory* dir = project->GetResourceRoot().FindResourceDirectory(id);
@@ -126,7 +144,6 @@ namespace Lina
 				continue;
 			}
 
-			loadedResources.insert(res);
 			res->LoadFromStream(stream);
 			stream.Destroy();
 
@@ -135,25 +152,12 @@ namespace Lina
 
 			LINA_TRACE("[Resource] -> Loaded resource: {0}", res->GetPath());
 		}
-
-		return loadedResources;
 	}
 
 	void ResourceManagerV2::UnloadResources(const Vector<Resource*>& resources)
 	{
-		HashSet<Resource*> resourcesToUnload;
-
-		for (Resource* res : resources)
-			resourcesToUnload.insert(res);
-
-		HashSet<ResourceDef, ResourceDefHash> defs;
 		for (Resource* res : resources)
 		{
-			defs.insert({
-				.id	  = res->GetID(),
-				.name = res->GetName(),
-				.tid  = res->GetTID(),
-			});
 			ResourceCacheBase* cache = GetCache(res->GetTID());
 			cache->Destroy(res->GetID());
 		}

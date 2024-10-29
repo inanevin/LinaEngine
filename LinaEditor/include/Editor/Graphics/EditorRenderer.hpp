@@ -80,8 +80,7 @@ namespace Lina::Editor
 		void AddSurfaceRenderer(SurfaceRenderer* sr);
 		void RemoveSurfaceRenderer(SurfaceRenderer* sr);
 
-		void OnResourcesLoaded(const ResourceList& resources);
-		void OnResourcesUnloaded(const ResourceDefinitionList& resources);
+		void VerifyResources();
 
 		inline GUIBackend& GetGUIBackend()
 		{
@@ -122,6 +121,11 @@ namespace Lina::Editor
 		{
 			for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 				m_pfd[i].bindlessDirty = true;
+		}
+
+		inline const Vector<WorldRenderer*>& GetWorldRenderers()
+		{
+			return m_worldRenderers;
 		}
 
 	private:

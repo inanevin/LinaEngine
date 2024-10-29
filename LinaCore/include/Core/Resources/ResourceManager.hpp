@@ -48,9 +48,10 @@ namespace Lina
 		ResourceManagerV2(){};
 		~ResourceManagerV2(){};
 
-		HashSet<Resource*> LoadResourcesFromFile(const ResourceDefinitionList& resourceDef, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress);
-		HashSet<Resource*> LoadResourcesFromProject(ProjectData* project, const HashSet<ResourceID>& resources, Delegate<void(uint32 loaded, Resource* currentItem)> onProgress);
-		void			   UnloadResources(const Vector<Resource*>& resources);
+		void LoadResourcesFromFile(const ResourceDefinitionList& resourceDef, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress);
+		void LoadResourcesFromProject(ProjectData* project, const HashSet<ResourceID>& resources, Delegate<void(uint32 loaded, Resource* currentItem)> onProgress);
+		void UnloadResources(const Vector<Resource*>& resources);
+		void ReloadResources(ProjectData* project, const HashSet<ResourceID>& resources);
 
 		void Shutdown();
 
@@ -103,8 +104,12 @@ namespace Lina
 			return id;
 		}
 
+		inline const HashMap<TypeID, ResourceCacheBase*>& GetCaches() const
+		{
+			return m_caches;
+		}
+
 	private:
-		void			   DispatchLoadTaskEvent(ResourceLoadTask* task);
 		ResourceCacheBase* GetCache(TypeID tid);
 
 	private:

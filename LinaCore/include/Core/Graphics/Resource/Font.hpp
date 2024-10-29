@@ -73,12 +73,14 @@ namespace Lina
 		Font(ResourceID id, const String& name) : Resource(id, GetTypeID<Font>(), name){};
 		virtual ~Font();
 
-		void		  GenerateHW(LinaVG::Text& lvgText);
-		void		  DestroyHW();
 		LinaVG::Font* GetFont(float dpiScale);
 		virtual bool  LoadFromFile(const String& path) override;
 		virtual void  LoadFromStream(IStream& stream) override;
 		virtual void  SaveToStream(OStream& stream) const override;
+		virtual void  GenerateHW() override;
+		virtual void  DestroyHW() override;
+
+		void Upload(LinaVG::Text& lvgText);
 
 		inline Metadata& GetMeta()
 		{
@@ -105,19 +107,13 @@ namespace Lina
 			return m_file;
 		}
 
-		inline bool IsGPUValid() const
-		{
-			return m_hwExists;
-		}
-
 	private:
 		ALLOCATOR_BUCKET_MEM;
 		LINA_REFLECTION_ACCESS(Font);
 
 		Vector<LinaVG::Font*> m_lvgFonts = {};
 		Vector<char>		  m_file;
-		Metadata			  m_meta	 = {};
-		bool				  m_hwExists = false;
+		Metadata			  m_meta = {};
 	};
 
 	LINA_RESOURCE_BEGIN(Font);

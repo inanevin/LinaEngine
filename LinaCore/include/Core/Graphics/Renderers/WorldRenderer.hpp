@@ -116,8 +116,7 @@ namespace Lina
 
 		virtual void OnComponentAdded(Component* c) override;
 		virtual void OnComponentRemoved(Component* c) override;
-
-		void VerifyResourcesHW();
+		virtual void OnGeneratedResources(Vector<Resource*>& resources) override;
 
 		inline SemaphoreData GetSubmitSemaphore(uint32 frameIndex)
 		{

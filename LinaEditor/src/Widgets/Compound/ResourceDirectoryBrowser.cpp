@@ -141,7 +141,6 @@ namespace Lina::Editor
 			}
 			else if (item->resourceTID == GetTypeID<Shader>())
 			{
-				m_editor->GetWindowPanelManager().OpenPanel(PanelType::ShaderViewer, item->resourceID, this);
 			}
 			else if (item->resourceTID == GetTypeID<Audio>())
 			{
@@ -350,21 +349,11 @@ namespace Lina::Editor
 		{
 			outData = {
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Folder), .userData = userData},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Shader), .dropdownIcon = ICON_CHEVRON_RIGHT, .hasDropdown = true, .userData = userData},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Sampler), .userData = userData},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Material), .userData = userData},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::PhysicsMaterial), .userData = userData},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::World), .userData = userData},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::GUIWidget), .userData = userData},
-			};
-		}
-		else if (sid == TO_SID(Locale::GetStr(LocaleStr::Shader)))
-		{
-			outData = {
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::OpaqueSurfaceShader), .userData = userData},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::TransparentSurfaceShader), .userData = userData},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::SkyShader), .userData = userData},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::PostProcessShader), .userData = userData},
 			};
 		}
 	}

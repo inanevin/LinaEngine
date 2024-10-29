@@ -46,8 +46,6 @@ namespace Lina
 
 	struct ShaderVariant
 	{
-		uint32													   _gpuHandle		= 0;
-		bool													   _gpuHandleExists = false;
 		LINAGX_MAP<LinaGX::ShaderStage, LinaGX::DataBlob>		   _outCompiledBlobs;
 		LinaGX::ShaderLayout									   _outLayout	= {};
 		LINAGX_MAP<LinaGX::ShaderStage, LinaGX::ShaderCompileData> _compileData = {};

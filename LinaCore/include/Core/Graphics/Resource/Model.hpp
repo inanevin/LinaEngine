@@ -70,10 +70,11 @@ namespace Lina
 		virtual bool LoadFromFile(const String& path) override;
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
-		void		 UploadNodes(MeshManager& meshManager);
+		virtual void GenerateHW() override;
+		virtual void DestroyHW() override;
 		void		 DestroyTextureDefs();
-
-		ModelNode* GetFirstNodeWMesh();
+		void		 Upload(MeshManager* mm);
+		ModelNode*	 GetFirstNodeWMesh();
 
 		inline const Vector<ModelNode*>& GetRootNodes() const
 		{
@@ -115,14 +116,9 @@ namespace Lina
 			return m_meta;
 		}
 
-		inline bool IsUploaded() const
-		{
-			return m_isUploaded;
-		}
-
 	private:
 		void	   ProcessNode(LinaGX::ModelNode* lgxNode, ModelNode* parent);
-		void	   UploadNode(MeshManager& meshManager, ModelNode* node);
+		void	   UploadNode(MeshManager* mm, ModelNode* node);
 		ModelNode* GetNodeWithMesh(ModelNode* root);
 
 	private:
@@ -133,7 +129,6 @@ namespace Lina
 		Vector<ModelMaterial> m_materialDefs;
 		Vector<ModelTexture>  m_textureDefs;
 		AABB				  m_totalAABB;
-		bool				  m_isUploaded = false;
 	};
 	LINA_RESOURCE_BEGIN(Model);
 	LINA_CLASS_END(Model);

@@ -240,21 +240,32 @@ namespace Lina
 			node->SaveToStream(stream);
 	}
 
-	void Model::UploadNodes(MeshManager& meshManager)
+	void Model::GenerateHW()
 	{
-		m_isUploaded = true;
-		for (ModelNode* node : m_rootNodes)
-			UploadNode(meshManager, node);
+		m_hwValid = true;
 	}
 
-	void Model::UploadNode(MeshManager& meshManager, ModelNode* node)
+	void Model::Upload(MeshManager* mm)
+	{
+		for (ModelNode* node : m_rootNodes)
+			UploadNode(mm, node);
+		m_hwUploadValid = true;
+	}
+
+	void Model::DestroyHW()
+	{
+		m_hwValid		= false;
+		m_hwUploadValid = false;
+	}
+
+	void Model::UploadNode(MeshManager* mm, ModelNode* node)
 	{
 		MeshDefault* mesh = node->GetMesh();
 		if (mesh)
-			meshManager.AddMesh(mesh);
+			mm->AddMesh(mesh);
 
 		for (auto* c : node->m_children)
-			UploadNode(meshManager, c);
+			UploadNode(mm, c);
 	}
 
 	ModelNode* Model::GetFirstNodeWMesh()

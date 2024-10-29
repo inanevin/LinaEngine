@@ -43,6 +43,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Resource/GUIWidget.hpp"
+#include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/Physics/PhysicsMaterial.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Platform/PlatformProcess.hpp"
@@ -221,24 +222,20 @@ namespace Lina::Editor
 						.id	  = EDITOR_FONT_ROBOTO_ID,
 					},
 					{
-						.path	 = EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_PATH,
-						.id		 = EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_ID,
-						.subType = 0,
+						.path = EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_PATH,
+						.id	  = EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_ID,
 					},
 					{
-						.path	 = EDITOR_SHADER_DEFAULT_TRANSPARENT_SURFACE_PATH,
-						.id		 = EDITOR_SHADER_DEFAULT_TRANSPARENT_SURFACE_ID,
-						.subType = 1,
+						.path = EDITOR_SHADER_DEFAULT_TRANSPARENT_SURFACE_PATH,
+						.id	  = EDITOR_SHADER_DEFAULT_TRANSPARENT_SURFACE_ID,
 					},
 					{
-						.path	 = EDITOR_SHADER_DEFAULT_SKY_PATH,
-						.id		 = EDITOR_SHADER_DEFAULT_SKY_ID,
-						.subType = 2,
+						.path = EDITOR_SHADER_DEFAULT_SKY_PATH,
+						.id	  = EDITOR_SHADER_DEFAULT_SKY_ID,
 					},
 					{
-						.path	 = EDITOR_SHADER_DEFAULT_LIGHTING_PATH,
-						.id		 = EDITOR_SHADER_DEFAULT_LIGHTING_ID,
-						.subType = 4,
+						.path = EDITOR_SHADER_DEFAULT_LIGHTING_PATH,
+						.id	  = EDITOR_SHADER_DEFAULT_LIGHTING_ID,
 					},
 					{
 						.path = EDITOR_MODEL_CUBE_PATH,
@@ -551,36 +548,88 @@ namespace Lina::Editor
 		}
 	}
 
+	namespace
+	{
+		void ReimportRecursively(Text* progress, HashSet<ResourceID>& list, ProjectData* project, ResourceDirectory* root)
+		{
+			for (ResourceDirectory* c : root->children)
+			{
+				if (c->isFolder)
+				{
+					ReimportRecursively(progress, list, project, c);
+					continue;
+				}
+
+				if (c->resourceType != ResourceType::ExternalSource)
+					continue;
+
+				const String path = FileSystem::GetFilePath(project->GetPath()) + c->sourcePathRelativeToProject;
+
+				if (!FileSystem::FileOrPathExists(path))
+					continue;
+
+				const StringID lastModifiedSID = TO_SID(FileSystem::GetLastModifiedDate(path));
+
+				if (lastModifiedSID == c->lastModifiedSID)
+					continue;
+
+				c->lastModifiedSID = lastModifiedSID;
+
+				progress->UpdateTextAndCalcSize(c->name);
+
+				MetaType&	 meta	 = ReflectionSystem::Get().Resolve(c->resourceTID);
+				Resource*	 res	 = static_cast<Resource*>(meta.GetFunction<void*()>("Allocate"_hs)());
+				const String resPath = project->GetResourcePath(c->resourceID);
+
+				// Load all data first.
+				IStream stream = Serialization::LoadFromFile(resPath.c_str());
+				if (!stream.Empty())
+					res->LoadFromStream(stream);
+				stream.Destroy();
+
+				// Now reload from file & save if success.
+				if (res->LoadFromFile(path))
+					res->SaveToFileAsBinary(resPath);
+
+				meta.GetFunction<void(void*)>("Deallocate"_hs)(res);
+				list.insert(c->resourceID);
+			}
+		}
+
+	} // namespace
+
 	void ProjectManager::ReimportChangedSources(ResourceDirectory* root)
 	{
+		Widget* lock		 = m_editor->GetWindowPanelManager().LockAllForegrounds(m_primaryWidgetManager->GetRoot()->GetWindow(), Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow));
+		Widget* progress	 = CommonWidgets::BuildGenericPopupProgress(m_primaryWidgetManager->GetRoot(), Locale::GetStr(LocaleStr::CreatingProject), true);
+		Text*	progressText = static_cast<Text*>(progress->FindChildWithDebugName("Progress"));
+		lock->AddChild(progress);
+
+		m_reimportQueue.clear();
+
 		m_editor->AddTask(
-			[]() {
+			[progressText, this, root]() {
+				ReimportRecursively(progressText, m_reimportQueue, m_currentProject, root);
 
+				m_editor->GetResourceManagerV2().ReloadResources(m_currentProject, m_reimportQueue);
+
+				const Vector<WorldRenderer*>& worldRenderers = m_editor->GetEditorRenderer().GetWorldRenderers();
+				for (WorldRenderer* wr : worldRenderers)
+					wr->GetWorld()->GetResourceManagerV2().ReloadResources(m_currentProject, m_reimportQueue);
 			},
-			[]() {
+			[this]() {
+				SaveProjectChanges();
+				m_editor->GetWindowPanelManager().UnlockAllForegrounds();
 
+				m_editor->GetEditorRenderer().VerifyResources();
+
+				const Vector<WorldRenderer*>& worldRenderers = m_editor->GetEditorRenderer().GetWorldRenderers();
+				for (WorldRenderer* wr : worldRenderers)
+					wr->GetWorld()->VerifyResources();
+
+				for (ResourceID rid : m_reimportQueue)
+					AddToThumbnailQueue(rid);
 			});
-
-		for (ResourceDirectory* c : root->children)
-		{
-			if (c->isFolder)
-				continue;
-
-			if (c->resourceType != ResourceType::ExternalSource)
-				continue;
-
-			const String path = FileSystem::GetFilePath(m_currentProject->GetPath()) + c->sourcePathRelativeToProject;
-
-			if (!FileSystem::FileOrPathExists(path))
-				continue;
-
-			const StringID lastModifiedSID = TO_SID(FileSystem::GetLastModifiedDate(path));
-
-			if (lastModifiedSID == c->lastModifiedSID)
-				continue;
-
-			c->lastModifiedSID = lastModifiedSID;
-		}
 	}
 
 } // namespace Lina::Editor

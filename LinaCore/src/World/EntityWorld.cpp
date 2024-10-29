@@ -29,13 +29,19 @@ SOFTWARE.
 #include "Core/World/EntityWorld.hpp"
 #include "Core/World/Entity.hpp"
 #include "Core/World/Component.hpp"
+#include "Core/Audio/Audio.hpp"
+#include "Core/Physics/PhysicsMaterial.hpp"
+#include "Core/Graphics/Resource/Texture.hpp"
+#include "Core/Graphics/Resource/Font.hpp"
+#include "Core/Graphics/Resource/TextureSampler.hpp"
+#include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/Data/ModelNode.hpp"
-#include "Core/Audio/Audio.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Components/MeshComponent.hpp"
 #include "Core/Components/CameraComponent.hpp"
+#include "Core/Resources/ResourceCache.hpp"
 
 #include "Common/System/SystemInfo.hpp"
 
@@ -340,5 +346,36 @@ namespace Lina
 			return false;
 		});
 		m_resourceManagerV2.LoadResourcesFromProject(project, materialDependencies, [](uint32 loaded, Resource* current) {});
+	}
+
+	void EntityWorld::VerifyResources()
+	{
+		Application::GetLGX()->Join();
+
+		const HashMap<TypeID, ResourceCacheBase*>& caches = m_resourceManagerV2.GetCaches();
+
+		Vector<Resource*> generatedResources;
+
+		for (auto [tid, cache] : caches)
+		{
+			Vector<Resource*> resources = cache->GetAllResources();
+			for (Resource* res : resources)
+			{
+				if (res->GetIsReloaded())
+				{
+					res->DestroyHW();
+					res->SetIsReloaded(false);
+				}
+
+				if (!res->IsHWValid())
+				{
+					generatedResources.push_back(res);
+					res->GenerateHW();
+				}
+			}
+		}
+
+		for (EntityWorldListener* listener : m_listeners)
+			listener->OnGeneratedResources(generatedResources);
 	}
 } // namespace Lina

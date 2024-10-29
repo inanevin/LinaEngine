@@ -92,8 +92,16 @@ namespace Lina
 		virtual bool LoadFromFile(const String& path) override;
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
-		void		 SetShader(Shader* shader);
-		size_t		 BufferDataInto(Buffer& buf, size_t padding, ResourceManagerV2* rm, BindlessContext* context);
+		virtual void GenerateHW() override
+		{
+			m_hwValid = true;
+		}
+		virtual void DestroyHW() override
+		{
+			m_hwValid = false;
+		}
+		void   SetShader(Shader* shader);
+		size_t BufferDataInto(Buffer& buf, size_t padding, ResourceManagerV2* rm, BindlessContext* context);
 
 		template <typename T> void SetProperty(StringID sid, T val)
 		{

@@ -52,16 +52,15 @@ namespace Lina
 		struct Metadata
 		{
 			HashMap<StringID, ShaderVariant> variants;
-			ShaderType						 shaderType = ShaderType::Custom;
 
 			void SaveToStream(OStream& out) const
 			{
-				out << variants << shaderType;
+				out << variants;
 			}
 
 			void LoadFromStream(IStream& in)
 			{
-				in >> variants >> shaderType;
+				in >> variants;
 			}
 		};
 
@@ -74,18 +73,23 @@ namespace Lina
 		virtual bool LoadFromFile(const String& path) override;
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
+		virtual void GenerateHW() override;
+		virtual void DestroyHW() override;
 		virtual void SetCustomMeta(IStream& stream) override
 		{
 			m_meta.LoadFromStream(stream);
 		}
 
-		void GenerateHW();
-		void DestroyHW();
 		void Bind(LinaGX::CommandStream* stream, uint32 gpuHandle);
 
 		inline uint32 GetGPUHandle() const
 		{
-			return m_meta.variants.begin()->second._gpuHandle;
+			return m_gpuHandles.at(m_meta.variants.begin()->first);
+		}
+
+		inline uint32 GetGPUHandle(StringID sid)
+		{
+			return m_gpuHandles.at(sid);
 		}
 
 		inline const Metadata& GetMeta() const
@@ -103,18 +107,19 @@ namespace Lina
 			return m_propertyDefinitions;
 		}
 
-		inline bool IsGPUValid() const
+		inline ShaderType GetShaderType() const
 		{
-			return m_hwExists;
+			return m_shaderType;
 		}
 
 	private:
 		ALLOCATOR_BUCKET_MEM;
 		LINA_REFLECTION_ACCESS(Shader);
 
-		Metadata						 m_meta = {};
+		HashMap<StringID, uint32>		 m_gpuHandles;
+		Metadata						 m_meta		  = {};
+		ShaderType						 m_shaderType = ShaderType::Custom;
 		Vector<ShaderPropertyDefinition> m_propertyDefinitions;
-		bool							 m_hwExists = false;
 	};
 
 	LINA_RESOURCE_BEGIN(Shader);

@@ -723,70 +723,39 @@ namespace Lina
 		return currentFrame.copySemaphore.GetValue();
 	}
 
-	void WorldRenderer::VerifyResourcesHW()
+	void WorldRenderer::OnGeneratedResources(Vector<Resource*>& resources)
 	{
+		bool containsFont	  = false;
 		bool bindlessDirty	  = false;
 		bool meshManagerDirty = false;
-		bool containsFont	  = false;
 
-		ResourceManagerV2& rm = m_world->GetResourceManagerV2();
-
-		ResourceCache<Texture>*		   textureCache	 = rm.GetCache<Texture>();
-		ResourceCache<TextureSampler>* samplerCache	 = rm.GetCache<TextureSampler>();
-		ResourceCache<Material>*	   materialCache = rm.GetCache<Material>();
-		ResourceCache<Model>*		   modelCache	 = rm.GetCache<Model>();
-		ResourceCache<Shader>*		   shaderCache	 = rm.GetCache<Shader>();
-		ResourceCache<Font>*		   fontCache	 = rm.GetCache<Font>();
-
-		textureCache->View([&](Texture* res, uint32 index) -> bool {
-			if (!res->IsGPUValid())
+		for (Resource* r : resources)
+		{
+			if (r->GetTID() == GetTypeID<Texture>())
 			{
-				res->GenerateHW();
-				res->AddToUploadQueue(m_globalUploadQueue, true);
+				static_cast<Texture*>(r)->AddToUploadQueue(m_globalUploadQueue, true);
 				bindlessDirty = true;
 			}
-			return false;
-		});
-
-		samplerCache->View([&](TextureSampler* res, uint32 index) -> bool {
-			if (!res->IsGPUValid())
+			else if (r->GetTID() == GetTypeID<TextureSampler>())
 			{
-				res->GenerateHW();
 				bindlessDirty = true;
 			}
-			return false;
-		});
-
-		materialCache->View([&](Material* res, uint32 index) -> bool {
-			bindlessDirty = true;
-			return true;
-		});
-
-		modelCache->View([&](Model* res, uint32 index) -> bool {
-			if (!res->IsUploaded())
+			else if (r->GetTID() == GetTypeID<Material>())
 			{
-				res->UploadNodes(m_meshManager);
+				bindlessDirty = true;
+			}
+			else if (r->GetTID() == GetTypeID<Model>())
+			{
+				static_cast<Model*>(r)->Upload(&m_meshManager);
 				meshManagerDirty = true;
 			}
-			return false;
-		});
-
-		shaderCache->View([&](Shader* res, uint32 index) -> bool {
-			if (!res->IsGPUValid())
-				res->GenerateHW();
-			return false;
-		});
-
-		fontCache->View([&](Font* res, uint32 index) -> bool {
-			if (!res->IsGPUValid())
+			else if (r->GetTID() == GetTypeID<Font>())
 			{
-				res->GenerateHW(m_guiBackend.GetLVGText());
-				bindlessDirty = true;
+				static_cast<Font*>(r)->Upload(m_guiBackend.GetLVGText());
 				containsFont  = true;
+				bindlessDirty = true;
 			}
-
-			return false;
-		});
+		}
 
 		if (containsFont)
 			m_guiBackend.ReuploadAtlases(m_globalUploadQueue);

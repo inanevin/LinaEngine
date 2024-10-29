@@ -42,7 +42,6 @@ namespace Lina::Editor
 	{
 		auto swapchainShaderMeta = [](Shader* shader) {
 			Shader::Metadata& meta		  = shader->GetMeta();
-			meta.shaderType				  = ShaderType::Custom;
 			meta.variants["Swapchain"_hs] = ShaderVariant{
 				.blendDisable	 = false,
 				.depthTest		 = false,

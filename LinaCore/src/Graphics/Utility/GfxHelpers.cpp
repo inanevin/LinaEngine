@@ -51,8 +51,13 @@ namespace
 	{
 		va_list args;
 		va_start(args, err);
-		std::string formattedStr = FormatString(err, args);
-		LINA_ERR(formattedStr.c_str());
+
+		// Use vsnprintf to safely format the string into a buffer.
+		char buffer[4096]; // Adjust buffer size as needed.
+		vsnprintf(buffer, sizeof(buffer), err, args);
+
+		LINA_ERR(buffer); // Pass the formatted string to LINA_ERR.
+
 		va_end(args);
 	}
 
@@ -60,8 +65,13 @@ namespace
 	{
 		va_list args;
 		va_start(args, err);
-		std::string formattedStr = FormatString(err, args);
-		LINA_INFO(formattedStr.c_str());
+
+		// Use vsnprintf to safely format the string into a buffer.
+		char buffer[4096]; // Adjust buffer size as needed.
+		vsnprintf(buffer, sizeof(buffer), err, args);
+
+		LINA_INFO(buffer); // Pass the formatted string to LINA_ERR.
+
 		va_end(args);
 	}
 } // namespace

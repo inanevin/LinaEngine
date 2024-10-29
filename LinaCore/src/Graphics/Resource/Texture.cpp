@@ -244,15 +244,15 @@ namespace Lina
 
 	void Texture::GenerateHWFromDesc(const LinaGX::TextureDesc& desc)
 	{
-		LINA_ASSERT(m_gpuHandleExists == false, "");
-		m_gpuHandle		  = Application::GetLGX()->CreateTexture(desc);
-		m_gpuHandleExists = true;
-		m_size			  = Vector2ui(desc.width, desc.height);
+		LINA_ASSERT(m_hwValid == false, "");
+		m_gpuHandle = Application::GetLGX()->CreateTexture(desc);
+		m_hwValid	= true;
+		m_size		= Vector2ui(desc.width, desc.height);
 	}
 
 	void Texture::GenerateHW()
 	{
-		LINA_ASSERT(m_gpuHandleExists == false, "");
+		LINA_ASSERT(m_hwValid == false, "");
 		LinaGX::TextureDesc desc = LinaGX::TextureDesc{
 			.format	   = m_meta.format,
 			.flags	   = LinaGX::TextureFlags::TF_Sampled | LinaGX::TextureFlags::TF_CopyDest,
@@ -261,26 +261,28 @@ namespace Lina
 			.mipLevels = static_cast<uint32>(m_allLevels.size()),
 			.debugName = m_name.c_str(),
 		};
-		m_gpuHandle		  = Application::GetLGX()->CreateTexture(desc);
-		m_gpuHandleExists = true;
+		m_gpuHandle = Application::GetLGX()->CreateTexture(desc);
+		m_hwValid	= true;
 	}
 
 	void Texture::DestroyHW()
 	{
-		if (!m_gpuHandleExists)
+		if (!m_hwValid)
 			return;
 
 		Application::GetLGX()->DestroyTexture(m_gpuHandle);
-		m_gpuHandleExists = false;
+		m_hwValid		= false;
+		m_hwUploadValid = false;
 	}
 
 	void Texture::AddToUploadQueue(ResourceUploadQueue& queue, bool destroySW)
 	{
-		LINA_ASSERT(m_gpuHandleExists == true, "");
+		LINA_ASSERT(m_hwValid == true, "");
 		queue.AddTextureRequest(this, [this, destroySW]() {
 			if (destroySW)
 				DestroySW();
 		});
+		m_hwUploadValid = true;
 	}
 
 	uint32 Texture::GetChannels()

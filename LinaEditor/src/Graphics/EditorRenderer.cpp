@@ -323,63 +323,76 @@ namespace Lina::Editor
 		MarkBindlessDirty();
 	}
 
-	void EditorRenderer::OnResourcesUnloaded(const ResourceDefinitionList& resources)
+	void EditorRenderer::VerifyResources()
 	{
+		Application::GetLGX()->Join();
+
+		ResourceCache<Texture>*		   textureCache = m_resourceManagerV2->GetCache<Texture>();
+		ResourceCache<TextureSampler>* samplerCache = m_resourceManagerV2->GetCache<TextureSampler>();
+		ResourceCache<Shader>*		   shaderCache	= m_resourceManagerV2->GetCache<Shader>();
+		ResourceCache<Font>*		   fontCache	= m_resourceManagerV2->GetCache<Font>();
+
 		bool bindlessDirty = false;
-		bool containsFont  = false;
 
-		for (const ResourceDef& def : resources)
-		{
-			if (def.tid == GetTypeID<Texture>() || def.tid == GetTypeID<TextureSampler>() || def.tid == GetTypeID<Material>())
-				bindlessDirty = true;
-
-			if (def.tid == GetTypeID<Font>())
+		textureCache->View([&](Texture* res, uint32 index) -> bool {
+			if (res->GetIsReloaded())
 			{
-				containsFont  = true;
-				bindlessDirty = true;
+				res->DestroyHW();
+				res->SetIsReloaded(false);
 			}
-		}
 
-		if (containsFont)
-			m_guiBackend.ReuploadAtlases(m_uploadQueue);
-
-		if (bindlessDirty)
-			MarkBindlessDirty();
-	}
-
-	void EditorRenderer::OnResourcesLoaded(const ResourceList& resources)
-	{
-		bool bindlessDirty = false;
-		bool containsFont  = false;
-
-		for (Resource* res : resources)
-		{
-			if (res->GetTID() == GetTypeID<Texture>())
+			if (!res->IsHWValid())
 			{
-				Texture* txt = static_cast<Texture*>(res);
-				txt->GenerateHW();
-				txt->AddToUploadQueue(m_uploadQueue, false);
+				res->GenerateHW();
+				res->AddToUploadQueue(m_uploadQueue, true);
 				bindlessDirty = true;
 			}
-			else if (res->GetTID() == GetTypeID<TextureSampler>())
+			return false;
+		});
+
+		samplerCache->View([&](TextureSampler* res, uint32 index) -> bool {
+			if (res->GetIsReloaded())
 			{
-				TextureSampler* smp = static_cast<TextureSampler*>(res);
-				smp->GenerateHW();
+				res->DestroyHW();
+				res->SetIsReloaded(false);
+			}
+
+			if (!res->IsHWValid())
+			{
+				res->GenerateHW();
 				bindlessDirty = true;
 			}
-			else if (res->GetTID() == GetTypeID<Font>())
+
+			return false;
+		});
+
+		shaderCache->View([&](Shader* res, uint32 index) -> bool {
+			if (res->GetIsReloaded())
 			{
-				Font* font = static_cast<Font*>(res);
-				font->GenerateHW(m_guiBackend.GetLVGText());
-				containsFont  = true;
-				bindlessDirty = true;
+				res->DestroyHW();
+				res->SetIsReloaded(false);
 			}
-			else if (res->GetTID() == GetTypeID<Shader>())
+
+			if (!res->IsHWValid())
+				res->GenerateHW();
+			return false;
+		});
+
+		bool containsFont = false;
+		fontCache->View([&](Font* res, uint32 index) -> bool {
+			if (res->GetIsReloaded())
 			{
-				Shader* shd = static_cast<Shader*>(res);
-				shd->GenerateHW();
+				res->DestroyHW();
+				res->SetIsReloaded(false);
 			}
-		}
+
+			if (!res->IsHWUploadValid())
+			{
+				res->Upload(m_guiBackend.GetLVGText());
+				containsFont = true;
+			}
+			return false;
+		});
 
 		if (containsFont)
 			m_guiBackend.ReuploadAtlases(m_uploadQueue);

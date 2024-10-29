@@ -88,7 +88,7 @@ namespace Lina::Editor
 		}
 
 		m_editorRenderer.Initialize(this);
-		m_editorRenderer.OnResourcesLoaded(resources);
+		m_editorRenderer.VerifyResources();
 		return true;
 	}
 
@@ -144,15 +144,7 @@ namespace Lina::Editor
 				m_atlasManager.AddCustomAtlas("Resources/Editor/Textures/Atlas/ProjectIcons/", "ProjectIcons"_hs, Vector2ui(2048, 2048));
 			},
 			[this]() {
-				Application::GetLGX()->Join();
-
-				HashSet<Resource*> resources;
-				resources.insert(m_resourceManagerV2.GetResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID));
-				resources.insert(m_resourceManagerV2.GetResource<Texture>(EDITOR_TEXTURE_PROTOTYPE_DARK_ID));
-				resources.insert(m_resourceManagerV2.GetResource<Font>(EDITOR_FONT_PLAY_ID));
-				resources.insert(m_resourceManagerV2.GetResource<Font>(EDITOR_FONT_PLAY_BOLD_ID));
-				resources.insert(m_atlasManager.GetCustomAtlas("ProjectIcons"_hs)->GetRaw());
-				m_editorRenderer.OnResourcesLoaded(resources);
+				m_editorRenderer.VerifyResources();
 				m_windowPanelManager.UnlockAllForegrounds();
 
 				// Resize window to work dims.

@@ -49,6 +49,10 @@ namespace Lina
 		Resource(ResourceID id, TypeID tid, const String& name) : m_id(id), m_tid(tid), m_name(name){};
 		virtual ~Resource() = default;
 
+		virtual void GenerateHW(){};
+		virtual void DestroyHW(){};
+		virtual void SetCustomMeta(IStream& stream){};
+
 		virtual bool LoadFromFile(const String& path)
 		{
 			return false;
@@ -61,8 +65,8 @@ namespace Lina
 		{
 			stream << m_id << m_name << m_path;
 		};
-		virtual void SetCustomMeta(IStream& stream){};
-		void		 SaveToFileAsBinary(const String& path);
+
+		void SaveToFileAsBinary(const String& path);
 
 		inline void SetID(ResourceID id)
 		{
@@ -99,16 +103,39 @@ namespace Lina
 			return m_path;
 		}
 
+		inline bool IsHWValid() const
+		{
+			return m_hwValid;
+		}
+
+		inline bool IsHWUploadValid() const
+		{
+			return m_hwUploadValid;
+		}
+
+		inline void SetIsReloaded(bool isReloaded)
+		{
+			m_isReloaded = isReloaded;
+		}
+
+		inline bool GetIsReloaded() const
+		{
+			return m_isReloaded;
+		}
+
 		virtual void SetSubdata(void* data){};
 
 	protected:
 		template <typename U> friend class ResourceCache;
 
 	protected:
-		String	   m_name = "";
-		String	   m_path = "";
-		ResourceID m_id	  = 0;
-		TypeID	   m_tid  = 0;
+		String	   m_name		   = "";
+		String	   m_path		   = "";
+		ResourceID m_id			   = 0;
+		TypeID	   m_tid		   = 0;
+		bool	   m_isReloaded	   = false;
+		bool	   m_hwValid	   = false;
+		bool	   m_hwUploadValid = false;
 	};
 
 	class ResRefBase

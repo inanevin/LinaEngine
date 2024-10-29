@@ -66,6 +66,8 @@ namespace Lina
 		if (!ShaderPreprocessor::VerifyFullShader(txt))
 			return false;
 
+		m_shaderType = ShaderPreprocessor::GetShaderType(txt);
+
 		String vertexBlock = "", fragBlock = "";
 		if (!ShaderPreprocessor::ExtractVertexFrag(txt, vertexBlock, fragBlock))
 			return false;
@@ -85,7 +87,7 @@ namespace Lina
 
 		m_propertyDefinitions = fragProperties.empty() ? vertexProperties : fragProperties;
 
-		const ShaderType type	 = m_meta.shaderType;
+		const ShaderType type	 = m_shaderType;
 		bool			 success = true;
 
 		auto clearVariants = [this]() {
@@ -352,6 +354,7 @@ namespace Lina
 		stream << VERSION;
 		stream << m_meta;
 		stream << m_propertyDefinitions;
+		stream << m_shaderType;
 	}
 
 	void Shader::LoadFromStream(IStream& stream)
@@ -361,10 +364,13 @@ namespace Lina
 		stream >> version;
 		stream >> m_meta;
 		stream >> m_propertyDefinitions;
+		stream >> m_shaderType;
 	}
 
 	void Shader::GenerateHW()
 	{
+		m_gpuHandles.clear();
+
 		// Create variants
 		for (auto& [sid, variant] : m_meta.variants)
 		{
@@ -397,7 +403,7 @@ namespace Lina
 				.depthCompare				  = variant.depthOp,
 			};
 
-			variant._gpuHandle = Application::GetLGX()->CreateShader({
+			m_gpuHandles[sid] = Application::GetLGX()->CreateShader({
 				.stages					 = variant._outCompiledBlobs,
 				.colorAttachments		 = colorAttachments,
 				.depthStencilDesc		 = depthStencilAtt,
@@ -415,28 +421,21 @@ namespace Lina
 				.debugName				 = m_name.c_str(),
 			});
 
-			variant._gpuHandleExists = true;
-
 			for (auto& [stage, blob] : variant._outCompiledBlobs)
 				delete[] blob.ptr;
 
 			variant._outCompiledBlobs.clear();
 		}
 
-		m_hwExists = true;
+		m_hwValid = true;
 	}
 
 	void Shader::DestroyHW()
 	{
-		for (auto& [sid, var] : m_meta.variants)
-		{
-			if (!var._gpuHandleExists)
-				continue;
+		for (auto [sid, handle] : m_gpuHandles)
+			Application::GetLGX()->DestroyShader(handle);
 
-			var._gpuHandleExists = false;
-			Application::GetLGX()->DestroyShader(var._gpuHandle);
-		}
-		m_hwExists = false;
+		m_hwValid = false;
 	}
 
 } // namespace Lina

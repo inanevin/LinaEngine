@@ -118,8 +118,9 @@ namespace Lina::Editor
 			.name = m_resource->GetName(),
 			.tid  = m_resource->GetTID(),
 		};
+
 		m_editor->GetResourceManagerV2().UnloadResources({m_resource});
-		m_editor->GetEditorRenderer().OnResourcesUnloaded({def});
+		m_editor->GetEditorRenderer().MarkBindlessDirty();
 		m_resource = nullptr;
 	}
 
@@ -153,9 +154,9 @@ namespace Lina::Editor
 			m_previewOnly = true;
 		else
 		{
-			HashSet<Resource*> resources = m_editor->GetResourceManagerV2().LoadResourcesFromProject(m_editor->GetProjectManager().GetProjectData(), {m_subData}, NULL);
-			r							 = *resources.begin();
-			m_editor->GetEditorRenderer().OnResourcesLoaded({r});
+			m_editor->GetResourceManagerV2().LoadResourcesFromProject(m_editor->GetProjectManager().GetProjectData(), {m_subData}, NULL);
+			m_editor->GetEditorRenderer().VerifyResources();
+			r = m_editor->GetResourceManagerV2().GetIfExists(m_resourceTID, m_subData);
 		}
 
 		if (resDir->parent == m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().GetChildByName(EDITOR_DEF_RESOURCES_FOLDER))

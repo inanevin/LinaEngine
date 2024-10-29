@@ -88,8 +88,12 @@ namespace Lina::Editor
 		sc.SetDisplaySize(m_rect.size);
 		sc.SetDisplayPos(m_rect.pos);
 
+		bool skipSize = false;
+		if (m_rect.size.x < 0.0f || m_rect.size.y < 0.0f)
+			skipSize = true;
+
 		const Vector2ui displayerSize = Vector2ui(Math::FloorToInt(m_rect.size.x), Math::FloorToInt(m_rect.size.y));
-		if (sc.GetRenderSize().x != displayerSize.x || sc.GetRenderSize().y != displayerSize.y)
+		if (!skipSize && (sc.GetRenderSize().x != displayerSize.x || sc.GetRenderSize().y != displayerSize.y))
 		{
 			Application::GetLGX()->Join();
 			m_worldRenderer->Resize(displayerSize);

@@ -53,9 +53,9 @@ namespace Lina
 	public:
 		virtual void OnComponentAdded(Component* c){};
 		virtual void OnComponentRemoved(Component* c){};
+		virtual void OnGeneratedResources(Vector<Resource*>& resources){};
 	};
 
-	// Actual game state
 	class EntityWorld : public Resource
 	{
 	public:
@@ -92,6 +92,7 @@ namespace Lina
 		Entity*		 AddModelToWorld(Model* model, const Vector<ResourceID>& materials);
 		void		 CollectResourceNeeds(HashSet<ResourceID>& outResources);
 		void		 LoadMissingResources(ProjectData* project, const HashSet<ResourceID>& extraResources);
+		void		 VerifyResources();
 
 		void BeginPlay();
 		void EndPlay();

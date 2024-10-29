@@ -54,7 +54,7 @@ namespace Lina
 	void Material::SetShader(Shader* shader)
 	{
 		m_shader	 = shader->GetID();
-		m_shaderType = shader->GetMeta().shaderType;
+		m_shaderType = shader->GetShaderType();
 
 		const Vector<ShaderPropertyDefinition>& properties = shader->GetPropertyDefinitions();
 

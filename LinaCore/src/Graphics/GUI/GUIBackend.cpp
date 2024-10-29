@@ -82,7 +82,7 @@ namespace Lina
 			if (ft.texture->GetAllLevels().empty())
 				continue;
 
-			if (!ft.texture->IsGPUValid())
+			if (!ft.texture->IsHWValid())
 				ft.texture->GenerateHW();
 			ft.texture->AddToUploadQueue(queue, true);
 		}

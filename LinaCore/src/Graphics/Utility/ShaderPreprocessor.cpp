@@ -511,4 +511,24 @@ namespace Lina
 			return;
 		}
 	}
+
+	ShaderType ShaderPreprocessor::GetShaderType(const String& input)
+	{
+		if (input.find("#LINA_SHADER_OPAQUE_SURFACE") != String::npos)
+			return ShaderType::OpaqueSurface;
+
+		if (input.find("#LINA_SHADER_TRANSPARENT_SURFACE") != String::npos)
+			return ShaderType::TransparentSurface;
+
+		if (input.find("#LINA_SHADER_SKY") != String::npos)
+			return ShaderType::Sky;
+
+		if (input.find("#LINA_SHADER_LIGHTING") != String::npos)
+			return ShaderType::Lighting;
+
+		if (input.find("#LINA_SHADER_POSTPORCESS") != String::npos)
+			return ShaderType::PostProcess;
+
+		return ShaderType::Custom;
+	}
 } // namespace Lina

@@ -89,10 +89,16 @@ namespace Lina
 				delete font;
 		}
 		m_lvgFonts.clear();
-		m_hwExists = false;
+		m_hwValid		= false;
+		m_hwUploadValid = false;
 	}
 
-	void Font::GenerateHW(LinaVG::Text& lvgText)
+	void Font::GenerateHW()
+	{
+		m_hwValid = true;
+	}
+
+	void Font::Upload(LinaVG::Text& lvgText)
 	{
 		Vector<LinaVG::GlyphEncoding> customRangeVec;
 		for (const auto& rng : m_meta.glyphRanges)
@@ -110,7 +116,7 @@ namespace Lina
 			else
 				m_lvgFonts[i] = lvgText.LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.points[i].size, customRangeVec.data(), static_cast<int32>(m_meta.glyphRanges.size()) * 2);
 		}
-		m_hwExists = true;
+		m_hwUploadValid = true;
 	}
 
 	bool Font::LoadFromFile(const String& path)

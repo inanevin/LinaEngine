@@ -152,7 +152,7 @@ namespace Lina
 
 	void TextureAtlas::RefreshGPU(ResourceUploadQueue& queue)
 	{
-		if (!m_rawTexture->IsGPUValid())
+		if (!m_rawTexture->IsHWValid())
 			m_rawTexture->GenerateHW();
 		m_rawTexture->AddToUploadQueue(queue, true);
 	}

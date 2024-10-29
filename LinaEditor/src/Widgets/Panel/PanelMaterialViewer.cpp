@@ -100,7 +100,7 @@ namespace Lina::Editor
 				m_world->GetFlags().Remove(WORLD_FLAGS_LOADING);
 
 				m_worldRenderer = new WorldRenderer(m_world, Vector2ui(4, 4));
-				m_worldRenderer->VerifyResourcesHW();
+				m_world->VerifyResources();
 				m_worldDisplayer->DisplayWorld(m_worldRenderer);
 				m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer);
 
@@ -332,7 +332,7 @@ namespace Lina::Editor
 				Widget* txtField = CommonWidgets::BuildTextureField(this, m_editor->GetProjectManager().GetProjectData(), txt, 0, p->propDef.name, reinterpret_cast<bool*>(&m_propertyFoldValues[i]), [this]() {
 					RefreshMaterialInWorld();
 					m_world->LoadMissingResources(m_editor->GetProjectManager().GetProjectData(), {});
-					m_worldRenderer->VerifyResourcesHW();
+					m_world->VerifyResources();
 					SetRuntimeDirty(true);
 				});
 				m_foldResource->AddChild(txtField);
@@ -355,6 +355,7 @@ namespace Lina::Editor
 	void PanelMaterialViewer::OnResourceMetaChanged(const MetaType& meta, FieldBase* field)
 	{
 		Material* mat = static_cast<Material*>(m_resource);
+
 		if (mat->GetShader() != m_storedShaderID)
 		{
 			m_storedShaderID = mat->GetShader();
@@ -366,7 +367,7 @@ namespace Lina::Editor
 			{
 				m_world->GetResourceManagerV2().LoadResourcesFromProject(m_editor->GetProjectManager().GetProjectData(), {m_storedShaderID}, NULL);
 				shader = m_world->GetResourceManagerV2().GetResource<Shader>(m_storedShaderID);
-				m_worldRenderer->VerifyResourcesHW();
+				m_world->VerifyResources();
 			}
 
 			// Set shaders & sync materials.
@@ -376,7 +377,7 @@ namespace Lina::Editor
 			RegenHW();
 			RebuildGeneralReflection();
 			m_world->LoadMissingResources(m_editor->GetProjectManager().GetProjectData(), {});
-			m_worldRenderer->VerifyResourcesHW();
+			m_world->VerifyResources();
 		}
 	}
 

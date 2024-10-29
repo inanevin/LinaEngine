@@ -145,7 +145,7 @@ namespace Lina::Editor
 			.isFolder		 = false,
 			.resourceID		 = id,
 			.resourceTID	 = tid,
-			.resourceType	 = ResourceType::EngineCreated,
+			.resourceType	 = tid == GetTypeID<Shader>() ? ResourceType::ExternalSource : ResourceType::EngineCreated,
 			.lastModifiedSID = 0,
 		});
 
@@ -182,53 +182,6 @@ namespace Lina::Editor
 
 			mat.SaveToFileAsBinary(path);
 			shaderStream.Destroy();
-		}
-		else if (tid == GetTypeID<Shader>())
-		{
-			Shader shader(id, name);
-
-			const String savePath = PlatformProcess::SaveDialog({
-				.title		   = Locale::GetStr(LocaleStr::CreateANewShader),
-				.primaryButton = Locale::GetStr(LocaleStr::Create),
-				.extensions	   = {"linashader"},
-				.mode		   = PlatformProcess::DialogMode::SelectFile,
-			});
-
-			// Load default text.
-			if (subType == 0)
-			{
-				// Opaque surface
-				const String shaderTxt = FileSystem::ReadFileContentsAsString(EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_PATH);
-				Serialization::WriteToFile(shaderTxt, savePath);
-				shader.GetMeta().shaderType = ShaderType::OpaqueSurface;
-			}
-			else if (subType == 1)
-			{
-				// Transparent surface
-				const String shaderTxt = FileSystem::ReadFileContentsAsString(EDITOR_SHADER_DEFAULT_TRANSPARENT_SURFACE_PATH);
-				Serialization::WriteToFile(shaderTxt, savePath);
-				shader.GetMeta().shaderType = ShaderType::TransparentSurface;
-			}
-			else if (subType == 2)
-			{
-				// Sky
-				const String shaderTxt = FileSystem::ReadFileContentsAsString(EDITOR_SHADER_DEFAULT_SKY_PATH);
-				Serialization::WriteToFile(shaderTxt, savePath);
-				shader.GetMeta().shaderType = ShaderType::Sky;
-			}
-			else if (subType == 3)
-			{
-				// Post process
-				const String shaderTxt = FileSystem::ReadFileContentsAsString(EDITOR_SHADER_DEFAULT_POSTPROCESS_PATH);
-				Serialization::WriteToFile(shaderTxt, savePath);
-				shader.GetMeta().shaderType = ShaderType::PostProcess;
-			}
-
-			shader.SetPath(savePath);
-			shader.SetName(FileSystem::GetFilenameOnlyFromPath(savePath));
-			shader.LoadFromFile(savePath);
-			shader.SaveToFileAsBinary(path);
-			newCreated->name = shader.GetName();
 		}
 		else
 			saveDefault();
@@ -302,30 +255,7 @@ namespace Lina::Editor
 				meta.GetFunction<void(void*)>("Deallocate"_hs)(res);
 			};
 
-			if (resourceTID == GetTypeID<Shader>())
-			{
-				Shader shader(0, name);
-
-				if (def.subType == 0)
-					shader.GetMeta().shaderType = ShaderType::OpaqueSurface;
-				else if (def.subType == 1)
-					shader.GetMeta().shaderType = ShaderType::TransparentSurface;
-				else if (def.subType == 2)
-					shader.GetMeta().shaderType = ShaderType::Sky;
-				else if (def.subType == 3)
-					shader.GetMeta().shaderType = ShaderType::PostProcess;
-				else if (def.subType == 4)
-					shader.GetMeta().shaderType = ShaderType::Lighting;
-
-				if (!shader.LoadFromFile(def.path))
-					continue;
-
-				shader.SetID(def.id == 0 ? projectData->ConsumeResourceID() : def.id);
-				shader.SetPath(def.path);
-				shader.SaveToFileAsBinary(projectData->GetResourcePath(shader.GetID()));
-				createDirectory(shader.GetID());
-			}
-			else if (resourceTID == GetTypeID<Model>())
+			if (resourceTID == GetTypeID<Model>())
 			{
 				Model model(0, name);
 				if (!model.LoadFromFile(def.path))

@@ -63,10 +63,10 @@ namespace Lina
 		virtual bool LoadFromFile(const String& path) override;
 		virtual void LoadFromStream(IStream& stream) override;
 		void		 LoadFromBuffer(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel);
+		virtual void GenerateHW() override;
+		virtual void DestroyHW() override;
 
 		void	  GenerateHWFromDesc(const LinaGX::TextureDesc& desc);
-		void	  GenerateHW();
-		void	  DestroyHW();
 		void	  DestroySW();
 		void	  AddToUploadQueue(ResourceUploadQueue& queue, bool destroySW);
 		Vector2ui GetSize();
@@ -103,11 +103,6 @@ namespace Lina
 			return m_meta;
 		}
 
-		inline bool IsGPUValid() const
-		{
-			return m_gpuHandleExists;
-		}
-
 		inline int32 GetImportedChannels() const
 		{
 			return m_importedChannels;
@@ -133,7 +128,6 @@ namespace Lina
 		Vector2ui					  m_size			 = Vector2ui::Zero;
 		int32						  m_importedChannels = 0;
 		bool						  m_useGlobalDelete	 = false;
-		bool						  m_gpuHandleExists	 = false;
 		size_t						  m_totalSize		 = 0;
 	};
 

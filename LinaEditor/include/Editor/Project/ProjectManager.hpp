@@ -107,5 +107,6 @@ namespace Lina::Editor
 		HashMap<ResourceID, TextureAtlasImage*> m_resourceThumbnails;
 		HashMap<ResourceID, TextureAtlasImage*> m_resourceThumbnailsOnFlight;
 		HashSet<ResourceID>						m_thumbnailQueue;
+		HashSet<ResourceID>						m_reimportQueue;
 	};
 } // namespace Lina::Editor

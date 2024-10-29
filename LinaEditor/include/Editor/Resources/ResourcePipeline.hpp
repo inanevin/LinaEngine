@@ -52,9 +52,8 @@ namespace Lina::Editor
 	public:
 		struct ResourceImportDef
 		{
-			String	   path	   = "";
-			ResourceID id	   = 0;
-			uint32	   subType = 0;
+			String	   path = "";
+			ResourceID id	= 0;
 		};
 
 		static void						  TrySetMaterialProperty(MaterialProperty* prop);

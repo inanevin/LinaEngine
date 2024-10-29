@@ -86,22 +86,22 @@ namespace Lina
 	{
 		m_samplerDesc.debugName = m_name.c_str();
 		m_gpuHandle				= Application::GetLGX()->CreateSampler(m_samplerDesc);
-		m_hwExists				= true;
+		m_hwValid				= true;
 	}
 
 	void TextureSampler::GenerateHW(const LinaGX::SamplerDesc& desc)
 	{
 		m_samplerDesc = desc;
 		m_gpuHandle	  = Application::GetLGX()->CreateSampler(m_samplerDesc);
-		m_hwExists	  = true;
+		m_hwValid	  = true;
 	}
 
 	void TextureSampler::DestroyHW()
 	{
-		if (!m_hwExists)
+		if (!m_hwValid)
 			return;
 		Application::GetLGX()->DestroySampler(m_gpuHandle);
-		m_hwExists = false;
+		m_hwValid = false;
 	}
 
 } // namespace Lina

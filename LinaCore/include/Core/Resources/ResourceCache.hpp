@@ -49,10 +49,11 @@ namespace Lina
 		ResourceCacheBase(){};
 		virtual ~ResourceCacheBase() = default;
 
-		virtual Resource* Create(ResourceID id, const String& name) = 0;
-		virtual Resource* Get(ResourceID id) const					= 0;
-		virtual void	  Destroy(ResourceID id)					= 0;
-		virtual Resource* GetIfExists(ResourceID id) const			= 0;
+		virtual Resource*		  Create(ResourceID id, const String& name) = 0;
+		virtual Resource*		  Get(ResourceID id) const					= 0;
+		virtual void			  Destroy(ResourceID id)					= 0;
+		virtual Resource*		  GetIfExists(ResourceID id) const			= 0;
+		virtual Vector<Resource*> GetAllResources()							= 0;
 
 		inline PackageType GetPackageType() const
 		{
@@ -121,6 +122,17 @@ namespace Lina
 		void View(Delegate<bool(T* res, uint32 index)>&& callback)
 		{
 			m_resourceBucket.View(std::move(callback));
+		}
+
+		virtual Vector<Resource*> GetAllResources()
+		{
+			Vector<Resource*> resources;
+			resources.reserve(m_resources.size());
+
+			for (auto [id, res] : m_resources)
+				resources.push_back(res);
+
+			return resources;
 		}
 
 	private:
