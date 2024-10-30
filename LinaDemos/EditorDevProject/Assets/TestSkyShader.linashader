@@ -30,6 +30,12 @@ SOFTWARE.
 
 #lina_vs
 
+struct LinaVertexToFrag
+{
+   vec2 uv;
+   vec3 wpos;
+};
+
 // do not modify
 struct LinaVertexInput
 {
@@ -43,26 +49,31 @@ struct LinaVertexInput
 struct LinaVertexOutput
 {
    vec4 pos;
-   vec3 normal;
-   vec2 uv;
+   LinaVertexToFrag toFrag;
 };
 
 void LINA_VERTEX_FUNC(in LinaVertexInput inVertex, out LinaVertexOutput outVertex)
 {
    outVertex.pos = vec4(inVertex.pos, 1.0);
-   outVertex.normal = inVertex.normal;
-   outVertex.uv = inVertex.uv;
+   outVertex.toFrag.uv = inVertex.uv;
+   outVertex.toFrag.wpos = inVertex.pos;
 }
 
 #lina_end
 
 #lina_fs
 
+struct LinaVertexToFrag
+{
+   vec2 uv;
+   vec3 wpos;
+};
+
 // do not modify
 struct LinaFragInput
 {
    uint materialID;
-   vec2 uv;
+   LinaVertexToFrag fromVertex;
 };
 
 // do not modify
@@ -77,29 +88,15 @@ struct LinaMaterial
    vec4 horizonColor;
    vec4 groundColor;
    float horizonDiffusion;
+   float test;
 };
-
-vec4 ditheredColor(vec4 color, vec2 uv, float strength)
-{
-    // Generate random noise based on screen UVs.
-    float noise = fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453);
-    noise = noise * 2.0 - 1.0; // Map to [-1, 1]
-
-    // Adjust the color based on noise strength.
-    color.rgb += noise * strength;
-    return color;
-}
-
 
 void LINA_FRAG_FUNC(in LinaFragInput inFrag, out LinaFragOutput outFrag)
 {
    LinaMaterial material = LINA_GET_MATERIAL(inFrag.materialID);
-   float uvy = inFrag.uv.y * 2.0f - 1.0f;
-   float gradientFactor = smoothstep(0, 1, pow(uvy, 1.0));
-   outFrag.color = mix(material.topColor, material.groundColor, gradientFactor);
-   // ditheredColor(, inFrag.uv, 0.001);
-  // outFrag.color = vec4(0,0,1,1);
+   
+   vec3 wpos = inFrag.fromVertex.wpos;
+   outFrag.color = vec4(wpos.x, 5, wpos.z, 1.0);
 }
 
 #lina_end
-

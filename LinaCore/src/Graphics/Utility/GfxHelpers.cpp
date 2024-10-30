@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
 #include "Core/Graphics/Data/RenderData.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
+#include <regex>
 
 namespace
 {
@@ -56,7 +57,15 @@ namespace
 		char buffer[4096]; // Adjust buffer size as needed.
 		vsnprintf(buffer, sizeof(buffer), err, args);
 
-		LINA_ERR(buffer); // Pass the formatted string to LINA_ERR.
+		// Convert buffer to std::string for regex replacement.
+		std::string formattedMessage(buffer);
+
+		// Escape curly braces by replacing `{` with `{{` and `}` with `}}`.
+		formattedMessage = std::regex_replace(formattedMessage, std::regex("\\{"), "{{");
+		formattedMessage = std::regex_replace(formattedMessage, std::regex("\\}"), "}}");
+
+		// Pass the formatted and sanitized message to LINA_ERR.
+		LINA_ERR(formattedMessage.c_str());
 
 		va_end(args);
 	}
@@ -70,7 +79,15 @@ namespace
 		char buffer[4096]; // Adjust buffer size as needed.
 		vsnprintf(buffer, sizeof(buffer), err, args);
 
-		LINA_INFO(buffer); // Pass the formatted string to LINA_ERR.
+		// Convert buffer to std::string for regex replacement.
+		std::string formattedMessage(buffer);
+
+		// Escape curly braces by replacing `{` with `{{` and `}` with `}}`.
+		formattedMessage = std::regex_replace(formattedMessage, std::regex("\\{"), "{{");
+		formattedMessage = std::regex_replace(formattedMessage, std::regex("\\}"), "}}");
+
+		// Pass the formatted and sanitized message to LINA_ERR.
+		LINA_INFO(formattedMessage.c_str());
 
 		va_end(args);
 	}

@@ -31,7 +31,6 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Common/Data/String.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
-
 #include "Common/Platform/LinaVGIncl.hpp"
 
 namespace Lina

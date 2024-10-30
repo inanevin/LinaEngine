@@ -555,7 +555,7 @@ namespace Lina
 		bg.outlineOptions.color		= Theme::GetDef().black.AsLVG4();
 		m_lvg->DrawRect(tooltipRect.pos.AsLVG(), tooltipRect.GetEnd().AsLVG(), bg, 0.0f, TOOLTIP_DRAW_ORDER);
 
-		m_lvg->DrawText(tooltip.c_str(), Vector2(tooltipRect.pos.x + Theme::GetDef().baseIndent, tooltipRect.GetCenter().y + textSize.y * 0.5f).AsLVG(), textOpts, 0.0f, TOOLTIP_DRAW_ORDER);
+		m_lvg->DrawTextDefault(tooltip.c_str(), Vector2(tooltipRect.pos.x + Theme::GetDef().baseIndent, tooltipRect.GetCenter().y + textSize.y * 0.5f).AsLVG(), textOpts, 0.0f, TOOLTIP_DRAW_ORDER);
 	}
 
 	void Widget::DebugDraw(int32 drawOrder)

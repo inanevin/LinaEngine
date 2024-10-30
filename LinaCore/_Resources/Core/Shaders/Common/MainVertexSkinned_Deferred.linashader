@@ -29,13 +29,9 @@ SOFTWARE.
 layout (location = 0) in vec3 inPos;
 layout (location = 1) in vec3 inNormal;
 layout (location = 2) in vec2 inUV;
-layout (location = 3) in vec4 inBoneIndices;
-layout (location = 4) in vec4 inBoneWeights;
 
-layout (location = 0) out vec3 outWorldPos;
-layout (location = 1) out vec3 outNormal;
-layout (location = 2) out vec2 outUV;
-layout (location = 3) flat out uint outMaterialIndex;
+layout (location = 0) flat out uint outMaterialIndex;
+layout (location = 1) out LinaVertexToFrag outVertexToFrag;
 
 void main()
 {
@@ -51,30 +47,17 @@ void main()
     LinaVertexInput vertexInput;
     vertexInput.pos = inPos;
     vertexInput.normal = inNormal;
-    vertexInput.uv = inUV;
+    vertexInput.uv =  vec2(inUV.x, 1.0 - inUV.y);
     vertexInput.entityID = argBuffer.entityID;
     vertexInput.materialID = argBuffer.materialID;
 
     LinaVertexOutput vertexOutput;
     LINA_VERTEX_FUNC(vertexInput, vertexOutput);
 
-    vec4 skinnedPosition = vec4(0.0);
-
-    // TODO: introduce bone matrix somehow.
-    skinnedPosition = vertexOutput.pos;
-
-    // for(int i = 0; i < 4; ++i)
-    // {
-    //     int boneIndex = int(inBoneIndices[i]);
-    //     float boneWeight = inBoneWeights[i];
-    //     mat4 boneMatrix = object.bones[boneIndex];
-    //     skinnedPosition += boneMatrix * vertexOutput.pos * boneWeight;
-    // }
+    outVertexToFrag = vertexOutput.toFrag;
+    outMaterialIndex = argBuffer.materialID;
 
     LinaEntity entity = LINA_GET_ENTITY(argBuffer.entityID);
-    outWorldPos = vec3(entity.modelMatrix * skinnedPosition);
-    outNormal = vertexOutput.normal;
-    outUV = vec2(1.0 - vertexOutput.uv.x, vertexOutput.uv.y);
-    outMaterialIndex = argBuffer.materialID;
-    gl_Position = LINA_VIEW.proj * LINA_VIEW.view *  vec4(outWorldPos, 1.0);
+    vec3 worldPos = vec3(entity.modelMatrix * vertexOutput.pos);
+    gl_Position = LINA_VIEW.proj * LINA_VIEW.view *  vec4(worldPos, 1.0);
 }

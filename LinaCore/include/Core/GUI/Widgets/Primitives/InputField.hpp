@@ -178,7 +178,7 @@ namespace Lina
 		}
 
 	private:
-		void	EndEditing();
+		void	EndEditing(bool apply);
 		uint32	GetCaretPosFromMouse();
 		Vector2 GetPosFromCaretIndex(uint32 index);
 		float	GetCaretStartY();

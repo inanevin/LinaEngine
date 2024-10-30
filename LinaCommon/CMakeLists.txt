@@ -126,6 +126,7 @@ set(HEADERS
 	include/Common/Data/GPUCommand.hpp
 	include/Common/Data/SimpleArray.hpp
 	include/Common/Data/Array.hpp
+	include/Common/Data/Stack.hpp
 	include/Common/Data/Vector.hpp
 	include/Common/Data/Map.hpp
 	include/Common/Data/MallocAllocator.hpp

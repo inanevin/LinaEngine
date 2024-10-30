@@ -46,6 +46,7 @@ namespace Lina::Editor
 		Info,
 		Warning,
 		Err,
+		OK,
 	};
 
 	struct NotificationDesc

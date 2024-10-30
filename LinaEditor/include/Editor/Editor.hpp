@@ -39,6 +39,7 @@ SOFTWARE.
 #include "Editor/WindowPanelManager.hpp"
 #include "Editor/Project/ProjectManager.hpp"
 #include "Editor/Graphics/EditorRenderer.hpp"
+#include "Editor/Undo/UndoManager.hpp"
 
 namespace Lina
 {
@@ -135,11 +136,17 @@ namespace Lina::Editor
 			return m_executor;
 		}
 
+		inline UndoManager& GetUndoManager()
+		{
+			return m_undoManager;
+		}
+
 	private:
 		void CreateWorldRenderer(EntityWorld* world);
 		void DestroyWorldRenderer(EntityWorld* world);
 
 	private:
+		UndoManager							  m_undoManager;
 		JobExecutor							  m_executor;
 		ResourceManagerV2					  m_resourceManagerV2;
 		EditorRenderer						  m_editorRenderer;

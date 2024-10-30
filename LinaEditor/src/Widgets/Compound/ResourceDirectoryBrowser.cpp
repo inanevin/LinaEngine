@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Editor/Widgets/FX/ProgressCircleFill.hpp"
 #include "Editor/Resources/ResourcePipeline.hpp"
 #include "Editor/IO/ThumbnailGenerator.hpp"
+#include "Editor/Undo/UndoActionResourceDirectory.hpp"
 #include "Core/Meta/ProjectData.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
@@ -274,7 +275,7 @@ namespace Lina::Editor
 			renameDisabled = true;
 			importDisabled = true;
 		}
-		else
+		else if (m_controller->GetSelectedItems().size() == 1)
 		{
 			ResourceDirectory* dir = static_cast<ResourceDirectory*>(m_controller->GetSelectedItems().front()->GetUserData());
 			createDisabled		   = !dir->isFolder;
@@ -545,26 +546,8 @@ namespace Lina::Editor
 		inp->GetProps().onEditEnd = [text, inp, dir, parent, this](const String& str) {
 			text->GetProps().text = str;
 			text->CalculateTextSize();
-			dir->name = str;
 			text->GetWidgetManager()->AddToKillList(inp);
-			dir->parent->SortChildren();
-
-			// Open, modify, close resource.
-			MetaType&	 meta	 = ReflectionSystem::Get().Resolve(dir->resourceTID);
-			Resource*	 res	 = static_cast<Resource*>(meta.GetFunction<void*()>("Allocate"_hs)());
-			const String resPath = m_editor->GetProjectManager().GetProjectData()->GetResourcePath(dir->resourceID);
-			IStream		 stream	 = Serialization::LoadFromFile(resPath.c_str());
-			if (!stream.Empty())
-			{
-				res->LoadFromStream(stream);
-				res->SetName(dir->name);
-				res->SaveToFileAsBinary(resPath);
-			}
-			stream.Destroy();
-			meta.GetFunction<void(void*)>("Deallocate"_hs)(res);
-
-			RefreshDirectory();
-			m_editor->GetProjectManager().SaveProjectChanges();
+			UndoActionResourceRename::Create(m_editor, dir->resourceID, str);
 		};
 
 		text->GetWidgetManager()->AddToForeground(inp);
@@ -649,5 +632,7 @@ namespace Lina::Editor
 			if (d->parent == lina)
 				return true;
 		}
+
+		return false;
 	}
 } // namespace Lina::Editor

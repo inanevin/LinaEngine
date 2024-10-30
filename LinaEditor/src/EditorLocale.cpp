@@ -154,6 +154,8 @@ namespace Lina::Editor
 		{LocaleStr::LoadingSettings, "Loading settings..."},
 		{LocaleStr::GeneratingAtlases, "Generating atlases..."},
 		{LocaleStr::ApplyingChanges, "Applying changes..."},
+		{LocaleStr::FailedReimportingResource, "Failed reimporting resource!"},
+		{LocaleStr::ReimportedResource, "Reimported resource: "},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

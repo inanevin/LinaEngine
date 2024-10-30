@@ -30,6 +30,11 @@ SOFTWARE.
 
 #lina_vs
 
+struct LinaVertexToFrag
+{
+   vec2 uv;
+};
+
 // do not modify
 struct LinaVertexInput
 {
@@ -43,26 +48,30 @@ struct LinaVertexInput
 struct LinaVertexOutput
 {
    vec4 pos;
-   vec3 normal;
-   vec2 uv;
+   LinaVertexToFrag toFrag;
 };
+
 
 void LINA_VERTEX_FUNC(in LinaVertexInput inVertex, out LinaVertexOutput outVertex)
 {
    outVertex.pos = vec4(inVertex.pos, 1.0);
-   outVertex.normal = inVertex.normal;
-   outVertex.uv = inVertex.uv;
+   outVertex.toFrag.uv = inVertex.uv;
 }
 
 #lina_end
 
 #lina_fs
 
+struct LinaVertexToFrag
+{
+   vec2 uv;
+};
+
 // do not modify
 struct LinaFragInput
 {
    uint materialID;
-   vec2 uv;
+   LinaVertexToFrag fromVertex;
 };
 
 // do not modify
@@ -81,10 +90,12 @@ struct LinaMaterial
 
 void LINA_FRAG_FUNC(in LinaFragInput inFrag, out LinaFragOutput outFrag)
 {
+   vec2 uv = inFrag.fromVertex.uv;
    LinaMaterial material = LINA_GET_MATERIAL(inFrag.materialID);
-   vec4 targetColor = inFrag.uv.y > 0.5 ? material.groundColor : material.topColor;
-   vec4 skyColor = mix(material.horizonColor, targetColor, abs(inFrag.uv.y - 0.5) + 0.5);
+   vec4 targetColor = uv.y > 0.5 ? material.groundColor : material.topColor;
+   vec4 skyColor = mix(material.horizonColor, targetColor, abs(uv.y - 0.5) + 0.5);
    outFrag.color = skyColor;
+   
 }
 
 #lina_end

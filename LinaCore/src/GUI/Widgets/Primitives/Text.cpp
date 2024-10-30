@@ -106,7 +106,7 @@ namespace Lina
 			opts.color = m_props.colorDisabled.AsLVG4();
 
 		auto p = (m_rect.pos + Vector2(0.0f, m_rect.size.y));
-		m_lvg->DrawText(m_props.text.c_str(), p.AsLVG(), opts, 0.0f, m_drawOrder, m_props.isDynamic);
+		m_lvg->DrawTextDefault(m_props.text.c_str(), p.AsLVG(), opts, 0.0f, m_drawOrder, m_props.isDynamic);
 	}
 
 	void Text::UpdateTextAndCalcSize(const String& txt)

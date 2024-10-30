@@ -128,13 +128,13 @@ namespace Lina
 				ShaderPreprocessor::InjectFragMain(fragment, ShaderType::OpaqueSurface);
 
 				variant._compileData[LinaGX::ShaderStage::Vertex] = {
-					.includePath = includePath.c_str(),
 					.text		 = vertex,
+					.includePath = includePath.c_str(),
 				};
 
 				variant._compileData[LinaGX::ShaderStage::Fragment] = {
-					.includePath = includePath.c_str(),
 					.text		 = fragment,
+					.includePath = includePath.c_str(),
 				};
 			}
 
@@ -158,13 +158,13 @@ namespace Lina
 				ShaderPreprocessor::InjectFragMain(fragment, ShaderType::OpaqueSurface);
 
 				variant._compileData[LinaGX::ShaderStage::Vertex] = {
-					.includePath = includePath.c_str(),
 					.text		 = vertex,
+					.includePath = includePath.c_str(),
 				};
 
 				variant._compileData[LinaGX::ShaderStage::Fragment] = {
-					.includePath = includePath.c_str(),
 					.text		 = fragment,
+					.includePath = includePath.c_str(),
 				};
 			}
 		}
@@ -198,12 +198,12 @@ namespace Lina
 				ShaderPreprocessor::InjectFragMain(fragment, ShaderType::TransparentSurface);
 
 				variant._compileData[LinaGX::ShaderStage::Vertex] = {
-					.includePath = includePath.c_str(),
 					.text		 = vertex,
+					.includePath = includePath.c_str(),
 				};
 				variant._compileData[LinaGX::ShaderStage::Fragment] = {
-					.includePath = includePath.c_str(),
 					.text		 = fragment,
+					.includePath = includePath.c_str(),
 				};
 			}
 
@@ -233,13 +233,13 @@ namespace Lina
 				ShaderPreprocessor::InjectFragMain(fragment, ShaderType::TransparentSurface);
 
 				variant._compileData[LinaGX::ShaderStage::Vertex] = {
-					.includePath = includePath.c_str(),
 					.text		 = vertex,
+					.includePath = includePath.c_str(),
 				};
 
 				variant._compileData[LinaGX::ShaderStage::Fragment] = {
-					.includePath = includePath.c_str(),
 					.text		 = fragment,
+					.includePath = includePath.c_str(),
 				};
 			}
 		}
@@ -257,13 +257,13 @@ namespace Lina
 			   };
 
 			variant._compileData[LinaGX::ShaderStage::Vertex] = {
-				.includePath = includePath.c_str(),
 				.text		 = vertexBlock,
+				.includePath = includePath.c_str(),
 			};
 
 			variant._compileData[LinaGX::ShaderStage::Fragment] = {
-				.includePath = includePath.c_str(),
 				.text		 = fragBlock,
+				.includePath = includePath.c_str(),
 			};
 		}
 		else if (type == ShaderType::PostProcess)
@@ -295,13 +295,13 @@ namespace Lina
 			ShaderPreprocessor::InjectFragMain(fragment, ShaderType::Sky);
 
 			variant._compileData[LinaGX::ShaderStage::Vertex] = {
-				.includePath = includePath.c_str(),
 				.text		 = vertex,
+				.includePath = includePath.c_str(),
 			};
 
 			variant._compileData[LinaGX::ShaderStage::Fragment] = {
-				.includePath = includePath.c_str(),
 				.text		 = fragment,
+				.includePath = includePath.c_str(),
 			};
 		}
 		else if (type == ShaderType::Custom)
@@ -309,13 +309,13 @@ namespace Lina
 			for (auto& [sid, variant] : m_meta.variants)
 			{
 				variant._compileData[LinaGX::ShaderStage::Vertex] = {
-					.includePath = includePath.c_str(),
 					.text		 = vertexBlock,
+					.includePath = includePath.c_str(),
 				};
 
 				variant._compileData[LinaGX::ShaderStage::Fragment] = {
-					.includePath = includePath.c_str(),
 					.text		 = fragBlock,
+					.includePath = includePath.c_str(),
 				};
 			}
 		}

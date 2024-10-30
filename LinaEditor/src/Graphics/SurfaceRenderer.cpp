@@ -192,9 +192,9 @@ namespace Lina::Editor
 					GPUMaterialGUIDefault material = {
 						.clip			   = Vector4(buf->clipPosX, buf->clipPosY, buf->clipSizeX, buf->clipSizeY),
 						.uvTilingAndOffset = buf->textureUV,
+						.hasTexture		   = texture != nullptr,
 						.displayChannels   = 0,
 						.displayLod		   = 0,
-						.hasTexture		   = texture != nullptr,
 						.singleChannel	   = texture == nullptr ? (uint32)0 : (uint32)(texture->GetMeta().format == LinaGX::Format::R8_UNORM),
 						.diffuse =
 							{
@@ -249,9 +249,9 @@ namespace Lina::Editor
 				GPUMaterialGUIDefault material = {
 					.clip			   = Vector4(buf->clipPosX, buf->clipPosY, buf->clipSizeX, buf->clipSizeY),
 					.uvTilingAndOffset = buf->textureUV,
+					.hasTexture		   = texture != nullptr,
 					.displayChannels   = 0,
 					.displayLod		   = 0,
-					.hasTexture		   = texture != nullptr,
 					.singleChannel	   = texture == nullptr ? (uint32)0 : (uint32)(texture->GetMeta().format == LinaGX::Format::R8_UNORM),
 					.diffuse =
 						{

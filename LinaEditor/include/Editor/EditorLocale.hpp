@@ -157,6 +157,8 @@ namespace Lina::Editor
 		LoadingWorld,
 		GeneratingAtlases,
 		ApplyingChanges,
+		FailedReimportingResource,
+		ReimportedResource,
 	};
 
 	class Locale

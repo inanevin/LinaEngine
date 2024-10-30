@@ -69,7 +69,7 @@ namespace Lina::Editor
 		if (m_mouseConfined && !m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_1))
 		{
 			// m_lgxWindow->FreeMouse();
-			m_lgxWindow->SetMouseVisible(true);
+			// m_lgxWindow->SetMouseVisible(true);
 			m_mouseConfined = false;
 		}
 
@@ -114,7 +114,7 @@ namespace Lina::Editor
 
 			// const LinaGX::LGXVector2ui center = {static_cast<uint32>(m_lgxWindow->GetMousePosition().x), // static_cast<uint32>(m_lgxWindow->GetMousePosition().y)};
 			// m_lgxWindow->ConfineMouseToPoint(center);
-			m_lgxWindow->SetMouseVisible(false);
+			// m_lgxWindow->SetMouseVisible(false);
 			m_mouseConfined = true;
 			return true;
 		};

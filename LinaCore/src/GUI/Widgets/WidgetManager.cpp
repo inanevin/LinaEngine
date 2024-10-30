@@ -223,6 +223,22 @@ namespace Lina
 
 	void WidgetManager::OnWindowKey(LinaGX::Window* window, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
 	{
+		if (keycode == LINAGX_KEY_ESCAPE && inputAction != LinaGX::InputAction::Released)
+		{
+			Vector<Widget*> removeList;
+			for (auto* c : m_foregroundRoot->GetChildren())
+			{
+				if (!c->GetFlags().IsSet(WF_FOREGROUND_BLOCKER) && !c->GetFlags().IsSet(WF_TOOLTIP))
+					removeList.push_back(c);
+			}
+
+			for (auto* w : removeList)
+			{
+				RemoveFromForeground(w);
+				Deallocate(w);
+			}
+		}
+
 		if (keycode == LINAGX_KEY_TAB && inputAction != LinaGX::InputAction::Released && GetControlsOwner() != nullptr)
 		{
 			if (m_window->GetInput()->GetKey(LINAGX_KEY_LSHIFT))
@@ -260,25 +276,10 @@ namespace Lina
 				RemoveFromForeground(w);
 				Deallocate(w);
 			}
-
-			// if(!removeList.empty())
-			//     return;
 		}
 
 		if (button == LINAGX_MOUSE_0 && inputAction == LinaGX::InputAction::Pressed && m_controlOwner != nullptr && !m_controlOwner->GetIsHovered())
-		{
 			ReleaseControls(m_controlOwner);
-			// for (Widget* w : m_controlsOwners)
-			// {
-			// 	if (w->GetIsHovered())
-			// 		continue;
-			//
-			// 	if (m_window->GetInput()->GetKey(LINAGX_KEY_LCTRL) && w->GetFlags().IsSet(WF_ALLOW_MULTICONTROL))
-			// 		continue;
-			//
-			// 	ReleaseControls(w);
-			// }
-		}
 
 		Vector<Widget*> sortedChildren = m_foregroundRoot->GetChildren();
 		linatl::sort(sortedChildren.begin(), sortedChildren.end(), [](Widget* w, Widget* other) -> bool { return w->GetDrawOrder() > other->GetDrawOrder(); });
@@ -345,14 +346,14 @@ namespace Lina
 		if (w->m_isHovered)
 		{
 			const Vector2 sz = m_lvg->CalculateTextSize(w->GetWidgetProps().debugName.c_str(), textOpts);
-			m_lvg->DrawText(w->GetWidgetProps().debugName.c_str(), (mp + Vector2(15, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, DEBUG_DRAW_ORDER);
+			m_lvg->DrawTextDefault(w->GetWidgetProps().debugName.c_str(), (mp + Vector2(15, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, DEBUG_DRAW_ORDER);
 
 			const String  rectStr = "Pos: (" + UtilStr::FloatToString(w->GetPos().x, 1) + ", " + UtilStr::FloatToString(w->GetPos().y, 1) + ") Size: (" + UtilStr::FloatToString(w->GetSize().x, 1) + ", " + UtilStr::FloatToString(w->GetSize().y, 1) + ")";
 			const Vector2 sz2	  = m_lvg->CalculateTextSize(rectStr.c_str(), textOpts);
-			m_lvg->DrawText(rectStr.c_str(), (mp + Vector2(15 + sz.x + 15, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, DEBUG_DRAW_ORDER);
+			m_lvg->DrawTextDefault(rectStr.c_str(), (mp + Vector2(15 + sz.x + 15, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, DEBUG_DRAW_ORDER);
 
 			const String drawOrder = "DO: " + TO_STRING(w->GetDrawOrder());
-			m_lvg->DrawText(drawOrder.c_str(), (mp + Vector2(15 + sz.x + 15 + sz2.x + 15, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, DEBUG_DRAW_ORDER);
+			m_lvg->DrawTextDefault(drawOrder.c_str(), (mp + Vector2(15 + sz.x + 15 + sz2.x + 15, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, DEBUG_DRAW_ORDER);
 			m_debugDrawYOffset += lvgFont->size * 1.5f;
 		}
 

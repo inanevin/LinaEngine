@@ -116,7 +116,7 @@ namespace Lina
 
 		if (!hasControls && m_isEditing)
 		{
-			EndEditing();
+			EndEditing(false);
 		}
 
 		// Number field slider movement.
@@ -308,12 +308,15 @@ namespace Lina
 		m_highlightStartPos = 0;
 	}
 
-	void InputField::EndEditing()
+	void InputField::EndEditing(bool apply)
 	{
 		m_highlightStartPos = 0;
 		m_caretInsertPos	= 0;
 		m_isEditing			= false;
 		m_textOffset		= 0.0f;
+
+		if (!apply)
+			return;
 
 		if (m_props.valueStr && !m_props.isNumberField)
 			*m_props.valueStr = m_text->GetProps().text;
@@ -387,7 +390,13 @@ namespace Lina
 			// Apply
 			if (keycode == LINAGX_KEY_RETURN)
 			{
-				EndEditing();
+				EndEditing(true);
+				return true;
+			}
+
+			if (keycode == LINAGX_KEY_ESCAPE)
+			{
+				EndEditing(false);
 				return true;
 			}
 

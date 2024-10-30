@@ -120,8 +120,9 @@ namespace Lina::Editor
 	void NotificationDisplayer::AddNotification(const NotificationDesc& desc)
 	{
 		DirectionalLayout* notification = m_manager->Allocate<DirectionalLayout>("Notification");
-		notification->GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_SIZE_Y_MAX_CHILDREN | WF_CONTROLS_DRAW_ORDER);
+		notification->GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_USE_FIXED_SIZE_Y | WF_CONTROLS_DRAW_ORDER);
 		notification->SetAlignedSize(Vector2(1.0f, 2.0f));
+		notification->SetFixedSizeY(Theme::GetDef().baseItemHeight * 2);
 		notification->SetAnchorX(Anchor::Start);
 		notification->SetAnchorY(Anchor::End);
 		notification->GetProps().direction					 = DirectionOrientation::Horizontal;
@@ -158,15 +159,21 @@ namespace Lina::Editor
 				icon->GetProps().icon  = ICON_INFO;
 				icon->GetProps().color = Theme::GetDef().silent2;
 			}
-			if (desc.icon == NotificationIcon::Warning)
+			else if (desc.icon == NotificationIcon::Warning)
 			{
 				icon->GetProps().icon  = ICON_WARN;
 				icon->GetProps().color = Theme::GetDef().accentWarn;
 			}
-			if (desc.icon == NotificationIcon::Err)
+			else if (desc.icon == NotificationIcon::Err)
 			{
 				icon->GetProps().icon  = ICON_ERROR;
 				icon->GetProps().color = Theme::GetDef().accentError;
+			}
+			else if (desc.icon == NotificationIcon::OK)
+			{
+				icon->GetProps().icon						= ICON_CHECK;
+				icon->GetProps().color						= Theme::GetDef().accentSecondary;
+				notification->GetWidgetProps().colorOutline = Theme::GetDef().accentSecondary;
 			}
 		}
 		else if (desc.icon == NotificationIcon::Loading)

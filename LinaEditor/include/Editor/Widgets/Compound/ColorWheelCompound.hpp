@@ -33,10 +33,8 @@ SOFTWARE.
 
 namespace Lina
 {
-
 	class ColorSlider;
 	class DirectionalLayout;
-	class Stack;
 	class InputField;
 	class Text;
 	class Dropdown;

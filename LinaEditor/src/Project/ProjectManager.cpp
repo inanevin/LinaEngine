@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Editor/Widgets/FX/ProgressCircleFill.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
+#include "Editor/Widgets/Popups/NotificationDisplayer.hpp"
 #include "Editor/Widgets/EditorRoot.hpp"
 #include "Editor/Resources/ResourcePipeline.hpp"
 #include "Editor/IO/ThumbnailGenerator.hpp"
@@ -550,13 +551,13 @@ namespace Lina::Editor
 
 	namespace
 	{
-		void ReimportRecursively(Text* progress, HashSet<ResourceID>& list, ProjectData* project, ResourceDirectory* root)
+		void ReimportRecursively(Editor* editor, Text* progress, HashSet<ResourceID>& list, ProjectData* project, ResourceDirectory* root)
 		{
 			for (ResourceDirectory* c : root->children)
 			{
 				if (c->isFolder)
 				{
-					ReimportRecursively(progress, list, project, c);
+					ReimportRecursively(editor, progress, list, project, c);
 					continue;
 				}
 
@@ -587,9 +588,28 @@ namespace Lina::Editor
 					res->LoadFromStream(stream);
 				stream.Destroy();
 
+				WidgetManager&		   wm					 = editor->GetWindowPanelManager().GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
+				NotificationDisplayer* notificationDisplayer = editor->GetWindowPanelManager().GetNotificationDisplayer(editor->GetWindowPanelManager().GetMainWindow());
+
 				// Now reload from file & save if success.
 				if (res->LoadFromFile(path))
+				{
 					res->SaveToFileAsBinary(resPath);
+
+					notificationDisplayer->AddNotification({
+						.icon				= NotificationIcon::OK,
+						.title				= Locale::GetStr(LocaleStr::ReimportedResource) + " : " + path,
+						.autoDestroySeconds = 5,
+					});
+				}
+				else
+				{
+					notificationDisplayer->AddNotification({
+						.icon				= NotificationIcon::Err,
+						.title				= Locale::GetStr(LocaleStr::FailedReimportingResource) + " : " + path,
+						.autoDestroySeconds = 5,
+					});
+				}
 
 				meta.GetFunction<void(void*)>("Deallocate"_hs)(res);
 				list.insert(c->resourceID);
@@ -609,7 +629,7 @@ namespace Lina::Editor
 
 		m_editor->AddTask(
 			[progressText, this, root]() {
-				ReimportRecursively(progressText, m_reimportQueue, m_currentProject, root);
+				ReimportRecursively(m_editor, progressText, m_reimportQueue, m_currentProject, root);
 
 				m_editor->GetResourceManagerV2().ReloadResources(m_currentProject, m_reimportQueue);
 

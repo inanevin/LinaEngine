@@ -110,6 +110,11 @@ namespace Lina::Editor
 
 	void PanelMaterialViewer::SetupWorld()
 	{
+		Resource* res = m_world->GetResourceManagerV2().GetIfExists(m_resource->GetTID(), m_resource->GetID());
+
+		if (res == nullptr)
+			return;
+
 		if (m_displayEntity != nullptr)
 			m_world->DestroyEntity(m_displayEntity);
 		m_displayEntity = nullptr;

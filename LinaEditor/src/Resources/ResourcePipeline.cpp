@@ -125,7 +125,7 @@ namespace Lina::Editor
 		if (shaderStream.Empty())
 		{
 			LINA_ERR("Failed changing material shader!");
-			return nullptr;
+			return;
 		}
 
 		Shader sh(0, "");
@@ -247,6 +247,7 @@ namespace Lina::Editor
 				Resource* res  = static_cast<Resource*>(meta.GetFunction<void*()>("Allocate"_hs)());
 				if (res->LoadFromFile(def.path))
 				{
+					res->SetName(name);
 					res->SetID(def.id == 0 ? projectData->ConsumeResourceID() : def.id);
 					res->SetPath(def.path);
 					res->SaveToFileAsBinary(projectData->GetResourcePath(res->GetID()));

@@ -106,6 +106,7 @@ namespace Lina::Editor
 
 		m_atlasManager.Initialize(this);
 		m_windowPanelManager.Initialize(this);
+		m_undoManager.Initialize(this);
 
 		m_mainWindow		   = m_app->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
 		m_primaryWidgetManager = &m_windowPanelManager.GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
@@ -169,8 +170,15 @@ namespace Lina::Editor
 		m_app->GetLGX()->Join();
 		m_windowPanelManager.OnWindowSizeChanged(window, size);
 	}
+
 	void Editor::PreTick()
 	{
+		LinaGX::Input& lgxInput = m_app->GetLGX()->GetInput();
+		if (lgxInput.GetKeyDown(LINAGX_KEY_Z) && lgxInput.GetKey(LINAGX_KEY_LCTRL))
+		{
+			m_undoManager.Undo();
+		}
+
 		TaskRunner::Poll();
 		m_projectManager.PreTick();
 		m_windowPanelManager.PreTick();
@@ -189,6 +197,7 @@ namespace Lina::Editor
 
 	void Editor::PreShutdown()
 	{
+		m_undoManager.Shutdown();
 		m_editorRenderer.Shutdown();
 		m_atlasManager.Shutdown();
 		m_windowPanelManager.Shutdown();

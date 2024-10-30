@@ -25,6 +25,9 @@ set(HEADERS
 include/Editor/CommonEditor.hpp
 include/Editor/EditorLocale.hpp
 include/Editor/Editor.hpp
+include/Editor/Undo/UndoManager.hpp
+include/Editor/Undo/UndoAction.hpp
+include/Editor/Undo/UndoActionResourceDirectory.hpp
 include/Editor/WindowPanelManager.hpp
 
 # Project
@@ -100,6 +103,9 @@ include/Editor/Resources/EditorResources.hpp
 set(SOURCES
 # Core
 src/CommonEditor.cpp
+src/Undo/UndoManager.cpp
+src/Undo/UndoAction.cpp
+src/Undo/UndoActionResourceDirectory.cpp
 src/EditorLocale.cpp
 src/Editor.cpp
 src/WindowPanelManager.cpp

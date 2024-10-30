@@ -26,8 +26,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-layout (location = 0) in vec2 inUV;
-layout (location = 1) flat in uint inMaterialIndex;
+layout (location = 0) flat in uint inMaterialIndex;
+layout (location = 1) in LinaVertexToFrag inVertexToFrag;
 
 layout (location = 0) out vec4 outFragColor;
 
@@ -35,7 +35,7 @@ void main()
 {
    LinaFragInput fragInput;
    fragInput.materialID = inMaterialIndex;
-   fragInput.uv = inUV;
+   fragInput.fromVertex = inVertexToFrag;
    
    LinaFragOutput fragOutput;
    LINA_FRAG_FUNC(fragInput, fragOutput);
