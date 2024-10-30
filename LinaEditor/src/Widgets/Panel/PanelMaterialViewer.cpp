@@ -252,6 +252,8 @@ namespace Lina::Editor
 
 		uint32 i = 0;
 
+		m_propertyFoldValues.resize(mat->GetProperties().size());
+
 		for (MaterialProperty* p : mat->GetProperties())
 		{
 
