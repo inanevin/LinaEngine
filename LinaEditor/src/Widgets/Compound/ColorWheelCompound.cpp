@@ -451,7 +451,7 @@ namespace Lina::Editor
 		}
 
 		const Color begin													 = Color(m_hsv.x, 1.0f, 1.0f).HSV2SRGB();
-		m_valueComponent.slider->GetWidgetProps().colorBackground.start		 = begin.SRGB2Linear();
+		m_valueComponent.slider->GetWidgetProps().colorBackground.start		 = Color(m_hsv.x, m_hsv.y, 1.0).HSV2SRGB();
 		m_saturationComponent.slider->GetWidgetProps().colorBackground.start = begin.SRGB2Linear();
 
 		m_valueComponent.slider->GetWidgetProps().colorBackground.end	   = Color::Black;
