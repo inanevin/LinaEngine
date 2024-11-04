@@ -344,7 +344,7 @@ namespace Lina::Editor
 			if (!res->IsHWValid())
 			{
 				res->GenerateHW();
-				res->AddToUploadQueue(m_uploadQueue, true);
+				res->AddToUploadQueue(m_uploadQueue, false);
 				bindlessDirty = true;
 			}
 			return false;
@@ -386,11 +386,13 @@ namespace Lina::Editor
 				res->SetIsReloaded(false);
 			}
 
-			if (!res->IsHWUploadValid())
+			if (!res->IsHWValid())
 			{
+				res->GenerateHW();
 				res->Upload(m_guiBackend.GetLVGText());
 				containsFont = true;
 			}
+
 			return false;
 		});
 

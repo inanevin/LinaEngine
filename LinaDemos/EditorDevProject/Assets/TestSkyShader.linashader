@@ -89,6 +89,7 @@ struct LinaMaterial
    vec4 groundColor;
    float horizonDiffusion;
    float test;
+   LinaTexture2D test2;
 };
 
 void LINA_FRAG_FUNC(in LinaFragInput inFrag, out LinaFragOutput outFrag)

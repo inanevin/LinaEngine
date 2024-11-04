@@ -30,6 +30,11 @@ SOFTWARE.
 
 #lina_vs
 
+struct LinaVertexToFrag
+{
+   vec2 uv;
+};
+
 // do not modify
 struct LinaVertexInput
 {
@@ -44,26 +49,29 @@ struct LinaVertexInput
 struct LinaVertexOutput
 {
    vec4 pos;
-   vec3 normal;
-   vec2 uv;
+   LinaVertexToFrag toFrag;
 };
 
 void LINA_VERTEX_FUNC(in LinaVertexInput inVertex, out LinaVertexOutput outVertex)
 {
    outVertex.pos = vec4(inVertex.pos, 1.0);
-   outVertex.normal = inVertex.normal;
-   outVertex.uv = inVertex.uv;
+   outVertex.toFrag.uv = inVertex.uv;
 }
 
 #lina_end
 
 #lina_fs
 
+struct LinaVertexToFrag
+{
+   vec2 uv;
+};
+
 // do not modify
 struct LinaFragInput
 {
    uint materialID;
-   vec2 uv;
+   LinaVertexToFrag fromVertex;
 };
 
 // do not modify
@@ -71,6 +79,7 @@ struct LinaFragOutput
 {
    vec4 color;
    vec3 normal;
+   vec3 worldPos;
    uint isUnlit;
 };
 
@@ -85,9 +94,10 @@ struct LinaMaterial
 void LINA_FRAG_FUNC(in LinaFragInput inFrag, out LinaFragOutput outFrag)
 {
    LinaMaterial material = LINA_GET_MATERIAL(inFrag.materialID);
-   vec2 uv = inFrag.uv * material.tilingAndOffset.xy + material.tilingAndOffset.zw;
+   vec2 uv = inFrag.fromVertex.uv * material.tilingAndOffset.xy + material.tilingAndOffset.zw;
    outFrag.color = LINA_SAMPLE_TEXTURE(material.txtAlbedo, uv) * material.color;
-   outFrag.normal = LINA_SAMPLE_TEXTURE(material.txtNormal, uv).rgb;
+   outFrag.normal = vec3(0.0);
+   outFrag.worldPos = vec3(0.0);
    outFrag.isUnlit = 0;
 }
 

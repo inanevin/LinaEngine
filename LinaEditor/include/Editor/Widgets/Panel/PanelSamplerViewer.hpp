@@ -50,11 +50,7 @@ namespace Lina::Editor
 
 		virtual void Construct() override;
 		virtual void Initialize() override;
-
-	protected:
-		virtual void OnGeneralMetaChanged(const MetaType& meta, FieldBase* field) override;
-		virtual void OnResourceMetaChanged(const MetaType& meta, FieldBase* field) override;
-		virtual void RegenHW() override;
+		void		 Rebuild();
 
 	private:
 		void UpdateSamplerProps();
@@ -62,8 +58,9 @@ namespace Lina::Editor
 	private:
 		LINA_REFLECTION_ACCESS(PanelSamplerViewer);
 
-		String		m_samplerName = "";
-		GUIUserData m_guiUserData;
+		String				m_samplerName = "";
+		GUIUserData			m_guiUserData;
+		LinaGX::SamplerDesc m_storedDesc;
 	};
 
 	LINA_WIDGET_BEGIN(PanelSamplerViewer, Hidden)

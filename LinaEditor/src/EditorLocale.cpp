@@ -156,6 +156,7 @@ namespace Lina::Editor
 		{LocaleStr::ApplyingChanges, "Applying changes..."},
 		{LocaleStr::FailedReimportingResource, "Failed reimporting resource!"},
 		{LocaleStr::ReimportedResource, "Reimported resource: "},
+		{LocaleStr::ReimportShader, "Reimport Shader"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

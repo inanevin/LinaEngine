@@ -34,7 +34,7 @@ SOFTWARE.
 
 namespace Lina
 {
-	void ResourceUploadQueue::AddTextureRequest(Texture* txt, Delegate<void()>&& onComplete)
+	void ResourceUploadQueue::AddTextureRequest(Texture* txt)
 	{
 		// No duplicates allowed
 		for (const auto& req : m_textureRequests)
@@ -44,8 +44,17 @@ namespace Lina
 		}
 
 		TextureUploadRequest req;
-		req.txt		   = txt;
-		req.onComplete = std::forward<Delegate<void()>>(onComplete);
+		req.txt = txt;
+
+		for (const LinaGX::TextureBuffer& buf : txt->GetAllLevels())
+		{
+			LinaGX::TextureBuffer newBuf = buf;
+			const size_t		  sz	 = static_cast<size_t>(buf.width * buf.height * buf.bytesPerPixel);
+			newBuf.pixels				 = new uint8[sz];
+			MEMCPY(newBuf.pixels, buf.pixels, sz);
+			req.buffers.push_back(newBuf);
+		}
+
 		m_textureRequests.push_back(req);
 	}
 
@@ -64,18 +73,10 @@ namespace Lina
 
 	bool ResourceUploadQueue::FlushAll(LinaGX::CommandStream* copyStream)
 	{
-		// Texture might be re-added to the upload queue, in which case skip the callback.
-		for (Pair<Texture*, Delegate<void()>> pair : m_completedTextureRequests)
-		{
-			if (pair.second == nullptr)
-				continue;
+		for (LinaGX::TextureBuffer& buf : m_cleanUpBuffers)
+			delete[] buf.pixels;
 
-			auto it = linatl::find_if(m_textureRequests.begin(), m_textureRequests.end(), [pair](const TextureUploadRequest& req) -> bool { return req.txt == pair.first; });
-			if (it == m_textureRequests.end())
-				pair.second();
-		}
-
-		m_completedTextureRequests.clear();
+		m_cleanUpBuffers.clear();
 
 		if (m_textureRequests.empty() && m_bufferRequests.empty())
 			return false;
@@ -100,7 +101,7 @@ namespace Lina
 
 		for (auto& req : m_textureRequests)
 		{
-			Vector<LinaGX::TextureBuffer>	  allBuffers = req.txt->GetAllLevels();
+			Vector<LinaGX::TextureBuffer>&	  allBuffers = req.buffers;
 			LinaGX::CMDCopyBufferToTexture2D* cmd		 = copyStream->AddCommand<LinaGX::CMDCopyBufferToTexture2D>();
 			cmd->destTexture							 = req.txt->GetGPUHandle();
 			cmd->mipLevels								 = static_cast<uint32>(allBuffers.size());
@@ -141,8 +142,11 @@ namespace Lina
 		if (!bufferNeedsTransfer && m_textureRequests.empty())
 			return false;
 
-		for (auto& req : m_textureRequests)
-			m_completedTextureRequests[req.txt] = req.onComplete;
+		for (const TextureUploadRequest& req : m_textureRequests)
+		{
+			for (const LinaGX::TextureBuffer& buf : req.buffers)
+				m_cleanUpBuffers.push_back(buf);
+		}
 
 		m_textureRequests.clear();
 		m_bufferRequests.clear();

@@ -51,11 +51,6 @@ namespace Lina::Editor
 		virtual void Construct() override;
 		virtual void Initialize() override;
 
-	protected:
-		virtual void OnGeneralMetaChanged(const MetaType& meta, FieldBase* field) override;
-		virtual void OnResourceMetaChanged(const MetaType& meta, FieldBase* field) override;
-		virtual void RegenHW() override;
-
 	private:
 		void UpdateAudioProps();
 

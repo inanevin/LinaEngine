@@ -159,6 +159,7 @@ namespace Lina::Editor
 		ApplyingChanges,
 		FailedReimportingResource,
 		ReimportedResource,
+		ReimportShader,
 	};
 
 	class Locale

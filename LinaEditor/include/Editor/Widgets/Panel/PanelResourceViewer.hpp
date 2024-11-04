@@ -54,38 +54,24 @@ namespace Lina::Editor
 		virtual void Initialize() override;
 
 	protected:
-		virtual void OnGeneralMetaChanged(const MetaType& meta, FieldBase* field)  = 0;
-		virtual void OnResourceMetaChanged(const MetaType& meta, FieldBase* field) = 0;
-		virtual void RegenHW()													   = 0;
-		virtual void OnGeneralFoldBuilt(){};
-		virtual void OnResourceFoldBuilt(){};
-		virtual void OnResourceVerified(){};
-
 		Widget* BuildButtonLayout();
 		void	SaveResource();
 		void	ReimportResource();
 		void	SetRuntimeDirty(bool runtimeDirty);
 		Button* BuildButton(const String& title, const String& icon);
 		void	DisableRecursively(Widget* parent);
-		void	RebuildGeneralReflection();
-		void	RebuildResourceReflection();
 
 	protected:
-		FoldLayout* m_foldGeneral	 = nullptr;
-		FoldLayout* m_foldResource	 = nullptr;
-		Resource*	m_resource		 = nullptr;
-		Widget*		m_resourceBG	 = nullptr;
-		Widget*		m_inspector		 = nullptr;
-		Editor*		m_editor		 = nullptr;
-		TypeID		m_resourceTID	 = 0;
-		TypeID		m_panelTID		 = 0;
-		Button*		m_saveButton	 = nullptr;
-		Button*		m_reimportButton = nullptr;
-		bool		m_previewOnly	 = false;
-		bool		m_runtimeDirty	 = false;
-
-		bool m_foldGeneralVal  = true;
-		bool m_foldResourceVal = true;
+		Resource* m_resource	   = nullptr;
+		Widget*	  m_resourceBG	   = nullptr;
+		Widget*	  m_inspector	   = nullptr;
+		Editor*	  m_editor		   = nullptr;
+		TypeID	  m_resourceTID	   = 0;
+		TypeID	  m_panelTID	   = 0;
+		Button*	  m_saveButton	   = nullptr;
+		Button*	  m_reimportButton = nullptr;
+		bool	  m_previewOnly	   = false;
+		bool	  m_runtimeDirty   = false;
 	};
 
 } // namespace Lina::Editor

@@ -95,12 +95,12 @@ namespace Lina
 			return source.substr(startPos, endPos - startPos);
 		}
 
-		void ProcessMaterialData(String& block, Vector<ShaderPropertyDefinition>& outProperties)
+		bool ProcessMaterialData(String& block, Vector<ShaderPropertyDefinition>& outProperties)
 		{
 			const String materialIdent = "struct LinaMaterial";
 
 			if (block.find(materialIdent) == String::npos)
-				return;
+				return true;
 
 			std::istringstream f(block.c_str());
 			std::string		   line = "";
@@ -217,8 +217,8 @@ namespace Lina
 					if (line.find("{") != String::npos)
 						continue;
 
-					LINA_ASSERT(false, "Unknown type!");
 					LINA_ERR("LinaMaterial has an unsupported property type!");
+					return false;
 				}
 			}
 
@@ -342,6 +342,8 @@ namespace Lina
 				materialCastFunction += "}\n";
 				block.insert(materialBlockEnd, materialCastFunction);
 			}
+
+			return true;
 		}
 	} // namespace
 
@@ -405,10 +407,10 @@ namespace Lina
 		input.insert(sz, HEADER_END);
 	}
 
-	void ShaderPreprocessor::InjectMaterialIfRequired(String& input, Vector<ShaderPropertyDefinition>& outProperties)
+	bool ShaderPreprocessor::InjectMaterialIfRequired(String& input, Vector<ShaderPropertyDefinition>& outProperties)
 	{
 		outProperties.clear();
-		ProcessMaterialData(input, outProperties);
+		return ProcessMaterialData(input, outProperties);
 	}
 
 	void ShaderPreprocessor::InjectRenderPassInputs(String& input, RenderPassDescriptorType type)

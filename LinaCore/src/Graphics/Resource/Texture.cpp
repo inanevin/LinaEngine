@@ -38,13 +38,13 @@ namespace Lina
 {
 	void Texture::Metadata::SaveToStream(OStream& out) const
 	{
-		out << format << mipFilter;
+		out << format << mipFilter << channels << isLinear;
 		out << generateMipmaps << force8Bit << isPremultipliedAlpha;
 	}
 
 	void Texture::Metadata::LoadFromStream(IStream& in)
 	{
-		in >> format >> mipFilter;
+		in >> format >> mipFilter >> channels >> isLinear;
 		in >> generateMipmaps >> force8Bit >> isPremultipliedAlpha;
 	}
 
@@ -89,13 +89,7 @@ namespace Lina
 
 		const uint32 channels = GetChannels();
 
-		if (m_meta.generateMipmaps)
-		{
-			LINAGX_VEC<LinaGX::TextureBuffer> mipData;
-			LinaGX::GenerateMipmaps(m_allLevels[0], mipData, m_meta.mipFilter, channels, m_meta.format == LinaGX::Format::R8G8B8A8_UNORM, 0, m_meta.isPremultipliedAlpha);
-			for (const auto& mp : mipData)
-				m_allLevels.push_back(mp);
-		}
+		VerifyMipmaps();
 
 		m_useGlobalDelete = true;
 		CalculateTotalSize();
@@ -109,7 +103,7 @@ namespace Lina
 		DestroySW();
 
 		LinaGX::TextureBuffer outBuffer = {};
-		LinaGX::LoadImageFromFile(path.c_str(), outBuffer, 0, &m_importedChannels, m_meta.force8Bit);
+		LinaGX::LoadImageFromFile(path.c_str(), outBuffer, 0, &m_meta.channels, m_meta.force8Bit);
 
 		if (outBuffer.pixels == nullptr)
 		{
@@ -123,47 +117,31 @@ namespace Lina
 			return false;
 		}
 
-		const LinaGX::Format target4Channel = m_meta.isLinear ? LinaGX::Format::R8G8B8A8_UNORM : LinaGX::Format::R8G8B8A8_SRGB;
-		m_bytesPerPixel						= outBuffer.bytesPerPixel;
+		m_bytesPerPixel = outBuffer.bytesPerPixel;
 
-		if (m_importedChannels == 1)
-			m_meta.format = m_bytesPerPixel == 1 ? LinaGX::Format::R8_UNORM : LinaGX::Format::R16_UNORM;
-		else if (m_importedChannels == 2)
-			m_meta.format = m_bytesPerPixel == 2 ? LinaGX::Format::R8G8_UNORM : LinaGX::Format::R16G16_UNORM;
-		else if (m_importedChannels == 3)
+		if (m_meta.channels == 3)
 		{
 			// Reimport as 4.
 			LinaGX::FreeImage(outBuffer.pixels);
 			outBuffer = {};
 			LinaGX::LoadImageFromFile(path.c_str(), outBuffer, 4);
-			m_importedChannels = 4;
-			m_bytesPerPixel	   = outBuffer.bytesPerPixel;
+			m_meta.channels = 4;
+			m_bytesPerPixel = outBuffer.bytesPerPixel;
 
 			if (outBuffer.pixels == nullptr)
 			{
 				LINA_ERR("Failed loading texture! {0}", path);
 				return false;
 			}
+		}
 
-			m_meta.format = m_bytesPerPixel == 4 ? target4Channel : LinaGX::Format::R16G16B16A16_UNORM;
-		}
-		else if (m_importedChannels == 4)
-		{
-			m_meta.format = m_bytesPerPixel == 4 ? target4Channel : LinaGX::Format::R16G16B16A16_UNORM;
-		}
+		DetermineFormat();
 
 		m_size.x = outBuffer.width;
 		m_size.y = outBuffer.height;
 		m_allLevels.push_back(outBuffer);
 
-		if (m_meta.generateMipmaps)
-		{
-			LINAGX_VEC<LinaGX::TextureBuffer> mipData;
-			LinaGX::GenerateMipmaps(outBuffer, mipData, m_meta.mipFilter, m_importedChannels, m_meta.format == LinaGX::Format::R8G8B8A8_UNORM, 0, m_meta.isPremultipliedAlpha);
-
-			for (const auto& mp : mipData)
-				m_allLevels.push_back(mp);
-		}
+		VerifyMipmaps();
 
 		CalculateTotalSize();
 		return true;
@@ -176,7 +154,6 @@ namespace Lina
 		uint32 version = 0;
 		stream >> version;
 		stream >> m_meta;
-		stream >> m_importedChannels;
 		DestroySW();
 
 		stream >> m_bytesPerPixel;
@@ -216,7 +193,6 @@ namespace Lina
 
 		stream << VERSION;
 		stream << m_meta;
-		stream << m_importedChannels;
 		stream << m_bytesPerPixel;
 
 		const uint32 allLevels = static_cast<uint32>(m_allLevels.size());
@@ -240,6 +216,58 @@ namespace Lina
 	Vector2 Texture::GetSizeF()
 	{
 		return Vector2(static_cast<float>(m_size.x), static_cast<float>(m_size.y));
+	}
+
+	void Texture::VerifyMipmaps()
+	{
+		auto generateMips = [&]() {
+			LINAGX_VEC<LinaGX::TextureBuffer> mipData;
+			LinaGX::GenerateMipmaps(m_allLevels[0], mipData, m_meta.mipFilter, GetChannels(), m_meta.format == LinaGX::Format::R8G8B8A8_UNORM, 0, m_meta.isPremultipliedAlpha);
+			for (const auto& mp : mipData)
+				m_allLevels.push_back(mp);
+
+			m_generatedMipFilter   = m_meta.mipFilter;
+			m_generatedMipPreAlpha = m_meta.isPremultipliedAlpha;
+			CalculateTotalSize();
+		};
+
+		if (!m_meta.generateMipmaps && m_allLevels.size() > 1)
+		{
+			ClearAllMipLevels();
+		}
+		else if (m_meta.generateMipmaps && m_allLevels.size() == 1)
+		{
+			generateMips();
+		}
+		else if (m_meta.generateMipmaps && m_allLevels.size() > 1)
+		{
+			if (m_generatedMipFilter != m_meta.mipFilter || m_generatedMipPreAlpha != m_meta.isPremultipliedAlpha)
+			{
+				ClearAllMipLevels();
+				generateMips();
+			}
+		}
+	}
+
+	void Texture::DetermineFormat()
+	{
+		const LinaGX::Format target4Channel = m_meta.isLinear ? LinaGX::Format::R8G8B8A8_UNORM : LinaGX::Format::R8G8B8A8_SRGB;
+		if (m_meta.channels == 1)
+			m_meta.format = m_bytesPerPixel == 1 ? LinaGX::Format::R8_UNORM : LinaGX::Format::R16_UNORM;
+		else if (m_meta.channels == 2)
+			m_meta.format = m_bytesPerPixel == 2 ? LinaGX::Format::R8G8_UNORM : LinaGX::Format::R16G16_UNORM;
+		else if (m_meta.channels == 4)
+		{
+			m_meta.format = m_bytesPerPixel == 4 ? target4Channel : LinaGX::Format::R16G16B16A16_UNORM;
+		}
+	}
+
+	void Texture::ClearAllMipLevels()
+	{
+		const uint32 sz = static_cast<uint32>(m_allLevels.size());
+		for (uint32 i = 1; i < sz; i++)
+			delete[] m_allLevels[i].pixels;
+		m_allLevels.resize(1);
 	}
 
 	void Texture::GenerateHWFromDesc(const LinaGX::TextureDesc& desc)
@@ -278,10 +306,11 @@ namespace Lina
 	void Texture::AddToUploadQueue(ResourceUploadQueue& queue, bool destroySW)
 	{
 		LINA_ASSERT(m_hwValid == true, "");
-		queue.AddTextureRequest(this, [this, destroySW]() {
-			if (destroySW)
-				DestroySW();
-		});
+		queue.AddTextureRequest(this);
+
+		if (destroySW)
+			DestroySW();
+
 		m_hwUploadValid = true;
 	}
 

@@ -127,6 +127,11 @@ namespace Lina
 			return m_shaderType;
 		}
 
+		inline void SetShaderID(ResourceID id)
+		{
+			m_shader = id;
+		}
+
 	private:
 		void DestroyProperties();
 

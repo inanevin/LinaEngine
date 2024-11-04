@@ -28,10 +28,14 @@ SOFTWARE.
 
 #include "Editor/Widgets/Panel/PanelFontViewer.hpp"
 #include "Editor/Editor.hpp"
+#include "Editor/Widgets/CommonWidgets.hpp"
+#include "Editor/Undo/UndoActionResourceDirectory.hpp"
+
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/Application.hpp"
+#include "Core/Meta/ProjectData.hpp"
 
 namespace Lina::Editor
 {
@@ -51,39 +55,35 @@ namespace Lina::Editor
 		if (!m_resource)
 			return;
 
-		m_fontDisplay->GetProps().font				  = static_cast<Font*>(m_resource)->GetID();
+		Font* font									  = static_cast<Font*>(m_resource);
+		m_fontDisplay->GetProps().font				  = font->GetID();
 		m_fontDisplay->GetProps().valuePtr			  = &m_displayString;
 		m_fontDisplay->GetProps().fetchWrapFromParent = true;
 		m_fontDisplay->GetProps().isDynamic			  = true;
 		UpdateFontProps();
+		Rebuild();
 	}
 
-	void PanelFontViewer::OnGeneralMetaChanged(const MetaType& meta, FieldBase* field)
+	void PanelFontViewer::Rebuild()
 	{
-		m_fontDisplay->GetProps().textScale = m_scale;
-	}
+		m_inspector->DeallocAllChildren();
+		m_inspector->RemoveAllChildren();
 
-	void PanelFontViewer::OnResourceMetaChanged(const MetaType& meta, FieldBase* field)
-	{
-		Application::GetLGX()->Join();
-		RegenHW();
-	}
-
-	void PanelFontViewer::RegenHW()
-	{
-		UpdateFontProps();
 		Font* font = static_cast<Font*>(m_resource);
-		font->DestroyHW();
-		font->Upload(m_editor->GetEditorRenderer().GetGUIBackend().GetLVGText());
-		m_editor->GetEditorRenderer().GetGUIBackend().ReuploadAtlases(m_editor->GetEditorRenderer().GetUploadQueue());
-		m_editor->GetEditorRenderer().MarkBindlessDirty();
+
+		CommonWidgets::BuildClassReflection(m_inspector, this, ReflectionSystem::Get().Resolve<PanelFontViewer>(), [this](const MetaType& meta, FieldBase* field) { m_fontDisplay->GetProps().textScale = m_scale; });
+
+		CommonWidgets::BuildClassReflection(m_inspector, &font->GetMeta(), ReflectionSystem::Get().Resolve<Font::Metadata>(), [this, font](const MetaType& meta, FieldBase* field) {
+			UndoActionFontDataChanged::Create(m_editor, font->GetID(), m_storedMeta);
+			m_storedMeta = font->GetMeta();
+		});
 	}
 
 	void PanelFontViewer::UpdateFontProps()
 	{
-		Font* font = static_cast<Font*>(m_resource);
-		m_fontName = font->GetName();
-		m_fontSize = UtilStr::FloatToString(static_cast<float>(font->GetFileSize()) / 1000.0f, 1) + " KB";
+		Font* font	 = static_cast<Font*>(m_resource);
+		m_fontName	 = font->GetName();
+		m_storedMeta = font->GetMeta();
 	}
 
 } // namespace Lina::Editor

@@ -27,16 +27,16 @@ SOFTWARE.
 */
 
 #include "Core/Resources/ResourceDirectory.hpp"
+#include "Core/Meta/ProjectData.hpp"
 
 namespace Lina
 {
 
 	ResourceDirectory::~ResourceDirectory()
 	{
-		DestroyChildren();
 	}
 
-	void ResourceDirectory::SaveToStream(OStream& stream)
+	void ResourceDirectory::SaveToStream(OStream& stream) const
 	{
 		stream << VERSION;
 		stream << sourcePathRelativeToProject;
@@ -46,10 +46,16 @@ namespace Lina
 		stream << resourceTID;
 		stream << resourceType;
 		stream << lastModifiedSID;
-		stream << children;
+		stream << guid;
+
+		const uint32 sz = static_cast<uint32>(children.size());
+		stream << sz;
+
+		for (ResourceDirectory* c : children)
+			c->SaveToStream(stream);
 	}
 
-	void ResourceDirectory::LoadFromStream(IStream& stream)
+	void ResourceDirectory::LoadFromStream(IStream& stream, ProjectData* projectData)
 	{
 		uint32 ver = 0;
 		stream >> ver;
@@ -60,45 +66,18 @@ namespace Lina
 		stream >> resourceTID;
 		stream >> resourceType;
 		stream >> lastModifiedSID;
-		stream >> children;
-		for (ResourceDirectory* c : children)
-			c->parent = this;
+		stream >> guid;
+
+		uint32 childSz = 0;
+		stream >> childSz;
+
+		for (uint32 i = 0; i < childSz; i++)
+		{
+			ResourceDirectory* dir = projectData->CreateResourceDirectory(this, {});
+			dir->LoadFromStream(stream, projectData);
+		}
+
 		SortChildren();
-	}
-
-	ResourceDirectory* ResourceDirectory::CreateChild(const ResourceDirectory& desc)
-	{
-		ResourceDirectory* child = new ResourceDirectory();
-		*child					 = desc;
-		AddChild(child);
-		return child;
-	}
-
-	void ResourceDirectory::AddChild(ResourceDirectory* dir)
-	{
-		children.push_back(dir);
-		dir->parent = this;
-		SortChildren();
-	}
-
-	void ResourceDirectory::RemoveChild(ResourceDirectory* dir)
-	{
-		auto it = linatl::find_if(children.begin(), children.end(), [dir](ResourceDirectory* c) -> bool { return c == dir; });
-		children.erase(it);
-		SortChildren();
-	}
-
-	void ResourceDirectory::DestroyChild(ResourceDirectory* dir)
-	{
-		RemoveChild(dir);
-		delete dir;
-	}
-
-	void ResourceDirectory::DestroyChildren()
-	{
-		for (ResourceDirectory* c : children)
-			delete c;
-		children.clear();
 	}
 
 	void ResourceDirectory::SortChildren()
@@ -135,6 +114,21 @@ namespace Lina
 		for (ResourceDirectory* c : children)
 		{
 			ResourceDirectory* d = c->FindResourceDirectory(id);
+			if (d != nullptr)
+				return d;
+		}
+
+		return nullptr;
+	}
+
+	ResourceDirectory* ResourceDirectory::FindByGUID(uint64 g)
+	{
+		if (guid == g)
+			return this;
+
+		for (ResourceDirectory* c : children)
+		{
+			ResourceDirectory* d = c->FindByGUID(g);
 			if (d != nullptr)
 				return d;
 		}

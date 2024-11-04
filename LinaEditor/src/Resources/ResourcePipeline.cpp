@@ -140,20 +140,24 @@ namespace Lina::Editor
 		const ResourceID id	  = inID != 0 ? inID : project->ConsumeResourceID();
 		const String	 path = project->GetResourcePath(id);
 
-		ResourceDirectory* newCreated = src->CreateChild({
-			.name			 = name,
-			.isFolder		 = false,
-			.resourceID		 = id,
-			.resourceTID	 = tid,
-			.resourceType	 = tid == GetTypeID<Shader>() ? ResourceType::ExternalSource : ResourceType::EngineCreated,
-			.lastModifiedSID = 0,
-		});
+		ResourceDirectory* newCreated = project->CreateResourceDirectory(src,
+																		 {
+																			 .name			  = name,
+																			 .isFolder		  = false,
+																			 .resourceID	  = id,
+																			 .resourceTID	  = tid,
+																			 .resourceType	  = tid == GetTypeID<Shader>() ? ResourceType::ExternalSource : ResourceType::EngineCreated,
+																			 .lastModifiedSID = 0,
+																		 });
 
 		LinaGX::TextureBuffer thumb = {};
 
 		auto saveDefault = [&]() {
 			MetaType& meta = ReflectionSystem::Get().Resolve(tid);
 			Resource* res  = static_cast<Resource*>(meta.GetFunction<void*()>("Allocate"_hs)());
+			res->SetName(name);
+			res->SetPath(path);
+			res->SetID(id);
 			res->SaveToFileAsBinary(path);
 			meta.GetFunction<void(void*)>("Deallocate"_hs)(res);
 		};
@@ -168,7 +172,7 @@ namespace Lina::Editor
 			if (shaderStream.Empty())
 			{
 				LINA_ERR("Failed saving new material!");
-				src->DestroyChild(newCreated);
+				project->DestroyResourceDirectory(newCreated);
 				return nullptr;
 			}
 
@@ -229,15 +233,16 @@ namespace Lina::Editor
 			ResourceDirectory* dir	= nullptr;
 
 			auto createDirectory = [&](ResourceID id) {
-				dir = src->CreateChild({
-					.name						 = name,
-					.sourcePathRelativeToProject = FileSystem::GetRelative(projectRoot, def.path),
-					.isFolder					 = false,
-					.resourceID					 = id,
-					.resourceTID				 = resourceTID,
-					.resourceType				 = ResourceType::ExternalSource,
-					.lastModifiedSID			 = TO_SID(FileSystem::GetLastModifiedDate(def.path)),
-				});
+				dir = projectData->CreateResourceDirectory(src,
+														   {
+															   .name						= name,
+															   .sourcePathRelativeToProject = FileSystem::GetRelative(projectRoot, def.path),
+															   .isFolder					= false,
+															   .resourceID					= id,
+															   .resourceTID					= resourceTID,
+															   .resourceType				= ResourceType::ExternalSource,
+															   .lastModifiedSID				= TO_SID(FileSystem::GetLastModifiedDate(def.path)),
+														   });
 
 				createdDirs.push_back(dir);
 			};
@@ -282,12 +287,13 @@ namespace Lina::Editor
 				{
 					const ResourceID newID = projectData->ConsumeResourceID();
 
-					ResourceDirectory* child = dir->parent->CreateChild({
-						.name		 = def.name,
-						.isFolder	 = false,
-						.resourceID	 = newID,
-						.resourceTID = GetTypeID<Texture>(),
-					});
+					ResourceDirectory* child = projectData->CreateResourceDirectory(dir->parent,
+																					{
+																						.name		 = def.name,
+																						.isFolder	 = false,
+																						.resourceID	 = newID,
+																						.resourceTID = GetTypeID<Texture>(),
+																					});
 
 					const String lowerName = UtilStr::ToLower(def.name);
 					bool		 isColor   = true;
@@ -311,12 +317,13 @@ namespace Lina::Editor
 				{
 					const ResourceID newID = projectData->ConsumeResourceID();
 
-					ResourceDirectory* child = dir->parent->CreateChild({
-						.name		 = def.name,
-						.isFolder	 = false,
-						.resourceID	 = newID,
-						.resourceTID = GetTypeID<Material>(),
-					});
+					ResourceDirectory* child = projectData->CreateResourceDirectory(dir->parent,
+																					{
+																						.name		 = def.name,
+																						.isFolder	 = false,
+																						.resourceID	 = newID,
+																						.resourceTID = GetTypeID<Material>(),
+																					});
 
 					meta.materials[matIdx] = newID;
 
@@ -402,14 +409,10 @@ namespace Lina::Editor
 		return createdDirs;
 	}
 
-	void ResourcePipeline::DuplicateResource(ProjectManager& projectManager, ResourceManagerV2* resourceManager, ResourceDirectory* directory, ResourceDirectory* newParent)
+	void ResourcePipeline::DuplicateResource(Editor* editor, ResourceDirectory* directory, ResourceDirectory* newParent)
 	{
-		ProjectData* projectData = projectManager.GetProjectData();
-
-		ResourceDirectory* dup = new ResourceDirectory();
-		*dup				   = *directory;
-		dup->children.clear();
-		newParent->AddChild(dup);
+		ProjectData*	   projectData = editor->GetProjectManager().GetProjectData();
+		ResourceDirectory* dup		   = projectData->DuplicateResourceDirectory(newParent, directory);
 
 		if (!directory->isFolder)
 		{
@@ -432,11 +435,13 @@ namespace Lina::Editor
 			refMeta.GetFunction<void(void* ptr)>("Deallocate"_hs)(res);
 
 			stream.Destroy();
-			projectManager.AddToThumbnailQueue(dup->resourceID);
+			TextureAtlasImage* img = ThumbnailGenerator::GenerateThumbnail(editor->GetProjectManager().GetProjectData(), dup->resourceID, dup->resourceTID, editor->GetAtlasManager());
+			editor->GetProjectManager().SetThumbnail(dup, img);
+			editor->GetProjectManager().RefreshThumbnails();
 		}
 
 		for (ResourceDirectory* c : directory->children)
-			DuplicateResource(projectManager, resourceManager, c, dup);
+			DuplicateResource(editor, c, dup);
 	}
 
 } // namespace Lina::Editor

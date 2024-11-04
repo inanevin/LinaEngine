@@ -58,64 +58,61 @@ namespace Lina
 
 		const Vector<ShaderPropertyDefinition>& properties = shader->GetPropertyDefinitions();
 
-		// If property this material has does not exists in shader delete it from this material.
-		for (Vector<MaterialProperty*>::iterator it = m_properties.begin(); it != m_properties.end();)
-		{
-			MaterialProperty* p = *it;
+		Vector<MaterialProperty*> newProperties;
 
-			auto found = linatl::find_if(properties.begin(), properties.end(), [p](const ShaderPropertyDefinition& prop) -> bool { return prop == p->propDef; });
-			if (found == properties.end())
+		for (const ShaderPropertyDefinition& def : properties)
+		{
+			MaterialProperty* prop = new MaterialProperty();
+			prop->propDef		   = def;
+
+			size_t dataSize = 0;
+
+			if (prop->propDef.type == ShaderPropertyType::Float)
+				dataSize = sizeof(float);
+			else if (prop->propDef.type == ShaderPropertyType::UInt32)
+				dataSize = sizeof(uint32);
+			else if (prop->propDef.type == ShaderPropertyType::Bool)
+				dataSize = sizeof(uint32);
+			else if (prop->propDef.type == ShaderPropertyType::Vec2)
+				dataSize = sizeof(Vector2);
+			else if (prop->propDef.type == ShaderPropertyType::Vec3)
+				dataSize = sizeof(Vector3);
+			else if (prop->propDef.type == ShaderPropertyType::Vec4)
+				dataSize = sizeof(Vector4);
+			else if (prop->propDef.type == ShaderPropertyType::IVec2)
+				dataSize = sizeof(Vector2i);
+			else if (prop->propDef.type == ShaderPropertyType::IVec3)
+				dataSize = sizeof(Vector3i);
+			else if (prop->propDef.type == ShaderPropertyType::IVec4)
+				dataSize = sizeof(Vector4i);
+			else if (prop->propDef.type == ShaderPropertyType::Matrix4)
+				dataSize = sizeof(Matrix4);
+			else if (prop->propDef.type == ShaderPropertyType::Texture2D)
+				dataSize = sizeof(LinaTexture2D);
+			else
 			{
-				delete p;
-				it = m_properties.erase(it);
+				LINA_ASSERT(false, "");
+			}
+
+			prop->data = {new uint8[dataSize], dataSize};
+
+			auto it = linatl::find_if(m_properties.begin(), m_properties.end(), [&def](MaterialProperty* prop) -> bool { return prop->propDef.sid == def.sid && prop->propDef.type == def.type; });
+
+			if (it != m_properties.end())
+			{
+				MaterialProperty* propInShader = *it;
+				MEMCPY(prop->data.data(), propInShader->data.data(), dataSize);
 			}
 			else
-				++it;
-		}
-
-		// If property shader has does not exists in this material add it.
-		for (const ShaderPropertyDefinition& shaderProp : properties)
-		{
-			auto it = linatl::find_if(m_properties.begin(), m_properties.end(), [shaderProp](MaterialProperty* prop) -> bool { return shaderProp == prop->propDef; });
-			if (it == m_properties.end())
-			{
-				MaterialProperty* prop = new MaterialProperty();
-				prop->propDef		   = shaderProp;
-
-				size_t dataSize = 0;
-
-				if (prop->propDef.type == ShaderPropertyType::Float)
-					dataSize = sizeof(float);
-				else if (prop->propDef.type == ShaderPropertyType::UInt32)
-					dataSize = sizeof(uint32);
-				else if (prop->propDef.type == ShaderPropertyType::Bool)
-					dataSize = sizeof(uint32);
-				else if (prop->propDef.type == ShaderPropertyType::Vec2)
-					dataSize = sizeof(Vector2);
-				else if (prop->propDef.type == ShaderPropertyType::Vec3)
-					dataSize = sizeof(Vector3);
-				else if (prop->propDef.type == ShaderPropertyType::Vec4)
-					dataSize = sizeof(Vector4);
-				else if (prop->propDef.type == ShaderPropertyType::IVec2)
-					dataSize = sizeof(Vector2i);
-				else if (prop->propDef.type == ShaderPropertyType::IVec3)
-					dataSize = sizeof(Vector3i);
-				else if (prop->propDef.type == ShaderPropertyType::IVec4)
-					dataSize = sizeof(Vector4i);
-				else if (prop->propDef.type == ShaderPropertyType::Matrix4)
-					dataSize = sizeof(Matrix4);
-				else if (prop->propDef.type == ShaderPropertyType::Texture2D)
-					dataSize = sizeof(LinaTexture2D);
-				else
-				{
-					LINA_ASSERT(false, "");
-				}
-
-				prop->data = {new uint8[dataSize], dataSize};
 				MEMSET(prop->data.data(), 0, dataSize);
-				m_properties.push_back(prop);
-			}
+
+			newProperties.push_back(prop);
 		}
+
+		for (MaterialProperty* p : m_properties)
+			delete p;
+		m_properties.clear();
+		m_properties = newProperties;
 	}
 
 	bool Material::LoadFromFile(const String& path)
@@ -159,12 +156,10 @@ namespace Lina
 			{
 				LinaTexture2D* txt = reinterpret_cast<LinaTexture2D*>(prop->data.data());
 
-				if (txt->texture == 0 || txt->sampler == 0)
-				{
-					int a = 5;
-				}
-				Texture*		texture = rm->GetResource<Texture>(txt->texture);
-				TextureSampler* sampler = rm->GetResource<TextureSampler>(txt->sampler);
+				Texture*		texture = rm->GetIfExists<Texture>(txt->texture);
+				TextureSampler* sampler = rm->GetIfExists<TextureSampler>(txt->sampler);
+
+				LINA_ASSERT(texture != nullptr && sampler != nullptr, "");
 
 				LinaTexture2DBinding binding = {
 					.textureIndex = context->GetBindlessIndex(texture),
@@ -177,6 +172,10 @@ namespace Lina
 			}
 			else
 			{
+				Vector4* test = reinterpret_cast<Vector4*>(prop->data.data());
+
+				if (m_name.compare("AQ") == 0)
+					LINA_TRACE("DATA NAME {0} DATA {1} {2} {3} {4}", prop->propDef.name, test->x, test->y, test->z, test->w);
 				buf.BufferData(padding, prop->data.data(), prop->data.size());
 				padding += prop->data.size();
 				totalSize += prop->data.size();

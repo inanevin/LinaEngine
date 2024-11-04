@@ -31,17 +31,18 @@ SOFTWARE.
 #include "CommonResources.hpp"
 #include "Common/Data/Streams.hpp"
 #include "Core/Resources/CommonResources.hpp"
+#include "Common/Memory/AllocatorBucket.hpp"
 
 namespace Lina
 {
 	class OStream;
 	class IStream;
 	struct TextureAtlasImage;
+	class ProjectData;
 
 	struct ResourceDirectory
 	{
 		static constexpr uint32 VERSION = 0;
-
 		~ResourceDirectory();
 
 		String					   name						   = "";
@@ -54,17 +55,16 @@ namespace Lina
 		ResourceDirectory*		   parent		   = nullptr;
 		ResourceType			   resourceType	   = ResourceType::ExternalSource;
 		StringID				   lastModifiedSID = 0;
+		uint64					   guid			   = 0;
 
-		void SaveToStream(OStream& stream);
-		void LoadFromStream(IStream& stream);
+		void SaveToStream(OStream& stream) const;
+		void LoadFromStream(IStream& stream, ProjectData* projectData);
 
 		ResourceDirectory* GetChildByName(const String& name);
 		ResourceDirectory* FindResourceDirectory(ResourceID id);
-		ResourceDirectory* CreateChild(const ResourceDirectory& desc);
-		void			   DestroyChild(ResourceDirectory* dir);
-		void			   DestroyChildren();
-		void			   AddChild(ResourceDirectory* dir);
-		void			   RemoveChild(ResourceDirectory* dir);
+		ResourceDirectory* FindByGUID(uint64 guid);
 		void			   SortChildren();
+
+		ALLOCATOR_BUCKET_MEM;
 	};
 } // namespace Lina

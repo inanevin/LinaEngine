@@ -147,8 +147,15 @@ namespace Lina::Editor
 	} // namespace
 	LinaGX::TextureBuffer ThumbnailGenerator::GenerateThumbnail(Texture* res)
 	{
-		LinaGX::TextureBuffer buffer = {};
-		buffer						 = res->GetAllLevels().front();
+		const LinaGX::TextureBuffer& b		= res->GetAllLevels().front();
+		const size_t				 sz		= static_cast<size_t>(b.width * b.height * b.bytesPerPixel);
+		LinaGX::TextureBuffer		 buffer = {
+				   .pixels		  = new uint8[sz],
+				   .width		  = b.width,
+				   .height		  = b.height,
+				   .bytesPerPixel = b.bytesPerPixel,
+		   };
+		MEMCPY(buffer.pixels, b.pixels, sz);
 
 		uint8* shrunkPixels = nullptr;
 
@@ -156,6 +163,7 @@ namespace Lina::Editor
 		{
 			shrunkPixels = new uint8[buffer.width * buffer.height * 4];
 			ConvertRGBA16ToRGBA8(reinterpret_cast<uint16*>(buffer.pixels), shrunkPixels, buffer.width, buffer.height);
+			delete[] buffer.pixels;
 			buffer.pixels		 = shrunkPixels;
 			buffer.bytesPerPixel = 4;
 		}
@@ -186,6 +194,8 @@ namespace Lina::Editor
 
 		if (shrunkPixels != nullptr)
 			delete[] shrunkPixels;
+		else
+			delete[] buffer.pixels;
 
 		return resizedBuffer;
 	}

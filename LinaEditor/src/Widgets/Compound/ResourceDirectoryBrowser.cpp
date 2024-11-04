@@ -290,7 +290,7 @@ namespace Lina::Editor
 		{
 			outData.push_back(FileMenuItem::Data{
 				.text		 = Locale::GetStr(LocaleStr::Rename),
-				.altText	 = "CTRL + R",
+				.altText	 = "F2",
 				.hasDropdown = false,
 				.isDisabled	 = renameDisabled,
 				.userData	 = userData,
@@ -397,7 +397,7 @@ namespace Lina::Editor
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::ReimportChangedFiles)))
 		{
-			m_editor->GetProjectManager().ReimportChangedSources(selection.front());
+			m_editor->GetProjectManager().ReimportChangedSources(selection.front(), this);
 			return true;
 		}
 
@@ -417,43 +417,44 @@ namespace Lina::Editor
 
 			Vector<ResourcePipeline::ResourceImportDef> importDefinitions;
 			for (const String& file : files)
-			{
 				importDefinitions.push_back({.path = file});
-			}
-
-			Widget*				lock		 = m_editor->GetWindowPanelManager().LockAllForegrounds(m_lgxWindow, Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow));
-			Widget*				popup		 = CommonWidgets::BuildGenericPopupProgress(lock, Locale::GetStr(LocaleStr::ImportingResources), false);
-			ProgressCircleFill* progress	 = static_cast<ProgressCircleFill*>(popup->FindChildWithDebugName("Fill"));
-			Text*				progressText = static_cast<Text*>(popup->FindChildWithDebugName("Progress"));
-			lock->AddChild(popup);
 
 			ResourceDirectory* directory = selection.front();
 
 			m_importingResources.clear();
 
-			m_editor->GetProjectManager().AddTask(
-				[selection, importDefinitions, progress, progressText, directory, this]() {
-					const float totalSize = static_cast<float>(importDefinitions.size());
+			EditorTask* task   = m_editor->GetTaskManager().CreateTask();
+			task->ownerWindow  = GetWindow();
+			task->useProgress  = true;
+			task->progress	   = 0.0f;
+			task->progressText = Locale::GetStr(LocaleStr::Working);
+			task->title		   = Locale::GetStr(LocaleStr::ImportingResources);
 
-					m_importingResources = ResourcePipeline::ImportResources(
-						m_editor->GetProjectManager().GetProjectData(), directory, importDefinitions, [this, progress, progressText, totalSize](uint32 importedCount, const ResourcePipeline::ResourceImportDef& def, bool isComplete) {
-							const float p = static_cast<float>(importedCount) / totalSize;
-							progress->UpdateProgress(p);
-							progressText->GetProps().text = def.path;
-							progressText->CalculateTextSize();
-						});
+			task->task = [task, importDefinitions, this, directory]() {
+				const float totalSize = static_cast<float>(importDefinitions.size());
 
-					m_editor->GetProjectManager().SaveProjectChanges();
-				},
-				[this]() {
-					for (ResourceDirectory* dir : m_importingResources)
-						m_editor->GetProjectManager().AddToThumbnailQueue(dir->resourceID);
+				m_importingResources =
+					ResourcePipeline::ImportResources(m_editor->GetProjectManager().GetProjectData(), directory, importDefinitions, [this, task, totalSize](uint32 importedCount, const ResourcePipeline::ResourceImportDef& def, bool isComplete) {
+						const float p	   = static_cast<float>(importedCount) / totalSize;
+						task->progress	   = p;
+						task->progressText = def.path;
+					});
 
-					m_editor->GetWindowPanelManager().UnlockAllForegrounds();
-					Application::GetLGX()->Join();
-					m_editor->GetAtlasManager().RefreshPoolAtlases();
-					RefreshDirectory();
-				});
+				m_editor->GetProjectManager().SaveProjectChanges();
+
+				for (ResourceDirectory* dir : m_importingResources)
+				{
+					TextureAtlasImage* img = ThumbnailGenerator::GenerateThumbnail(m_editor->GetProjectManager().GetProjectData(), dir->resourceID, dir->resourceTID, m_editor->GetAtlasManager());
+					m_editor->GetProjectManager().SetThumbnail(dir, img);
+				}
+			};
+
+			task->onComplete = [this]() {
+				m_editor->GetProjectManager().RefreshThumbnails();
+				RefreshDirectory();
+			};
+
+			m_editor->GetTaskManager().AddTask(task);
 
 			return true;
 		}
@@ -473,10 +474,11 @@ namespace Lina::Editor
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Folder)))
 		{
-			newCreated = front->CreateChild({
-				.name	  = "Folder",
-				.isFolder = true,
-			});
+			newCreated = m_editor->GetProjectManager().GetProjectData()->CreateResourceDirectory(front,
+																								 {
+																									 .name	   = "Folder",
+																									 .isFolder = true,
+																								 });
 		}
 		else if (sid == TO_SID(Locale::GetStr(LocaleStr::GUIWidget)))
 		{
@@ -518,7 +520,11 @@ namespace Lina::Editor
 			return false;
 
 		if (!newCreated->isFolder)
-			m_editor->GetProjectManager().AddToThumbnailQueue(newCreated->resourceID);
+		{
+			TextureAtlasImage* img = ThumbnailGenerator::GenerateThumbnail(m_editor->GetProjectManager().GetProjectData(), newCreated->resourceID, newCreated->resourceTID, m_editor->GetAtlasManager());
+			m_editor->GetProjectManager().SetThumbnail(newCreated, img);
+			m_editor->GetProjectManager().RefreshThumbnails();
+		}
 
 		m_editor->GetProjectManager().SaveProjectChanges();
 
@@ -547,7 +553,7 @@ namespace Lina::Editor
 			text->GetProps().text = str;
 			text->CalculateTextSize();
 			text->GetWidgetManager()->AddToKillList(inp);
-			UndoActionResourceRename::Create(m_editor, dir->resourceID, str);
+			UndoActionResourceRename::Create(m_editor, dir, str);
 		};
 
 		text->GetWidgetManager()->AddToForeground(inp);
@@ -585,8 +591,9 @@ namespace Lina::Editor
 	void ResourceDirectoryBrowser::RequestDuplicate(Vector<ResourceDirectory*> dirs)
 	{
 		for (ResourceDirectory* item : dirs)
-			ResourcePipeline::DuplicateResource(m_editor->GetProjectManager(), &m_editor->GetResourceManagerV2(), item, item->parent);
+			ResourcePipeline::DuplicateResource(m_editor, item, item->parent);
 
+		RefreshDirectory();
 		m_editor->GetProjectManager().SaveProjectChanges();
 	}
 
@@ -594,7 +601,7 @@ namespace Lina::Editor
 	{
 		for (ResourceDirectory* item : dirs)
 		{
-			item->parent->DestroyChild(item);
+			m_editor->GetProjectManager().GetProjectData()->DestroyResourceDirectory(item);
 		}
 
 		RefreshDirectory();
@@ -610,8 +617,7 @@ namespace Lina::Editor
 			return;
 
 		ResourceDirectory* carry = m_payloadItem;
-		carry->parent->RemoveChild(carry);
-		target->AddChild(carry);
+		m_editor->GetProjectManager().GetProjectData()->MoveResourceDirectory(carry, target);
 		RefreshDirectory();
 		m_editor->GetProjectManager().SaveProjectChanges();
 	}

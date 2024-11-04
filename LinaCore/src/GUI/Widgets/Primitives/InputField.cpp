@@ -111,19 +111,28 @@ namespace Lina
 
 	void InputField::PreTick()
 	{
+		if (m_middlePressed && m_props.isNumberField && !m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_MIDDLE))
+		{
+			if (m_props.valuePtr && m_props.onEditEnd && !Math::Equals(m_valueOnMiddlePress, GetValue(), 0.001f))
+				m_props.onEditEnd(m_text->GetProps().text);
+			m_middlePressed = false;
+		}
 
 		const bool hasControls = m_manager->IsControlsOwner(this);
 
 		if (!hasControls && m_isEditing)
 		{
-			EndEditing(false);
+			EndEditing(true);
 		}
 
 		// Number field slider movement.
 		if (m_middlePressed && !m_isEditing && m_props.isNumberField && m_props.valuePtr)
 		{
-			const float step = Math::IsZero(m_props.valueStep) == false ? m_props.valueStep : 1.0f;
+			float		step = Math::IsZero(m_props.valueStep) == false ? m_props.valueStep : 1.0f;
 			const float prev = GetValue();
+
+			if (m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LSHIFT))
+				step *= 0.005f;
 
 			if (!m_props.disableNumberSlider)
 			{
@@ -290,7 +299,7 @@ namespace Lina
 	void InputField::StartEditing()
 	{
 		m_manager->GrabControls(this);
-		;
+
 		m_isEditing = true;
 		if (m_props.onEditStarted)
 			m_props.onEditStarted(m_text->GetProps().text);
@@ -480,9 +489,15 @@ namespace Lina
 
 			// Move caret.
 			if (keycode == LINAGX_KEY_LEFT && m_caretInsertPos > 0)
+			{
 				m_caretInsertPos--;
+				m_highlightStartPos = m_caretInsertPos;
+			}
 			if (keycode == LINAGX_KEY_RIGHT)
+			{
 				m_caretInsertPos++;
+				m_highlightStartPos = m_caretInsertPos;
+			}
 			ClampCaretInsert();
 			if (!highlight)
 				m_highlightStartPos = m_caretInsertPos;
@@ -498,6 +513,9 @@ namespace Lina
 		// Catch middle press
 		if (m_props.isNumberField && button == LINAGX_MOUSE_MIDDLE && action == LinaGX::InputAction::Pressed && m_isHovered)
 		{
+			if (m_props.valuePtr)
+				m_valueOnMiddlePress = GetValue();
+
 			m_middlePressed = true;
 			return true;
 		}
@@ -505,6 +523,9 @@ namespace Lina
 		// Catch middle release
 		if (m_props.isNumberField && button == LINAGX_MOUSE_MIDDLE && action == LinaGX::InputAction::Released && m_middlePressed)
 		{
+			if (m_props.valuePtr && m_props.onEditEnd && !Math::Equals(m_valueOnMiddlePress, GetValue(), 0.001f))
+				m_props.onEditEnd(m_text->GetProps().text);
+
 			m_middlePressed = false;
 			return true;
 		}
@@ -574,6 +595,9 @@ namespace Lina
 			if (m_props.onValueChanged)
 				m_props.onValueChanged(GetValue(), false);
 		}
+
+		if (m_props.onEdited)
+			m_props.onEdited(m_text->GetProps().text);
 	}
 
 	void InputField::RemoveCurrent()

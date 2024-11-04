@@ -277,7 +277,7 @@ namespace Lina::Editor
 			return true;
 		}
 
-		if (key == LINAGX_KEY_R && controlsHeld && m_selectedItems.size() == 1 && m_props.onItemRenamed)
+		if (key == LINAGX_KEY_F2 && m_selectedItems.size() == 1 && m_props.onItemRenamed)
 		{
 			m_props.onItemRenamed(m_selectedItems.front()->GetUserData());
 			return true;

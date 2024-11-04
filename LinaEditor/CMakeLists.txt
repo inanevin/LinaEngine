@@ -25,6 +25,7 @@ set(HEADERS
 include/Editor/CommonEditor.hpp
 include/Editor/EditorLocale.hpp
 include/Editor/Editor.hpp
+include/Editor/EditorTaskManager.hpp
 include/Editor/Undo/UndoManager.hpp
 include/Editor/Undo/UndoAction.hpp
 include/Editor/Undo/UndoActionResourceDirectory.hpp
@@ -108,6 +109,7 @@ src/Undo/UndoAction.cpp
 src/Undo/UndoActionResourceDirectory.cpp
 src/EditorLocale.cpp
 src/Editor.cpp
+src/EditorTaskManager.cpp
 src/WindowPanelManager.cpp
 
 # Project

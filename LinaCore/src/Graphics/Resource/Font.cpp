@@ -78,28 +78,51 @@ namespace Lina
 
 	Font::~Font()
 	{
+		DestroySW();
 		DestroyHW();
 	}
 
 	void Font::DestroyHW()
 	{
-		for (auto* font : m_lvgFonts)
+		for (LinaVG::Font* font : m_hwLvgFonts)
 		{
-			if (font != nullptr)
-				delete font;
+			font->atlas->RemoveFont(font->atlasRectPos, font->atlasRectHeight);
+			font->atlas = nullptr;
+			delete font;
 		}
-		m_lvgFonts.clear();
+
+		m_hwLvgFonts.clear();
 		m_hwValid		= false;
 		m_hwUploadValid = false;
 	}
 
 	void Font::GenerateHW()
 	{
+		DestroyHW();
+
 		m_hwValid = true;
+
+		for (LinaVG::Font* font : m_lvgFonts)
+		{
+			LinaVG::Font* hwFont = new LinaVG::Font();
+			*hwFont				 = *font;
+
+			for (auto& [glyph, ch] : hwFont->glyphs)
+			{
+				const size_t sz = static_cast<size_t>(ch.m_size.x * ch.m_size.y);
+				ch.m_buffer		= nullptr;
+				ch.m_buffer		= new unsigned char[sz];
+				MEMCPY(ch.m_buffer, font->glyphs[glyph].m_buffer, sz);
+			}
+
+			m_hwLvgFonts.push_back(hwFont);
+		}
 	}
 
-	void Font::Upload(LinaVG::Text& lvgText)
+	void Font::GenerateSW()
 	{
+		DestroySW();
+
 		Vector<LinaVG::GlyphEncoding> customRangeVec;
 		for (const auto& rng : m_meta.glyphRanges)
 		{
@@ -112,30 +135,63 @@ namespace Lina
 		for (int32 i = 0; i < sz; i++)
 		{
 			if (customRangeVec.empty())
-				m_lvgFonts[i] = lvgText.LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.points[i].size);
+				m_lvgFonts[i] = LinaVG::Text::LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.points[i].size);
 			else
-				m_lvgFonts[i] = lvgText.LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.points[i].size, customRangeVec.data(), static_cast<int32>(m_meta.glyphRanges.size()) * 2);
+				m_lvgFonts[i] = LinaVG::Text::LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.points[i].size, customRangeVec.data(), static_cast<int32>(m_meta.glyphRanges.size()) * 2);
 		}
+	}
+
+	void Font::DestroySW()
+	{
+		for (LinaVG::Font* font : m_lvgFonts)
+			delete font;
+		m_lvgFonts.clear();
+	}
+
+	void Font::Upload(LinaVG::Text& lvgText)
+	{
+		for (LinaVG::Font* font : m_hwLvgFonts)
+			lvgText.AddFontToAtlas(font);
+
 		m_hwUploadValid = true;
 	}
 
 	bool Font::LoadFromFile(const String& path)
 	{
+		DestroySW();
+
 		if (!FileSystem::FileOrPathExists(path))
 			return false;
 
 		m_file.clear();
 		FileSystem::ReadFileContentsToVector(path.c_str(), m_file);
-		return !m_file.empty();
+
+		if (m_file.empty())
+			return false;
+
+		GenerateSW();
+		return true;
 	}
 
 	void Font::LoadFromStream(IStream& stream)
 	{
+		DestroySW();
+
 		Resource::LoadFromStream(stream);
 		uint32 version = 0;
 		stream >> version;
 		stream >> m_meta;
 		stream >> m_file;
+
+		uint32 size = 0;
+		stream >> size;
+
+		for (uint32 i = 0; i < size; i++)
+		{
+			LinaVG::Font* font = new LinaVG::Font();
+			LoadLVGFontToStream(stream, font);
+			m_lvgFonts.push_back(font);
+		}
 	}
 
 	void Font::SaveToStream(OStream& stream) const
@@ -144,6 +200,12 @@ namespace Lina
 		stream << VERSION;
 		stream << m_meta;
 		stream << m_file;
+
+		const uint32 size = static_cast<uint32>(m_lvgFonts.size());
+		stream << size;
+
+		for (uint32 i = 0; i < size; i++)
+			SaveLVGFontToStream(stream, m_lvgFonts[i]);
 	}
 
 	LinaVG::Font* Font::GetFont(float dpiScale)
@@ -153,10 +215,122 @@ namespace Lina
 		for (int32 i = 0; i < sz; i++)
 		{
 			if (dpiScale < m_meta.points[i].dpiLimit)
-				return m_lvgFonts[i];
+				return m_hwLvgFonts[i];
 		}
 
-		return m_lvgFonts.back();
+		return m_hwLvgFonts.back();
+	}
+
+	void Font::SaveLVGFontToStream(OStream& stream, LinaVG::Font* font) const
+	{
+		stream << font->size;
+		stream << font->newLineHeight;
+		stream << font->spaceAdvance;
+		stream << font->isSDF;
+		stream << font->supportsKerning;
+		stream << font->atlasRectHeight;
+
+		const uint32 glyphsSize = static_cast<uint32>(font->glyphs.size());
+		stream << glyphsSize;
+
+		for (const auto& [glyph, ch] : font->glyphs)
+		{
+			stream << glyph;
+			stream << ch.m_advance.x;
+			stream << ch.m_advance.y;
+			stream << ch.m_ascent;
+			stream << ch.m_bearing.x;
+			stream << ch.m_bearing.y;
+			stream << ch.m_descent;
+			stream << ch.m_size.x;
+			stream << ch.m_size.y;
+			stream << ch.m_uv12.x;
+			stream << ch.m_uv12.y;
+			stream << ch.m_uv34.x;
+			stream << ch.m_uv34.y;
+
+			if (ch.m_buffer != nullptr)
+				stream.WriteRaw(ch.m_buffer, ch.m_size.x * ch.m_size.y);
+		}
+
+		const uint32 kerningSize = static_cast<uint32>(font->kerningTable.size());
+		stream << kerningSize;
+
+		for (const auto& [glyph, kerning] : font->kerningTable)
+		{
+			stream << glyph;
+
+			const uint32 xAdvancesSize = static_cast<uint32>(kerning.xAdvances.size());
+			stream << xAdvancesSize;
+
+			for (auto [adv1, adv2] : kerning.xAdvances)
+			{
+				stream << adv1;
+				stream << adv2;
+			}
+		}
+	}
+
+	void Font::LoadLVGFontToStream(IStream& stream, LinaVG::Font* font)
+	{
+		stream >> font->size;
+		stream >> font->newLineHeight;
+		stream >> font->spaceAdvance;
+		stream >> font->isSDF;
+		stream >> font->supportsKerning;
+		stream >> font->atlasRectHeight;
+
+		uint32 glyphsSize = 0;
+		stream >> glyphsSize;
+
+		for (uint32 i = 0; i < glyphsSize; i++)
+		{
+			LinaVG::GlyphEncoding glpyh = 0;
+			stream >> glpyh;
+			auto& ch = font->glyphs[glpyh];
+
+			stream >> ch.m_advance.x;
+			stream >> ch.m_advance.y;
+			stream >> ch.m_ascent;
+			stream >> ch.m_bearing.x;
+			stream >> ch.m_bearing.y;
+			stream >> ch.m_descent;
+			stream >> ch.m_size.x;
+			stream >> ch.m_size.y;
+			stream >> ch.m_uv12.x;
+			stream >> ch.m_uv12.y;
+			stream >> ch.m_uv34.x;
+			stream >> ch.m_uv34.y;
+
+			const size_t sz = static_cast<size_t>(ch.m_size.x * ch.m_size.y);
+
+			if (sz != 0)
+			{
+				ch.m_buffer = new unsigned char[sz];
+				stream.ReadToRaw(ch.m_buffer, sz);
+			}
+		}
+
+		uint32 kerningSize = 0;
+		stream >> kerningSize;
+
+		for (uint32 i = 0; i < kerningSize; i++)
+		{
+			unsigned long glyph = 0;
+			stream >> glyph;
+			auto& kerning = font->kerningTable[glyph];
+
+			uint32 xAdvSize = 0;
+			stream >> xAdvSize;
+
+			for (uint32 j = 0; j < xAdvSize; j++)
+			{
+				float adv1 = 0.0f, adv2 = 0.0f;
+				stream >> adv1;
+				stream >> adv2;
+				kerning.xAdvances[adv1] = adv2;
+			}
+		}
 	}
 
 } // namespace Lina

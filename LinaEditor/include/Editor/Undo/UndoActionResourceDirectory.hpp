@@ -31,6 +31,14 @@ SOFTWARE.
 #include "UndoAction.hpp"
 #include "Core/Resources/CommonResources.hpp"
 #include "Common/Data/String.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
+#include "Core/Graphics/Resource/Font.hpp"
+#include "Core/Graphics/Resource/Texture.hpp"
+
+namespace Lina
+{
+	struct ResourceDirectory;
+};
 
 namespace Lina::Editor
 {
@@ -42,14 +50,102 @@ namespace Lina::Editor
 		UndoActionResourceRename()			= default;
 		virtual ~UndoActionResourceRename() = default;
 
-		static UndoActionResourceRename* Create(Editor* editor, ResourceID resourceID, const String& newName);
+		static UndoActionResourceRename* Create(Editor* editor, ResourceDirectory* dir, const String& newName);
 		virtual void					 Execute(Editor* editor) override;
 		virtual void					 Undo(Editor* editor) override;
 
 	private:
-		String	   m_prevName	= "";
-		String	   m_newName	= "";
-		ResourceID m_resourceID = 0;
+		String m_prevName	  = "";
+		String m_newName	  = "";
+		uint64 m_resourceGUID = 0;
 	};
 
+	class UndoActionSamplerDataChanged : public UndoAction
+	{
+	public:
+		UndoActionSamplerDataChanged()			= default;
+		virtual ~UndoActionSamplerDataChanged() = default;
+
+		static UndoActionSamplerDataChanged* Create(Editor* editor, ResourceID resourceID, const LinaGX::SamplerDesc& prevDesc);
+		virtual void						 Execute(Editor* editor) override;
+		virtual void						 Undo(Editor* editor) override;
+
+	private:
+		ResourceID			m_resourceID = 0;
+		LinaGX::SamplerDesc m_prevDesc	 = {};
+	};
+
+	class UndoActionFontDataChanged : public UndoAction
+	{
+	public:
+		UndoActionFontDataChanged()			 = default;
+		virtual ~UndoActionFontDataChanged() = default;
+
+		static UndoActionFontDataChanged* Create(Editor* editor, ResourceID resourceID, const Font::Metadata& meta);
+		virtual void					  Execute(Editor* editor) override;
+		virtual void					  Undo(Editor* editor) override;
+
+	private:
+		ResourceID	   m_resourceID = 0;
+		Font::Metadata m_prevMeta	= {};
+	};
+
+	class UndoActionTextureDataChanged : public UndoAction
+	{
+	public:
+		UndoActionTextureDataChanged()			= default;
+		virtual ~UndoActionTextureDataChanged() = default;
+
+		static UndoActionTextureDataChanged* Create(Editor* editor, ResourceID resourceID, const Texture::Metadata& meta);
+		virtual void						 Execute(Editor* editor) override;
+		virtual void						 Undo(Editor* editor) override;
+
+	private:
+		void Apply(Editor* editor, bool applyMeta);
+
+	private:
+		ResourceID		  m_resourceID = 0;
+		Texture::Metadata m_prevMeta   = {};
+	};
+
+	class UndoActionMaterialDataChanged : public UndoAction
+	{
+	public:
+		UndoActionMaterialDataChanged() = default;
+		virtual ~UndoActionMaterialDataChanged()
+		{
+			m_prevStream.Destroy();
+		};
+
+		static UndoActionMaterialDataChanged* Create(Editor* editor, ResourceID resourceID, const OStream& prevStream);
+		virtual void						  Execute(Editor* editor) override;
+		virtual void						  Undo(Editor* editor) override;
+
+	private:
+		void Apply(Editor* editor, bool applyMeta);
+
+	private:
+		ResourceID m_resourceID = 0;
+		OStream	   m_prevStream = {};
+	};
+
+	class UndoActionMaterialShaderChanged : public UndoAction
+	{
+	public:
+		UndoActionMaterialShaderChanged()		   = default;
+		virtual ~UndoActionMaterialShaderChanged() = default;
+
+		static UndoActionMaterialShaderChanged* Create(Editor* editor, ResourceID resourceID, ResourceID prevShader, ResourceID newShader);
+		virtual void							Execute(Editor* editor) override;
+		virtual void							Undo(Editor* editor) override;
+
+	private:
+		void Apply(Editor* editor, bool applyMeta);
+
+	private:
+		ResourceID m_resourceID = 0;
+		ResourceID m_prevShader = 0;
+		ResourceID m_newShader	= 0;
+		OStream	   m_prevStream = {};
+	};
 } // namespace Lina::Editor

@@ -48,11 +48,7 @@ namespace Lina::Editor
 
 		virtual void Construct() override;
 		virtual void Initialize() override;
-
-	protected:
-		virtual void OnGeneralMetaChanged(const MetaType& meta, FieldBase* field) override;
-		virtual void OnResourceMetaChanged(const MetaType& meta, FieldBase* field) override;
-		virtual void RegenHW() override;
+		void		 Rebuild();
 
 	private:
 		void UpdateFontProps();
@@ -60,18 +56,18 @@ namespace Lina::Editor
 	private:
 		LINA_REFLECTION_ACCESS(PanelFontViewer);
 
-		String m_fontName	   = "";
-		String m_fontSize	   = "";
-		String m_displayString = "Peace at home, peace at world.";
-		Text*  m_fontDisplay   = nullptr;
-		float  m_scale		   = 1.0f;
+		String		   m_fontName	   = "";
+		String		   m_displayString = "Peace at home, peace at world.";
+		Text*		   m_fontDisplay   = nullptr;
+		float		   m_scale		   = 1.0f;
+		Font::Metadata m_storedMeta	   = {};
 	};
 
 	LINA_WIDGET_BEGIN(PanelFontViewer, Hidden)
 	LINA_FIELD(PanelFontViewer, m_fontName, "Name", FieldType::StringFixed, 0)
-	LINA_FIELD(PanelFontViewer, m_fontSize, "Size", FieldType::StringFixed, 0)
 	LINA_FIELD(PanelFontViewer, m_scale, "Scale", FieldType::Float, 0)
 	LINA_FIELD(PanelFontViewer, m_displayString, "Display String", FieldType::String, 0)
+	LINA_FIELD_LIMITS(PanelFontViewer, m_scale, 1.0f, 10.0f, 1.0f)
 	LINA_CLASS_END(PanelFontViewer)
 
 } // namespace Lina::Editor

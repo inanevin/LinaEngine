@@ -106,7 +106,7 @@ namespace Lina::Editor
 
 		// Panel and windows
 		Panel*	OpenPanel(PanelType type, ResourceID subData, Widget* requestingWidget);
-		Widget* PrepareNewWindowToDock(StringID sid, const Vector2& pos, const Vector2& size, const String& title);
+		Widget* PrepareNewWindowToDock(const Vector2& pos, const Vector2& size);
 		void	CloseWindow(StringID sid);
 		void	CloseAllSubwindows();
 		void	OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size);
@@ -129,6 +129,11 @@ namespace Lina::Editor
 			return m_mainWindow;
 		}
 
+		inline Widget* GetMainLock() const
+		{
+			return m_mainLock;
+		}
+
 	private:
 		void   CreateSurfaceRendererForWindow(LinaGX::Window* window);
 		void   DestroySurfaceRenderer(LinaGX::Window* window);
@@ -148,6 +153,7 @@ namespace Lina::Editor
 		HashMap<PanelType, WindowPanelInfo>		   m_windowPanelInfos;
 		Widget*									   m_panelColorWheelOwner = nullptr;
 		PanelColorWheel*						   m_panelColorWheel	  = nullptr;
+		Widget*									   m_mainLock			  = nullptr;
 	};
 
 } // namespace Lina::Editor

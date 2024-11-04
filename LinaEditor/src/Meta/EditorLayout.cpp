@@ -150,7 +150,7 @@ namespace Lina::Editor
 				}
 			}
 			else
-				panelArea = editor->GetWindowPanelManager().PrepareNewWindowToDock(windowData.sid, windowData.position, windowData.size, windowData.title);
+				panelArea = editor->GetWindowPanelManager().PrepareNewWindowToDock(windowData.position, windowData.size);
 
 			for (auto& dockWidget : windowData.dockWidgets)
 			{

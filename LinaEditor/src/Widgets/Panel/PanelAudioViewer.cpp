@@ -47,21 +47,6 @@ namespace Lina::Editor
 		UpdateAudioProps();
 	}
 
-	void PanelAudioViewer::OnGeneralMetaChanged(const MetaType& meta, FieldBase* field)
-	{
-	}
-
-	void PanelAudioViewer::OnResourceMetaChanged(const MetaType& meta, FieldBase* field)
-	{
-		// Application::GetLGX()->Join();
-		// RegenGPU();
-	}
-
-	void PanelAudioViewer::RegenHW()
-	{
-		Audio* aud = static_cast<Audio*>(m_resource);
-	}
-
 	void PanelAudioViewer::UpdateAudioProps()
 	{
 		m_audioName = m_resource->GetName();

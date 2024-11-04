@@ -49,6 +49,7 @@ namespace Lina
 			bool				 generateMipmaps	  = true;
 			bool				 force8Bit			  = false;
 			bool				 isPremultipliedAlpha = false;
+			int32				 channels			  = 4;
 
 			void SaveToStream(OStream& out) const;
 			void LoadFromStream(IStream& in);
@@ -71,7 +72,9 @@ namespace Lina
 		void	  AddToUploadQueue(ResourceUploadQueue& queue, bool destroySW);
 		Vector2ui GetSize();
 		Vector2	  GetSizeF();
-		void	  OnUploadCompleted();
+		void	  VerifyMipmaps();
+		void	  DetermineFormat();
+		void	  ClearAllMipLevels();
 
 		inline size_t GetTotalSize() const
 		{
@@ -88,7 +91,7 @@ namespace Lina
 			return m_gpuHandle;
 		}
 
-		inline Vector<LinaGX::TextureBuffer> GetAllLevels() const
+		inline const Vector<LinaGX::TextureBuffer>& GetAllLevels() const
 		{
 			return m_allLevels;
 		}
@@ -101,11 +104,6 @@ namespace Lina
 		inline Metadata& GetMeta()
 		{
 			return m_meta;
-		}
-
-		inline int32 GetImportedChannels() const
-		{
-			return m_importedChannels;
 		}
 
 		inline uint32 GetBytesPerPixel() const
@@ -122,13 +120,14 @@ namespace Lina
 		LINA_REFLECTION_ACCESS(Texture);
 
 		Vector<LinaGX::TextureBuffer> m_allLevels;
-		uint32						  m_gpuHandle		 = 0;
-		uint32						  m_bytesPerPixel	 = 0;
-		Metadata					  m_meta			 = {};
-		Vector2ui					  m_size			 = Vector2ui::Zero;
-		int32						  m_importedChannels = 0;
-		bool						  m_useGlobalDelete	 = false;
-		size_t						  m_totalSize		 = 0;
+		uint32						  m_gpuHandle			 = 0;
+		uint32						  m_bytesPerPixel		 = 0;
+		Metadata					  m_meta				 = {};
+		Vector2ui					  m_size				 = Vector2ui::Zero;
+		bool						  m_useGlobalDelete		 = false;
+		size_t						  m_totalSize			 = 0;
+		LinaGX::MipmapFilter		  m_generatedMipFilter	 = LinaGX::MipmapFilter::Default;
+		bool						  m_generatedMipPreAlpha = false;
 	};
 
 	LINA_RESOURCE_BEGIN(Texture);

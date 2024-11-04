@@ -187,7 +187,7 @@ namespace Lina::Editor
 					if (m_payloadRequest.type == PayloadType::DockedPanel)
 					{
 						PanelPayloadData* sub		= static_cast<PanelPayloadData*>(m_payloadRequest.payload->GetUserData());
-						Widget*			  panelArea = PrepareNewWindowToDock(m_subWindowCounter++, mp, sub->panelSize, sub->panelName);
+						Widget*			  panelArea = PrepareNewWindowToDock(mp, sub->panelSize);
 						Panel*			  panel		= PanelFactory::CreatePanel(panelArea, sub->type, sub->subData);
 						panel->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 						panel->GetFlags().Remove(WF_POS_ALIGN_Y);
@@ -345,7 +345,7 @@ namespace Lina::Editor
 			pos				   = m_mainWindow->GetPosition();
 		}
 
-		Widget* panelArea = PrepareNewWindowToDock(m_subWindowCounter, pos, panelSize, TO_STRING(m_subWindowCounter));
+		Widget* panelArea = PrepareNewWindowToDock(pos, panelSize);
 		m_subWindowCounter++;
 
 		DockArea* dock = panelArea->GetWidgetManager()->Allocate<DockArea>("DockArea");
@@ -369,17 +369,15 @@ namespace Lina::Editor
 		return panel;
 	}
 
-	Widget* WindowPanelManager::PrepareNewWindowToDock(StringID sid, const Vector2& pos, const Vector2& size, const String& title)
+	Widget* WindowPanelManager::PrepareNewWindowToDock(const Vector2& pos, const Vector2& size)
 	{
-		if (m_subWindowCounter <= sid)
-			m_subWindowCounter = sid + 1;
-
+		const String	title	 = "Lina Editor " + TO_STRING(m_subWindowCounter);
 		const Vector2	usedSize = size.Clamp(m_editor->GetEditorRoot()->GetMonitorSize() * 0.1f, m_editor->GetEditorRoot()->GetMonitorSize());
-		LinaGX::Window* window	 = m_editor->GetApp()->CreateApplicationWindow(sid, title.c_str(), pos, usedSize, (uint32)LinaGX::WindowStyle::BorderlessApplication, m_mainWindow);
+		LinaGX::Window* window	 = m_editor->GetApp()->CreateApplicationWindow(m_subWindowCounter, title.c_str(), pos, usedSize, (uint32)LinaGX::WindowStyle::BorderlessApplication, m_mainWindow);
 		CreateSurfaceRendererForWindow(window);
 
 		m_subWindows.push_back(window);
-		Widget*			   newWindowRoot = GetSurfaceRenderer(sid)->GetWidgetManager().GetRoot();
+		Widget*			   newWindowRoot = GetSurfaceRenderer(m_subWindowCounter)->GetWidgetManager().GetRoot();
 		DirectionalLayout* layout		 = newWindowRoot->GetWidgetManager()->Allocate<DirectionalLayout>("BaseLayout");
 		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		layout->GetProps().direction = DirectionOrientation::Vertical;
@@ -407,6 +405,7 @@ namespace Lina::Editor
 		panelArea->SetAlignedSize(Vector2(1.0f, 0.0f));
 		layout->AddChild(panelArea);
 
+		m_subWindowCounter++;
 		return panelArea;
 	}
 
@@ -463,7 +462,8 @@ namespace Lina::Editor
 		{
 			if (pair.first == srcWindow)
 			{
-				lock = pair.second->GetWidgetManager().LockForeground("");
+				lock	   = pair.second->GetWidgetManager().LockForeground("");
+				m_mainLock = lock;
 				continue;
 			}
 			pair.second->GetWidgetManager().LockForeground(text);
@@ -478,5 +478,6 @@ namespace Lina::Editor
 		{
 			pair.second->GetWidgetManager().UnlockForeground();
 		}
+		m_mainLock = nullptr;
 	}
 } // namespace Lina::Editor

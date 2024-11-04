@@ -118,7 +118,8 @@ namespace Lina
 
 	Widget* WidgetManager::LockForeground(const String& showText)
 	{
-		LINA_ASSERT(m_foregroundLock == nullptr, "");
+		if (m_foregroundLock)
+			return m_foregroundLock;
 
 		Widget* lock = Allocate<Widget>();
 		lock->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_CONTROLS_DRAW_ORDER | WF_FOREGROUND_BLOCKER);
@@ -399,7 +400,7 @@ namespace Lina
 
 	void WidgetManager::AddToKillList(Widget* w)
 	{
-		m_killList.push_back(w);
+		m_killList.insert(w);
 	}
 
 	LinaGX::CursorType WidgetManager::FindCursorType(Widget* w)

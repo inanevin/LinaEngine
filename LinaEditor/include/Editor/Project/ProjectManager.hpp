@@ -37,6 +37,7 @@ namespace Lina
 	class WidgetManager;
 	struct ResourceDirectory;
 	struct TextureAtlasImage;
+	class Widget;
 } // namespace Lina
 namespace Lina::Editor
 {
@@ -79,9 +80,10 @@ namespace Lina::Editor
 		}
 
 		TextureAtlasImage* GetThumbnail(ResourceDirectory* dir);
-		void			   InvalidateThumbnail(ResourceDirectory* dir);
-		void			   AddToThumbnailQueue(ResourceID id);
-		void			   ReimportChangedSources(ResourceDirectory* root);
+		void			   SetThumbnail(ResourceDirectory* dir, TextureAtlasImage* img);
+		void			   ReimportChangedSources(ResourceDirectory* root, Widget* requestingWidget);
+		void			   ReloadResourceInstances(Resource* res);
+		void			   RefreshThumbnails();
 
 	private:
 		void OnPressedOpenProject();
@@ -92,8 +94,6 @@ namespace Lina::Editor
 		void VerifyProjectResources(ProjectData* projectData);
 		void RemoveDandlingDirectories(ProjectData* projectData, ResourceDirectory* dir);
 		void GenerateInitialThumbnails(ProjectData* projectData, ResourceDirectory* dir);
-		void HandleThumbnailRequests();
-		void HandleHandleRemoveUnusedThumbnails();
 
 	private:
 		JobExecutor								m_executor;
@@ -101,9 +101,7 @@ namespace Lina::Editor
 		Editor*									m_editor			   = nullptr;
 		ProjectData*							m_currentProject	   = nullptr;
 		Vector<ProjectManagerListener*>			m_listeners;
-		uint32									m_frameCtrThumbnails	  = 0;
-		uint32									m_frameCtrThumbnailsClean = 0;
-		Atomic<bool>							m_thumbnailsWorking		  = false;
+		Atomic<bool>							m_thumbnailsWorking = false;
 		HashMap<ResourceID, TextureAtlasImage*> m_resourceThumbnails;
 		HashMap<ResourceID, TextureAtlasImage*> m_resourceThumbnailsOnFlight;
 		HashSet<ResourceID>						m_thumbnailQueue;

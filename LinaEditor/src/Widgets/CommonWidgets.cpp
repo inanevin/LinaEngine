@@ -1063,9 +1063,13 @@ namespace Lina::Editor
 		const bool isFold	 = fieldType == FieldType::Vector || (fieldType == FieldType::UserClass);
 		bool*	   foldValue = nullptr;
 
-		// Widget* fieldLayout = BuildFieldLayout(src, CountDependencies(metaType, field) + (vectorElementIndex == -1 ? 0 : 1), title, isFold, field->GetFoldValuePtr());
 		Widget*			   fieldLayout = BuildFieldLayoutWithRightSide(src, CountDependencies(metaType, field) + (vectorElementIndex == -1 ? 0 : 1), title, isFold, field->GetFoldValuePtr(), 0.6f);
-		DirectionalLayout* rightSide   = Widget::GetWidgetOfType<DirectionalLayout>(fieldLayout);
+		DirectionalLayout* rightSide   = nullptr;
+
+		if (isFold)
+			rightSide = Widget::GetWidgetOfType<DirectionalLayout>(fieldLayout->GetChildren().front());
+		else
+			rightSide = Widget::GetWidgetOfType<DirectionalLayout>(fieldLayout);
 
 		bool  hasLimits = false;
 		float minFloat = 0.0f, maxFloat = 0.0f, stepFloat = 0.0f;
@@ -1078,12 +1082,8 @@ namespace Lina::Editor
 		}
 
 		auto getValueField = [src, wm, hasLimits, minFloat, maxFloat, stepFloat, onFieldChanged, &metaType, field](void* ptr, uint8 bits, bool isInt = false, bool isUnsigned = false) -> InputField* {
-			InputField* inp				   = BuildFloatField(src, ptr, bits, isInt, isUnsigned, hasLimits, minFloat, maxFloat, stepFloat, true);
-			inp->GetProps().onEditEnd	   = [onFieldChanged, field, &metaType](const String& str) { onFieldChanged(metaType, field); };
-			inp->GetProps().onValueChanged = [onFieldChanged, field, &metaType](float val, bool fromSlider) {
-				if (fromSlider)
-					onFieldChanged(metaType, field);
-			};
+			InputField* inp			  = BuildFloatField(src, ptr, bits, isInt, isUnsigned, hasLimits, minFloat, maxFloat, stepFloat, true);
+			inp->GetProps().onEditEnd = [onFieldChanged, field, &metaType](const String& str) { onFieldChanged(metaType, field); };
 			return inp;
 		};
 

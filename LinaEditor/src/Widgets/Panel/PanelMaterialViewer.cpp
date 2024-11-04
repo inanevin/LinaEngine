@@ -32,6 +32,9 @@ SOFTWARE.
 #include "Editor/Widgets/World/WorldDisplayer.hpp"
 #include "Editor/Widgets/Panel/PanelColorWheel.hpp"
 #include "Editor/Widgets/Compound/ColorWheelCompound.hpp"
+#include "Editor/Undo/UndoActionResourceDirectory.hpp"
+#include "Common/FileSystem/FileSystem.hpp"
+#include "Common/Serialization/Serialization.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
@@ -49,6 +52,7 @@ SOFTWARE.
 #include "Core/Components/CameraComponent.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Editor/Resources/ResourcePipeline.hpp"
+#include "Editor/Undo/UndoActionResourceDirectory.hpp"
 
 namespace Lina::Editor
 {
@@ -77,39 +81,46 @@ namespace Lina::Editor
 		m_world = new EntityWorld(0, "");
 		m_editorCamera.SetWorld(m_world);
 
+		UpdateMaterialProps();
+		Rebuild();
+
 		// Resource set up.
 		m_world->GetGfxSettings().lightingMaterial = EDITOR_MATERIAL_DEFAULT_LIGHTING_ID;
 		m_world->GetGfxSettings().skyModel		   = EDITOR_MODEL_SKYSPHERE_ID;
 		m_world->GetGfxSettings().skyMaterial	   = EDITOR_MATERIAL_DEFAULT_SKY_ID;
 		m_world->GetFlags().Set(WORLD_FLAGS_LOADING);
 
-		m_editor->AddTask(
-			[this]() {
-				const HashSet<ResourceID> initialResources = {
-					EDITOR_MODEL_CUBE_ID,
-					EDITOR_MODEL_SPHERE_ID,
-					EDITOR_MODEL_PLANE_ID,
-					EDITOR_MODEL_CYLINDER_ID,
-					EDITOR_MODEL_CAPSULE_ID,
-					m_resource->GetID(),
-				};
+		const HashSet<ResourceID> initialResources = {
+			EDITOR_MODEL_CUBE_ID,
+			EDITOR_MODEL_SPHERE_ID,
+			EDITOR_MODEL_PLANE_ID,
+			EDITOR_MODEL_CYLINDER_ID,
+			EDITOR_MODEL_CAPSULE_ID,
+			EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID,
+			m_resource->GetID(),
+		};
 
-				m_world->LoadMissingResources(m_editor->GetProjectManager().GetProjectData(), initialResources);
-			},
-			[this]() {
-				m_world->GetFlags().Remove(WORLD_FLAGS_LOADING);
+		m_world->LoadMissingResources(m_editor->GetProjectManager().GetProjectData(), initialResources);
+		m_world->GetFlags().Remove(WORLD_FLAGS_LOADING);
+		m_worldRenderer = new WorldRenderer(m_world, Vector2ui(4, 4));
+		m_world->VerifyResources();
+		m_worldDisplayer->DisplayWorld(m_worldRenderer);
+		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer);
+		SetupWorld();
+	}
 
-				m_worldRenderer = new WorldRenderer(m_world, Vector2ui(4, 4));
-				m_world->VerifyResources();
-				m_worldDisplayer->DisplayWorld(m_worldRenderer);
-				m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer);
-
-				SetupWorld();
-			});
+	void PanelMaterialViewer::PreTick()
+	{
+		if (m_rebuildNextFrame)
+		{
+			m_rebuildNextFrame = false;
+			Rebuild();
+		}
 	}
 
 	void PanelMaterialViewer::SetupWorld()
 	{
+
 		Resource* res = m_world->GetResourceManagerV2().GetIfExists(m_resource->GetTID(), m_resource->GetID());
 
 		if (res == nullptr)
@@ -133,18 +144,20 @@ namespace Lina::Editor
 			m_world->GetGfxSettings().skyMaterial = defaultSky->GetID();
 			defaultSky->SetProperty("topColor"_hs, Color::Color255(238, 242, 243, 255));
 			defaultSky->SetProperty("groundColor"_hs, Color::Color255(142, 158, 171, 255));
-
-			if (m_displayType == MaterialViewerDisplayType::Cube)
-				m_displayEntity = m_world->AddModelToWorld(m_world->GetResourceManagerV2().GetResource<Model>(EDITOR_MODEL_CUBE_ID), {m_resource->GetID()});
-			else if (m_displayType == MaterialViewerDisplayType::Sphere)
-				m_displayEntity = m_world->AddModelToWorld(m_world->GetResourceManagerV2().GetResource<Model>(EDITOR_MODEL_SPHERE_ID), {m_resource->GetID()});
-			if (m_displayType == MaterialViewerDisplayType::Cylinder)
-				m_displayEntity = m_world->AddModelToWorld(m_world->GetResourceManagerV2().GetResource<Model>(EDITOR_MODEL_CYLINDER_ID), {m_resource->GetID()});
-			if (m_displayType == MaterialViewerDisplayType::Capsule)
-				m_displayEntity = m_world->AddModelToWorld(m_world->GetResourceManagerV2().GetResource<Model>(EDITOR_MODEL_CAPSULE_ID), {m_resource->GetID()});
-			if (m_displayType == MaterialViewerDisplayType::Plane)
-				m_displayEntity = m_world->AddModelToWorld(m_world->GetResourceManagerV2().GetResource<Model>(EDITOR_MODEL_PLANE_ID), {m_resource->GetID()});
 		}
+
+		const ResourceID displayMaterial = shaderType == ShaderType::Sky ? EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID : m_resource->GetID();
+
+		if (m_displayType == MaterialViewerDisplayType::Cube)
+			m_displayEntity = m_world->AddModelToWorld(m_world->GetResourceManagerV2().GetResource<Model>(EDITOR_MODEL_CUBE_ID), {displayMaterial});
+		else if (m_displayType == MaterialViewerDisplayType::Sphere)
+			m_displayEntity = m_world->AddModelToWorld(m_world->GetResourceManagerV2().GetResource<Model>(EDITOR_MODEL_SPHERE_ID), {displayMaterial});
+		if (m_displayType == MaterialViewerDisplayType::Cylinder)
+			m_displayEntity = m_world->AddModelToWorld(m_world->GetResourceManagerV2().GetResource<Model>(EDITOR_MODEL_CYLINDER_ID), {displayMaterial});
+		if (m_displayType == MaterialViewerDisplayType::Capsule)
+			m_displayEntity = m_world->AddModelToWorld(m_world->GetResourceManagerV2().GetResource<Model>(EDITOR_MODEL_CAPSULE_ID), {displayMaterial});
+		if (m_displayType == MaterialViewerDisplayType::Plane)
+			m_displayEntity = m_world->AddModelToWorld(m_world->GetResourceManagerV2().GetResource<Model>(EDITOR_MODEL_PLANE_ID), {displayMaterial});
 	}
 
 	void PanelMaterialViewer::Destruct()
@@ -161,54 +174,42 @@ namespace Lina::Editor
 		}
 	}
 
-	void PanelMaterialViewer::RefreshMaterialInWorld()
+	void PanelMaterialViewer::Rebuild()
 	{
+		m_inspector->DeallocAllChildren();
+		m_inspector->RemoveAllChildren();
+
+		CommonWidgets::BuildClassReflection(m_inspector, this, ReflectionSystem::Get().Resolve<PanelMaterialViewer>(), [this](const MetaType& meta, FieldBase* field) { SetupWorld(); });
 		Material* mat = static_cast<Material*>(m_resource);
 
-		const Vector<MaterialProperty*> propsInResource = mat->GetProperties();
+		if (mat->GetShader() != m_shaderID)
+			SetupWorld();
 
-		for (MaterialProperty* p : m_materialInWorld->GetProperties())
-		{
-			auto it = linatl::find_if(propsInResource.begin(), propsInResource.end(), [p](MaterialProperty* resProp) -> bool { return resProp->propDef.sid == p->propDef.sid; });
-			if (it != propsInResource.end())
+		CommonWidgets::BuildClassReflection(m_inspector, mat, ReflectionSystem::Get().Resolve<Material>(), [this, mat](const MetaType& meta, FieldBase* field) {
+			if (m_shaderID != mat->GetShader())
 			{
-				MaterialProperty* pInResource = *it;
-				MEMCPY(p->data.data(), pInResource->data.data(), p->data.size());
+				const String path = m_editor->GetProjectManager().GetProjectData()->GetResourcePath(mat->GetShader());
+
+				if (!FileSystem::FileOrPathExists(path))
+					return;
+
+				m_shaderID = mat->GetShader();
+
+				IStream stream = Serialization::LoadFromFile(path.c_str());
+				Shader	sh(0, "");
+				sh.LoadFromStream(stream);
+				mat->SetShader(&sh);
+				stream.Destroy();
+
+				const Vector<MaterialProperty*>& props = mat->GetProperties();
+				for (MaterialProperty* p : props)
+					ResourcePipeline::TrySetMaterialProperty(p);
+
+				UpdateMaterial();
+				SetupWorld();
+				m_rebuildNextFrame = true;
 			}
-		}
-
-		m_worldRenderer->MarkBindlessDirty();
-	}
-
-	void PanelMaterialViewer::OnResourceVerified()
-	{
-		Material* mat	 = static_cast<Material*>(m_resource);
-		m_materialName	 = m_resource->GetName();
-		m_storedShaderID = mat->GetShader();
-		m_shaderType	 = mat->GetShaderType();
-
-		if (mat->GetShaderType() == ShaderType::OpaqueSurface)
-			m_shaderTypeStr = "Opaque Surface";
-		else if (mat->GetShaderType() == ShaderType::TransparentSurface)
-			m_shaderTypeStr = "Transparent Surface";
-		else if (mat->GetShaderType() == ShaderType::Sky)
-			m_shaderTypeStr = "Sky";
-		else if (mat->GetShaderType() == ShaderType::Lighting)
-			m_shaderTypeStr = "Lighting";
-		else
-			m_shaderTypeStr = "Custom";
-
-		m_propertyFoldValues.resize(mat->GetProperties().size());
-	}
-
-	void PanelMaterialViewer::OnGeneralFoldBuilt()
-	{
-		m_foldGeneral->FindChildWithDebugName("Display Type")->SetIsDisabled(m_shaderType == ShaderType::Sky);
-	}
-
-	void PanelMaterialViewer::OnResourceFoldBuilt()
-	{
-		Material* mat = static_cast<Material*>(m_resource);
+		});
 
 		auto buildColorButton = [this](uint8* data, uint8 comps) -> Button* {
 			Button* b = m_manager->Allocate<Button>();
@@ -220,12 +221,23 @@ namespace Lina::Editor
 			b->GetProps().onClicked		= [data, comps, this, b]() {
 				PanelColorWheel* panel = Editor::Get()->GetWindowPanelManager().OpenColorWheelPanel(b);
 				panel->SetRequester(this);
+
+				if (comps == 3)
+				{
+					Vector3* v = reinterpret_cast<Vector3*>(data);
+					panel->GetWheel()->SetTargetColor(Color(v->x, v->y, v->z, 1.0f));
+				}
+				else if (comps == 4)
+				{
+					Vector4* v = reinterpret_cast<Vector4*>(data);
+					panel->GetWheel()->SetTargetColor(Color(v->x, v->y, v->z, v->w));
+				}
+
 				panel->GetWheel()->GetProps().onValueChanged = [data, comps, this](const Color& col) {
 					Color val = col;
 					for (uint8 i = 0; i < comps; i++)
 						MEMCPY(data + sizeof(float) * i, &val[i], sizeof(float));
-					RefreshMaterialInWorld();
-					SetRuntimeDirty(true);
+					UpdateMaterial();
 				};
 			};
 			return b;
@@ -233,10 +245,11 @@ namespace Lina::Editor
 		auto buildFloatField = [this](Widget* srcToAdd, uint8* dataStart, uint8 fieldCount, bool isInt, bool isUnsigned) {
 			for (uint8 i = 0; i < fieldCount; i++)
 			{
-				InputField* inp				   = CommonWidgets::BuildFloatField(m_foldResource, dataStart + i * sizeof(uint32), 32, isInt, isUnsigned, true, isUnsigned ? 0 : -1000.0f, 1000.0f, 0.1f);
+				InputField* inp				   = CommonWidgets::BuildFloatField(m_inspector, dataStart + i * sizeof(uint32), 32, isInt, isUnsigned, true, isUnsigned ? 0 : -1000.0f, 1000.0f, 0.1f);
+				inp->GetProps().onEditEnd	   = [this](const String& txt) { UpdateMaterial(); };
 				inp->GetProps().onValueChanged = [this](float val, bool fromSlider) {
-					RefreshMaterialInWorld();
-					SetRuntimeDirty(true);
+					if (fromSlider)
+						m_editor->GetProjectManager().ReloadResourceInstances(m_resource);
 				};
 				inp->GetProps().disableNumberSlider = true;
 				srcToAdd->AddChild(inp);
@@ -244,9 +257,9 @@ namespace Lina::Editor
 		};
 
 		auto buildDefaultLayout = [this](const String& name) -> DirectionalLayout* {
-			DirectionalLayout* layout	 = static_cast<DirectionalLayout*>(CommonWidgets::BuildFieldLayoutWithRightSide(m_foldResource, 0, name, false, nullptr, 0.6f));
+			DirectionalLayout* layout	 = static_cast<DirectionalLayout*>(CommonWidgets::BuildFieldLayoutWithRightSide(m_inspector, 0, name, false, nullptr, 0.6f));
 			DirectionalLayout* rightSide = Widget::GetWidgetOfType<DirectionalLayout>(layout);
-			m_foldResource->AddChild(layout);
+			m_inspector->AddChild(layout);
 			return rightSide;
 		};
 
@@ -256,7 +269,6 @@ namespace Lina::Editor
 
 		for (MaterialProperty* p : mat->GetProperties())
 		{
-
 			if (p->propDef.type == ShaderPropertyType::Float)
 			{
 				DirectionalLayout* rightSide = buildDefaultLayout(p->propDef.name);
@@ -282,7 +294,10 @@ namespace Lina::Editor
 				v0->GetProps().value		   = reinterpret_cast<bool*>(p->data.data());
 				v0->GetIcon()->GetProps().icon = ICON_CHECK;
 				v0->GetIcon()->CalculateIconSize();
-				v0->GetProps().onValueChanged = [p](bool val) { MEMCPY(p->data.data(), &val, sizeof(bool)); };
+				v0->GetProps().onValueChanged = [p, this](bool val) {
+					MEMCPY(p->data.data(), &val, sizeof(bool));
+					UpdateMaterial();
+				};
 
 				rightSide->AddChild(v0);
 			}
@@ -321,7 +336,7 @@ namespace Lina::Editor
 			else if (p->propDef.type == ShaderPropertyType::Matrix4)
 			{
 				FoldLayout* fold = static_cast<FoldLayout*>(CommonWidgets::BuildFieldLayout(this, 0, "Matrix4", true, reinterpret_cast<bool*>(&m_propertyFoldValues[i])));
-				m_foldResource->AddChild(fold);
+				m_inspector->AddChild(fold);
 
 				for (uint8 i = 0; i < 4; i++)
 				{
@@ -336,17 +351,66 @@ namespace Lina::Editor
 			{
 				LinaTexture2D* txt = reinterpret_cast<LinaTexture2D*>(p->data.data());
 
-				Widget* txtField = CommonWidgets::BuildTextureField(this, m_editor->GetProjectManager().GetProjectData(), txt, 0, p->propDef.name, reinterpret_cast<bool*>(&m_propertyFoldValues[i]), [this]() {
-					RefreshMaterialInWorld();
-					m_world->LoadMissingResources(m_editor->GetProjectManager().GetProjectData(), {});
-					m_world->VerifyResources();
-					SetRuntimeDirty(true);
-				});
-				m_foldResource->AddChild(txtField);
+				Widget* txtField = CommonWidgets::BuildTextureField(this, m_editor->GetProjectManager().GetProjectData(), txt, 0, p->propDef.name, reinterpret_cast<bool*>(&m_propertyFoldValues[i]), [this]() { UpdateMaterial(); });
+				m_inspector->AddChild(txtField);
 			}
 
 			i++;
 		}
+
+		Widget* buttonLayout		 = BuildButtonLayout();
+		Button* button				 = BuildButton(Locale::GetStr(LocaleStr::ReimportShader), ICON_IMPORT);
+		button->GetProps().onClicked = [this, mat]() {
+			ResourceDirectory* dir = m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResourceDirectory(mat->GetShader());
+			if (dir == nullptr)
+				return;
+			m_editor->GetProjectManager().ReimportChangedSources(dir, this);
+		};
+
+		buttonLayout->AddChild(button);
+		m_inspector->AddChild(buttonLayout);
+
+		m_inspector->Initialize();
+	}
+
+	void PanelMaterialViewer::StoreBuffer()
+	{
+		Material* mat = static_cast<Material*>(m_resource);
+		m_shaderID	  = mat->GetShader();
+		m_previousStream.Destroy();
+		mat->SaveToStream(m_previousStream);
+	}
+
+	void PanelMaterialViewer::UpdateMaterialProps()
+	{
+		Material* mat	 = static_cast<Material*>(m_resource);
+		m_materialName	 = m_resource->GetName();
+		m_storedShaderID = mat->GetShader();
+		m_shaderType	 = mat->GetShaderType();
+		m_previousStream.Destroy();
+		mat->SaveToStream(m_previousStream);
+
+		if (mat->GetShaderType() == ShaderType::OpaqueSurface)
+			m_shaderTypeStr = "Opaque Surface";
+		else if (mat->GetShaderType() == ShaderType::TransparentSurface)
+			m_shaderTypeStr = "Transparent Surface";
+		else if (mat->GetShaderType() == ShaderType::Sky)
+			m_shaderTypeStr = "Sky";
+		else if (mat->GetShaderType() == ShaderType::Lighting)
+			m_shaderTypeStr = "Lighting";
+		else
+			m_shaderTypeStr = "Custom";
+
+		m_propertyFoldValues.resize(mat->GetProperties().size());
+		m_previousStream.Destroy();
+		mat->SaveToStream(m_previousStream);
+		m_shaderID = mat->GetShader();
+	}
+
+	void PanelMaterialViewer::UpdateMaterial()
+	{
+		Material* mat = static_cast<Material*>(m_resource);
+		UndoActionMaterialDataChanged::Create(m_editor, m_resource->GetID(), m_previousStream);
 	}
 
 	void PanelMaterialViewer::Tick(float dt)
@@ -354,46 +418,4 @@ namespace Lina::Editor
 		m_editorCamera.Tick(dt);
 	}
 
-	void PanelMaterialViewer::OnGeneralMetaChanged(const MetaType& meta, FieldBase* field)
-	{
-		SetupWorld();
-	}
-
-	void PanelMaterialViewer::OnResourceMetaChanged(const MetaType& meta, FieldBase* field)
-	{
-		Material* mat = static_cast<Material*>(m_resource);
-
-		if (mat->GetShader() != m_storedShaderID)
-		{
-			m_storedShaderID = mat->GetShader();
-
-			// Make sure newly set shader is in the world.
-			Shader* shader = m_world->GetResourceManagerV2().GetIfExists<Shader>(m_storedShaderID);
-
-			if (shader == nullptr)
-			{
-				m_world->GetResourceManagerV2().LoadResourcesFromProject(m_editor->GetProjectManager().GetProjectData(), {m_storedShaderID}, NULL);
-				shader = m_world->GetResourceManagerV2().GetResource<Shader>(m_storedShaderID);
-				m_world->VerifyResources();
-			}
-
-			// Set shaders & sync materials.
-			ResourcePipeline::ChangeMaterialShader(m_editor->GetProjectManager().GetProjectData(), mat, m_storedShaderID);
-			ResourcePipeline::ChangeMaterialShader(m_editor->GetProjectManager().GetProjectData(), m_materialInWorld, m_storedShaderID);
-
-			RegenHW();
-			RebuildGeneralReflection();
-			m_world->LoadMissingResources(m_editor->GetProjectManager().GetProjectData(), {});
-			m_world->VerifyResources();
-		}
-	}
-
-	void PanelMaterialViewer::RegenHW()
-	{
-		SetRuntimeDirty(false);
-		RebuildResourceReflection();
-		OnResourceVerified();
-		RefreshMaterialInWorld();
-		SetupWorld();
-	}
 } // namespace Lina::Editor

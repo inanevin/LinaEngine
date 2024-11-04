@@ -61,7 +61,7 @@ namespace Lina::Editor
 		static void						  ChangeMaterialShader(ProjectData* project, Material* material, ResourceID newShader);
 		static ResourceDirectory*		  SaveNewResource(ProjectData* project, ResourceDirectory* src, const String& name, TypeID tid, ResourceID id = 0, ResourceID subType = 0);
 		static Vector<ResourceDirectory*> ImportResources(ProjectData* project, ResourceDirectory* src, const Vector<ResourceImportDef>& importDef, Delegate<void(uint32 imported, const ResourceImportDef& importDef, bool isCompleted)> onProgress);
-		static void						  DuplicateResource(ProjectManager&, ResourceManagerV2* resMan, ResourceDirectory* directory, ResourceDirectory* newParent);
+		static void						  DuplicateResource(Editor* editor, ResourceDirectory* directory, ResourceDirectory* newParent);
 	};
 
 } // namespace Lina::Editor

@@ -48,21 +48,6 @@ namespace Lina::Editor
 		UpdatePhysicsMaterialProps();
 	}
 
-	void PanelPhysicsMaterialViewer::OnGeneralMetaChanged(const MetaType& meta, FieldBase* field)
-	{
-	}
-
-	void PanelPhysicsMaterialViewer::OnResourceMetaChanged(const MetaType& meta, FieldBase* field)
-	{
-		// Application::GetLGX()->Join();
-		// RegenGPU();
-	}
-
-	void PanelPhysicsMaterialViewer::RegenHW()
-	{
-		PhysicsMaterial* mat = static_cast<PhysicsMaterial*>(m_resource);
-	}
-
 	void PanelPhysicsMaterialViewer::UpdatePhysicsMaterialProps()
 	{
 		m_physicsMaterialName = m_resource->GetName();

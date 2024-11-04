@@ -73,18 +73,6 @@ namespace Lina::Editor
 	{
 	}
 
-	void PanelShaderViewer::OnGeneralMetaChanged(const MetaType& meta, FieldBase* field)
-	{
-	}
-
-	void PanelShaderViewer::OnResourceMetaChanged(const MetaType& meta, FieldBase* field)
-	{
-	}
-
-	void PanelShaderViewer::RegenHW()
-	{
-	}
-
 	void PanelShaderViewer::Tick(float delta)
 	{
 	}

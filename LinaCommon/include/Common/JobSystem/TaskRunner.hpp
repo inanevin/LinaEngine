@@ -44,17 +44,22 @@ namespace Lina
 			Delegate<void()> task;
 			Delegate<void()> onComplete;
 			Atomic<bool>	 isComplete = false;
+			Atomic<bool>	 isStarted	= false;
 		};
 
 		~TaskRunner() = default;
 
-		void AddTask(Delegate<void()> task, Delegate<void()> onComplete);
+		void AddFreeTask(Delegate<void()> task, Delegate<void()> onComplete);
+		void AddQueuedTask(Delegate<void()> task, Delegate<void()> onComplete);
 		void Poll();
+
+	private:
+		void ResolveQueuedTasks();
 
 	protected:
 		JobExecutor	  m_executor;
-		Mutex		  m_queueMtx;
 		Vector<Task*> m_tasks;
+		Vector<Task*> m_queuedTasks;
 	};
 
 } // namespace Lina

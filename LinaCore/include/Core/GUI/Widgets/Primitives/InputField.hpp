@@ -109,6 +109,11 @@ namespace Lina
 		void					   SelectAll();
 		void					   StartEditing();
 		void					   UpdateTextFromValue();
+		virtual void			   OnGrabbedControls(bool fw, Widget* w) override
+		{
+			StartEditing();
+			SelectAll();
+		}
 
 		inline Properties& GetProps()
 		{
@@ -204,6 +209,7 @@ namespace Lina
 		bool	   m_middlePressed		  = false;
 		bool	   m_isEditing			  = false;
 		float	   m_lastStoredValue	  = INPF_VALUE_MIN;
+		float	   m_valueOnMiddlePress	  = 0.0f;
 	};
 
 	LINA_WIDGET_BEGIN(InputField, Primitive)

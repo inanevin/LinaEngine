@@ -113,12 +113,6 @@ namespace Lina::Editor
 		if (m_previewOnly)
 			return;
 
-		const ResourceDef def = {
-			.id	  = m_resource->GetID(),
-			.name = m_resource->GetName(),
-			.tid  = m_resource->GetTID(),
-		};
-
 		m_editor->GetResourceManagerV2().UnloadResources({m_resource});
 		m_editor->GetEditorRenderer().MarkBindlessDirty();
 		m_resource = nullptr;
@@ -126,6 +120,8 @@ namespace Lina::Editor
 
 	void PanelResourceViewer::Initialize()
 	{
+		Panel::Initialize();
+
 		if (m_resource != nullptr)
 			return;
 
@@ -162,72 +158,12 @@ namespace Lina::Editor
 		if (resDir->parent == m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().GetChildByName(EDITOR_DEF_RESOURCES_FOLDER))
 			m_previewOnly = true;
 
-		m_resource				   = r;
+		m_resource = r;
+
+		if (m_resource == nullptr)
+			return;
+
 		GetWidgetProps().debugName = m_resource->GetName();
-		OnResourceVerified();
-
-		m_foldGeneral = CommonWidgets::BuildFoldTitle(m_inspector, Locale::GetStr(LocaleStr::General), &m_foldGeneralVal);
-		m_inspector->AddChild(m_foldGeneral);
-		RebuildGeneralReflection();
-
-		m_foldResource = CommonWidgets::BuildFoldTitle(m_inspector, Locale::GetStr(LocaleStr::Resource), &m_foldResourceVal);
-		m_inspector->AddChild(m_foldResource);
-		RebuildResourceReflection();
-
-		Panel::Initialize();
-	}
-
-	void PanelResourceViewer::RebuildGeneralReflection()
-	{
-		const Vector<Widget*>& children = m_foldGeneral->GetChildren();
-		Widget*				   first	= children.at(0);
-		for (size_t i = 1; i < children.size(); i++)
-			m_manager->Deallocate(children.at(i));
-		m_foldGeneral->RemoveAllChildren();
-		m_foldGeneral->AddChild(first);
-
-		CommonWidgets::BuildClassReflection(m_foldGeneral, this, ReflectionSystem::Get().Resolve(m_panelTID), [this](const MetaType& meta, FieldBase* field) { OnGeneralMetaChanged(meta, field); });
-
-		Widget* buttonLayout1 = BuildButtonLayout();
-		m_foldGeneral->AddChild(buttonLayout1);
-
-		m_reimportButton					   = BuildButton(Locale::GetStr(LocaleStr::ReImport), ICON_ROTATE);
-		m_reimportButton->GetProps().onClicked = [this]() { ReimportResource(); };
-		m_saveButton						   = BuildButton(Locale::GetStr(LocaleStr::Save), ICON_SAVE);
-		m_saveButton->GetProps().onClicked	   = [this]() { SaveResource(); };
-		m_saveButton->SetIsDisabled(!m_runtimeDirty);
-		buttonLayout1->AddChild(m_saveButton);
-		buttonLayout1->AddChild(m_reimportButton);
-
-		OnGeneralFoldBuilt();
-
-		if (m_previewOnly)
-			DisableRecursively(m_foldGeneral);
-
-		m_foldGeneral->Initialize();
-	}
-
-	void PanelResourceViewer::RebuildResourceReflection()
-	{
-		const Vector<Widget*>& children = m_foldResource->GetChildren();
-		Widget*				   first	= children.at(0);
-		for (size_t i = 1; i < children.size(); i++)
-			m_manager->Deallocate(children.at(i));
-		m_foldResource->RemoveAllChildren();
-		m_foldResource->AddChild(first);
-
-		// Build resource reflection.
-		CommonWidgets::BuildClassReflection(m_foldResource, m_resource, ReflectionSystem::Get().Resolve(m_resourceTID), [this](const MetaType& meta, FieldBase* field) {
-			OnResourceMetaChanged(meta, field);
-			SetRuntimeDirty(true);
-		});
-
-		OnResourceFoldBuilt();
-
-		if (m_previewOnly)
-			DisableRecursively(m_foldResource);
-
-		m_foldResource->Initialize();
 	}
 
 	Widget* PanelResourceViewer::BuildButtonLayout()
@@ -256,10 +192,6 @@ namespace Lina::Editor
 
 	void PanelResourceViewer::SetRuntimeDirty(bool runtimeDirty)
 	{
-		m_runtimeDirty = runtimeDirty;
-		Text* txt	   = GetWidgetOfType<Text>(m_saveButton);
-		txt->UpdateTextAndCalcSize(runtimeDirty ? (Locale::GetStr(LocaleStr::Save) + " *") : Locale::GetStr(LocaleStr::Save));
-		m_saveButton->SetIsDisabled(!runtimeDirty);
 	}
 
 	void PanelResourceViewer::DisableRecursively(Widget* parent)
@@ -280,7 +212,7 @@ namespace Lina::Editor
 
 		ResourceDirectory* dir = m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResourceDirectory(m_resource->GetID());
 
-		m_editor->AddTask(
+		m_editor->AddFreeTask(
 			[this, dir]() {
 				// Save resource
 				m_resource->SaveToFileAsBinary(m_editor->GetProjectManager().GetProjectData()->GetResourcePath(m_resource->GetID()));
@@ -289,11 +221,10 @@ namespace Lina::Editor
 				m_editor->GetProjectManager().SaveProjectChanges();
 			},
 			[this, dir]() {
-				m_editor->GetProjectManager().AddToThumbnailQueue(dir->resourceID);
+				// m_editor->GetProjectManager().AddToThumbnailQueue(dir->resourceID);
 
 				// Gen & upload atlases, unlock GUI.
 				m_editor->GetWindowPanelManager().UnlockAllForegrounds();
-				SetRuntimeDirty(false);
 			});
 	}
 
@@ -304,7 +235,7 @@ namespace Lina::Editor
 		Widget* pp	 = CommonWidgets::BuildGenericPopupProgress(lock, Locale::GetStr(LocaleStr::Reimporting), true);
 		lock->AddChild(pp);
 
-		m_editor->AddTask(
+		m_editor->AddFreeTask(
 			[this]() {
 				ResourceDirectory* dir = m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResourceDirectory(m_resource->GetID());
 
@@ -319,7 +250,7 @@ namespace Lina::Editor
 			},
 			[this]() {
 				Application::GetLGX()->Join();
-				RegenHW();
+				// RegenHW();
 				m_editor->GetWindowPanelManager().UnlockAllForegrounds();
 			});
 	}

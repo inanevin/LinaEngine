@@ -76,8 +76,11 @@ namespace Lina
 		ShaderPreprocessor::InjectVersionAndExtensions(fragBlock);
 
 		Vector<ShaderPropertyDefinition> vertexProperties = {}, fragProperties = {};
-		ShaderPreprocessor::InjectMaterialIfRequired(vertexBlock, vertexProperties);
-		ShaderPreprocessor::InjectMaterialIfRequired(fragBlock, fragProperties);
+		if (!ShaderPreprocessor::InjectMaterialIfRequired(vertexBlock, vertexProperties))
+			return false;
+
+		if (!ShaderPreprocessor::InjectMaterialIfRequired(fragBlock, fragProperties))
+			return false;
 
 		if (!ShaderPropertyDefinition::VerifySimilarity(vertexProperties, fragProperties))
 		{

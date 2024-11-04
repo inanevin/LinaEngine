@@ -53,15 +53,10 @@ namespace Lina::Editor
 
 		virtual void Construct() override;
 		virtual void Initialize() override;
-
-	protected:
-		virtual void OnGeneralMetaChanged(const MetaType& meta, FieldBase* field) override;
-		virtual void OnResourceMetaChanged(const MetaType& meta, FieldBase* field) override;
-		virtual void RegenHW() override;
+		void		 Rebuild();
+		void		 UpdateTextureProps();
 
 	private:
-		void UpdateTextureProps();
-
 	private:
 		LINA_REFLECTION_ACCESS(PanelTextureViewer);
 
@@ -80,6 +75,8 @@ namespace Lina::Editor
 		Text* m_txtName	  = nullptr;
 		Text* m_txtSize	  = nullptr;
 		Text* m_txtSizeKb = nullptr;
+
+		Texture::Metadata m_prevMeta = {};
 	};
 
 	LINA_WIDGET_BEGIN(PanelTextureViewer, Hidden)

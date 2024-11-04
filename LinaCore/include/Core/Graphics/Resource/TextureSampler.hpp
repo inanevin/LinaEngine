@@ -54,6 +54,11 @@ namespace Lina
 			return m_gpuHandle;
 		}
 
+		inline LinaGX::SamplerDesc& GetDesc()
+		{
+			return m_samplerDesc;
+		}
+
 	private:
 		ALLOCATOR_BUCKET_MEM;
 		LINA_REFLECTION_ACCESS(TextureSampler);
@@ -62,6 +67,5 @@ namespace Lina
 	};
 
 	LINA_RESOURCE_BEGIN(TextureSampler);
-	LINA_FIELD(TextureSampler, m_samplerDesc, "Metadata", FieldType::UserClass, GetTypeID<LinaGX::SamplerDesc>())
 	LINA_CLASS_END(TextureSampler);
 } // namespace Lina

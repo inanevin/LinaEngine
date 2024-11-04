@@ -196,7 +196,7 @@ namespace Lina
 		Vector<ClipData>				  m_clipStack;
 		float							  m_debugDrawYOffset	= 0.0f;
 		Font*							  m_defaultFont			= nullptr;
-		Vector<Widget*>					  m_killList			= {};
+		HashSet<Widget*>				  m_killList			= {};
 		Widget*							  m_lastControlsManager = nullptr;
 		HashMap<TypeID, WidgetCacheBase*> m_widgetCaches;
 		Widget*							  m_foregroundLock		  = nullptr;

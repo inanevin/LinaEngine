@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Core/Resources/ResourceManagerListener.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Editor/WindowPanelManager.hpp"
+#include "Editor/EditorTaskManager.hpp"
 #include "Editor/Project/ProjectManager.hpp"
 #include "Editor/Graphics/EditorRenderer.hpp"
 #include "Editor/Undo/UndoManager.hpp"
@@ -141,6 +142,11 @@ namespace Lina::Editor
 			return m_undoManager;
 		}
 
+		inline EditorTaskManager& GetTaskManager()
+		{
+			return m_taskManager;
+		}
+
 	private:
 		void CreateWorldRenderer(EntityWorld* world);
 		void DestroyWorldRenderer(EntityWorld* world);
@@ -160,6 +166,7 @@ namespace Lina::Editor
 		LinaGX::Window*						  m_mainWindow			 = nullptr;
 		HashMap<EntityWorld*, WorldRenderer*> m_worldRenderers;
 		static Editor*						  s_editor;
+		EditorTaskManager					  m_taskManager;
 	};
 
 } // namespace Lina::Editor

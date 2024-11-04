@@ -39,7 +39,8 @@ namespace Lina
 		in >> version;
 		in >> m_resourceIDCounter;
 		in >> m_projectName;
-		in >> m_rootDirectory;
+		in >> m_resourceGUIDCounter;
+		m_rootDirectory.LoadFromStream(in, this);
 	}
 
 	void ProjectData::SaveToStream(OStream& out)
@@ -47,7 +48,8 @@ namespace Lina
 		out << VERSION;
 		out << m_resourceIDCounter;
 		out << m_projectName;
-		out << m_rootDirectory;
+		out << m_resourceGUIDCounter;
+		m_rootDirectory.SaveToStream(out);
 	}
 
 	void ProjectData::ToRelativePath(const String& absPath, String& outRelative)
@@ -67,5 +69,66 @@ namespace Lina
 	String ProjectData::GetResourcePath(ResourceID id)
 	{
 		return GetResourceDirectory() + "Resource_" + TO_STRING(id) + ".linaresource";
+	}
+
+	ResourceDirectory* ProjectData::CreateResourceDirectory(ResourceDirectory* parent, ResourceDirectory desc)
+	{
+		ResourceDirectory* dir		   = m_directoryBucket.Allocate();
+		BucketIdentifier   bucketIdent = dir->m_bucketIdent;
+		*dir						   = desc;
+		dir->guid					   = m_resourceGUIDCounter++;
+		dir->m_bucketIdent			   = bucketIdent;
+
+		parent->children.push_back(dir);
+		dir->parent = parent;
+		parent->SortChildren();
+
+		return dir;
+	}
+
+	void ProjectData::DestroyResourceDirectory(ResourceDirectory* dir)
+	{
+		ResourceDirectory* parent = dir->parent;
+		auto			   it	  = linatl::find_if(parent->children.begin(), parent->children.end(), [dir](ResourceDirectory* c) -> bool { return c == dir; });
+		parent->children.erase(it);
+		parent->SortChildren();
+
+		for (ResourceDirectory* child : dir->children)
+			DestroyResourceDirectory(child);
+
+		m_directoryBucket.Free(dir);
+	}
+
+	ResourceDirectory* ProjectData::DuplicateResourceDirectory(ResourceDirectory* parent, ResourceDirectory* dir)
+	{
+		ResourceDirectory* dup	 = m_directoryBucket.Allocate();
+		BucketIdentifier   ident = dup->m_bucketIdent;
+		*dup					 = *dir;
+		dup->guid				 = m_resourceGUIDCounter++;
+		dup->m_bucketIdent		 = ident;
+
+		parent->children.push_back(dir);
+		dup->parent = parent;
+		return dup;
+	}
+
+	void ProjectData::DestroyChildDirectories(ResourceDirectory* dir)
+	{
+		for (ResourceDirectory* d : dir->children)
+		{
+			DestroyChildDirectories(d);
+			m_directoryBucket.Free(d);
+		}
+
+		dir->children.clear();
+	}
+	void ProjectData::MoveResourceDirectory(ResourceDirectory* dir, ResourceDirectory* newParent)
+	{
+		ResourceDirectory* parent = dir->parent;
+		auto			   it	  = linatl::find_if(parent->children.begin(), parent->children.end(), [dir](ResourceDirectory* c) -> bool { return c == dir; });
+		parent->children.erase(it);
+		dir->parent = newParent;
+		newParent->children.push_back(dir);
+		newParent->SortChildren();
 	}
 } // namespace Lina

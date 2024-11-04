@@ -87,6 +87,7 @@ namespace Lina::Editor
 			return false;
 		}
 
+		m_taskManager.Initialize(this);
 		m_editorRenderer.Initialize(this);
 		m_editorRenderer.VerifyResources();
 		return true;
@@ -118,7 +119,7 @@ namespace Lina::Editor
 
 		Taskflow tf;
 
-		TaskRunner::AddTask(
+		TaskRunner::AddFreeTask(
 			[this, progText]() {
 				progText->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::LoadingSettings));
 
@@ -180,6 +181,7 @@ namespace Lina::Editor
 		}
 
 		TaskRunner::Poll();
+		m_taskManager.PreTick();
 		m_projectManager.PreTick();
 		m_windowPanelManager.PreTick();
 		m_editorRenderer.PreTick();

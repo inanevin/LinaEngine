@@ -63,19 +63,15 @@ namespace Lina::Editor
 		virtual void Construct() override;
 		virtual void Destruct() override;
 		virtual void Initialize() override;
+		virtual void PreTick() override;
 		virtual void Tick(float dt) override;
-
-	protected:
-		virtual void OnGeneralMetaChanged(const MetaType& meta, FieldBase* field) override;
-		virtual void OnResourceMetaChanged(const MetaType& meta, FieldBase* field) override;
-		virtual void OnGeneralFoldBuilt() override;
-		virtual void OnResourceFoldBuilt() override;
-		virtual void OnResourceVerified() override;
-		virtual void RegenHW() override;
+		void		 Rebuild();
+		void		 StoreBuffer();
 
 	private:
 		void SetupWorld();
-		void RefreshMaterialInWorld();
+		void UpdateMaterialProps();
+		void UpdateMaterial();
 
 	private:
 		LINA_REFLECTION_ACCESS(PanelMaterialViewer);
@@ -92,6 +88,9 @@ namespace Lina::Editor
 		Material*				  m_materialInWorld = nullptr;
 		Vector<uint32>			  m_propertyFoldValues;
 		ResourceID				  m_storedShaderID = 0;
+		OStream					  m_previousStream;
+		ResourceID				  m_shaderID		 = 0;
+		bool					  m_rebuildNextFrame = false;
 	};
 
 	LINA_CLASS_BEGIN(MaterialViewerDisplayType)

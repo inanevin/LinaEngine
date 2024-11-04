@@ -49,11 +49,16 @@ namespace Lina
 
 		static constexpr uint32 VERSION = 0;
 
-		virtual void SaveToStream(OStream& out) override;
-		virtual void LoadFromStream(IStream& in) override;
-		void		 ToRelativePath(const String& absPath, String& outRelative);
-		String		 GetResourceDirectory();
-		String		 GetResourcePath(ResourceID id);
+		virtual void	   SaveToStream(OStream& out) override;
+		virtual void	   LoadFromStream(IStream& in) override;
+		void			   ToRelativePath(const String& absPath, String& outRelative);
+		String			   GetResourceDirectory();
+		String			   GetResourcePath(ResourceID id);
+		ResourceDirectory* CreateResourceDirectory(ResourceDirectory* parent, ResourceDirectory desc);
+		void			   DestroyResourceDirectory(ResourceDirectory* dir);
+		ResourceDirectory* DuplicateResourceDirectory(ResourceDirectory* parent, ResourceDirectory* dir);
+		void			   DestroyChildDirectories(ResourceDirectory* dir);
+		void			   MoveResourceDirectory(ResourceDirectory* dir, ResourceDirectory* newParent);
 
 		inline void SetProjectName(const String& name)
 		{
@@ -93,13 +98,15 @@ namespace Lina
 		}
 
 	private:
-		Runtime			  m_runtime			  = {};
-		String			  m_projectName		  = "";
-		ResourceID		  m_resourceIDCounter = 1;
-		ResourceDirectory m_rootDirectory	  = {
-				.name	  = "Resources",
-				.isFolder = true,
-		};
+		AllocatorBucket<ResourceDirectory, 1000> m_directoryBucket;
+		Runtime									 m_runtime			   = {};
+		String									 m_projectName		   = "";
+		ResourceID								 m_resourceIDCounter   = 1;
+		uint64									 m_resourceGUIDCounter = 1;
+		ResourceDirectory						 m_rootDirectory	   = {
+										 .name	   = "Resources",
+										 .isFolder = true,
+		 };
 	};
 
 } // namespace Lina

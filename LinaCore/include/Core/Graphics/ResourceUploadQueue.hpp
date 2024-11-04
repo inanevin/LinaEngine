@@ -48,8 +48,8 @@ namespace Lina
 
 	struct TextureUploadRequest
 	{
-		Texture*		 txt = nullptr;
-		Delegate<void()> onComplete;
+		Texture*					  txt = nullptr;
+		Vector<LinaGX::TextureBuffer> buffers;
 	};
 
 	struct BufferRequest
@@ -63,14 +63,14 @@ namespace Lina
 		ResourceUploadQueue()  = default;
 		~ResourceUploadQueue() = default;
 
-		void AddTextureRequest(Texture* txt, Delegate<void()>&& onComplete);
+		void AddTextureRequest(Texture* txt);
 		void AddBufferRequest(Buffer* buf);
 		bool FlushAll(LinaGX::CommandStream* copyStream);
 
 	private:
-		Vector<TextureUploadRequest>		m_textureRequests;
-		HashMap<Texture*, Delegate<void()>> m_completedTextureRequests;
-		Vector<BufferRequest>				m_bufferRequests;
+		Vector<TextureUploadRequest>  m_textureRequests;
+		Vector<BufferRequest>		  m_bufferRequests;
+		Vector<LinaGX::TextureBuffer> m_cleanUpBuffers;
 	};
 } // namespace Lina
 

@@ -164,7 +164,9 @@ namespace Lina
 			}
 
 			if (m_nextBucket != nullptr)
-				m_nextBucket->Find(std::move(predicate));
+				return m_nextBucket->Find(std::move(predicate));
+
+			return nullptr;
 		}
 
 		uint32 GetActiveItemCount(uint32 prior = 0) const
