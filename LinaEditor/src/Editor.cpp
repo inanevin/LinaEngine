@@ -67,7 +67,6 @@ namespace Lina
 			.windowHeight = h,
 			.windowStyle  = LinaGX::WindowStyle::BorderlessApplication,
 			.vsyncStyle	  = vsync,
-			.allowTearing = false,
 			.appDelegate  = new Lina::Editor::Editor(),
 			.clearColor	  = Theme::GetDef().background0,
 		};

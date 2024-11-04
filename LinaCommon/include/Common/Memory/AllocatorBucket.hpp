@@ -171,12 +171,22 @@ namespace Lina
 
 		uint32 GetActiveItemCount(uint32 prior = 0) const
 		{
-			const uint32 active = prior + m_head - static_cast<uint32>(m_freeIDs.size());
+			uint32 count = prior;
+
+			for (uint32 i = 0; i < N; i++)
+			{
+				uint8* ptr = m_span.data() + i * sizeof(T);
+				T*	   obj = reinterpret_cast<T*>(ptr);
+
+				if (obj->m_bucketIdent.isValid == 0)
+					continue;
+				count++;
+			}
 
 			if (m_nextBucket != nullptr)
-				return m_nextBucket->GetActiveItemCount(active);
+				return m_nextBucket->GetActiveItemCount(count);
 
-			return active;
+			return count;
 		}
 
 		uint32 GetElement(uint32 id, uint32 startIdx = 0) const

@@ -118,7 +118,7 @@ namespace Lina
 		LinaGX::Config.logLevel		 = LinaGX::LogLevel::Verbose;
 		LinaGX::Config.errorCallback = LinaGX_ErrorCallback;
 		LinaGX::Config.infoCallback	 = LinaGX_LogCallback;
-		LinaGX::BackendAPI api		 = LinaGX::BackendAPI::DX12;
+		LinaGX::BackendAPI api		 = LinaGX::BackendAPI::Vulkan;
 
 #ifdef LINA_PLATFORM_APPLE
 		api = LinaGX::BackendAPI::Metal;
@@ -221,12 +221,7 @@ namespace Lina
 				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 			};
 
-			LinaGX::DescriptorBinding binding3 = {
-				.type	= LinaGX::DescriptorType::SSBO,
-				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-			};
-
-			return {.bindings = {binding0, binding1, binding2, binding3}};
+			return {.bindings = {binding0, binding1, binding2}};
 		}
 		else if (type == RenderPassDescriptorType::Lighting)
 		{

@@ -376,6 +376,7 @@ namespace Lina
 		ResourceCache<TextureSampler>* cacheSmp = m_resourceManagerV2->GetCache<TextureSampler>();
 		pfd.globalSamplersDesc.samplers.resize(static_cast<size_t>(cacheSmp->GetActiveItemCount()));
 		cacheSmp->View([&](TextureSampler* smp, uint32 index) -> bool {
+			pfd.globalSamplersDesc.samplers[index] = smp->GetGPUHandle();
 			SetBindlessIndex(smp, index);
 			return false;
 		});

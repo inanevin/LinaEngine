@@ -88,12 +88,7 @@ namespace Lina::Editor
 			.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 		};
 
-		LinaGX::DescriptorBinding guiBinding2 = {
-			.type	= LinaGX::DescriptorType::SSBO,
-			.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-		};
-
-		return {.bindings = {guiBinding0, guiBinding1, guiBinding2}};
+		return {.bindings = {guiBinding0, guiBinding1}};
 	}
 
 	LinaGX::PipelineLayoutDesc EditorGfxHelpers::GetPipelineLayoutDescriptionGUI()
@@ -112,6 +107,10 @@ namespace Lina::Editor
 	{
 		return {
 			.descriptorSetDescriptions = {GetSetDescriptionGlobal()},
+			.constantRanges			   = {{
+						   .stages = {LinaGX::ShaderStage::Fragment},
+						   .size   = static_cast<uint32>(sizeof(GPUEditorGUIPushConstants)),
+			   }},
 			.debugName				   = "GlobalLayout",
 		};
 	}

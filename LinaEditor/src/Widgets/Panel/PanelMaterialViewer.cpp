@@ -167,6 +167,7 @@ namespace Lina::Editor
 
 		if (m_world)
 		{
+			m_editor->GetApp()->GetLGX()->Join();
 			m_editor->GetEditorRenderer().RemoveWorldRenderer(m_worldRenderer);
 			delete m_worldRenderer;
 			delete m_world;

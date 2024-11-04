@@ -63,8 +63,17 @@ namespace Lina
 		ALLOCATOR_BUCKET_MEM;
 		LINA_REFLECTION_ACCESS(TextureSampler);
 		uint32				m_gpuHandle	  = 0;
-		LinaGX::SamplerDesc m_samplerDesc = {};
-	};
+		LinaGX::SamplerDesc m_samplerDesc = {
+			.minFilter	= LinaGX::Filter::Anisotropic,
+			.magFilter	= LinaGX::Filter::Anisotropic,
+			.mode		= LinaGX::SamplerAddressMode::Repeat,
+			.mipmapMode = LinaGX::MipmapMode::Linear,
+			.anisotropy = 0,
+			.minLod		= 0.0f,
+			.maxLod		= 10.0f,
+			.mipLodBias = 0.0f,
+		};
+	}; // namespace Lina
 
 	LINA_RESOURCE_BEGIN(TextureSampler);
 	LINA_CLASS_END(TextureSampler);

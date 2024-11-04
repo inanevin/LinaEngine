@@ -44,7 +44,6 @@ namespace Lina
 		uint32				 windowHeight = 0;
 		LinaGX::WindowStyle	 windowStyle  = LinaGX::WindowStyle::WindowedApplication;
 		LinaGX::VSyncStyle	 vsyncStyle	  = {};
-		bool				 allowTearing = false;
 		ApplicationDelegate* appDelegate  = nullptr;
 		Color				 clearColor	  = Color::Black;
 	};
