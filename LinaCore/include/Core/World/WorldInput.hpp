@@ -56,6 +56,7 @@ namespace Lina
 		Vector2 GetMousePositionRatio();
 		Vector2 GetMouseDelta();
 		Vector2 GetMouseDeltaRelative();
+		float	GetMouseScroll();
 
 		inline void SetIsActive(bool isActive)
 		{

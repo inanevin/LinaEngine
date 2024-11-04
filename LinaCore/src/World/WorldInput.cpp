@@ -128,4 +128,12 @@ namespace Lina
 
 		return window->GetMouseDeltaRelative();
 	}
+
+	float WorldInput::GetMouseScroll()
+	{
+		if (!m_isActive)
+			return 0.0f;
+
+		return m_lgxInput->GetMouseScroll();
+	}
 } // namespace Lina

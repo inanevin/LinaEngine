@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
+#include "Core/World/EntityWorld.hpp"
 
 namespace Lina
 {
@@ -37,23 +38,33 @@ namespace Lina
 
 namespace Lina::Editor
 {
+	class EditorCamera;
+	class OrbitCamera;
 
-	class WorldDisplayer : public Widget
+	class WorldDisplayer : public Widget, public EntityWorldListener
 	{
 	public:
 		WorldDisplayer() : Widget(WF_CONTROLLABLE){};
 		virtual ~WorldDisplayer() = default;
 
 		virtual void Construct() override;
+		virtual void Destruct() override;
 		virtual void PreTick() override;
+		virtual void Tick(float) override;
 
-		void DisplayWorld(WorldRenderer* renderer);
-		bool OnMouse(uint32 button, LinaGX::InputAction act) override;
+		void		 DisplayWorld(WorldRenderer* renderer);
+		bool		 OnMouse(uint32 button, LinaGX::InputAction act) override;
+		OrbitCamera* CreateOrbitCamera();
+		void		 DestroyCamera();
+
+		// World
+		virtual void OnWorldTick(float delta, PlayMode playmode) override;
 
 	private:
 		Widget*		   m_loading	   = nullptr;
 		WorldRenderer* m_worldRenderer = nullptr;
 		bool		   m_mouseConfined = false;
+		EditorCamera*  m_camera		   = nullptr;
 	};
 	LINA_WIDGET_BEGIN(WorldDisplayer, Hidden)
 	LINA_CLASS_END(WorldDisplayer)

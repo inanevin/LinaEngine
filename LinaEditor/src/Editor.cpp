@@ -58,8 +58,8 @@ namespace Lina
 		const uint32 h = static_cast<uint32>(static_cast<float>(w) * (static_cast<float>(monitor.size.y) / static_cast<float>(monitor.size.x)));
 
 		LinaGX::VSyncStyle vsync;
-		vsync.dx12Vsync	  = LinaGX::DXVsync::None;
-		vsync.vulkanVsync = LinaGX::VKVsync::None;
+		vsync.dx12Vsync	  = LinaGX::DXVsync::EveryVBlank;
+		vsync.vulkanVsync = LinaGX::VKVsync::FIFO;
 
 		return SystemInitializationInfo{
 			.appName	  = "Lina Editor",
@@ -67,7 +67,7 @@ namespace Lina
 			.windowHeight = h,
 			.windowStyle  = LinaGX::WindowStyle::BorderlessApplication,
 			.vsyncStyle	  = vsync,
-			.allowTearing = true,
+			.allowTearing = false,
 			.appDelegate  = new Lina::Editor::Editor(),
 			.clearColor	  = Theme::GetDef().background0,
 		};

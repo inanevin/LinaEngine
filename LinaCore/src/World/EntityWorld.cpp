@@ -70,8 +70,29 @@ namespace Lina
 		}
 	}
 
-	void EntityWorld::BeginPlay()
+	void EntityWorld::Tick(float delta)
 	{
+		/*
+		m_elapsedTime += delta;
+		const float fixedTimestep = 1.0f / static_cast<float>(m_simulationSettings.targetUpdateTicks);
+		while (m_elapsedTime >= fixedTimestep)
+		{
+			m_elapsedTime -= fixedTimestep;
+		}
+		m_interpolationAlpha = m_elapsedTime / fixedTimestep;
+		*/
+
+		for (EntityWorldListener* l : m_listeners)
+			l->OnWorldTick(delta, m_playMode);
+
+		if (m_playMode != PlayMode::None)
+			TickPlay(delta, m_playMode);
+	}
+
+	void EntityWorld::BeginPlay(PlayMode playmode)
+	{
+		m_playMode = playmode;
+
 		for (auto [tid, cache] : m_componentCaches)
 		{
 			cache->ForEach([](Component* c) { c->OnBeginPlay(); });
@@ -80,13 +101,15 @@ namespace Lina
 
 	void EntityWorld::EndPlay()
 	{
+		m_playMode = PlayMode::None;
+
 		for (auto [tid, cache] : m_componentCaches)
 		{
 			cache->ForEach([](Component* c) { c->OnEndPlay(); });
 		}
 	}
 
-	void EntityWorld::TickPlay(float deltaTime)
+	void EntityWorld::TickPlay(float deltaTime, PlayMode playmode)
 	{
 		for (auto [tid, cache] : m_componentCaches)
 		{

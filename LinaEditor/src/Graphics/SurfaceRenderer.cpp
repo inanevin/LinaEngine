@@ -51,6 +51,9 @@ namespace Lina::Editor
 #define MAX_GUI_VERTICES 120000
 #define MAX_GUI_INDICES	 140000
 
+#define VSYNC_DX LinaGX::DXVsync::None
+#define VSYNC_VK LinaGX::VKVsync::FIFO
+
 	SurfaceRenderer::SurfaceRenderer(Editor* editor, LinaGX::Window* window, const Color& clearColor) : m_window(window)
 	{
 		m_editor			= editor;
@@ -62,6 +65,11 @@ namespace Lina::Editor
 		m_guiHue			= m_editor->GetResourceManagerV2().GetResource<Shader>(EDITOR_SHADER_GUI_HUE_DISPLAY_ID);
 		m_guiText			= m_editor->GetResourceManagerV2().GetResource<Shader>(EDITOR_SHADER_GUI_TEXT_ID);
 		m_guiSDF			= m_editor->GetResourceManagerV2().GetResource<Shader>(EDITOR_SHADER_GUI_SDF_TEXT_ID);
+
+		const LinaGX::VSyncStyle vsync = {
+			.vulkanVsync = VSYNC_VK,
+			.dx12Vsync	 = VSYNC_DX,
+		};
 
 		// Swapchain
 		const auto monitorSize = window->GetMonitorSize();
@@ -75,7 +83,7 @@ namespace Lina::Editor
 					   .window		 = window->GetWindowHandle(),
 					   .osHandle	 = window->GetOSHandle(),
 					   .isFullscreen = windowSize.x == monitorSize.x && windowSize.y == monitorSize.y,
-					   .vsyncStyle	 = LinaGX::VSyncStyle{},
+					   .vsyncStyle	 = vsync,
 		   });
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
@@ -124,11 +132,17 @@ namespace Lina::Editor
 
 		const LinaGX::LGXVector2ui monitorSize = m_window->GetMonitorSize();
 
+		const LinaGX::VSyncStyle vsync = {
+			.vulkanVsync = VSYNC_VK,
+			.dx12Vsync	 = VSYNC_DX,
+		};
+
 		LinaGX::SwapchainRecreateDesc desc = {
 			.swapchain	  = m_swapchain,
 			.width		  = newSize.x,
 			.height		  = newSize.y,
 			.isFullscreen = newSize.x == monitorSize.x && newSize.y == monitorSize.y,
+			.vsyncStyle	  = vsync,
 		};
 
 		m_lgx->RecreateSwapchain(desc);

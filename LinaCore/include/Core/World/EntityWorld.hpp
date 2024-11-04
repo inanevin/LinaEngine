@@ -48,17 +48,31 @@ namespace Lina
 	class Entity;
 	class Component;
 	class CameraComponent;
+
+	enum class PlayMode
+	{
+		None,
+		Play,
+		Other,
+	};
+
 	class EntityWorldListener
 	{
 	public:
 		virtual void OnComponentAdded(Component* c){};
 		virtual void OnComponentRemoved(Component* c){};
 		virtual void OnGeneratedResources(Vector<Resource*>& resources){};
+		virtual void OnWorldTick(float delta, PlayMode playmode){};
 	};
 
 	class EntityWorld : public Resource
 	{
 	public:
+		struct SimulationSettings
+		{
+			uint32 targetUpdateTicks = 60;
+		};
+
 		struct GfxSettings
 		{
 			ResourceID skyMaterial;
@@ -94,9 +108,10 @@ namespace Lina
 		void		 LoadMissingResources(ProjectData* project, const HashSet<ResourceID>& extraResources);
 		void		 VerifyResources();
 
-		void BeginPlay();
+		void Tick(float delta);
+		void BeginPlay(PlayMode playmode);
 		void EndPlay();
-		void TickPlay(float deltaTime);
+		void TickPlay(float deltaTime, PlayMode playmode);
 
 		template <typename T> T* GetComponent(Entity* e)
 		{
@@ -205,6 +220,11 @@ namespace Lina
 			return m_camera;
 		}
 
+		inline SimulationSettings& GetSimSettings()
+		{
+			return m_simulationSettings;
+		}
+
 	private:
 		void DestroyEntityData(Entity* e);
 		void OnCreateComponent(Component* c, Entity* e);
@@ -223,7 +243,12 @@ namespace Lina
 		GfxSettings							 m_gfxSettings;
 		Screen								 m_screen = {};
 		WorldInput							 m_worldInput;
-		Camera								 m_camera = {};
+		Camera								 m_camera			  = {};
+		SimulationSettings					 m_simulationSettings = {};
+
+		float	 m_elapsedTime		  = 0.0f;
+		float	 m_interpolationAlpha = 0.0f;
+		PlayMode m_playMode			  = PlayMode::None;
 	};
 
 	LINA_RESOURCE_BEGIN(EntityWorld)

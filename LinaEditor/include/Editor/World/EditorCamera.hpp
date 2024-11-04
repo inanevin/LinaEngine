@@ -40,44 +40,64 @@ namespace Lina
 namespace Lina::Editor
 {
 
-	enum class EditorCameraMode
-	{
-		FreeMovement,
-		Orbit,
-	};
-
 	class EditorCamera
 	{
 	public:
-		EditorCamera()	= default;
-		~EditorCamera() = default;
+		EditorCamera()			= default;
+		virtual ~EditorCamera() = default;
+
+		struct CameraProperties
+		{
+			float fov	= 90.0f;
+			float zNear = 0.1f;
+			float zFar	= 500.0f;
+		};
 
 		void Tick(float delta);
+
+		virtual void OnHandleCamera(float delta) = 0;
 
 		inline void SetWorld(EntityWorld* world)
 		{
 			m_world = world;
 		}
 
-	private:
-		void HandleFreeMovement(float delta);
-		void HandleOrbit(float delta);
+		inline CameraProperties& GetProps()
+		{
+			return m_props;
+		}
+
+	protected:
+		EntityWorld*	 m_world	   = nullptr;
+		CameraProperties m_props	   = {};
+		Vector3			 m_absPosition = Vector3::Zero;
+		Quaternion		 m_absRotation = Quaternion::Identity();
+	};
+
+	class OrbitCamera : public EditorCamera
+	{
+	public:
+		struct OrbitProperties
+		{
+			Vector3 targetPoint	   = Vector3::Zero;
+			float	targetDistance = 5.0f;
+			float	minDistance	   = 1.0f;
+			float	maxDistance	   = 12.0f;
+		};
+
+		OrbitCamera()		   = default;
+		virtual ~OrbitCamera() = default;
+
+		virtual void OnHandleCamera(float delta) override;
+
+		inline OrbitProperties& GetProps()
+		{
+			return m_orbitProps;
+		}
 
 	private:
-		EditorCameraMode m_mode				  = EditorCameraMode::FreeMovement;
-		EntityWorld*	 m_world			  = nullptr;
-		float			 m_fov				  = 90.0f;
-		float			 m_zNear			  = 0.1f;
-		float			 m_zFar				  = 500.0f;
-		Vector3			 m_absPosition		  = Vector3::Zero;
-		Quaternion		 m_absRotation		  = Quaternion::Identity();
-		float			 m_movementPower	  = 32.0f;
-		float			 m_movementSpeed	  = 16.0f;
-		float			 m_rotationPower	  = 20.0f;
-		float			 m_rotationSpeed	  = 12.0f;
-		Vector2			 m_usedMoveAmt		  = Vector2::Zero;
-		Vector3			 m_usedAngles		  = Vector3::Zero;
-		Vector3			 m_targetAngles		  = Vector3::Zero;
-		Vector2			 m_previousMouseDelta = Vector2::Zero;
+		OrbitProperties m_orbitProps = {};
+		float			m_xAngle	 = 0.0f;
+		float			m_yAngle	 = 0.0f;
 	};
 } // namespace Lina::Editor

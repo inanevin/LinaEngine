@@ -51,15 +51,31 @@ namespace Lina::Editor
 		AddChild(m_loading);
 	}
 
+	void WorldDisplayer::Destruct()
+	{
+		if (m_worldRenderer)
+			m_worldRenderer->GetWorld()->RemoveListener(this);
+
+		DestroyCamera();
+	}
+
 	void WorldDisplayer::DisplayWorld(WorldRenderer* renderer)
 	{
 		if (renderer == nullptr)
 		{
+			if (m_camera)
+				m_camera->SetWorld(nullptr);
+
 			GetWidgetProps().drawBackground = false;
 			return;
 		}
 
-		m_worldRenderer					 = renderer;
+		m_worldRenderer = renderer;
+		m_worldRenderer->GetWorld()->AddListener(this);
+
+		if (m_camera)
+			m_camera->SetWorld(m_worldRenderer->GetWorld());
+
 		GetWidgetProps().drawBackground	 = true;
 		GetWidgetProps().colorBackground = Color::White;
 	}
@@ -106,6 +122,14 @@ namespace Lina::Editor
 		GetWidgetProps().rawTexture = target;
 	}
 
+	void WorldDisplayer::Tick(float delta)
+	{
+		if (m_worldRenderer == nullptr)
+			return;
+
+		m_worldRenderer->GetWorld()->Tick(delta);
+	}
+
 	bool WorldDisplayer::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
 		if (m_isHovered && button == LINAGX_MOUSE_1 && (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated))
@@ -130,6 +154,28 @@ namespace Lina::Editor
 		}
 
 		return false;
+	}
+
+	OrbitCamera* WorldDisplayer::CreateOrbitCamera()
+	{
+		m_camera = new OrbitCamera();
+		if (m_worldRenderer)
+			m_camera->SetWorld(m_worldRenderer->GetWorld());
+		return static_cast<OrbitCamera*>(m_camera);
+	}
+
+	void WorldDisplayer::DestroyCamera()
+	{
+		if (m_camera == nullptr)
+			return;
+		delete m_camera;
+		m_camera = nullptr;
+	}
+
+	void WorldDisplayer::OnWorldTick(float delta, PlayMode playmode)
+	{
+		if (m_camera)
+			m_camera->Tick(delta);
 	}
 
 } // namespace Lina::Editor

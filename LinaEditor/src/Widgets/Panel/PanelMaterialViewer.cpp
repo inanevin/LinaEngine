@@ -79,7 +79,6 @@ namespace Lina::Editor
 			return;
 
 		m_world = new EntityWorld(0, "");
-		m_editorCamera.SetWorld(m_world);
 
 		UpdateMaterialProps();
 		Rebuild();
@@ -105,6 +104,8 @@ namespace Lina::Editor
 		m_worldRenderer = new WorldRenderer(m_world, Vector2ui(4, 4));
 		m_world->VerifyResources();
 		m_worldDisplayer->DisplayWorld(m_worldRenderer);
+		m_worldDisplayer->CreateOrbitCamera();
+
 		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer);
 		SetupWorld();
 	}
@@ -411,11 +412,6 @@ namespace Lina::Editor
 	{
 		Material* mat = static_cast<Material*>(m_resource);
 		UndoActionMaterialDataChanged::Create(m_editor, m_resource->GetID(), m_previousStream);
-	}
-
-	void PanelMaterialViewer::Tick(float dt)
-	{
-		m_editorCamera.Tick(dt);
 	}
 
 } // namespace Lina::Editor

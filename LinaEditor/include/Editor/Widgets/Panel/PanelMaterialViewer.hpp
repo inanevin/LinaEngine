@@ -29,7 +29,6 @@ SOFTWARE.
 #pragma once
 
 #include "Editor/Widgets/Panel/PanelResourceViewer.hpp"
-#include "Editor/World/EditorCamera.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
 
@@ -64,7 +63,6 @@ namespace Lina::Editor
 		virtual void Destruct() override;
 		virtual void Initialize() override;
 		virtual void PreTick() override;
-		virtual void Tick(float dt) override;
 		void		 Rebuild();
 		void		 StoreBuffer();
 
@@ -84,7 +82,6 @@ namespace Lina::Editor
 		WorldRenderer*			  m_worldRenderer	= nullptr;
 		ShaderType				  m_shaderType		= ShaderType::OpaqueSurface;
 		String					  m_shaderTypeStr	= "";
-		EditorCamera			  m_editorCamera	= {};
 		Material*				  m_materialInWorld = nullptr;
 		Vector<uint32>			  m_propertyFoldValues;
 		ResourceID				  m_storedShaderID = 0;

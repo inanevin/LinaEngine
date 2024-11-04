@@ -40,24 +40,60 @@ namespace Lina::Editor
 			return;
 
 		Camera& worldCamera = m_world->GetWorldCamera();
+		OnHandleCamera(delta);
 
-		if (m_mode == EditorCameraMode::FreeMovement)
-			HandleFreeMovement(delta);
-		else if (m_mode == EditorCameraMode::Orbit)
-			HandleOrbit(delta);
-
-		worldCamera.fovDegrees	  = m_fov;
-		worldCamera.zNear		  = m_zNear;
-		worldCamera.zFar		  = m_zFar;
+		worldCamera.fovDegrees	  = m_props.fov;
+		worldCamera.zNear		  = m_props.zNear;
+		worldCamera.zFar		  = m_props.zFar;
 		worldCamera.worldPosition = m_absPosition;
 		worldCamera.worldRotation = m_absRotation;
 	}
-
+	/*
 	void EditorCamera::HandleFreeMovement(float delta)
 	{
 		WorldInput& worldInput = m_world->GetInput();
 
 		const bool canMoveRotate = worldInput.GetMouseButton(LINAGX_MOUSE_1);
+
+		const int	testFPS0   = 60;
+		const int	testFPS1   = 560;
+		const float testDelta  = 1 / (float)testFPS0;
+		const float testDelta1 = 1 / (float)testFPS1;
+		const float testMP	   = 10.0f;
+
+		float testMoveAmt0 = 0.0f;
+		float testMoveAmt1 = 0.0f;
+
+		float testTotalMove0 = 0.0f;
+		float testTotalMove1 = 0.0f;
+
+		for (int i = 0; i < testFPS0 * 10; i++)
+		{
+			const float targetMove = testMP * testDelta;
+			testMoveAmt0		   = Math::Lerp(testMoveAmt0, targetMove, 10 * testDelta);
+			testTotalMove0 += testMoveAmt0;
+		}
+
+		for (int i = 0; i < testFPS0 * 4; i++)
+		{
+			const float targetMove = testMP * testDelta;
+			testMoveAmt0		   = Math::Lerp(testMoveAmt0, 0.0f, 10 * testDelta);
+			testTotalMove0 += testMoveAmt0;
+		}
+
+		for (int i = 0; i < testFPS1 * 10; i++)
+		{
+			const float targetMove = testMP * testDelta1;
+			testMoveAmt1		   = Math::Lerp(testMoveAmt1, targetMove, 10 * testDelta1);
+			testTotalMove1 += testMoveAmt1;
+		}
+
+		for (int i = 0; i < testFPS1 * 4; i++)
+		{
+			const float targetMove = testMP * testDelta1;
+			testMoveAmt1		   = Math::Lerp(testMoveAmt1, 0.0f, 10 * testDelta1);
+			testTotalMove1 += testMoveAmt1;
+		}
 
 		// Handle movement.
 		{
@@ -78,7 +114,7 @@ namespace Lina::Editor
 				moveInput.y = 0.0f;
 
 			const Vector2 targetMove   = m_movementPower * moveInput * delta;
-			m_usedMoveAmt			   = Math::EaseIn(m_usedMoveAmt, targetMove, m_movementSpeed * delta);
+			m_usedMoveAmt			   = Math::EaseIn(m_usedMoveAmt, targetMove, m_movementEase * delta);
 			const Vector3 moveAddition = m_absRotation.GetRight() * m_usedMoveAmt.x + m_absRotation.GetForward() * m_usedMoveAmt.y;
 			m_absPosition += moveAddition;
 		}
@@ -102,8 +138,25 @@ namespace Lina::Editor
 			m_absRotation = Quaternion::PitchYawRoll(m_usedAngles);
 		}
 	}
+	*/
 
-	void EditorCamera::HandleOrbit(float delta)
+	void OrbitCamera::OnHandleCamera(float delta)
 	{
+		WorldInput& input = m_world->GetInput();
+
+		if (input.GetMouseButton(LINAGX_MOUSE_MIDDLE))
+		{
+			const Vector2 mouseDelta = input.GetMouseDeltaRelative();
+			m_xAngle -= mouseDelta.x * delta * 600.0f;
+			m_yAngle = Math::Clamp(m_yAngle + mouseDelta.y * delta * 600.0f, -Math::ToRadians(89.0f), Math::ToRadians(89.0f)); // Clamp to avoid flipping
+		}
+
+		m_orbitProps.targetDistance -= input.GetMouseScroll() * delta * 120.0f;
+		m_orbitProps.targetDistance = Math::Clamp(m_orbitProps.targetDistance, m_orbitProps.minDistance, m_orbitProps.maxDistance);
+
+		const float	  cosY	 = Math::Cos(m_yAngle);
+		const Vector3 offset = Vector3(cosY * Math::Cos(m_xAngle), Math::Sin(m_yAngle), cosY * Math::Sin(m_xAngle)) * m_orbitProps.targetDistance;
+		m_absPosition		 = m_orbitProps.targetPoint + offset;
+		m_absRotation		 = Quaternion::LookAt(m_absPosition, m_orbitProps.targetPoint, Vector3::Up);
 	}
 } // namespace Lina::Editor
