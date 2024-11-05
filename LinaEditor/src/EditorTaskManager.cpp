@@ -54,10 +54,10 @@ namespace Lina::Editor
 		{
 			if (m_runningTask->isComplete.load())
 			{
+				m_editor->GetWindowPanelManager().UnlockAllForegrounds();
 				m_runningTask->onComplete();
 				delete m_runningTask;
 				m_runningTask = nullptr;
-				m_editor->GetWindowPanelManager().UnlockAllForegrounds();
 				// return;
 			}
 			else

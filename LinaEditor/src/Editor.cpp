@@ -111,58 +111,54 @@ namespace Lina::Editor
 		m_mainWindow		   = m_app->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
 		m_primaryWidgetManager = &m_windowPanelManager.GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
 
-		Widget* lock	 = m_windowPanelManager.LockAllForegrounds(m_mainWindow, Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow));
-		Widget* prog	 = CommonWidgets::BuildGenericPopupProgress(lock, Locale::GetStr(LocaleStr::LoadingEngine), true);
-		Text*	progText = static_cast<Text*>(prog->FindChildWithDebugName("Progress"));
-		lock->AddChild(prog);
-
-		Taskflow tf;
-
 		m_atlasManager.AddCustomAtlas("ProjectIcons"_hs, Vector2ui(2048, 2048));
 
-		TaskRunner::AddFreeTask(
-			[this, progText]() {
-				progText->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::LoadingSettings));
+		EditorTask* task   = m_taskManager.CreateTask();
+		task->title		   = Locale::GetStr(LocaleStr::LoadingEngine);
+		task->progressText = Locale::GetStr(LocaleStr::LoadingSettings);
+		task->ownerWindow  = m_mainWindow;
 
-				// Load editor settings or create and save empty if non-existing.
-				const String userDataFolder = FileSystem::GetUserDataFolder() + "Editor/";
-				const String settingsPath	= userDataFolder + "EditorSettings.linameta";
-				m_settings.SetPath(settingsPath);
-				if (!FileSystem::FileOrPathExists(userDataFolder))
-					FileSystem::CreateFolderInPath(userDataFolder);
-				if (FileSystem::FileOrPathExists(settingsPath))
-				{
-					if (!m_settings.LoadFromFile())
-						m_settings.SaveToFile();
-				}
-				else
+		task->task = [this, task]() {
+			// Load editor settings or create and save empty if non-existing.
+			const String userDataFolder = FileSystem::GetUserDataFolder() + "Editor/";
+			const String settingsPath	= userDataFolder + "EditorSettings.linameta";
+			m_settings.SetPath(settingsPath);
+			if (!FileSystem::FileOrPathExists(userDataFolder))
+				FileSystem::CreateFolderInPath(userDataFolder);
+			if (FileSystem::FileOrPathExists(settingsPath))
+			{
+				if (!m_settings.LoadFromFile())
 					m_settings.SaveToFile();
+			}
+			else
+				m_settings.SaveToFile();
 
-				progText->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::LoadingCoreResources));
+			task->progressText = Locale::GetStr(LocaleStr::LoadingCoreResources);
+			ResourceList coreResources;
+			EditorResources::LoadCoreResources(m_resourceManagerV2, coreResources);
 
-				ResourceList coreResources;
-				EditorResources::LoadCoreResources(m_resourceManagerV2, coreResources);
+			task->progressText = Locale::GetStr(LocaleStr::GeneratingAtlases);
+			m_atlasManager.ScanCustomAtlas("ProjectIcons"_hs, "Resources/Editor/Textures/Atlas/ProjectIcons/");
+		};
 
-				progText->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::GeneratingAtlases));
-				m_atlasManager.ScanCustomAtlas("ProjectIcons"_hs, "Resources/Editor/Textures/Atlas/ProjectIcons/");
-			},
-			[this]() {
-				m_editorRenderer.VerifyResources();
-				m_windowPanelManager.UnlockAllForegrounds();
+		task->onComplete = [this]() {
+			m_editorRenderer.VerifyResources();
 
-				// Resize window to work dims.
-				m_mainWindow->SetPosition(m_mainWindow->GetMonitorInfoFromWindow().workTopLeft);
-				m_mainWindow->AddSizeRequest(m_mainWindow->GetMonitorWorkSize());
+			// Resize window to work dims.
+			m_mainWindow->SetPosition(m_mainWindow->GetMonitorInfoFromWindow().workTopLeft);
+			m_mainWindow->AddSizeRequest(m_mainWindow->GetMonitorWorkSize());
 
-				// Insert editor root.
-				Widget* root = m_primaryWidgetManager->GetRoot();
-				m_editorRoot = root->GetWidgetManager()->Allocate<EditorRoot>("EditorRoot");
-				m_editorRoot->Initialize();
-				root->AddChild(m_editorRoot);
+			// Insert editor root.
+			Widget* root = m_primaryWidgetManager->GetRoot();
+			m_editorRoot = root->GetWidgetManager()->Allocate<EditorRoot>("EditorRoot");
+			m_editorRoot->Initialize();
+			root->AddChild(m_editorRoot);
 
-				// Launch project
-				m_projectManager.Initialize(this);
-			});
+			// Launch project
+			m_projectManager.Initialize(this);
+		};
+
+		m_taskManager.AddTask(task);
 
 		return true;
 	}
