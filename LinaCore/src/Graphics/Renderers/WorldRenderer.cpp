@@ -402,97 +402,120 @@ namespace Lina
 	{
 		auto& currentFrame = m_pfd[frameIndex];
 
-		// Global queue is mostly for resources that are not per-frame-dependent, like asset textures or meshes.
-		// We will wait for them to be completed before proceding.
-		if (m_globalUploadQueue.FlushAll(currentFrame.copyStream))
-		{
-			BumpAndSendTransfers(frameIndex);
-			m_lgx->WaitForUserSemaphore(currentFrame.copySemaphore.GetSemaphore(), currentFrame.copySemaphore.GetValue());
-		}
-
-		// Update global data.
-		{
-			const auto&			 mp			= m_lgx->GetInput().GetMousePositionAbs();
-			GPUDataEngineGlobals globalData = {};
-			globalData.mouseScreen			= Vector4(static_cast<float>(mp.x), static_cast<float>(mp.y), static_cast<float>(m_size.x), static_cast<float>(m_size.y));
-			globalData.deltaElapsed			= Vector4(SystemInfo::GetDeltaTimeF(), SystemInfo::GetAppTimeF(), 0.0f, 0.0f);
-			currentFrame.globalDataBuffer.BufferData(0, (uint8*)&globalData, sizeof(GPUDataEngineGlobals));
-		}
-
-		// View data.
-		{
-			Camera&		worldCam = m_world->GetWorldCamera();
-			GPUDataView view	 = {};
-			CalculateViewProj(worldCam, m_world->GetScreen(), view.view, view.proj);
-			const Vector3& camPos	   = worldCam.worldPosition;
-			const Vector3& camDir	   = worldCam.worldRotation.GetForward();
-			view.viewProj			   = view.proj * view.view;
-			view.cameraPositionAndNear = Vector4(camPos.x, camPos.y, camPos.z, worldCam.zNear);
-			view.cameraDirectionAndFar = Vector4(camDir.x, camDir.y, camDir.z, worldCam.zFar);
-			view.size				   = Vector2(static_cast<float>(m_size.x), static_cast<float>(m_size.y));
-			m_lightingPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
-			m_mainPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
-			m_forwardPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
-		}
-
-		// Lighting pass specific.
+		try
 		{
 
-			Material* lightingMaterial = m_world->GetResourceManagerV2().GetIfExists<Material>(m_world->GetGfxSettings().lightingMaterial);
-			Material* skyMaterial	   = m_world->GetResourceManagerV2().GetIfExists<Material>(m_world->GetGfxSettings().skyMaterial);
+			// Global queue is mostly for resources that are not per-frame-dependent, like asset textures or meshes.
+			// We will wait for them to be completed before proceding.
+			if (m_globalUploadQueue.FlushAll(currentFrame.copyStream))
+			{
+				BumpAndSendTransfers(frameIndex);
+				m_lgx->WaitForUserSemaphore(currentFrame.copySemaphore.GetSemaphore(), currentFrame.copySemaphore.GetValue());
+			}
 
-			LINA_ASSERT(lightingMaterial && skyMaterial, "");
+			// Update global data.
+			{
+				const auto&			 mp			= m_lgx->GetInput().GetMousePositionAbs();
+				GPUDataEngineGlobals globalData = {};
+				globalData.mouseScreen			= Vector4(static_cast<float>(mp.x), static_cast<float>(mp.y), static_cast<float>(m_size.x), static_cast<float>(m_size.y));
+				globalData.deltaElapsed			= Vector4(SystemInfo::GetDeltaTimeF(), SystemInfo::GetAppTimeF(), 0.0f, 0.0f);
+				currentFrame.globalDataBuffer.BufferData(0, (uint8*)&globalData, sizeof(GPUDataEngineGlobals));
+			}
 
-			GPUDataLightingPass renderPassData = {
-				.gBufAlbedo			  = GetBindlessIndex(currentFrame.gBufAlbedo),
-				.gBufPositionMetallic = GetBindlessIndex(currentFrame.gBufPosition),
-				.gBufNormalRoughness  = GetBindlessIndex(currentFrame.gBufNormal),
-				// .gBufDepth             = currentFrame.gBufDepth->GetBindlessIndex(),
-				.gBufSampler			   = GetBindlessIndex(m_gBufSampler),
-				.lightingMaterialByteIndex = GetBindlessIndex(lightingMaterial) / 4,
-				.skyMaterialByteIndex	   = GetBindlessIndex(skyMaterial) / 4,
-			};
-
-			m_lightingPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&renderPassData, sizeof(GPUDataLightingPass));
+			// View data.
+			{
+				Camera&		worldCam = m_world->GetWorldCamera();
+				GPUDataView view	 = {};
+				CalculateViewProj(worldCam, m_world->GetScreen(), view.view, view.proj);
+				const Vector3& camPos	   = worldCam.worldPosition;
+				const Vector3& camDir	   = worldCam.worldRotation.GetForward();
+				view.viewProj			   = view.proj * view.view;
+				view.cameraPositionAndNear = Vector4(camPos.x, camPos.y, camPos.z, worldCam.zNear);
+				view.cameraDirectionAndFar = Vector4(camDir.x, camDir.y, camDir.z, worldCam.zFar);
+				view.size				   = Vector2(static_cast<float>(m_size.x), static_cast<float>(m_size.y));
+				m_lightingPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
+				m_mainPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
+				m_forwardPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
+			}
 		}
-
-		// All entities.
+		catch (std::exception e)
 		{
-			m_objects.resize(static_cast<size_t>(m_world->GetActiveEntityCount()));
-			m_world->ViewEntities([&](Entity* e, uint32 index) -> bool {
-				SetBindlessIndex(e, index);
-				auto& data = m_objects[index];
-				data.model = e->GetTransform().GetMatrix();
-				return false;
-			});
-
-			currentFrame.objectBuffer.BufferData(0, (uint8*)m_objects.data(), sizeof(GPUDataObject) * m_objects.size());
+			int a = 5;
 		}
 
-		// Draw data map.
-		Buffer& mainPassIndirectBuffer	  = m_mainPass.GetBuffer(frameIndex, "IndirectBuffer"_hs);
-		Buffer& mainPassIndirectConstants = m_mainPass.GetBuffer(frameIndex, "IndirectConstants"_hs);
-		m_mainPassDrawCollector.Clear();
-		m_mainPassDrawCollector.CollectStaticMeshes(m_meshComponents, ShaderType::OpaqueSurface);
-		m_mainPassDrawCollector.RecordIndirectCommands(mainPassIndirectBuffer, mainPassIndirectConstants);
+		try
+		{
+			// Lighting pass specific.
+			{
 
-		Buffer& forwardPassIndirectBuffer	 = m_forwardPass.GetBuffer(frameIndex, "IndirectBuffer"_hs);
-		Buffer& forwardPassIndirectConstants = m_forwardPass.GetBuffer(frameIndex, "IndirectConstants"_hs);
-		m_forwardPassDrawCollector.Clear();
-		m_forwardPassDrawCollector.CollectStaticMeshes(m_meshComponents, ShaderType::TransparentSurface);
-		m_forwardPassDrawCollector.RecordIndirectCommands(forwardPassIndirectBuffer, forwardPassIndirectConstants);
+				Material* lightingMaterial = m_world->GetResourceManagerV2().GetIfExists<Material>(m_world->GetGfxSettings().lightingMaterial);
+				Material* skyMaterial	   = m_world->GetResourceManagerV2().GetIfExists<Material>(m_world->GetGfxSettings().skyMaterial);
 
-		m_uploadQueue.AddBufferRequest(&currentFrame.globalDataBuffer);
-		m_uploadQueue.AddBufferRequest(&currentFrame.objectBuffer);
-		m_mainPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
-		m_forwardPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
-		m_lightingPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+				LINA_ASSERT(lightingMaterial && skyMaterial, "");
 
-		for (auto* ext : m_extensions)
-			ext->AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+				GPUDataLightingPass renderPassData = {
+					.gBufAlbedo			  = GetBindlessIndex(currentFrame.gBufAlbedo),
+					.gBufPositionMetallic = GetBindlessIndex(currentFrame.gBufPosition),
+					.gBufNormalRoughness  = GetBindlessIndex(currentFrame.gBufNormal),
+					// .gBufDepth             = currentFrame.gBufDepth->GetBindlessIndex(),
+					.gBufSampler			   = GetBindlessIndex(m_gBufSampler),
+					.lightingMaterialByteIndex = GetBindlessIndex(lightingMaterial) / 4,
+					.skyMaterialByteIndex	   = GetBindlessIndex(skyMaterial) / 4,
+				};
 
-		if (m_uploadQueue.FlushAll(currentFrame.copyStream))
-			BumpAndSendTransfers(frameIndex);
+				m_lightingPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&renderPassData, sizeof(GPUDataLightingPass));
+			}
+
+			// All entities.
+			{
+				m_objects.resize(static_cast<size_t>(m_world->GetActiveEntityCount()));
+				m_world->ViewEntities([&](Entity* e, uint32 index) -> bool {
+					SetBindlessIndex(e, index);
+					auto& data = m_objects[index];
+					data.model = e->GetTransform().GetMatrix();
+					return false;
+				});
+
+				currentFrame.objectBuffer.BufferData(0, (uint8*)m_objects.data(), sizeof(GPUDataObject) * m_objects.size());
+			}
+		}
+		catch (std::exception e)
+		{
+			int a = 5;
+		}
+
+		try
+		{
+
+			// Draw data map.
+			Buffer& mainPassIndirectBuffer	  = m_mainPass.GetBuffer(frameIndex, "IndirectBuffer"_hs);
+			Buffer& mainPassIndirectConstants = m_mainPass.GetBuffer(frameIndex, "IndirectConstants"_hs);
+			m_mainPassDrawCollector.Clear();
+			m_mainPassDrawCollector.CollectStaticMeshes(m_meshComponents, ShaderType::OpaqueSurface);
+			m_mainPassDrawCollector.RecordIndirectCommands(mainPassIndirectBuffer, mainPassIndirectConstants);
+
+			Buffer& forwardPassIndirectBuffer	 = m_forwardPass.GetBuffer(frameIndex, "IndirectBuffer"_hs);
+			Buffer& forwardPassIndirectConstants = m_forwardPass.GetBuffer(frameIndex, "IndirectConstants"_hs);
+			m_forwardPassDrawCollector.Clear();
+			m_forwardPassDrawCollector.CollectStaticMeshes(m_meshComponents, ShaderType::TransparentSurface);
+			m_forwardPassDrawCollector.RecordIndirectCommands(forwardPassIndirectBuffer, forwardPassIndirectConstants);
+
+			m_uploadQueue.AddBufferRequest(&currentFrame.globalDataBuffer);
+			m_uploadQueue.AddBufferRequest(&currentFrame.objectBuffer);
+			m_mainPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+			m_forwardPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+			m_lightingPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+
+			for (auto* ext : m_extensions)
+				ext->AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+
+			if (m_uploadQueue.FlushAll(currentFrame.copyStream))
+				BumpAndSendTransfers(frameIndex);
+		}
+		catch (std::exception e)
+		{
+			int a = 5;
+		}
 	}
 
 	void WorldRenderer::Render(uint32 frameIndex)

@@ -50,16 +50,11 @@ namespace Lina
 		~TaskRunner() = default;
 
 		void AddFreeTask(Delegate<void()> task, Delegate<void()> onComplete);
-		void AddQueuedTask(Delegate<void()> task, Delegate<void()> onComplete);
 		void Poll();
-
-	private:
-		void ResolveQueuedTasks();
 
 	protected:
 		JobExecutor	  m_executor;
 		Vector<Task*> m_tasks;
-		Vector<Task*> m_queuedTasks;
 	};
 
 } // namespace Lina

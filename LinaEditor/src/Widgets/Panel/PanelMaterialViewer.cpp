@@ -71,6 +71,7 @@ namespace Lina::Editor
 
 	void PanelMaterialViewer::Initialize()
 	{
+
 		PanelResourceViewer::Initialize();
 		if (!m_resource)
 			return;

@@ -99,6 +99,26 @@ void LINA_FRAG_FUNC(in LinaFragInput inFrag, out LinaFragOutput outFrag)
    outFrag.normal = vec3(0.0);
    outFrag.worldPos = vec3(0.0);
    outFrag.isUnlit = 0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 #lina_end

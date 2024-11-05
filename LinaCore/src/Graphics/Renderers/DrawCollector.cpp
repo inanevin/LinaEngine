@@ -58,17 +58,22 @@ namespace Lina
 			if (mc->GetEntity()->GetFlags().IsSet(EF_INVISIBLE))
 				continue;
 
-			Model*		 model	  = m_world->GetResourceManagerV2().GetResource<Model>(mc->GetModel());
+			Model*		 model	  = m_world->GetResourceManagerV2().GetIfExists<Model>(mc->GetModel());
 			MeshDefault* mesh	  = model->GetMesh(mc->GetMeshIndex());
-			Material*	 material = m_world->GetResourceManagerV2().GetResource<Material>(mc->GetMaterial());
+			Material*	 material = m_world->GetResourceManagerV2().GetIfExists<Material>(mc->GetMaterial());
+
+			LINA_ASSERT(model && material, "");
 
 			if (material->GetShaderType() != shaderType)
 				continue;
 
 			const Vector3 pos = mc->GetEntity()->GetPosition();
 
-			Shader* shader = m_world->GetResourceManagerV2().GetResource<Shader>(material->GetShader());
-			auto&	vec	   = m_drawData[shader];
+			Shader* shader = m_world->GetResourceManagerV2().GetIfExists<Shader>(material->GetShader());
+
+			LINA_ASSERT(shader, "");
+
+			auto& vec = m_drawData[shader];
 
 			auto it = linatl::find_if(vec.begin(), vec.end(), [mesh](const DrawDataMeshDefault& dd) -> bool { return dd.mesh == mesh; });
 

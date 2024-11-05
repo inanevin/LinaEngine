@@ -35,8 +35,6 @@ namespace Lina
 	{
 		LINA_ASSERT(SystemInfo::IsMainThread(), "");
 
-		ResolveQueuedTasks();
-
 		for (Vector<Task*>::iterator it = m_tasks.begin(); it != m_tasks.end();)
 		{
 			Task* task = *it;
@@ -66,47 +64,4 @@ namespace Lina
 		m_executor.RunMove(tf, [t]() { t->isComplete.store(true); });
 	}
 
-	void TaskRunner::AddQueuedTask(Delegate<void()> task, Delegate<void()> onComplete)
-	{
-		LINA_ASSERT(SystemInfo::IsMainThread(), "");
-		Task* t		  = new Task();
-		t->task		  = task;
-		t->onComplete = onComplete;
-		m_queuedTasks.push_back(t);
-		ResolveQueuedTasks();
-	}
-
-	void TaskRunner::ResolveQueuedTasks()
-	{
-		for (Vector<Task*>::iterator it = m_queuedTasks.begin(); it != m_queuedTasks.end();)
-		{
-			Task* t = *it;
-
-			if (!t->isComplete.load() && t->isStarted.load())
-				break;
-
-			if (!t->isComplete.load() && !t->isStarted.load())
-			{
-				t->isStarted.store(true);
-				Taskflow tf;
-				tf.emplace(t->task);
-				LINA_TRACE("INAN STARTING TASK");
-				m_executor.RunMove(tf, [t]() {
-					LINA_TRACE("INAN COMPLETED TASK");
-					t->isComplete.store(true);
-				});
-				break;
-			}
-
-			if (t->isComplete.load())
-			{
-				LINA_TRACE("INAN EXECUTING TASK COMPLETE");
-				t->onComplete();
-				it = m_queuedTasks.erase(it);
-				continue;
-			}
-
-			it++;
-		}
-	}
 } // namespace Lina

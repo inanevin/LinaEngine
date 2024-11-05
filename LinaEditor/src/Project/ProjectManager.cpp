@@ -492,10 +492,10 @@ namespace Lina::Editor
 			const String resPath = project->GetResourcePath(c->resourceID);
 
 			// Load all data first.
-			// IStream stream = Serialization::LoadFromFile(resPath.c_str());
-			// if (!stream.Empty())
-			// 	res->LoadFromStream(stream);
-			// stream.Destroy();
+			IStream stream = Serialization::LoadFromFile(resPath.c_str());
+			if (!stream.Empty())
+				res->LoadFromStream(stream);
+			stream.Destroy();
 
 			WidgetManager&		   wm					 = editor->GetWindowPanelManager().GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
 			NotificationDisplayer* notificationDisplayer = editor->GetWindowPanelManager().GetNotificationDisplayer(editor->GetWindowPanelManager().GetMainWindow());
@@ -518,6 +518,9 @@ namespace Lina::Editor
 					.title				= Locale::GetStr(LocaleStr::FailedReimportingResource) + " : " + path,
 					.autoDestroySeconds = 5,
 				});
+
+				meta.GetFunction<void(void*)>("Deallocate"_hs)(res);
+				return;
 			}
 
 			meta.GetFunction<void(void*)>("Deallocate"_hs)(res);

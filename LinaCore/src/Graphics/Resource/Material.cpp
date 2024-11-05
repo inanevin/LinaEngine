@@ -172,10 +172,7 @@ namespace Lina
 			}
 			else
 			{
-				Vector4* test = reinterpret_cast<Vector4*>(prop->data.data());
 
-				if (m_name.compare("AQ") == 0)
-					LINA_TRACE("DATA NAME {0} DATA {1} {2} {3} {4}", prop->propDef.name, test->x, test->y, test->z, test->w);
 				buf.BufferData(padding, prop->data.data(), prop->data.size());
 				padding += prop->data.size();
 				totalSize += prop->data.size();
