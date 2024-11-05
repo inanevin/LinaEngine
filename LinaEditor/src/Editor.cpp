@@ -101,6 +101,7 @@ namespace Lina::Editor
 		Theme::GetDef().altFont			 = EDITOR_FONT_PLAY_BOLD_ID;
 		Theme::GetDef().altBigFont		 = EDITOR_FONT_PLAY_BIG_ID;
 		Theme::GetDef().iconDropdown	 = ICON_ARROW_DOWN;
+		Theme::GetDef().iconCheckbox	 = ICON_CHECK;
 		Theme::GetDef().iconCircleFilled = ICON_CIRCLE_FILLED;
 		Theme::GetDef().iconSliderHandle = ICON_CIRCLE_FILLED;
 

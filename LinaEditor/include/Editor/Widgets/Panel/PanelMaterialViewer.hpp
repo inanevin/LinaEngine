@@ -37,6 +37,7 @@ namespace Lina
 	class EntityWorld;
 	class WorldRenderer;
 	class Entity;
+	class ResourceDirectory;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -70,6 +71,7 @@ namespace Lina::Editor
 		void SetupWorld();
 		void UpdateMaterialProps();
 		void UpdateMaterial();
+		void UpdateShaderID(ResourceID id);
 
 	private:
 		LINA_REFLECTION_ACCESS(PanelMaterialViewer);
@@ -86,8 +88,12 @@ namespace Lina::Editor
 		Vector<uint32>			  m_propertyFoldValues;
 		ResourceID				  m_storedShaderID = 0;
 		OStream					  m_previousStream;
-		ResourceID				  m_shaderID		 = 0;
-		bool					  m_rebuildNextFrame = false;
+		ResourceID				  m_shaderID				= 0;
+		bool					  m_rebuildNextFrame		= false;
+		uint32					  m_shaderReimportTicks		= 0;
+		String					  m_shaderAbsPath			= "";
+		ResourceDirectory*		  m_shaderResourceDirectory = nullptr;
+		bool					  m_autoReimport			= true;
 	};
 
 	LINA_CLASS_BEGIN(MaterialViewerDisplayType)

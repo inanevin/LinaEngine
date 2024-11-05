@@ -45,6 +45,7 @@ namespace Lina
 		m_icon->SetAnchorX(Anchor::Center);
 		m_icon->SetAnchorY(Anchor::Center);
 		m_icon->SetAlignedPos(Vector2(0.5f, 0.5f));
+		m_icon->GetProps().icon = Theme::GetDef().iconCheckbox;
 		AddChild(m_icon);
 		GetWidgetProps().drawBackground = true;
 	}

@@ -160,6 +160,7 @@ namespace Lina::Editor
 		FailedReimportingResource,
 		ReimportedResource,
 		ReimportShader,
+		AutoReimport,
 	};
 
 	class Locale

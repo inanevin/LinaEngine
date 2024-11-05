@@ -100,6 +100,7 @@ namespace Lina
 			String	   iconDropdown		= "";
 			String	   iconCircleFilled = "";
 			String	   iconSliderHandle = "";
+			String	   iconCheckbox		= "";
 		};
 
 		static ThemeDef& GetDef()

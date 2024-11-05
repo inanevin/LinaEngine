@@ -114,8 +114,11 @@ namespace Lina::Editor
 		{
 			if (rend->CheckVisibility())
 				m_validSurfaceRenderers.push_back(rend);
+
+			rend->PreTick();
 		}
 
+		/*
 		if (m_validSurfaceRenderers.size() == 1)
 		{
 			m_validSurfaceRenderers[0]->PreTick();
@@ -129,6 +132,7 @@ namespace Lina::Editor
 			});
 			m_editor->GetApp()->GetExecutor().RunAndWait(tf);
 		}
+		*/
 	}
 	void EditorRenderer::Tick(float delta)
 	{

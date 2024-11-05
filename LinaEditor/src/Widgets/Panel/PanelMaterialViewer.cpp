@@ -41,6 +41,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Checkbox.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
+#include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
@@ -117,6 +118,22 @@ namespace Lina::Editor
 		{
 			m_rebuildNextFrame = false;
 			Rebuild();
+		}
+
+		if (!m_autoReimport)
+			return;
+
+		m_shaderReimportTicks++;
+
+		if (m_shaderReimportTicks > 30)
+		{
+			const StringID lastModified = TO_SID(FileSystem::GetLastModifiedDate(m_shaderAbsPath));
+			if (m_shaderResourceDirectory->lastModifiedSID != lastModified)
+			{
+				m_editor->GetProjectManager().ReimportChangedSources(m_shaderResourceDirectory, this);
+			}
+
+			m_shaderReimportTicks = 0;
 		}
 	}
 
@@ -196,7 +213,7 @@ namespace Lina::Editor
 				if (!FileSystem::FileOrPathExists(path))
 					return;
 
-				m_shaderID = mat->GetShader();
+				UpdateShaderID(mat->GetShader());
 
 				IStream stream = Serialization::LoadFromFile(path.c_str());
 				Shader	sh(0, "");
@@ -361,8 +378,19 @@ namespace Lina::Editor
 			i++;
 		}
 
-		Widget* buttonLayout		 = BuildButtonLayout();
-		Button* button				 = BuildButton(Locale::GetStr(LocaleStr::ReimportShader), ICON_IMPORT);
+		Widget* buttonLayout = CommonWidgets::BuildFieldLayout(this, 0, Locale::GetStr(LocaleStr::AutoReimport), false);
+
+		Checkbox* cb		 = m_manager->Allocate<Checkbox>();
+		cb->GetProps().value = &m_autoReimport;
+		cb->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y);
+		cb->SetAlignedPosY(0.0f);
+		cb->SetAlignedSizeY(1.0f);
+
+		buttonLayout->AddChild(cb);
+		Button* button = BuildButton(Locale::GetStr(LocaleStr::ReimportShader), ICON_IMPORT);
+		button->GetFlags().Set(WF_SIZE_ALIGN_X);
+		button->SetAlignedSizeX(0.0f);
+
 		button->GetProps().onClicked = [this, mat]() {
 			ResourceDirectory* dir = m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResourceDirectory(mat->GetShader());
 			if (dir == nullptr)
@@ -379,7 +407,7 @@ namespace Lina::Editor
 	void PanelMaterialViewer::StoreBuffer()
 	{
 		Material* mat = static_cast<Material*>(m_resource);
-		m_shaderID	  = mat->GetShader();
+		UpdateShaderID(mat->GetShader());
 		m_previousStream.Destroy();
 		mat->SaveToStream(m_previousStream);
 	}
@@ -407,13 +435,21 @@ namespace Lina::Editor
 		m_propertyFoldValues.resize(mat->GetProperties().size());
 		m_previousStream.Destroy();
 		mat->SaveToStream(m_previousStream);
-		m_shaderID = mat->GetShader();
+		UpdateShaderID(mat->GetShader());
 	}
 
 	void PanelMaterialViewer::UpdateMaterial()
 	{
 		Material* mat = static_cast<Material*>(m_resource);
 		UndoActionMaterialDataChanged::Create(m_editor, m_resource->GetID(), m_previousStream);
+	}
+
+	void PanelMaterialViewer::UpdateShaderID(ResourceID id)
+	{
+		m_shaderID				  = id;
+		ResourceDirectory* dir	  = m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResourceDirectory(m_shaderID);
+		m_shaderAbsPath			  = FileSystem::GetFilePath(m_editor->GetProjectManager().GetProjectData()->GetPath()) + dir->sourcePathRelativeToProject;
+		m_shaderResourceDirectory = dir;
 	}
 
 } // namespace Lina::Editor
