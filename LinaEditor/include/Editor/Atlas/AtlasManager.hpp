@@ -51,7 +51,8 @@ namespace Lina::Editor
 		void			   Initialize(Editor* editor);
 		void			   Shutdown();
 		void			   RefreshPoolAtlases();
-		TextureAtlas*	   AddCustomAtlas(const String& baseFolder, StringID id, const Vector2ui& size);
+		void			   AddCustomAtlas(StringID id, const Vector2ui& size);
+		void			   ScanCustomAtlas(StringID id, const String& baseFolder);
 		TextureAtlas*	   GetCustomAtlas(StringID sid);
 		TextureAtlasImage* AddImageToAtlas(uint8* data, const Vector2ui& size, LinaGX::Format format);
 		void			   RemoveImage(TextureAtlasImage* rect);

@@ -438,8 +438,10 @@ namespace Lina
 		// Lighting pass specific.
 		{
 
-			Material* lightingMaterial = m_world->GetResourceManagerV2().GetResource<Material>(m_world->GetGfxSettings().lightingMaterial);
-			Material* skyMaterial	   = m_world->GetResourceManagerV2().GetResource<Material>(m_world->GetGfxSettings().skyMaterial);
+			Material* lightingMaterial = m_world->GetResourceManagerV2().GetIfExists<Material>(m_world->GetGfxSettings().lightingMaterial);
+			Material* skyMaterial	   = m_world->GetResourceManagerV2().GetIfExists<Material>(m_world->GetGfxSettings().skyMaterial);
+
+			LINA_ASSERT(lightingMaterial && skyMaterial, "");
 
 			GPUDataLightingPass renderPassData = {
 				.gBufAlbedo			  = GetBindlessIndex(currentFrame.gBufAlbedo),
@@ -499,9 +501,13 @@ namespace Lina
 		currentFrame.copySemaphore.ResetModified();
 		currentFrame.signalSemaphore.ResetModified();
 
-		Material* lightingMaterial = m_world->GetResourceManagerV2().GetResource<Material>(m_world->GetGfxSettings().lightingMaterial);
-		Material* skyMaterial	   = m_world->GetResourceManagerV2().GetResource<Material>(m_world->GetGfxSettings().skyMaterial);
-		Model*	  skyModel		   = m_world->GetResourceManagerV2().GetResource<Model>(m_world->GetGfxSettings().skyModel);
+		Material* lightingMaterial = m_resourceManagerV2->GetIfExists<Material>(m_world->GetGfxSettings().lightingMaterial);
+		Material* skyMaterial	   = m_resourceManagerV2->GetIfExists<Material>(m_world->GetGfxSettings().skyMaterial);
+		Model*	  skyModel		   = m_resourceManagerV2->GetIfExists<Model>(m_world->GetGfxSettings().skyModel);
+		Shader*	  lighting		   = m_resourceManagerV2->GetIfExists<Shader>(lightingMaterial->GetShader());
+		Shader*	  skyShader		   = m_resourceManagerV2->GetIfExists<Shader>(skyMaterial->GetShader());
+
+		LINA_ASSERT(lightingMaterial && skyMaterial && skyModel && lighting && skyShader, "");
 
 		UpdateBindlessResources(frameIndex);
 		UpdateBuffers(frameIndex);
@@ -576,9 +582,7 @@ namespace Lina
 
 		if (lightingMaterial)
 		{
-			Shader* lighting = m_resourceManagerV2->GetResource<Shader>(lightingMaterial->GetShader());
 			lighting->Bind(currentFrame.gfxStream, lighting->GetGPUHandle());
-
 			DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Lighting Pass: Fullscreen");
 			LinaGX::CMDDrawInstanced* lightingDraw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawInstanced>();
 			lightingDraw->instanceCount			   = 1;
@@ -590,7 +594,6 @@ namespace Lina
 
 		if (skyMaterial && skyModel)
 		{
-			Shader* skyShader = m_resourceManagerV2->GetResource<Shader>(skyMaterial->GetShader());
 			skyShader->Bind(currentFrame.gfxStream, skyShader->GetGPUHandle());
 
 			DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Lighting Pass: SkyCube");

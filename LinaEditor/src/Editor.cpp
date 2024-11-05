@@ -118,6 +118,8 @@ namespace Lina::Editor
 
 		Taskflow tf;
 
+		m_atlasManager.AddCustomAtlas("ProjectIcons"_hs, Vector2ui(2048, 2048));
+
 		TaskRunner::AddFreeTask(
 			[this, progText]() {
 				progText->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::LoadingSettings));
@@ -142,7 +144,7 @@ namespace Lina::Editor
 				EditorResources::LoadCoreResources(m_resourceManagerV2, coreResources);
 
 				progText->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::GeneratingAtlases));
-				m_atlasManager.AddCustomAtlas("Resources/Editor/Textures/Atlas/ProjectIcons/", "ProjectIcons"_hs, Vector2ui(2048, 2048));
+				m_atlasManager.ScanCustomAtlas("ProjectIcons"_hs, "Resources/Editor/Textures/Atlas/ProjectIcons/");
 			},
 			[this]() {
 				m_editorRenderer.VerifyResources();

@@ -51,7 +51,7 @@ namespace Lina::Editor
 #define MAX_GUI_VERTICES 120000
 #define MAX_GUI_INDICES	 140000
 
-#define VSYNC_DX LinaGX::DXVsync::EveryVBlank
+#define VSYNC_DX LinaGX::DXVsync::None
 #define VSYNC_VK LinaGX::VKVsync::FIFO
 
 	SurfaceRenderer::SurfaceRenderer(Editor* editor, LinaGX::Window* window, const Color& clearColor) : m_window(window)

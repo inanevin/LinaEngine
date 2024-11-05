@@ -80,10 +80,15 @@ namespace Lina::Editor
 		return m_customAtlases.at(sid);
 	}
 
-	TextureAtlas* AtlasManager::AddCustomAtlas(const String& baseFolder, StringID sid, const Vector2ui& size)
+	void AtlasManager::AddCustomAtlas(StringID sid, const Vector2ui& size)
 	{
 		TextureAtlas* atlas	 = new TextureAtlas(&m_editor->GetResourceManagerV2(), size, LinaGX::Format::R8G8B8A8_SRGB);
 		m_customAtlases[sid] = atlas;
+	}
+
+	void AtlasManager::ScanCustomAtlas(StringID id, const String& baseFolder)
+	{
+		TextureAtlas* atlas = GetCustomAtlas(id);
 
 		Vector<String> files;
 		FileSystem::GetFilesInDirectory(baseFolder, files);
@@ -101,7 +106,6 @@ namespace Lina::Editor
 		}
 
 		atlas->RefreshSW();
-		return atlas;
 	}
 
 	void AtlasManager::Initialize(Editor* editor)

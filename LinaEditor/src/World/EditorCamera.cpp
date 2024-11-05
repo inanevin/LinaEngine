@@ -147,8 +147,12 @@ namespace Lina::Editor
 		if (input.GetMouseButton(LINAGX_MOUSE_MIDDLE))
 		{
 			const Vector2 mouseDelta = input.GetMouseDeltaRelative();
-			m_xAngle -= mouseDelta.x * delta * 600.0f;
-			m_yAngle = Math::Clamp(m_yAngle + mouseDelta.y * delta * 600.0f, -Math::ToRadians(89.0f), Math::ToRadians(89.0f)); // Clamp to avoid flipping
+
+			m_xAngle -= mouseDelta.x * 4.0f;
+			m_yAngle += mouseDelta.y * 4.0f;
+			m_yAngle = Math::Clamp(m_yAngle, -Math::ToRadians(89.0f), Math::ToRadians(89.0f));
+
+			// m_yAngle = Math::Clamp(m_yAngle + mouseDelta.y * delta * 600.0f, -Math::ToRadians(89.0f), Math::ToRadians(89.0f)); // Clamp to avoid flipping
 		}
 
 		m_orbitProps.targetDistance -= input.GetMouseScroll() * delta * 120.0f;
