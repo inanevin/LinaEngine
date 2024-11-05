@@ -161,8 +161,14 @@ namespace Lina::Editor
 		{
 			Material* defaultSky				  = m_world->GetResourceManagerV2().GetResource<Material>(EDITOR_MATERIAL_DEFAULT_SKY_ID);
 			m_world->GetGfxSettings().skyMaterial = defaultSky->GetID();
-			defaultSky->SetProperty("topColor"_hs, Color::Color255(238, 242, 243, 255));
-			defaultSky->SetProperty("groundColor"_hs, Color::Color255(142, 158, 171, 255));
+
+			defaultSky->SetProperty("topColor"_hs, Vector4(0.125f, 0.17f, 1.0f, 1.0f));
+			defaultSky->SetProperty("horizonColor"_hs, Vector4(0.121f, 0.123f, 0.174f, 1.0f));
+			defaultSky->SetProperty("groundColor"_hs, Vector4(0.054f, 0.037f, 0.065f, 1.0f));
+			defaultSky->SetProperty("sunPosition"_hs, Vector3(10.0f, 3.0f, 10.0f));
+			defaultSky->SetProperty("sunColor"_hs, Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+			defaultSky->SetProperty("sunSize"_hs, 0.7f);
+			defaultSky->SetProperty("horizonDiffusion"_hs, 45.0f);
 		}
 
 		const ResourceID displayMaterial = shaderType == ShaderType::Sky ? EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID : m_resource->GetID();
