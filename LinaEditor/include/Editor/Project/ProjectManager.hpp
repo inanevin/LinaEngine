@@ -29,7 +29,6 @@ SOFTWARE.
 #pragma once
 
 #include "Core/Resources/CommonResources.hpp"
-#include "Common/JobSystem/TaskRunner.hpp"
 
 namespace Lina
 {
@@ -51,7 +50,7 @@ namespace Lina::Editor
 		virtual void OnProjectResourcesRefreshed(){};
 	};
 
-	class ProjectManager : public TaskRunner
+	class ProjectManager
 	{
 	public:
 		enum class WorkState
@@ -62,7 +61,6 @@ namespace Lina::Editor
 		};
 		void Initialize(Editor* editor);
 		void Shutdown();
-		void PreTick();
 
 		void	   OpenDialogSelectProject();
 		void	   OpenDialogCreateProject();
@@ -96,7 +94,6 @@ namespace Lina::Editor
 		void GenerateInitialThumbnails(ProjectData* projectData, ResourceDirectory* dir);
 
 	private:
-		JobExecutor								m_executor;
 		WidgetManager*							m_primaryWidgetManager = nullptr;
 		Editor*									m_editor			   = nullptr;
 		ProjectData*							m_currentProject	   = nullptr;

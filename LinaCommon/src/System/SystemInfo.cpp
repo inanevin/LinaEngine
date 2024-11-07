@@ -36,16 +36,12 @@ namespace Lina
 #define IDEAL_DT 16667
 
 	bool   SystemInfo::s_appHasFocus			   = true;
-	int64  SystemInfo::s_fixedTimestepMicroseconds = 20000;
-	int64  SystemInfo::s_frameCapMicroseconds	   = 0;
 	int64  SystemInfo::s_deltaTimeMicroseconds	   = 0;
 	int64  SystemInfo::s_realDeltaTimeMicroseconds = 0;
 	int64  SystemInfo::s_appStartCycles			   = 0;
-	int64  SystemInfo::s_throttleTime			   = 0;
 	uint64 SystemInfo::s_frames					   = 0;
 	uint32 SystemInfo::s_measuredFPS			   = 0;
 	size_t SystemInfo::s_mainThreadID			   = 0;
-	double SystemInfo::s_interpolationAlpha		   = 0.0;
 	double SystemInfo::s_appTime				   = 0.0;
 	double SystemInfo::s_deltaTime				   = 0.0;
 	double SystemInfo::s_realDeltaTime			   = 0.0;

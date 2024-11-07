@@ -46,12 +46,11 @@ namespace Lina
 	class Application : public LinaGX::WindowListener
 	{
 	public:
-		Application(){};
+		Application() : m_executor(2){};
 		~Application(){};
 
 		bool		 Initialize(const SystemInitializationInfo& initInfo);
 		void		 Tick();
-		void		 Render();
 		void		 Shutdown();
 		virtual void OnWindowClose(LinaGX::Window* window) override;
 		virtual void OnWindowSizeChanged(LinaGX::Window* window, const LinaGX::LGXVector2ui&) override;
@@ -91,10 +90,6 @@ namespace Lina
 		}
 
 	private:
-		void SetFrameCap(int64 microseconds);
-		void SetFixedTimestep(int64 microseconds);
-		void LoadPlugins();
-		void UnloadPlugins();
 		void CalculateTime();
 
 	private:
@@ -105,7 +100,6 @@ namespace Lina
 		JobExecutor				 m_executor;
 
 		// Time
-		int64 m_frameCapAccumulator		 = 0;
-		int64 m_fixedTimestepAccumulator = 0;
+		int64 m_frameCapAccumulator = 0;
 	};
 } // namespace Lina

@@ -180,7 +180,6 @@ namespace Lina::Editor
 
 		TaskRunner::Poll();
 		m_taskManager.PreTick();
-		m_projectManager.PreTick();
 		m_windowPanelManager.PreTick();
 		m_editorRenderer.PreTick();
 	}
@@ -188,6 +187,11 @@ namespace Lina::Editor
 	void Editor::Tick(float delta)
 	{
 		m_editorRenderer.Tick(delta);
+	}
+
+	void Editor::SyncRender()
+	{
+		m_editorRenderer.SyncRender();
 	}
 
 	void Editor::Render()

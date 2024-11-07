@@ -78,6 +78,17 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	app->Initialize(initInfo);
 
 	while (!app->GetExitRequested())
+		app->Tick();
+
+	app->Shutdown();
+	delete app;
+	FreeConsole();
+}
+
+namespace Lina
+{
+
+	void PlatformProcess::PumpOSMessages()
 	{
 		MSG msg	   = {0};
 		msg.wParam = 0;
@@ -86,18 +97,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		app->Tick();
-		app->Render();
 	}
 
-	app->Shutdown();
-	delete app;
-
-	FreeConsole();
-}
-
-namespace Lina
-{
 	// HashMap<IPlugin*, void*> Win32PlatformProcess::s_pluginHandles;
 	// typedef IPlugin*(__cdecl* CreatePluginFunc)(IEngineInterface* engInterface, const String& name);
 	// typedef void(__cdecl* DestroyPluginFunc)(IPlugin*);

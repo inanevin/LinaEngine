@@ -64,6 +64,7 @@ namespace Lina
 		virtual void PreTick(){};
 		virtual void Tick(float delta){};
 		virtual void Render(){};
+		virtual void SyncRender(){};
 		virtual void PreShutdown(){};
 		virtual void Shutdown(){};
 		virtual void OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size){};

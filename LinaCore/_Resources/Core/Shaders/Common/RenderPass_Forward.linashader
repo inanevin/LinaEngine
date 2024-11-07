@@ -26,6 +26,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+struct IndirectArguments
+{
+	uint entityID;
+	uint materialID;
+};
+
+struct LinaEntity
+{
+    mat4 modelMatrix;
+};
+
 layout(set = 1, binding = 0) uniform ViewData
 {
 	mat4 view;

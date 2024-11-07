@@ -46,17 +46,6 @@ struct LinaTexture2D
 	uint smp;
 };
 
-struct IndirectArguments
-{
-	uint entityID;
-	uint materialID;
-};
-
-struct LinaEntity
-{
-    mat4 modelMatrix;
-};
-
 vec4 LINA_SAMPLE_TEXTURE(LinaTexture2D linaTxt, vec2 uv)
 {
 	return texture(sampler2D(LINA_TEXTURES[linaTxt.txt], LINA_SAMPLERS[linaTxt.smp]), uv);

@@ -54,6 +54,7 @@ namespace Lina
 			bool		   multiSelection = false;
 		};
 
+		static void			  PumpOSMessages();
 		static void			  LoadPlugin(const char* name, EngineInterface* engInterface, SystemEventDispatcher* dispatcher);
 		static void			  UnloadPlugin(void* handle);
 		static void			  CopyToClipboard(const char* str);

@@ -44,6 +44,8 @@ namespace Lina
 	class JobExecutor
 	{
 	public:
+		JobExecutor(uint32 threads = std::thread::hardware_concurrency()) : m_ex(threads){};
+
 		/// <summary>
 		/// Need to keep taskflow alive until exection completes.
 		/// </summary>

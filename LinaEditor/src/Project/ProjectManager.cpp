@@ -84,11 +84,6 @@ namespace Lina::Editor
 		}
 	}
 
-	void ProjectManager::PreTick()
-	{
-		TaskRunner::Poll();
-	}
-
 	void ProjectManager::Shutdown()
 	{
 		RemoveCurrentProject();

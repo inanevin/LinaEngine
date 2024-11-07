@@ -130,7 +130,7 @@ namespace Lina::Editor
 				SurfaceRenderer* rend = m_validSurfaceRenderers.at(i);
 				rend->PreTick();
 			});
-			m_editor->GetApp()->GetExecutor().RunAndWait(tf);
+			m_editor->GetExecutor().RunAndWait(tf);
 		}
 		*/
 	}
@@ -150,7 +150,7 @@ namespace Lina::Editor
 				SurfaceRenderer* rend = m_validSurfaceRenderers.at(i);
 				rend->Tick(delta);
 			});
-			m_editor->GetApp()->GetExecutor().RunAndWait(tf);
+			m_editor->GetExecutor().RunAndWait(tf);
 		}
 	}
 
@@ -196,6 +196,12 @@ namespace Lina::Editor
 		pfd.bindlessDirty = false;
 	}
 
+	void EditorRenderer::SyncRender()
+	{
+		for (SurfaceRenderer* sr : m_validSurfaceRenderers)
+			sr->SyncRender(m_lgx->GetCurrentFrameIndex());
+	}
+
 	void EditorRenderer::Render()
 	{
 		const uint32 frameIndex = m_lgx->GetCurrentFrameIndex();
@@ -213,7 +219,7 @@ namespace Lina::Editor
 			rend->Render(frameIndex);
 			validWorlds[i] = rend;
 		});
-		m_editor->GetApp()->GetExecutor().RunAndWait(tf);
+		m_editor->GetExecutor().RunAndWait(tf);
 
 		UpdateBindlessResources(frameIndex);
 		if (m_uploadQueue.FlushAll(pfd.copyStream))
@@ -251,7 +257,7 @@ namespace Lina::Editor
 				streams[i]			  = rend->Render(frameIndex);
 				swapchains[i]		  = rend->GetSwapchain();
 			});
-			m_editor->GetApp()->GetExecutor().RunAndWait(tf);
+			m_editor->GetExecutor().RunAndWait(tf);
 		}
 
 		for (SurfaceRenderer* rend : m_validSurfaceRenderers)

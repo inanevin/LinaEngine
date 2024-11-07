@@ -72,15 +72,6 @@ namespace Lina
 		}
 
 		/// <summary>
-		/// Time it took to process last frame in seconds. It is affected by frame-rate-smoothing.
-		/// </summary>
-		/// <returns></returns>
-		static inline float GetDeltaTimeF()
-		{
-			return static_cast<float>(s_deltaTime);
-		}
-
-		/// <summary>
 		/// Time it took to process last frame in seconds. Unaffected by smoothing.
 		/// </summary>
 		/// <returns></returns>
@@ -105,42 +96,6 @@ namespace Lina
 		static inline int64 GetDeltaTimeMicroSeconds()
 		{
 			return s_deltaTimeMicroseconds;
-		}
-
-		/// <summary>
-		/// Maximum delta time allowed, 0 for uncapped frame-rates.
-		/// </summary>
-		/// <returns></returns>
-		static inline int64 GetFrameCapMicroseconds()
-		{
-			return s_frameCapMicroseconds;
-		}
-
-		/// <summary>
-		/// Fixed-timestepping rate, physics will be updated at this rate. Use EVG_Simulate if you want to update your whole-game as fixed-time-stepped.
-		/// </summary>
-		/// <returns></returns>
-		static inline int64 GetFixedTimestepMicroseonds()
-		{
-			return s_fixedTimestepMicroseconds;
-		}
-
-		/// <summary>
-		/// Interpolation (t) factor for rendering.
-		/// </summary>
-		/// <returns></returns>
-		static inline double GetInterpolationAlpha()
-		{
-			return s_interpolationAlpha;
-		}
-
-		/// <summary>
-		/// Fixed-timestepping rate in seconds, physics will be updated at this rate. Use EVG_Simulate if you want to update your whole-game as fixed-time-stepped.
-		/// </summary>
-		/// <returns></returns>
-		static inline double GetFixedTimestep()
-		{
-			return static_cast<double>(s_fixedTimestepMicroseconds) * 0.000001;
 		}
 
 		static inline uint32 GetMeasuredFPS()
@@ -183,11 +138,6 @@ namespace Lina
 			return GetCurrentThreadID() == s_mainThreadID;
 		}
 
-		static inline int64 GetThrottleTime()
-		{
-			return s_throttleTime;
-		}
-
 	private:
 		friend class Application;
 		friend class Engine;
@@ -203,16 +153,6 @@ namespace Lina
 		static inline void SetAppTime(double seconds)
 		{
 			s_appTime = seconds;
-		}
-
-		static inline void SetFixedTimestep(int64 microseconds)
-		{
-			s_fixedTimestepMicroseconds = microseconds;
-		}
-
-		static inline void SetFrameCap(int64 microseconds)
-		{
-			s_frameCapMicroseconds = microseconds;
 		}
 
 		static inline void SetAppHasFocus(bool hasFocus)
@@ -241,19 +181,9 @@ namespace Lina
 			s_appStartCycles = cycles;
 		}
 
-		static inline void SetInterpolationAlpha(double alpha)
-		{
-			s_interpolationAlpha = alpha;
-		}
-
 		static inline void SetMainThreadID(size_t id)
 		{
 			s_mainThreadID = id;
-		}
-
-		static inline void SetThrottleTime(int64 time)
-		{
-			s_throttleTime = time;
 		}
 
 	private:
@@ -261,14 +191,10 @@ namespace Lina
 		static double s_deltaTime;
 		static double s_realDeltaTime;
 		static double s_timescale;
-		static double s_interpolationAlpha;
 		static bool	  s_appHasFocus;
-		static int64  s_fixedTimestepMicroseconds;
-		static int64  s_frameCapMicroseconds;
 		static int64  s_deltaTimeMicroseconds;
 		static int64  s_realDeltaTimeMicroseconds;
 		static int64  s_appStartCycles;
-		static int64  s_throttleTime;
 		static uint64 s_frames;
 		static uint32 s_measuredFPS;
 		static size_t s_mainThreadID;

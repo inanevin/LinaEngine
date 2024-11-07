@@ -167,6 +167,10 @@ namespace Lina::Editor
 		m_widgetManager.Tick(delta, m_size);
 	}
 
+	void SurfaceRenderer::SyncRender(uint32 frameIndex)
+	{
+	}
+
 	void SurfaceRenderer::DrawDefault(LinaVG::DrawBuffer* buf)
 	{
 		const uint32 frameIndex = m_lgx->GetCurrentFrameIndex();

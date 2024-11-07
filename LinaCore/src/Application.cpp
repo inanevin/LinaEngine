@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Common/System/SystemInfo.hpp"
 #include "Common/Profiling/Profiler.hpp"
 #include "Common/Platform/PlatformTime.hpp"
+#include "Core/Platform/PlatformProcess.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/CommonCore.hpp"
 #include "Core/Reflection/CommonReflection.hpp"
@@ -50,8 +51,6 @@ namespace Lina
 		PlatformTime::Initialize();
 		SystemInfo::SetAppStartCycles(PlatformTime::GetCPUCycles());
 		SystemInfo::SetMainThreadID(SystemInfo::GetCurrentThreadID());
-		SetFixedTimestep(10000);
-		SetFixedTimestep(true);
 		PROFILER_INIT;
 		PROFILER_REGISTER_THREAD("Main");
 
@@ -88,20 +87,13 @@ namespace Lina
 		return true;
 	}
 
-	void Application::LoadPlugins()
-	{
-		// PlatformProcess::LoadPlugin("GamePlugin.dll", m_engine.GetInterface(), &m_engine);
-	}
-
-	void Application::UnloadPlugins()
-	{
-		// PlatformProcess::UnloadPlugin("GamePlugin.dll", &m_engine);
-	}
-
 	void Application::Tick()
 	{
 		PROFILER_FRAME_START();
-		PROFILER_FUNCTION();
+
+		// auto renderJob = m_executor.Async([this]() { m_appDelegate->Render(); });
+
+		PlatformProcess::PumpOSMessages();
 
 		// Time.
 		CalculateTime();
@@ -111,23 +103,19 @@ namespace Lina
 		GetAppDelegate()->PreTick();
 
 		// Tick
-		const double delta			 = SystemInfo::GetDeltaTime();
-		const float	 deltaF			 = SystemInfo::GetDeltaTimeF();
-		const int64	 fixedTimestep	 = SystemInfo::GetFixedTimestepMicroseonds();
-		const double fixedTimestepDb = static_cast<double>(fixedTimestep);
-		m_fixedTimestepAccumulator += SystemInfo::GetDeltaTimeMicroSeconds();
-		GetAppDelegate()->Tick(deltaF);
+		const double delta = SystemInfo::GetDeltaTime();
+		GetAppDelegate()->Tick(static_cast<float>(delta));
 		SystemInfo::SetFrames(SystemInfo::GetFrames() + 1);
 		SystemInfo::SetAppTime(SystemInfo::GetAppTime() + SystemInfo::GetDeltaTime());
+
+		// renderJob.get();
+
+		// m_appDelegate->SyncRender();
 
 		// Yield-CPU check.
 		if (!SystemInfo::GetAppHasFocus())
 			PlatformTime::Sleep(0);
-	}
 
-	void Application::Render()
-	{
-		PROFILER_FUNCTION();
 		m_appDelegate->Render();
 	}
 
@@ -145,15 +133,6 @@ namespace Lina
 		PROFILER_SHUTDOWN;
 		ReflectionSystem::Get().Destroy();
 		delete m_appDelegate;
-	}
-
-	void Application::SetFrameCap(int64 microseconds)
-	{
-		SystemInfo::SetFrameCap(microseconds);
-	}
-	void Application::SetFixedTimestep(int64 microseconds)
-	{
-		SystemInfo::SetFixedTimestep(microseconds);
 	}
 
 	void Application::OnWindowClose(LinaGX::Window* window)
@@ -193,24 +172,7 @@ namespace Lina
 		static int64 previous = PlatformTime::GetCPUMicroseconds();
 		int64		 current  = PlatformTime::GetCPUMicroseconds();
 		int64		 deltaUs  = current - previous;
-
-		const int64 frameCap = SystemInfo::GetFrameCapMicroseconds();
-
-		if (frameCap > 0 && deltaUs < frameCap)
-		{
-			const int64 throttleAmount = frameCap - deltaUs;
-			m_frameCapAccumulator += throttleAmount;
-			const int64 throttleBegin = PlatformTime::GetCPUMicroseconds();
-			PlatformTime::Throttle(m_frameCapAccumulator);
-			const int64 totalThrottle = PlatformTime::GetCPUMicroseconds() - throttleBegin;
-			m_frameCapAccumulator -= totalThrottle;
-			SystemInfo::SetThrottleTime(totalThrottle);
-
-			current = PlatformTime::GetCPUMicroseconds();
-			deltaUs = current - previous;
-		}
-
-		previous = current;
+		previous			  = current;
 
 		if (deltaUs <= 0)
 			deltaUs = 16667;
@@ -232,7 +194,7 @@ namespace Lina
 			SystemInfo::SetMeasuredFPS(static_cast<uint32>(static_cast<float>((frames - lastFPSFrames)) / measureTime));
 			lastFPSFrames = frames;
 			lastFPSUpdate = gameTime;
-			LINA_TRACE("FPS: {0} Time: {1} Idle: {2}", SystemInfo::GetMeasuredFPS(), SystemInfo::GetDeltaTimeF() * 1000.0f, (SystemInfo::GetThrottleTime()) * 0.001f);
+			LINA_TRACE("FPS: {0} Time: {1}", SystemInfo::GetMeasuredFPS(), static_cast<float>(SystemInfo::GetDeltaTime()) * 1000.0f);
 		}
 	}
 
