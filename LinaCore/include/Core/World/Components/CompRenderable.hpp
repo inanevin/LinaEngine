@@ -29,55 +29,9 @@ SOFTWARE.
 #pragma once
 
 #include "Core/World/Component.hpp"
-#include "Core/Graphics/CommonGraphics.hpp"
+#include "Core/Graphics/Data/RenderData.hpp"
 
 namespace Lina
 {
-	class CameraSystem;
-
-	class CameraComponent : public Component
-	{
-	public:
-		CameraComponent() : Component(0){};
-
-		virtual void OnPostTick(float delta) override;
-
-		virtual TypeID GetComponentType() override
-		{
-			return GetTypeID<CameraComponent>();
-		}
-
-		virtual void SaveToStream(OStream& stream) const override
-		{
-			stream << m_fieldOfView << m_zNear << m_zFar;
-		};
-
-		virtual void LoadFromStream(IStream& stream) override
-		{
-			stream >> m_fieldOfView >> m_zNear >> m_zFar;
-		}
-
-		inline float GetNear() const
-		{
-			return m_zNear;
-		}
-
-		inline float GetFar() const
-		{
-			return m_zFar;
-		}
-
-		inline float GetFOV() const
-		{
-			return m_fieldOfView;
-		}
-
-	private:
-		friend class CameraSystem;
-		LINA_REFLECTION_ACCESS(CameraComponent);
-		float m_fieldOfView = DEFAULT_FOV;
-		float m_zNear		= 0.01f;
-		float m_zFar		= 500.0f;
-	};
 
 } // namespace Lina

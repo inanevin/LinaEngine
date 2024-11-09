@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/Resource/Material.hpp"
-#include "Core/Graphics/BindlessContext.hpp"
+#include "Core/Graphics/GfxContext.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Resource/TextureSampler.hpp"
@@ -160,7 +160,7 @@ namespace Lina
 		m_hwUploadValid = false;
 	}
 
-	size_t Material::BufferDataInto(Buffer& buf, size_t padding, ResourceManagerV2* rm, BindlessContext* context)
+	size_t Material::BufferDataInto(Buffer& buf, size_t padding, ResourceManagerV2* rm, GfxContext* context)
 	{
 		size_t totalSize = 0;
 		for (MaterialProperty* prop : m_properties)

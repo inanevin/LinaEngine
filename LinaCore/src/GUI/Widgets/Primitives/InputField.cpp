@@ -137,7 +137,7 @@ namespace Lina
 			if (!m_props.disableNumberSlider)
 			{
 				const Vector2 mouse		= m_lgxWindow->GetMousePosition();
-				const float	  perc		= Math::Remap(mouse.x, m_rect.pos.x, m_rect.pos.x + m_rect.size.x, 0.0f, 1.0f);
+				const float	  perc		= Math::Clamp(Math::Remap(mouse.x, m_rect.pos.x, m_rect.pos.x + m_rect.size.x, 0.0f, 1.0f), 0.0f, 1.0f);
 				float		  targetVal = Math::Remap(perc, 0.0f, 1.0f, m_props.valueMin, m_props.valueMax);
 				const float	  diff		= targetVal - prev;
 				SetValue(prev + step * Math::FloorToFloat(diff / step));

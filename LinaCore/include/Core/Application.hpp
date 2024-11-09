@@ -30,8 +30,9 @@ SOFTWARE.
 
 #include "Common/JobSystem/JobSystem.hpp"
 #include "Core/Resources/ResourceManager.hpp"
-#include "Core/Graphics/BindlessContext.hpp"
+#include "Core/Graphics/GfxContext.hpp"
 #include "Core/Graphics/GUI/GUIBackend.hpp"
+#include "Core/World/WorldProcessor.hpp"
 #include <LinaGX/Core/Window.hpp>
 
 namespace LinaGX
@@ -103,9 +104,14 @@ namespace Lina
 			return m_guiBackend;
 		}
 
-		inline BindlessContext& GetGfxContext()
+		inline GfxContext& GetGfxContext()
 		{
-			return m_gfxBindlessContext;
+			return m_gfxContext;
+		}
+
+		inline WorldProcessor& GetWorldProcessor()
+		{
+			return m_worldProcessor;
 		}
 
 		inline const String& GetExitReason() const
@@ -125,8 +131,9 @@ namespace Lina
 		JobExecutor				 m_executor;
 		ResourceManagerV2		 m_resourceManager;
 		GUIBackend				 m_guiBackend;
-		BindlessContext			 m_gfxBindlessContext;
+		GfxContext				 m_gfxContext;
 		String					 m_exitReason = "";
+		WorldProcessor			 m_worldProcessor;
 
 		// Time
 		int64 m_frameCapAccumulator = 0;

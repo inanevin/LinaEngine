@@ -97,7 +97,6 @@ namespace Lina
 	{
 		auto& buf = m_meshBuffers[0];
 		buf.meshes.erase(linatl::find_if(buf.meshes.begin(), buf.meshes.end(), [mesh](MeshDefault* m) -> bool { return m == mesh; }));
-		m_requiresRefresh = true;
 	}
 
 	void MeshManager::Refresh()

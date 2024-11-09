@@ -78,7 +78,6 @@ namespace Lina
 
 	Font::~Font()
 	{
-		DestroySW();
 	}
 
 	void Font::DestroyHW()
@@ -102,27 +101,6 @@ namespace Lina
 		LINA_ASSERT(m_hwValid == false, "");
 		m_hwValid = true;
 
-		for (LinaVG::Font* font : m_lvgFonts)
-		{
-			LinaVG::Font* hwFont = new LinaVG::Font();
-			*hwFont				 = *font;
-
-			for (auto& [glyph, ch] : hwFont->glyphs)
-			{
-				const size_t sz = static_cast<size_t>(ch.m_size.x * ch.m_size.y);
-				ch.m_buffer		= nullptr;
-				ch.m_buffer		= (unsigned char*)malloc(sz);
-				MEMCPY(ch.m_buffer, font->glyphs[glyph].m_buffer, sz);
-			}
-
-			m_hwLvgFonts.push_back(hwFont);
-		}
-	}
-
-	void Font::GenerateSW()
-	{
-		DestroySW();
-
 		Vector<LinaVG::GlyphEncoding> customRangeVec;
 		for (const auto& rng : m_meta.glyphRanges)
 		{
@@ -131,21 +109,15 @@ namespace Lina
 		}
 
 		const int32 sz = static_cast<int32>(m_meta.points.size());
-		m_lvgFonts.resize(sz);
+		m_hwLvgFonts.resize(sz);
+
 		for (int32 i = 0; i < sz; i++)
 		{
 			if (customRangeVec.empty())
-				m_lvgFonts[i] = LinaVG::Text::LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.points[i].size);
+				m_hwLvgFonts[i] = LinaVG::Text::LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.points[i].size);
 			else
-				m_lvgFonts[i] = LinaVG::Text::LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.points[i].size, customRangeVec.data(), static_cast<int32>(m_meta.glyphRanges.size()) * 2);
+				m_hwLvgFonts[i] = LinaVG::Text::LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.points[i].size, customRangeVec.data(), static_cast<int32>(m_meta.glyphRanges.size()) * 2);
 		}
-	}
-
-	void Font::DestroySW()
-	{
-		for (LinaVG::Font* font : m_lvgFonts)
-			delete font;
-		m_lvgFonts.clear();
 	}
 
 	void Font::Upload(LinaVG::Text& lvgText)
@@ -158,8 +130,6 @@ namespace Lina
 
 	bool Font::LoadFromFile(const String& path)
 	{
-		DestroySW();
-
 		if (!FileSystem::FileOrPathExists(path))
 			return false;
 
@@ -169,29 +139,16 @@ namespace Lina
 		if (m_file.empty())
 			return false;
 
-		GenerateSW();
 		return true;
 	}
 
 	void Font::LoadFromStream(IStream& stream)
 	{
-		DestroySW();
-
 		Resource::LoadFromStream(stream);
 		uint32 version = 0;
 		stream >> version;
 		stream >> m_meta;
 		stream >> m_file;
-
-		uint32 size = 0;
-		stream >> size;
-
-		for (uint32 i = 0; i < size; i++)
-		{
-			LinaVG::Font* font = new LinaVG::Font();
-			LoadLVGFontToStream(stream, font);
-			m_lvgFonts.push_back(font);
-		}
 	}
 
 	void Font::SaveToStream(OStream& stream) const
@@ -200,12 +157,6 @@ namespace Lina
 		stream << VERSION;
 		stream << m_meta;
 		stream << m_file;
-
-		const uint32 size = static_cast<uint32>(m_lvgFonts.size());
-		stream << size;
-
-		for (uint32 i = 0; i < size; i++)
-			SaveLVGFontToStream(stream, m_lvgFonts[i]);
 	}
 
 	LinaVG::Font* Font::GetFont(float dpiScale)
@@ -214,7 +165,7 @@ namespace Lina
 
 		for (int32 i = 0; i < sz; i++)
 		{
-			if (dpiScale < m_meta.points[i].dpiLimit)
+			if (dpiScale <= m_meta.points[i].dpiLimit)
 				return m_hwLvgFonts[i];
 		}
 

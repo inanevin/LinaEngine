@@ -45,7 +45,7 @@ namespace Lina
 
 #define DEFAULT_FOV 90.0f
 
-	enum RenderPassDescriptorType
+	enum RenderPassType
 	{
 		Deferred = 0,
 		Lighting,
@@ -53,7 +53,7 @@ namespace Lina
 		Max,
 	};
 
-	constexpr const char* RPTypeToString(RenderPassDescriptorType type)
+	constexpr const char* RPTypeToString(RenderPassType type)
 	{
 		switch (type)
 		{

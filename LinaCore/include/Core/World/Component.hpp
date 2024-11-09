@@ -38,16 +38,9 @@ SOFTWARE.
 #include "Core/Resources/Resource.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
-namespace LinaGX
-{
-	class Input;
-}
-
 namespace Lina
 {
 	class Entity;
-	class ReflectionClassUtility;
-	class ResourceManagerV2;
 	class EntityWorld;
 
 	class Component
@@ -64,8 +57,6 @@ namespace Lina
 		virtual void LoadFromStream(IStream& stream){};
 		virtual void SaveToStream(OStream& stream) const {};
 
-		virtual TypeID GetComponentType() = 0;
-
 		inline Entity* GetEntity()
 		{
 			return m_entity;
@@ -76,17 +67,25 @@ namespace Lina
 			return m_flags;
 		}
 
+		inline TypeID GetTID() const
+		{
+			return m_tid;
+		}
+
 	protected:
 		friend class EntityWorld;
 
 		template <typename U> friend class ComponentCache;
-		Component(uint32 flags = 0) : m_flags(flags){};
+
+		Component() = delete;
+		Component(TypeID typeID, uint32 flags = 0) : m_tid(typeID), m_flags(0){};
 		virtual ~Component() = default;
 
 		ALLOCATOR_BUCKET_MEM;
 		Entity*		 m_entity = nullptr;
 		EntityWorld* m_world  = nullptr;
 		Bitmask32	 m_flags  = 0;
+		TypeID		 m_tid	  = 0;
 	};
 
 } // namespace Lina

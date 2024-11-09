@@ -77,6 +77,9 @@ namespace Lina::Editor
 			UndoActionFontDataChanged::Create(m_editor, font->GetID(), m_storedMeta);
 			m_storedMeta = font->GetMeta();
 		});
+
+		if (m_previewOnly)
+			DisableRecursively(m_inspector);
 	}
 
 	void PanelFontViewer::UpdateFontProps()

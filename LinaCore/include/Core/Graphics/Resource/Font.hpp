@@ -80,8 +80,6 @@ namespace Lina
 		virtual void  GenerateHW() override;
 		virtual void  DestroyHW() override;
 
-		void GenerateSW();
-		void DestroySW();
 		void Upload(LinaVG::Text& lvgText);
 
 		inline Metadata& GetMeta()
@@ -117,7 +115,6 @@ namespace Lina
 		ALLOCATOR_BUCKET_MEM;
 		LINA_REFLECTION_ACCESS(Font);
 		Vector<char>		  m_file;
-		Vector<LinaVG::Font*> m_lvgFonts   = {};
 		Vector<LinaVG::Font*> m_hwLvgFonts = {};
 		Metadata			  m_meta	   = {};
 		LinaVG::Text*		  m_lvgText	   = nullptr;

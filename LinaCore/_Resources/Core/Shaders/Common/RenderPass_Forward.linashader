@@ -26,16 +26,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-struct IndirectArguments
-{
-	uint entityID;
-	uint materialID;
-};
 
 struct LinaEntity
 {
     mat4 modelMatrix;
 };
+
+struct IndirectArguments
+{
+	LinaEntity entity;
+	uint materialID;
+	uint padding0;
+	uint padding1;
+	uint padding2;
+};
+
 
 layout(set = 1, binding = 0) uniform ViewData
 {
@@ -49,17 +54,7 @@ layout(set = 1, binding = 0) uniform ViewData
 	vec4 padding2;
 } LINA_VIEW;
 
-layout(std140, set = 1, binding = 1) readonly buffer ObjectBuffer
-{
-    LinaEntity data[];
-} LINA_ENTITIES;
-
-layout(set = 1, binding = 2) readonly buffer IndirectArgumentsBuffer
+layout(set = 1, binding = 1) readonly buffer IndirectArgumentsBuffer
 {
     IndirectArguments data[];
 } LINA_INDIRECT_ARGUMENTS;
-
-LinaEntity LINA_GET_ENTITY(uint entityID)
-{
-	return LINA_ENTITIES.data[entityID];
-}

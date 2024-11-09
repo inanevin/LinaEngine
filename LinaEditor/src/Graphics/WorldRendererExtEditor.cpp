@@ -31,8 +31,6 @@ SOFTWARE.
 
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
-#include "Core/Components/CameraComponent.hpp"
-
 namespace Lina::Editor
 {
 	WorldRendererExtEditor::WorldRendererExtEditor()

@@ -183,9 +183,9 @@ namespace Lina
 		return {.bindings = {binding0, binding1, binding2, binding3}};
 	}
 
-	LinaGX::DescriptorSetDesc GfxHelpers::GetSetDescPersistentRenderPass(RenderPassDescriptorType type)
+	LinaGX::DescriptorSetDesc GfxHelpers::GetSetDescPersistentRenderPass(RenderPassType type)
 	{
-		if (type == RenderPassDescriptorType::Deferred)
+		if (type == RenderPassType::Deferred)
 		{
 			LinaGX::DescriptorBinding binding0 = {
 				.type	= LinaGX::DescriptorType::UBO,
@@ -197,14 +197,9 @@ namespace Lina
 				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 			};
 
-			LinaGX::DescriptorBinding binding2 = {
-				.type	= LinaGX::DescriptorType::SSBO,
-				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-			};
-
-			return {.bindings = {binding0, binding1, binding2}};
+			return {.bindings = {binding0, binding1}};
 		}
-		else if (type == RenderPassDescriptorType::Forward)
+		else if (type == RenderPassType::Forward)
 		{
 			LinaGX::DescriptorBinding binding0 = {
 				.type	= LinaGX::DescriptorType::UBO,
@@ -216,14 +211,9 @@ namespace Lina
 				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 			};
 
-			LinaGX::DescriptorBinding binding2 = {
-				.type	= LinaGX::DescriptorType::SSBO,
-				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-			};
-
-			return {.bindings = {binding0, binding1, binding2}};
+			return {.bindings = {binding0, binding1}};
 		}
-		else if (type == RenderPassDescriptorType::Lighting)
+		else if (type == RenderPassType::Lighting)
 		{
 			LinaGX::DescriptorBinding binding0 = {
 				.type	= LinaGX::DescriptorType::UBO,
@@ -335,12 +325,12 @@ namespace Lina
 		return {.descriptorSetDescriptions = {GetSetDescPersistentGlobal()}, .debugName = "Persistent Global Layout"};
 	}
 
-	LinaGX::PipelineLayoutDesc GfxHelpers::GetPLDescPersistentRenderPass(RenderPassDescriptorType renderPassType)
+	LinaGX::PipelineLayoutDesc GfxHelpers::GetPLDescPersistentRenderPass(RenderPassType renderPassType)
 	{
 		LinaGX::PipelineLayoutDesc desc;
 		desc.descriptorSetDescriptions = {GetSetDescPersistentGlobal(), GetSetDescPersistentRenderPass(renderPassType)};
 		desc.debugName				   = "Persistent RenderPass Layout";
-		// if (renderPassType == RenderPassDescriptorType::Main)
+		// if (renderPassType == RenderPassType::Main)
 		//	desc.constantRanges.push_back(LinaGX::PipelineLayoutPushConstantRange{.stages = {LinaGX::ShaderStage::Vertex}, .size = sizeof(GPUPushConstantRPMain)});
 
 		return desc;
@@ -372,13 +362,12 @@ namespace Lina
 		return Matrix4::Orthographic(L, R, B, T, 0.0f, 1.0f);
 	}
 
-	RenderPassDescription GfxHelpers::GetRenderPassDescription(LinaGX::Instance* lgx, RenderPassDescriptorType type)
+	RenderPassDescription GfxHelpers::GetRenderPassDescription(LinaGX::Instance* lgx, RenderPassType type)
 	{
 		LinaGX::DescriptorSetDesc setDesc = GfxHelpers::GetSetDescPersistentRenderPass(type);
 
-		if (type == RenderPassDescriptorType::Deferred)
+		if (type == RenderPassType::Deferred)
 		{
-			// 1 is object buffer reserved.
 			return {
 				.buffers		= {{
 									   .bufferType	 = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
@@ -401,14 +390,14 @@ namespace Lina
 									   .debugName	 = "RP: Main - IndirectConstants",
 									   .size		 = sizeof(GPUIndirectConstants0) * 2500,
 									   .stagingOnly	 = false,
-									   .bindingIndex = 2,
+									   .bindingIndex = 1,
 									   .ident		 = "IndirectConstants"_hs,
 							   }},
 				.setDescription = setDesc,
 			};
 		}
 
-		if (type == RenderPassDescriptorType::Lighting)
+		if (type == RenderPassType::Lighting)
 		{
 			return {
 				.buffers =
@@ -435,9 +424,8 @@ namespace Lina
 			};
 		}
 
-		if (type == RenderPassDescriptorType::Forward)
+		if (type == RenderPassType::Forward)
 		{
-			// 1 is object buffer reserved.
 			return {
 				.buffers		= {{
 									   .bufferType	 = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
@@ -460,7 +448,7 @@ namespace Lina
 									   .debugName	 = "RP: FWTransparency - IndirectConstants",
 									   .size		 = sizeof(GPUIndirectConstants0) * 2500,
 									   .stagingOnly	 = false,
-									   .bindingIndex = 2,
+									   .bindingIndex = 1,
 									   .ident		 = "IndirectConstants"_hs,
 							   }},
 				.setDescription = setDesc,

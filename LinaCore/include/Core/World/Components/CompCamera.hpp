@@ -26,20 +26,55 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Components/CameraComponent.hpp"
-#include "Core/World/EntityWorld.hpp"
-#include "Common/Math/Math.hpp"
-#include "Common/Math/Matrix.hpp"
+#pragma once
+
+#include "Core/World/Component.hpp"
+#include "Core/Graphics/CommonGraphics.hpp"
 
 namespace Lina
 {
-	void CameraComponent::OnPostTick(float delta)
+
+	class CompCamera : public Component
 	{
-		Camera& worldCamera		  = m_world->GetWorldCamera();
-		worldCamera.fovDegrees	  = m_fieldOfView;
-		worldCamera.zFar		  = m_zFar;
-		worldCamera.zNear		  = m_zNear;
-		worldCamera.worldPosition = m_entity->GetPosition();
-		worldCamera.worldRotation = m_entity->GetRotation();
-	}
+	public:
+		CompCamera() : Component(GetTypeID<CompCamera>()){};
+
+		virtual void OnPostTick(float delta) override;
+
+		virtual void SaveToStream(OStream& stream) const override
+		{
+			stream << m_fieldOfView << m_zNear << m_zFar;
+		};
+
+		virtual void LoadFromStream(IStream& stream) override
+		{
+			stream >> m_fieldOfView >> m_zNear >> m_zFar;
+		}
+
+		inline float GetNear() const
+		{
+			return m_zNear;
+		}
+
+		inline float GetFar() const
+		{
+			return m_zFar;
+		}
+
+		inline float GetFOV() const
+		{
+			return m_fieldOfView;
+		}
+
+	private:
+		LINA_REFLECTION_ACCESS(CompCamera);
+
+		float m_fieldOfView = DEFAULT_FOV;
+		float m_zNear		= 0.01f;
+		float m_zFar		= 500.0f;
+	};
+
+	LINA_COMPONENT_BEGIN(CompCamera, "Graphics");
+	LINA_CLASS_END(CompCamera);
+
 } // namespace Lina

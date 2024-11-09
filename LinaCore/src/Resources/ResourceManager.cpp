@@ -61,44 +61,23 @@ namespace Lina
 		}
 	}
 
-	void ResourceManagerV2::ReloadResources(ProjectData* project, const HashSet<ResourceID>& resources)
+	void ResourceManagerV2::ReloadResourceHW(const HashSet<Resource*>& resources)
 	{
-		LINA_ASSERT(!m_locked, "");
+		CheckLock();
 
 		Application::GetLGX()->Join();
 
-		HashSet<Resource*> list;
-
-		for (ResourceID rid : resources)
-		{
-			for (auto [tid, cache] : m_caches)
-			{
-				Resource* res = cache->GetIfExists(rid);
-				if (res == nullptr)
-					continue;
-
-				IStream stream = Serialization::LoadFromFile(project->GetResourcePath(rid).c_str());
-				if (!stream.Empty())
-				{
-					res->LoadFromStream(stream);
-					list.insert(res);
-				}
-				stream.Destroy();
-				break;
-			}
-		}
-
 		for (ResourceManagerListener* l : m_listeners)
-			l->OnResourceManagerPreDestroyHW(list);
+			l->OnResourceManagerPreDestroyHW(resources);
 
-		for (Resource* res : list)
+		for (Resource* res : resources)
 		{
 			res->DestroyHW();
 			res->GenerateHW();
 		}
 
 		for (ResourceManagerListener* l : m_listeners)
-			l->OnResourceManagerGeneratedHW(list);
+			l->OnResourceManagerGeneratedHW(resources);
 	}
 
 	void ResourceManagerV2::AddListener(ResourceManagerListener* listener)
@@ -112,7 +91,7 @@ namespace Lina
 		m_listeners.erase(it);
 	}
 
-	void ResourceManagerV2::LoadResourcesFromFile(const ResourceDefinitionList& resourceDefs, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress)
+	HashSet<Resource*> ResourceManagerV2::LoadResourcesFromFile(const ResourceDefinitionList& resourceDefs, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress)
 	{
 		CheckLock();
 
@@ -121,8 +100,23 @@ namespace Lina
 		uint32 idx = 0;
 		for (const ResourceDef& def : resourceDefs)
 		{
-			auto	  cache = GetCache(def.tid);
-			Resource* res	= cache->Create(def.id, def.name);
+			auto cache = GetCache(def.tid);
+
+			Resource* res = cache->GetIfExists(def.id);
+
+			if (res)
+			{
+				res->m_referenceCount++;
+
+				if (onProgress)
+					onProgress(++idx, def);
+
+				resources.insert(res);
+				continue;
+			}
+
+			res					  = cache->Create(def.id, def.name);
+			res->m_referenceCount = 1;
 
 			if (def.customMeta.GetCurrentSize() != 0)
 			{
@@ -154,9 +148,11 @@ namespace Lina
 
 		for (ResourceManagerListener* l : m_listeners)
 			l->OnResourceManagerGeneratedHW(resources);
+
+		return resources;
 	}
 
-	void ResourceManagerV2::LoadResourcesFromProject(ProjectData* project, const HashSet<ResourceID>& resources, Delegate<void(uint32 loaded, Resource* currentItem)> onProgress)
+	HashSet<Resource*> ResourceManagerV2::LoadResourcesFromProject(ProjectData* project, const HashSet<ResourceID>& resources, Delegate<void(uint32 loaded, Resource* currentItem)> onProgress)
 	{
 		CheckLock();
 
@@ -183,13 +179,17 @@ namespace Lina
 
 			if (res != nullptr)
 			{
+				res->m_referenceCount++;
+
 				if (onProgress)
 					onProgress(++idx, res);
-
+				loaded.insert(res);
 				continue;
 			}
 
-			res			   = cache->Create(id, dir->name);
+			res					  = cache->Create(id, dir->name);
+			res->m_referenceCount = 1;
+
 			IStream stream = Serialization::LoadFromFile(project->GetResourcePath(id).c_str());
 
 			if (stream.Empty())
@@ -217,6 +217,8 @@ namespace Lina
 
 		for (ResourceManagerListener* l : m_listeners)
 			l->OnResourceManagerGeneratedHW(loaded);
+
+		return loaded;
 	}
 
 	void ResourceManagerV2::UnloadResources(const ResourceDefinitionList& resources)
@@ -233,6 +235,11 @@ namespace Lina
 			if (r == nullptr)
 				continue;
 
+			r->m_referenceCount--;
+
+			if (r->m_referenceCount > 0)
+				continue;
+
 			toDestroy.insert(r);
 		}
 
@@ -241,6 +248,9 @@ namespace Lina
 
 		for (Resource* res : toDestroy)
 		{
+			if (res->m_referenceCount > 0)
+				continue;
+
 			res->DestroyHW();
 			ResourceCacheBase* cache = GetCache(res->GetTID());
 			cache->Destroy(res->GetID());

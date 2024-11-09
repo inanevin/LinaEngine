@@ -27,6 +27,9 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
+#include "Core/Graphics/Renderers/ObjectRenderer.hpp"
+#include "Core/Graphics/Renderers/SkyRenderer.hpp"
+#include "Core/Graphics/Renderers/LightingRenderer.hpp"
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
@@ -37,10 +40,9 @@ SOFTWARE.
 #include "Core/Graphics/Data/ModelNode.hpp"
 #include "Core/Graphics/Data/Mesh.hpp"
 #include "Core/World/EntityWorld.hpp"
+#include "Core/World/Components/CompModel.hpp"
 #include "Core/Resources/ResourceManager.hpp"
-#include "Core/Components/MeshComponent.hpp"
-#include "Core/Components/CameraComponent.hpp"
-#include "Core/Components/WidgetComponent.hpp"
+
 #include "Common/Platform/LinaGXIncl.hpp"
 
 #include "Common/System/SystemInfo.hpp"
@@ -77,15 +79,16 @@ namespace Lina
 #define DEBUG_LABEL_END(Stream)
 #endif
 
-	WorldRenderer::WorldRenderer(EntityWorld* world, const Vector2ui& viewSize, Buffer* snapshotBuffers, bool standaloneSubmit)
+	WorldRenderer::WorldRenderer(GfxContext* context, ResourceManagerV2* rm, EntityWorld* world, const Vector2ui& viewSize, Buffer* snapshotBuffers, bool standaloneSubmit)
 	{
+		m_gfxContext	   = context;
 		m_standaloneSubmit = standaloneSubmit;
 		m_snapshotBuffer   = snapshotBuffers;
 		m_world			   = world;
 		m_world->AddListener(this);
 		m_size				= viewSize;
-		m_resourceManagerV2 = &world->GetResourceManagerV2();
-		m_gBufSampler		= m_resourceManagerV2->CreateResource<TextureSampler>(world->GetResourceManagerV2().ConsumeResourceID(), "World Renderer GBuf Sampler");
+		m_resourceManagerV2 = rm;
+		m_gBufSampler		= m_resourceManagerV2->CreateResource<TextureSampler>(m_resourceManagerV2->ConsumeResourceID(), "World Renderer GBuf Sampler");
 
 		LinaGX::SamplerDesc gBufSampler = {
 			.anisotropy = 1,
@@ -95,121 +98,66 @@ namespace Lina
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
-			auto& data		= m_pfd[i];
-			data.gfxStream	= m_lgx->CreateCommandStream({LinaGX::CommandType::Graphics, MAX_GFX_COMMANDS, 24000, 4096, 32, "WorldRenderer: Gfx Stream"});
-			data.copyStream = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, MAX_COPY_COMMANDS, 4000, 4096, 32, "WorldRenderer: Copy Stream"});
-			data.objectBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUDataObject) * MAX_OBJECTS, "WorldRenderer: ObjectData", false);
+			auto& data			 = m_pfd[i];
+			data.gfxStream		 = m_lgx->CreateCommandStream({LinaGX::CommandType::Graphics, MAX_GFX_COMMANDS, 24000, 4096, 32, "WorldRenderer: Gfx Stream"});
+			data.copyStream		 = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, MAX_COPY_COMMANDS, 4000, 4096, 32, "WorldRenderer: Copy Stream"});
 			data.signalSemaphore = SemaphoreData(m_lgx->CreateUserSemaphore());
 			data.copySemaphore	 = SemaphoreData(m_lgx->CreateUserSemaphore());
 		}
 
-		m_mainPass.Create(GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::Deferred));
-		m_lightingPass.Create(GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::Lighting));
-		m_forwardPass.Create(GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::Forward));
+		m_deferredPass.Create(GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassType::Deferred));
+		m_lightingPass.Create(GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassType::Lighting));
+		m_forwardPass.Create(GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassType::Forward));
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data = m_pfd[i];
 
-			LinaGX::ResourceDesc globalDataDesc = {
-				.size		   = sizeof(GPUDataEngineGlobals),
-				.typeHintFlags = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
-				.heapType	   = LinaGX::ResourceHeap::StagingHeap,
-				.debugName	   = "WorldRenderer: Global Data Buffer",
-			};
-			data.globalDataBuffer.Create(LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataEngineGlobals), "WorldRenderer: Engine Globals", true);
-			data.globalMaterialsBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(uint32) * 1000, "WorldRendererr: Materials", false);
-
-			m_lgx->DescriptorUpdateBuffer({
-				.setHandle			= m_mainPass.GetDescriptorSet(i),
-				.setAllocationIndex = 0,
-				.binding			= 1,
-				.buffers			= {data.objectBuffer.GetGPUResource()},
-			});
-
-			m_lgx->DescriptorUpdateBuffer({
-				.setHandle			= m_forwardPass.GetDescriptorSet(i),
-				.setAllocationIndex = 0,
-				.binding			= 1,
-				.buffers			= {data.objectBuffer.GetGPUResource()},
-			});
-
-			data.descriptorSetPersistentGlobal = m_lgx->CreateDescriptorSet(GfxHelpers::GetSetDescPersistentGlobal());
-
-			m_lgx->DescriptorUpdateBuffer({
-				.setHandle	   = data.descriptorSetPersistentGlobal,
-				.binding	   = 0,
-				.buffers	   = {data.globalDataBuffer.GetGPUResource()},
-				.isWriteAccess = false,
-			});
-
-			m_lgx->DescriptorUpdateBuffer({
-				.setHandle	   = data.descriptorSetPersistentGlobal,
-				.binding	   = 1,
-				.buffers	   = {data.globalMaterialsBuffer.GetGPUResource()},
-				.isWriteAccess = false,
-			});
-
-			data.pipelineLayoutPersistentGlobal = m_lgx->CreatePipelineLayout(GfxHelpers::GetPLDescPersistentGlobal());
-
-			data.globalTexturesDesc = {
-				.setHandle = data.descriptorSetPersistentGlobal,
-				.binding   = 2,
-			};
-
-			data.globalSamplersDesc = {
-				.setHandle = data.descriptorSetPersistentGlobal,
-				.binding   = 3,
-			};
-
-			for (int32 j = 0; j < RenderPassDescriptorType::Max; j++)
+			for (int32 j = 0; j < RenderPassType::Max; j++)
 			{
-				data.pipelineLayoutPersistentRenderpass[j] = m_lgx->CreatePipelineLayout(GfxHelpers::GetPLDescPersistentRenderPass(static_cast<RenderPassDescriptorType>(j)));
+				data.pipelineLayoutPersistentRenderpass[j] = m_lgx->CreatePipelineLayout(GfxHelpers::GetPLDescPersistentRenderPass(static_cast<RenderPassType>(j)));
 			}
 		}
 
-		m_guiBackend.Initialize(m_resourceManagerV2);
-		m_meshManager.Initialize();
-		CreateSizeRelativeResources();
-		FetchRenderables();
+		m_objectRenderer   = new ObjectRenderer(m_lgx, m_world);
+		m_skyRenderer	   = new SkyRenderer(m_lgx, m_world);
+		m_lightingRenderer = new LightingRenderer(m_lgx, m_world);
+		AddFeatureRenderer(m_objectRenderer);
+		AddFeatureRenderer(m_skyRenderer);
+		AddFeatureRenderer(m_lightingRenderer);
 
-		m_mainPassDrawCollector.Initialize(m_lgx, m_world, this);
-		m_forwardPassDrawCollector.Initialize(m_lgx, m_world, this);
+		m_guiBackend.Initialize(m_resourceManagerV2);
+		CreateSizeRelativeResources();
 	}
 
 	WorldRenderer::~WorldRenderer()
 	{
+		RemoveFeatureRenderer(m_objectRenderer);
+		RemoveFeatureRenderer(m_skyRenderer);
+		RemoveFeatureRenderer(m_lightingRenderer);
+		delete m_objectRenderer;
+		delete m_skyRenderer;
+		delete m_lightingRenderer;
+
 		m_gBufSampler->DestroyHW();
 		m_resourceManagerV2->DestroyResource(m_gBufSampler);
 
 		m_guiBackend.Shutdown();
-		m_meshManager.Shutdown();
-
-		for (auto* ext : m_extensions)
-			delete ext;
-
-		m_extensions.clear();
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data = m_pfd[i];
 			m_lgx->DestroyCommandStream(data.gfxStream);
 			m_lgx->DestroyCommandStream(data.copyStream);
-			data.objectBuffer.Destroy();
 
 			m_lgx->DestroyUserSemaphore(data.signalSemaphore.GetSemaphore());
 			m_lgx->DestroyUserSemaphore(data.copySemaphore.GetSemaphore());
 
-			m_lgx->DestroyDescriptorSet(data.descriptorSetPersistentGlobal);
-			m_lgx->DestroyPipelineLayout(data.pipelineLayoutPersistentGlobal);
-			data.globalDataBuffer.Destroy();
-			data.globalMaterialsBuffer.Destroy();
-
-			for (int32 j = 0; j < RenderPassDescriptorType::Max; j++)
+			for (int32 j = 0; j < RenderPassType::Max; j++)
 				m_lgx->DestroyPipelineLayout(data.pipelineLayoutPersistentRenderpass[j]);
 		}
 
-		m_mainPass.Destroy();
+		m_deferredPass.Destroy();
 		m_lightingPass.Destroy();
 		m_forwardPass.Destroy();
 
@@ -263,10 +211,10 @@ namespace Lina
 			data.gBufDepth->GenerateHWFromDesc(depthDesc);
 			data.lightingPassOutput->GenerateHWFromDesc(rtDescLighting);
 
-			m_mainPass.SetColorAttachment(i, 0, {.clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.gBufAlbedo->GetGPUHandle(), .isSwapchain = false});
-			m_mainPass.SetColorAttachment(i, 1, {.clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.gBufPosition->GetGPUHandle(), .isSwapchain = false});
-			m_mainPass.SetColorAttachment(i, 2, {.clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.gBufNormal->GetGPUHandle(), .isSwapchain = false});
-			m_mainPass.DepthStencilAttachment(i, {.useDepth = true, .texture = data.gBufDepth->GetGPUHandle(), .depthLoadOp = LinaGX::LoadOp::Clear, .depthStoreOp = LinaGX::StoreOp::Store, .clearDepth = 1.0f});
+			m_deferredPass.SetColorAttachment(i, 0, {.clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.gBufAlbedo->GetGPUHandle(), .isSwapchain = false});
+			m_deferredPass.SetColorAttachment(i, 1, {.clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.gBufPosition->GetGPUHandle(), .isSwapchain = false});
+			m_deferredPass.SetColorAttachment(i, 2, {.clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.gBufNormal->GetGPUHandle(), .isSwapchain = false});
+			m_deferredPass.DepthStencilAttachment(i, {.useDepth = true, .texture = data.gBufDepth->GetGPUHandle(), .depthLoadOp = LinaGX::LoadOp::Clear, .depthStoreOp = LinaGX::StoreOp::Store, .clearDepth = 1.0f});
 
 			m_lightingPass.SetColorAttachment(i, 0, {.loadOp = LinaGX::LoadOp::Load, .storeOp = LinaGX::StoreOp::Store, .clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.lightingPassOutput->GetGPUHandle(), .isSwapchain = false});
 			m_lightingPass.DepthStencilAttachment(i,
@@ -311,43 +259,36 @@ namespace Lina
 		}
 	}
 
-	void WorldRenderer::FetchRenderables()
-	{
-		m_meshComponents.clear();
-		m_widgetComponents.clear();
-
-		m_world->GetCache<MeshComponent>()->View([&](MeshComponent* comp, uint32 index) -> bool {
-			m_meshComponents.push_back(comp);
-			return false;
-		});
-
-		m_world->GetCache<WidgetComponent>()->View([&](WidgetComponent* comp, uint32 index) -> bool {
-			m_widgetComponents.push_back(comp);
-			return false;
-		});
-	}
-
 	void WorldRenderer::OnComponentAdded(Component* c)
 	{
-		if (c->GetComponentType() == GetTypeID<MeshComponent>())
-			m_meshComponents.push_back(static_cast<MeshComponent*>(c));
-		else if (c->GetComponentType() == GetTypeID<WidgetComponent>())
-			m_widgetComponents.push_back(static_cast<WidgetComponent*>(c));
+		for (FeatureRenderer* ft : m_featureRenderers)
+			ft->OnComponentAdded(c);
 	}
 
 	void WorldRenderer::OnComponentRemoved(Component* c)
 	{
-		if (c->GetComponentType() == GetTypeID<MeshComponent>())
-			m_meshComponents.erase(linatl::find_if(m_meshComponents.begin(), m_meshComponents.end(), [c](MeshComponent* model) -> bool { return c == model; }));
+		for (FeatureRenderer* ft : m_featureRenderers)
+			ft->OnComponentRemoved(c);
+	}
 
-		if (c->GetComponentType() == GetTypeID<WidgetComponent>())
-			m_widgetComponents.erase(linatl::find_if(m_widgetComponents.begin(), m_widgetComponents.end(), [c](WidgetComponent* comp) -> bool { return c == comp; }));
+	void WorldRenderer::AddFeatureRenderer(FeatureRenderer* ft)
+	{
+		m_featureRenderers.push_back(ft);
+		ft->FetchRenderables();
+	}
+
+	void WorldRenderer::RemoveFeatureRenderer(FeatureRenderer* ft)
+	{
+		auto it = linatl::find_if(m_featureRenderers.begin(), m_featureRenderers.end(), [ft](FeatureRenderer* rend) -> bool { return ft == rend; });
+		m_featureRenderers.erase(it);
 	}
 
 	void WorldRenderer::Tick(float delta)
 	{
-		for (auto* ext : m_extensions)
-			ext->Tick(delta);
+		const Camera& camera = m_world->GetWorldCamera();
+
+		for (FeatureRenderer* rend : m_featureRenderers)
+			rend->ProduceFrame(camera, m_resourceManagerV2, delta);
 	}
 
 	void WorldRenderer::Resize(const Vector2ui& newSize)
@@ -360,118 +301,68 @@ namespace Lina
 		CreateSizeRelativeResources();
 	}
 
-	void WorldRenderer::UpdateBindlessResources(uint32 frameIndex)
+	void WorldRenderer::SyncRender()
 	{
+		for (FeatureRenderer* ft : m_featureRenderers)
+			ft->SyncRender();
 	}
 
 	void WorldRenderer::UpdateBuffers(uint32 frameIndex)
 	{
 		auto& currentFrame = m_pfd[frameIndex];
 
-		try
+		// View data.
 		{
-
-			// Global queue is mostly for resources that are not per-frame-dependent, like asset textures or meshes.
-			// We will wait for them to be completed before proceding.
-			if (m_globalUploadQueue.FlushAll(currentFrame.copyStream))
-			{
-				BumpAndSendTransfers(frameIndex);
-				m_lgx->WaitForUserSemaphore(currentFrame.copySemaphore.GetSemaphore(), currentFrame.copySemaphore.GetValue());
-			}
-
-			// View data.
-			{
-				Camera&		worldCam = m_world->GetWorldCamera();
-				GPUDataView view	 = {};
-				CalculateViewProj(worldCam, m_world->GetScreen(), view.view, view.proj);
-				const Vector3& camPos	   = worldCam.worldPosition;
-				const Vector3& camDir	   = worldCam.worldRotation.GetForward();
-				view.viewProj			   = view.proj * view.view;
-				view.cameraPositionAndNear = Vector4(camPos.x, camPos.y, camPos.z, worldCam.zNear);
-				view.cameraDirectionAndFar = Vector4(camDir.x, camDir.y, camDir.z, worldCam.zFar);
-				view.size				   = Vector2(static_cast<float>(m_size.x), static_cast<float>(m_size.y));
-				m_lightingPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
-				m_mainPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
-				m_forwardPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
-			}
-		}
-		catch (std::exception e)
-		{
-			int a = 5;
+			Camera&		worldCam = m_world->GetWorldCamera();
+			GPUDataView view	 = {};
+			CalculateViewProj(worldCam, m_world->GetScreen(), view.view, view.proj);
+			const Vector3& camPos	   = worldCam.worldPosition;
+			const Vector3& camDir	   = worldCam.worldRotation.GetForward();
+			view.viewProj			   = view.proj * view.view;
+			view.cameraPositionAndNear = Vector4(camPos.x, camPos.y, camPos.z, worldCam.zNear);
+			view.cameraDirectionAndFar = Vector4(camDir.x, camDir.y, camDir.z, worldCam.zFar);
+			view.size				   = Vector2(static_cast<float>(m_size.x), static_cast<float>(m_size.y));
+			m_lightingPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
+			m_deferredPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
+			m_forwardPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
 		}
 
-		try
-		{
-			// Lighting pass specific.
-			{
-
-				Material* lightingMaterial = m_world->GetResourceManagerV2().GetIfExists<Material>(m_world->GetGfxSettings().lightingMaterial);
-				Material* skyMaterial	   = m_world->GetResourceManagerV2().GetIfExists<Material>(m_world->GetGfxSettings().skyMaterial);
-
-				LINA_ASSERT(lightingMaterial && skyMaterial, "");
-
-				GPUDataLightingPass renderPassData = {
-					.gBufAlbedo			  = currentFrame.gBufAlbedo->GetBindlessIndex(),
-					.gBufPositionMetallic = currentFrame.gBufPosition->GetBindlessIndex(),
-					.gBufNormalRoughness  = currentFrame.gBufNormal->GetBindlessIndex(),
-					// .gBufDepth             = currentFrame.gBufDepth->GetBindlessIndex(),
-					.gBufSampler			   = m_gBufSampler->GetBindlessIndex(),
-					.lightingMaterialByteIndex = lightingMaterial->GetBindlessIndex() / 4,
-					.skyMaterialByteIndex	   = skyMaterial->GetBindlessIndex() / 4,
-				};
-
-				m_lightingPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&renderPassData, sizeof(GPUDataLightingPass));
-			}
-
-			// All entities.
-			{
-				m_objects.resize(static_cast<size_t>(m_world->GetActiveEntityCount()));
-				m_world->ViewEntities([&](Entity* e, uint32 index) -> bool {
-					auto& data = m_objects[index];
-					data.model = e->GetTransform().GetMatrix();
-					return false;
-				});
-
-				currentFrame.objectBuffer.BufferData(0, (uint8*)m_objects.data(), sizeof(GPUDataObject) * m_objects.size());
-			}
-		}
-		catch (std::exception e)
-		{
-			int a = 5;
-		}
-
-		try
+		// Lighting pass specific.
 		{
 
-			// Draw data map.
-			Buffer& mainPassIndirectBuffer	  = m_mainPass.GetBuffer(frameIndex, "IndirectBuffer"_hs);
-			Buffer& mainPassIndirectConstants = m_mainPass.GetBuffer(frameIndex, "IndirectConstants"_hs);
-			m_mainPassDrawCollector.Clear();
-			m_mainPassDrawCollector.CollectStaticMeshes(m_meshComponents, ShaderType::OpaqueSurface);
-			m_mainPassDrawCollector.RecordIndirectCommands(mainPassIndirectBuffer, mainPassIndirectConstants);
+			Material* lightingMaterial = m_resourceManagerV2->GetIfExists<Material>(m_world->GetGfxSettings().lightingMaterial);
+			Material* skyMaterial	   = m_resourceManagerV2->GetIfExists<Material>(m_world->GetGfxSettings().skyMaterial);
 
-			Buffer& forwardPassIndirectBuffer	 = m_forwardPass.GetBuffer(frameIndex, "IndirectBuffer"_hs);
-			Buffer& forwardPassIndirectConstants = m_forwardPass.GetBuffer(frameIndex, "IndirectConstants"_hs);
-			m_forwardPassDrawCollector.Clear();
-			m_forwardPassDrawCollector.CollectStaticMeshes(m_meshComponents, ShaderType::TransparentSurface);
-			m_forwardPassDrawCollector.RecordIndirectCommands(forwardPassIndirectBuffer, forwardPassIndirectConstants);
+			GPUDataLightingPass renderPassData = {
+				.gBufAlbedo			  = currentFrame.gBufAlbedo->GetBindlessIndex(),
+				.gBufPositionMetallic = currentFrame.gBufPosition->GetBindlessIndex(),
+				.gBufNormalRoughness  = currentFrame.gBufNormal->GetBindlessIndex(),
+				// .gBufDepth             = currentFrame.gBufDepth->GetBindlessIndex(),
+				.gBufSampler			   = m_gBufSampler->GetBindlessIndex(),
+				.lightingMaterialByteIndex = lightingMaterial == nullptr ? UINT32_MAX : lightingMaterial->GetBindlessIndex() / 4,
+				.skyMaterialByteIndex	   = skyMaterial == nullptr ? UINT32_MAX : skyMaterial->GetBindlessIndex() / 4,
+			};
 
-			m_uploadQueue.AddBufferRequest(&currentFrame.globalDataBuffer);
-			m_uploadQueue.AddBufferRequest(&currentFrame.objectBuffer);
-			m_mainPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
-			m_forwardPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
-			m_lightingPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
-
-			for (auto* ext : m_extensions)
-				ext->AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
-
-			if (m_uploadQueue.FlushAll(currentFrame.copyStream))
-				BumpAndSendTransfers(frameIndex);
+			m_lightingPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&renderPassData, sizeof(GPUDataLightingPass));
 		}
-		catch (std::exception e)
+
+		m_deferredPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).SetIndirectCount(0);
+		m_deferredPass.GetBuffer(frameIndex, "IndirectConstants"_hs).SetIndirectCount(0);
+		m_forwardPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).SetIndirectCount(0);
+		m_forwardPass.GetBuffer(frameIndex, "IndirectConstants"_hs).SetIndirectCount(0);
+
+		for (FeatureRenderer* ft : m_featureRenderers)
 		{
-			int a = 5;
+			ft->RenderRecordIndirect(frameIndex, m_deferredPass, RenderPassType::Deferred);
+			ft->RenderRecordIndirect(frameIndex, m_forwardPass, RenderPassType::Forward);
 		}
+
+		m_deferredPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+		m_forwardPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+		m_lightingPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+
+		if (m_uploadQueue.FlushAll(currentFrame.copyStream))
+			BumpAndSendTransfers(frameIndex);
 	}
 
 	void WorldRenderer::Render(uint32 frameIndex)
@@ -480,15 +371,6 @@ namespace Lina
 		currentFrame.copySemaphore.ResetModified();
 		currentFrame.signalSemaphore.ResetModified();
 
-		Material* lightingMaterial = m_resourceManagerV2->GetIfExists<Material>(m_world->GetGfxSettings().lightingMaterial);
-		Material* skyMaterial	   = m_resourceManagerV2->GetIfExists<Material>(m_world->GetGfxSettings().skyMaterial);
-		Model*	  skyModel		   = m_resourceManagerV2->GetIfExists<Model>(m_world->GetGfxSettings().skyModel);
-		Shader*	  lighting		   = m_resourceManagerV2->GetIfExists<Shader>(lightingMaterial->GetShader());
-		Shader*	  skyShader		   = m_resourceManagerV2->GetIfExists<Shader>(skyMaterial->GetShader());
-
-		LINA_ASSERT(lightingMaterial && skyMaterial && skyModel && lighting && skyShader, "");
-
-		UpdateBindlessResources(frameIndex);
 		UpdateBuffers(frameIndex);
 
 		const LinaGX::Viewport viewport = {
@@ -509,11 +391,11 @@ namespace Lina
 
 		// Global set.
 		LinaGX::CMDBindDescriptorSets* bindGlobal = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindDescriptorSets>();
-		bindGlobal->descriptorSetHandles		  = currentFrame.gfxStream->EmplaceAuxMemory<uint16>(currentFrame.descriptorSetPersistentGlobal);
+		bindGlobal->descriptorSetHandles		  = currentFrame.gfxStream->EmplaceAuxMemory<uint16>(m_gfxContext->GetDescriptorSetGlobal(frameIndex));
 		bindGlobal->firstSet					  = 0;
 		bindGlobal->setCount					  = 1;
 		bindGlobal->layoutSource				  = LinaGX::DescriptorSetsLayoutSource::CustomLayout;
-		bindGlobal->customLayout				  = currentFrame.pipelineLayoutPersistentGlobal;
+		bindGlobal->customLayout				  = m_gfxContext->GetPipelineLayoutGlobal();
 
 		{
 			// Barrier to Attachment
@@ -530,19 +412,20 @@ namespace Lina
 		}
 
 		// Global vertex/index buffers.
-		m_mainPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
-		m_mainPass.BindDescriptors(currentFrame.gfxStream, frameIndex, currentFrame.pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Deferred]);
+		m_deferredPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
+		m_deferredPass.BindDescriptors(currentFrame.gfxStream, frameIndex, currentFrame.pipelineLayoutPersistentRenderpass[RenderPassType::Deferred]);
 
-		m_meshManager.BindBuffers(currentFrame.gfxStream, 0);
-		Buffer& mainPassIndirectBuffer = m_mainPass.GetBuffer(frameIndex, "IndirectBuffer"_hs);
+		m_gfxContext->GetMeshManagerDefault().BindBuffers(currentFrame.gfxStream, 0);
 
-		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Main Deferred Pass: Objects");
+		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Deferred Pass");
 
-		m_mainPassDrawCollector.Draw(currentFrame.gfxStream, mainPassIndirectBuffer);
+		m_deferredPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).SetIndirectCount(0);
+		for (FeatureRenderer* ft : m_featureRenderers)
+			ft->RenderDrawIndirect(currentFrame.gfxStream, frameIndex, m_deferredPass, RenderPassType::Deferred);
 
 		DEBUG_LABEL_END(currentFrame.gfxStream);
 
-		m_mainPass.End(currentFrame.gfxStream);
+		m_deferredPass.End(currentFrame.gfxStream);
 
 		// Barrier to shader read.
 		{
@@ -557,52 +440,30 @@ namespace Lina
 		}
 
 		m_lightingPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
-		m_lightingPass.BindDescriptors(currentFrame.gfxStream, frameIndex, currentFrame.pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Lighting]);
+		m_lightingPass.BindDescriptors(currentFrame.gfxStream, frameIndex, currentFrame.pipelineLayoutPersistentRenderpass[RenderPassType::Lighting]);
 
-		if (lightingMaterial)
+		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Lighting Pass");
+
+		for (FeatureRenderer* ft : m_featureRenderers)
 		{
-			lighting->Bind(currentFrame.gfxStream, lighting->GetGPUHandle());
-			DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Lighting Pass: Fullscreen");
-			LinaGX::CMDDrawInstanced* lightingDraw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawInstanced>();
-			lightingDraw->instanceCount			   = 1;
-			lightingDraw->startInstanceLocation	   = 0;
-			lightingDraw->startVertexLocation	   = 0;
-			lightingDraw->vertexCountPerInstance   = 3;
-			DEBUG_LABEL_END(currentFrame.gfxStream);
+			ft->RenderDrawLighting(currentFrame.gfxStream);
+			ft->RenderDrawLightingPost(currentFrame.gfxStream);
 		}
 
-		if (skyMaterial && skyModel)
-		{
-			skyShader->Bind(currentFrame.gfxStream, skyShader->GetGPUHandle());
-
-			DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Lighting Pass: SkyCube");
-			MeshDefault*					 skyMesh = skyModel->GetMesh(0);
-			LinaGX::CMDDrawIndexedInstanced* skyDraw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
-			skyDraw->baseVertexLocation				 = skyMesh->GetVertexOffset();
-			skyDraw->indexCountPerInstance			 = skyMesh->GetIndexCount();
-			skyDraw->instanceCount					 = 1;
-			skyDraw->startIndexLocation				 = skyMesh->GetIndexOffset();
-			skyDraw->startInstanceLocation			 = 0;
-			DEBUG_LABEL_END(currentFrame.gfxStream);
-		}
+		DEBUG_LABEL_END(currentFrame.gfxStream);
 
 		m_lightingPass.End(currentFrame.gfxStream);
 
 		m_forwardPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
-		m_forwardPass.BindDescriptors(currentFrame.gfxStream, frameIndex, currentFrame.pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Forward]);
-		Buffer& forwardPassIndirectBuffer = m_forwardPass.GetBuffer(frameIndex, "IndirectBuffer"_hs);
+		m_forwardPass.BindDescriptors(currentFrame.gfxStream, frameIndex, currentFrame.pipelineLayoutPersistentRenderpass[RenderPassType::Forward]);
 
-		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Forward Pass: Objects");
-		m_forwardPassDrawCollector.Draw(currentFrame.gfxStream, forwardPassIndirectBuffer);
+		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Forward Pass");
+		m_forwardPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).SetIndirectCount(0);
+		for (FeatureRenderer* ft : m_featureRenderers)
+			ft->RenderDrawIndirect(currentFrame.gfxStream, frameIndex, m_forwardPass, RenderPassType::Forward);
 		DEBUG_LABEL_END(currentFrame.gfxStream);
 
-		for (auto* ext : m_extensions)
-			ext->RenderForward(frameIndex, currentFrame.gfxStream);
-
 		m_forwardPass.End(currentFrame.gfxStream);
-
-		for (auto* ext : m_extensions)
-			ext->Render(frameIndex, currentFrame.gfxStream);
 
 		// Barrier to shader read or transfer read
 		if (m_snapshotBuffer == nullptr)
@@ -704,50 +565,6 @@ namespace Lina
 			.standaloneSubmission = m_standaloneSubmit,
 		});
 		return currentFrame.copySemaphore.GetValue();
-	}
-
-	void WorldRenderer::OnGeneratedResources(Vector<Resource*>& resources)
-	{
-		bool containsFont	  = false;
-		bool bindlessDirty	  = false;
-		bool meshManagerDirty = false;
-
-		for (Resource* r : resources)
-		{
-			if (r->GetTID() == GetTypeID<Texture>())
-			{
-				static_cast<Texture*>(r)->AddToUploadQueue(m_globalUploadQueue, true);
-				bindlessDirty = true;
-			}
-			else if (r->GetTID() == GetTypeID<TextureSampler>())
-			{
-				bindlessDirty = true;
-			}
-			else if (r->GetTID() == GetTypeID<Material>())
-			{
-				bindlessDirty = true;
-			}
-			else if (r->GetTID() == GetTypeID<Model>())
-			{
-				static_cast<Model*>(r)->Upload(&m_meshManager);
-				meshManagerDirty = true;
-			}
-			else if (r->GetTID() == GetTypeID<Font>())
-			{
-				static_cast<Font*>(r)->Upload(m_guiBackend.GetLVGText());
-				containsFont  = true;
-				bindlessDirty = true;
-			}
-		}
-
-		// if (containsFont)
-		//	m_guiBackend.ReuploadAtlases(m_globalUploadQueue);
-
-		if (bindlessDirty)
-			MarkBindlessDirty();
-
-		if (meshManagerDirty)
-			m_meshManager.AddToUploadQueue(m_globalUploadQueue);
 	}
 
 	void WorldRenderer::CalculateViewProj(const Camera& worldCamera, const Screen& screen, Matrix4& outView, Matrix4& outProj)

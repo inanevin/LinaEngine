@@ -105,55 +105,100 @@ namespace Lina::Editor
 		}
 		*/
 	}
+
 	void EditorRenderer::Tick(float delta)
 	{
-		for (WorldRenderer* rend : m_worldRenderers)
-			rend->Tick(delta);
-
-		if (m_validSurfaceRenderers.size() == 1)
+		if (!m_worldRenderers.empty())
 		{
-			m_validSurfaceRenderers[0]->Tick(delta);
+			if (m_worldRenderers.size() == 1)
+				m_worldRenderers.at(0)->Tick(delta);
+			else
+			{
+				Taskflow tf;
+				tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) {
+					WorldRenderer* rend = m_worldRenderers.at(i);
+					rend->Tick(delta);
+				});
+				m_executor.RunAndWait(tf);
+			}
 		}
-		else
+
+		if (!m_validSurfaceRenderers.empty())
 		{
-			Taskflow tf;
-			tf.for_each_index(0, static_cast<int>(m_validSurfaceRenderers.size()), 1, [&](int i) {
-				SurfaceRenderer* rend = m_validSurfaceRenderers.at(i);
-				rend->Tick(delta);
-			});
-			m_editor->GetExecutor().RunAndWait(tf);
+			if (m_validSurfaceRenderers.size() == 1)
+			{
+				m_validSurfaceRenderers[0]->Tick(delta);
+			}
+			else
+			{
+				Taskflow tf;
+				tf.for_each_index(0, static_cast<int>(m_validSurfaceRenderers.size()), 1, [&](int i) {
+					SurfaceRenderer* rend = m_validSurfaceRenderers.at(i);
+					rend->Tick(delta);
+				});
+				m_executor.RunAndWait(tf);
+			}
 		}
 	}
 
 	void EditorRenderer::SyncRender()
 	{
-		for (SurfaceRenderer* sr : m_validSurfaceRenderers)
-			sr->SyncRender(m_lgx->GetCurrentFrameIndex());
+		if (!m_worldRenderers.empty())
+		{
+			if (m_worldRenderers.size() == 1)
+				m_worldRenderers.at(0)->SyncRender();
+			else
+			{
+				Taskflow tf;
+				tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) {
+					WorldRenderer* rend = m_worldRenderers.at(i);
+					rend->SyncRender();
+				});
+				m_executor.RunAndWait(tf);
+			}
+		}
+
+		if (!m_validSurfaceRenderers.empty())
+		{
+			if (m_validSurfaceRenderers.size() == 1)
+			{
+				m_validSurfaceRenderers[0]->SyncRender();
+			}
+			else
+			{
+				Taskflow tf;
+				tf.for_each_index(0, static_cast<int>(m_validSurfaceRenderers.size()), 1, [&](int i) {
+					SurfaceRenderer* rend = m_validSurfaceRenderers.at(i);
+					rend->SyncRender();
+				});
+				m_executor.RunAndWait(tf);
+			}
+		}
 	}
 
 	void EditorRenderer::Render(uint32 frameIndex)
 	{
 
-		// Vector<WorldRenderer*> validWorlds;
-		// validWorlds.resize(m_worldRenderers.size());
-		//
-		// Taskflow tf;
-		// tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) {
-		// 	WorldRenderer* rend = m_worldRenderers.at(i);
-		// 	rend->Render(frameIndex);
-		// 	validWorlds[i] = rend;
-		// });
-		// m_editor->GetExecutor().RunAndWait(tf);
+		Vector<WorldRenderer*> validWorlds;
+		validWorlds.resize(m_worldRenderers.size());
+
+		Taskflow tf;
+		tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) {
+			WorldRenderer* rend = m_worldRenderers.at(i);
+			rend->Render(frameIndex);
+			validWorlds[i] = rend;
+		});
+		m_executor.RunAndWait(tf);
 
 		Vector<uint16> waitSemaphores;
 		Vector<uint64> waitValues;
 
-		// for (WorldRenderer* wr : validWorlds)
-		// {
-		// 	const SemaphoreData sem = wr->GetSubmitSemaphore(frameIndex);
-		// 	waitSemaphores.push_back(sem.GetSemaphore());
-		// 	waitValues.push_back(sem.GetValue());
-		// }
+		for (WorldRenderer* wr : validWorlds)
+		{
+			const SemaphoreData sem = wr->GetSubmitSemaphore(frameIndex);
+			waitSemaphores.push_back(sem.GetSemaphore());
+			waitValues.push_back(sem.GetValue());
+		}
 
 		Vector<LinaGX::CommandStream*> streams;
 		Vector<uint8>				   swapchains;
@@ -174,7 +219,7 @@ namespace Lina::Editor
 				streams[i]			  = rend->Render(frameIndex);
 				swapchains[i]		  = rend->GetSwapchain();
 			});
-			m_editor->GetExecutor().RunAndWait(tf);
+			m_executor.RunAndWait(tf);
 		}
 
 		for (SurfaceRenderer* rend : m_validSurfaceRenderers)

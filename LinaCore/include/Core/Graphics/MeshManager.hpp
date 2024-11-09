@@ -70,6 +70,5 @@ namespace Lina
 		static constexpr size_t MESH_BUF_SIZE = 1;
 
 		MeshBuffer m_meshBuffers[MESH_BUF_SIZE];
-		bool	   m_requiresRefresh;
 	};
 } // namespace Lina

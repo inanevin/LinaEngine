@@ -173,7 +173,7 @@ namespace Lina::Editor
 		TextureSampler* sampler = static_cast<TextureSampler*>(res);
 		sampler->GetDesc()		= m_prevDesc;
 		res->SaveToFileAsBinary(editor->GetProjectManager().GetProjectData()->GetResourcePath(res->GetID()));
-		editor->GetProjectManager().ReloadResourceInstances(res);
+		editor->GetApp()->GetResourceManager().ReloadResourceHW({res});
 
 		static_cast<PanelSamplerViewer*>(panel)->Rebuild();
 	}
@@ -208,12 +208,10 @@ namespace Lina::Editor
 
 		task->task = [res, editor]() {
 			Font* font = static_cast<Font*>(res);
-			font->DestroySW();
-			font->GenerateSW();
 			res->SaveToFileAsBinary(editor->GetProjectManager().GetProjectData()->GetResourcePath(res->GetID()));
 		};
 
-		task->onComplete = [res, editor]() { editor->GetProjectManager().ReloadResourceInstances(res); };
+		task->onComplete = [res, editor]() { editor->GetApp()->GetResourceManager().ReloadResourceHW({res}); };
 
 		editor->GetTaskManager().AddTask(task);
 	}
@@ -237,13 +235,11 @@ namespace Lina::Editor
 		task->task				= [res, editor, prevMeta]() {
 			 Font* font		 = static_cast<Font*>(res);
 			 font->GetMeta() = prevMeta;
-			 font->DestroySW();
-			 font->GenerateSW();
 			 res->SaveToFileAsBinary(editor->GetProjectManager().GetProjectData()->GetResourcePath(res->GetID()));
 		};
 
 		task->onComplete = [res, editor]() {
-			editor->GetProjectManager().ReloadResourceInstances(res);
+			editor->GetApp()->GetResourceManager().ReloadResourceHW({res});
 
 			Panel* p = editor->GetWindowPanelManager().FindPanelOfType(PanelType::FontViewer, res->GetID());
 			if (p == nullptr)
@@ -329,7 +325,7 @@ namespace Lina::Editor
 		};
 
 		task->onComplete = [editor, res]() {
-			editor->GetProjectManager().ReloadResourceInstances(res);
+			editor->GetApp()->GetResourceManager().ReloadResourceHW({res});
 
 			Panel* panel = editor->GetWindowPanelManager().FindPanelOfType(PanelType::TextureViewer, res->GetID());
 			if (panel == nullptr)
@@ -395,7 +391,7 @@ namespace Lina::Editor
 		}
 
 		mat->SaveToFileAsBinary(editor->GetProjectManager().GetProjectData()->GetResourcePath(mat->GetID()));
-		editor->GetProjectManager().ReloadResourceInstances(mat);
+		editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 
 		if (applyMeta)
 		{
@@ -444,7 +440,7 @@ namespace Lina::Editor
 		stream.Destroy();
 
 		mat->SaveToFileAsBinary(editor->GetProjectManager().GetProjectData()->GetResourcePath(mat->GetID()));
-		editor->GetProjectManager().ReloadResourceInstances(mat);
+		editor->GetApp()->GetResourceManager().ReloadResourceHW({res});
 
 		static_cast<PanelMaterialViewer*>(panel)->Rebuild();
 	}
@@ -472,7 +468,7 @@ namespace Lina::Editor
 		stream.Destroy();
 
 		mat->SaveToFileAsBinary(editor->GetProjectManager().GetProjectData()->GetResourcePath(mat->GetID()));
-		editor->GetProjectManager().ReloadResourceInstances(mat);
+		editor->GetApp()->GetResourceManager().ReloadResourceHW({res});
 
 		static_cast<PanelMaterialViewer*>(panel)->Rebuild();
 	}

@@ -40,14 +40,13 @@ SOFTWARE.
 #include "Core/World/ComponentCache.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
-#include "Core/Resources/ResourceManager.hpp"
 
 namespace Lina
 {
 	class Model;
 	class Entity;
 	class Component;
-	class CameraComponent;
+	class ProjectData;
 
 	enum class PlayMode
 	{
@@ -61,7 +60,6 @@ namespace Lina
 	public:
 		virtual void OnComponentAdded(Component* c){};
 		virtual void OnComponentRemoved(Component* c){};
-		virtual void OnGeneratedResources(Vector<Resource*>& resources){};
 		virtual void OnWorldTick(float delta, PlayMode playmode){};
 	};
 
@@ -96,22 +94,19 @@ namespace Lina
 		EntityWorld(ResourceID id, const String& name);
 		~EntityWorld();
 
-		Entity*		 CreateEntity(const String& name);
-		void		 DestroyEntity(Entity* e);
-		virtual void SaveToStream(OStream& stream) const override;
-		virtual void LoadFromStream(IStream& stream) override;
-		virtual bool LoadFromFile(const String& path) override;
-		void		 AddListener(EntityWorldListener* listener);
-		void		 RemoveListener(EntityWorldListener* listener);
-		Entity*		 AddModelToWorld(Model* model, const Vector<ResourceID>& materials);
-		void		 CollectResourceNeeds(HashSet<ResourceID>& outResources);
-		void		 LoadMissingResources(ProjectData* project, const HashSet<ResourceID>& extraResources);
-		void		 VerifyResources();
+		Entity*			   CreateEntity(const String& name);
+		void			   DestroyEntity(Entity* e);
+		virtual void	   SaveToStream(OStream& stream) const override;
+		virtual void	   LoadFromStream(IStream& stream) override;
+		virtual bool	   LoadFromFile(const String& path) override;
+		void			   AddListener(EntityWorldListener* listener);
+		void			   RemoveListener(EntityWorldListener* listener);
+		Entity*			   AddModelToWorld(Model* model, const Vector<ResourceID>& materials);
+		void			   CollectResourceNeeds(HashSet<ResourceID>& outResources);
+		HashSet<Resource*> LoadMissingResources(ResourceManagerV2& rm, ProjectData* project, const HashSet<ResourceID>& extraResources);
 
 		void Tick(float delta);
-		void BeginPlay(PlayMode playmode);
-		void EndPlay();
-		void TickPlay(float deltaTime, PlayMode playmode);
+		void SetPlayMode(PlayMode playmode);
 
 		template <typename T> T* GetComponent(Entity* e)
 		{
@@ -195,11 +190,6 @@ namespace Lina
 			return m_gfxSettings;
 		}
 
-		inline ResourceManagerV2& GetResourceManagerV2()
-		{
-			return m_resourceManagerV2;
-		}
-
 		inline Screen& GetScreen()
 		{
 			return m_screen;
@@ -226,6 +216,10 @@ namespace Lina
 		}
 
 	private:
+		void BeginPlay();
+		void EndPlay();
+		void TickPlay(float deltaTime);
+
 		void DestroyEntityData(Entity* e);
 		void OnCreateComponent(Component* c, Entity* e);
 		void OnDestroyComponent(Component* c, Entity* e);
@@ -236,7 +230,6 @@ namespace Lina
 		AllocatorBucket<Entity, 1000>		 m_entityBucket;
 		HashMap<TypeID, ComponentCacheBase*> m_componentCaches;
 		EntityID							 m_entityGUIDCounter = 1;
-		ResourceManagerV2					 m_resourceManagerV2;
 		PhysicsWorld						 m_physicsWorld;
 		Bitmask32							 m_flags = 0;
 		Vector<EntityWorldListener*>		 m_listeners;

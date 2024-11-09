@@ -82,6 +82,16 @@ namespace Lina
 			return m_size;
 		}
 
+		inline uint32 GetIndirectCount() const
+		{
+			return m_indirectCount;
+		}
+
+		inline void SetIndirectCount(uint32 count)
+		{
+			m_indirectCount = 0;
+		}
+
 	private:
 		static Atomic<uint64> s_usedCPUVisibleGPUMemory;
 
@@ -95,5 +105,7 @@ namespace Lina
 		bool   m_isCPUVisibleGPUResource = false;
 		bool   m_residesInGPU			 = false;
 		bool   m_bufferChanged			 = false;
+
+		uint32 m_indirectCount = 0;
 	};
 } // namespace Lina

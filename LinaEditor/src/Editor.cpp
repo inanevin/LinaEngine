@@ -224,26 +224,4 @@ namespace Lina::Editor
 		m_settings.SaveToFile();
 	}
 
-	void Editor::CreateWorldRenderer(EntityWorld* world)
-	{
-		WorldRenderer* wr = new WorldRenderer(world, m_app->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->GetSize());
-		m_editorRenderer.AddWorldRenderer(wr);
-		m_worldRenderers[world] = wr;
-	}
-
-	void Editor::DestroyWorldRenderer(EntityWorld* world)
-	{
-		auto it = m_worldRenderers.find(world);
-		LINA_ASSERT(it != m_worldRenderers.end(), "");
-		WorldRenderer* wr = it->second;
-		m_editorRenderer.RemoveWorldRenderer(wr);
-		delete wr;
-		m_worldRenderers.erase(it);
-	}
-
-	WorldRenderer* Editor::GetWorldRenderer(EntityWorld* world)
-	{
-		return m_worldRenderers.at(world);
-	}
-
 } // namespace Lina::Editor

@@ -144,21 +144,11 @@ namespace Lina::Editor
 			return;
 		}
 
-		Resource* r = m_editor->GetApp()->GetResourceManager().GetIfExists(m_resourceTID, m_subData);
-
-		// Can not modify the resource if its alive in editor.
-		if (r != nullptr)
-			m_previewOnly = true;
-		else
-		{
-			m_editor->GetApp()->GetResourceManager().LoadResourcesFromProject(m_editor->GetProjectManager().GetProjectData(), {m_subData}, NULL);
-			r = m_editor->GetApp()->GetResourceManager().GetIfExists(m_resourceTID, m_subData);
-		}
+		m_editor->GetApp()->GetResourceManager().LoadResourcesFromProject(m_editor->GetProjectManager().GetProjectData(), {m_subData}, NULL);
+		m_resource = m_editor->GetApp()->GetResourceManager().GetIfExists(m_resourceTID, m_subData);
 
 		if (resDir->parent == m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().GetChildByName(EDITOR_DEF_RESOURCES_FOLDER))
 			m_previewOnly = true;
-
-		m_resource = r;
 
 		if (m_resource == nullptr)
 			return;

@@ -67,6 +67,11 @@ namespace Lina::Editor
 		void		 Rebuild();
 		void		 StoreBuffer();
 
+		inline HashSet<Resource*>& GetLoadedResources()
+		{
+			return m_resourcesLoadedForWorld;
+		}
+
 	private:
 		void SetupWorld();
 		void UpdateMaterialProps();
@@ -94,6 +99,7 @@ namespace Lina::Editor
 		String					  m_shaderAbsPath			= "";
 		ResourceDirectory*		  m_shaderResourceDirectory = nullptr;
 		bool					  m_autoReimport			= true;
+		HashSet<Resource*>		  m_resourcesLoadedForWorld;
 	};
 
 	LINA_CLASS_BEGIN(MaterialViewerDisplayType)

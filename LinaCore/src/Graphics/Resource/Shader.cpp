@@ -117,8 +117,8 @@ namespace Lina
 			if (!injectMaterials())
 				return false;
 
-			ShaderPreprocessor::InjectRenderPassInputs(vertexBlock, RenderPassDescriptorType::Deferred);
-			ShaderPreprocessor::InjectRenderPassInputs(fragBlock, RenderPassDescriptorType::Deferred);
+			ShaderPreprocessor::InjectRenderPassInputs(vertexBlock, RenderPassType::Deferred);
+			ShaderPreprocessor::InjectRenderPassInputs(fragBlock, RenderPassType::Deferred);
 
 			// Deferred default
 			{
@@ -185,8 +185,8 @@ namespace Lina
 			if (!injectMaterials())
 				return false;
 
-			ShaderPreprocessor::InjectRenderPassInputs(vertexBlock, RenderPassDescriptorType::Forward);
-			ShaderPreprocessor::InjectRenderPassInputs(fragBlock, RenderPassDescriptorType::Forward);
+			ShaderPreprocessor::InjectRenderPassInputs(vertexBlock, RenderPassType::Forward);
+			ShaderPreprocessor::InjectRenderPassInputs(fragBlock, RenderPassType::Forward);
 			// Forward default
 			{
 				ShaderVariant& variant = m_meta.variants["ForwardDefault"_hs];
@@ -294,8 +294,8 @@ namespace Lina
 			if (!injectMaterials())
 				return false;
 
-			ShaderPreprocessor::InjectRenderPassInputs(vertexBlock, RenderPassDescriptorType::Lighting);
-			ShaderPreprocessor::InjectRenderPassInputs(fragBlock, RenderPassDescriptorType::Lighting);
+			ShaderPreprocessor::InjectRenderPassInputs(vertexBlock, RenderPassType::Lighting);
+			ShaderPreprocessor::InjectRenderPassInputs(fragBlock, RenderPassType::Lighting);
 
 			ShaderVariant& variant = m_meta.variants["Default"_hs];
 			variant				   = ShaderVariant{

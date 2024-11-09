@@ -26,8 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Components/RenderableComponent.hpp"
-#include "Common/Data/CommonData.hpp"
+#include "Core/World/Components/CompRenderable.hpp"
 
 namespace Lina
 {

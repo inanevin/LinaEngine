@@ -114,20 +114,12 @@ namespace Lina::Editor
 			Application::GetLGX()->Join();
 			m_worldRenderer->Resize(displayerSize);
 			sc.SetRenderSize(displayerSize);
-			// Editor::Get()->GetEditorRenderer().RefreshDynamicTextures();
+			Editor::Get()->GetApp()->GetGfxContext().MarkBindlessDirty();
 		}
 
 		const uint32 frameIndex		= Application::GetLGX()->GetCurrentFrameIndex();
 		Texture*	 target			= m_worldRenderer->GetLightingPassOutput(frameIndex);
 		GetWidgetProps().rawTexture = target;
-	}
-
-	void WorldDisplayer::Tick(float delta)
-	{
-		if (m_worldRenderer == nullptr)
-			return;
-
-		m_worldRenderer->GetWorld()->Tick(delta);
 	}
 
 	bool WorldDisplayer::OnMouse(uint32 button, LinaGX::InputAction act)

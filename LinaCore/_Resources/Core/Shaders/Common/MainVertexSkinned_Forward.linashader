@@ -48,7 +48,7 @@ void main()
     vertexInput.pos = inPos;
     vertexInput.normal = inNormal;
     vertexInput.uv =  vec2(inUV.x, 1.0 - inUV.y);
-    vertexInput.entityID = argBuffer.entityID;
+    vertexInput.entity = argBuffer.entity;
     vertexInput.materialID = argBuffer.materialID;
 
     LinaVertexOutput vertexOutput;
@@ -57,7 +57,6 @@ void main()
     outVertexToFrag = vertexOutput.toFrag;
     outMaterialIndex = argBuffer.materialID;
 
-    LinaEntity entity = LINA_GET_ENTITY(argBuffer.entityID);
-    vec3 worldPos = vec3(entity.modelMatrix * vertexOutput.pos);
+    vec3 worldPos = vec3(argBuffer.entity.modelMatrix * vertexOutput.pos);
     gl_Position = LINA_VIEW.proj * LINA_VIEW.view *  vec4(worldPos, 1.0);
 }

@@ -88,7 +88,7 @@ namespace Lina
 			if (!ft.texture->IsHWValid())
 				ft.texture->GenerateHW();
 
-			ft.texture->AddToUploadQueue(queue, false);
+			ft.texture->AddToUploadQueue(queue, true);
 		}
 	}
 

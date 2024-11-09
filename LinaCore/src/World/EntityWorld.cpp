@@ -38,9 +38,8 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Model.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/Data/ModelNode.hpp"
+#include "Core/World/Components/CompModel.hpp"
 #include "Core/Resources/ResourceManager.hpp"
-#include "Core/Components/MeshComponent.hpp"
-#include "Core/Components/CameraComponent.hpp"
 #include "Core/Resources/ResourceCache.hpp"
 
 #include "Common/System/SystemInfo.hpp"
@@ -56,8 +55,6 @@ namespace Lina
 
 	EntityWorld::~EntityWorld()
 	{
-		m_resourceManagerV2.Shutdown();
-
 		m_entityBucket.View([this](Entity* e, uint32 index) -> bool {
 			if (e->GetParent() == nullptr)
 				DestroyEntity(e);
@@ -72,27 +69,23 @@ namespace Lina
 
 	void EntityWorld::Tick(float delta)
 	{
-		/*
-		m_elapsedTime += delta;
-		const float fixedTimestep = 1.0f / static_cast<float>(m_simulationSettings.targetUpdateTicks);
-		while (m_elapsedTime >= fixedTimestep)
-		{
-			m_elapsedTime -= fixedTimestep;
-		}
-		m_interpolationAlpha = m_elapsedTime / fixedTimestep;
-		*/
-
 		for (EntityWorldListener* l : m_listeners)
 			l->OnWorldTick(delta, m_playMode);
-
-		if (m_playMode != PlayMode::None)
-			TickPlay(delta, m_playMode);
 	}
 
-	void EntityWorld::BeginPlay(PlayMode playmode)
+	void EntityWorld::SetPlayMode(PlayMode playmode)
 	{
-		m_playMode = playmode;
+		if (m_playMode != PlayMode::Play && playmode == PlayMode::Play)
+			BeginPlay();
 
+		if (m_playMode == PlayMode::Play && playmode != PlayMode::Play)
+			EndPlay();
+
+		m_playMode = playmode;
+	}
+
+	void EntityWorld::BeginPlay()
+	{
 		for (auto [tid, cache] : m_componentCaches)
 		{
 			cache->ForEach([](Component* c) { c->OnBeginPlay(); });
@@ -109,7 +102,7 @@ namespace Lina
 		}
 	}
 
-	void EntityWorld::TickPlay(float deltaTime, PlayMode playmode)
+	void EntityWorld::TickPlay(float deltaTime)
 	{
 		for (auto [tid, cache] : m_componentCaches)
 		{
@@ -282,40 +275,29 @@ namespace Lina
 			l->OnComponentRemoved(c);
 	}
 
-	namespace
-	{
-		void ProcessModelNode(Model* model, EntityWorld* world, Entity* parent, ModelNode* node, const Vector<ResourceID>& materials)
-		{
-			Entity* nodeEntity = world->CreateEntity(node->GetName());
-			parent->AddChild(nodeEntity);
-			nodeEntity->SetLocalTransformation(node->GetLocalMatrix());
-
-			const Vector3 nodeEntityPos = nodeEntity->GetPosition();
-			MeshDefault*  mesh			= node->GetMesh();
-
-			if (mesh != nullptr)
-			{
-				const uint32   matIdx = model->GetMesh(node->GetMeshIndex())->GetPrimitives().front().GetMaterialIndex();
-				MeshComponent* mc	  = world->AddComponent<MeshComponent>(nodeEntity);
-				mc->SetMesh(model->GetID(), node->GetMeshIndex());
-
-				if (materials.size() > matIdx)
-					mc->SetMaterial(materials[matIdx]);
-			}
-
-			for (ModelNode* child : node->GetChildren())
-				ProcessModelNode(model, world, nodeEntity, child, materials);
-		}
-	} // namespace
-
 	Entity* EntityWorld::AddModelToWorld(Model* model, const Vector<ResourceID>& materials)
 	{
 		LINA_ASSERT(materials.size() >= model->GetMeta().materials.size(), "");
 
-		Entity*					 base  = CreateEntity(model->GetName());
-		const Vector<ModelNode*> roots = model->GetRootNodes();
-		for (ModelNode* rootNode : roots)
-			ProcessModelNode(model, this, base, rootNode, materials);
+		Entity* base = CreateEntity(model->GetName());
+
+		CompModel* modelComp = AddComponent<CompModel>(base);
+		modelComp->SetModel(model->GetID());
+
+		uint32 idx = 0;
+
+		for (ResourceID material : materials)
+		{
+			modelComp->SetMaterial(material, idx++);
+		}
+
+		const uint32 modelMatsSize = static_cast<uint32>(model->GetMeta().materials.size());
+		if (idx < modelMatsSize)
+		{
+			for (uint32 i = 0; i < modelMatsSize - idx; i++)
+				modelComp->SetMaterial(materials.at(0), idx + i);
+		}
+
 		return base;
 	}
 
@@ -331,29 +313,32 @@ namespace Lina
 		outResources.insert(m_gfxSettings.skyModel);
 	}
 
-	void EntityWorld::LoadMissingResources(ProjectData* project, const HashSet<ResourceID>& extraResources)
+	HashSet<Resource*> EntityWorld::LoadMissingResources(ResourceManagerV2& rm, ProjectData* project, const HashSet<ResourceID>& extraResources)
 	{
 		HashSet<ResourceID> resources = extraResources;
 		CollectResourceNeeds(resources);
 
+		HashSet<Resource*> allLoaded;
+
 		// First load whatever is requested + needed by the components.
 		if (!resources.empty())
-			m_resourceManagerV2.LoadResourcesFromProject(project, resources, [](uint32 loaded, Resource* current) {});
+			allLoaded = rm.LoadResourcesFromProject(project, resources, [](uint32 loaded, Resource* current) {});
 
 		// Load materials required by the models.
 		HashSet<ResourceID>	  modelMaterials;
-		ResourceCache<Model>* modelCache = m_resourceManagerV2.GetCache<Model>();
+		ResourceCache<Model>* modelCache = rm.GetCache<Model>();
 		modelCache->View([&modelMaterials](Model* model, uint32 index) -> bool {
 			for (ResourceID mat : model->GetMeta().materials)
 				modelMaterials.insert(mat);
 
 			return false;
 		});
-		m_resourceManagerV2.LoadResourcesFromProject(project, modelMaterials, [](uint32 loaded, Resource* current) {});
+		HashSet<Resource*> modelNeeds = rm.LoadResourcesFromProject(project, modelMaterials, [](uint32 loaded, Resource* current) {});
+		allLoaded.insert(modelNeeds.begin(), modelNeeds.end());
 
 		// Load shaders, textures and samplers required by the materials.
 		HashSet<ResourceID>		 materialDependencies;
-		ResourceCache<Material>* materialCache = m_resourceManagerV2.GetCache<Material>();
+		ResourceCache<Material>* materialCache = rm.GetCache<Material>();
 		materialCache->View([&materialDependencies](Material* mat, uint32 index) -> bool {
 			materialDependencies.insert(mat->GetShader());
 			const Vector<MaterialProperty*> props = mat->GetProperties();
@@ -368,37 +353,10 @@ namespace Lina
 			}
 			return false;
 		});
-		m_resourceManagerV2.LoadResourcesFromProject(project, materialDependencies, [](uint32 loaded, Resource* current) {});
+		HashSet<Resource*> matNeeds = rm.LoadResourcesFromProject(project, materialDependencies, [](uint32 loaded, Resource* current) {});
+		allLoaded.insert(matNeeds.begin(), matNeeds.end());
+
+		return allLoaded;
 	}
 
-	void EntityWorld::VerifyResources()
-	{
-		// Application::GetLGX()->Join();
-		//
-		// const HashMap<TypeID, ResourceCacheBase*>& caches = m_resourceManagerV2.GetCaches();
-		//
-		// Vector<Resource*> generatedResources;
-		//
-		// for (auto [tid, cache] : caches)
-		// {
-		// 	Vector<Resource*> resources = cache->GetAllResources();
-		// 	for (Resource* res : resources)
-		// 	{
-		// 		if (res->GetIsReloaded())
-		// 		{
-		// 			res->DestroyHW();
-		// 			res->SetIsReloaded(false);
-		// 		}
-		//
-		// 		if (!res->IsHWValid())
-		// 		{
-		// 			generatedResources.push_back(res);
-		// 			res->GenerateHW();
-		// 		}
-		// 	}
-		// }
-		//
-		// for (EntityWorldListener* listener : m_listeners)
-		// 	listener->OnGeneratedResources(generatedResources);
-	}
 } // namespace Lina

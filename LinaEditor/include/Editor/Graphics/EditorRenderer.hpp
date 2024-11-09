@@ -92,6 +92,7 @@ namespace Lina::Editor
 		}
 
 	private:
+		JobExecutor				 m_executor;
 		Vector<Texture*>		 m_dynamicTextures;
 		uint16					 m_pipelineLayoutGUI	= 0;
 		uint16					 m_pipelineLayoutGlobal = 0;

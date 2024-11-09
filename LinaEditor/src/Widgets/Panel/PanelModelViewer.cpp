@@ -52,8 +52,6 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Model.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Resource/TextureSampler.hpp"
-#include "Core/Components/CameraComponent.hpp"
-#include "Core/Components/FlyCameraMovement.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Application.hpp"
@@ -267,7 +265,7 @@ namespace Lina::Editor
 		// Setup world
 		m_world			= new EntityWorld(0, "");
 		m_lastWorldSize = Vector2ui(4, 4);
-		m_worldRenderer = new WorldRenderer(m_world, m_lastWorldSize);
+		// m_worldRenderer = new WorldRenderer(m_world, m_lastWorldSize);
 
 		/*
 		Vector<ResourceDef> neededResources = {

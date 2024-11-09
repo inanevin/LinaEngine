@@ -49,8 +49,6 @@ SOFTWARE.
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Application.hpp"
 #include "Core/Meta/ProjectData.hpp"
-#include "Core/Components/FlyCameraMovement.hpp"
-#include "Core/Components/CameraComponent.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Editor/Resources/ResourcePipeline.hpp"
 #include "Editor/Undo/UndoActionResourceDirectory.hpp"
@@ -72,15 +70,22 @@ namespace Lina::Editor
 
 	void PanelMaterialViewer::Initialize()
 	{
-
 		PanelResourceViewer::Initialize();
+
 		if (!m_resource)
 			return;
 
 		if (m_world)
 			return;
 
-		m_world = new EntityWorld(0, "");
+		m_world			= new EntityWorld(0, "");
+		m_worldRenderer = new WorldRenderer(&m_editor->GetApp()->GetGfxContext(), &m_editor->GetApp()->GetResourceManager(), m_world, Vector2ui(4, 4));
+
+		m_editor->GetApp()->GetWorldProcessor().AddWorld(m_world);
+		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer);
+
+		m_worldDisplayer->DisplayWorld(m_worldRenderer);
+		m_worldDisplayer->CreateOrbitCamera();
 
 		UpdateMaterialProps();
 		Rebuild();
@@ -89,7 +94,6 @@ namespace Lina::Editor
 		m_world->GetGfxSettings().lightingMaterial = EDITOR_MATERIAL_DEFAULT_LIGHTING_ID;
 		m_world->GetGfxSettings().skyModel		   = EDITOR_MODEL_SKYSPHERE_ID;
 		m_world->GetGfxSettings().skyMaterial	   = EDITOR_MATERIAL_DEFAULT_SKY_ID;
-		m_world->GetFlags().Set(WORLD_FLAGS_LOADING);
 
 		const HashSet<ResourceID> initialResources = {
 			EDITOR_MODEL_CUBE_ID,
@@ -101,15 +105,25 @@ namespace Lina::Editor
 			m_resource->GetID(),
 		};
 
-		m_world->LoadMissingResources(m_editor->GetProjectManager().GetProjectData(), initialResources);
-		m_world->GetFlags().Remove(WORLD_FLAGS_LOADING);
-		m_worldRenderer = new WorldRenderer(m_world, Vector2ui(4, 4));
-		m_world->VerifyResources();
-		m_worldDisplayer->DisplayWorld(m_worldRenderer);
-		m_worldDisplayer->CreateOrbitCamera();
-
-		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer);
+		m_resourcesLoadedForWorld = m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), initialResources);
+		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 		SetupWorld();
+	}
+
+	void PanelMaterialViewer::Destruct()
+	{
+		PanelResourceViewer::Destruct();
+
+		if (m_world)
+		{
+			m_editor->GetApp()->GetLGX()->Join();
+			m_editor->GetApp()->GetWorldProcessor().RemoveWorld(m_world);
+			m_editor->GetEditorRenderer().RemoveWorldRenderer(m_worldRenderer);
+			delete m_worldRenderer;
+			delete m_world;
+			m_worldRenderer = nullptr;
+			m_world			= nullptr;
+		}
 	}
 
 	void PanelMaterialViewer::PreTick()
@@ -119,6 +133,8 @@ namespace Lina::Editor
 			m_rebuildNextFrame = false;
 			Rebuild();
 		}
+
+		return;
 
 		if (!m_autoReimport)
 			return;
@@ -139,8 +155,9 @@ namespace Lina::Editor
 
 	void PanelMaterialViewer::SetupWorld()
 	{
+		ResourceManagerV2& rm = m_editor->GetApp()->GetResourceManager();
 
-		Resource* res = m_world->GetResourceManagerV2().GetIfExists(m_resource->GetTID(), m_resource->GetID());
+		Resource* res = rm.GetIfExists(m_resource->GetTID(), m_resource->GetID());
 
 		if (res == nullptr)
 			return;
@@ -150,7 +167,7 @@ namespace Lina::Editor
 		m_displayEntity = nullptr;
 
 		Material* mat				= static_cast<Material*>(m_resource);
-		m_materialInWorld			= m_world->GetResourceManagerV2().GetResource<Material>(m_resource->GetID());
+		m_materialInWorld			= rm.GetResource<Material>(m_resource->GetID());
 		const ShaderType shaderType = mat->GetShaderType();
 
 		if (shaderType == ShaderType::Sky)
@@ -159,7 +176,7 @@ namespace Lina::Editor
 		}
 		else
 		{
-			Material* defaultSky				  = m_world->GetResourceManagerV2().GetResource<Material>(EDITOR_MATERIAL_DEFAULT_SKY_ID);
+			Material* defaultSky				  = rm.GetResource<Material>(EDITOR_MATERIAL_DEFAULT_SKY_ID);
 			m_world->GetGfxSettings().skyMaterial = defaultSky->GetID();
 
 			defaultSky->SetProperty("topColor"_hs, Vector4(0.125f, 0.17f, 1.0f, 1.0f));
@@ -174,30 +191,15 @@ namespace Lina::Editor
 		const ResourceID displayMaterial = shaderType == ShaderType::Sky ? EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID : m_resource->GetID();
 
 		if (m_displayType == MaterialViewerDisplayType::Cube)
-			m_displayEntity = m_world->AddModelToWorld(m_world->GetResourceManagerV2().GetResource<Model>(EDITOR_MODEL_CUBE_ID), {displayMaterial});
+			m_displayEntity = m_world->AddModelToWorld(rm.GetResource<Model>(EDITOR_MODEL_CUBE_ID), {displayMaterial});
 		else if (m_displayType == MaterialViewerDisplayType::Sphere)
-			m_displayEntity = m_world->AddModelToWorld(m_world->GetResourceManagerV2().GetResource<Model>(EDITOR_MODEL_SPHERE_ID), {displayMaterial});
+			m_displayEntity = m_world->AddModelToWorld(rm.GetResource<Model>(EDITOR_MODEL_SPHERE_ID), {displayMaterial});
 		if (m_displayType == MaterialViewerDisplayType::Cylinder)
-			m_displayEntity = m_world->AddModelToWorld(m_world->GetResourceManagerV2().GetResource<Model>(EDITOR_MODEL_CYLINDER_ID), {displayMaterial});
+			m_displayEntity = m_world->AddModelToWorld(rm.GetResource<Model>(EDITOR_MODEL_CYLINDER_ID), {displayMaterial});
 		if (m_displayType == MaterialViewerDisplayType::Capsule)
-			m_displayEntity = m_world->AddModelToWorld(m_world->GetResourceManagerV2().GetResource<Model>(EDITOR_MODEL_CAPSULE_ID), {displayMaterial});
+			m_displayEntity = m_world->AddModelToWorld(rm.GetResource<Model>(EDITOR_MODEL_CAPSULE_ID), {displayMaterial});
 		if (m_displayType == MaterialViewerDisplayType::Plane)
-			m_displayEntity = m_world->AddModelToWorld(m_world->GetResourceManagerV2().GetResource<Model>(EDITOR_MODEL_PLANE_ID), {displayMaterial});
-	}
-
-	void PanelMaterialViewer::Destruct()
-	{
-		PanelResourceViewer::Destruct();
-
-		if (m_world)
-		{
-			m_editor->GetApp()->GetLGX()->Join();
-			m_editor->GetEditorRenderer().RemoveWorldRenderer(m_worldRenderer);
-			delete m_worldRenderer;
-			delete m_world;
-			m_worldRenderer = nullptr;
-			m_world			= nullptr;
-		}
+			m_displayEntity = m_world->AddModelToWorld(rm.GetResource<Model>(EDITOR_MODEL_PLANE_ID), {displayMaterial});
 	}
 
 	void PanelMaterialViewer::Rebuild()
@@ -275,7 +277,7 @@ namespace Lina::Editor
 				inp->GetProps().onEditEnd	   = [this](const String& txt) { UpdateMaterial(); };
 				inp->GetProps().onValueChanged = [this](float val, bool fromSlider) {
 					if (fromSlider)
-						m_editor->GetProjectManager().ReloadResourceInstances(m_resource);
+						m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 				};
 				inp->GetProps().disableNumberSlider = true;
 				srcToAdd->AddChild(inp);

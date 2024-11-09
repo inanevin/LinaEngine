@@ -552,11 +552,11 @@ namespace Lina::Editor
 		// 	else
 		// 		ReimportRecursively(m_editor, task->progressText, m_reimportQueue, m_currentProject, root);
 		//
-		// 	m_editor->GetApp()->GetResourceManager().ReloadResources(m_currentProject, m_reimportQueue);
+		// 	m_editor->GetApp()->GetResourceManager().ReloadResourceHW(m_currentProject, m_reimportQueue);
 		//
 		// 	const Vector<WorldRenderer*>& worldRenderers = m_editor->GetEditorRenderer().GetWorldRenderers();
 		// 	for (WorldRenderer* wr : worldRenderers)
-		// 		wr->GetWorld()->GetResourceManagerV2().ReloadResources(m_currentProject, m_reimportQueue);
+		// 		wr->GetWorld()->GetResourceManagerV2().ReloadResourceHW(m_currentProject, m_reimportQueue);
 		// };
 		//
 		// task->onComplete = [this]() {

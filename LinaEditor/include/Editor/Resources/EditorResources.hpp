@@ -34,7 +34,7 @@ SOFTWARE.
 namespace Lina
 {
 	class ResourceManagerV2;
-	class BindlessContext;
+	class GfxContext;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -46,7 +46,7 @@ namespace Lina::Editor
 
 		void StartLoadCoreResources(ResourceManagerV2& manager);
 		void LoadCoreResources();
-		bool EndLoadCoreResources(BindlessContext& context);
+		bool EndLoadCoreResources(GfxContext& context);
 
 	private:
 		HashSet<Resource*> m_createdResources;

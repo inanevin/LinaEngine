@@ -127,11 +127,6 @@ namespace Lina::Editor
 			return m_editorRenderer;
 		}
 
-		inline JobExecutor& GetExecutor()
-		{
-			return m_executor;
-		}
-
 		inline UndoManager& GetUndoManager()
 		{
 			return m_undoManager;
@@ -143,25 +138,19 @@ namespace Lina::Editor
 		}
 
 	private:
-		void CreateWorldRenderer(EntityWorld* world);
-		void DestroyWorldRenderer(EntityWorld* world);
-
-	private:
-		UndoManager							  m_undoManager;
-		JobExecutor							  m_executor;
-		EditorRenderer						  m_editorRenderer;
-		WindowPanelManager					  m_windowPanelManager;
-		AtlasManager						  m_atlasManager;
-		ProjectManager						  m_projectManager;
-		EditorSettings						  m_settings			 = {};
-		WidgetManager*						  m_primaryWidgetManager = nullptr;
-		EntityWorld*						  m_currentWorld		 = nullptr;
-		EditorRoot*							  m_editorRoot			 = nullptr;
-		LinaGX::Window*						  m_mainWindow			 = nullptr;
-		HashMap<EntityWorld*, WorldRenderer*> m_worldRenderers;
-		static Editor*						  s_editor;
-		EditorTaskManager					  m_taskManager;
-		EditorResources						  m_editorResources;
+		UndoManager		   m_undoManager;
+		EditorRenderer	   m_editorRenderer;
+		WindowPanelManager m_windowPanelManager;
+		AtlasManager	   m_atlasManager;
+		ProjectManager	   m_projectManager;
+		EditorSettings	   m_settings			  = {};
+		WidgetManager*	   m_primaryWidgetManager = nullptr;
+		EntityWorld*	   m_currentWorld		  = nullptr;
+		EditorRoot*		   m_editorRoot			  = nullptr;
+		LinaGX::Window*	   m_mainWindow			  = nullptr;
+		static Editor*	   s_editor;
+		EditorTaskManager  m_taskManager;
+		EditorResources	   m_editorResources;
 	};
 
 } // namespace Lina::Editor

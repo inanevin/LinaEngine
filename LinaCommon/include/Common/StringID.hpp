@@ -117,6 +117,11 @@ namespace Lina
 		return FnvHash(typeid(T).name());
 	}
 
+	template <typename T> constexpr TypeID GetTypeID2()
+	{
+		return FnvHash(typeid(T).name());
+	}
+
 	constexpr StringID operator"" _hs(const char* str, std::size_t) noexcept
 	{
 		return FnvHash(str);

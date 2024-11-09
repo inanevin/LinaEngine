@@ -33,7 +33,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
-#include "Core/Graphics/BindlessContext.hpp"
+#include "Core/Graphics/GfxContext.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 
 namespace Lina::Editor
@@ -59,12 +59,12 @@ namespace Lina::Editor
 		};
 
 		Font::Metadata fontMeta2 = {
-			.points = {{.size = 14, .dpiLimit = 1.0f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 14, .dpiLimit = 10.0f}},
+			.points = {{.size = 14, .dpiLimit = 1.0f}, {.size = 18, .dpiLimit = 1.8f}, {.size = 22, .dpiLimit = 10.0f}},
 			.isSDF	= false,
 		};
 
 		Font::Metadata fontMeta3 = {
-			.points = {{.size = 20, .dpiLimit = 10.1f}, {.size = 20, .dpiLimit = 1.8f}, {.size = 20, .dpiLimit = 10.0f}},
+			.points = {{.size = 20, .dpiLimit = 1.0f}, {.size = 24, .dpiLimit = 1.8f}, {.size = 28, .dpiLimit = 10.0f}},
 			.isSDF	= false,
 		};
 
@@ -210,7 +210,7 @@ namespace Lina::Editor
 		}
 	}
 
-	bool EditorResources::EndLoadCoreResources(BindlessContext& context)
+	bool EditorResources::EndLoadCoreResources(GfxContext& context)
 	{
 		for (Resource* r : m_loadedResources)
 			r->GenerateHW();

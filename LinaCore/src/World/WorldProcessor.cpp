@@ -1,11 +1,11 @@
 /*
-This file is a part of: LinaGX
-https://github.com/inanevin/LinaGX
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
 
 Author: Inan Evin
 http://www.inanevin.com
 
-Copyright (c) [2023-] [Inan Evin]
+Copyright (c) [2018-] [Inan Evin]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,36 +26,47 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "Core/World/WorldProcessor.hpp"
+#include "Core/Application.hpp"
+#include "Core/World/EntityWorld.hpp"
 
-struct LinaEntity
+namespace Lina
 {
-    mat4 modelMatrix;
-};
 
-struct IndirectArguments
-{
-	LinaEntity entity;
-	uint materialID;
-	uint padding0;
-	uint padding1;
-	uint padding2;
-};
+	void WorldProcessor::Initialize(Application* app)
+	{
+		m_app = app;
+	}
+	void WorldProcessor::Tick(float delta)
+	{
+		if (m_worlds.empty())
+			return;
 
+		if (m_worlds.size() == 1)
+		{
+			Process(m_worlds.at(0), delta);
+		}
+		else
+		{
+			Taskflow tf;
+			tf.for_each_index(0, static_cast<int>(m_worlds.size()), 1, [&](int i) { Process(m_worlds.at(i), delta); });
+			m_app->GetExecutor().RunAndWait(tf);
+		}
+	}
 
-layout(set = 1, binding = 0) uniform ViewData
-{
-	mat4 view;
-	mat4 proj;
-	mat4 viewProj;
-	vec4 cameraPositionAndNear;
-	vec4 cameraDirectionAndFar;
-	vec2 size;
-	vec2 padding;
-	vec4 padding2;
-} LINA_VIEW;
+	void WorldProcessor::AddWorld(EntityWorld* world)
+	{
+		m_worlds.push_back(world);
+	}
 
-layout(set = 1, binding = 1) readonly buffer IndirectArgumentsBuffer
-{
-    IndirectArguments data[];
-} LINA_INDIRECT_ARGUMENTS;
+	void WorldProcessor::RemoveWorld(EntityWorld* world)
+	{
+		auto it = linatl::find_if(m_worlds.begin(), m_worlds.end(), [world](EntityWorld* w) -> bool { return w == world; });
+		m_worlds.erase(it);
+	}
 
+	void WorldProcessor::Process(EntityWorld* world, float delta)
+	{
+		world->Tick(delta);
+	}
+} // namespace Lina

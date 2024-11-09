@@ -28,51 +28,27 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef ModelNodeComponent_HPP
-#define ModelNodeComponent_HPP
-
-// Headers here.
-#include "Graphics/Components/RenderableComponent.hpp"
-#include "Reflection/ClassReflection.hpp"
-#include "Data/HashMap.hpp"
+#include "Common/Data/Vector.hpp"
 
 namespace Lina
 {
+	class EntityWorld;
+	class Application;
 
-	class ModelNodeComponent : public RenderableComponent
+	class WorldProcessor
 	{
 	public:
-		ModelNodeComponent(){};
-		virtual ~ModelNodeComponent() = default;
+		void Initialize(Application* app);
+		void Tick(float delta);
+		void AddWorld(EntityWorld* world);
+		void RemoveWorld(EntityWorld* world);
 
-		virtual TypeID GetComponentType() override
-		{
-			return GetTypeID<ModelNodeComponent>();
-		}
+	private:
+		void Process(EntityWorld* world, float delta);
 
-		virtual void					 SaveToStream(OStream& stream) override;
-		virtual void					 LoadFromStream(IStream& stream) override;
-		virtual AABB&					 GetAABB(ResourceManager* rm) override;
-		virtual Bitmask16				 GetDrawPasses(ResourceManager* rm) override;
-		virtual Vector<MeshMaterialPair> GetMeshMaterialPairs(ResourceManager* rm) override;
-
-		virtual RenderableType GetType() override
-		{
-			return RenderableType::RenderableStaticMesh;
-		}
-
-		inline uint32 GetNodeIndex()
-		{
-			return nodeIndex;
-		}
-
-		HashMap<uint32, StringID> materials; // Index - material pair
-		StringID				  model		= 0;
-		uint32					  nodeIndex = 0;
+	private:
+		Application*		 m_app = nullptr;
+		Vector<EntityWorld*> m_worlds;
 	};
 
-	LINA_REFLECTCOMPONENT_BEGIN(ModelNodeComponent, "Model Node", "Graphics")
-	LINA_REFLECTCOMPONENT_END(ModelNodeComponent);
 } // namespace Lina
-
-#endif

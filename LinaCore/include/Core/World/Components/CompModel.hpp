@@ -29,72 +29,68 @@ SOFTWARE.
 #pragma once
 
 #include "Core/World/Component.hpp"
+#include "Core/Graphics/Resource/Model.hpp"
+#include "Core/Graphics/Resource/Material.hpp"
+#include "Common/Math/AABB.hpp"
 
 namespace Lina
 {
-	class FlyCameraMovement : public Component
+	class MeshDefault;
+
+	class CompModel : public Component
 	{
 	public:
-		FlyCameraMovement() : Component(CF_RECEIVE_TICK){};
+		CompModel() : Component(GetTypeID<CompModel>(), CF_RENDERABLE){};
 
-		virtual void OnTick(float deltaTime) override;
-
-		virtual TypeID GetComponentType() override
+		virtual void CollectReferences(HashSet<ResourceID>& refs) override
 		{
-			return GetTypeID<FlyCameraMovement>();
+			refs.insert(m_model);
+
+			for (ResourceID id : m_materials)
+				refs.insert(id);
 		}
 
 		virtual void SaveToStream(OStream& stream) const override
 		{
-			stream << m_movementSpeed << m_rotationSpeed;
-		};
+			stream << m_model << m_materials;
+		}
 
 		virtual void LoadFromStream(IStream& stream) override
 		{
-			stream >> m_movementSpeed >> m_rotationSpeed;
+			stream >> m_model >> m_materials;
 		}
 
-		inline void SetMovementPower(float pw)
+		inline void SetModel(ResourceID model)
 		{
-			m_movementPower = pw;
+			m_model = model;
 		}
 
-		inline void SetMovementSpeed(float sp)
+		inline void SetMaterial(ResourceID material, uint32 index)
 		{
-			m_movementSpeed = sp;
+			const size_t sz = static_cast<size_t>(index + 1);
+			if (m_materials.size() <= sz)
+				m_materials.resize(sz);
+			m_materials[index] = material;
 		}
 
-		inline void SetRotationSpeed(float sp)
+		inline ResourceID GetModel() const
 		{
-			m_rotationSpeed = sp;
+			return m_model;
 		}
 
-		inline void SetRotationPower(float pw)
+		inline ResourceID GetMaterial(uint32 index) const
 		{
-			m_rotationPower = pw;
+			return m_materials.at(index);
 		}
 
-		inline void SetRequireMousePressToRotate(bool req)
+		inline const Vector<ResourceID>& GetMaterials() const
 		{
-			m_requireMousePressToRotate = req;
+			return m_materials;
 		}
 
 	private:
-		void Tick(float delta);
-
-	private:
-		LINA_REFLECTION_ACCESS(SimpleFlightMovement);
-		bool m_requireMousePressToRotate = true;
-
-		float	m_movementSpeed		 = 20.0f;
-		float	m_movementPower		 = 5.0f;
-		float	m_rotationSpeed		 = 24.0f;
-		float	m_rotationPower		 = 32.0f;
-		Vector3 m_targetAngles		 = Vector3::Zero;
-		Vector3 m_usedAngles		 = Vector3::Zero;
-		Vector2 m_usedMoveAmt		 = Vector2::Zero;
-		Vector2 m_previousMouseDelta = Vector2::Zero;
-		bool	m_firstTick			 = true;
+		ResourceID		   m_model;
+		Vector<ResourceID> m_materials;
 	};
 
 } // namespace Lina

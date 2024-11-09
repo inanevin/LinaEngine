@@ -28,70 +28,49 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/World/Component.hpp"
-#include "Core/Graphics/Resource/Model.hpp"
-#include "Core/Graphics/Resource/Material.hpp"
-#include "Common/Math/AABB.hpp"
+#include "Common/Data/Vector.hpp"
+#include "Core/World/Camera.hpp"
+#include "Core/Graphics/CommonGraphics.hpp"
+#include "Core/Graphics/Data/RenderData.hpp"
+
+namespace LinaGX
+{
+	class Instance;
+};
 
 namespace Lina
 {
-	class MeshDefault;
+	class Component;
+	class EntityWorld;
+	class ResourceManagerV2;
+	class Buffer;
+	class RenderPass;
 
-	class MeshComponent : public Component
+	class FeatureRenderer
 	{
 	public:
-		virtual void CollectReferences(HashSet<ResourceID>& refs) override
-		{
-			refs.insert(m_model);
-			refs.insert(m_material);
-		}
+		FeatureRenderer() = delete;
+		FeatureRenderer(LinaGX::Instance* lgx, EntityWorld* world) : m_lgx(lgx), m_world(world){};
+		virtual ~FeatureRenderer() = default;
 
-		virtual void SaveToStream(OStream& stream) const override
-		{
-			stream << m_model << m_material << m_meshIndex;
-		}
+		virtual void OnComponentAdded(Component* comp){};
+		virtual void OnComponentRemoved(Component* comp){};
+		virtual void FetchRenderables(){};
 
-		virtual void LoadFromStream(IStream& stream) override
-		{
-			stream >> m_model >> m_material >> m_meshIndex;
-		}
+		virtual void ProduceFrame(const Camera& mainCamera, ResourceManagerV2* rm, float delta){};
 
-		inline void SetMesh(ResourceID model, uint32 meshIndex)
-		{
-			m_model		= model;
-			m_meshIndex = meshIndex;
-		}
+		virtual void RenderRecordIndirect(uint32 frameIndex, RenderPass& pass, RenderPassType type){};
 
-		inline void SetMaterial(ResourceID id)
-		{
-			m_material = id;
-		}
+		virtual void RenderDrawIndirect(LinaGX::CommandStream* stream, uint32 frameIndex, RenderPass& pass, RenderPassType type){};
+		virtual void RenderDrawLighting(LinaGX::CommandStream* stream){};
+		virtual void RenderDrawLightingPost(LinaGX::CommandStream* stream){};
 
-		virtual TypeID GetComponentType() override
-		{
-			return GetTypeID<MeshComponent>();
-		}
+		virtual void SyncRender(){};
 
-		inline ResourceID GetModel() const
-		{
-			return m_model;
-		}
-
-		inline ResourceID GetMaterial() const
-		{
-			return m_material;
-		}
-
-		inline uint32 GetMeshIndex() const
-		{
-			return m_meshIndex;
-		}
+	protected:
+		LinaGX::Instance* m_lgx	  = nullptr;
+		EntityWorld*	  m_world = nullptr;
 
 	private:
-		ResourceID m_model;
-		ResourceID m_material;
-		uint32	   m_meshIndex = 0;
-		AABB	   m_usedLocalAABB;
 	};
-
 } // namespace Lina

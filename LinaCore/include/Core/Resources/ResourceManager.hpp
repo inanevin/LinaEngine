@@ -49,10 +49,10 @@ namespace Lina
 		ResourceManagerV2(){};
 		~ResourceManagerV2(){};
 
-		void LoadResourcesFromFile(const ResourceDefinitionList& resourceDef, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress);
-		void LoadResourcesFromProject(ProjectData* project, const HashSet<ResourceID>& resources, Delegate<void(uint32 loaded, Resource* currentItem)> onProgress);
-		void UnloadResources(const ResourceDefinitionList& resources);
-		void ReloadResources(ProjectData* project, const HashSet<ResourceID>& resources);
+		HashSet<Resource*> LoadResourcesFromFile(const ResourceDefinitionList& resourceDef, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress);
+		HashSet<Resource*> LoadResourcesFromProject(ProjectData* project, const HashSet<ResourceID>& resources, Delegate<void(uint32 loaded, Resource* currentItem)> onProgress);
+		void			   UnloadResources(const ResourceDefinitionList& resources);
+		void			   ReloadResourceHW(const HashSet<Resource*>& resources);
 
 		void AddListener(ResourceManagerListener* listener);
 		void RemoveListener(ResourceManagerListener* listener);

@@ -58,7 +58,7 @@ namespace Lina
 		GfxHelpers::InitializeLinaVG();
 		s_lgx = GfxHelpers::InitializeLinaGX();
 
-		m_gfxBindlessContext.Initialize(&m_resourceManager, s_lgx, &m_guiBackend);
+		m_gfxContext.Initialize(&m_resourceManager, s_lgx, &m_guiBackend);
 		m_guiBackend.Initialize(&m_resourceManager);
 
 		const bool preInitOK = GetAppDelegate()->PreInitialize();
@@ -107,14 +107,15 @@ namespace Lina
 
 		// auto renderJob = m_executor.Async([this]() { m_appDelegate->Render(); });
 
+		m_worldProcessor.Tick(static_cast<float>(delta));
 		GetAppDelegate()->Tick(static_cast<float>(delta));
 
 		// renderJob.get();
 
+		m_appDelegate->SyncRender();
 		Render();
 
 		m_resourceManager.SetLocked(false);
-		m_appDelegate->SyncRender();
 
 		if (!SystemInfo::GetAppHasFocus())
 			PlatformTime::Sleep(0);
@@ -130,7 +131,7 @@ namespace Lina
 		m_guiBackend.Shutdown();
 		GfxHelpers::ShutdownLinaVG();
 
-		m_gfxBindlessContext.Shutdown();
+		m_gfxContext.Shutdown();
 		m_resourceManager.Shutdown();
 
 		GetAppDelegate()->Shutdown();
@@ -180,7 +181,7 @@ namespace Lina
 		const uint32 frameIndex = s_lgx->GetCurrentFrameIndex();
 		s_lgx->StartFrame();
 
-		m_gfxBindlessContext.PollUploads(frameIndex);
+		m_gfxContext.PollUploads(frameIndex);
 		m_appDelegate->Render(frameIndex);
 
 		s_lgx->EndFrame();

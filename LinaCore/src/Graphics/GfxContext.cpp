@@ -47,23 +47,17 @@ namespace Lina
 		m_rm->AddListener(this);
 		m_lgx		 = lgx;
 		m_guiBackend = guiBackend;
+		m_meshManagerDefault.Initialize();
 
 		m_pipelineLayoutGlobal = m_lgx->CreatePipelineLayout(GfxHelpers::GetPLDescPersistentGlobal());
-
-		LinaGX::ResourceDesc globalDataDesc = {
-			.size		   = sizeof(GPUDataEngineGlobals),
-			.typeHintFlags = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
-			.heapType	   = LinaGX::ResourceHeap::StagingHeap,
-			.debugName	   = "WorldRenderer: Global Data Buffer",
-		};
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data = m_pfd[i];
 
 			data.descriptorSetGlobal = m_lgx->CreateDescriptorSet(GfxHelpers::GetSetDescPersistentGlobal());
-			data.globalMaterialsBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(uint32) * 1000, "WorldRendererr: Materials", false);
-			data.globalDataBuffer.Create(LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataEngineGlobals), "WorldRenderer: Engine Globals", true);
+			data.globalMaterialsBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(uint32) * 1000, "Engine: Materials", false);
+			data.globalDataBuffer.Create(LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataEngineGlobals), "Engine: Globals", true);
 
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle	   = data.descriptorSetGlobal,
@@ -88,14 +82,14 @@ namespace Lina
 				.binding   = 3,
 			};
 
-			data.copyStream	   = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, 50, 12000, 4096, 32, "BindlessContext: Copy Stream"});
+			data.copyStream	   = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, 50, 12000, 4096, 32, "Engine: Copy Stream"});
 			data.copySemaphore = SemaphoreData(m_lgx->CreateUserSemaphore());
 		}
 	}
 
 	void GfxContext::Shutdown()
 	{
-
+		m_meshManagerDefault.Shutdown();
 		m_rm->RemoveListener(this);
 
 		m_lgx->DestroyPipelineLayout(m_pipelineLayoutGlobal);
@@ -185,7 +179,6 @@ namespace Lina
 				.signalSemaphores = pfd.copySemaphore.GetSemaphorePtr(),
 				.signalValues	  = pfd.copySemaphore.GetValuePtr(),
 			});
-
 			m_lgx->WaitForUserSemaphore(pfd.copySemaphore.GetSemaphore(), pfd.copySemaphore.GetValue());
 		}
 
@@ -255,6 +248,7 @@ namespace Lina
 		bool bindlessDirty = false;
 		bool containsFont  = false;
 		bool join		   = false;
+		bool containsMesh  = false;
 
 		for (Resource* res : resources)
 		{
@@ -283,6 +277,7 @@ namespace Lina
 			else if (res->GetTID() == GetTypeID<Model>())
 			{
 				join = true;
+				static_cast<Model*>(res)->Upload(&m_meshManagerDefault);
 			}
 			else if (res->GetTID() == GetTypeID<Font>())
 			{

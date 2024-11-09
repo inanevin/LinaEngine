@@ -40,7 +40,7 @@ namespace Lina
 	class Shader;
 	class DescriptorSet;
 	class ResourceManagerV2;
-	class BindlessContext;
+	class GfxContext;
 
 	// Version changes
 	// 0: initial
@@ -95,7 +95,7 @@ namespace Lina
 		virtual void GenerateHW() override;
 		virtual void DestroyHW() override;
 		void		 SetShader(Shader* shader);
-		size_t		 BufferDataInto(Buffer& buf, size_t padding, ResourceManagerV2* rm, BindlessContext* context);
+		size_t		 BufferDataInto(Buffer& buf, size_t padding, ResourceManagerV2* rm, GfxContext* context);
 
 		template <typename T> void SetProperty(StringID sid, T val)
 		{

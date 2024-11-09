@@ -413,7 +413,7 @@ namespace Lina
 		return ProcessMaterialData(input, outProperties);
 	}
 
-	void ShaderPreprocessor::InjectRenderPassInputs(String& input, RenderPassDescriptorType type)
+	void ShaderPreprocessor::InjectRenderPassInputs(String& input, RenderPassType type)
 	{
 		const String headerEnd(HEADER_END);
 		const size_t headerEndPos = input.find(HEADER_END);
@@ -423,21 +423,21 @@ namespace Lina
 		input.insert(insertPos, globalHeader.c_str());
 		insertPos += globalHeader.size();
 
-		if (type == RenderPassDescriptorType::Deferred)
+		if (type == RenderPassType::Deferred)
 		{
 			const String rpHeader = "#include \"Resources/Core/Shaders/Common/RenderPass_Deferred.linashader\"\n";
 			input.insert(insertPos, rpHeader.c_str());
 			return;
 		}
 
-		if (type == RenderPassDescriptorType::Forward)
+		if (type == RenderPassType::Forward)
 		{
 			const String rpHeader = "#include \"Resources/Core/Shaders/Common/RenderPass_Forward.linashader\"\n";
 			input.insert(insertPos, rpHeader.c_str());
 			return;
 		}
 
-		if (type == RenderPassDescriptorType::Lighting)
+		if (type == RenderPassType::Lighting)
 		{
 			const String rpHeader = "#include \"Resources/Core/Shaders/Common/RenderPass_Lighting.linashader\"\n";
 			input.insert(insertPos, rpHeader.c_str());

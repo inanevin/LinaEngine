@@ -28,51 +28,30 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/World/Component.hpp"
-#include "Core/Graphics/Resource/GUIWidget.hpp"
-#include "Core/Graphics/Resource/Material.hpp"
-#include "Core/GUI/Widgets/WidgetManager.hpp"
+#include "FeatureRenderer.hpp"
 
 namespace Lina
 {
-	class WidgetComponent : public Component
+	struct SkyDraw
 	{
-	public:
-		virtual void SaveToStream(OStream& stream) const override;
-		virtual void LoadFromStream(IStream& stream) override;
-
-		void SetWidget(ResourceID id);
-		void SetMaterial(ResourceID id);
-
-		virtual TypeID GetComponentType() override
-		{
-			return GetTypeID<WidgetComponent>();
-		}
-
-		inline GUIWidget* GetWidget() const
-		{
-			return m_targetWidget.raw;
-		}
-
-		inline void SetCanvasSize(const Vector2ui& sz)
-		{
-			m_canvasSize = sz;
-		}
-
-		inline const Vector2ui& GetCanvasSize() const
-		{
-			return m_canvasSize;
-		}
-
-		inline Material* GetMaterial() const
-		{
-			return m_material.raw;
-		}
-
-	private:
-		ResRef<GUIWidget> m_targetWidget;
-		ResRef<Material>  m_material;
-		Vector2ui		  m_canvasSize = Vector2ui(100, 100);
+		uint32		shaderHandle = UINT32_MAX;
+		MeshPointer mesh		 = {
+					.vertexOffset = UINT32_MAX,
+		};
 	};
 
+	class SkyRenderer : public FeatureRenderer
+	{
+	public:
+		SkyRenderer(LinaGX::Instance* lgx, EntityWorld* world) : FeatureRenderer(lgx, world){};
+		virtual ~SkyRenderer() = default;
+
+		virtual void ProduceFrame(const Camera& mainCamera, ResourceManagerV2* rm, float delta) override;
+		virtual void RenderDrawLightingPost(LinaGX::CommandStream* stream) override;
+		virtual void SyncRender() override;
+
+	private:
+		SkyDraw m_cpuDraw	 = {};
+		SkyDraw m_renderDraw = {};
+	};
 } // namespace Lina

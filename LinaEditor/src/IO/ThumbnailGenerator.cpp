@@ -46,8 +46,6 @@ SOFTWARE.
 #include "Core/Graphics/Resource/GUIWidget.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/Physics/PhysicsMaterial.hpp"
-#include "Core/Components/MeshComponent.hpp"
-#include "Core/Components/CameraComponent.hpp"
 #include "Core/World/EntityWorld.hpp"
 
 namespace Lina::Editor

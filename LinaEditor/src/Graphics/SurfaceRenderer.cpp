@@ -52,7 +52,7 @@ namespace Lina::Editor
 #define MAX_GUI_INDICES	 140000
 
 #define VSYNC_DX LinaGX::DXVsync::None
-#define VSYNC_VK LinaGX::VKVsync::FIFO
+#define VSYNC_VK LinaGX::VKVsync::None
 
 	SurfaceRenderer::SurfaceRenderer(Editor* editor, LinaGX::Window* window, const Color& clearColor) : m_window(window)
 	{
@@ -167,7 +167,7 @@ namespace Lina::Editor
 		m_widgetManager.Tick(delta, m_size);
 	}
 
-	void SurfaceRenderer::SyncRender(uint32 frameIndex)
+	void SurfaceRenderer::SyncRender()
 	{
 	}
 

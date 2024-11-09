@@ -43,7 +43,7 @@ namespace Lina
 		static void				 ShutdownLinaVG();
 
 		static LinaGX::DescriptorSetDesc GetSetDescPersistentGlobal();
-		static LinaGX::DescriptorSetDesc GetSetDescPersistentRenderPass(RenderPassDescriptorType renderpassType);
+		static LinaGX::DescriptorSetDesc GetSetDescPersistentRenderPass(RenderPassType renderpassType);
 
 		static LinaGX::TextureBarrier GetTextureBarrierPresent2Color(uint32 texture, bool isSwapchain);
 		static LinaGX::TextureBarrier GetTextureBarrierColor2Present(uint32 texture, bool isSwapchain);
@@ -58,11 +58,11 @@ namespace Lina
 		static LinaGX::TextureBarrier GetTextureBarrierTransferDest2Sampled(uint32 texture);
 
 		static LinaGX::PipelineLayoutDesc GetPLDescPersistentGlobal();
-		static LinaGX::PipelineLayoutDesc GetPLDescPersistentRenderPass(RenderPassDescriptorType renderpassType);
+		static LinaGX::PipelineLayoutDesc GetPLDescPersistentRenderPass(RenderPassType renderpassType);
 
 		static LinaGX::DescriptorBinding GetBindingFromShaderBinding(const LinaGX::ShaderDescriptorSetBinding& b);
 
-		static RenderPassDescription GetRenderPassDescription(LinaGX::Instance* lgx, RenderPassDescriptorType type);
+		static RenderPassDescription GetRenderPassDescription(LinaGX::Instance* lgx, RenderPassType type);
 
 		static Matrix4 GetProjectionFromSize(const Vector2ui& size);
 	};

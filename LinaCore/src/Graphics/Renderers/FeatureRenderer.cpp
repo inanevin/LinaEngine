@@ -26,20 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#include "Core/World/Component.hpp"
-#include "Core/Graphics/Data/RenderData.hpp"
+#include "Core/Graphics/Renderers/FeatureRenderer.hpp"
 
 namespace Lina
 {
-	class RenderableComponent : public Component
-	{
-	public:
-		RenderableComponent() : Component(CF_RENDERABLE){};
-		virtual ~RenderableComponent() = default;
-
-	protected:
-	};
 
 } // namespace Lina

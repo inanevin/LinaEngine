@@ -41,8 +41,8 @@ struct LinaVertexInput
    vec3 pos;
    vec3 normal;
    vec2 uv;
-   uint entityID;
    uint materialID;
+   LinaEntity entity;
 };
 
 // do not modify

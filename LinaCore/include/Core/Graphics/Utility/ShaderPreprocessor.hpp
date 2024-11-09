@@ -43,7 +43,7 @@ namespace Lina
 		static bool		  ExtractVertexFrag(const String& input, String& outVertex, String& outFrag);
 		static void		  InjectVersionAndExtensions(String& input);
 		static bool		  InjectMaterialIfRequired(String& input, Vector<ShaderPropertyDefinition>& outProperties);
-		static void		  InjectRenderPassInputs(String& input, RenderPassDescriptorType type);
+		static void		  InjectRenderPassInputs(String& input, RenderPassType type);
 		static void		  InjectSkinnedVertexMain(String& input, ShaderType type);
 		static void		  InjectVertexMain(String& input, ShaderType type);
 		static void		  InjectFragMain(String& input, ShaderType type);

@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Core/Resources/ResourceManagerListener.hpp"
 #include "Core/Graphics/ResourceUploadQueue.hpp"
 #include "Core/Graphics/Pipeline/Buffer.hpp"
+#include "Core/Graphics/MeshManager.hpp"
 
 namespace LinaGX
 {
@@ -48,11 +49,11 @@ namespace Lina
 	class ResourceManagerV2;
 	class GUIBackend;
 
-	class BindlessContext : public ResourceManagerListener
+	class GfxContext : public ResourceManagerListener
 	{
 	public:
-		BindlessContext()  = default;
-		~BindlessContext() = default;
+		GfxContext()  = default;
+		~GfxContext() = default;
 
 		struct PerFrameData
 		{
@@ -91,6 +92,11 @@ namespace Lina
 			return m_pipelineLayoutGlobal;
 		}
 
+		inline MeshManager& GetMeshManagerDefault()
+		{
+			return m_meshManagerDefault;
+		}
+
 	private:
 		void UpdateBindless(uint32 frameIndex);
 
@@ -101,5 +107,7 @@ namespace Lina
 		ResourceUploadQueue m_uploadQueue;
 		PerFrameData		m_pfd[FRAMES_IN_FLIGHT];
 		uint16				m_pipelineLayoutGlobal = 0;
+
+		MeshManager m_meshManagerDefault;
 	};
 } // namespace Lina

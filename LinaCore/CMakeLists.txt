@@ -32,7 +32,7 @@ src/CommonCore.cpp
 # Graphics
 src/Graphics/ResourceUploadQueue.cpp
 src/Graphics/MeshManager.cpp
-src/Graphics/BindlessContext.cpp
+src/Graphics/GfxContext.cpp
 
 src/Graphics/GUI/GUIBackend.cpp
 src/Graphics/Utility/ShaderPreprocessor.cpp
@@ -53,17 +53,14 @@ src/Graphics/Resource/Material.cpp
 src/Graphics/Resource/GUIWidget.cpp
 src/Graphics/Resource/Font.cpp
 src/Graphics/Renderers/WorldRenderer.cpp
-src/Graphics/Renderers/DrawCollector.cpp
+src/Graphics/Renderers/SkyRenderer.cpp
+src/Graphics/Renderers/LightingRenderer.cpp
+src/Graphics/Renderers/ObjectRenderer.cpp
+src/Graphics/Renderers/FeatureRenderer.cpp
 src/Graphics/Pipeline/Buffer.cpp
 src/Graphics/Pipeline/RenderPass.cpp
 src/Graphics/Pipeline/DescriptorSet.cpp
 src/Graphics/CommonGraphics.cpp
-
-src/Components/CameraComponent.cpp
-src/Components/FlyCameraMovement.cpp
-src/Components/RenderableComponent.cpp
-src/Components/MeshComponent.cpp
-src/Components/WidgetComponent.cpp
 
 # Meta
 src/Meta/ProjectData.cpp
@@ -79,20 +76,21 @@ src/Resources/Data/ResourceMetadata.cpp
 
 # World
 src/World/Entity.cpp
+src/World/WorldProcessor.cpp
 src/World/Component.cpp
 src/World/ComponentCache.cpp
 src/World/Screen.cpp
 src/World/WorldInput.cpp
 src/World/EntityWorld.cpp
 src/World/Camera.cpp
-
+src/World/Components/CompRenderable.cpp
+src/World/Components/CompCamera.cpp
+src/World/Components/CompModel.cpp
 
 # Physics
 src/Physics/PhysicsWorld.cpp
 src/Physics/PhysicsMaterial.cpp
 
-# Components
-src/Components/RenderableComponent.cpp
 
 # GUI
 src/GUI/Theme.cpp
@@ -158,7 +156,7 @@ include/Core/Resources/Data/ResourceMetadata.hpp
 include/Core/Graphics/CommonGraphics.hpp
 include/Core/Graphics/ResourceUploadQueue.hpp
 include/Core/Graphics/MeshManager.hpp
-include/Core/Graphics/BindlessContext.hpp
+include/Core/Graphics/GfxContext.hpp
 
 include/Core/Graphics/GUI/GUIBackend.hpp
 include/Core/Graphics/Utility/ShaderPreprocessor.hpp
@@ -180,7 +178,10 @@ include/Core/Graphics/Resource/Material.hpp
 include/Core/Graphics/Resource/GUIWidget.hpp
 include/Core/Graphics/Resource/Font.hpp
 include/Core/Graphics/Renderers/WorldRenderer.hpp
-include/Core/Graphics/Renderers/DrawCollector.hpp
+include/Core/Graphics/Renderers/FeatureRenderer.hpp
+include/Core/Graphics/Renderers/ObjectRenderer.hpp
+include/Core/Graphics/Renderers/SkyRenderer.hpp
+include/Core/Graphics/Renderers/LightingRenderer.hpp
 include/Core/Graphics/Pipeline/Buffer.hpp
 include/Core/Graphics/Pipeline/RenderPass.hpp
 include/Core/Graphics/Pipeline/DescriptorSet.hpp
@@ -190,6 +191,7 @@ include/Core/Meta/ProjectData.hpp
 
 # World
 include/Core/World/Entity.hpp
+include/Core/World/WorldProcessor.hpp
 include/Core/World/Component.hpp
 include/Core/World/ComponentCache.hpp
 include/Core/World/Screen.hpp
@@ -197,17 +199,13 @@ include/Core/World/WorldInput.hpp
 include/Core/World/EntityWorld.hpp
 include/Core/World/CommonWorld.hpp
 include/Core/World/Camera.hpp
+include/Core/World/Components/CompCamera.hpp
+include/Core/World/Components/CompRenderable.hpp
+include/Core/World/Components/CompModel.hpp
 
 # Physics
 include/Core/Physics/PhysicsWorld.hpp
 include/Core/Physics/PhysicsMaterial.hpp
-
-# Components
-include/Core/Components/CameraComponent.hpp
-include/Core/Components/FlyCameraMovement.hpp
-include/Core/Components/RenderableComponent.hpp
-include/Core/Components/MeshComponent.hpp
-include/Core/Components/WidgetComponent.hpp
 
 
 # GUI

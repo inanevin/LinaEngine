@@ -1,11 +1,11 @@
 /*
-This file is a part of: LinaGX
-https://github.com/inanevin/LinaGX
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
 
 Author: Inan Evin
 http://www.inanevin.com
 
-Copyright (c) [2023-] [Inan Evin]
+Copyright (c) [2018-] [Inan Evin]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,36 +26,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#pragma once
 
-struct LinaEntity
+#include "FeatureRenderer.hpp"
+
+namespace Lina
 {
-    mat4 modelMatrix;
-};
+	struct LightDraw
+	{
+		uint32 shaderHandle = UINT32_MAX;
+	};
 
-struct IndirectArguments
-{
-	LinaEntity entity;
-	uint materialID;
-	uint padding0;
-	uint padding1;
-	uint padding2;
-};
+	class LightingRenderer : public FeatureRenderer
+	{
+	public:
+		LightingRenderer(LinaGX::Instance* lgx, EntityWorld* world) : FeatureRenderer(lgx, world){};
+		virtual ~LightingRenderer() = default;
 
+		virtual void ProduceFrame(const Camera& mainCamera, ResourceManagerV2* rm, float delta) override;
+		virtual void RenderDrawLighting(LinaGX::CommandStream* stream) override;
+		virtual void SyncRender() override;
 
-layout(set = 1, binding = 0) uniform ViewData
-{
-	mat4 view;
-	mat4 proj;
-	mat4 viewProj;
-	vec4 cameraPositionAndNear;
-	vec4 cameraDirectionAndFar;
-	vec2 size;
-	vec2 padding;
-	vec4 padding2;
-} LINA_VIEW;
-
-layout(set = 1, binding = 1) readonly buffer IndirectArgumentsBuffer
-{
-    IndirectArguments data[];
-} LINA_INDIRECT_ARGUMENTS;
-
+	private:
+		LightDraw m_cpuDraw	   = {};
+		LightDraw m_renderDraw = {};
+	};
+} // namespace Lina

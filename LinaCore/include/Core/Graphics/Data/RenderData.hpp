@@ -38,24 +38,22 @@ namespace Lina
 {
 	class Material;
 	class MeshDefault;
-	class MeshComponent;
-	class RenderableComponent;
 
 	struct MaterialComparator
 	{
 		bool operator()(const Material* lhs, const Material* rhs) const;
 	};
 
-	struct InstanceData
+	struct MeshPointer
 	{
-		Material* material	  = nullptr;
-		uint32	  entityIndex = 0;
-	};
+		uint32 indexCount;
+		uint32 indexOffset;
+		uint32 vertexOffset;
 
-	struct DrawDataMeshDefault
-	{
-		MeshDefault*		 mesh = nullptr;
-		Vector<InstanceData> instances;
+		bool operator==(const MeshPointer& other) const
+		{
+			return indexCount == other.indexCount && indexOffset == other.indexOffset && vertexOffset == other.vertexOffset;
+		}
 	};
 
 	enum RenderableType
@@ -91,11 +89,6 @@ namespace Lina
 		Matrix4 proj;
 	};
 
-	struct GPUDataObject
-	{
-		Matrix4 model;
-	};
-
 	struct GPUMaterialGUI
 	{
 		Vector4 color1;
@@ -107,10 +100,18 @@ namespace Lina
 		Vector2 padding;
 	};
 
+	struct GPUEntity
+	{
+		Matrix4 model;
+	};
+
 	struct GPUIndirectConstants0
 	{
-		uint32 entityID;
-		uint32 materialByteIndex;
+		GPUEntity entity;
+		uint32	  materialByteIndex;
+		uint32	  padding0;
+		uint32	  padding1;
+		uint32	  padding2;
 	};
 
 	struct GPUDataLightingPass

@@ -84,6 +84,11 @@ namespace Lina
 			return m_primitives;
 		}
 
+		inline ModelNode* GetNode()
+		{
+			return m_node;
+		}
+
 	private:
 		friend class Model;
 		friend class ModelNode;
