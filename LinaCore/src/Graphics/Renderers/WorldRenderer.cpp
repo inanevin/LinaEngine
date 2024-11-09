@@ -445,10 +445,10 @@ namespace Lina
 		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Lighting Pass");
 
 		for (FeatureRenderer* ft : m_featureRenderers)
-		{
 			ft->RenderDrawLighting(currentFrame.gfxStream);
+
+		for (FeatureRenderer* ft : m_featureRenderers)
 			ft->RenderDrawLightingPost(currentFrame.gfxStream);
-		}
 
 		DEBUG_LABEL_END(currentFrame.gfxStream);
 
