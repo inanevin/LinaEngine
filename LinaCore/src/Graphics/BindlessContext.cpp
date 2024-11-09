@@ -95,6 +95,7 @@ namespace Lina
 
 	void BindlessContext::Shutdown()
 	{
+
 		m_rm->RemoveListener(this);
 
 		m_lgx->DestroyPipelineLayout(m_pipelineLayoutGlobal);

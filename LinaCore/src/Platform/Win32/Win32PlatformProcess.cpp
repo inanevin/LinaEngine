@@ -87,8 +87,16 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	while (!app->GetExitRequested())
 		app->Tick();
 
+	const Lina::String reason = app->GetExitReason();
+
 	app->Shutdown();
 	delete app;
+
+	if (!reason.empty())
+	{
+		MessageBox(nullptr, reason.c_str(), "Error", MB_OK | MB_ICONERROR);
+	}
+
 	FreeConsole();
 
 	return 0;

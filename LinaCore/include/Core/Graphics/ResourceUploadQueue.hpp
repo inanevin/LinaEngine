@@ -60,8 +60,8 @@ namespace Lina
 	class ResourceUploadQueue
 	{
 	public:
-		ResourceUploadQueue()  = default;
-		~ResourceUploadQueue() = default;
+		ResourceUploadQueue() = default;
+		~ResourceUploadQueue();
 
 		void AddTextureRequest(Texture* txt);
 		void AddBufferRequest(Buffer* buf);

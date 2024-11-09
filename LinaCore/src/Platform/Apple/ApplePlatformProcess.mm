@@ -169,25 +169,28 @@ int main(int argc, char* argv[])
 		{
 			@autoreleasepool
 			{
-				NSEvent* ev;
-				do
-				{
-					ev = [NSApp nextEventMatchingMask:NSEventMaskAny untilDate:nil inMode:NSDefaultRunLoopMode dequeue:YES];
-					if (ev)
-					{
-						// handle events here
-						[NSApp sendEvent:ev];
-						[NSApp updateWindows];
-					}
-				} while (ev);
-
 				linaApp->Tick();
-				linaApp->Render();
 			}
 		}
 
+		const Lina::String reason = linaApp->GetExitReason();
+
 		linaApp->Shutdown();
 		delete linaApp;
+
+		
+		if (!reason.empty())
+		{
+			NSString *infoText = [NSString stringWithUTF8String:reason.c_str()];
+
+			NSAlert* alert = [[NSAlert alloc] init];
+			[alert setMessageText:@"Error"];
+			[alert setInformativeText:infoText];
+			[alert setAlertStyle:NSAlertStyleCritical];
+			[alert addButtonWithTitle:@"OK"];
+			[alert runModal];
+		}
+
 		[app terminate:nil];
 	}
 
@@ -198,6 +201,21 @@ namespace Lina
 {
 	// typedef Plugin*(__cdecl* CreatePluginFunc)(IEngineInterface* engInterface, const String& name);
 	// typedef void(__cdecl* DestroyPluginFunc)(Plugin*);
+
+	void PlatformProcess::PumpOSMessages()
+	{
+		NSEvent* ev;
+		do
+		{
+			ev = [NSApp nextEventMatchingMask:NSEventMaskAny untilDate:nil inMode:NSDefaultRunLoopMode dequeue:YES];
+			if (ev)
+			{
+				// handle events here
+				[NSApp sendEvent:ev];
+				[NSApp updateWindows];
+			}
+		} while (ev);
+	}
 
 	void PlatformProcess::LoadPlugin(const char* name, EngineInterface* engInterface, SystemEventDispatcher* dispatcher)
 	{

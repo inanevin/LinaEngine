@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
+#include "Core/Graphics/BindlessContext.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 
 namespace Lina::Editor
@@ -170,85 +171,55 @@ namespace Lina::Editor
 		return true;
 	}
 
-	bool EditorResources::LoadCoreResources()
+	void EditorResources::StartLoadCoreResources(ResourceManagerV2& manager)
 	{
-		auto loadTexture = [&](ResourceID id, const String& path) -> bool {
-			Texture* res = new Texture(id, "");
-			m_loadedResources.push_back(res);
-			res->SetPath(path);
-			res->SetName(FileSystem::GetFilenameOnlyFromPath(path));
-			return res->LoadFromFile(path);
+		Texture* txtCheckered = manager.CreateResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID, "");
+		Texture* txtProtoDark = manager.CreateResource<Texture>(EDITOR_TEXTURE_PROTOTYPE_DARK_ID, "");
+		Font*	 fontPlay	  = manager.CreateResource<Font>(EDITOR_FONT_PLAY_ID, "");
+		Font*	 fontPlayBold = manager.CreateResource<Font>(EDITOR_FONT_PLAY_BOLD_ID, "");
+		m_createdResources.insert(txtCheckered);
+		m_createdResources.insert(txtProtoDark);
+		m_createdResources.insert(fontPlay);
+		m_createdResources.insert(fontPlayBold);
+
+		txtCheckered->SetPath(EDITOR_TEXTURE_CHECKERED_PATH);
+		txtProtoDark->SetPath(EDITOR_TEXTURE_PROTOTYPE_DARK_PATH);
+		fontPlay->SetPath(EDITOR_FONT_PLAY_PATH);
+		fontPlayBold->SetPath(EDITOR_FONT_PLAY_BOLD_PATH);
+
+		fontPlay->GetMeta() = {
+			.points = {{.size = 14, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
+			.isSDF	= false,
 		};
 
-		// Textures
-		{
-			if (!loadTexture(EDITOR_TEXTURE_CHECKERED_ID, EDITOR_TEXTURE_CHECKERED_PATH))
-				return false;
+		fontPlayBold->GetMeta() = {
+			.points = {{.size = 14, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
+			.isSDF	= false,
+		};
 
-			if (!loadTexture(EDITOR_TEXTURE_PROTOTYPE_DARK_ID, EDITOR_TEXTURE_PROTOTYPE_DARK_PATH))
-				return false;
-		}
-
-		// Fonts
-		{
-			{
-				Font* font = new Font(EDITOR_FONT_PLAY_ID, "");
-				m_loadedResources.push_back(font);
-				font->GetMeta() = {
-					.points = {{.size = 14, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
-					.isSDF	= false,
-				};
-
-				if (!font->LoadFromFile(EDITOR_FONT_PLAY_PATH))
-					return false;
-				font->SetPath(EDITOR_FONT_PLAY_PATH);
-				font->SetName(FileSystem::GetFilenameOnlyFromPath(font->GetPath()));
-			}
-
-			{
-				Font* font = new Font(EDITOR_FONT_PLAY_BOLD_ID, "");
-				m_loadedResources.push_back(font);
-				font->GetMeta() = {
-					.points = {{.size = 14, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
-					.isSDF	= false,
-				};
-
-				if (!font->LoadFromFile(EDITOR_FONT_PLAY_BOLD_PATH))
-					return false;
-				font->SetPath(EDITOR_FONT_PLAY_BOLD_PATH);
-				font->SetName(FileSystem::GetFilenameOnlyFromPath(font->GetPath()));
-			}
-		}
-		return true;
+		for (Resource* r : m_createdResources)
+			r->SetName(FileSystem::GetFilenameOnlyFromPath(r->GetPath()));
 	}
 
-	void EditorResources::TransferResourcesToManager(ResourceManagerV2& manager)
+	void EditorResources::LoadCoreResources()
 	{
-		for (Resource* res : m_loadedResources)
+		for (Resource* r : m_createdResources)
 		{
-			Resource* created = manager.CreateResource(res->GetID(), res->GetTID());
-
-			OStream ostream;
-			res->SaveToStream(ostream);
-
-			IStream istream;
-			istream.Create(ostream.GetDataRaw(), ostream.GetCurrentSize());
-
-			created->LoadFromStream(istream);
-
-			istream.Destroy();
-			ostream.Destroy();
+			if (r->LoadFromFile(r->GetPath()))
+				m_loadedResources.insert(r);
 		}
-
-		ClearLoadedResources();
 	}
 
-	void EditorResources::ClearLoadedResources()
+	bool EditorResources::EndLoadCoreResources(BindlessContext& context)
 	{
-		for (Resource* res : m_loadedResources)
-			delete res;
+		for (Resource* r : m_loadedResources)
+			r->GenerateHW();
 
+		context.OnResourceManagerGeneratedHW(m_loadedResources);
+
+		m_createdResources.clear();
 		m_loadedResources.clear();
+		return m_loadedResources.size() == m_createdResources.size();
 	}
 
 } // namespace Lina::Editor

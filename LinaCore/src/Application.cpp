@@ -124,6 +124,7 @@ namespace Lina
 
 	void Application::Shutdown()
 	{
+
 		s_lgx->Join();
 		GetAppDelegate()->PreShutdown();
 		m_guiBackend.Shutdown();

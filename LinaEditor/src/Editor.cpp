@@ -82,7 +82,6 @@ namespace Lina::Editor
 		if (!m_editorResources.LoadPriorityResources(m_app->GetResourceManager()))
 		{
 			LINA_ERR("Loading priority editor resources went bad, aborting!");
-			m_editorResources.ClearLoadedResources();
 			return false;
 		}
 
@@ -117,6 +116,8 @@ namespace Lina::Editor
 		task->progressText = Locale::GetStr(LocaleStr::LoadingSettings);
 		task->ownerWindow  = m_mainWindow;
 
+		m_editorResources.StartLoadCoreResources(GetApp()->GetResourceManager());
+
 		task->task = [this, task]() {
 			// Load editor settings or create and save empty if non-existing.
 			const String userDataFolder = FileSystem::GetUserDataFolder() + "Editor/";
@@ -133,7 +134,6 @@ namespace Lina::Editor
 				m_settings.SaveToFile();
 
 			task->progressText = Locale::GetStr(LocaleStr::LoadingCoreResources);
-
 			m_editorResources.LoadCoreResources();
 
 			task->progressText = Locale::GetStr(LocaleStr::GeneratingAtlases);
@@ -142,7 +142,12 @@ namespace Lina::Editor
 
 		task->onComplete = [this]() {
 			m_atlasManager.RefreshAtlas("ProjectIcons"_hs);
-			m_editorResources.TransferResourcesToManager(m_app->GetResourceManager());
+
+			if (!m_editorResources.EndLoadCoreResources(m_app->GetGfxContext()))
+			{
+				m_app->Quit("Failed loading editor core resources!");
+				return;
+			}
 
 			// Resize window to work dims.
 			m_mainWindow->SetPosition(m_mainWindow->GetMonitorInfoFromWindow().workTopLeft);

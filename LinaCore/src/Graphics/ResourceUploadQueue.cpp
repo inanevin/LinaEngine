@@ -34,6 +34,22 @@ SOFTWARE.
 
 namespace Lina
 {
+	ResourceUploadQueue::~ResourceUploadQueue()
+	{
+		for (TextureUploadRequest& req : m_textureRequests)
+		{
+			for (LinaGX::TextureBuffer& buf : req.buffers)
+				delete[] buf.pixels;
+		}
+
+		for (LinaGX::TextureBuffer& buf : m_cleanUpBuffers)
+			delete[] buf.pixels;
+
+		m_cleanUpBuffers.clear();
+		m_textureRequests.clear();
+		m_bufferRequests.clear();
+	}
+
 	void ResourceUploadQueue::AddTextureRequest(Texture* txt)
 	{
 		// No duplicates allowed

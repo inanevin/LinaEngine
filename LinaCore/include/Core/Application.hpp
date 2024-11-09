@@ -62,8 +62,9 @@ namespace Lina
 		LinaGX::Window* CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, uint32 style, LinaGX::Window* parentWindow = nullptr);
 		LinaGX::Window* GetApplicationWindow(StringID sid);
 
-		inline void Quit()
+		inline void Quit(const String& quitReason = "")
 		{
+			m_exitReason	= quitReason;
 			m_exitRequested = true;
 		}
 
@@ -107,6 +108,11 @@ namespace Lina
 			return m_gfxBindlessContext;
 		}
 
+		inline const String& GetExitReason() const
+		{
+			return m_exitReason;
+		}
+
 	private:
 		void Render();
 		void CalculateTime();
@@ -120,6 +126,7 @@ namespace Lina
 		ResourceManagerV2		 m_resourceManager;
 		GUIBackend				 m_guiBackend;
 		BindlessContext			 m_gfxBindlessContext;
+		String					 m_exitReason = "";
 
 		// Time
 		int64 m_frameCapAccumulator = 0;

@@ -34,7 +34,8 @@ SOFTWARE.
 namespace Lina
 {
 	class ResourceManagerV2;
-}
+	class BindlessContext;
+} // namespace Lina
 
 namespace Lina::Editor
 {
@@ -42,12 +43,13 @@ namespace Lina::Editor
 	{
 	public:
 		bool LoadPriorityResources(ResourceManagerV2& manager);
-		bool LoadCoreResources();
 
-		void TransferResourcesToManager(ResourceManagerV2& manager);
-		void ClearLoadedResources();
+		void StartLoadCoreResources(ResourceManagerV2& manager);
+		void LoadCoreResources();
+		bool EndLoadCoreResources(BindlessContext& context);
 
 	private:
-		Vector<Resource*> m_loadedResources;
+		HashSet<Resource*> m_createdResources;
+		HashSet<Resource*> m_loadedResources;
 	};
 } // namespace Lina::Editor
