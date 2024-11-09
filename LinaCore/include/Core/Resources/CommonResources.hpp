@@ -57,9 +57,10 @@ namespace Lina
 
 	struct ResourceDef
 	{
-		ResourceID id	= 0;
-		String	   name = "";
-		TypeID	   tid	= 0;
+		ResourceID id		  = 0;
+		String	   name		  = "";
+		TypeID	   tid		  = 0;
+		OStream	   customMeta = {};
 
 		bool operator==(const ResourceDef& other) const
 		{

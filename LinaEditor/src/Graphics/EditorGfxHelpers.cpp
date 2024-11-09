@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Editor/Graphics/EditorGfxHelpers.hpp"
 #include "Core/Graphics/Data/RenderData.hpp"
+#include "Core/Graphics/Utility/GfxHelpers.hpp"
 #include "Core/Application.hpp"
 
 namespace Lina::Editor
@@ -58,24 +59,6 @@ namespace Lina::Editor
 		};
 	}
 
-	LinaGX::DescriptorSetDesc EditorGfxHelpers::GetSetDescriptionGlobal()
-	{
-		LinaGX::DescriptorBinding globalBinding0 = {
-			.descriptorCount = 100,
-			.type			 = LinaGX::DescriptorType::SeparateImage,
-			.unbounded		 = true,
-			.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-		};
-		LinaGX::DescriptorBinding globalBinding1 = {
-			.descriptorCount = 100,
-			.type			 = LinaGX::DescriptorType::SeparateSampler,
-			.unbounded		 = true,
-			.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-		};
-
-		return {.bindings = {globalBinding0, globalBinding1}};
-	}
-
 	LinaGX::DescriptorSetDesc EditorGfxHelpers::GetSetDescriptionGUI()
 	{
 		LinaGX::DescriptorBinding guiBinding0 = {
@@ -91,10 +74,10 @@ namespace Lina::Editor
 		return {.bindings = {guiBinding0, guiBinding1}};
 	}
 
-	LinaGX::PipelineLayoutDesc EditorGfxHelpers::GetPipelineLayoutDescriptionGUI()
+	LinaGX::PipelineLayoutDesc EditorGfxHelpers::GetPipelineLayoutDescriptionGlobal()
 	{
 		return {
-			.descriptorSetDescriptions = {GetSetDescriptionGlobal(), GetSetDescriptionGUI()},
+			.descriptorSetDescriptions = {GfxHelpers::GetSetDescPersistentGlobal()},
 			.constantRanges			   = {{
 						   .stages = {LinaGX::ShaderStage::Fragment},
 						   .size   = static_cast<uint32>(sizeof(GPUEditorGUIPushConstants)),
@@ -103,15 +86,16 @@ namespace Lina::Editor
 		};
 	}
 
-	LinaGX::PipelineLayoutDesc EditorGfxHelpers::GetPipelineLayoutDescriptionGlobal()
+	LinaGX::PipelineLayoutDesc EditorGfxHelpers::GetPipelineLayoutDescriptionGUI()
 	{
 		return {
-			.descriptorSetDescriptions = {GetSetDescriptionGlobal()},
+			.descriptorSetDescriptions = {GfxHelpers::GetSetDescPersistentGlobal(), GetSetDescriptionGUI()},
 			.constantRanges			   = {{
 						   .stages = {LinaGX::ShaderStage::Fragment},
 						   .size   = static_cast<uint32>(sizeof(GPUEditorGUIPushConstants)),
 			   }},
-			.debugName				   = "GlobalLayout",
+			.debugName				   = "GUILayout",
 		};
 	}
+
 } // namespace Lina::Editor

@@ -62,6 +62,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Layout/GridLayout.hpp"
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
 #include "Core/Resources/ResourceDirectory.hpp"
+#include "Core/Application.hpp"
 
 namespace Lina::Editor
 {
@@ -1360,7 +1361,7 @@ namespace Lina::Editor
 			cf->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 			cf->SetAlignedSize(Vector2(0.0f, 1.0f));
 			cf->SetAlignedPosY(0.0f);
-			cf->GetProps().backgroundTexture = Editor::Get()->GetResourceManagerV2().GetResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID);
+			cf->GetProps().backgroundTexture = Editor::Get()->GetApp()->GetResourceManager().GetResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID);
 			cf->GetProps().value			 = col;
 			cf->GetProps().onClicked		 = [cf, col, src, &metaType, field, onFieldChanged]() {
 				PanelColorWheel* panel						 = Editor::Get()->GetWindowPanelManager().OpenColorWheelPanel(cf);
@@ -1508,7 +1509,7 @@ namespace Lina::Editor
 		cf->SetAlignedPosY(0.0f);
 		cf->GetProps().gradValue		 = color;
 		cf->GetProps().disableInput		 = true;
-		cf->GetProps().backgroundTexture = Editor::Get()->GetResourceManagerV2().GetResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID);
+		cf->GetProps().backgroundTexture = Editor::Get()->GetApp()->GetResourceManager().GetResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID);
 		layout->AddChild(cf);
 
 		layout->Initialize();

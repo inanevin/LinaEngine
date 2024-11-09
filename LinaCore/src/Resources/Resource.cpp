@@ -39,4 +39,9 @@ namespace Lina
 		stream.Destroy();
 	}
 
+	Resource::~Resource()
+	{
+		LINA_ASSERT(!m_hwValid, "");
+	}
+
 } // namespace Lina

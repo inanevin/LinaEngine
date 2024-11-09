@@ -41,7 +41,12 @@ namespace Lina
 	Shader::~Shader()
 	{
 		m_propertyDefinitions.clear();
-		DestroyHW();
+
+		for (auto& [sid, variant] : m_meta.variants)
+		{
+			for (auto& [stage, blob] : variant._outCompiledBlobs)
+				delete[] blob.ptr;
+		}
 	}
 
 	void Shader::Bind(LinaGX::CommandStream* stream, uint32 gpuHandle)
@@ -75,20 +80,22 @@ namespace Lina
 		ShaderPreprocessor::InjectVersionAndExtensions(vertexBlock);
 		ShaderPreprocessor::InjectVersionAndExtensions(fragBlock);
 
-		Vector<ShaderPropertyDefinition> vertexProperties = {}, fragProperties = {};
-		if (!ShaderPreprocessor::InjectMaterialIfRequired(vertexBlock, vertexProperties))
-			return false;
+		auto injectMaterials = [&]() -> bool {
+			Vector<ShaderPropertyDefinition> vertexProperties = {}, fragProperties = {};
+			if (!ShaderPreprocessor::InjectMaterialIfRequired(vertexBlock, vertexProperties))
+				return false;
 
-		if (!ShaderPreprocessor::InjectMaterialIfRequired(fragBlock, fragProperties))
-			return false;
+			if (!ShaderPreprocessor::InjectMaterialIfRequired(fragBlock, fragProperties))
+				return false;
 
-		if (!ShaderPropertyDefinition::VerifySimilarity(vertexProperties, fragProperties))
-		{
-			LINA_ERR("LinaMaterial structs in vertex and fragment shaders are different!");
-			return false;
-		}
-
-		m_propertyDefinitions = fragProperties.empty() ? vertexProperties : fragProperties;
+			if (!ShaderPropertyDefinition::VerifySimilarity(vertexProperties, fragProperties))
+			{
+				LINA_ERR("LinaMaterial structs in vertex and fragment shaders are different!");
+				return false;
+			}
+			m_propertyDefinitions = fragProperties.empty() ? vertexProperties : fragProperties;
+			return true;
+		};
 
 		const ShaderType type	 = m_shaderType;
 		bool			 success = true;
@@ -107,6 +114,8 @@ namespace Lina
 
 		if (type == ShaderType::OpaqueSurface)
 		{
+			if (!injectMaterials())
+				return false;
 
 			ShaderPreprocessor::InjectRenderPassInputs(vertexBlock, RenderPassDescriptorType::Deferred);
 			ShaderPreprocessor::InjectRenderPassInputs(fragBlock, RenderPassDescriptorType::Deferred);
@@ -173,6 +182,9 @@ namespace Lina
 		}
 		else if (type == ShaderType::TransparentSurface)
 		{
+			if (!injectMaterials())
+				return false;
+
 			ShaderPreprocessor::InjectRenderPassInputs(vertexBlock, RenderPassDescriptorType::Forward);
 			ShaderPreprocessor::InjectRenderPassInputs(fragBlock, RenderPassDescriptorType::Forward);
 			// Forward default
@@ -248,6 +260,9 @@ namespace Lina
 		}
 		else if (type == ShaderType::Lighting)
 		{
+			if (!injectMaterials())
+				return false;
+
 			ShaderVariant& variant = m_meta.variants["Default"_hs];
 			variant				   = ShaderVariant{
 							   .blendDisable	= false,
@@ -271,9 +286,14 @@ namespace Lina
 		}
 		else if (type == ShaderType::PostProcess)
 		{
+			if (!injectMaterials())
+				return false;
 		}
 		else if (type == ShaderType::Sky)
 		{
+			if (!injectMaterials())
+				return false;
+
 			ShaderPreprocessor::InjectRenderPassInputs(vertexBlock, RenderPassDescriptorType::Lighting);
 			ShaderPreprocessor::InjectRenderPassInputs(fragBlock, RenderPassDescriptorType::Lighting);
 
@@ -372,6 +392,8 @@ namespace Lina
 
 	void Shader::GenerateHW()
 	{
+		LINA_ASSERT(m_hwValid == false, "");
+
 		m_gpuHandles.clear();
 
 		// Create variants
@@ -435,10 +457,12 @@ namespace Lina
 
 	void Shader::DestroyHW()
 	{
+		LINA_ASSERT(m_hwValid, "");
+		m_hwValid		= false;
+		m_hwUploadValid = false;
+
 		for (auto [sid, handle] : m_gpuHandles)
 			Application::GetLGX()->DestroyShader(handle);
-
-		m_hwValid = false;
 	}
 
 } // namespace Lina

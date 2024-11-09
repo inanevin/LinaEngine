@@ -77,4 +77,17 @@ namespace Lina
 		m_root.RemoveAllChildren();
 	}
 
+	void GUIWidget::GenerateHW()
+	{
+		LINA_ASSERT(m_hwValid == false, "");
+		m_hwValid = true;
+	}
+
+	void GUIWidget::DestroyHW()
+	{
+		LINA_ASSERT(m_hwValid, "");
+		m_hwValid		= false;
+		m_hwUploadValid = false;
+	}
+
 } // namespace Lina

@@ -29,6 +29,9 @@ SOFTWARE.
 #pragma once
 
 #include "Common/JobSystem/JobSystem.hpp"
+#include "Core/Resources/ResourceManager.hpp"
+#include "Core/Graphics/BindlessContext.hpp"
+#include "Core/Graphics/GUI/GUIBackend.hpp"
 #include <LinaGX/Core/Window.hpp>
 
 namespace LinaGX
@@ -89,7 +92,23 @@ namespace Lina
 			return m_executor;
 		}
 
+		inline ResourceManagerV2& GetResourceManager()
+		{
+			return m_resourceManager;
+		}
+
+		inline GUIBackend& GetGUIBackend()
+		{
+			return m_guiBackend;
+		}
+
+		inline BindlessContext& GetGfxContext()
+		{
+			return m_gfxBindlessContext;
+		}
+
 	private:
+		void Render();
 		void CalculateTime();
 
 	private:
@@ -98,6 +117,9 @@ namespace Lina
 		bool					 m_exitRequested = false;
 		bool					 m_isIdleMode	 = false;
 		JobExecutor				 m_executor;
+		ResourceManagerV2		 m_resourceManager;
+		GUIBackend				 m_guiBackend;
+		BindlessContext			 m_gfxBindlessContext;
 
 		// Time
 		int64 m_frameCapAccumulator = 0;

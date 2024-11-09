@@ -40,6 +40,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
+#include "Core/Application.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 
@@ -272,7 +273,7 @@ namespace Lina::Editor
 		m_oldColorField->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
 		m_oldColorField->SetAlignedPosY(0.0f);
 		m_oldColorField->SetAlignedSizeY(1.0f);
-		m_oldColorField->GetProps().backgroundTexture	   = m_editor->GetResourceManagerV2().GetResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID);
+		m_oldColorField->GetProps().backgroundTexture	   = m_editor->GetApp()->GetResourceManager().GetResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID);
 		m_oldColorField->GetProps().convertToLinear		   = true;
 		m_oldColorField->GetWidgetProps().outlineThickness = 0.0f;
 		m_oldColorField->GetWidgetProps().rounding		   = 0.0f;
@@ -284,7 +285,7 @@ namespace Lina::Editor
 		m_newColorField->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
 		m_newColorField->SetAlignedPosY(0.0f);
 		m_newColorField->SetAlignedSizeY(1.0f);
-		m_newColorField->GetProps().backgroundTexture	   = m_editor->GetResourceManagerV2().GetResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID);
+		m_newColorField->GetProps().backgroundTexture	   = m_editor->GetApp()->GetResourceManager().GetResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID);
 		m_newColorField->GetProps().convertToLinear		   = true;
 		m_newColorField->GetWidgetProps().outlineThickness = 0.0f;
 		m_newColorField->GetWidgetProps().rounding		   = 0.0f;
@@ -355,7 +356,7 @@ namespace Lina::Editor
 		m_colorComp2									  = ConstructColorComponent("G", &m_editedColor.y);
 		m_colorComp3									  = ConstructColorComponent("B", &m_editedColor.z);
 		m_colorComp4									  = ConstructColorComponent("A", &m_editedColor.w);
-		m_colorComp4.slider->GetProps().backgroundTexture = m_editor->GetResourceManagerV2().GetResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID);
+		m_colorComp4.slider->GetProps().backgroundTexture = m_editor->GetApp()->GetResourceManager().GetResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID);
 		m_bottomColumn->AddChild(m_colorComp1.row, m_colorComp2.row, m_colorComp3.row, m_colorComp4.row);
 	}
 

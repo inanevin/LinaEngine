@@ -75,7 +75,14 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	Lina::SystemInitializationInfo initInfo = Lina::Lina_GetInitInfo();
 	Lina::Application*			   app		= new Lina::Application();
-	app->Initialize(initInfo);
+
+	if (!app->Initialize(initInfo))
+	{
+		MessageBox(nullptr, "Initializing Lina Application went bad, aborting.", "Error", MB_OK | MB_ICONERROR);
+		delete app;
+		FreeConsole();
+		return 0;
+	}
 
 	while (!app->GetExitRequested())
 		app->Tick();
@@ -83,6 +90,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	app->Shutdown();
 	delete app;
 	FreeConsole();
+
+	return 0;
 }
 
 namespace Lina

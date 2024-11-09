@@ -63,13 +63,14 @@ namespace Lina
 			Rectui rect = {};
 		};
 
-		TextureAtlas(ResourceManagerV2* rm, const Vector2ui& sz, LinaGX::Format format);
+		TextureAtlas(const Vector2ui& sz, LinaGX::Format format);
 		~TextureAtlas();
 		TextureAtlasImage* AddImage(uint8* data, const Vector2ui& size, StringID sid = 0);
 		TextureAtlasImage* GetImage(StringID sid);
 		bool			   RemoveImage(TextureAtlasImage* rect);
-		void			   RefreshSW();
-		void			   RefreshGPU(ResourceUploadQueue& uploadQueue);
+		void			   Refresh(ResourceUploadQueue& queue);
+		void			   CreateRawTexture(ResourceManagerV2& rm);
+		void			   DestroyRawTexture(ResourceManagerV2& rm);
 
 		inline Texture* GetRaw() const
 		{
@@ -88,10 +89,9 @@ namespace Lina
 
 	private:
 		Vector<Grid*>			   m_availableGrids;
-		ResourceManagerV2*		   m_resourceManagerV2 = nullptr;
-		Vector2ui				   m_size			   = Vector2ui::Zero;
-		uint32					   m_bytesPerPixel	   = 4;
-		LinaGX::Format			   m_textureFormat	   = LinaGX::Format::R8G8B8A8_SRGB;
+		Vector2ui				   m_size		   = Vector2ui::Zero;
+		uint32					   m_bytesPerPixel = 4;
+		LinaGX::Format			   m_textureFormat = LinaGX::Format::R8G8B8A8_SRGB;
 		Span<uint8>				   m_data;
 		Texture*				   m_rawTexture = nullptr;
 		Vector<TextureAtlasImage*> m_rects;

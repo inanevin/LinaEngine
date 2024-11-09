@@ -151,7 +151,7 @@ namespace Lina::Editor
 		if (panel == nullptr)
 			return;
 
-		Resource* res = editor->GetResourceManagerV2().GetIfExists<TextureSampler>(m_resourceID);
+		Resource* res = editor->GetApp()->GetResourceManager().GetIfExists<TextureSampler>(m_resourceID);
 		if (res == nullptr)
 			return;
 
@@ -166,7 +166,7 @@ namespace Lina::Editor
 		if (panel == nullptr)
 			return;
 
-		Resource* res = editor->GetResourceManagerV2().GetIfExists<TextureSampler>(m_resourceID);
+		Resource* res = editor->GetApp()->GetResourceManager().GetIfExists<TextureSampler>(m_resourceID);
 		if (res == nullptr)
 			return;
 
@@ -197,7 +197,7 @@ namespace Lina::Editor
 		if (panel == nullptr)
 			return;
 
-		Resource* res = editor->GetResourceManagerV2().GetIfExists<Font>(m_resourceID);
+		Resource* res = editor->GetApp()->GetResourceManager().GetIfExists<Font>(m_resourceID);
 		if (res == nullptr)
 			return;
 
@@ -224,7 +224,7 @@ namespace Lina::Editor
 		if (panel == nullptr)
 			return;
 
-		Resource* res = editor->GetResourceManagerV2().GetIfExists<Font>(m_resourceID);
+		Resource* res = editor->GetApp()->GetResourceManager().GetIfExists<Font>(m_resourceID);
 		if (res == nullptr)
 			return;
 
@@ -273,7 +273,7 @@ namespace Lina::Editor
 		if (panel == nullptr)
 			return;
 
-		Resource* res = editor->GetResourceManagerV2().GetIfExists<Texture>(m_resourceID);
+		Resource* res = editor->GetApp()->GetResourceManager().GetIfExists<Texture>(m_resourceID);
 		if (res == nullptr)
 			return;
 
@@ -286,7 +286,7 @@ namespace Lina::Editor
 		if (panel == nullptr)
 			return;
 
-		Resource* res = editor->GetResourceManagerV2().GetIfExists<Texture>(m_resourceID);
+		Resource* res = editor->GetApp()->GetResourceManager().GetIfExists<Texture>(m_resourceID);
 		if (res == nullptr)
 			return;
 
@@ -295,7 +295,7 @@ namespace Lina::Editor
 
 	void UndoActionTextureDataChanged::Apply(Editor* editor, bool applyMeta)
 	{
-		Texture* res   = editor->GetResourceManagerV2().GetResource<Texture>(m_resourceID);
+		Texture* res   = editor->GetApp()->GetResourceManager().GetResource<Texture>(m_resourceID);
 		Panel*	 panel = editor->GetWindowPanelManager().FindPanelOfType(PanelType::TextureViewer, m_resourceID);
 
 		EditorTask* task   = editor->GetTaskManager().CreateTask();
@@ -359,7 +359,7 @@ namespace Lina::Editor
 		if (panel == nullptr)
 			return;
 
-		Resource* res = editor->GetResourceManagerV2().GetIfExists<Material>(m_resourceID);
+		Resource* res = editor->GetApp()->GetResourceManager().GetIfExists<Material>(m_resourceID);
 		if (res == nullptr)
 			return;
 
@@ -373,7 +373,7 @@ namespace Lina::Editor
 		if (panel == nullptr)
 			return;
 
-		Resource* res = editor->GetResourceManagerV2().GetIfExists<Material>(m_resourceID);
+		Resource* res = editor->GetApp()->GetResourceManager().GetIfExists<Material>(m_resourceID);
 		if (res == nullptr)
 			return;
 
@@ -383,7 +383,7 @@ namespace Lina::Editor
 
 	void UndoActionMaterialDataChanged::Apply(Editor* editor, bool applyMeta)
 	{
-		Material* mat	= editor->GetResourceManagerV2().GetResource<Material>(m_resourceID);
+		Material* mat	= editor->GetApp()->GetResourceManager().GetResource<Material>(m_resourceID);
 		Panel*	  panel = editor->GetWindowPanelManager().FindPanelOfType(PanelType::MaterialViewer, m_resourceID);
 
 		if (applyMeta)
@@ -408,7 +408,7 @@ namespace Lina::Editor
 
 	UndoActionMaterialShaderChanged* UndoActionMaterialShaderChanged::Create(Editor* editor, ResourceID resourceID, ResourceID prevShader, ResourceID newShader)
 	{
-		Resource* res = editor->GetResourceManagerV2().GetIfExists<Material>(resourceID);
+		Resource* res = editor->GetApp()->GetResourceManager().GetIfExists<Material>(resourceID);
 		if (res == nullptr)
 			return nullptr;
 
@@ -427,7 +427,7 @@ namespace Lina::Editor
 		if (panel == nullptr)
 			return;
 
-		Resource* res = editor->GetResourceManagerV2().GetIfExists<Material>(m_resourceID);
+		Resource* res = editor->GetApp()->GetResourceManager().GetIfExists<Material>(m_resourceID);
 		if (res == nullptr)
 			return;
 
@@ -455,7 +455,7 @@ namespace Lina::Editor
 		if (panel == nullptr)
 			return;
 
-		Resource* res = editor->GetResourceManagerV2().GetIfExists<Material>(m_resourceID);
+		Resource* res = editor->GetApp()->GetResourceManager().GetIfExists<Material>(m_resourceID);
 		if (res == nullptr)
 			return;
 

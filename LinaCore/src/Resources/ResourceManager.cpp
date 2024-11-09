@@ -46,13 +46,28 @@ namespace Lina
 {
 	void ResourceManagerV2::Shutdown()
 	{
+
 		for (auto [tid, cache] : m_caches)
+		{
+			Vector<Resource*> resources = cache->GetAllResources();
+
+			for (Resource* res : resources)
+			{
+				if (res->IsHWValid())
+					res->DestroyHW();
+			}
+
 			delete cache;
+		}
 	}
 
 	void ResourceManagerV2::ReloadResources(ProjectData* project, const HashSet<ResourceID>& resources)
 	{
+		LINA_ASSERT(!m_locked, "");
+
 		Application::GetLGX()->Join();
+
+		HashSet<Resource*> list;
 
 		for (ResourceID rid : resources)
 		{
@@ -66,21 +81,56 @@ namespace Lina
 				if (!stream.Empty())
 				{
 					res->LoadFromStream(stream);
-					res->SetIsReloaded(true);
+					list.insert(res);
 				}
 				stream.Destroy();
 				break;
 			}
 		}
+
+		for (ResourceManagerListener* l : m_listeners)
+			l->OnResourceManagerPreDestroyHW(list);
+
+		for (Resource* res : list)
+		{
+			res->DestroyHW();
+			res->GenerateHW();
+		}
+
+		for (ResourceManagerListener* l : m_listeners)
+			l->OnResourceManagerGeneratedHW(list);
+	}
+
+	void ResourceManagerV2::AddListener(ResourceManagerListener* listener)
+	{
+		m_listeners.push_back(listener);
+	}
+
+	void ResourceManagerV2::RemoveListener(ResourceManagerListener* listener)
+	{
+		auto it = linatl::find_if(m_listeners.begin(), m_listeners.end(), [listener](ResourceManagerListener* l) -> bool { return l == listener; });
+		m_listeners.erase(it);
 	}
 
 	void ResourceManagerV2::LoadResourcesFromFile(const ResourceDefinitionList& resourceDefs, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress)
 	{
+		CheckLock();
+
+		HashSet<Resource*> resources;
+
 		uint32 idx = 0;
 		for (const ResourceDef& def : resourceDefs)
 		{
 			auto	  cache = GetCache(def.tid);
 			Resource* res	= cache->Create(def.id, def.name);
+
+			if (def.customMeta.GetCurrentSize() != 0)
+			{
+				IStream stream;
+				stream.Create(def.customMeta.GetDataRaw(), def.customMeta.GetCurrentSize());
+				res->SetCustomMeta(stream);
+				stream.Destroy();
+			}
 
 			if (!res->LoadFromFile(def.name))
 			{
@@ -94,15 +144,24 @@ namespace Lina
 
 			res->SetID(def.id);
 			res->SetName(def.name);
+			res->GenerateHW();
+			resources.insert(res);
 			LINA_TRACE("[Resource] -> Loaded resource: {0}", def.name);
 
 			if (onProgress)
 				onProgress(++idx, def);
 		}
+
+		for (ResourceManagerListener* l : m_listeners)
+			l->OnResourceManagerGeneratedHW(resources);
 	}
 
 	void ResourceManagerV2::LoadResourcesFromProject(ProjectData* project, const HashSet<ResourceID>& resources, Delegate<void(uint32 loaded, Resource* currentItem)> onProgress)
 	{
+		CheckLock();
+
+		HashSet<Resource*> loaded;
+
 		uint32 idx = 0;
 		for (ResourceID id : resources)
 		{
@@ -147,17 +206,42 @@ namespace Lina
 			res->LoadFromStream(stream);
 			stream.Destroy();
 
+			res->GenerateHW();
+			loaded.insert(res);
+
 			if (onProgress)
 				onProgress(++idx, res);
 
 			LINA_TRACE("[Resource] -> Loaded resource: {0}", res->GetPath());
 		}
+
+		for (ResourceManagerListener* l : m_listeners)
+			l->OnResourceManagerGeneratedHW(loaded);
 	}
 
-	void ResourceManagerV2::UnloadResources(const Vector<Resource*>& resources)
+	void ResourceManagerV2::UnloadResources(const ResourceDefinitionList& resources)
 	{
-		for (Resource* res : resources)
+		CheckLock();
+
+		HashSet<Resource*> toDestroy;
+
+		for (const ResourceDef& def : resources)
 		{
+			ResourceCacheBase* cache = GetCache(def.tid);
+			Resource*		   r	 = cache->GetIfExists(def.id);
+
+			if (r == nullptr)
+				continue;
+
+			toDestroy.insert(r);
+		}
+
+		for (ResourceManagerListener* l : m_listeners)
+			l->OnResourceManagerPreDestroyHW(toDestroy);
+
+		for (Resource* res : toDestroy)
+		{
+			res->DestroyHW();
 			ResourceCacheBase* cache = GetCache(res->GetTID());
 			cache->Destroy(res->GetID());
 		}
@@ -180,68 +264,8 @@ namespace Lina
 		return cache;
 	}
 
+	void ResourceManagerV2::CheckLock()
+	{
+		LINA_ASSERT(!m_locked && SystemInfo::IsMainThread(), "Resources can only be modified inside main thread and outside of resource lock!");
+	}
 } // namespace Lina
-
-/*
-
- // Packages
- HashMap<PackageType, Vector<ResourceIdentifier>> resourcesPerPackage;
-
- for (const auto& ident : identifiers)
- {
-	 const PackageType pt = m_caches[ident.tid]->GetPackageType();
-	 resourcesPerPackage[pt].push_back(ident);
- }
-
- for (auto& [pt, resourcesToLoad] : resourcesPerPackage)
- {
-	 const String packagePath = GGetPackagePath(pt);
-	 IStream         package     = Serialization::LoadFromFile(packagePath.c_str());
-
-	 int loadedResources       = 0;
-	 int totalResourcesSize = static_cast<int>(resourcesToLoad.size());
-
-	 auto loadFunc = [this](IStream stream, ResourceIdentifier ident, ResourceLoadTask* loadTask) {
-		 IStream      load    = stream;
-		 auto&      cache = m_caches.at(ident.tid);
-		 Resource* res    = cache->CreateResource(ident.sid, ident.path, this, ResourceOwner::ResourceManager);
-		 res->m_flags    = ident.flags;
-		 res->LoadFromStream(load);
-		 res->Upload();
-
-		 Event data;
-		 data.pParams[0]       = &ident.path;
-		 data.pParams[1]       = static_cast<void*>(loadTask);
-		 data.uintParams[0] = ident.sid;
-		 data.uintParams[1] = ident.tid;
-		 m_system->DispatchEvent(EVS_ResourceLoaded, data);
-		 stream.Destroy();
-	 };
-
-	 TypeID     tid  = 0;
-	 StringID sid  = 0;
-	 uint32     size = 0;
-	 while (loadedResources < totalResourcesSize)
-	 {
-		 package >> tid;
-		 package >> sid;
-		 package >> size;
-
-		 auto it = linatl::find_if(resourcesToLoad.begin(), resourcesToLoad.end(), [&](const ResourceIdentifier& ident) { return ident.tid == tid && ident.sid == sid; });
-
-		 if (it != resourcesToLoad.end())
-		 {
-			 IStream stream;
-			 stream.Create(package.GetDataCurrent(), size);
-			 ResourceIdentifier ident = *it;
-			 loadTask->tf.emplace([loadFunc, stream, ident, loadTask]() { loadFunc(stream, ident, loadTask); });
-
-			 loadedResources++;
-		 };
-
-		 package.SkipBy(size);
-	 }
-
-	 package.Destroy();
- }
- */

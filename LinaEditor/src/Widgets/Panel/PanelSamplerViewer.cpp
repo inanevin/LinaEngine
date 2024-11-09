@@ -53,7 +53,7 @@ namespace Lina::Editor
 
 		texture->GetWidgetProps().drawBackground   = true;
 		texture->GetWidgetProps().fitTexture	   = true;
-		texture->GetWidgetProps().rawTexture	   = m_editor->GetResourceManagerV2().GetResource<Texture>(EDITOR_TEXTURE_PROTOTYPE_DARK_ID);
+		texture->GetWidgetProps().rawTexture	   = m_editor->GetApp()->GetResourceManager().GetResource<Texture>(EDITOR_TEXTURE_PROTOTYPE_DARK_ID);
 		texture->GetWidgetProps().colorBackground  = Color::White;
 		texture->GetWidgetProps().outlineThickness = 0.0f;
 		texture->GetWidgetProps().rounding		   = 0.0f;

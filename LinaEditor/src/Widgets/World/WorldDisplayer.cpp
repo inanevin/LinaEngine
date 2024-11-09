@@ -114,7 +114,7 @@ namespace Lina::Editor
 			Application::GetLGX()->Join();
 			m_worldRenderer->Resize(displayerSize);
 			sc.SetRenderSize(displayerSize);
-			Editor::Get()->GetEditorRenderer().RefreshDynamicTextures();
+			// Editor::Get()->GetEditorRenderer().RefreshDynamicTextures();
 		}
 
 		const uint32 frameIndex		= Application::GetLGX()->GetCurrentFrameIndex();

@@ -38,7 +38,9 @@ namespace LinaGX
 namespace Lina
 {
 	class TextureAtlas;
+	class ResourceManagerV2;
 	struct TextureAtlasImage;
+	class ResourceUploadQueue;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -50,13 +52,16 @@ namespace Lina::Editor
 	public:
 		void			   Initialize(Editor* editor);
 		void			   Shutdown();
-		void			   RefreshPoolAtlases();
-		void			   AddCustomAtlas(StringID id, const Vector2ui& size);
-		void			   ScanCustomAtlas(StringID id, const String& baseFolder);
+		void			   ScanCustomAtlas(StringID id, const Vector2ui& size, const String& baseFolder);
+		void			   RefreshAtlas(StringID id);
+		void			   RefreshAtlasPool();
 		TextureAtlas*	   GetCustomAtlas(StringID sid);
 		TextureAtlasImage* AddImageToAtlas(uint8* data, const Vector2ui& size, LinaGX::Format format);
-		void			   RemoveImage(TextureAtlasImage* rect);
 		TextureAtlasImage* GetImageFromAtlas(StringID atlas, StringID image);
+		void			   RemoveImage(TextureAtlasImage* rect);
+
+	private:
+		void RefreshAtlas(TextureAtlas* atlas);
 
 	private:
 		Editor*							 m_editor = nullptr;

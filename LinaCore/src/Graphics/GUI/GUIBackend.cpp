@@ -44,6 +44,9 @@ namespace Lina
 	{
 		for (const auto& ft : m_fontAtlases)
 		{
+			if (ft.second.texture->IsHWValid())
+				ft.second.texture->DestroyHW();
+
 			m_resourceManagerV2->DestroyResource<Texture>(ft.second.texture);
 		}
 
@@ -73,7 +76,7 @@ namespace Lina
 		ft.texture->LoadFromBuffer(atlas->GetData(), width, height, 1);
 	}
 
-	void GUIBackend::ReuploadAtlases(ResourceUploadQueue& queue)
+	void GUIBackend::ReloadAtlases(ResourceUploadQueue& queue)
 	{
 		for (const Pair<LinaVG::Atlas*, FontTexture>& pair : m_fontAtlases)
 		{
@@ -84,7 +87,8 @@ namespace Lina
 
 			if (!ft.texture->IsHWValid())
 				ft.texture->GenerateHW();
-			ft.texture->AddToUploadQueue(queue, true);
+
+			ft.texture->AddToUploadQueue(queue, false);
 		}
 	}
 

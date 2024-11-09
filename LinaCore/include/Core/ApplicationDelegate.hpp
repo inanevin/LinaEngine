@@ -63,7 +63,7 @@ namespace Lina
 		};
 		virtual void PreTick(){};
 		virtual void Tick(float delta){};
-		virtual void Render(){};
+		virtual void Render(uint32 frameIndex){};
 		virtual void SyncRender(){};
 		virtual void PreShutdown(){};
 		virtual void Shutdown(){};

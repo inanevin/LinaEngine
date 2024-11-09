@@ -57,6 +57,7 @@ namespace Lina::Editor
 		String			 title		  = "";
 		LinaGX::Window*	 ownerWindow  = nullptr;
 		String			 progressText = "";
+		void*			 userData	  = nullptr;
 	};
 
 	class EditorTaskManager

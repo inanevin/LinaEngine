@@ -329,7 +329,9 @@ namespace Lina::Editor
 		};
 
 		task->onComplete = [task, this]() {
-			RefreshThumbnails();
+			m_editor->GetAtlasManager().RefreshAtlasPool();
+			m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
+
 			for (ProjectManagerListener* listener : m_listeners)
 				listener->OnProjectOpened(m_currentProject);
 			m_editor->GetSettings().GetLayout().ApplyStoredLayout();
@@ -401,12 +403,6 @@ namespace Lina::Editor
 		m_resourceThumbnails[dir->resourceID] = ThumbnailGenerator::GenerateThumbnail(projectData, dir->resourceID, dir->resourceTID, m_editor->GetAtlasManager());
 	}
 
-	void ProjectManager::RefreshThumbnails()
-	{
-		Application::GetLGX()->Join();
-		m_editor->GetAtlasManager().RefreshPoolAtlases();
-	}
-
 	void ProjectManager::NotifyProjectResourcesRefreshed()
 	{
 		for (ProjectManagerListener* listener : m_listeners)
@@ -421,11 +417,11 @@ namespace Lina::Editor
 	void ProjectManager::SetThumbnail(ResourceDirectory* dir, TextureAtlasImage* img)
 	{
 		TextureAtlasImage* ex = m_resourceThumbnails[dir->resourceID];
-
 		if (ex != nullptr)
 			m_editor->GetAtlasManager().RemoveImage(ex);
 
 		m_resourceThumbnails[dir->resourceID] = img;
+		m_editor->GetAtlasManager().RefreshAtlasPool();
 	}
 
 	void ProjectManager::OnPressedOpenProject()
@@ -542,115 +538,116 @@ namespace Lina::Editor
 
 	void ProjectManager::ReimportChangedSources(ResourceDirectory* root, Widget* requestingWidget)
 	{
-		m_reimportQueue.clear();
 
-		EditorTask* task = m_editor->GetTaskManager().CreateTask();
-
-		task->ownerWindow  = requestingWidget->GetWindow();
-		task->title		   = Locale::GetStr(LocaleStr::Reimporting);
-		task->progressText = Locale::GetStr(LocaleStr::Working);
-		task->task		   = [this, root, task]() {
-			if (!root->isFolder)
-				ReimportDirectory(root, m_editor, task->progressText, m_reimportQueue, m_currentProject);
-			else
-				ReimportRecursively(m_editor, task->progressText, m_reimportQueue, m_currentProject, root);
-
-			m_editor->GetResourceManagerV2().ReloadResources(m_currentProject, m_reimportQueue);
-
-			const Vector<WorldRenderer*>& worldRenderers = m_editor->GetEditorRenderer().GetWorldRenderers();
-			for (WorldRenderer* wr : worldRenderers)
-				wr->GetWorld()->GetResourceManagerV2().ReloadResources(m_currentProject, m_reimportQueue);
-		};
-
-		task->onComplete = [this]() {
-			SaveProjectChanges();
-
-			const Vector<WorldRenderer*>& worldRenderers = m_editor->GetEditorRenderer().GetWorldRenderers();
-
-			/* If reimported shaders, update materials everywhere *-*/
-
-			for (ResourceID rid : m_reimportQueue)
-			{
-				ResourceDirectory* dir = m_currentProject->GetResourceRoot().FindResourceDirectory(rid);
-
-				if (dir->resourceTID == GetTypeID<Shader>())
-				{
-					const String path = m_currentProject->GetResourcePath(rid);
-					if (!FileSystem::FileOrPathExists(path))
-						continue;
-					Shader	sh(0, "");
-					IStream stream = Serialization::LoadFromFile(path.c_str());
-					sh.LoadFromStream(stream);
-					stream.Destroy();
-
-					m_editor->GetResourceManagerV2().GetCache<Material>()->View([&](Material* mat, uint32 index) {
-						if (mat->GetShader() == rid)
-							mat->SetShader(&sh);
-
-						Panel* panel = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::MaterialViewer, mat->GetID());
-						if (panel)
-							static_cast<PanelMaterialViewer*>(panel)->Rebuild();
-
-						return false;
-					});
-
-					for (WorldRenderer* wr : worldRenderers)
-					{
-						wr->GetWorld()->GetResourceManagerV2().GetCache<Material>()->View([&](Material* mat, uint32 index) {
-							if (mat->GetShader() == rid)
-								mat->SetShader(&sh);
-
-							return false;
-						});
-					}
-				}
-			}
-
-			m_editor->GetEditorRenderer().VerifyResources();
-			for (WorldRenderer* wr : worldRenderers)
-				wr->GetWorld()->VerifyResources();
-
-			RefreshThumbnails();
-		};
-		m_editor->GetTaskManager().AddTask(task);
+		// m_reimportQueue.clear();
+		//
+		// EditorTask* task = m_editor->GetTaskManager().CreateTask();
+		//
+		// task->ownerWindow  = requestingWidget->GetWindow();
+		// task->title		   = Locale::GetStr(LocaleStr::Reimporting);
+		// task->progressText = Locale::GetStr(LocaleStr::Working);
+		// task->task		   = [this, root, task]() {
+		// 	if (!root->isFolder)
+		// 		ReimportDirectory(root, m_editor, task->progressText, m_reimportQueue, m_currentProject);
+		// 	else
+		// 		ReimportRecursively(m_editor, task->progressText, m_reimportQueue, m_currentProject, root);
+		//
+		// 	m_editor->GetApp()->GetResourceManager().ReloadResources(m_currentProject, m_reimportQueue);
+		//
+		// 	const Vector<WorldRenderer*>& worldRenderers = m_editor->GetEditorRenderer().GetWorldRenderers();
+		// 	for (WorldRenderer* wr : worldRenderers)
+		// 		wr->GetWorld()->GetResourceManagerV2().ReloadResources(m_currentProject, m_reimportQueue);
+		// };
+		//
+		// task->onComplete = [this]() {
+		// 	SaveProjectChanges();
+		//
+		// 	const Vector<WorldRenderer*>& worldRenderers = m_editor->GetEditorRenderer().GetWorldRenderers();
+		//
+		// 	/* If reimported shaders, update materials everywhere *-*/
+		//
+		// 	for (ResourceID rid : m_reimportQueue)
+		// 	{
+		// 		ResourceDirectory* dir = m_currentProject->GetResourceRoot().FindResourceDirectory(rid);
+		//
+		// 		if (dir->resourceTID == GetTypeID<Shader>())
+		// 		{
+		// 			const String path = m_currentProject->GetResourcePath(rid);
+		// 			if (!FileSystem::FileOrPathExists(path))
+		// 				continue;
+		// 			Shader	sh(0, "");
+		// 			IStream stream = Serialization::LoadFromFile(path.c_str());
+		// 			sh.LoadFromStream(stream);
+		// 			stream.Destroy();
+		//
+		// 			m_editor->GetApp()->GetResourceManager().GetCache<Material>()->View([&](Material* mat, uint32 index) {
+		// 				if (mat->GetShader() == rid)
+		// 					mat->SetShader(&sh);
+		//
+		// 				Panel* panel = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::MaterialViewer, mat->GetID());
+		// 				if (panel)
+		// 					static_cast<PanelMaterialViewer*>(panel)->Rebuild();
+		//
+		// 				return false;
+		// 			});
+		//
+		// 			for (WorldRenderer* wr : worldRenderers)
+		// 			{
+		// 				wr->GetWorld()->GetResourceManagerV2().GetCache<Material>()->View([&](Material* mat, uint32 index) {
+		// 					if (mat->GetShader() == rid)
+		// 						mat->SetShader(&sh);
+		//
+		// 					return false;
+		// 				});
+		// 			}
+		// 		}
+		// 	}
+		//
+		// 	m_editor->GetEditorRenderer().VerifyResources();
+		// 	for (WorldRenderer* wr : worldRenderers)
+		// 		wr->GetWorld()->VerifyResources();
+		//
+		// 	RefreshThumbnails();
+		// };
+		// m_editor->GetTaskManager().AddTask(task);
 	}
 
 	void ProjectManager::ReloadResourceInstances(Resource* res)
 	{
-		Resource* resource = m_editor->GetResourceManagerV2().GetIfExists(res->GetTID(), res->GetID());
-		if (resource != nullptr)
-		{
-			resource->SetIsReloaded(true);
-			m_editor->GetEditorRenderer().VerifyResources();
-		}
-
-		const Vector<WorldRenderer*>& worldRenderers = m_editor->GetEditorRenderer().GetWorldRenderers();
-
-		if (worldRenderers.empty())
-			return;
-
-		OStream ostream;
-		res->SaveToStream(ostream);
-
-		IStream istream;
-		istream.Create(ostream.GetDataRaw(), ostream.GetCurrentSize());
-
-		for (WorldRenderer* wr : worldRenderers)
-		{
-			Resource* resInWorld = wr->GetWorld()->GetResourceManagerV2().GetIfExists(res->GetTID(), res->GetID());
-
-			if (resInWorld == nullptr)
-				continue;
-
-			resInWorld->LoadFromStream(istream);
-			resInWorld->SetIsReloaded(true);
-			wr->GetWorld()->LoadMissingResources(m_currentProject, {});
-			wr->GetWorld()->VerifyResources();
-			istream.Seek(0);
-		}
-
-		ostream.Destroy();
-		istream.Destroy();
+		// Resource* resource = m_editor->GetApp()->GetResourceManager().GetIfExists(res->GetTID(), res->GetID());
+		// if (resource != nullptr)
+		// {
+		// 	resource->SetIsReloaded(true);
+		// 	m_editor->GetEditorRenderer().VerifyResources();
+		// }
+		//
+		// const Vector<WorldRenderer*>& worldRenderers = m_editor->GetEditorRenderer().GetWorldRenderers();
+		//
+		// if (worldRenderers.empty())
+		// 	return;
+		//
+		// OStream ostream;
+		// res->SaveToStream(ostream);
+		//
+		// IStream istream;
+		// istream.Create(ostream.GetDataRaw(), ostream.GetCurrentSize());
+		//
+		// for (WorldRenderer* wr : worldRenderers)
+		// {
+		// 	Resource* resInWorld = wr->GetWorld()->GetResourceManagerV2().GetIfExists(res->GetTID(), res->GetID());
+		//
+		// 	if (resInWorld == nullptr)
+		// 		continue;
+		//
+		// 	resInWorld->LoadFromStream(istream);
+		// 	resInWorld->SetIsReloaded(true);
+		// 	wr->GetWorld()->LoadMissingResources(m_currentProject, {});
+		// 	wr->GetWorld()->VerifyResources();
+		// 	istream.Seek(0);
+		// }
+		//
+		// ostream.Destroy();
+		// istream.Destroy();
 	}
 
 } // namespace Lina::Editor

@@ -70,4 +70,17 @@ namespace Lina
 		stream << m_meta;
 	}
 
+	void Audio::GenerateHW()
+	{
+		LINA_ASSERT(m_hwValid == false, "");
+		m_hwValid = true;
+	}
+
+	void Audio::DestroyHW()
+	{
+		LINA_ASSERT(m_hwValid, "");
+		m_hwValid		= false;
+		m_hwUploadValid = false;
+	}
+
 } // namespace Lina

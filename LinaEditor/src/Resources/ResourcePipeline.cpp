@@ -437,7 +437,6 @@ namespace Lina::Editor
 			stream.Destroy();
 			TextureAtlasImage* img = ThumbnailGenerator::GenerateThumbnail(editor->GetProjectManager().GetProjectData(), dup->resourceID, dup->resourceTID, editor->GetAtlasManager());
 			editor->GetProjectManager().SetThumbnail(dup, img);
-			editor->GetProjectManager().RefreshThumbnails();
 		}
 
 		for (ResourceDirectory* c : directory->children)

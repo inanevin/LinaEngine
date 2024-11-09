@@ -49,16 +49,20 @@ namespace Lina
 		ResourceCacheBase(){};
 		virtual ~ResourceCacheBase() = default;
 
-		virtual Resource*		  Create(ResourceID id, const String& name) = 0;
-		virtual Resource*		  Get(ResourceID id) const					= 0;
-		virtual void			  Destroy(ResourceID id)					= 0;
-		virtual Resource*		  GetIfExists(ResourceID id) const			= 0;
-		virtual Vector<Resource*> GetAllResources()							= 0;
+		virtual Resource*		  Get(ResourceID id) const		   = 0;
+		virtual Resource*		  GetIfExists(ResourceID id) const = 0;
+		virtual Vector<Resource*> GetAllResources()				   = 0;
 
 		inline PackageType GetPackageType() const
 		{
 			return m_packageType;
 		}
+
+	protected:
+		friend class ResourceManagerV2;
+
+		virtual Resource* Create(ResourceID id, const String& name) = 0;
+		virtual void	  Destroy(ResourceID id)					= 0;
 
 	protected:
 		PackageType	   m_packageType = PackageType::Default;
@@ -80,28 +84,6 @@ namespace Lina
 		inline uint32 GetActiveItemCount() const
 		{
 			return m_resourceBucket.GetActiveItemCount();
-		}
-
-		virtual Resource* Create(ResourceID id, const String& name) override
-		{
-			if (m_resources.find(id) != m_resources.end())
-			{
-				LINA_WARN("[Resource Cache] -> Can't create resource as it already exists.");
-				return nullptr;
-			}
-
-			T* res			= m_resourceBucket.Allocate(id, name);
-			m_resources[id] = res;
-			return res;
-		}
-
-		virtual void Destroy(ResourceID id) override
-		{
-			auto it = m_resources.find(id);
-			LINA_ASSERT(it != m_resources.end(), "");
-			T* res = static_cast<T*>(it->second);
-			m_resourceBucket.Free(res);
-			m_resources.erase(it);
 		}
 
 		virtual Resource* Get(ResourceID id) const override
@@ -136,6 +118,30 @@ namespace Lina
 		}
 
 	private:
+		friend class ResourceManagerV2;
+
+		virtual Resource* Create(ResourceID id, const String& name) override
+		{
+			if (m_resources.find(id) != m_resources.end())
+			{
+				LINA_WARN("[Resource Cache] -> Can't create resource as it already exists.");
+				return nullptr;
+			}
+
+			T* res			= m_resourceBucket.Allocate(id, name);
+			m_resources[id] = res;
+			return res;
+		}
+
+		virtual void Destroy(ResourceID id) override
+		{
+			auto it = m_resources.find(id);
+			LINA_ASSERT(it != m_resources.end(), "");
+			T* res = static_cast<T*>(it->second);
+			m_resourceBucket.Free(res);
+			m_resources.erase(it);
+		}
+
 		void Destroy()
 		{
 			for (auto [sid, res] : m_resources)

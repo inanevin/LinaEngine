@@ -147,6 +147,19 @@ namespace Lina
 		stream >> m_shaderType;
 	}
 
+	void Material::GenerateHW()
+	{
+		LINA_ASSERT(m_hwValid == false, "");
+		m_hwValid = true;
+	}
+
+	void Material::DestroyHW()
+	{
+		LINA_ASSERT(m_hwValid, "");
+		m_hwValid		= false;
+		m_hwUploadValid = false;
+	}
+
 	size_t Material::BufferDataInto(Buffer& buf, size_t padding, ResourceManagerV2* rm, BindlessContext* context)
 	{
 		size_t totalSize = 0;
@@ -162,8 +175,8 @@ namespace Lina
 				LINA_ASSERT(texture != nullptr && sampler != nullptr, "");
 
 				LinaTexture2DBinding binding = {
-					.textureIndex = context->GetBindlessIndex(texture),
-					.samplerIndex = context->GetBindlessIndex(sampler),
+					.textureIndex = texture->GetBindlessIndex(),
+					.samplerIndex = sampler->GetBindlessIndex(),
 				};
 
 				buf.BufferData(padding, (uint8*)&binding, sizeof(LinaTexture2D));

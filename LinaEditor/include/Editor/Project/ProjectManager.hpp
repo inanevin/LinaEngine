@@ -81,7 +81,6 @@ namespace Lina::Editor
 		void			   SetThumbnail(ResourceDirectory* dir, TextureAtlasImage* img);
 		void			   ReimportChangedSources(ResourceDirectory* root, Widget* requestingWidget);
 		void			   ReloadResourceInstances(Resource* res);
-		void			   RefreshThumbnails();
 
 	private:
 		void OnPressedOpenProject();

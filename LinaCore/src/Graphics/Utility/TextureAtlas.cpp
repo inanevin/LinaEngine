@@ -33,16 +33,13 @@ SOFTWARE.
 
 namespace Lina
 {
-	TextureAtlas::TextureAtlas(ResourceManagerV2* rm, const Vector2ui& sz, LinaGX::Format format) : m_size(sz), m_textureFormat(format), m_resourceManagerV2(rm)
+	TextureAtlas::TextureAtlas(const Vector2ui& sz, LinaGX::Format format) : m_size(sz), m_textureFormat(format)
 	{
 		m_bytesPerPixel		  = GetBytesPerPixelFromFormat(format);
 		const size_t dataSize = static_cast<size_t>(static_cast<size_t>(sz.x * sz.y * m_bytesPerPixel));
 		uint8*		 data	  = new uint8[dataSize];
 		m_data				  = {data, dataSize};
 		MEMSET(m_data.data(), 0, dataSize);
-		m_rawTexture							= m_resourceManagerV2->CreateResource<Texture>(m_resourceManagerV2->ConsumeResourceID(), "TextureAtlasRawTexture");
-		m_rawTexture->GetMeta().format			= m_textureFormat;
-		m_rawTexture->GetMeta().generateMipmaps = true;
 		m_availableGrids.push_back(new Grid(Vector2ui::Zero, sz));
 	}
 
@@ -57,9 +54,34 @@ namespace Lina
 		m_availableGrids.clear();
 		m_rects.clear();
 
-		m_resourceManagerV2->DestroyResource(m_rawTexture);
 		m_rawTexture = nullptr;
 		delete[] m_data.data();
+	}
+
+	void TextureAtlas::CreateRawTexture(ResourceManagerV2& rm)
+	{
+		LINA_ASSERT(m_rawTexture == nullptr, "");
+		m_rawTexture							= rm.CreateResource<Texture>(rm.ConsumeResourceID(), "TextureAtlasRawTexture");
+		m_rawTexture->GetMeta().format			= m_textureFormat;
+		m_rawTexture->GetMeta().generateMipmaps = true;
+	}
+
+	void TextureAtlas::DestroyRawTexture(ResourceManagerV2& rm)
+	{
+		LINA_ASSERT(m_rawTexture != nullptr, "");
+		m_rawTexture->DestroyHW();
+		rm.DestroyResource(m_rawTexture);
+		m_rawTexture = nullptr;
+	}
+
+	void TextureAtlas::Refresh(ResourceUploadQueue& queue)
+	{
+		m_rawTexture->LoadFromBuffer(m_data.data(), m_size.x, m_size.y, m_bytesPerPixel);
+
+		if (!m_rawTexture->IsHWValid())
+			m_rawTexture->GenerateHW();
+
+		m_rawTexture->AddToUploadQueue(queue, false);
 	}
 
 	TextureAtlasImage* TextureAtlas::AddImage(uint8* data, const Vector2ui& size, StringID sid)
@@ -145,15 +167,4 @@ namespace Lina
 		return false;
 	}
 
-	void TextureAtlas::RefreshSW()
-	{
-		m_rawTexture->LoadFromBuffer(m_data.data(), m_size.x, m_size.y, m_bytesPerPixel);
-	}
-
-	void TextureAtlas::RefreshGPU(ResourceUploadQueue& queue)
-	{
-		if (!m_rawTexture->IsHWValid())
-			m_rawTexture->GenerateHW();
-		m_rawTexture->AddToUploadQueue(queue, true);
-	}
 } // namespace Lina

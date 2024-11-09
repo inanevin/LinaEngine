@@ -61,6 +61,17 @@ namespace Lina
 			if (m_nextBucket != nullptr)
 				delete m_nextBucket;
 
+			for (uint32 i = 0; i < N; i++)
+			{
+				uint8* ptr = m_span.data() + i * sizeof(T);
+				T*	   obj = reinterpret_cast<T*>(ptr);
+
+				if (obj->m_bucketIdent.isValid == 0)
+					continue;
+
+				obj->~T();
+			}
+
 			delete[] m_rawMemory;
 		};
 

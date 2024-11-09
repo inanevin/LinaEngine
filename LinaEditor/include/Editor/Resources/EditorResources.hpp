@@ -41,7 +41,13 @@ namespace Lina::Editor
 	class EditorResources
 	{
 	public:
-		static bool LoadPriorityResources(ResourceManagerV2& resourceManager, ResourceList& outResources);
-		static bool LoadCoreResources(ResourceManagerV2& resourceManager, ResourceList& outResources);
+		bool LoadPriorityResources(ResourceManagerV2& manager);
+		bool LoadCoreResources();
+
+		void TransferResourcesToManager(ResourceManagerV2& manager);
+		void ClearLoadedResources();
+
+	private:
+		Vector<Resource*> m_loadedResources;
 	};
 } // namespace Lina::Editor

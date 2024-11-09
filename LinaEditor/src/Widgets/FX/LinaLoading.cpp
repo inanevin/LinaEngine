@@ -32,14 +32,15 @@ SOFTWARE.
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Core/Graphics/Utility/TextureAtlas.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
+#include "Core/Application.hpp"
 
 namespace Lina::Editor
 {
 	void LinaLoading::Construct()
 	{
-		m_imgLeft	= Editor::Get()->GetResourceManagerV2().GetResource<Texture>(EDITOR_TEXTURE_LINA_LOGO_LEFT_ID);
-		m_imgRight	= Editor::Get()->GetResourceManagerV2().GetResource<Texture>(EDITOR_TEXTURE_LINA_LOGO_RIGHT_ID);
-		m_imgBottom = Editor::Get()->GetResourceManagerV2().GetResource<Texture>(EDITOR_TEXTURE_LINA_LOGO_BOTTOM_ID);
+		m_imgLeft	= Editor::Get()->GetApp()->GetResourceManager().GetResource<Texture>(EDITOR_TEXTURE_LINA_LOGO_LEFT_ID);
+		m_imgRight	= Editor::Get()->GetApp()->GetResourceManager().GetResource<Texture>(EDITOR_TEXTURE_LINA_LOGO_RIGHT_ID);
+		m_imgBottom = Editor::Get()->GetApp()->GetResourceManager().GetResource<Texture>(EDITOR_TEXTURE_LINA_LOGO_BOTTOM_ID);
 	}
 
 	void LinaLoading::Tick(float delta)

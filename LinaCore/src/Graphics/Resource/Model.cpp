@@ -52,9 +52,8 @@ namespace Lina
 		DestroyTextureDefs();
 
 		for (auto* n : m_rootNodes)
-		{
 			delete n;
-		}
+
 		m_rootNodes.clear();
 	}
 
@@ -242,6 +241,7 @@ namespace Lina
 
 	void Model::GenerateHW()
 	{
+		LINA_ASSERT(m_hwValid == false, "");
 		m_hwValid = true;
 	}
 
@@ -254,6 +254,7 @@ namespace Lina
 
 	void Model::DestroyHW()
 	{
+		LINA_ASSERT(m_hwValid, "");
 		m_hwValid		= false;
 		m_hwUploadValid = false;
 	}

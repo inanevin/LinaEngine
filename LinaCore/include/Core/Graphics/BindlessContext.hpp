@@ -29,6 +29,15 @@ SOFTWARE.
 #pragma once
 
 #include "Common/Data/HashMap.hpp"
+#include "Core/Resources/ResourceManagerListener.hpp"
+#include "Core/Graphics/ResourceUploadQueue.hpp"
+#include "Core/Graphics/Pipeline/Buffer.hpp"
+
+namespace LinaGX
+{
+	class Instance;
+	class CommandStream;
+} // namespace LinaGX
 
 namespace Lina
 {
@@ -36,26 +45,61 @@ namespace Lina
 	class TextureSampler;
 	class Entity;
 	class Material;
+	class ResourceManagerV2;
+	class GUIBackend;
 
-	class BindlessContext
+	class BindlessContext : public ResourceManagerListener
 	{
 	public:
 		BindlessContext()  = default;
 		~BindlessContext() = default;
 
-		void   SetBindlessIndex(Texture* txt, uint32 index);
-		void   SetBindlessIndex(TextureSampler* txt, uint32 index);
-		void   SetBindlessIndex(Entity* e, uint32 index);
-		void   SetBindlessIndex(Material* m, uint32 index);
-		uint32 GetBindlessIndex(Texture* txt);
-		uint32 GetBindlessIndex(TextureSampler* txt);
-		uint32 GetBindlessIndex(Entity* e);
-		uint32 GetBindlessIndex(Material* m);
+		struct PerFrameData
+		{
+			LinaGX::CommandStream* copyStream	 = nullptr;
+			SemaphoreData		   copySemaphore = {};
 
-	protected:
-		HashMap<Texture*, uint32>		 m_bindlessIndicesTexture;
-		HashMap<TextureSampler*, uint32> m_bindlessIndicesSampler;
-		HashMap<Entity*, uint32>		 m_bindlessIndicesEntity;
-		HashMap<Material*, uint32>		 m_bindlessIndicesMaterial;
+			uint16							  descriptorSetGlobal = 0;
+			LinaGX::DescriptorUpdateImageDesc globalTexturesDesc  = {};
+			LinaGX::DescriptorUpdateImageDesc globalSamplersDesc  = {};
+
+			Buffer globalMaterialsBuffer = {};
+			Buffer globalDataBuffer		 = {};
+			bool   bindlessDirty		 = false;
+		};
+
+		void Initialize(ResourceManagerV2* rm, LinaGX::Instance* lgx, GUIBackend* guiBackend);
+		void Shutdown();
+		void PollUploads(uint32 frameIndex);
+
+		virtual void OnResourceManagerPreDestroyHW(const HashSet<Resource*>& resources) override;
+		virtual void OnResourceManagerGeneratedHW(const HashSet<Resource*>& resources) override;
+		void		 MarkBindlessDirty();
+
+		inline uint16 GetDescriptorSetGlobal(uint32 frameIndex)
+		{
+			return m_pfd[frameIndex].descriptorSetGlobal;
+		}
+
+		inline ResourceUploadQueue& GetUploadQueue()
+		{
+			return m_uploadQueue;
+		}
+
+		inline uint16 GetPipelineLayoutGlobal() const
+		{
+			return m_pipelineLayoutGlobal;
+		}
+
+	private:
+		void UpdateBindless(uint32 frameIndex);
+
+	private:
+		ResourceManagerV2*	m_rm		 = nullptr;
+		LinaGX::Instance*	m_lgx		 = nullptr;
+		GUIBackend*			m_guiBackend = nullptr;
+		ResourceUploadQueue m_uploadQueue;
+		PerFrameData		m_pfd[FRAMES_IN_FLIGHT];
+		uint16				m_pipelineLayoutGlobal = 0;
 	};
 } // namespace Lina

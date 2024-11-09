@@ -172,9 +172,9 @@ namespace Lina::Editor
 				.id	 = m_subData,
 				.tid = GetTypeID<Shader>(),
 			};
-			m_editor->GetResourceManagerV2().LoadResourcesFromProject(m_editor, m_editor->GetProjectManager().GetProjectData(), {def}, 0);
-			m_editor->GetResourceManagerV2().WaitForAll();
-			m_shader				   = m_editor->GetResourceManagerV2().GetResource<Shader>(def.id);
+			m_editor->GetApp()->GetResourceManager().LoadResourcesFromProject(m_editor, m_editor->GetProjectManager().GetProjectData(), {def}, 0);
+			m_editor->GetApp()->GetResourceManager().WaitForAll();
+			m_shader				   = m_editor->GetApp()->GetResourceManager().GetResource<Shader>(def.id);
 			m_shaderName			   = m_shader->GetName();
 			GetWidgetProps().debugName = "Shader: " + m_shader->GetName();
 
@@ -376,7 +376,7 @@ namespace Lina::Editor
 			if (m_shader == nullptr)
 				return;
 
-			m_editor->GetResourceManagerV2().UnloadResources({m_shader});
+			m_editor->GetApp()->GetResourceManager().UnloadResources({m_shader});
 			m_editor->GetEditorRenderer().RemoveWorldRenderer(m_worldRenderer);
 			delete m_worldRenderer;
 			delete m_world;

@@ -373,32 +373,32 @@ namespace Lina
 
 	void EntityWorld::VerifyResources()
 	{
-		Application::GetLGX()->Join();
-
-		const HashMap<TypeID, ResourceCacheBase*>& caches = m_resourceManagerV2.GetCaches();
-
-		Vector<Resource*> generatedResources;
-
-		for (auto [tid, cache] : caches)
-		{
-			Vector<Resource*> resources = cache->GetAllResources();
-			for (Resource* res : resources)
-			{
-				if (res->GetIsReloaded())
-				{
-					res->DestroyHW();
-					res->SetIsReloaded(false);
-				}
-
-				if (!res->IsHWValid())
-				{
-					generatedResources.push_back(res);
-					res->GenerateHW();
-				}
-			}
-		}
-
-		for (EntityWorldListener* listener : m_listeners)
-			listener->OnGeneratedResources(generatedResources);
+		// Application::GetLGX()->Join();
+		//
+		// const HashMap<TypeID, ResourceCacheBase*>& caches = m_resourceManagerV2.GetCaches();
+		//
+		// Vector<Resource*> generatedResources;
+		//
+		// for (auto [tid, cache] : caches)
+		// {
+		// 	Vector<Resource*> resources = cache->GetAllResources();
+		// 	for (Resource* res : resources)
+		// 	{
+		// 		if (res->GetIsReloaded())
+		// 		{
+		// 			res->DestroyHW();
+		// 			res->SetIsReloaded(false);
+		// 		}
+		//
+		// 		if (!res->IsHWValid())
+		// 		{
+		// 			generatedResources.push_back(res);
+		// 			res->GenerateHW();
+		// 		}
+		// 	}
+		// }
+		//
+		// for (EntityWorldListener* listener : m_listeners)
+		// 	listener->OnGeneratedResources(generatedResources);
 	}
 } // namespace Lina

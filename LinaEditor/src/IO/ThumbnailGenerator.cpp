@@ -114,6 +114,8 @@ namespace Lina::Editor
 			buf = GenerateThumbnail(&res);
 		}
 
+		stream.Destroy();
+
 		if (buf.pixels == nullptr)
 		{
 			LINA_ERR("Failed generating thumbnail for resource: {0}", id);

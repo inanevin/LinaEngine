@@ -317,8 +317,9 @@ namespace Lina
 
 			if (m_widgetProps.interpolateColor)
 			{
-				m_widgetProps._interpolatedColor.start = Math::Lerp(m_widgetProps._interpolatedColor.start, Color(opts.color.start), SystemInfo::GetDeltaTimeF() * m_widgetProps.colorInterpolateSpeed);
-				m_widgetProps._interpolatedColor.end   = Math::Lerp(m_widgetProps._interpolatedColor.end, Color(opts.color.end), SystemInfo::GetDeltaTimeF() * m_widgetProps.colorInterpolateSpeed);
+				const float delta					   = static_cast<float>(SystemInfo::GetDeltaTime());
+				m_widgetProps._interpolatedColor.start = Math::Lerp(m_widgetProps._interpolatedColor.start, Color(opts.color.start), delta * m_widgetProps.colorInterpolateSpeed);
+				m_widgetProps._interpolatedColor.end   = Math::Lerp(m_widgetProps._interpolatedColor.end, Color(opts.color.end), delta * m_widgetProps.colorInterpolateSpeed);
 				opts.color							   = m_widgetProps._interpolatedColor.AsLVG();
 			}
 			opts.color.gradientType = m_widgetProps.colorBackgroundDirection == DirectionOrientation::Horizontal ? LinaVG::GradientType::Horizontal : LinaVG::GradientType::Vertical;

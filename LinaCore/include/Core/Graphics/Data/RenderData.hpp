@@ -70,7 +70,7 @@ namespace Lina
 
 	struct GPUDataEngineGlobals
 	{
-		Vector4 mouseScreen;
+		Vector4 mouse;
 		Vector4 deltaElapsed;
 	};
 

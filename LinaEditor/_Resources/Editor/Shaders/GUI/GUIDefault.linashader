@@ -30,7 +30,7 @@ SOFTWARE.
 
 #lina_vs
 
-#include "Resources/Editor/Shaders/Common/EditorGlobal.linashader"
+#include "Resources/Core/Shaders/Common/GlobalData.linashader"
 #include "Resources/Editor/Shaders/Common/EditorPassGUI.linashader"
 
 layout (location = 0) in vec2 pos;
@@ -51,7 +51,7 @@ void main()
 
 #lina_fs
 
-#include "Resources/Editor/Shaders/Common/EditorGlobal.linashader"
+#include "Resources/Core/Shaders/Common/GlobalData.linashader"
 #include "Resources/Editor/Shaders/Common/EditorPassGUI.linashader"
 
 layout (location = 0) in vec4 inCol;
@@ -76,9 +76,32 @@ layout( push_constant ) uniform constants
 	uint materialIndex;
 } PushConstants;
 
+LinaMaterial GetMaterial(uint index)
+{
+   LinaMaterial mat;
+   mat.clip.x = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
+   mat.clip.y = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
+   mat.clip.z = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
+   mat.clip.w = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
+
+   mat.uvTilingAndOffset.x = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
+   mat.uvTilingAndOffset.y = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
+   mat.uvTilingAndOffset.z = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
+   mat.uvTilingAndOffset.w = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
+
+   mat.hasTexture = LINA_EDITOR_MATERIALS.data[index++];
+   mat.displayChannels = LINA_EDITOR_MATERIALS.data[index++];
+   mat.displayLod = LINA_EDITOR_MATERIALS.data[index++];
+   mat.singleChannel = LINA_EDITOR_MATERIALS.data[index++];
+   mat.diffuse.txt = LINA_EDITOR_MATERIALS.data[index++];
+   mat.diffuse.smp = LINA_EDITOR_MATERIALS.data[index++];
+
+   return mat;
+}
+
 void main()
 {
-   LinaMaterial material = LINA_GET_MATERIAL(PushConstants.materialIndex);
+   LinaMaterial material = GetMaterial(PushConstants.materialIndex);
 
    if(material.clip.z > 0 && material.clip.w > 0)
    {

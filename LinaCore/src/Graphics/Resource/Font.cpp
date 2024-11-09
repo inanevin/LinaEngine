@@ -79,11 +79,14 @@ namespace Lina
 	Font::~Font()
 	{
 		DestroySW();
-		DestroyHW();
 	}
 
 	void Font::DestroyHW()
 	{
+		LINA_ASSERT(m_hwValid, "");
+		m_hwValid		= false;
+		m_hwUploadValid = false;
+
 		for (LinaVG::Font* font : m_hwLvgFonts)
 		{
 			font->atlas->RemoveFont(font->atlasRectPos, font->atlasRectHeight);
@@ -92,14 +95,11 @@ namespace Lina
 		}
 
 		m_hwLvgFonts.clear();
-		m_hwValid		= false;
-		m_hwUploadValid = false;
 	}
 
 	void Font::GenerateHW()
 	{
-		DestroyHW();
-
+		LINA_ASSERT(m_hwValid == false, "");
 		m_hwValid = true;
 
 		for (LinaVG::Font* font : m_lvgFonts)
@@ -111,7 +111,7 @@ namespace Lina
 			{
 				const size_t sz = static_cast<size_t>(ch.m_size.x * ch.m_size.y);
 				ch.m_buffer		= nullptr;
-				ch.m_buffer		= new unsigned char[sz];
+				ch.m_buffer		= (unsigned char*)malloc(sz);
 				MEMCPY(ch.m_buffer, font->glyphs[glyph].m_buffer, sz);
 			}
 
@@ -306,7 +306,7 @@ namespace Lina
 
 			if (sz != 0)
 			{
-				ch.m_buffer = new unsigned char[sz];
+				ch.m_buffer = (unsigned char*)malloc(sz);
 				stream.ReadToRaw(ch.m_buffer, sz);
 			}
 		}

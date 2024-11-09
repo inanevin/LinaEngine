@@ -56,7 +56,11 @@ namespace Lina
 
 		// Pre-initialization
 		GfxHelpers::InitializeLinaVG();
-		s_lgx				 = GfxHelpers::InitializeLinaGX();
+		s_lgx = GfxHelpers::InitializeLinaGX();
+
+		m_gfxBindlessContext.Initialize(&m_resourceManager, s_lgx, &m_guiBackend);
+		m_guiBackend.Initialize(&m_resourceManager);
+
 		const bool preInitOK = GetAppDelegate()->PreInitialize();
 
 		if (!preInitOK)
@@ -91,39 +95,42 @@ namespace Lina
 	{
 		PROFILER_FRAME_START();
 
-		// auto renderJob = m_executor.Async([this]() { m_appDelegate->Render(); });
-
 		PlatformProcess::PumpOSMessages();
 
-		// Time.
 		CalculateTime();
+		const double delta = SystemInfo::GetDeltaTime();
 
-		// PreTick
 		s_lgx->TickWindowSystem();
 		GetAppDelegate()->PreTick();
 
-		// Tick
-		const double delta = SystemInfo::GetDeltaTime();
+		m_resourceManager.SetLocked(true);
+
+		// auto renderJob = m_executor.Async([this]() { m_appDelegate->Render(); });
+
 		GetAppDelegate()->Tick(static_cast<float>(delta));
-		SystemInfo::SetFrames(SystemInfo::GetFrames() + 1);
-		SystemInfo::SetAppTime(SystemInfo::GetAppTime() + SystemInfo::GetDeltaTime());
 
 		// renderJob.get();
 
-		// m_appDelegate->SyncRender();
+		Render();
 
-		// Yield-CPU check.
+		m_resourceManager.SetLocked(false);
+		m_appDelegate->SyncRender();
+
 		if (!SystemInfo::GetAppHasFocus())
 			PlatformTime::Sleep(0);
-
-		m_appDelegate->Render();
+		SystemInfo::SetFrames(SystemInfo::GetFrames() + 1);
+		SystemInfo::SetAppTime(SystemInfo::GetAppTime() + SystemInfo::GetDeltaTime());
 	}
 
 	void Application::Shutdown()
 	{
-		GetLGX()->Join();
+		s_lgx->Join();
 		GetAppDelegate()->PreShutdown();
+		m_guiBackend.Shutdown();
 		GfxHelpers::ShutdownLinaVG();
+
+		m_gfxBindlessContext.Shutdown();
+		m_resourceManager.Shutdown();
 
 		GetAppDelegate()->Shutdown();
 		DestroyApplicationWindow(LINA_MAIN_SWAPCHAIN);
@@ -165,6 +172,17 @@ namespace Lina
 	LinaGX::Window* Application::GetApplicationWindow(StringID sid)
 	{
 		return s_lgx->GetWindowManager().GetWindow(sid);
+	}
+
+	void Application::Render()
+	{
+		const uint32 frameIndex = s_lgx->GetCurrentFrameIndex();
+		s_lgx->StartFrame();
+
+		m_gfxBindlessContext.PollUploads(frameIndex);
+		m_appDelegate->Render(frameIndex);
+
+		s_lgx->EndFrame();
 	}
 
 	void Application::CalculateTime()

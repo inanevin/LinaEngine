@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Common/Data/Vector.hpp"
 #include "CommonResources.hpp"
 #include "ResourceCache.hpp"
+#include "ResourceManagerListener.hpp"
 #include "Common/JobSystem/JobSystem.hpp"
 #include "Common/Data/CommonData.hpp"
 
@@ -50,8 +51,11 @@ namespace Lina
 
 		void LoadResourcesFromFile(const ResourceDefinitionList& resourceDef, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress);
 		void LoadResourcesFromProject(ProjectData* project, const HashSet<ResourceID>& resources, Delegate<void(uint32 loaded, Resource* currentItem)> onProgress);
-		void UnloadResources(const Vector<Resource*>& resources);
+		void UnloadResources(const ResourceDefinitionList& resources);
 		void ReloadResources(ProjectData* project, const HashSet<ResourceID>& resources);
+
+		void AddListener(ResourceManagerListener* listener);
+		void RemoveListener(ResourceManagerListener* listener);
 
 		void Shutdown();
 
@@ -78,17 +82,27 @@ namespace Lina
 
 		template <typename T> T* CreateResource(ResourceID id, const String& name = "")
 		{
+			CheckLock();
 			T* res = static_cast<T*>(GetCache<T>()->Create(id, name));
+			return res;
+		}
+
+		Resource* CreateResource(ResourceID id, TypeID tid, const String& name = "")
+		{
+			CheckLock();
+			Resource* res = GetCache(tid)->Create(id, name);
 			return res;
 		}
 
 		template <typename T> void DestroyResource(ResourceID id)
 		{
+			CheckLock();
 			GetCache<T>()->Destroy(id);
 		}
 
 		template <typename T> void DestroyResource(T* res)
 		{
+			CheckLock();
 			GetCache<T>()->Destroy(res->GetID());
 		}
 
@@ -109,12 +123,20 @@ namespace Lina
 			return m_caches;
 		}
 
-	private:
-		ResourceCacheBase* GetCache(TypeID tid);
+		inline void SetLocked(bool locked)
+		{
+			m_locked = locked;
+		}
 
 	private:
+		ResourceCacheBase* GetCache(TypeID tid);
+		void			   CheckLock();
+
+	private:
+		Vector<ResourceManagerListener*>	m_listeners;
 		ResourceID							m_customResourceID = RESOURCE_ID_CUSTOM_SPACE;
 		HashMap<TypeID, ResourceCacheBase*> m_caches;
+		bool								m_locked = false;
 	};
 
 } // namespace Lina

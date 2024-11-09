@@ -45,6 +45,8 @@ namespace Lina
 		virtual bool LoadFromFile(const String& path) override;
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
+		virtual void GenerateHW() override;
+		virtual void DestroyHW() override;
 
 	private:
 		ALLOCATOR_BUCKET_MEM;

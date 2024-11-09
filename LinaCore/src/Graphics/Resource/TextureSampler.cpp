@@ -37,7 +37,6 @@ namespace Lina
 {
 	TextureSampler::~TextureSampler()
 	{
-		DestroyHW();
 	}
 
 	void TextureSampler::SaveToStream(OStream& stream) const
@@ -82,8 +81,11 @@ namespace Lina
 		stream.Destroy();
 		return true;
 	}
+
 	void TextureSampler::GenerateHW()
 	{
+		LINA_ASSERT(m_hwValid == false, "");
+
 		m_samplerDesc.debugName = m_name.c_str();
 		m_gpuHandle				= Application::GetLGX()->CreateSampler(m_samplerDesc);
 		m_hwValid				= true;
@@ -91,6 +93,7 @@ namespace Lina
 
 	void TextureSampler::GenerateHW(const LinaGX::SamplerDesc& desc)
 	{
+		LINA_ASSERT(m_hwValid == false, "");
 		m_samplerDesc = desc;
 		m_gpuHandle	  = Application::GetLGX()->CreateSampler(m_samplerDesc);
 		m_hwValid	  = true;
@@ -98,8 +101,8 @@ namespace Lina
 
 	void TextureSampler::DestroyHW()
 	{
-		if (!m_hwValid)
-			return;
+		LINA_ASSERT(m_hwValid, "");
+
 		Application::GetLGX()->DestroySampler(m_gpuHandle);
 		m_hwValid = false;
 	}

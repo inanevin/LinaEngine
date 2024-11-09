@@ -31,7 +31,7 @@ layout(set = 1, binding = 0) uniform ViewData
 	mat4 proj;
 } LINA_VIEW;
 
-layout (set = 1, binding = 1) readonly buffer MaterialBuffer
+layout (set = 1, binding = 1) readonly buffer EditorMaterialBuffer
 {
 	uint data[];
-} LINA_MATERIALS;
+} LINA_EDITOR_MATERIALS;

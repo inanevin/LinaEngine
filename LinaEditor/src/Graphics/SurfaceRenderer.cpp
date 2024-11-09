@@ -57,14 +57,14 @@ namespace Lina::Editor
 	SurfaceRenderer::SurfaceRenderer(Editor* editor, LinaGX::Window* window, const Color& clearColor) : m_window(window)
 	{
 		m_editor			= editor;
-		m_resourceManagerV2 = &m_editor->GetResourceManagerV2();
+		m_resourceManagerV2 = &m_editor->GetApp()->GetResourceManager();
 		m_lgx				= Application::GetLGX();
 		m_size				= m_window->GetSize();
-		m_guiDefault		= m_editor->GetResourceManagerV2().GetResource<Shader>(EDITOR_SHADER_GUI_DEFAULT_ID);
-		m_guiColorWheel		= m_editor->GetResourceManagerV2().GetResource<Shader>(EDITOR_SHADER_GUI_COLOR_WHEEL_ID);
-		m_guiHue			= m_editor->GetResourceManagerV2().GetResource<Shader>(EDITOR_SHADER_GUI_HUE_DISPLAY_ID);
-		m_guiText			= m_editor->GetResourceManagerV2().GetResource<Shader>(EDITOR_SHADER_GUI_TEXT_ID);
-		m_guiSDF			= m_editor->GetResourceManagerV2().GetResource<Shader>(EDITOR_SHADER_GUI_SDF_TEXT_ID);
+		m_guiDefault		= m_editor->GetApp()->GetResourceManager().GetResource<Shader>(EDITOR_SHADER_GUI_DEFAULT_ID);
+		m_guiColorWheel		= m_editor->GetApp()->GetResourceManager().GetResource<Shader>(EDITOR_SHADER_GUI_COLOR_WHEEL_ID);
+		m_guiHue			= m_editor->GetApp()->GetResourceManager().GetResource<Shader>(EDITOR_SHADER_GUI_HUE_DISPLAY_ID);
+		m_guiText			= m_editor->GetApp()->GetResourceManager().GetResource<Shader>(EDITOR_SHADER_GUI_TEXT_ID);
+		m_guiSDF			= m_editor->GetApp()->GetResourceManager().GetResource<Shader>(EDITOR_SHADER_GUI_SDF_TEXT_ID);
 
 		const LinaGX::VSyncStyle vsync = {
 			.vulkanVsync = VSYNC_VK,
@@ -103,7 +103,7 @@ namespace Lina::Editor
 
 		// RP
 		m_guiPass.Create(EditorGfxHelpers::GetGUIPassDescription());
-		m_widgetManager.Initialize(&m_editor->GetResourceManagerV2(), m_window, &m_lvgDrawer);
+		m_widgetManager.Initialize(&m_editor->GetApp()->GetResourceManager(), m_window, &m_lvgDrawer);
 		m_lvgDrawer.GetCallbacks().draw = BIND(&SurfaceRenderer::DrawDefault, this, std::placeholders::_1);
 	}
 
@@ -194,9 +194,8 @@ namespace Lina::Editor
 		if (buf->userData != nullptr)
 			guiUserData = static_cast<GUIUserData*>(buf->userData);
 
-		BindlessContext*   context		  = &m_editor->GetEditorRenderer();
-		ResourceManagerV2& rm			  = m_editor->GetResourceManagerV2();
-		GUIBackend&		   guiBackend	  = m_editor->GetEditorRenderer().GetGUIBackend();
+		ResourceManagerV2& rm			  = m_editor->GetApp()->GetResourceManager();
+		GUIBackend&		   guiBackend	  = m_editor->GetApp()->GetGUIBackend();
 		Buffer&			   materialBuffer = m_guiPass.GetBuffer(frameIndex, "GUIMaterials"_hs);
 
 		if (buf->shapeType == LinaVG::DrawBufferShapeType::Shape || buf->shapeType == LinaVG::DrawBufferShapeType::AA)
@@ -216,8 +215,8 @@ namespace Lina::Editor
 						.singleChannel	   = texture == nullptr ? (uint32)0 : (uint32)(texture->GetMeta().format == LinaGX::Format::R8_UNORM),
 						.diffuse =
 							{
-								.textureIndex = texture != nullptr ? context->GetBindlessIndex(texture) : 0,
-								.samplerIndex = texture != nullptr ? context->GetBindlessIndex(m_editor->GetEditorRenderer().GetGUISampler()) : 0,
+								.textureIndex = texture != nullptr ? texture->GetBindlessIndex() : 0,
+								.samplerIndex = texture != nullptr ? m_editor->GetEditorRenderer().GetGUISampler()->GetBindlessIndex() : 0,
 							},
 					};
 
@@ -225,7 +224,7 @@ namespace Lina::Editor
 					material.displayChannels = static_cast<uint32>(guiUserData->displayChannels);
 
 					if (guiUserData->sampler != 0)
-						material.diffuse.samplerIndex = context->GetBindlessIndex(rm.GetResource<TextureSampler>(guiUserData->sampler));
+						material.diffuse.samplerIndex = rm.GetResource<TextureSampler>(guiUserData->sampler)->GetBindlessIndex();
 
 					drawRequest.shader = m_guiDefault;
 
@@ -273,8 +272,8 @@ namespace Lina::Editor
 					.singleChannel	   = texture == nullptr ? (uint32)0 : (uint32)(texture->GetMeta().format == LinaGX::Format::R8_UNORM),
 					.diffuse =
 						{
-							.textureIndex = texture != nullptr ? context->GetBindlessIndex(texture) : 0,
-							.samplerIndex = texture != nullptr ? context->GetBindlessIndex(m_editor->GetEditorRenderer().GetGUISampler()) : 0,
+							.textureIndex = texture != nullptr ? texture->GetBindlessIndex() : 0,
+							.samplerIndex = texture != nullptr ? m_editor->GetEditorRenderer().GetGUISampler()->GetBindlessIndex() : 0,
 						},
 				};
 
@@ -291,8 +290,8 @@ namespace Lina::Editor
 				.clip = Vector4(buf->clipPosX, buf->clipPosY, buf->clipSizeX, buf->clipSizeY),
 				.diffuse =
 					{
-						.textureIndex = context->GetBindlessIndex(guiBackend.GetFontTexture(atlas).texture),
-						.samplerIndex = context->GetBindlessIndex(m_editor->GetEditorRenderer().GetGUITextSampler()),
+						.textureIndex = guiBackend.GetFontTexture(atlas).texture->GetBindlessIndex(),
+						.samplerIndex = m_editor->GetEditorRenderer().GetGUITextSampler()->GetBindlessIndex(),
 					},
 			};
 
@@ -307,8 +306,8 @@ namespace Lina::Editor
 				.clip = Vector4(buf->clipPosX, buf->clipPosY, buf->clipSizeX, buf->clipSizeY),
 				.diffuse =
 					{
-						.textureIndex = context->GetBindlessIndex(guiBackend.GetFontTexture(static_cast<LinaVG::Atlas*>(buf->textureHandle)).texture),
-						.samplerIndex = context->GetBindlessIndex(m_editor->GetEditorRenderer().GetGUITextSampler()),
+						.textureIndex = guiBackend.GetFontTexture(static_cast<LinaVG::Atlas*>(buf->textureHandle)).texture->GetBindlessIndex(),
+						.samplerIndex = m_editor->GetEditorRenderer().GetGUITextSampler()->GetBindlessIndex(),
 					},
 				.outlineColor	  = Vector4(0, 0, 0, 0),
 				.thickness		  = 0.5f,
@@ -399,7 +398,7 @@ namespace Lina::Editor
 		};
 
 		LinaGX::CMDBindDescriptorSets* bindGlobal = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindDescriptorSets>();
-		bindGlobal->descriptorSetHandles		  = currentFrame.gfxStream->EmplaceAuxMemory<uint16>(m_editor->GetEditorRenderer().GetDescriptorSetGlobal(frameIndex));
+		bindGlobal->descriptorSetHandles		  = currentFrame.gfxStream->EmplaceAuxMemory<uint16>(m_editor->GetApp()->GetGfxContext().GetDescriptorSetGlobal(frameIndex));
 		bindGlobal->firstSet					  = 0;
 		bindGlobal->setCount					  = 1;
 		bindGlobal->layoutSource				  = LinaGX::DescriptorSetsLayoutSource::CustomLayout;

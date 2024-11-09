@@ -77,16 +77,16 @@ namespace Lina
 
 			auto it = linatl::find_if(vec.begin(), vec.end(), [mesh](const DrawDataMeshDefault& dd) -> bool { return dd.mesh == mesh; });
 
-			if (it != vec.end())
-				it->instances.push_back({material, m_bindlessContext->GetBindlessIndex(mc->GetEntity())});
-			else
-			{
-				DrawDataMeshDefault drawData = {
-					.mesh	   = mesh,
-					.instances = {{material, m_bindlessContext->GetBindlessIndex(mc->GetEntity())}},
-				};
-				vec.push_back(drawData);
-			}
+			// if (it != vec.end())
+			// 	it->instances.push_back({material, m_bindlessContext->GetBindlessIndex(mc->GetEntity())});
+			// else
+			// {
+			// 	DrawDataMeshDefault drawData = {
+			// 		.mesh	   = mesh,
+			// 		.instances = {{material, m_bindlessContext->GetBindlessIndex(mc->GetEntity())}},
+			// 	};
+			// 	vec.push_back(drawData);
+			// }
 		}
 	}
 
@@ -108,13 +108,13 @@ namespace Lina
 				indirectAmount++;
 				for (const InstanceData& inst : md.instances)
 				{
-					GPUIndirectConstants0 constants = {
-						.entityID		   = inst.entityIndex,
-						.materialByteIndex = m_bindlessContext->GetBindlessIndex(inst.material) / 4,
-					};
-					indirectArgsBuffer.BufferData(constantsCount * sizeof(GPUIndirectConstants0), (uint8*)&constants, sizeof(GPUIndirectConstants0));
-					constantsCount++;
-					drawID++;
+					// GPUIndirectConstants0 constants = {
+					// 	.entityID		   = inst.entityIndex,
+					// 	.materialByteIndex = m_bindlessContext->GetBindlessIndex(inst.material) / 4,
+					// };
+					// indirectArgsBuffer.BufferData(constantsCount * sizeof(GPUIndirectConstants0), (uint8*)&constants, sizeof(GPUIndirectConstants0));
+					// constantsCount++;
+					// drawID++;
 				}
 			}
 		}

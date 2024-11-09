@@ -31,7 +31,6 @@ SOFTWARE.
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Core/Graphics/GUI/GUIBackend.hpp"
 #include "Core/Graphics/ResourceUploadQueue.hpp"
-#include "Core/Graphics/BindlessContext.hpp"
 #include "Core/Resources/CommonResources.hpp"
 
 namespace Lina
@@ -51,42 +50,21 @@ namespace Lina::Editor
 	class Editor;
 	class SurfaceRenderer;
 
-	class EditorRenderer : public BindlessContext
+	class EditorRenderer
 	{
 	public:
-		struct PerFrameData
-		{
-
-			uint16							  descriptorSetGlobal = 0;
-			LinaGX::DescriptorUpdateImageDesc globalTexturesDesc  = {};
-			LinaGX::DescriptorUpdateImageDesc globalSamplersDesc  = {};
-
-			LinaGX::CommandStream* copyStream	 = nullptr;
-			SemaphoreData		   copySemaphore = {};
-
-			bool bindlessDirty = true;
-		};
-
 		void Initialize(Editor* editor);
 		void Shutdown();
 		void PreTick();
 		void Tick(float delta);
 
 		void SyncRender();
-		void Render();
+		void Render(uint32 frameIndex);
 		void AddWorldRenderer(WorldRenderer* wr);
 		void RemoveWorldRenderer(WorldRenderer* wr);
-		void RefreshDynamicTextures();
 
 		void AddSurfaceRenderer(SurfaceRenderer* sr);
 		void RemoveSurfaceRenderer(SurfaceRenderer* sr);
-
-		void VerifyResources();
-
-		inline GUIBackend& GetGUIBackend()
-		{
-			return m_guiBackend;
-		}
 
 		inline TextureSampler* GetGUISampler() const
 		{
@@ -98,30 +76,14 @@ namespace Lina::Editor
 			return m_guiTextSampler;
 		}
 
-		inline uint16 GetDescriptorSetGlobal(uint32 frameIndex)
-		{
-			return m_pfd[frameIndex].descriptorSetGlobal;
-		}
-
-		inline uint16 GetPipelineLayoutGlobal()
-		{
-			return m_pipelineLayoutGlobal;
-		}
-
 		inline uint16 GetPipelineLayoutGUI()
 		{
 			return m_pipelineLayoutGUI;
 		}
 
-		inline ResourceUploadQueue& GetUploadQueue()
+		inline uint16 GetPipelineLayoutGlobal()
 		{
-			return m_uploadQueue;
-		}
-
-		inline void MarkBindlessDirty()
-		{
-			for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-				m_pfd[i].bindlessDirty = true;
+			return m_pipelineLayoutGlobal;
 		}
 
 		inline const Vector<WorldRenderer*>& GetWorldRenderers()
@@ -130,21 +92,14 @@ namespace Lina::Editor
 		}
 
 	private:
-		void UpdateBindlessResources(uint32 frameIndex);
-		void BumpAndSendTransfers(uint32 frameIndex);
-
-	private:
 		Vector<Texture*>		 m_dynamicTextures;
-		uint16					 m_pipelineLayoutGlobal = 0;
 		uint16					 m_pipelineLayoutGUI	= 0;
+		uint16					 m_pipelineLayoutGlobal = 0;
 		Vector<SurfaceRenderer*> m_validSurfaceRenderers;
 		TextureSampler*			 m_guiSampler		 = nullptr;
 		TextureSampler*			 m_guiTextSampler	 = nullptr;
 		ResourceManagerV2*		 m_resourceManagerV2 = nullptr;
 		LinaGX::Instance*		 m_lgx				 = nullptr;
-		PerFrameData			 m_pfd[FRAMES_IN_FLIGHT];
-		ResourceUploadQueue		 m_uploadQueue;
-		GUIBackend				 m_guiBackend;
 		Vector<WorldRenderer*>	 m_worldRenderers;
 		Vector<SurfaceRenderer*> m_surfaceRenderers;
 		Editor*					 m_editor = nullptr;

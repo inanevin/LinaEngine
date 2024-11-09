@@ -152,7 +152,7 @@ namespace Lina::Editor
 		frameMS->GetFlags().Set(WF_POS_ALIGN_X);
 		frameMS->SetAlignedPosX(0.0f);
 		frameMS->SetTickHook([frameMS](float delta) {
-			frameMS->GetProps().text = Locale::GetStr(LocaleStr::FrameTime) + ": " + TO_STRING(SystemInfo::GetDeltaTimeF() * 1000.0f) + " (ms)";
+			frameMS->GetProps().text = Locale::GetStr(LocaleStr::FrameTime) + ": " + TO_STRING(SystemInfo::GetDeltaTime() * 1000.0f) + " (ms)";
 			frameMS->CalculateTextSize();
 		});
 

@@ -42,10 +42,9 @@ namespace Lina::Editor
 {
 	void EditorRenderer::Initialize(Editor* editor)
 	{
-		m_editor = editor;
-		m_guiBackend.Initialize(&m_editor->GetResourceManagerV2());
+		m_editor			= editor;
 		m_lgx				= Application::GetLGX();
-		m_resourceManagerV2 = &editor->GetResourceManagerV2();
+		m_resourceManagerV2 = &editor->GetApp()->GetResourceManager();
 		m_guiSampler		= m_resourceManagerV2->CreateResource<TextureSampler>(m_resourceManagerV2->ConsumeResourceID(), "EditorRendererGUISampler");
 		m_guiTextSampler	= m_resourceManagerV2->CreateResource<TextureSampler>(m_resourceManagerV2->ConsumeResourceID(), "EditorRendererGUITextSampler");
 
@@ -65,44 +64,16 @@ namespace Lina::Editor
 
 		m_pipelineLayoutGlobal = m_lgx->CreatePipelineLayout(EditorGfxHelpers::GetPipelineLayoutDescriptionGlobal());
 		m_pipelineLayoutGUI	   = m_lgx->CreatePipelineLayout(EditorGfxHelpers::GetPipelineLayoutDescriptionGUI());
-
-		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-		{
-			auto& data = m_pfd[i];
-
-			data.descriptorSetGlobal = m_lgx->CreateDescriptorSet(EditorGfxHelpers::GetSetDescriptionGlobal());
-
-			data.globalTexturesDesc = {
-				.setHandle = data.descriptorSetGlobal,
-				.binding   = 0,
-			};
-			data.globalSamplersDesc = {
-				.setHandle = data.descriptorSetGlobal,
-				.binding   = 1,
-			};
-
-			data.copyStream	   = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, 50, 12000, 4096, 32, "WorldRenderer: Copy Stream"});
-			data.copySemaphore = SemaphoreData(m_lgx->CreateUserSemaphore());
-		}
 	}
 
 	void EditorRenderer::Shutdown()
 	{
+		m_guiSampler->DestroyHW();
+		m_guiTextSampler->DestroyHW();
 		m_resourceManagerV2->DestroyResource(m_guiSampler);
 		m_resourceManagerV2->DestroyResource(m_guiTextSampler);
-
-		m_lgx->DestroyPipelineLayout(m_pipelineLayoutGlobal);
 		m_lgx->DestroyPipelineLayout(m_pipelineLayoutGUI);
-
-		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-		{
-			auto& data = m_pfd[i];
-			m_lgx->DestroyDescriptorSet(data.descriptorSetGlobal);
-			m_lgx->DestroyCommandStream(data.copyStream);
-			m_lgx->DestroyUserSemaphore(data.copySemaphore.GetSemaphore());
-		}
-
-		m_guiBackend.Shutdown();
+		m_lgx->DestroyPipelineLayout(m_pipelineLayoutGlobal);
 	}
 
 	void EditorRenderer::PreTick()
@@ -154,89 +125,35 @@ namespace Lina::Editor
 		}
 	}
 
-	void EditorRenderer::UpdateBindlessResources(uint32 frameIndex)
-	{
-		auto& pfd = m_pfd[frameIndex];
-
-		if (!pfd.bindlessDirty)
-			return;
-
-		// Textures.
-		ResourceCache<Texture>* cacheTxt	 = m_resourceManagerV2->GetCache<Texture>();
-		const size_t			txtCacheSize = static_cast<size_t>(cacheTxt->GetActiveItemCount());
-		pfd.globalTexturesDesc.textures.resize(txtCacheSize + m_dynamicTextures.size());
-		cacheTxt->View([&](Texture* txt, uint32 index) -> bool {
-			pfd.globalTexturesDesc.textures[index] = txt->GetGPUHandle();
-			SetBindlessIndex(txt, static_cast<uint32>(index));
-			return false;
-		});
-
-		for (size_t i = 0; i < m_dynamicTextures.size(); i++)
-		{
-			Texture* txt									  = m_dynamicTextures.at(i);
-			pfd.globalTexturesDesc.textures[txtCacheSize + i] = txt->GetGPUHandle();
-			SetBindlessIndex(txt, static_cast<uint32>(i + txtCacheSize));
-		}
-
-		if (!pfd.globalTexturesDesc.textures.empty())
-			m_lgx->DescriptorUpdateImage(pfd.globalTexturesDesc);
-
-		// Samplers
-		ResourceCache<TextureSampler>* cacheSmp = m_resourceManagerV2->GetCache<TextureSampler>();
-		pfd.globalSamplersDesc.samplers.resize(static_cast<size_t>(cacheSmp->GetActiveItemCount()));
-		cacheSmp->View([&](TextureSampler* smp, uint32 index) -> bool {
-			pfd.globalSamplersDesc.samplers[index] = smp->GetGPUHandle();
-			SetBindlessIndex(smp, static_cast<uint32>(index));
-			return false;
-		});
-
-		if (!pfd.globalSamplersDesc.samplers.empty())
-			m_lgx->DescriptorUpdateImage(pfd.globalSamplersDesc);
-
-		pfd.bindlessDirty = false;
-	}
-
 	void EditorRenderer::SyncRender()
 	{
 		for (SurfaceRenderer* sr : m_validSurfaceRenderers)
 			sr->SyncRender(m_lgx->GetCurrentFrameIndex());
 	}
 
-	void EditorRenderer::Render()
+	void EditorRenderer::Render(uint32 frameIndex)
 	{
-		const uint32 frameIndex = m_lgx->GetCurrentFrameIndex();
 
-		m_lgx->StartFrame();
-
-		auto& pfd = m_pfd[frameIndex];
-
-		Vector<WorldRenderer*> validWorlds;
-		validWorlds.resize(m_worldRenderers.size());
-
-		Taskflow tf;
-		tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) {
-			WorldRenderer* rend = m_worldRenderers.at(i);
-			rend->Render(frameIndex);
-			validWorlds[i] = rend;
-		});
-		m_editor->GetExecutor().RunAndWait(tf);
-
-		UpdateBindlessResources(frameIndex);
-		if (m_uploadQueue.FlushAll(pfd.copyStream))
-		{
-			BumpAndSendTransfers(frameIndex);
-			m_lgx->WaitForUserSemaphore(pfd.copySemaphore.GetSemaphore(), pfd.copySemaphore.GetValue());
-		}
+		// Vector<WorldRenderer*> validWorlds;
+		// validWorlds.resize(m_worldRenderers.size());
+		//
+		// Taskflow tf;
+		// tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) {
+		// 	WorldRenderer* rend = m_worldRenderers.at(i);
+		// 	rend->Render(frameIndex);
+		// 	validWorlds[i] = rend;
+		// });
+		// m_editor->GetExecutor().RunAndWait(tf);
 
 		Vector<uint16> waitSemaphores;
 		Vector<uint64> waitValues;
 
-		for (WorldRenderer* wr : validWorlds)
-		{
-			const SemaphoreData sem = wr->GetSubmitSemaphore(frameIndex);
-			waitSemaphores.push_back(sem.GetSemaphore());
-			waitValues.push_back(sem.GetValue());
-		}
+		// for (WorldRenderer* wr : validWorlds)
+		// {
+		// 	const SemaphoreData sem = wr->GetSubmitSemaphore(frameIndex);
+		// 	waitSemaphores.push_back(sem.GetSemaphore());
+		// 	waitValues.push_back(sem.GetValue());
+		// }
 
 		Vector<LinaGX::CommandStream*> streams;
 		Vector<uint8>				   swapchains;
@@ -295,13 +212,11 @@ namespace Lina::Editor
 	void EditorRenderer::AddWorldRenderer(WorldRenderer* wr)
 	{
 		m_worldRenderers.push_back(wr);
-		RefreshDynamicTextures();
 	}
 
 	void EditorRenderer::RemoveWorldRenderer(WorldRenderer* wr)
 	{
 		m_worldRenderers.erase(linatl::find_if(m_worldRenderers.begin(), m_worldRenderers.end(), [wr](WorldRenderer* rend) -> bool { return wr == rend; }));
-		RefreshDynamicTextures();
 	}
 
 	void EditorRenderer::AddSurfaceRenderer(SurfaceRenderer* sr)
@@ -314,118 +229,4 @@ namespace Lina::Editor
 		m_surfaceRenderers.erase(linatl::find_if(m_surfaceRenderers.begin(), m_surfaceRenderers.end(), [sr](SurfaceRenderer* rend) -> bool { return sr == rend; }));
 	}
 
-	void EditorRenderer::RefreshDynamicTextures()
-	{
-		m_dynamicTextures.clear();
-
-		for (WorldRenderer* wr : m_worldRenderers)
-		{
-			for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-			{
-				m_dynamicTextures.push_back(wr->GetGBufAlbedo(i));
-				m_dynamicTextures.push_back(wr->GetGBufPosition(i));
-				m_dynamicTextures.push_back(wr->GetGBufNormal(i));
-				m_dynamicTextures.push_back(wr->GetGBufDepth(i));
-				m_dynamicTextures.push_back(wr->GetLightingPassOutput(i));
-			}
-		}
-
-		MarkBindlessDirty();
-	}
-
-	void EditorRenderer::VerifyResources()
-	{
-		Application::GetLGX()->Join();
-
-		ResourceCache<Texture>*		   textureCache = m_resourceManagerV2->GetCache<Texture>();
-		ResourceCache<TextureSampler>* samplerCache = m_resourceManagerV2->GetCache<TextureSampler>();
-		ResourceCache<Shader>*		   shaderCache	= m_resourceManagerV2->GetCache<Shader>();
-		ResourceCache<Font>*		   fontCache	= m_resourceManagerV2->GetCache<Font>();
-
-		bool bindlessDirty = false;
-
-		textureCache->View([&](Texture* res, uint32 index) -> bool {
-			if (res->GetIsReloaded())
-			{
-				res->DestroyHW();
-				res->SetIsReloaded(false);
-			}
-
-			if (!res->IsHWValid())
-			{
-				res->GenerateHW();
-				res->AddToUploadQueue(m_uploadQueue, false);
-				bindlessDirty = true;
-			}
-			return false;
-		});
-
-		samplerCache->View([&](TextureSampler* res, uint32 index) -> bool {
-			if (res->GetIsReloaded())
-			{
-				res->DestroyHW();
-				res->SetIsReloaded(false);
-			}
-
-			if (!res->IsHWValid())
-			{
-				res->GenerateHW();
-				bindlessDirty = true;
-			}
-
-			return false;
-		});
-
-		shaderCache->View([&](Shader* res, uint32 index) -> bool {
-			if (res->GetIsReloaded())
-			{
-				res->DestroyHW();
-				res->SetIsReloaded(false);
-			}
-
-			if (!res->IsHWValid())
-				res->GenerateHW();
-			return false;
-		});
-
-		bool containsFont = false;
-		fontCache->View([&](Font* res, uint32 index) -> bool {
-			if (res->GetIsReloaded())
-			{
-				res->DestroyHW();
-				res->SetIsReloaded(false);
-			}
-
-			if (!res->IsHWValid())
-			{
-				res->GenerateHW();
-				res->Upload(m_guiBackend.GetLVGText());
-				containsFont = true;
-			}
-
-			return false;
-		});
-
-		if (containsFont)
-			m_guiBackend.ReuploadAtlases(m_uploadQueue);
-
-		if (bindlessDirty)
-			MarkBindlessDirty();
-	}
-
-	void EditorRenderer::BumpAndSendTransfers(uint32 frameIndex)
-	{
-		auto& pfd = m_pfd[frameIndex];
-		pfd.copySemaphore.Increment();
-		m_lgx->CloseCommandStreams(&pfd.copyStream, 1);
-		m_lgx->SubmitCommandStreams({
-			.targetQueue	  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Transfer),
-			.streams		  = &pfd.copyStream,
-			.streamCount	  = 1,
-			.useSignal		  = true,
-			.signalCount	  = 1,
-			.signalSemaphores = pfd.copySemaphore.GetSemaphorePtr(),
-			.signalValues	  = pfd.copySemaphore.GetValuePtr(),
-		});
-	}
 } // namespace Lina::Editor

@@ -666,7 +666,7 @@ namespace Lina::Editor
 		return;
 
 		m_propertiesArea->Refresh(nullptr);
-		// m_currentWidget = m_editor->GetResourceManagerV2().OpenResource<GUIWidget>(m_editor->GetProjectManager().GetProjectData(), id, (void*)m_manager);
+		// m_currentWidget = m_editor->GetApp()->GetResourceManager().OpenResource<GUIWidget>(m_editor->GetProjectManager().GetProjectData(), id, (void*)m_manager);
 
 		RefreshHierarchy();
 
@@ -686,9 +686,9 @@ namespace Lina::Editor
 	void PanelWidgetEditor::CloseCurrent(bool save)
 	{
 		// if (save)
-		// 	m_editor->GetResourceManagerV2().CloseResource(m_editor->GetProjectManager().GetProjectData(), m_currentWidget, true);
+		// 	m_editor->GetApp()->GetResourceManager().CloseResource(m_editor->GetProjectManager().GetProjectData(), m_currentWidget, true);
 		// else
-		// 	m_editor->GetResourceManagerV2().CloseResource(m_editor->GetProjectManager().GetProjectData(), m_currentWidget, false);
+		// 	m_editor->GetApp()->GetResourceManager().CloseResource(m_editor->GetProjectManager().GetProjectData(), m_currentWidget, false);
 
 		m_gridParent->RemoveChild(&m_currentWidget->GetRoot());
 	}

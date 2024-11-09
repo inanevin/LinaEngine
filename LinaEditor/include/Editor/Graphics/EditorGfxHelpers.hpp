@@ -122,7 +122,6 @@ namespace Lina::Editor
 	{
 	public:
 		static RenderPassDescription	  GetGUIPassDescription();
-		static LinaGX::DescriptorSetDesc  GetSetDescriptionGlobal();
 		static LinaGX::DescriptorSetDesc  GetSetDescriptionGUI();
 		static LinaGX::PipelineLayoutDesc GetPipelineLayoutDescriptionGlobal();
 		static LinaGX::PipelineLayoutDesc GetPipelineLayoutDescriptionGUI();

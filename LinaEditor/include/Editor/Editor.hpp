@@ -34,13 +34,12 @@ SOFTWARE.
 #include "Meta/EditorSettings.hpp"
 #include "Editor/CommonEditor.hpp"
 #include "Atlas/AtlasManager.hpp"
-#include "Core/Resources/ResourceManagerListener.hpp"
-#include "Core/Resources/ResourceManager.hpp"
 #include "Editor/WindowPanelManager.hpp"
 #include "Editor/EditorTaskManager.hpp"
 #include "Editor/Project/ProjectManager.hpp"
 #include "Editor/Graphics/EditorRenderer.hpp"
 #include "Editor/Undo/UndoManager.hpp"
+#include "Editor/Resources/EditorResources.hpp"
 
 namespace Lina
 {
@@ -83,7 +82,7 @@ namespace Lina::Editor
 		virtual void Tick(float delta) override;
 		virtual void PreShutdown() override;
 		virtual void SyncRender() override;
-		virtual void Render() override;
+		virtual void Render(uint32 frameIndex) override;
 		virtual void OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size) override;
 
 		// Misc
@@ -123,11 +122,6 @@ namespace Lina::Editor
 			return m_projectManager;
 		}
 
-		inline ResourceManagerV2& GetResourceManagerV2()
-		{
-			return m_resourceManagerV2;
-		}
-
 		inline EditorRenderer& GetEditorRenderer()
 		{
 			return m_editorRenderer;
@@ -155,7 +149,6 @@ namespace Lina::Editor
 	private:
 		UndoManager							  m_undoManager;
 		JobExecutor							  m_executor;
-		ResourceManagerV2					  m_resourceManagerV2;
 		EditorRenderer						  m_editorRenderer;
 		WindowPanelManager					  m_windowPanelManager;
 		AtlasManager						  m_atlasManager;
@@ -168,6 +161,7 @@ namespace Lina::Editor
 		HashMap<EntityWorld*, WorldRenderer*> m_worldRenderers;
 		static Editor*						  s_editor;
 		EditorTaskManager					  m_taskManager;
+		EditorResources						  m_editorResources;
 	};
 
 } // namespace Lina::Editor

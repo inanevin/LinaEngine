@@ -433,7 +433,7 @@ namespace Lina::Editor
 			task->task = [task, importDefinitions, this, directory]() {
 				const float totalSize = static_cast<float>(importDefinitions.size());
 
-				m_importingResources =
+				Vector<ResourceDirectory*> resources =
 					ResourcePipeline::ImportResources(m_editor->GetProjectManager().GetProjectData(), directory, importDefinitions, [this, task, totalSize](uint32 importedCount, const ResourcePipeline::ResourceImportDef& def, bool isComplete) {
 						const float p	   = static_cast<float>(importedCount) / totalSize;
 						task->progress	   = p;
@@ -442,15 +442,18 @@ namespace Lina::Editor
 
 				m_editor->GetProjectManager().SaveProjectChanges();
 
-				for (ResourceDirectory* dir : m_importingResources)
+				for (ResourceDirectory* dir : resources)
 				{
 					TextureAtlasImage* img = ThumbnailGenerator::GenerateThumbnail(m_editor->GetProjectManager().GetProjectData(), dir->resourceID, dir->resourceTID, m_editor->GetAtlasManager());
-					m_editor->GetProjectManager().SetThumbnail(dir, img);
+					m_importingResources.push_back(linatl::make_pair(dir, img));
 				}
 			};
 
 			task->onComplete = [this]() {
-				m_editor->GetProjectManager().RefreshThumbnails();
+				for (Pair<ResourceDirectory*, TextureAtlasImage*> pair : m_importingResources)
+					m_editor->GetProjectManager().SetThumbnail(pair.first, pair.second);
+
+				m_importingResources.clear();
 				RefreshDirectory();
 			};
 
@@ -523,7 +526,6 @@ namespace Lina::Editor
 		{
 			TextureAtlasImage* img = ThumbnailGenerator::GenerateThumbnail(m_editor->GetProjectManager().GetProjectData(), newCreated->resourceID, newCreated->resourceTID, m_editor->GetAtlasManager());
 			m_editor->GetProjectManager().SetThumbnail(newCreated, img);
-			m_editor->GetProjectManager().RefreshThumbnails();
 		}
 
 		m_editor->GetProjectManager().SaveProjectChanges();

@@ -79,16 +79,16 @@ namespace Lina::Editor
 
 	bool Editor::PreInitialize()
 	{
-		ResourceList resources;
-		if (!EditorResources::LoadPriorityResources(m_resourceManagerV2, resources))
+		if (!m_editorResources.LoadPriorityResources(m_app->GetResourceManager()))
 		{
 			LINA_ERR("Loading priority editor resources went bad, aborting!");
+			m_editorResources.ClearLoadedResources();
 			return false;
 		}
 
 		m_taskManager.Initialize(this);
 		m_editorRenderer.Initialize(this);
-		m_editorRenderer.VerifyResources();
+
 		return true;
 	}
 
@@ -112,8 +112,6 @@ namespace Lina::Editor
 		m_mainWindow		   = m_app->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
 		m_primaryWidgetManager = &m_windowPanelManager.GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
 
-		m_atlasManager.AddCustomAtlas("ProjectIcons"_hs, Vector2ui(2048, 2048));
-
 		EditorTask* task   = m_taskManager.CreateTask();
 		task->title		   = Locale::GetStr(LocaleStr::LoadingEngine);
 		task->progressText = Locale::GetStr(LocaleStr::LoadingSettings);
@@ -135,15 +133,16 @@ namespace Lina::Editor
 				m_settings.SaveToFile();
 
 			task->progressText = Locale::GetStr(LocaleStr::LoadingCoreResources);
-			ResourceList coreResources;
-			EditorResources::LoadCoreResources(m_resourceManagerV2, coreResources);
+
+			m_editorResources.LoadCoreResources();
 
 			task->progressText = Locale::GetStr(LocaleStr::GeneratingAtlases);
-			m_atlasManager.ScanCustomAtlas("ProjectIcons"_hs, "Resources/Editor/Textures/Atlas/ProjectIcons/");
+			m_atlasManager.ScanCustomAtlas("ProjectIcons"_hs, Vector2ui(2048, 2048), "Resources/Editor/Textures/Atlas/ProjectIcons/");
 		};
 
 		task->onComplete = [this]() {
-			m_editorRenderer.VerifyResources();
+			m_atlasManager.RefreshAtlas("ProjectIcons"_hs);
+			m_editorResources.TransferResourcesToManager(m_app->GetResourceManager());
 
 			// Resize window to work dims.
 			m_mainWindow->SetPosition(m_mainWindow->GetMonitorInfoFromWindow().workTopLeft);
@@ -194,9 +193,9 @@ namespace Lina::Editor
 		m_editorRenderer.SyncRender();
 	}
 
-	void Editor::Render()
+	void Editor::Render(uint32 frameIndex)
 	{
-		m_editorRenderer.Render();
+		m_editorRenderer.Render(frameIndex);
 	}
 
 	void Editor::PreShutdown()
@@ -206,7 +205,6 @@ namespace Lina::Editor
 		m_atlasManager.Shutdown();
 		m_windowPanelManager.Shutdown();
 		m_projectManager.Shutdown();
-		m_resourceManagerV2.Shutdown();
 	}
 
 	void Editor::RequestExit()

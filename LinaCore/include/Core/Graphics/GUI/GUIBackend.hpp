@@ -66,7 +66,7 @@ namespace Lina
 		void Initialize(ResourceManagerV2* resourceManager);
 		void Shutdown();
 		void FontAtlasNeedsUpdate(LinaVG::Atlas* atlas);
-		void ReuploadAtlases(ResourceUploadQueue& queue);
+		void ReloadAtlases(ResourceUploadQueue& queue);
 
 		inline const FontTexture& GetFontTexture(LinaVG::Atlas* atlas) const
 		{

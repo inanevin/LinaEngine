@@ -223,6 +223,9 @@ namespace Lina
 		FieldBase() = default;
 		virtual ~FieldBase()
 		{
+			for (auto [sid, cache] : m_functionCaches)
+				delete cache;
+			m_functionCaches.clear();
 			m_propertyCacheManager.Destroy();
 		}
 

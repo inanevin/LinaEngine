@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Common/SizeDefinitions.hpp"
+#include "Common/Data/HashSet.hpp"
 
 namespace Lina
 {
@@ -38,8 +39,7 @@ namespace Lina
 	class ResourceManagerListener
 	{
 	public:
-		virtual void OnResourcesLoaded(const ResourceList& resources){};
-		virtual void OnResourcesPreUnloaded(const ResourceList& resources){};
-		virtual void OnResourcesUnloaded(const ResourceDefinitionList& definitions){};
+		virtual void OnResourceManagerPreDestroyHW(const HashSet<Resource*>& resources){};
+		virtual void OnResourceManagerGeneratedHW(const HashSet<Resource*>& resources){};
 	};
 } // namespace Lina

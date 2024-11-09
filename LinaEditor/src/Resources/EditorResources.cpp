@@ -38,142 +38,145 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-	bool EditorResources::LoadPriorityResources(ResourceManagerV2& resourceManager, ResourceList& outResources)
+	bool EditorResources::LoadPriorityResources(ResourceManagerV2& manager)
 	{
-		auto swapchainShaderMeta = [](Shader* shader) {
-			Shader::Metadata& meta		  = shader->GetMeta();
-			meta.variants["Swapchain"_hs] = ShaderVariant{
-				.blendDisable	 = false,
-				.depthTest		 = false,
-				.depthWrite		 = false,
-				.depthFormat	 = LinaGX::Format::UNDEFINED,
-				.targets		 = {{.format = DEFAULT_SWAPCHAIN_FORMAT}},
-				.cullMode		 = LinaGX::CullMode::None,
-				.frontFace		 = LinaGX::FrontFace::CCW,
-				.indirectEnabled = true,
-			};
+		Shader::Metadata meta		  = {};
+		meta.variants["Swapchain"_hs] = ShaderVariant{
+			.blendDisable	 = false,
+			.depthTest		 = false,
+			.depthWrite		 = false,
+			.depthFormat	 = LinaGX::Format::UNDEFINED,
+			.targets		 = {{.format = DEFAULT_SWAPCHAIN_FORMAT}},
+			.cullMode		 = LinaGX::CullMode::None,
+			.frontFace		 = LinaGX::FrontFace::CCW,
+			.indirectEnabled = true,
 		};
 
-		auto loadShader = [&](ResourceID id, const String& path) -> bool {
-			Shader* res = resourceManager.CreateResource<Shader>(id);
-			res->SetPath(path);
-			res->SetName(FileSystem::GetFilenameOnlyFromPath(path));
-			swapchainShaderMeta(res);
-			outResources.insert(res);
-			return res->LoadFromFile(path);
+		Font::Metadata fontMeta1 = {
+			.points = {{.size = 32, .dpiLimit = 10.0f}},
+			.isSDF	= true,
 		};
 
-		auto loadTexture = [&](ResourceID id, const String& path) -> bool {
-			Texture* res = resourceManager.CreateResource<Texture>(id);
-			res->SetPath(path);
-			res->SetName(FileSystem::GetFilenameOnlyFromPath(path));
-			outResources.insert(res);
-			return res->LoadFromFile(path);
+		Font::Metadata fontMeta2 = {
+			.points = {{.size = 14, .dpiLimit = 1.0f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 14, .dpiLimit = 10.0f}},
+			.isSDF	= false,
 		};
 
-		// Shaders
+		Font::Metadata fontMeta3 = {
+			.points = {{.size = 20, .dpiLimit = 10.1f}, {.size = 20, .dpiLimit = 1.8f}, {.size = 20, .dpiLimit = 10.0f}},
+			.isSDF	= false,
+		};
+
+		OStream shaderStream;
+		meta.SaveToStream(shaderStream);
+
+		OStream fontStream1, fontStream2, fontStream3;
+		fontMeta1.SaveToStream(fontStream1);
+		fontMeta2.SaveToStream(fontStream2);
+		fontMeta3.SaveToStream(fontStream3);
+
+		ResourceDefinitionList defs = {
+			{
+				.id			= EDITOR_SHADER_GUI_SDF_TEXT_ID,
+				.name		= EDITOR_SHADER_GUI_SDF_TEXT_PATH,
+				.tid		= GetTypeID<Shader>(),
+				.customMeta = shaderStream,
+			},
+			{
+				.id			= EDITOR_SHADER_GUI_TEXT_ID,
+				.name		= EDITOR_SHADER_GUI_TEXT_PATH,
+				.tid		= GetTypeID<Shader>(),
+				.customMeta = shaderStream,
+			},
+			{
+				.id			= EDITOR_SHADER_GUI_HUE_DISPLAY_ID,
+				.name		= EDITOR_SHADER_GUI_HUE_DISPLAY_PATH,
+				.tid		= GetTypeID<Shader>(),
+				.customMeta = shaderStream,
+			},
+			{
+				.id			= EDITOR_SHADER_GUI_COLOR_WHEEL_ID,
+				.name		= EDITOR_SHADER_GUI_COLOR_WHEEL_PATH,
+				.tid		= GetTypeID<Shader>(),
+				.customMeta = shaderStream,
+			},
+			{
+				.id			= EDITOR_SHADER_GUI_DEFAULT_ID,
+				.name		= EDITOR_SHADER_GUI_DEFAULT_PATH,
+				.tid		= GetTypeID<Shader>(),
+				.customMeta = shaderStream,
+			},
+			{
+				.id	  = EDITOR_TEXTURE_LINA_LOGO_ID,
+				.name = EDITOR_TEXTURE_LINA_LOGO_PATH,
+				.tid  = GetTypeID<Texture>(),
+			},
+			{
+				.id	  = EDITOR_TEXTURE_LINA_LOGO_BOTTOM_ID,
+				.name = EDITOR_TEXTURE_LINA_LOGO_BOTTOM_PATH,
+				.tid  = GetTypeID<Texture>(),
+			},
+			{
+				.id	  = EDITOR_TEXTURE_LINA_LOGO_LEFT_ID,
+				.name = EDITOR_TEXTURE_LINA_LOGO_LEFT_PATH,
+				.tid  = GetTypeID<Texture>(),
+			},
+			{
+				.id	  = EDITOR_TEXTURE_LINA_LOGO_RIGHT_ID,
+				.name = EDITOR_TEXTURE_LINA_LOGO_RIGHT_PATH,
+				.tid  = GetTypeID<Texture>(),
+			},
+			{
+				.id			= EDITOR_FONT_ICON_ID,
+				.name		= EDITOR_FONT_ICON_PATH,
+				.tid		= GetTypeID<Font>(),
+				.customMeta = fontStream1,
+			},
+			{
+				.id			= EDITOR_FONT_ROBOTO_ID,
+				.name		= EDITOR_FONT_ROBOTO_PATH,
+				.tid		= GetTypeID<Font>(),
+				.customMeta = fontStream2,
+			},
+			{
+				.id			= EDITOR_FONT_ROBOTO_BOLD_ID,
+				.name		= EDITOR_FONT_ROBOTO_BOLD_PATH,
+				.tid		= GetTypeID<Font>(),
+				.customMeta = fontStream2,
+			},
+			{
+				.id			= EDITOR_FONT_PLAY_BIG_ID,
+				.name		= EDITOR_FONT_PLAY_BIG_PATH,
+				.tid		= GetTypeID<Font>(),
+				.customMeta = fontStream3,
+			},
+		};
+
+		manager.LoadResourcesFromFile(defs, NULL);
+
+		fontStream1.Destroy();
+		fontStream2.Destroy();
+		fontStream3.Destroy();
+		shaderStream.Destroy();
+
+		for (const ResourceDef& def : defs)
 		{
-			if (!loadShader(EDITOR_SHADER_GUI_SDF_TEXT_ID, EDITOR_SHADER_GUI_SDF_TEXT_PATH))
+			Resource* res = manager.GetIfExists(def.tid, def.id);
+
+			if (res == nullptr)
 				return false;
-
-			if (!loadShader(EDITOR_SHADER_GUI_TEXT_ID, EDITOR_SHADER_GUI_TEXT_PATH))
-				return false;
-
-			if (!loadShader(EDITOR_SHADER_GUI_HUE_DISPLAY_ID, EDITOR_SHADER_GUI_HUE_DISPLAY_PATH))
-				return false;
-
-			if (!loadShader(EDITOR_SHADER_GUI_COLOR_WHEEL_ID, EDITOR_SHADER_GUI_COLOR_WHEEL_PATH))
-				return false;
-
-			if (!loadShader(EDITOR_SHADER_GUI_DEFAULT_ID, EDITOR_SHADER_GUI_DEFAULT_PATH))
-				return false;
-		}
-
-		// Textures
-		{
-			if (!loadTexture(EDITOR_TEXTURE_LINA_LOGO_ID, EDITOR_TEXTURE_LINA_LOGO_PATH))
-				return false;
-
-			if (!loadTexture(EDITOR_TEXTURE_LINA_LOGO_BOTTOM_ID, EDITOR_TEXTURE_LINA_LOGO_BOTTOM_PATH))
-				return false;
-
-			if (!loadTexture(EDITOR_TEXTURE_LINA_LOGO_LEFT_ID, EDITOR_TEXTURE_LINA_LOGO_LEFT_PATH))
-				return false;
-
-			if (!loadTexture(EDITOR_TEXTURE_LINA_LOGO_RIGHT_ID, EDITOR_TEXTURE_LINA_LOGO_RIGHT_PATH))
-				return false;
-		}
-
-		// Fonts
-		{
-			{
-				Font* font		= resourceManager.CreateResource<Font>(EDITOR_FONT_ICON_ID);
-				font->GetMeta() = {
-					.points = {{.size = 32, .dpiLimit = 10.0f}},
-					.isSDF	= true,
-				};
-
-				if (!font->LoadFromFile(EDITOR_FONT_ICON_PATH))
-					return false;
-
-				font->SetPath(EDITOR_FONT_ICON_PATH);
-				font->SetName(FileSystem::GetFilenameOnlyFromPath(font->GetPath()));
-				outResources.insert(font);
-			}
-
-			{
-				Font* font		= resourceManager.CreateResource<Font>(EDITOR_FONT_ROBOTO_ID);
-				font->GetMeta() = {
-					.points = {{.size = 14, .dpiLimit = 1.0f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 14, .dpiLimit = 10.0f}},
-					.isSDF	= false,
-				};
-
-				if (!font->LoadFromFile(EDITOR_FONT_ROBOTO_PATH))
-					return false;
-				font->SetPath(EDITOR_FONT_ROBOTO_PATH);
-				font->SetName(FileSystem::GetFilenameOnlyFromPath(font->GetPath()));
-				outResources.insert(font);
-			}
-
-			{
-				Font* font		= resourceManager.CreateResource<Font>(EDITOR_FONT_ROBOTO_BOLD_ID);
-				font->GetMeta() = {
-					.points = {{.size = 14, .dpiLimit = 1.0f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 14, .dpiLimit = 10.0f}},
-					.isSDF	= false,
-				};
-
-				if (!font->LoadFromFile(EDITOR_FONT_ROBOTO_BOLD_PATH))
-					return false;
-				font->SetPath(EDITOR_FONT_ROBOTO_BOLD_PATH);
-				font->SetName(FileSystem::GetFilenameOnlyFromPath(font->GetPath()));
-				outResources.insert(font);
-			}
-
-			{
-				Font* font		= resourceManager.CreateResource<Font>(EDITOR_FONT_PLAY_BIG_ID);
-				font->GetMeta() = {
-					.points = {{.size = 20, .dpiLimit = 10.1f}, {.size = 20, .dpiLimit = 1.8f}, {.size = 20, .dpiLimit = 10.0f}},
-					.isSDF	= false,
-				};
-
-				if (!font->LoadFromFile(EDITOR_FONT_PLAY_BIG_PATH))
-					return false;
-				font->SetPath(EDITOR_FONT_PLAY_BIG_PATH);
-				font->SetName(FileSystem::GetFilenameOnlyFromPath(font->GetPath()));
-				outResources.insert(font);
-			}
 		}
 
 		return true;
 	}
 
-	bool EditorResources::LoadCoreResources(ResourceManagerV2& resourceManager, ResourceList& outResources)
+	bool EditorResources::LoadCoreResources()
 	{
 		auto loadTexture = [&](ResourceID id, const String& path) -> bool {
-			Texture* res = resourceManager.CreateResource<Texture>(id);
+			Texture* res = new Texture(id, "");
+			m_loadedResources.push_back(res);
 			res->SetPath(path);
 			res->SetName(FileSystem::GetFilenameOnlyFromPath(path));
-			outResources.insert(res);
 			return res->LoadFromFile(path);
 		};
 
@@ -189,7 +192,8 @@ namespace Lina::Editor
 		// Fonts
 		{
 			{
-				Font* font		= resourceManager.CreateResource<Font>(EDITOR_FONT_PLAY_ID);
+				Font* font = new Font(EDITOR_FONT_PLAY_ID, "");
+				m_loadedResources.push_back(font);
 				font->GetMeta() = {
 					.points = {{.size = 14, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
 					.isSDF	= false,
@@ -199,11 +203,11 @@ namespace Lina::Editor
 					return false;
 				font->SetPath(EDITOR_FONT_PLAY_PATH);
 				font->SetName(FileSystem::GetFilenameOnlyFromPath(font->GetPath()));
-				outResources.insert(font);
 			}
 
 			{
-				Font* font		= resourceManager.CreateResource<Font>(EDITOR_FONT_PLAY_BOLD_ID);
+				Font* font = new Font(EDITOR_FONT_PLAY_BOLD_ID, "");
+				m_loadedResources.push_back(font);
 				font->GetMeta() = {
 					.points = {{.size = 14, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
 					.isSDF	= false,
@@ -213,10 +217,38 @@ namespace Lina::Editor
 					return false;
 				font->SetPath(EDITOR_FONT_PLAY_BOLD_PATH);
 				font->SetName(FileSystem::GetFilenameOnlyFromPath(font->GetPath()));
-				outResources.insert(font);
 			}
 		}
 		return true;
+	}
+
+	void EditorResources::TransferResourcesToManager(ResourceManagerV2& manager)
+	{
+		for (Resource* res : m_loadedResources)
+		{
+			Resource* created = manager.CreateResource(res->GetID(), res->GetTID());
+
+			OStream ostream;
+			res->SaveToStream(ostream);
+
+			IStream istream;
+			istream.Create(ostream.GetDataRaw(), ostream.GetCurrentSize());
+
+			created->LoadFromStream(istream);
+
+			istream.Destroy();
+			ostream.Destroy();
+		}
+
+		ClearLoadedResources();
+	}
+
+	void EditorResources::ClearLoadedResources()
+	{
+		for (Resource* res : m_loadedResources)
+			delete res;
+
+		m_loadedResources.clear();
 	}
 
 } // namespace Lina::Editor

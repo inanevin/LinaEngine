@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Core/Graphics/Utility/TextureAtlas.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
+#include "Core/Application.hpp"
 
 namespace Lina::Editor
 {
@@ -54,7 +55,7 @@ namespace Lina::Editor
 		{
 			const String	atlasName = "AtlasManagerAtlas_" + TO_STRING(m_atlasPool.size());
 			const Vector2ui atlasSize = Vector2ui(Math::Max((uint32)1024, size.x), Math::Max((uint32)1024, size.y));
-			TextureAtlas*	atlas	  = new TextureAtlas(&m_editor->GetResourceManagerV2(), atlasSize, format);
+			TextureAtlas*	atlas	  = new TextureAtlas(atlasSize, format);
 			m_atlasPool.push_back(atlas);
 			rect = atlas->AddImage(data, size);
 			LINA_ASSERT(rect != nullptr, "");
@@ -80,15 +81,10 @@ namespace Lina::Editor
 		return m_customAtlases.at(sid);
 	}
 
-	void AtlasManager::AddCustomAtlas(StringID sid, const Vector2ui& size)
+	void AtlasManager::ScanCustomAtlas(StringID id, const Vector2ui& size, const String& baseFolder)
 	{
-		TextureAtlas* atlas	 = new TextureAtlas(&m_editor->GetResourceManagerV2(), size, LinaGX::Format::R8G8B8A8_SRGB);
-		m_customAtlases[sid] = atlas;
-	}
-
-	void AtlasManager::ScanCustomAtlas(StringID id, const String& baseFolder)
-	{
-		TextureAtlas* atlas = GetCustomAtlas(id);
+		TextureAtlas* atlas = new TextureAtlas(size, LinaGX::Format::R8G8B8A8_SRGB);
+		m_customAtlases[id] = atlas;
 
 		Vector<String> files;
 		FileSystem::GetFilesInDirectory(baseFolder, files);
@@ -104,8 +100,6 @@ namespace Lina::Editor
 			atlas->AddImage(buffer.pixels, Vector2ui(buffer.width, buffer.height), TO_SID(filename));
 			LinaGX::FreeImage(buffer.pixels);
 		}
-
-		atlas->RefreshSW();
 	}
 
 	void AtlasManager::Initialize(Editor* editor)
@@ -119,29 +113,40 @@ namespace Lina::Editor
 		return atlas->GetImage(image);
 	}
 
+	void AtlasManager::RefreshAtlas(StringID id)
+	{
+		TextureAtlas* atlas = m_customAtlases.at(id);
+		RefreshAtlas(atlas);
+	}
+
+	void AtlasManager::RefreshAtlasPool()
+	{
+		for (TextureAtlas* atlas : m_atlasPool)
+			RefreshAtlas(atlas);
+	}
+
+	void AtlasManager::RefreshAtlas(TextureAtlas* atlas)
+	{
+		if (atlas->GetRaw() == nullptr)
+			atlas->CreateRawTexture(m_editor->GetApp()->GetResourceManager());
+
+		atlas->Refresh(m_editor->GetApp()->GetGfxContext().GetUploadQueue());
+	}
+
 	void AtlasManager::Shutdown()
 	{
 		for (TextureAtlas* atlas : m_atlasPool)
+		{
+			if (atlas->GetRaw() == nullptr)
+				atlas->DestroyRawTexture(m_editor->GetApp()->GetResourceManager());
+
 			delete atlas;
+		}
 		m_atlasPool.clear();
 
 		for (const Pair<StringID, TextureAtlas*>& p : m_customAtlases)
-		{
 			delete p.second;
-		}
 
 		m_customAtlases.clear();
 	}
-
-	void AtlasManager::RefreshPoolAtlases()
-	{
-		for (TextureAtlas* atlas : m_atlasPool)
-		{
-			atlas->RefreshSW();
-			atlas->RefreshGPU(m_editor->GetEditorRenderer().GetUploadQueue());
-		}
-
-		m_editor->GetEditorRenderer().MarkBindlessDirty();
-	}
-
 } // namespace Lina::Editor

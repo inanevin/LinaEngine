@@ -179,6 +179,7 @@ namespace Lina
 
 	WorldRenderer::~WorldRenderer()
 	{
+		m_gBufSampler->DestroyHW();
 		m_resourceManagerV2->DestroyResource(m_gBufSampler);
 
 		m_guiBackend.Shutdown();
@@ -296,6 +297,12 @@ namespace Lina
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data = m_pfd[i];
+			data.gBufAlbedo->DestroyHW();
+			data.gBufPosition->DestroyHW();
+			data.gBufNormal->DestroyHW();
+			data.gBufDepth->DestroyHW();
+			data.lightingPassOutput->DestroyHW();
+
 			m_resourceManagerV2->DestroyResource(data.gBufAlbedo);
 			m_resourceManagerV2->DestroyResource(data.gBufPosition);
 			m_resourceManagerV2->DestroyResource(data.gBufNormal);
@@ -355,47 +362,6 @@ namespace Lina
 
 	void WorldRenderer::UpdateBindlessResources(uint32 frameIndex)
 	{
-		auto& pfd = m_pfd[frameIndex];
-
-		if (!pfd.bindlessDirty)
-			return;
-
-		// Textures.
-		ResourceCache<Texture>* cacheTxt = m_resourceManagerV2->GetCache<Texture>();
-		pfd.globalTexturesDesc.textures.resize(static_cast<size_t>(cacheTxt->GetActiveItemCount()));
-		cacheTxt->View([&](Texture* txt, uint32 index) -> bool {
-			pfd.globalTexturesDesc.textures[index] = txt->GetGPUHandle();
-			SetBindlessIndex(txt, index);
-			return false;
-		});
-
-		if (!pfd.globalTexturesDesc.textures.empty())
-			m_lgx->DescriptorUpdateImage(pfd.globalTexturesDesc);
-
-		// Samplers
-		ResourceCache<TextureSampler>* cacheSmp = m_resourceManagerV2->GetCache<TextureSampler>();
-		pfd.globalSamplersDesc.samplers.resize(static_cast<size_t>(cacheSmp->GetActiveItemCount()));
-		cacheSmp->View([&](TextureSampler* smp, uint32 index) -> bool {
-			pfd.globalSamplersDesc.samplers[index] = smp->GetGPUHandle();
-			SetBindlessIndex(smp, index);
-			return false;
-		});
-
-		if (!pfd.globalSamplersDesc.samplers.empty())
-			m_lgx->DescriptorUpdateImage(pfd.globalSamplersDesc);
-
-		// Materials
-		ResourceCache<Material>* cacheMat = m_resourceManagerV2->GetCache<Material>();
-		size_t					 padding  = 0;
-		cacheMat->View([&](Material* mat, uint32 index) -> bool {
-			SetBindlessIndex(mat, static_cast<uint32>(padding));
-			padding += mat->BufferDataInto(pfd.globalMaterialsBuffer, padding, &m_world->GetResourceManagerV2(), this);
-			pfd.globalMaterialsBuffer.MarkDirty();
-			return false;
-		});
-
-		m_uploadQueue.AddBufferRequest(&pfd.globalMaterialsBuffer);
-		pfd.bindlessDirty = false;
 	}
 
 	void WorldRenderer::UpdateBuffers(uint32 frameIndex)
@@ -411,15 +377,6 @@ namespace Lina
 			{
 				BumpAndSendTransfers(frameIndex);
 				m_lgx->WaitForUserSemaphore(currentFrame.copySemaphore.GetSemaphore(), currentFrame.copySemaphore.GetValue());
-			}
-
-			// Update global data.
-			{
-				const auto&			 mp			= m_lgx->GetInput().GetMousePositionAbs();
-				GPUDataEngineGlobals globalData = {};
-				globalData.mouseScreen			= Vector4(static_cast<float>(mp.x), static_cast<float>(mp.y), static_cast<float>(m_size.x), static_cast<float>(m_size.y));
-				globalData.deltaElapsed			= Vector4(SystemInfo::GetDeltaTimeF(), SystemInfo::GetAppTimeF(), 0.0f, 0.0f);
-				currentFrame.globalDataBuffer.BufferData(0, (uint8*)&globalData, sizeof(GPUDataEngineGlobals));
 			}
 
 			// View data.
@@ -454,13 +411,13 @@ namespace Lina
 				LINA_ASSERT(lightingMaterial && skyMaterial, "");
 
 				GPUDataLightingPass renderPassData = {
-					.gBufAlbedo			  = GetBindlessIndex(currentFrame.gBufAlbedo),
-					.gBufPositionMetallic = GetBindlessIndex(currentFrame.gBufPosition),
-					.gBufNormalRoughness  = GetBindlessIndex(currentFrame.gBufNormal),
+					.gBufAlbedo			  = currentFrame.gBufAlbedo->GetBindlessIndex(),
+					.gBufPositionMetallic = currentFrame.gBufPosition->GetBindlessIndex(),
+					.gBufNormalRoughness  = currentFrame.gBufNormal->GetBindlessIndex(),
 					// .gBufDepth             = currentFrame.gBufDepth->GetBindlessIndex(),
-					.gBufSampler			   = GetBindlessIndex(m_gBufSampler),
-					.lightingMaterialByteIndex = GetBindlessIndex(lightingMaterial) / 4,
-					.skyMaterialByteIndex	   = GetBindlessIndex(skyMaterial) / 4,
+					.gBufSampler			   = m_gBufSampler->GetBindlessIndex(),
+					.lightingMaterialByteIndex = lightingMaterial->GetBindlessIndex() / 4,
+					.skyMaterialByteIndex	   = skyMaterial->GetBindlessIndex() / 4,
 				};
 
 				m_lightingPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&renderPassData, sizeof(GPUDataLightingPass));
@@ -470,7 +427,6 @@ namespace Lina
 			{
 				m_objects.resize(static_cast<size_t>(m_world->GetActiveEntityCount()));
 				m_world->ViewEntities([&](Entity* e, uint32 index) -> bool {
-					SetBindlessIndex(e, index);
 					auto& data = m_objects[index];
 					data.model = e->GetTransform().GetMatrix();
 					return false;
@@ -784,8 +740,8 @@ namespace Lina
 			}
 		}
 
-		if (containsFont)
-			m_guiBackend.ReuploadAtlases(m_globalUploadQueue);
+		// if (containsFont)
+		//	m_guiBackend.ReuploadAtlases(m_globalUploadQueue);
 
 		if (bindlessDirty)
 			MarkBindlessDirty();

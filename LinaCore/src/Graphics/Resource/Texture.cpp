@@ -51,7 +51,6 @@ namespace Lina
 	Texture::~Texture()
 	{
 		DestroySW();
-		DestroyHW();
 	}
 
 	void Texture::DestroySW()
@@ -295,8 +294,7 @@ namespace Lina
 
 	void Texture::DestroyHW()
 	{
-		if (!m_hwValid)
-			return;
+		LINA_ASSERT(m_hwValid, "");
 
 		Application::GetLGX()->DestroyTexture(m_gpuHandle);
 		m_hwValid		= false;

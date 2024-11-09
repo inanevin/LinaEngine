@@ -153,8 +153,8 @@ namespace Lina::Editor
 			return;
 		}
 
-		m_editor->GetResourceManagerV2().LoadResourcesFromProject(m_editor->GetProjectManager().GetProjectData(), {m_subData}, NULL);
-		m_model					   = m_editor->GetResourceManagerV2().GetResource<Model>(m_subData);
+		m_editor->GetApp()->GetResourceManager().LoadResourcesFromProject(m_editor->GetProjectManager().GetProjectData(), {m_subData}, NULL);
+		m_model					   = m_editor->GetApp()->GetResourceManager().GetResource<Model>(m_subData);
 		m_modelName				   = m_model->GetName();
 		GetWidgetProps().debugName = "Model: " + m_model->GetName();
 
@@ -393,7 +393,7 @@ namespace Lina::Editor
 		if (m_model == nullptr)
 			return;
 
-		m_editor->GetResourceManagerV2().UnloadResources({m_model});
+		// m_editor->GetApp()->GetResourceManager().UnloadResources({m_model});
 		m_editor->GetEditorRenderer().RemoveWorldRenderer(m_worldRenderer);
 		delete m_worldRenderer;
 		delete m_world;
@@ -411,7 +411,7 @@ namespace Lina::Editor
 			m_lastWorldSize = sz;
 			Application::GetLGX()->Join();
 			m_worldRenderer->Resize(m_lastWorldSize);
-			m_editor->GetEditorRenderer().RefreshDynamicTextures();
+			// m_editor->GetEditorRenderer().RefreshDynamicTextures();
 		}
 	}
 

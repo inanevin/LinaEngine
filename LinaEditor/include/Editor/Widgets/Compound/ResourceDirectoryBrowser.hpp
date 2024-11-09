@@ -119,12 +119,12 @@ namespace Lina::Editor
 		bool CheckIfContainsEngineResource(const Vector<ResourceDirectory*>& dirs);
 
 	private:
-		Properties				   m_props;
-		ItemController*			   m_controller			= nullptr;
-		DirectionalLayout*		   m_layout				= nullptr;
-		Editor*					   m_editor				= nullptr;
-		ResourceDirectory*		   m_payloadItem		= nullptr;
-		Vector<ResourceDirectory*> m_importingResources = {};
+		Properties											 m_props;
+		ItemController*										 m_controller		  = nullptr;
+		DirectionalLayout*									 m_layout			  = nullptr;
+		Editor*												 m_editor			  = nullptr;
+		ResourceDirectory*									 m_payloadItem		  = nullptr;
+		Vector<Pair<ResourceDirectory*, TextureAtlasImage*>> m_importingResources = {};
 	};
 
 	LINA_WIDGET_BEGIN(ResourceDirectoryBrowser, Editor)

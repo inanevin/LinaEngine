@@ -47,7 +47,7 @@ namespace Lina
 	{
 	public:
 		Resource(ResourceID id, TypeID tid, const String& name) : m_id(id), m_tid(tid), m_name(name){};
-		virtual ~Resource() = default;
+		virtual ~Resource();
 
 		virtual void GenerateHW(){};
 		virtual void DestroyHW(){};
@@ -113,17 +113,17 @@ namespace Lina
 			return m_hwUploadValid;
 		}
 
-		inline void SetIsReloaded(bool isReloaded)
-		{
-			m_isReloaded = isReloaded;
-		}
-
-		inline bool GetIsReloaded() const
-		{
-			return m_isReloaded;
-		}
-
 		virtual void SetSubdata(void* data){};
+
+		inline uint32 GetBindlessIndex() const
+		{
+			return m_bindlessIndex;
+		}
+
+		inline void SetBindlessIndex(uint32 idx)
+		{
+			m_bindlessIndex = idx;
+		}
 
 	protected:
 		template <typename U> friend class ResourceCache;
@@ -133,9 +133,9 @@ namespace Lina
 		String	   m_path		   = "";
 		ResourceID m_id			   = 0;
 		TypeID	   m_tid		   = 0;
-		bool	   m_isReloaded	   = false;
 		bool	   m_hwValid	   = false;
 		bool	   m_hwUploadValid = false;
+		uint32	   m_bindlessIndex = 0;
 	};
 
 	class ResRefBase
