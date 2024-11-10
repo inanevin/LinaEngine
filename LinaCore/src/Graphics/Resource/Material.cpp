@@ -179,8 +179,6 @@ namespace Lina
 					.samplerIndex = sampler->GetBindlessIndex(),
 				};
 
-				LINA_TRACE("BUFFERING DATA TEXTURE, I AM {0}, TEXTURE {1}, TEXTURE INDEX {2}", GetName(), texture->GetName(), texture->GetBindlessIndex());
-
 				buf.BufferData(padding, (uint8*)&binding, sizeof(LinaTexture2D));
 				padding += sizeof(LinaTexture2DBinding);
 				totalSize += sizeof(LinaTexture2DBinding);

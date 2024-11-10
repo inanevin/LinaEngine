@@ -58,7 +58,7 @@ namespace Lina
 		virtual void OnComponentRemoved(Component* comp){};
 		virtual void FetchRenderables(){};
 
-		virtual void ProduceFrame(const Camera& mainCamera, ResourceManagerV2* rm, float delta){};
+		virtual void ProduceFrame(const Camera& mainCamera, float delta){};
 
 		virtual void RenderRecordIndirect(uint32 frameIndex, RenderPass& pass, RenderPassType type){};
 

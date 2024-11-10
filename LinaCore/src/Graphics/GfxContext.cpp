@@ -121,7 +121,6 @@ namespace Lina
 
 		if (!pfd.bindlessDirty)
 			return;
-		LINA_TRACE("UPDATING BINDLESS FI {0}", frameIndex);
 
 		// Textures.
 		ResourceCache<Texture>* cacheTxt	 = m_rm->GetCache<Texture>();
@@ -130,7 +129,6 @@ namespace Lina
 		cacheTxt->View([&](Texture* txt, uint32 index) -> bool {
 			pfd.globalTexturesDesc.textures[index] = txt->GetGPUHandle();
 			txt->SetBindlessIndex(index);
-			LINA_TRACE("BINDLESS TXT {0} INDEX {1} GPU {2} ", txt->GetName(), txt->GetBindlessIndex(), txt->GetGPUHandle());
 			return false;
 		});
 
@@ -153,7 +151,6 @@ namespace Lina
 		size_t					 padding  = 0;
 		cacheMat->View([&](Material* mat, uint32 index) -> bool {
 			mat->SetBindlessIndex(static_cast<uint32>(padding));
-			LINA_TRACE("BINDLESS MAT {0} PADDING {1}", mat->GetName(), padding);
 			padding += mat->BufferDataInto(pfd.globalMaterialsBuffer, padding, m_rm, this);
 			pfd.globalMaterialsBuffer.MarkDirty();
 			return false;

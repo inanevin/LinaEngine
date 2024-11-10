@@ -34,10 +34,8 @@ namespace Lina
 {
 	struct SkyDraw
 	{
-		uint32		shaderHandle = UINT32_MAX;
-		MeshPointer mesh		 = {
-					.vertexOffset = UINT32_MAX,
-		};
+		ResourceID skyMat	= 0;
+		ResourceID skyModel = 0;
 	};
 
 	class SkyRenderer : public FeatureRenderer
@@ -46,7 +44,7 @@ namespace Lina
 		SkyRenderer(LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm) : FeatureRenderer(lgx, world, rm){};
 		virtual ~SkyRenderer() = default;
 
-		virtual void ProduceFrame(const Camera& mainCamera, ResourceManagerV2* rm, float delta) override;
+		virtual void ProduceFrame(const Camera& mainCamera, float delta) override;
 		virtual void RenderDrawLightingPost(LinaGX::CommandStream* stream) override;
 		virtual void SyncRender() override;
 

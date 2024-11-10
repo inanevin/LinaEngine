@@ -44,18 +44,6 @@ namespace Lina
 		bool operator()(const Material* lhs, const Material* rhs) const;
 	};
 
-	struct MeshPointer
-	{
-		uint32 indexCount;
-		uint32 indexOffset;
-		uint32 vertexOffset;
-
-		bool operator==(const MeshPointer& other) const
-		{
-			return indexCount == other.indexCount && indexOffset == other.indexOffset && vertexOffset == other.vertexOffset;
-		}
-	};
-
 	enum RenderableType
 	{
 		RenderableSprite	  = 1 << 0,

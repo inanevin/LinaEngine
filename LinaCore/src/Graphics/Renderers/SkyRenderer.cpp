@@ -34,30 +34,10 @@ SOFTWARE.
 namespace Lina
 {
 
-	void SkyRenderer::ProduceFrame(const Camera& mainCamera, ResourceManagerV2* rm, float delta)
+	void SkyRenderer::ProduceFrame(const Camera& mainCamera, float delta)
 	{
-		const ResourceID skyMat = m_world->GetGfxSettings().skyMaterial;
-		const ResourceID skyMod = m_world->GetGfxSettings().skyModel;
-
-		Model* skyModel = rm->GetIfExists<Model>(skyMod);
-		if (skyModel == nullptr)
-			return;
-
-		Material* skyMaterial = rm->GetIfExists<Material>(skyMat);
-		if (skyMaterial == nullptr)
-			return;
-
-		Shader* skyShader = rm->GetIfExists<Shader>(skyMaterial->GetShader());
-		if (skyShader == nullptr)
-			return;
-
-		MeshDefault* mesh	   = skyModel->GetMeshes().at(0);
-		m_cpuDraw.shaderHandle = skyShader->GetGPUHandle();
-		m_cpuDraw.mesh		   = {
-					.indexCount	  = mesh->GetIndexCount(),
-					.indexOffset  = mesh->GetIndexOffset(),
-					.vertexOffset = mesh->GetVertexOffset(),
-		};
+		m_cpuDraw.skyModel = m_world->GetGfxSettings().skyModel;
+		m_cpuDraw.skyMat   = m_world->GetGfxSettings().skyMaterial;
 	}
 
 	void SkyRenderer::SyncRender()
@@ -68,17 +48,30 @@ namespace Lina
 
 	void SkyRenderer::RenderDrawLightingPost(LinaGX::CommandStream* stream)
 	{
-		if (m_renderDraw.mesh.vertexOffset != UINT32_MAX && m_renderDraw.shaderHandle != UINT32_MAX)
-		{
-			LinaGX::CMDBindPipeline* bind = stream->AddCommand<LinaGX::CMDBindPipeline>();
-			bind->shader				  = m_renderDraw.shaderHandle;
+		Material* skyMaterial = m_rm->GetIfExists<Material>(m_renderDraw.skyMat);
 
-			LinaGX::CMDDrawIndexedInstanced* skyDraw = stream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
-			skyDraw->baseVertexLocation				 = m_renderDraw.mesh.vertexOffset;
-			skyDraw->indexCountPerInstance			 = m_renderDraw.mesh.indexCount;
-			skyDraw->instanceCount					 = 1;
-			skyDraw->startIndexLocation				 = m_renderDraw.mesh.indexOffset;
-			skyDraw->startInstanceLocation			 = 0;
-		}
+		if (skyMaterial == nullptr)
+			return;
+
+		Shader* skyShader = m_rm->GetIfExists<Shader>(skyMaterial->GetShader());
+
+		if (skyShader == nullptr)
+			return;
+
+		Model* skyModel = m_rm->GetIfExists<Model>(m_renderDraw.skyModel);
+		if (skyModel == nullptr)
+			return;
+
+		MeshDefault* mesh = skyModel->GetMesh(0);
+
+		LinaGX::CMDBindPipeline* bind = stream->AddCommand<LinaGX::CMDBindPipeline>();
+		bind->shader				  = skyShader->GetGPUHandle();
+
+		LinaGX::CMDDrawIndexedInstanced* skyDraw = stream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
+		skyDraw->baseVertexLocation				 = mesh->GetVertexOffset();
+		skyDraw->indexCountPerInstance			 = mesh->GetIndexCount();
+		skyDraw->instanceCount					 = 1;
+		skyDraw->startIndexLocation				 = mesh->GetIndexOffset();
+		skyDraw->startInstanceLocation			 = 0;
 	}
 } // namespace Lina

@@ -89,8 +89,7 @@ namespace Lina::Editor
 		m_worldDisplayer->DisplayWorld(m_worldRenderer);
 		m_worldDisplayer->CreateOrbitCamera();
 
-		UpdateMaterialProps();
-		Rebuild();
+		RebuildContents();
 
 		// Resource set up.
 		m_world->GetGfxSettings().lightingMaterial = EDITOR_MATERIAL_DEFAULT_LIGHTING_ID;
@@ -135,7 +134,7 @@ namespace Lina::Editor
 		if (m_rebuildNextFrame)
 		{
 			m_rebuildNextFrame = false;
-			Rebuild();
+			RebuildContents();
 		}
 
 		return;
@@ -206,8 +205,10 @@ namespace Lina::Editor
 			m_displayEntity = m_world->AddModelToWorld(rm.GetResource<Model>(EDITOR_MODEL_PLANE_ID), {displayMaterial});
 	}
 
-	void PanelMaterialViewer::Rebuild()
+	void PanelMaterialViewer::RebuildContents()
 	{
+		UpdateMaterialProps();
+
 		m_inspector->DeallocAllChildren();
 		m_inspector->RemoveAllChildren();
 

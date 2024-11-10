@@ -34,7 +34,7 @@ namespace Lina
 {
 	struct LightDraw
 	{
-		uint32 shaderHandle = UINT32_MAX;
+		ResourceID materialID = 0;
 	};
 
 	class LightingRenderer : public FeatureRenderer
@@ -43,7 +43,7 @@ namespace Lina
 		LightingRenderer(LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm) : FeatureRenderer(lgx, world, rm){};
 		virtual ~LightingRenderer() = default;
 
-		virtual void ProduceFrame(const Camera& mainCamera, ResourceManagerV2* rm, float delta) override;
+		virtual void ProduceFrame(const Camera& mainCamera, float delta) override;
 		virtual void RenderDrawLighting(LinaGX::CommandStream* stream) override;
 		virtual void SyncRender() override;
 

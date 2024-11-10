@@ -53,10 +53,9 @@ namespace Lina::Editor
 
 		virtual void Construct() override;
 		virtual void Initialize() override;
-		void		 Rebuild();
 		void		 UpdateTextureProps();
+		virtual void RebuildContents() override;
 
-	private:
 	private:
 		LINA_REFLECTION_ACCESS(PanelTextureViewer);
 

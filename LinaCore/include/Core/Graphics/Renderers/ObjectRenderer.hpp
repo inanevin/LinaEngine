@@ -63,7 +63,7 @@ namespace Lina
 		virtual void OnComponentAdded(Component* comp) override;
 		virtual void OnComponentRemoved(Component* comp) override;
 		virtual void FetchRenderables() override;
-		virtual void ProduceFrame(const Camera& mainCamera, ResourceManagerV2* rm, float delta) override;
+		virtual void ProduceFrame(const Camera& mainCamera, float delta) override;
 
 		virtual void RenderRecordIndirect(uint32 frameIndex, RenderPass& pass, RenderPassType type) override;
 		virtual void RenderDrawIndirect(LinaGX::CommandStream* stream, uint32 frameIndex, RenderPass& pass, RenderPassType type) override;

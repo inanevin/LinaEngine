@@ -252,7 +252,7 @@ namespace Lina::Editor
 
 			for (auto* panel : panels)
 			{
-				if (panel->GetType() == type)
+				if (panel->GetType() == type || type == PanelType::Any)
 				{
 					outOwningArea = area;
 					retVal		  = panel;

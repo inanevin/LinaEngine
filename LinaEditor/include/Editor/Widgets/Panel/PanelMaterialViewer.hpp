@@ -64,7 +64,7 @@ namespace Lina::Editor
 		virtual void Destruct() override;
 		virtual void Initialize() override;
 		virtual void PreTick() override;
-		void		 Rebuild();
+		virtual void RebuildContents() override;
 		void		 StoreBuffer();
 
 		inline EntityWorld* GetWorld() const

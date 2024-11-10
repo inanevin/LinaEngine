@@ -68,10 +68,20 @@ namespace Lina::Editor
 		m_texturePanel->GetWidgetProps().lvgUserData	  = &m_guiUserData;
 
 		UpdateTextureProps();
-		Rebuild();
+		RebuildContents();
 	}
 
-	void PanelTextureViewer::Rebuild()
+	void PanelTextureViewer::UpdateTextureProps()
+	{
+		Texture* txt		= static_cast<Texture*>(m_resource);
+		m_textureName		= txt->GetName();
+		m_textureDimensions = TO_STRING(txt->GetSize().x) + " x " + TO_STRING(txt->GetSize().y);
+		m_totalSizeKb		= UtilStr::FloatToString(static_cast<float>(txt->GetTotalSize()) / 1000.0f, 1) + " KB";
+		m_textureFormat		= ReflectionSystem::Get().Resolve<LinaGX::Format>().GetProperty<String>(static_cast<StringID>(txt->GetMeta().format));
+		m_prevMeta			= txt->GetMeta();
+	}
+
+	void PanelTextureViewer::RebuildContents()
 	{
 		m_inspector->DeallocAllChildren();
 		m_inspector->RemoveAllChildren();
@@ -87,22 +97,11 @@ namespace Lina::Editor
 			FieldValue val = field->Value(&txt->GetMeta());
 
 			UndoActionTextureDataChanged::Create(m_editor, txt->GetID(), m_prevMeta);
-			m_prevMeta = txt->GetMeta();
 		});
 
 		Widget*		mipLevelField	  = m_inspector->FindChildWithDebugName("Mip Level");
 		InputField* mipLevel		  = static_cast<InputField*>(Widget::GetWidgetOfType<InputField>(mipLevelField));
 		mipLevel->GetProps().valueMax = static_cast<float>(txt->GetAllLevels().size() - 1);
-	}
-
-	void PanelTextureViewer::UpdateTextureProps()
-	{
-		Texture* txt		= static_cast<Texture*>(m_resource);
-		m_textureName		= txt->GetName();
-		m_textureDimensions = TO_STRING(txt->GetSize().x) + " x " + TO_STRING(txt->GetSize().y);
-		m_totalSizeKb		= UtilStr::FloatToString(static_cast<float>(txt->GetTotalSize()) / 1000.0f, 1) + " KB";
-		m_textureFormat		= ReflectionSystem::Get().Resolve<LinaGX::Format>().GetProperty<String>(static_cast<StringID>(txt->GetMeta().format));
-		m_prevMeta			= txt->GetMeta();
 	}
 
 } // namespace Lina::Editor

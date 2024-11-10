@@ -52,6 +52,29 @@ namespace Lina::Editor
 
 	class ProjectManager
 	{
+
+	private:
+		struct ReimportData
+		{
+			ResourceID id		   = 0;
+			TypeID	   tid		   = 0;
+			bool	   success	   = false;
+			String	   displayName = "";
+
+			bool operator==(const ReimportData& other) const
+			{
+				return id == other.id;
+			}
+		};
+
+		struct ReimportDataHash
+		{
+			std::size_t operator()(const ReimportData& rd) const noexcept
+			{
+				return std::hash<ResourceID>{}(rd.id);
+			}
+		};
+
 	public:
 		enum class WorkState
 		{
@@ -92,6 +115,9 @@ namespace Lina::Editor
 		void RemoveDandlingDirectories(ProjectData* projectData, ResourceDirectory* dir);
 		void GenerateInitialThumbnails(ProjectData* projectData, ResourceDirectory* dir);
 
+		void ReimportDirectory(ResourceDirectory* c, String& progress);
+		void ReimportRecursively(ResourceDirectory* root, String& progress);
+
 	private:
 		WidgetManager*							m_primaryWidgetManager = nullptr;
 		Editor*									m_editor			   = nullptr;
@@ -101,6 +127,6 @@ namespace Lina::Editor
 		HashMap<ResourceID, TextureAtlasImage*> m_resourceThumbnails;
 		HashMap<ResourceID, TextureAtlasImage*> m_resourceThumbnailsOnFlight;
 		HashSet<ResourceID>						m_thumbnailQueue;
-		HashSet<ResourceID>						m_reimportQueue;
+		HashSet<ReimportData, ReimportDataHash> m_reimportQueue;
 	};
 } // namespace Lina::Editor

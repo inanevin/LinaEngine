@@ -69,15 +69,15 @@ namespace Lina::Editor
 		if (!m_resource)
 			return;
 
-		UpdateSamplerProps();
 		m_guiUserData.sampler = m_resource->GetID();
-		Rebuild();
+
+		UpdateSamplerProps();
+		RebuildContents();
 	}
 
-	void PanelSamplerViewer::Rebuild()
+	void PanelSamplerViewer::RebuildContents()
 	{
 		TextureSampler* sampler = static_cast<TextureSampler*>(m_resource);
-		m_storedDesc			= sampler->GetDesc();
 		m_inspector->DeallocAllChildren();
 		m_inspector->RemoveAllChildren();
 
@@ -85,15 +85,15 @@ namespace Lina::Editor
 
 		});
 
-		CommonWidgets::BuildClassReflection(m_inspector, &sampler->GetDesc(), ReflectionSystem::Get().Resolve<LinaGX::SamplerDesc>(), [this, sampler](const MetaType& meta, FieldBase* field) {
-			UndoActionSamplerDataChanged::Create(m_editor, sampler->GetID(), m_storedDesc);
-			m_storedDesc = sampler->GetDesc();
-		});
+		CommonWidgets::BuildClassReflection(
+			m_inspector, &sampler->GetDesc(), ReflectionSystem::Get().Resolve<LinaGX::SamplerDesc>(), [this, sampler](const MetaType& meta, FieldBase* field) { UndoActionSamplerDataChanged::Create(m_editor, sampler->GetID(), m_storedDesc); });
 	}
 
 	void PanelSamplerViewer::UpdateSamplerProps()
 	{
-		m_samplerName = m_resource->GetName();
+		TextureSampler* sampler = static_cast<TextureSampler*>(m_resource);
+		m_samplerName			= sampler->GetName();
+		m_storedDesc			= sampler->GetDesc();
 	}
 
 } // namespace Lina::Editor

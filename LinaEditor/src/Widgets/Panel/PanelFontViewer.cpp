@@ -61,10 +61,10 @@ namespace Lina::Editor
 		m_fontDisplay->GetProps().fetchWrapFromParent = true;
 		m_fontDisplay->GetProps().isDynamic			  = true;
 		UpdateFontProps();
-		Rebuild();
+		RebuildContents();
 	}
 
-	void PanelFontViewer::Rebuild()
+	void PanelFontViewer::RebuildContents()
 	{
 		m_inspector->DeallocAllChildren();
 		m_inspector->RemoveAllChildren();
@@ -73,10 +73,7 @@ namespace Lina::Editor
 
 		CommonWidgets::BuildClassReflection(m_inspector, this, ReflectionSystem::Get().Resolve<PanelFontViewer>(), [this](const MetaType& meta, FieldBase* field) { m_fontDisplay->GetProps().textScale = m_scale; });
 
-		CommonWidgets::BuildClassReflection(m_inspector, &font->GetMeta(), ReflectionSystem::Get().Resolve<Font::Metadata>(), [this, font](const MetaType& meta, FieldBase* field) {
-			UndoActionFontDataChanged::Create(m_editor, font->GetID(), m_storedMeta);
-			m_storedMeta = font->GetMeta();
-		});
+		CommonWidgets::BuildClassReflection(m_inspector, &font->GetMeta(), ReflectionSystem::Get().Resolve<Font::Metadata>(), [this, font](const MetaType& meta, FieldBase* field) { UndoActionFontDataChanged::Create(m_editor, font->GetID(), m_storedMeta); });
 
 		if (m_previewOnly)
 			DisableRecursively(m_inspector);

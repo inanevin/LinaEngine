@@ -457,159 +457,138 @@ namespace Lina::Editor
 		}
 	}
 
-	namespace
+	void ProjectManager::ReimportDirectory(ResourceDirectory* c, String& progress)
 	{
-		void ReimportDirectory(ResourceDirectory* c, Editor* editor, String& progress, HashSet<ResourceID>& list, ProjectData* project)
+		if (c->resourceType != ResourceType::ExternalSource)
+			return;
+
+		const String path = FileSystem::GetFilePath(m_currentProject->GetPath()) + c->sourcePathRelativeToProject;
+
+		if (!FileSystem::FileOrPathExists(path))
+			return;
+
+		const StringID lastModifiedSID = TO_SID(FileSystem::GetLastModifiedDate(path));
+
+		if (lastModifiedSID == c->lastModifiedSID)
+			return;
+
+		c->lastModifiedSID = lastModifiedSID;
+
+		progress = c->name;
+
+		MetaType&	 meta	 = ReflectionSystem::Get().Resolve(c->resourceTID);
+		Resource*	 res	 = static_cast<Resource*>(meta.GetFunction<void*()>("Allocate"_hs)());
+		const String resPath = m_currentProject->GetResourcePath(c->resourceID);
+
+		// Load all data first.
+		IStream stream = Serialization::LoadFromFile(resPath.c_str());
+		if (!stream.Empty())
+			res->LoadFromStream(stream);
+		stream.Destroy();
+
+		// Now reload from file & save if success.
+		bool success = res->LoadFromFile(path);
+		if (success)
+			res->SaveToFileAsBinary(resPath);
+
+		m_reimportQueue.insert({.id = c->resourceID, .tid = c->resourceTID, .success = success, .displayName = res->GetName()});
+		meta.GetFunction<void(void*)>("Deallocate"_hs)(res);
+
+		// TextureAtlasImage* img = ThumbnailGenerator::GenerateThumbnail(editor->GetProjectManager().GetProjectData(), c->resourceID, c->resourceTID, editor->GetAtlasManager());
+		// editor->GetProjectManager().SetThumbnail(c, img);
+	}
+
+	void ProjectManager::ReimportRecursively(ResourceDirectory* root, String& progress)
+	{
+		for (ResourceDirectory* c : root->children)
 		{
-			if (c->resourceType != ResourceType::ExternalSource)
-				return;
-
-			const String path = FileSystem::GetFilePath(project->GetPath()) + c->sourcePathRelativeToProject;
-
-			if (!FileSystem::FileOrPathExists(path))
-				return;
-
-			const StringID lastModifiedSID = TO_SID(FileSystem::GetLastModifiedDate(path));
-
-			if (lastModifiedSID == c->lastModifiedSID)
-				return;
-
-			c->lastModifiedSID = lastModifiedSID;
-
-			progress = c->name;
-
-			MetaType&	 meta	 = ReflectionSystem::Get().Resolve(c->resourceTID);
-			Resource*	 res	 = static_cast<Resource*>(meta.GetFunction<void*()>("Allocate"_hs)());
-			const String resPath = project->GetResourcePath(c->resourceID);
-
-			// Load all data first.
-			IStream stream = Serialization::LoadFromFile(resPath.c_str());
-			if (!stream.Empty())
-				res->LoadFromStream(stream);
-			stream.Destroy();
-
-			WidgetManager&		   wm					 = editor->GetWindowPanelManager().GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
-			NotificationDisplayer* notificationDisplayer = editor->GetWindowPanelManager().GetNotificationDisplayer(editor->GetWindowPanelManager().GetMainWindow());
-
-			// Now reload from file & save if success.
-			if (res->LoadFromFile(path))
+			if (c->isFolder)
 			{
-				res->SaveToFileAsBinary(resPath);
-
-				notificationDisplayer->AddNotification({
-					.icon				= NotificationIcon::OK,
-					.title				= Locale::GetStr(LocaleStr::ReimportedResource) + " : " + path,
-					.autoDestroySeconds = 5,
-				});
-			}
-			else
-			{
-				notificationDisplayer->AddNotification({
-					.icon				= NotificationIcon::Err,
-					.title				= Locale::GetStr(LocaleStr::FailedReimportingResource) + " : " + path,
-					.autoDestroySeconds = 5,
-				});
-
-				meta.GetFunction<void(void*)>("Deallocate"_hs)(res);
-				return;
+				ReimportRecursively(c, progress);
+				continue;
 			}
 
-			meta.GetFunction<void(void*)>("Deallocate"_hs)(res);
-			list.insert(c->resourceID);
-
-			TextureAtlasImage* img = ThumbnailGenerator::GenerateThumbnail(editor->GetProjectManager().GetProjectData(), c->resourceID, c->resourceTID, editor->GetAtlasManager());
-			editor->GetProjectManager().SetThumbnail(c, img);
+			ReimportDirectory(c, progress);
 		}
-
-		void ReimportRecursively(Editor* editor, String& progress, HashSet<ResourceID>& list, ProjectData* project, ResourceDirectory* root)
-		{
-			for (ResourceDirectory* c : root->children)
-			{
-				if (c->isFolder)
-				{
-					ReimportRecursively(editor, progress, list, project, c);
-					continue;
-				}
-				ReimportDirectory(c, editor, progress, list, project);
-			}
-		}
-
-	} // namespace
+	}
 
 	void ProjectManager::ReimportChangedSources(ResourceDirectory* root, Widget* requestingWidget)
 	{
+		m_reimportQueue.clear();
 
-		// m_reimportQueue.clear();
-		//
-		// EditorTask* task = m_editor->GetTaskManager().CreateTask();
-		//
-		// task->ownerWindow  = requestingWidget->GetWindow();
-		// task->title		   = Locale::GetStr(LocaleStr::Reimporting);
-		// task->progressText = Locale::GetStr(LocaleStr::Working);
-		// task->task		   = [this, root, task]() {
-		// 	if (!root->isFolder)
-		// 		ReimportDirectory(root, m_editor, task->progressText, m_reimportQueue, m_currentProject);
-		// 	else
-		// 		ReimportRecursively(m_editor, task->progressText, m_reimportQueue, m_currentProject, root);
-		//
-		// 	m_editor->GetApp()->GetResourceManager().ReloadResourceHW(m_currentProject, m_reimportQueue);
-		//
-		// 	const Vector<WorldRenderer*>& worldRenderers = m_editor->GetEditorRenderer().GetWorldRenderers();
-		// 	for (WorldRenderer* wr : worldRenderers)
-		// 		wr->GetWorld()->GetResourceManagerV2().ReloadResourceHW(m_currentProject, m_reimportQueue);
-		// };
-		//
-		// task->onComplete = [this]() {
-		// 	SaveProjectChanges();
-		//
-		// 	const Vector<WorldRenderer*>& worldRenderers = m_editor->GetEditorRenderer().GetWorldRenderers();
-		//
-		// 	/* If reimported shaders, update materials everywhere *-*/
-		//
-		// 	for (ResourceID rid : m_reimportQueue)
-		// 	{
-		// 		ResourceDirectory* dir = m_currentProject->GetResourceRoot().FindResourceDirectory(rid);
-		//
-		// 		if (dir->resourceTID == GetTypeID<Shader>())
-		// 		{
-		// 			const String path = m_currentProject->GetResourcePath(rid);
-		// 			if (!FileSystem::FileOrPathExists(path))
-		// 				continue;
-		// 			Shader	sh(0, "");
-		// 			IStream stream = Serialization::LoadFromFile(path.c_str());
-		// 			sh.LoadFromStream(stream);
-		// 			stream.Destroy();
-		//
-		// 			m_editor->GetApp()->GetResourceManager().GetCache<Material>()->View([&](Material* mat, uint32 index) {
-		// 				if (mat->GetShader() == rid)
-		// 					mat->SetShader(&sh);
-		//
-		// 				Panel* panel = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::MaterialViewer, mat->GetID());
-		// 				if (panel)
-		// 					static_cast<PanelMaterialViewer*>(panel)->Rebuild();
-		//
-		// 				return false;
-		// 			});
-		//
-		// 			for (WorldRenderer* wr : worldRenderers)
-		// 			{
-		// 				wr->GetWorld()->GetResourceManagerV2().GetCache<Material>()->View([&](Material* mat, uint32 index) {
-		// 					if (mat->GetShader() == rid)
-		// 						mat->SetShader(&sh);
-		//
-		// 					return false;
-		// 				});
-		// 			}
-		// 		}
-		// 	}
-		//
-		// 	m_editor->GetEditorRenderer().VerifyResources();
-		// 	for (WorldRenderer* wr : worldRenderers)
-		// 		wr->GetWorld()->VerifyResources();
-		//
-		// 	RefreshThumbnails();
-		// };
-		// m_editor->GetTaskManager().AddTask(task);
+		EditorTask* task = m_editor->GetTaskManager().CreateTask();
+
+		task->ownerWindow  = requestingWidget->GetWindow();
+		task->title		   = Locale::GetStr(LocaleStr::Reimporting);
+		task->progressText = Locale::GetStr(LocaleStr::Working);
+		task->task		   = [this, root, task]() {
+			if (!root->isFolder)
+				ReimportDirectory(root, task->progressText);
+			else
+				ReimportRecursively(root, task->progressText);
+		};
+
+		task->onComplete = [this]() {
+			SaveProjectChanges();
+
+			WidgetManager&		   wm					 = m_editor->GetWindowPanelManager().GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
+			NotificationDisplayer* notificationDisplayer = m_editor->GetWindowPanelManager().GetNotificationDisplayer(m_editor->GetWindowPanelManager().GetMainWindow());
+
+			HashSet<Resource*> toReload;
+
+			for (const ReimportData& reimport : m_reimportQueue)
+			{
+				if (reimport.success)
+				{
+					notificationDisplayer->AddNotification({
+						.icon				= NotificationIcon::OK,
+						.title				= Locale::GetStr(LocaleStr::ReimportedResource) + " : " + reimport.displayName,
+						.autoDestroySeconds = 5,
+					});
+				}
+				else
+				{
+					notificationDisplayer->AddNotification({
+						.icon				= NotificationIcon::Err,
+						.title				= Locale::GetStr(LocaleStr::FailedReimportingResource) + " : " + reimport.displayName,
+						.autoDestroySeconds = 5,
+					});
+
+					continue;
+				}
+
+				Resource* res = m_editor->GetApp()->GetResourceManager().GetIfExists(reimport.tid, reimport.id);
+
+				if (res == nullptr)
+					continue;
+				IStream stream = Serialization::LoadFromFile(m_currentProject->GetResourcePath(res->GetID()).c_str());
+
+				if (stream.Empty())
+					continue;
+
+				res->LoadFromStream(stream);
+				toReload.insert(res);
+
+				if (res->GetTID() == GetTypeID<Shader>())
+				{
+					m_editor->GetApp()->GetResourceManager().GetCache<Material>()->View([&](Material* mat, uint32 index) {
+						if (mat->GetShader() == res->GetID())
+							mat->SetShader(static_cast<Shader*>(res));
+
+						return false;
+					});
+				}
+
+				Panel* panel = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::Any, res->GetID());
+				if (panel)
+					panel->RebuildContents();
+			}
+
+			m_editor->GetApp()->GetResourceManager().ReloadResourceHW(toReload);
+
+			// RefreshThumbnails();
+		};
+		m_editor->GetTaskManager().AddTask(task);
 	}
 
 	void ProjectManager::ReloadResourceInstances(Resource* res)

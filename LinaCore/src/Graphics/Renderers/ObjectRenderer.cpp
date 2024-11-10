@@ -61,7 +61,7 @@ namespace Lina
 		});
 	}
 
-	void ObjectRenderer::ProduceFrame(const Camera& mainCamera, ResourceManagerV2* rm, float delta)
+	void ObjectRenderer::ProduceFrame(const Camera& mainCamera, float delta)
 	{
 		for (CompModel* comp : m_compModels)
 		{
@@ -72,7 +72,7 @@ namespace Lina
 
 			// TODO: frustum cull :)
 
-			Model* model = rm->GetIfExists<Model>(comp->GetModel());
+			Model* model = m_rm->GetIfExists<Model>(comp->GetModel());
 			if (model == nullptr)
 				continue;
 
@@ -82,7 +82,7 @@ namespace Lina
 
 			materials.resize(materialsSz);
 			for (size_t i = 0; i < materialsSz; i++)
-				materials[i] = rm->GetIfExists<Material>(materialIDs[i]);
+				materials[i] = m_rm->GetIfExists<Material>(materialIDs[i]);
 
 			const Vector<MeshDefault*>& meshes	 = model->GetMeshes();
 			const size_t				meshesSz = meshes.size();
@@ -95,7 +95,7 @@ namespace Lina
 				if (targetMaterial->GetShaderType() != ShaderType::OpaqueSurface && targetMaterial->GetShaderType() != ShaderType::TransparentSurface)
 					continue;
 
-				Shader* shader = rm->GetIfExists<Shader>(targetMaterial->GetShader());
+				Shader* shader = m_rm->GetIfExists<Shader>(targetMaterial->GetShader());
 				if (shader == nullptr)
 					continue;
 
@@ -190,8 +190,6 @@ namespace Lina
 						.entity			   = instance.entity,
 						.materialByteIndex = mat->GetBindlessIndex() / sizeof(uint32),
 					};
-
-					LINA_TRACE("RECORDING OBJECT DRAW MATERIAL BYTE INDEX IS {0}", constants.materialByteIndex);
 
 					indirectConstants.BufferData(drawCount * sizeof(GPUIndirectConstants0), (uint8*)&constants, sizeof(GPUIndirectConstants0));
 					indirectConstants.SetIndirectCount(drawCount + 1);

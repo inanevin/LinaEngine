@@ -210,6 +210,8 @@ namespace Lina::Editor
 		SamplerViewer,
 		MaterialViewer,
 		PhysicsMaterialViewer,
+		//
+		Any,
 	};
 
 	enum class PayloadType

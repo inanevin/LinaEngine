@@ -60,6 +60,7 @@ namespace Lina::Editor
 		virtual void LoadLayoutFromStream(IStream& stream){};
 		virtual void Destruct() override;
 		void		 RefreshTab();
+		virtual void RebuildContents(){};
 
 		inline PanelType GetType() const
 		{

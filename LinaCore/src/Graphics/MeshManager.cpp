@@ -84,8 +84,6 @@ namespace Lina
 		const size_t indexSize = sizeof(uint16) * mesh->m_indices16.size();
 		buf.indexBuffer.BufferData(buf.startIndex * sizeof(uint16), (uint8*)(mesh->m_indices16.data()), indexSize);
 		buf.startIndex += static_cast<uint32>(mesh->m_indices16.size());
-
-		LINA_TRACE("ADDING MESH {0}", mesh->GetName());
 	}
 
 	void MeshManager::AddToUploadQueue(ResourceUploadQueue& queue)
@@ -93,14 +91,12 @@ namespace Lina
 		auto& buf = m_meshBuffers[0];
 		queue.AddBufferRequest(&buf.vertexBuffer);
 		queue.AddBufferRequest(&buf.indexBuffer);
-		LINA_TRACE("UPLOADING, MESHES {0}", buf.meshes.size());
 	}
 
 	void MeshManager::RemoveMesh(MeshDefault* mesh)
 	{
 		auto& buf = m_meshBuffers[0];
 		buf.meshes.erase(linatl::find_if(buf.meshes.begin(), buf.meshes.end(), [mesh](MeshDefault* m) -> bool { return m == mesh; }));
-		LINA_TRACE("REMOVING MESH {0}", mesh->GetName());
 	}
 
 	void MeshManager::Refresh()

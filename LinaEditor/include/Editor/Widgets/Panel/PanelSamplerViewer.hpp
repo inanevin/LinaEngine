@@ -50,10 +50,8 @@ namespace Lina::Editor
 
 		virtual void Construct() override;
 		virtual void Initialize() override;
-		void		 Rebuild();
-
-	private:
-		void UpdateSamplerProps();
+		virtual void RebuildContents() override;
+		void		 UpdateSamplerProps();
 
 	private:
 		LINA_REFLECTION_ACCESS(PanelSamplerViewer);

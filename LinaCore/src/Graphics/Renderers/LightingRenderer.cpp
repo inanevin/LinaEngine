@@ -34,19 +34,9 @@ SOFTWARE.
 namespace Lina
 {
 
-	void LightingRenderer::ProduceFrame(const Camera& mainCamera, ResourceManagerV2* rm, float delta)
+	void LightingRenderer::ProduceFrame(const Camera& mainCamera, float delta)
 	{
-		const ResourceID lightingMat = m_world->GetGfxSettings().lightingMaterial;
-
-		Material* lightingMaterial = rm->GetIfExists<Material>(lightingMat);
-		if (lightingMaterial == nullptr)
-			return;
-
-		Shader* lightingShader = rm->GetIfExists<Shader>(lightingMaterial->GetShader());
-		if (lightingShader == nullptr)
-			return;
-
-		m_cpuDraw.shaderHandle = lightingShader->GetGPUHandle();
+		m_cpuDraw.materialID = m_world->GetGfxSettings().lightingMaterial;
 	}
 
 	void LightingRenderer::SyncRender()
@@ -57,17 +47,21 @@ namespace Lina
 
 	void LightingRenderer::RenderDrawLighting(LinaGX::CommandStream* stream)
 	{
+		Material* lightingMaterial = m_rm->GetIfExists<Material>(m_renderDraw.materialID);
+		if (lightingMaterial == nullptr)
+			return;
 
-		if (m_renderDraw.shaderHandle != UINT32_MAX)
-		{
-			LinaGX::CMDBindPipeline* bind = stream->AddCommand<LinaGX::CMDBindPipeline>();
-			bind->shader				  = m_renderDraw.shaderHandle;
+		Shader* lightingShader = m_rm->GetIfExists<Shader>(lightingMaterial->GetShader());
+		if (lightingShader == nullptr)
+			return;
 
-			LinaGX::CMDDrawInstanced* lightingDraw = stream->AddCommand<LinaGX::CMDDrawInstanced>();
-			lightingDraw->instanceCount			   = 1;
-			lightingDraw->startInstanceLocation	   = 0;
-			lightingDraw->startVertexLocation	   = 0;
-			lightingDraw->vertexCountPerInstance   = 3;
-		}
+		LinaGX::CMDBindPipeline* bind = stream->AddCommand<LinaGX::CMDBindPipeline>();
+		bind->shader				  = lightingShader->GetGPUHandle();
+
+		LinaGX::CMDDrawInstanced* lightingDraw = stream->AddCommand<LinaGX::CMDDrawInstanced>();
+		lightingDraw->instanceCount			   = 1;
+		lightingDraw->startInstanceLocation	   = 0;
+		lightingDraw->startVertexLocation	   = 0;
+		lightingDraw->vertexCountPerInstance   = 3;
 	}
 } // namespace Lina

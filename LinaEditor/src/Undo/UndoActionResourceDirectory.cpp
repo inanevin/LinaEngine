@@ -157,7 +157,9 @@ namespace Lina::Editor
 
 		TextureSampler* sampler = static_cast<TextureSampler*>(res);
 		res->SaveToFileAsBinary(editor->GetProjectManager().GetProjectData()->GetResourcePath(res->GetID()));
-		editor->GetProjectManager().ReloadResourceInstances(res);
+		editor->GetApp()->GetResourceManager().ReloadResourceHW({sampler});
+
+		static_cast<PanelSamplerViewer*>(panel)->UpdateSamplerProps();
 	}
 
 	void UndoActionSamplerDataChanged::Undo(Editor* editor)
@@ -173,9 +175,9 @@ namespace Lina::Editor
 		TextureSampler* sampler = static_cast<TextureSampler*>(res);
 		sampler->GetDesc()		= m_prevDesc;
 		res->SaveToFileAsBinary(editor->GetProjectManager().GetProjectData()->GetResourcePath(res->GetID()));
-		editor->GetApp()->GetResourceManager().ReloadResourceHW({res});
+		editor->GetApp()->GetResourceManager().ReloadResourceHW({sampler});
 
-		static_cast<PanelSamplerViewer*>(panel)->Rebuild();
+		static_cast<PanelSamplerViewer*>(panel)->UpdateSamplerProps();
 	}
 
 	/*
@@ -211,7 +213,10 @@ namespace Lina::Editor
 			res->SaveToFileAsBinary(editor->GetProjectManager().GetProjectData()->GetResourcePath(res->GetID()));
 		};
 
-		task->onComplete = [res, editor]() { editor->GetApp()->GetResourceManager().ReloadResourceHW({res}); };
+		task->onComplete = [res, editor, panel]() {
+			editor->GetApp()->GetResourceManager().ReloadResourceHW({res});
+			static_cast<PanelFontViewer*>(panel)->UpdateFontProps();
+		};
 
 		editor->GetTaskManager().AddTask(task);
 	}
@@ -238,13 +243,9 @@ namespace Lina::Editor
 			 res->SaveToFileAsBinary(editor->GetProjectManager().GetProjectData()->GetResourcePath(res->GetID()));
 		};
 
-		task->onComplete = [res, editor]() {
+		task->onComplete = [res, editor, panel]() {
 			editor->GetApp()->GetResourceManager().ReloadResourceHW({res});
-
-			Panel* p = editor->GetWindowPanelManager().FindPanelOfType(PanelType::FontViewer, res->GetID());
-			if (p == nullptr)
-				return;
-			static_cast<PanelFontViewer*>(p)->Rebuild();
+			static_cast<PanelFontViewer*>(panel)->UpdateFontProps();
 		};
 
 		editor->GetTaskManager().AddTask(task);
@@ -324,13 +325,14 @@ namespace Lina::Editor
 			res->SaveToFileAsBinary(editor->GetProjectManager().GetProjectData()->GetResourcePath(res->GetID()));
 		};
 
-		task->onComplete = [editor, res]() {
+		task->onComplete = [editor, res, panel]() {
 			editor->GetApp()->GetResourceManager().ReloadResourceHW({res});
 
-			Panel* panel = editor->GetWindowPanelManager().FindPanelOfType(PanelType::TextureViewer, res->GetID());
-			if (panel == nullptr)
-				return;
-			static_cast<PanelTextureViewer*>(panel)->UpdateTextureProps();
+			if (panel)
+			{
+				static_cast<PanelTextureViewer*>(panel)->UpdateTextureProps();
+				panel->RebuildContents();
+			}
 		};
 
 		editor->GetTaskManager().AddTask(task);
@@ -396,7 +398,7 @@ namespace Lina::Editor
 
 		if (applyMeta)
 		{
-			static_cast<PanelMaterialViewer*>(panel)->Rebuild();
+			panel->RebuildContents();
 		}
 
 		editor->GetApp()->GetGfxContext().MarkBindlessDirty();
@@ -445,7 +447,7 @@ namespace Lina::Editor
 		mat->SaveToFileAsBinary(editor->GetProjectManager().GetProjectData()->GetResourcePath(mat->GetID()));
 		editor->GetApp()->GetResourceManager().ReloadResourceHW({res});
 
-		static_cast<PanelMaterialViewer*>(panel)->Rebuild();
+		panel->RebuildContents();
 	}
 
 	void UndoActionMaterialShaderChanged::Undo(Editor* editor)
@@ -473,7 +475,7 @@ namespace Lina::Editor
 		mat->SaveToFileAsBinary(editor->GetProjectManager().GetProjectData()->GetResourcePath(mat->GetID()));
 		editor->GetApp()->GetResourceManager().ReloadResourceHW({res});
 
-		static_cast<PanelMaterialViewer*>(panel)->Rebuild();
+		panel->RebuildContents();
 	}
 
 } // namespace Lina::Editor

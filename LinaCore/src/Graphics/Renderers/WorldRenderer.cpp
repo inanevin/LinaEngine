@@ -292,7 +292,7 @@ namespace Lina
 		const Camera& camera = m_world->GetWorldCamera();
 
 		for (FeatureRenderer* rend : m_featureRenderers)
-			rend->ProduceFrame(camera, m_resourceManagerV2, delta);
+			rend->ProduceFrame(camera, delta);
 	}
 
 	void WorldRenderer::Resize(const Vector2ui& newSize)
