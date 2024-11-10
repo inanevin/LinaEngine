@@ -37,19 +37,24 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/GUI/GUIBackend.hpp"
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
+#include "Core/Application.hpp"
 #include "Common/System/SystemInfo.hpp"
 
 namespace Lina
 {
-	void GfxContext::Initialize(ResourceManagerV2* rm, LinaGX::Instance* lgx, GUIBackend* guiBackend)
+	void GfxContext::Initialize(Application* app)
 	{
-		m_rm = rm;
+		m_app		 = app;
+		m_rm		 = &app->GetResourceManager();
+		m_lgx		 = app->GetLGX();
+		m_guiBackend = &app->GetGUIBackend();
 		m_rm->AddListener(this);
-		m_lgx		 = lgx;
-		m_guiBackend = guiBackend;
 		m_meshManagerDefault.Initialize();
 
 		m_pipelineLayoutGlobal = m_lgx->CreatePipelineLayout(GfxHelpers::GetPLDescPersistentGlobal());
+
+		for (int32 i = 0; i < RenderPassType::Max; i++)
+			m_pipelineLayoutPersistent[i] = m_lgx->CreatePipelineLayout(GfxHelpers::GetPLDescPersistentRenderPass(static_cast<RenderPassType>(i)));
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -94,6 +99,9 @@ namespace Lina
 
 		m_lgx->DestroyPipelineLayout(m_pipelineLayoutGlobal);
 
+		for (int32 i = 0; i < RenderPassType::Max; i++)
+			m_lgx->DestroyPipelineLayout(m_pipelineLayoutPersistent[i]);
+
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data = m_pfd[i];
@@ -113,6 +121,7 @@ namespace Lina
 
 		if (!pfd.bindlessDirty)
 			return;
+		LINA_TRACE("UPDATING BINDLESS FI {0}", frameIndex);
 
 		// Textures.
 		ResourceCache<Texture>* cacheTxt	 = m_rm->GetCache<Texture>();
@@ -121,6 +130,7 @@ namespace Lina
 		cacheTxt->View([&](Texture* txt, uint32 index) -> bool {
 			pfd.globalTexturesDesc.textures[index] = txt->GetGPUHandle();
 			txt->SetBindlessIndex(index);
+			LINA_TRACE("BINDLESS TXT {0} INDEX {1} GPU {2} ", txt->GetName(), txt->GetBindlessIndex(), txt->GetGPUHandle());
 			return false;
 		});
 
@@ -143,6 +153,7 @@ namespace Lina
 		size_t					 padding  = 0;
 		cacheMat->View([&](Material* mat, uint32 index) -> bool {
 			mat->SetBindlessIndex(static_cast<uint32>(padding));
+			LINA_TRACE("BINDLESS MAT {0} PADDING {1}", mat->GetName(), padding);
 			padding += mat->BufferDataInto(pfd.globalMaterialsBuffer, padding, m_rm, this);
 			pfd.globalMaterialsBuffer.MarkDirty();
 			return false;
@@ -169,7 +180,9 @@ namespace Lina
 		if (m_uploadQueue.FlushAll(pfd.copyStream))
 		{
 			pfd.copySemaphore.Increment();
+
 			m_lgx->CloseCommandStreams(&pfd.copyStream, 1);
+
 			m_lgx->SubmitCommandStreams({
 				.targetQueue	  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Transfer),
 				.streams		  = &pfd.copyStream,
@@ -194,10 +207,10 @@ namespace Lina
 
 	void GfxContext::OnResourceManagerPreDestroyHW(const HashSet<Resource*>& resources)
 	{
-
 		bool bindlessDirty = false;
 		bool containsFont  = false;
 		bool join		   = false;
+		bool containsMesh  = false;
 
 		for (Resource* res : resources)
 		{
@@ -222,7 +235,8 @@ namespace Lina
 			}
 			else if (res->GetTID() == GetTypeID<Model>())
 			{
-				join = true;
+				join		 = true;
+				containsMesh = true;
 				static_cast<Model*>(res)->RemoveUpload(&m_meshManagerDefault);
 			}
 			else if (res->GetTID() == GetTypeID<Font>())
@@ -234,7 +248,13 @@ namespace Lina
 		}
 
 		if (join)
-			m_lgx->Join();
+			m_app->JoinRender();
+
+		if (containsMesh)
+		{
+			m_meshManagerDefault.Refresh();
+			m_meshManagerDefault.AddToUploadQueue(m_uploadQueue);
+		}
 
 		if (bindlessDirty)
 			MarkBindlessDirty();
@@ -245,7 +265,6 @@ namespace Lina
 
 	void GfxContext::OnResourceManagerGeneratedHW(const HashSet<Resource*>& resources)
 	{
-
 		bool bindlessDirty = false;
 		bool containsFont  = false;
 		bool join		   = false;
@@ -277,7 +296,8 @@ namespace Lina
 			}
 			else if (res->GetTID() == GetTypeID<Model>())
 			{
-				join = true;
+				join		 = true;
+				containsMesh = true;
 				static_cast<Model*>(res)->Upload(&m_meshManagerDefault);
 			}
 			else if (res->GetTID() == GetTypeID<Font>())
@@ -292,7 +312,10 @@ namespace Lina
 		}
 
 		if (join)
-			m_lgx->Join();
+			m_app->JoinRender();
+
+		if (containsMesh)
+			m_meshManagerDefault.AddToUploadQueue(m_uploadQueue);
 
 		if (bindlessDirty)
 			MarkBindlessDirty();

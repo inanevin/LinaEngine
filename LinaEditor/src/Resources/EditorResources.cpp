@@ -43,14 +43,13 @@ namespace Lina::Editor
 	{
 		Shader::Metadata meta		  = {};
 		meta.variants["Swapchain"_hs] = ShaderVariant{
-			.blendDisable	 = false,
-			.depthTest		 = false,
-			.depthWrite		 = false,
-			.depthFormat	 = LinaGX::Format::UNDEFINED,
-			.targets		 = {{.format = DEFAULT_SWAPCHAIN_FORMAT}},
-			.cullMode		 = LinaGX::CullMode::None,
-			.frontFace		 = LinaGX::FrontFace::CCW,
-			.indirectEnabled = true,
+			.blendDisable = false,
+			.depthTest	  = false,
+			.depthWrite	  = false,
+			.depthFormat  = LinaGX::Format::UNDEFINED,
+			.targets	  = {{.format = DEFAULT_SWAPCHAIN_FORMAT}},
+			.cullMode	  = LinaGX::CullMode::None,
+			.frontFace	  = LinaGX::FrontFace::CCW,
 		};
 
 		Font::Metadata fontMeta1 = {

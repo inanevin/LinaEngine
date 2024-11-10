@@ -407,7 +407,6 @@ namespace Lina::Editor
 		if (sz.x != 0 && sz.y != 0 && !sz.Equals(m_lastWorldSize))
 		{
 			m_lastWorldSize = sz;
-			Application::GetLGX()->Join();
 			m_worldRenderer->Resize(m_lastWorldSize);
 			// m_editor->GetEditorRenderer().RefreshDynamicTextures();
 		}

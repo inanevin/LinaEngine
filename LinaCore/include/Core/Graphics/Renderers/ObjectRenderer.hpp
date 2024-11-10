@@ -37,26 +37,27 @@ namespace Lina
 
 	struct PerMeshInstanceData
 	{
-		uint32	  materialIndex = 0;
-		GPUEntity entity		= {};
+		ResourceID materialID = 0;
+		GPUEntity  entity	  = {};
 	};
 
 	struct PerMeshDraw
 	{
-		MeshPointer					mesh;
+		ResourceID					modelID	  = 0;
+		uint32						meshIndex = 0;
 		Vector<PerMeshInstanceData> instances;
 	};
 
 	struct PerShaderDraw
 	{
-		uint32				shaderGPU = 0;
+		ResourceID			shader = 0;
 		Vector<PerMeshDraw> meshes;
 	};
 
 	class ObjectRenderer : public FeatureRenderer
 	{
 	public:
-		ObjectRenderer(LinaGX::Instance* lgx, EntityWorld* world) : FeatureRenderer(lgx, world){};
+		ObjectRenderer(LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm) : FeatureRenderer(lgx, world, rm){};
 		virtual ~ObjectRenderer() = default;
 
 		virtual void OnComponentAdded(Component* comp) override;

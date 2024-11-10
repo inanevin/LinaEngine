@@ -170,7 +170,7 @@ namespace Lina::Editor
 
 	void Editor::OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size)
 	{
-		m_app->GetLGX()->Join();
+		m_app->JoinRender();
 		m_windowPanelManager.OnWindowSizeChanged(window, size);
 	}
 

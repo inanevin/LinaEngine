@@ -239,7 +239,8 @@ namespace Lina::Editor
 					m_resource->LoadFromFile(m_editor->GetProjectManager().GetProjectData()->GetResourcePath(m_resource->GetID()));
 			},
 			[this]() {
-				Application::GetLGX()->Join();
+				m_editor->GetApp()->JoinRender();
+
 				// RegenHW();
 				m_editor->GetWindowPanelManager().UnlockAllForegrounds();
 			});

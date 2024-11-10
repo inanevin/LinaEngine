@@ -65,10 +65,12 @@ namespace Lina
 	{
 		CheckLock();
 
-		Application::GetLGX()->Join();
+		bool join = false;
 
 		for (ResourceManagerListener* l : m_listeners)
+		{
 			l->OnResourceManagerPreDestroyHW(resources);
+		}
 
 		for (Resource* res : resources)
 		{
@@ -77,7 +79,9 @@ namespace Lina
 		}
 
 		for (ResourceManagerListener* l : m_listeners)
+		{
 			l->OnResourceManagerGeneratedHW(resources);
+		}
 	}
 
 	void ResourceManagerV2::UnloadResourceSpace(StringID id)
@@ -148,7 +152,6 @@ namespace Lina
 
 				m_resourceSpaces[resourceSpace].insert(res);
 
-				resources.insert(res);
 				continue;
 			}
 
@@ -178,6 +181,7 @@ namespace Lina
 			res->SetName(def.name);
 			res->GenerateHW();
 			resources.insert(res);
+
 			LINA_TRACE("[Resource] -> Loaded resource: {0}", def.name);
 
 			if (onProgress)
@@ -222,7 +226,6 @@ namespace Lina
 
 				m_resourceSpaces[resourceSpace].insert(res);
 
-				loaded.insert(res);
 				continue;
 			}
 
@@ -252,7 +255,7 @@ namespace Lina
 			if (onProgress)
 				onProgress(++idx, res);
 
-			LINA_TRACE("[Resource] -> Loaded resource: {0}", res->GetPath());
+			LINA_TRACE("[Resource] -> Loaded resource: {0} {1}", res->GetPath(), res->GetName());
 		}
 
 		for (ResourceManagerListener* l : m_listeners)

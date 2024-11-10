@@ -124,13 +124,12 @@ namespace Lina
 			{
 				ShaderVariant& variant = m_meta.variants["DeferredDefault"_hs];
 				variant				   = ShaderVariant{
-								   .blendDisable	= true,
-								   .depthTest		= true,
-								   .depthWrite		= true,
-								   .targets			= {{.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}},
-								   .cullMode		= LinaGX::CullMode::Back,
-								   .frontFace		= LinaGX::FrontFace::CW,
-								   .indirectEnabled = true,
+								   .blendDisable = true,
+								   .depthTest	 = true,
+								   .depthWrite	 = true,
+								   .targets		 = {{.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}},
+								   .cullMode	 = LinaGX::CullMode::Back,
+								   .frontFace	 = LinaGX::FrontFace::CW,
 				   };
 
 				String vertex	= vertexBlock;
@@ -154,13 +153,12 @@ namespace Lina
 			{
 				ShaderVariant& variant = m_meta.variants["DeferredSkinned"_hs];
 				variant				   = ShaderVariant{
-								   .blendDisable	= true,
-								   .depthTest		= true,
-								   .depthWrite		= true,
-								   .targets			= {{.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}},
-								   .cullMode		= LinaGX::CullMode::Back,
-								   .frontFace		= LinaGX::FrontFace::CW,
-								   .indirectEnabled = true,
+								   .blendDisable = true,
+								   .depthTest	 = true,
+								   .depthWrite	 = true,
+								   .targets		 = {{.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}},
+								   .cullMode	 = LinaGX::CullMode::Back,
+								   .frontFace	 = LinaGX::FrontFace::CW,
 				   };
 
 				String vertex	= vertexBlock;
@@ -203,7 +201,6 @@ namespace Lina
 								   .targets				= {{.format = DEFAULT_RT_FORMAT}},
 								   .cullMode			= LinaGX::CullMode::None,
 								   .frontFace			= LinaGX::FrontFace::CCW,
-								   .indirectEnabled		= true,
 				   };
 
 				String vertex	= vertexBlock;
@@ -238,7 +235,6 @@ namespace Lina
 								   .targets				= {{.format = DEFAULT_RT_FORMAT}},
 								   .cullMode			= LinaGX::CullMode::None,
 								   .frontFace			= LinaGX::FrontFace::CCW,
-								   .indirectEnabled		= true,
 				   };
 
 				String vertex	= vertexBlock;
@@ -265,13 +261,12 @@ namespace Lina
 
 			ShaderVariant& variant = m_meta.variants["Default"_hs];
 			variant				   = ShaderVariant{
-							   .blendDisable	= false,
-							   .depthTest		= false,
-							   .depthWrite		= false,
-							   .targets			= {{.format = DEFAULT_RT_FORMAT}},
-							   .cullMode		= LinaGX::CullMode::None,
-							   .frontFace		= LinaGX::FrontFace::CW,
-							   .indirectEnabled = false,
+							   .blendDisable = false,
+							   .depthTest	 = false,
+							   .depthWrite	 = false,
+							   .targets		 = {{.format = DEFAULT_RT_FORMAT}},
+							   .cullMode	 = LinaGX::CullMode::None,
+							   .frontFace	 = LinaGX::FrontFace::CW,
 			   };
 
 			variant._compileData[LinaGX::ShaderStage::Vertex] = {
@@ -308,7 +303,6 @@ namespace Lina
 							   .frontFace		  = LinaGX::FrontFace::CW,
 							   .depthBiasEnable	  = true,
 							   .depthBiasConstant = 5.0f,
-							   .indirectEnabled	  = false,
 			   };
 
 			String vertex	= vertexBlock;
@@ -441,7 +435,6 @@ namespace Lina
 				.depthBiasConstant		 = variant.depthBiasConstant,
 				.depthBiasClamp			 = variant.depthBiasClamp,
 				.depthBiasSlope			 = variant.depthBiasSlope,
-				.drawIndirectEnabled	 = variant.indirectEnabled,
 				.useCustomPipelineLayout = false,
 				.debugName				 = m_name.c_str(),
 			});

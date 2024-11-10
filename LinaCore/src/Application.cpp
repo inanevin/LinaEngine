@@ -58,7 +58,8 @@ namespace Lina
 		GfxHelpers::InitializeLinaVG();
 		s_lgx = GfxHelpers::InitializeLinaGX();
 
-		m_gfxContext.Initialize(&m_resourceManager, s_lgx, &m_guiBackend);
+		m_renderJoinPossible = true;
+		m_gfxContext.Initialize(this);
 		m_guiBackend.Initialize(&m_resourceManager);
 		m_worldProcessor.Initialize(this);
 
@@ -104,6 +105,7 @@ namespace Lina
 		s_lgx->TickWindowSystem();
 		GetAppDelegate()->PreTick();
 
+		m_renderJoinPossible = false;
 		m_resourceManager.SetLocked(true);
 
 		// auto renderJob = m_executor.Async([this]() { m_appDelegate->Render(); });
@@ -116,6 +118,7 @@ namespace Lina
 		m_appDelegate->SyncRender();
 		Render();
 
+		m_renderJoinPossible = true;
 		m_resourceManager.SetLocked(false);
 
 		if (!SystemInfo::GetAppHasFocus())
@@ -124,10 +127,16 @@ namespace Lina
 		SystemInfo::SetAppTime(SystemInfo::GetAppTime() + SystemInfo::GetDeltaTime());
 	}
 
+	void Application::JoinRender()
+	{
+		LINA_ASSERT(m_renderJoinPossible, "Can't join render inside render sync locks!");
+		s_lgx->Join();
+		m_gfxContext.MarkBindlessDirty();
+	}
+
 	void Application::Shutdown()
 	{
-
-		s_lgx->Join();
+		JoinRender();
 		GetAppDelegate()->PreShutdown();
 		m_guiBackend.Shutdown();
 		GfxHelpers::ShutdownLinaVG();
@@ -158,7 +167,7 @@ namespace Lina
 
 	LinaGX::Window* Application::CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, uint32 style, LinaGX::Window* parentWindow)
 	{
-		s_lgx->Join();
+		JoinRender();
 		auto window = s_lgx->GetWindowManager().CreateApplicationWindow(sid, title, pos.x, pos.y, size.x, size.y, static_cast<LinaGX::WindowStyle>(style), parentWindow);
 		window->AddListener(this);
 		return window;
@@ -166,7 +175,7 @@ namespace Lina
 
 	void Application::DestroyApplicationWindow(StringID sid)
 	{
-		s_lgx->Join();
+		JoinRender();
 		auto* window = s_lgx->GetWindowManager().GetWindow(sid);
 		window->RemoveListener(this);
 		s_lgx->GetWindowManager().DestroyApplicationWindow(sid);

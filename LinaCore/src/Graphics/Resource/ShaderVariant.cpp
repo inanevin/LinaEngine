@@ -45,7 +45,6 @@ namespace Lina
 		stream << blendDisable << depthTest << depthWrite << cullMode << frontFace << depthOp << depthBiasEnable << depthBiasClamp << depthBiasConstant << depthBiasSlope << depthFormat << topology;
 		stream << name;
 		stream << targets;
-		stream << indirectEnabled;
 
 		const uint32 size = static_cast<uint32>(_outCompiledBlobs.size());
 		stream << size;
@@ -74,7 +73,6 @@ namespace Lina
 		stream >> blendDisable >> depthTest >> depthWrite >> cullMode >> frontFace >> depthOp >> depthBiasEnable >> depthBiasClamp >> depthBiasConstant >> depthBiasSlope >> depthFormat >> topology;
 		stream >> name;
 		stream >> targets;
-		stream >> indirectEnabled;
 
 		uint32 size = 0;
 		stream >> size;

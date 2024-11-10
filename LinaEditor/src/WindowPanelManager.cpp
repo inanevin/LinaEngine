@@ -106,7 +106,7 @@ namespace Lina::Editor
 		if (!m_windowCloseRequests.empty())
 		{
 			if (!m_windowCloseRequests.empty())
-				Application::GetLGX()->Join();
+				m_editor->GetApp()->JoinRender();
 
 			for (auto sid : m_windowCloseRequests)
 			{
@@ -119,6 +119,8 @@ namespace Lina::Editor
 
 					m_subWindows.erase(it);
 				}
+
+				LINA_TRACE("CLOSING WINDOW THIS TICK");
 				LinaGX::Window* window = m_editor->GetApp()->GetApplicationWindow(sid);
 				DestroySurfaceRenderer(window);
 				m_editor->GetApp()->DestroyApplicationWindow(sid);
@@ -140,7 +142,7 @@ namespace Lina::Editor
 		{
 			if (!m_payloadWindow->GetIsVisible())
 			{
-				Application::GetLGX()->Join();
+				m_editor->GetApp()->JoinRender();
 
 				m_payloadWindow->SetVisible(true);
 				m_payloadWindow->SetAlpha(0.75f);
@@ -163,7 +165,7 @@ namespace Lina::Editor
 
 			if (!Application::GetLGX()->GetInput().GetMouseButton(LINAGX_MOUSE_0))
 			{
-				Application::GetLGX()->Join();
+				m_editor->GetApp()->JoinRender();
 
 				bool received = false;
 				for (auto* l : m_payloadListeners)
@@ -417,6 +419,7 @@ namespace Lina::Editor
 
 	void WindowPanelManager::CloseWindow(StringID sid)
 	{
+		LINA_TRACE("CLOSE REQUESTED");
 		m_windowCloseRequests.push_back(sid);
 	}
 

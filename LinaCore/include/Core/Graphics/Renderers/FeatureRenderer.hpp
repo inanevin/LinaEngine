@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Core/World/Camera.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Core/Graphics/Data/RenderData.hpp"
+#include "Core/Resources/CommonResources.hpp"
 
 namespace LinaGX
 {
@@ -50,7 +51,7 @@ namespace Lina
 	{
 	public:
 		FeatureRenderer() = delete;
-		FeatureRenderer(LinaGX::Instance* lgx, EntityWorld* world) : m_lgx(lgx), m_world(world){};
+		FeatureRenderer(LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm) : m_lgx(lgx), m_world(world), m_rm(rm){};
 		virtual ~FeatureRenderer() = default;
 
 		virtual void OnComponentAdded(Component* comp){};
@@ -68,8 +69,9 @@ namespace Lina
 		virtual void SyncRender(){};
 
 	protected:
-		LinaGX::Instance* m_lgx	  = nullptr;
-		EntityWorld*	  m_world = nullptr;
+		LinaGX::Instance*  m_lgx   = nullptr;
+		EntityWorld*	   m_world = nullptr;
+		ResourceManagerV2* m_rm	   = nullptr;
 
 	private:
 	};

@@ -111,10 +111,9 @@ namespace Lina::Editor
 		const Vector2ui displayerSize = Vector2ui(Math::FloorToInt(m_rect.size.x), Math::FloorToInt(m_rect.size.y));
 		if (!skipSize && (sc.GetRenderSize().x != displayerSize.x || sc.GetRenderSize().y != displayerSize.y))
 		{
-			Application::GetLGX()->Join();
+			Editor::Get()->GetApp()->JoinRender();
 			m_worldRenderer->Resize(displayerSize);
 			sc.SetRenderSize(displayerSize);
-			Editor::Get()->GetApp()->GetGfxContext().MarkBindlessDirty();
 		}
 
 		const uint32 frameIndex		= Application::GetLGX()->GetCurrentFrameIndex();

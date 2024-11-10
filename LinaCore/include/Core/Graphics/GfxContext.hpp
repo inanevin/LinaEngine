@@ -69,7 +69,7 @@ namespace Lina
 			bool   bindlessDirty		 = false;
 		};
 
-		void Initialize(ResourceManagerV2* rm, LinaGX::Instance* lgx, GUIBackend* guiBackend);
+		void Initialize(Application* app);
 		void Shutdown();
 		void PollUploads(uint32 frameIndex);
 
@@ -92,6 +92,11 @@ namespace Lina
 			return m_pipelineLayoutGlobal;
 		}
 
+		inline uint16 GetPipelineLayoutPersistent(RenderPassType type) const
+		{
+			return m_pipelineLayoutPersistent[(uint8)type];
+		}
+
 		inline MeshManager& GetMeshManagerDefault()
 		{
 			return m_meshManagerDefault;
@@ -101,12 +106,14 @@ namespace Lina
 		void UpdateBindless(uint32 frameIndex);
 
 	private:
+		Application*		m_app		 = nullptr;
 		ResourceManagerV2*	m_rm		 = nullptr;
 		LinaGX::Instance*	m_lgx		 = nullptr;
 		GUIBackend*			m_guiBackend = nullptr;
 		ResourceUploadQueue m_uploadQueue;
 		PerFrameData		m_pfd[FRAMES_IN_FLIGHT];
 		uint16				m_pipelineLayoutGlobal = 0;
+		uint16				m_pipelineLayoutPersistent[RenderPassType::Max];
 
 		MeshManager m_meshManagerDefault;
 	};

@@ -101,9 +101,7 @@ namespace Lina
 		LinaGX::Instance* lgx = new LinaGX::Instance();
 
 		LinaGX::Config.dx12Config = {
-			.allowTearing				 = true,
-			.enableDebugLayers			 = true,
-			.serializeShaderDebugSymbols = true,
+			.allowTearing = true,
 		};
 
 		LinaGX::Config.vulkanConfig = {
@@ -130,6 +128,11 @@ namespace Lina
 		LinaGX::Config.framesInFlight				= FRAMES_IN_FLIGHT;
 		LinaGX::Config.backbufferCount				= BACK_BUFFER_COUNT;
 		LinaGX::Config.mutexLockCreationDeletion	= true;
+
+		// Debugging
+		LinaGX::Config.enableAPIDebugLayers			   = true;
+		LinaGX::Config.enableShaderDebugInformation	   = true;
+		LinaGX::Config.serializeShaderDebugInformation = true;
 
 		lgx->Initialize();
 		return lgx;

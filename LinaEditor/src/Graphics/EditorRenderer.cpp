@@ -178,22 +178,27 @@ namespace Lina::Editor
 
 	void EditorRenderer::Render(uint32 frameIndex)
 	{
-
-		Vector<WorldRenderer*> validWorlds;
-		validWorlds.resize(m_worldRenderers.size());
-
-		Taskflow tf;
-		tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) {
-			WorldRenderer* rend = m_worldRenderers.at(i);
-			rend->Render(frameIndex);
-			validWorlds[i] = rend;
-		});
-		m_executor.RunAndWait(tf);
+		if (!m_worldRenderers.empty())
+		{
+			if (m_worldRenderers.size() == 1)
+			{
+				m_worldRenderers.at(0)->Render(frameIndex);
+			}
+			else
+			{
+				Taskflow tf;
+				tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) {
+					WorldRenderer* rend = m_worldRenderers.at(i);
+					rend->Render(frameIndex);
+				});
+				m_executor.RunAndWait(tf);
+			}
+		}
 
 		Vector<uint16> waitSemaphores;
 		Vector<uint64> waitValues;
 
-		for (WorldRenderer* wr : validWorlds)
+		for (WorldRenderer* wr : m_worldRenderers)
 		{
 			const SemaphoreData sem = wr->GetSubmitSemaphore(frameIndex);
 			waitSemaphores.push_back(sem.GetSemaphore());
@@ -250,8 +255,6 @@ namespace Lina::Editor
 			.swapchains		= swapchains.data(),
 			.swapchainCount = static_cast<uint32>(swapchains.size()),
 		});
-
-		m_lgx->EndFrame();
 	}
 
 	void EditorRenderer::AddWorldRenderer(WorldRenderer* wr)

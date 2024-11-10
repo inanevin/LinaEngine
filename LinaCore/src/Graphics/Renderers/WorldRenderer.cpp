@@ -79,8 +79,9 @@ namespace Lina
 #define DEBUG_LABEL_END(Stream)
 #endif
 
-	WorldRenderer::WorldRenderer(GfxContext* context, ResourceManagerV2* rm, EntityWorld* world, const Vector2ui& viewSize, Buffer* snapshotBuffers, bool standaloneSubmit)
+	WorldRenderer::WorldRenderer(GfxContext* context, ResourceManagerV2* rm, EntityWorld* world, const Vector2ui& viewSize, const String& name, Buffer* snapshotBuffers, bool standaloneSubmit)
 	{
+		m_name			   = name.empty() ? "WorldRenderer" : name;
 		m_gfxContext	   = context;
 		m_standaloneSubmit = standaloneSubmit;
 		m_snapshotBuffer   = snapshotBuffers;
@@ -88,7 +89,7 @@ namespace Lina
 		m_world->AddListener(this);
 		m_size				= viewSize;
 		m_resourceManagerV2 = rm;
-		m_gBufSampler		= m_resourceManagerV2->CreateResource<TextureSampler>(m_resourceManagerV2->ConsumeResourceID(), "World Renderer GBuf Sampler");
+		m_gBufSampler		= m_resourceManagerV2->CreateResource<TextureSampler>(m_resourceManagerV2->ConsumeResourceID(), name + " Sampler");
 
 		LinaGX::SamplerDesc gBufSampler = {
 			.anisotropy = 1,
@@ -98,11 +99,14 @@ namespace Lina
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
-			auto& data			 = m_pfd[i];
-			data.gfxStream		 = m_lgx->CreateCommandStream({LinaGX::CommandType::Graphics, MAX_GFX_COMMANDS, 24000, 4096, 32, "WorldRenderer: Gfx Stream"});
-			data.copyStream		 = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, MAX_COPY_COMMANDS, 4000, 4096, 32, "WorldRenderer: Copy Stream"});
-			data.signalSemaphore = SemaphoreData(m_lgx->CreateUserSemaphore());
-			data.copySemaphore	 = SemaphoreData(m_lgx->CreateUserSemaphore());
+			auto& data = m_pfd[i];
+
+			const String cmdStreamName	= name + " Gfx Stream " + TO_STRING(i);
+			const String cmdStreamName2 = name + " Copy Stream " + TO_STRING(i);
+			data.gfxStream				= m_lgx->CreateCommandStream({LinaGX::CommandType::Graphics, MAX_GFX_COMMANDS, 24000, 4096, 32, cmdStreamName.c_str()});
+			data.copyStream				= m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, MAX_COPY_COMMANDS, 4000, 4096, 32, cmdStreamName2.c_str()});
+			data.signalSemaphore		= SemaphoreData(m_lgx->CreateUserSemaphore());
+			data.copySemaphore			= SemaphoreData(m_lgx->CreateUserSemaphore());
 		}
 
 		m_deferredPass.Create(GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassType::Deferred));
@@ -112,16 +116,11 @@ namespace Lina
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data = m_pfd[i];
-
-			for (int32 j = 0; j < RenderPassType::Max; j++)
-			{
-				data.pipelineLayoutPersistentRenderpass[j] = m_lgx->CreatePipelineLayout(GfxHelpers::GetPLDescPersistentRenderPass(static_cast<RenderPassType>(j)));
-			}
 		}
 
-		m_objectRenderer   = new ObjectRenderer(m_lgx, m_world);
-		m_skyRenderer	   = new SkyRenderer(m_lgx, m_world);
-		m_lightingRenderer = new LightingRenderer(m_lgx, m_world);
+		m_objectRenderer   = new ObjectRenderer(m_lgx, m_world, m_resourceManagerV2);
+		m_skyRenderer	   = new SkyRenderer(m_lgx, m_world, m_resourceManagerV2);
+		m_lightingRenderer = new LightingRenderer(m_lgx, m_world, m_resourceManagerV2);
 		AddFeatureRenderer(m_objectRenderer);
 		AddFeatureRenderer(m_skyRenderer);
 		AddFeatureRenderer(m_lightingRenderer);
@@ -152,9 +151,6 @@ namespace Lina
 
 			m_lgx->DestroyUserSemaphore(data.signalSemaphore.GetSemaphore());
 			m_lgx->DestroyUserSemaphore(data.copySemaphore.GetSemaphore());
-
-			for (int32 j = 0; j < RenderPassType::Max; j++)
-				m_lgx->DestroyPipelineLayout(data.pipelineLayoutPersistentRenderpass[j]);
 		}
 
 		m_deferredPass.Destroy();
@@ -168,19 +164,17 @@ namespace Lina
 	void WorldRenderer::CreateSizeRelativeResources()
 	{
 		LinaGX::TextureDesc rtDesc = {
-			.format	   = DEFAULT_RT_FORMAT,
-			.flags	   = LinaGX::TF_ColorAttachment | LinaGX::TF_Sampled,
-			.width	   = m_size.x,
-			.height	   = m_size.y,
-			.debugName = "WorldRendererTexture",
+			.format = DEFAULT_RT_FORMAT,
+			.flags	= LinaGX::TF_ColorAttachment | LinaGX::TF_Sampled,
+			.width	= m_size.x,
+			.height = m_size.y,
 		};
 
 		LinaGX::TextureDesc rtDescLighting = {
-			.format	   = DEFAULT_RT_FORMAT,
-			.flags	   = LinaGX::TF_ColorAttachment | LinaGX::TF_Sampled,
-			.width	   = m_size.x,
-			.height	   = m_size.y,
-			.debugName = "WorldRendererTextureHDR",
+			.format = DEFAULT_RT_FORMAT,
+			.flags	= LinaGX::TF_ColorAttachment | LinaGX::TF_Sampled,
+			.width	= m_size.x,
+			.height = m_size.y,
 		};
 
 		LinaGX::TextureDesc depthDesc = {
@@ -189,7 +183,6 @@ namespace Lina
 			.flags					  = LinaGX::TF_DepthTexture | LinaGX::TF_Sampled,
 			.width					  = m_size.x,
 			.height					  = m_size.y,
-			.debugName				  = "WorldRendererDepthTexture",
 		};
 
 		if (m_snapshotBuffer != nullptr)
@@ -199,16 +192,25 @@ namespace Lina
 		{
 			auto& data = m_pfd[i];
 
-			data.gBufAlbedo			= m_resourceManagerV2->CreateResource<Texture>(m_resourceManagerV2->ConsumeResourceID(), "WorldRenderer: GBufAlbedo");
-			data.gBufPosition		= m_resourceManagerV2->CreateResource<Texture>(m_resourceManagerV2->ConsumeResourceID(), "WorldRenderer: GBufPosition");
-			data.gBufNormal			= m_resourceManagerV2->CreateResource<Texture>(m_resourceManagerV2->ConsumeResourceID(), "WorldRenderer: GBufNormal");
-			data.gBufDepth			= m_resourceManagerV2->CreateResource<Texture>(m_resourceManagerV2->ConsumeResourceID(), "WorldRenderer: GBufDepth");
-			data.lightingPassOutput = m_resourceManagerV2->CreateResource<Texture>(m_resourceManagerV2->ConsumeResourceID(), "WorldRenderer: GBufLightingPass");
+			data.gBufAlbedo			= m_resourceManagerV2->CreateResource<Texture>(m_resourceManagerV2->ConsumeResourceID(), m_name + " GBufAlbedo " + TO_STRING(i));
+			data.gBufPosition		= m_resourceManagerV2->CreateResource<Texture>(m_resourceManagerV2->ConsumeResourceID(), m_name + " GBufPosition " + TO_STRING(i));
+			data.gBufNormal			= m_resourceManagerV2->CreateResource<Texture>(m_resourceManagerV2->ConsumeResourceID(), m_name + " GBufNormal " + TO_STRING(i));
+			data.gBufDepth			= m_resourceManagerV2->CreateResource<Texture>(m_resourceManagerV2->ConsumeResourceID(), m_name + " GBufDepth " + TO_STRING(i));
+			data.lightingPassOutput = m_resourceManagerV2->CreateResource<Texture>(m_resourceManagerV2->ConsumeResourceID(), m_name + " GBufLightingPass " + TO_STRING(i));
 
+			rtDesc.debugName = data.gBufAlbedo->GetName().c_str();
 			data.gBufAlbedo->GenerateHWFromDesc(rtDesc);
+
+			rtDesc.debugName = data.gBufPosition->GetName().c_str();
 			data.gBufPosition->GenerateHWFromDesc(rtDesc);
+
+			rtDesc.debugName = data.gBufNormal->GetName().c_str();
 			data.gBufNormal->GenerateHWFromDesc(rtDesc);
+
+			depthDesc.debugName = data.gBufDepth->GetName().c_str();
 			data.gBufDepth->GenerateHWFromDesc(depthDesc);
+
+			rtDescLighting.debugName = data.lightingPassOutput->GetName().c_str();
 			data.lightingPassOutput->GenerateHWFromDesc(rtDescLighting);
 
 			m_deferredPass.SetColorAttachment(i, 0, {.clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.gBufAlbedo->GetGPUHandle(), .isSwapchain = false});
@@ -237,7 +239,7 @@ namespace Lina
 												 });
 		}
 
-		MarkBindlessDirty();
+		m_gfxContext->MarkBindlessDirty();
 	}
 
 	void WorldRenderer::DestroySizeRelativeResources()
@@ -257,6 +259,8 @@ namespace Lina
 			m_resourceManagerV2->DestroyResource(data.gBufDepth);
 			m_resourceManagerV2->DestroyResource(data.lightingPassOutput);
 		}
+
+		m_gfxContext->MarkBindlessDirty();
 	}
 
 	void WorldRenderer::OnComponentAdded(Component* c)
@@ -368,6 +372,7 @@ namespace Lina
 	void WorldRenderer::Render(uint32 frameIndex)
 	{
 		auto& currentFrame = m_pfd[frameIndex];
+
 		currentFrame.copySemaphore.ResetModified();
 		currentFrame.signalSemaphore.ResetModified();
 
@@ -413,7 +418,7 @@ namespace Lina
 
 		// Global vertex/index buffers.
 		m_deferredPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
-		m_deferredPass.BindDescriptors(currentFrame.gfxStream, frameIndex, currentFrame.pipelineLayoutPersistentRenderpass[RenderPassType::Deferred]);
+		m_deferredPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxContext->GetPipelineLayoutPersistent(RenderPassType::Deferred));
 
 		m_gfxContext->GetMeshManagerDefault().BindBuffers(currentFrame.gfxStream, 0);
 
@@ -440,7 +445,7 @@ namespace Lina
 		}
 
 		m_lightingPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
-		m_lightingPass.BindDescriptors(currentFrame.gfxStream, frameIndex, currentFrame.pipelineLayoutPersistentRenderpass[RenderPassType::Lighting]);
+		m_lightingPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxContext->GetPipelineLayoutPersistent(RenderPassType::Lighting));
 
 		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Lighting Pass");
 
@@ -455,13 +460,13 @@ namespace Lina
 		m_lightingPass.End(currentFrame.gfxStream);
 
 		m_forwardPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
-		m_forwardPass.BindDescriptors(currentFrame.gfxStream, frameIndex, currentFrame.pipelineLayoutPersistentRenderpass[RenderPassType::Forward]);
+		m_forwardPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxContext->GetPipelineLayoutPersistent(RenderPassType::Forward));
 
-		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Forward Pass");
-		m_forwardPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).SetIndirectCount(0);
-		for (FeatureRenderer* ft : m_featureRenderers)
-			ft->RenderDrawIndirect(currentFrame.gfxStream, frameIndex, m_forwardPass, RenderPassType::Forward);
-		DEBUG_LABEL_END(currentFrame.gfxStream);
+		// DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Forward Pass");
+		// m_forwardPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).SetIndirectCount(0);
+		// for (FeatureRenderer* ft : m_featureRenderers)
+		// 	ft->RenderDrawIndirect(currentFrame.gfxStream, frameIndex, m_forwardPass, RenderPassType::Forward);
+		// DEBUG_LABEL_END(currentFrame.gfxStream);
 
 		m_forwardPass.End(currentFrame.gfxStream);
 

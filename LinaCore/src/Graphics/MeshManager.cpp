@@ -84,6 +84,8 @@ namespace Lina
 		const size_t indexSize = sizeof(uint16) * mesh->m_indices16.size();
 		buf.indexBuffer.BufferData(buf.startIndex * sizeof(uint16), (uint8*)(mesh->m_indices16.data()), indexSize);
 		buf.startIndex += static_cast<uint32>(mesh->m_indices16.size());
+
+		LINA_TRACE("ADDING MESH {0}", mesh->GetName());
 	}
 
 	void MeshManager::AddToUploadQueue(ResourceUploadQueue& queue)
@@ -91,48 +93,24 @@ namespace Lina
 		auto& buf = m_meshBuffers[0];
 		queue.AddBufferRequest(&buf.vertexBuffer);
 		queue.AddBufferRequest(&buf.indexBuffer);
+		LINA_TRACE("UPLOADING, MESHES {0}", buf.meshes.size());
 	}
 
 	void MeshManager::RemoveMesh(MeshDefault* mesh)
 	{
 		auto& buf = m_meshBuffers[0];
 		buf.meshes.erase(linatl::find_if(buf.meshes.begin(), buf.meshes.end(), [mesh](MeshDefault* m) -> bool { return m == mesh; }));
+		LINA_TRACE("REMOVING MESH {0}", mesh->GetName());
+	}
 
+	void MeshManager::Refresh()
+	{
+		auto& buf		= m_meshBuffers[0];
 		buf.startIndex	= 0;
 		buf.startVertex = 0;
 
 		for (MeshDefault* m : buf.meshes)
 			AddMesh(m);
-	}
-
-	void MeshManager::Refresh()
-	{
-		/*
-		if (!m_requiresRefresh)
-			return;
-
-		auto& buf = m_meshBuffers[0];
-
-		buf.startIndex = buf.startVertex = 0;
-
-		for (auto* m : buf.meshes)
-		{
-			m->m_vertexOffset = static_cast<uint32>(buf.startVertex);
-			m->m_indexOffset  = static_cast<uint32>(buf.startIndex);
-
-			const size_t vtxSize = sizeof(VertexDefault) * m->m_vertices.size();
-			buf.vertexBuffer.BufferData(buf.startVertex * sizeof(VertexDefault), (uint8*)(m->m_vertices.data()), vtxSize);
-			buf.startVertex += static_cast<uint32>(m->m_vertices.size());
-
-			const size_t indexSize = sizeof(uint16) * m->m_indices16.size();
-			buf.indexBuffer.BufferData(buf.startIndex * sizeof(uint16), (uint8*)(m->m_indices16.data()), indexSize);
-			buf.startIndex += static_cast<uint32>(m->m_indices16.size());
-		}
-
-		queue.AddBufferRequest(&buf.vertexBuffer);
-		queue.AddBufferRequest(&buf.indexBuffer);
-		m_requiresRefresh = false;
-		 */
 	}
 
 } // namespace Lina

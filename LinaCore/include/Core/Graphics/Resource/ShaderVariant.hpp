@@ -70,7 +70,6 @@ namespace Lina
 		float					   depthBiasConstant = 0.0f;
 		float					   depthBiasClamp	 = 0.0f;
 		float					   depthBiasSlope	 = 0.0f;
-		bool					   indirectEnabled	 = false;
 
 		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);

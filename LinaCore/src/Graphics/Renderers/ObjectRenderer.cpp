@@ -99,18 +99,13 @@ namespace Lina
 				if (shader == nullptr)
 					continue;
 
-				const uint32 shaderGPU = shader->GetGPUHandle();
+				const ResourceID shaderID = shader->GetID();
 
-				MeshDefault* mesh = meshes[i];
-
-				const MeshPointer meshPointer = {
-					.indexCount	  = mesh->GetIndexCount(),
-					.indexOffset  = mesh->GetIndexOffset(),
-					.vertexOffset = mesh->GetVertexOffset(),
-				};
+				MeshDefault* mesh	   = meshes[i];
+				const uint32 meshIndex = static_cast<uint32>(i);
 
 				const PerMeshInstanceData instanceData = {
-					.materialIndex = targetMaterial->GetBindlessIndex(),
+					.materialID = targetMaterial->GetID(),
 					.entity =
 						{
 							.model = entity->GetTransform().GetMatrix() * mesh->GetNode()->GetLocalMatrix(),
@@ -119,16 +114,17 @@ namespace Lina
 
 				Vector<PerShaderDraw>* perShaderDraws = targetMaterial->GetShaderType() == ShaderType::OpaqueSurface ? &m_cpuDeferredDraws : &m_cpuForwardDraws;
 
-				auto foundPerShader = linatl::find_if(perShaderDraws->begin(), perShaderDraws->end(), [shaderGPU](const PerShaderDraw& draw) -> bool { return draw.shaderGPU == shaderGPU; });
+				auto foundPerShader = linatl::find_if(perShaderDraws->begin(), perShaderDraws->end(), [shaderID](const PerShaderDraw& draw) -> bool { return draw.shader == shaderID; });
 
 				if (foundPerShader == perShaderDraws->end())
 				{
 					PerShaderDraw draw = {
-						.shaderGPU = shaderGPU,
-						.meshes	   = {{
-							   .mesh	  = meshPointer,
-							   .instances = {instanceData},
-						   }},
+						.shader = shaderID,
+						.meshes = {{
+							.modelID   = model->GetID(),
+							.meshIndex = meshIndex,
+							.instances = {instanceData},
+						}},
 					};
 
 					perShaderDraws->push_back(draw);
@@ -136,12 +132,13 @@ namespace Lina
 				else
 				{
 					Vector<PerMeshDraw>& meshes	   = foundPerShader->meshes;
-					auto				 foundMesh = linatl::find_if(meshes.begin(), meshes.end(), [&meshPointer](const PerMeshDraw& meshDraw) -> bool { return meshDraw.mesh == meshPointer; });
+					auto				 foundMesh = linatl::find_if(meshes.begin(), meshes.end(), [model, meshIndex](const PerMeshDraw& meshDraw) -> bool { return meshDraw.modelID == model->GetID() && meshDraw.meshIndex == meshIndex; });
 
 					if (foundMesh == meshes.end())
 					{
 						meshes.push_back({
-							.mesh	   = meshPointer,
+							.modelID   = model->GetID(),
+							.meshIndex = meshIndex,
 							.instances = {instanceData},
 						});
 					}
@@ -172,17 +169,29 @@ namespace Lina
 				const uint32 indirectCount = indirectBuffer.GetIndirectCount();
 				const uint32 drawCount	   = indirectConstants.GetIndirectCount();
 
+				Model* model = m_rm->GetIfExists<Model>(meshDraw.modelID);
+				if (model == nullptr)
+					continue;
+
+				MeshDefault* mesh = model->GetMesh(meshDraw.meshIndex);
+
 				m_lgx->BufferIndexedIndirectCommandData(
-					indirectBuffer.GetMapped(), indirectCount * m_lgx->GetIndexedIndirectCommandSize(), drawCount, meshDraw.mesh.indexCount, static_cast<uint32>(meshDraw.instances.size()), meshDraw.mesh.indexOffset, meshDraw.mesh.vertexOffset, drawCount);
+					indirectBuffer.GetMapped(), indirectCount * m_lgx->GetIndexedIndirectCommandSize(), drawCount, mesh->GetIndexCount(), static_cast<uint32>(meshDraw.instances.size()), mesh->GetIndexOffset(), mesh->GetVertexOffset(), drawCount);
 
 				indirectBuffer.SetIndirectCount(indirectCount + 1);
 
 				for (const PerMeshInstanceData& instance : meshDraw.instances)
 				{
+					Material* mat = m_rm->GetIfExists<Material>(instance.materialID);
+					if (mat == nullptr)
+						continue;
+
 					GPUIndirectConstants0 constants = {
 						.entity			   = instance.entity,
-						.materialByteIndex = instance.materialIndex / sizeof(uint32),
+						.materialByteIndex = mat->GetBindlessIndex() / sizeof(uint32),
 					};
+
+					LINA_TRACE("RECORDING OBJECT DRAW MATERIAL BYTE INDEX IS {0}", constants.materialByteIndex);
 
 					indirectConstants.BufferData(drawCount * sizeof(GPUIndirectConstants0), (uint8*)&constants, sizeof(GPUIndirectConstants0));
 					indirectConstants.SetIndirectCount(drawCount + 1);
@@ -201,17 +210,20 @@ namespace Lina
 		Vector<PerShaderDraw>* data = type == RenderPassType::Deferred ? &m_renderDeferredDraws : &m_renderForwardDraws;
 
 		const size_t sz				 = data->size();
-		uint32		 lastBoundShader = UINT32_MAX;
+		Shader*		 lastBoundShader = nullptr;
 
 		for (size_t i = 0; i < sz; i++)
 		{
 			PerShaderDraw& perShader = data->at(i);
+			Shader*		   shader	 = m_rm->GetIfExists<Shader>(perShader.shader);
+			if (shader == nullptr)
+				continue;
 
-			if (perShader.shaderGPU != lastBoundShader)
+			if (shader != lastBoundShader)
 			{
 				LinaGX::CMDBindPipeline* pipelineBind = stream->AddCommand<LinaGX::CMDBindPipeline>();
-				pipelineBind->shader				  = perShader.shaderGPU;
-				lastBoundShader						  = perShader.shaderGPU;
+				pipelineBind->shader				  = shader->GetGPUHandle();
+				lastBoundShader						  = shader;
 			}
 
 			LinaGX::CMDDrawIndexedIndirect* draw = stream->AddCommand<LinaGX::CMDDrawIndexedIndirect>();
@@ -220,10 +232,10 @@ namespace Lina
 			draw->indirectBufferOffset			 = indirectBuffer.GetIndirectCount() * static_cast<uint32>(m_lgx->GetIndexedIndirectCommandSize());
 
 #ifdef LINA_DEBUG
-			uint32 totalTris = 0;
-			for (const auto& md : perShader.meshes)
-				totalTris += md.mesh.indexCount / 3;
-			PROFILER_ADD_DRAWCALL(totalTris, "WorldRenderer", 0);
+			// uint32 totalTris = 0;
+			// for (const auto& md : perShader.meshes)
+			// 	totalTris += md.mesh.indexCount / 3;
+			// PROFILER_ADD_DRAWCALL(totalTris, "WorldRenderer", 0);
 #endif
 		}
 	}

@@ -79,7 +79,9 @@ namespace Lina::Editor
 			return;
 
 		m_world			= new EntityWorld(0, "");
-		m_worldRenderer = new WorldRenderer(&m_editor->GetApp()->GetGfxContext(), &m_editor->GetApp()->GetResourceManager(), m_world, Vector2ui(4, 4));
+		m_worldRenderer = new WorldRenderer(&m_editor->GetApp()->GetGfxContext(), &m_editor->GetApp()->GetResourceManager(), m_world, Vector2ui(4, 4), "WorldRenderer: " + m_resource->GetName() + " :");
+
+		m_editor->GetApp()->JoinRender();
 
 		m_editor->GetApp()->GetWorldProcessor().AddWorld(m_world);
 		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer);
@@ -114,12 +116,13 @@ namespace Lina::Editor
 	{
 		PanelResourceViewer::Destruct();
 
+		m_previousStream.Destroy();
+
 		if (m_world)
 		{
-			m_editor->GetApp()->GetLGX()->Join();
+			m_editor->GetApp()->JoinRender();
 			m_editor->GetApp()->GetWorldProcessor().RemoveWorld(m_world);
 			m_editor->GetEditorRenderer().RemoveWorldRenderer(m_worldRenderer);
-			m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 			delete m_worldRenderer;
 			delete m_world;
 			m_worldRenderer = nullptr;

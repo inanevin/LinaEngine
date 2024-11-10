@@ -55,6 +55,7 @@ namespace Lina
 
 		bool		 Initialize(const SystemInitializationInfo& initInfo);
 		void		 Tick();
+		void		 JoinRender();
 		void		 Shutdown();
 		virtual void OnWindowClose(LinaGX::Window* window) override;
 		virtual void OnWindowSizeChanged(LinaGX::Window* window, const LinaGX::LGXVector2ui&) override;
@@ -124,6 +125,7 @@ namespace Lina
 		void CalculateTime();
 
 	private:
+		bool					 m_renderJoinPossible = false;
 		static LinaGX::Instance* s_lgx;
 		ApplicationDelegate*	 m_appDelegate	 = nullptr;
 		bool					 m_exitRequested = false;

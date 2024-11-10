@@ -79,23 +79,16 @@ namespace Lina
 	private:
 		struct PerFrameData
 		{
-			uint16 pipelineLayoutPersistentRenderpass[RenderPassType::Max];
-
-			LinaGX::CommandStream* gfxStream		 = nullptr;
-			LinaGX::CommandStream* copyStream		 = nullptr;
-			SemaphoreData		   copySemaphore	 = {};
-			SemaphoreData		   signalSemaphore	 = {};
-			Buffer				   guiVertexBuffer	 = {};
-			Buffer				   guiIndexBuffer	 = {};
-			Buffer				   guiMaterialBuffer = {};
+			LinaGX::CommandStream* gfxStream	   = nullptr;
+			LinaGX::CommandStream* copyStream	   = nullptr;
+			SemaphoreData		   copySemaphore   = {};
+			SemaphoreData		   signalSemaphore = {};
 
 			Texture* gBufAlbedo			= nullptr;
 			Texture* gBufPosition		= nullptr;
 			Texture* gBufNormal			= nullptr;
 			Texture* gBufDepth			= nullptr;
 			Texture* lightingPassOutput = nullptr;
-
-			bool bindlessDirty = true;
 		};
 
 		struct RenderData
@@ -103,7 +96,7 @@ namespace Lina
 		};
 
 	public:
-		WorldRenderer(GfxContext* context, ResourceManagerV2* rm, EntityWorld* world, const Vector2ui& viewSize, Buffer* snapshotBuffer = nullptr, bool standaloneSubmit = false);
+		WorldRenderer(GfxContext* context, ResourceManagerV2* rm, EntityWorld* world, const Vector2ui& viewSize, const String& name = "", Buffer* snapshotBuffer = nullptr, bool standaloneSubmit = false);
 		~WorldRenderer();
 
 		void Tick(float delta);
@@ -164,10 +157,9 @@ namespace Lina
 			return m_snapshotBuffer;
 		}
 
-		inline void MarkBindlessDirty()
+		inline const String& GetName() const
 		{
-			for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-				m_pfd[i].bindlessDirty = true;
+			return m_name;
 		}
 
 	private:
@@ -197,6 +189,7 @@ namespace Lina
 		SkyRenderer*			 m_skyRenderer		= nullptr;
 		LightingRenderer*		 m_lightingRenderer = nullptr;
 		GfxContext*				 m_gfxContext;
+		String					 m_name = "";
 	};
 
 } // namespace Lina
