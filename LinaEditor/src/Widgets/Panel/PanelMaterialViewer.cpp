@@ -105,7 +105,7 @@ namespace Lina::Editor
 			m_resource->GetID(),
 		};
 
-		m_resourcesLoadedForWorld = m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), initialResources);
+		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), initialResources, m_resourceSpace);
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 		SetupWorld();
 	}
@@ -119,6 +119,7 @@ namespace Lina::Editor
 			m_editor->GetApp()->GetLGX()->Join();
 			m_editor->GetApp()->GetWorldProcessor().RemoveWorld(m_world);
 			m_editor->GetEditorRenderer().RemoveWorldRenderer(m_worldRenderer);
+			m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 			delete m_worldRenderer;
 			delete m_world;
 			m_worldRenderer = nullptr;
@@ -449,7 +450,7 @@ namespace Lina::Editor
 	void PanelMaterialViewer::UpdateMaterial()
 	{
 		Material* mat = static_cast<Material*>(m_resource);
-		UndoActionMaterialDataChanged::Create(m_editor, m_resource->GetID(), m_previousStream);
+		UndoActionMaterialDataChanged::Create(m_editor, m_resource->GetID(), m_previousStream, m_resourceSpace);
 	}
 
 	void PanelMaterialViewer::UpdateShaderID(ResourceID id)

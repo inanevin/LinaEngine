@@ -340,10 +340,11 @@ namespace Lina::Editor
 	** MATERIAL
 	*/
 
-	UndoActionMaterialDataChanged* UndoActionMaterialDataChanged::Create(Editor* editor, ResourceID resourceID, const OStream& prevStream)
+	UndoActionMaterialDataChanged* UndoActionMaterialDataChanged::Create(Editor* editor, ResourceID resourceID, const OStream& prevStream, uint64 resourceSpace)
 	{
 		UndoActionMaterialDataChanged* action = new UndoActionMaterialDataChanged();
 		action->m_resourceID				  = resourceID;
+		action->m_resourceSpace				  = resourceSpace;
 		action->m_prevStream.WriteRaw(prevStream.GetDataRaw(), prevStream.GetCurrentSize());
 		editor->GetUndoManager().AddToStack(action);
 		return action;
@@ -391,12 +392,14 @@ namespace Lina::Editor
 		}
 
 		mat->SaveToFileAsBinary(editor->GetProjectManager().GetProjectData()->GetResourcePath(mat->GetID()));
-		editor->GetApp()->GetGfxContext().MarkBindlessDirty();
+		static_cast<PanelMaterialViewer*>(panel)->GetWorld()->LoadMissingResources(editor->GetApp()->GetResourceManager(), editor->GetProjectManager().GetProjectData(), {}, m_resourceSpace);
 
 		if (applyMeta)
 		{
 			static_cast<PanelMaterialViewer*>(panel)->Rebuild();
 		}
+
+		editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 	}
 	/*
 	 ** MATERIAL SHADER

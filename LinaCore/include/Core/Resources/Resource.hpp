@@ -129,16 +129,13 @@ namespace Lina
 		template <typename U> friend class ResourceCache;
 
 	protected:
-		friend class ResourceManagerV2;
-
-		String	   m_name			= "";
-		String	   m_path			= "";
-		ResourceID m_id				= 0;
-		TypeID	   m_tid			= 0;
-		bool	   m_hwValid		= false;
-		bool	   m_hwUploadValid	= false;
-		uint32	   m_bindlessIndex	= 0;
-		uint32	   m_referenceCount = 0;
+		String	   m_name		   = "";
+		String	   m_path		   = "";
+		ResourceID m_id			   = 0;
+		TypeID	   m_tid		   = 0;
+		bool	   m_hwValid	   = false;
+		bool	   m_hwUploadValid = false;
+		uint32	   m_bindlessIndex = 0;
 	};
 
 	class ResRefBase

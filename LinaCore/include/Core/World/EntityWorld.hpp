@@ -103,7 +103,7 @@ namespace Lina
 		void			   RemoveListener(EntityWorldListener* listener);
 		Entity*			   AddModelToWorld(Model* model, const Vector<ResourceID>& materials);
 		void			   CollectResourceNeeds(HashSet<ResourceID>& outResources);
-		HashSet<Resource*> LoadMissingResources(ResourceManagerV2& rm, ProjectData* project, const HashSet<ResourceID>& extraResources);
+		HashSet<Resource*> LoadMissingResources(ResourceManagerV2& rm, ProjectData* project, const HashSet<ResourceID>& extraResources, uint64 resourceSpace);
 
 		void Tick(float delta);
 		void SetPlayMode(PlayMode playmode);

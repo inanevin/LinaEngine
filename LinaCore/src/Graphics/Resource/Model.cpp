@@ -248,7 +248,14 @@ namespace Lina
 	void Model::Upload(MeshManager* mm)
 	{
 		for (ModelNode* node : m_rootNodes)
-			UploadNode(mm, node);
+			UploadNode(mm, node, false);
+		m_hwUploadValid = true;
+	}
+
+	void Model::RemoveUpload(MeshManager* mm)
+	{
+		for (ModelNode* node : m_rootNodes)
+			UploadNode(mm, node, true);
 		m_hwUploadValid = true;
 	}
 
@@ -259,14 +266,19 @@ namespace Lina
 		m_hwUploadValid = false;
 	}
 
-	void Model::UploadNode(MeshManager* mm, ModelNode* node)
+	void Model::UploadNode(MeshManager* mm, ModelNode* node, bool remove)
 	{
 		MeshDefault* mesh = node->GetMesh();
 		if (mesh)
-			mm->AddMesh(mesh);
+		{
+			if (remove)
+				mm->RemoveMesh(mesh);
+			else
+				mm->AddMesh(mesh);
+		}
 
 		for (auto* c : node->m_children)
-			UploadNode(mm, c);
+			UploadNode(mm, c, remove);
 	}
 
 	ModelNode* Model::GetFirstNodeWMesh()

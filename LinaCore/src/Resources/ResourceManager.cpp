@@ -80,6 +80,43 @@ namespace Lina
 			l->OnResourceManagerGeneratedHW(resources);
 	}
 
+	void ResourceManagerV2::UnloadResourceSpace(StringID id)
+	{
+		HashSet<Resource*>& resources = m_resourceSpaces.at(id);
+
+		ResourceDefinitionList unloadList;
+
+		for (Resource* res : resources)
+		{
+			bool foundInAnotherSpace = false;
+
+			for (const auto& space : m_resourceSpaces)
+			{
+				if (space.first == id)
+					continue;
+
+				auto it = linatl::find_if(space.second.begin(), space.second.end(), [res](Resource* r) -> bool { return r == res; });
+
+				if (it != space.second.end())
+				{
+					foundInAnotherSpace = true;
+					break;
+				}
+			}
+
+			if (!foundInAnotherSpace)
+			{
+				unloadList.insert({
+					.id	 = res->GetID(),
+					.tid = res->GetTID(),
+				});
+			}
+		}
+
+		resources.clear();
+		UnloadResources(unloadList);
+	}
+
 	void ResourceManagerV2::AddListener(ResourceManagerListener* listener)
 	{
 		m_listeners.push_back(listener);
@@ -91,7 +128,7 @@ namespace Lina
 		m_listeners.erase(it);
 	}
 
-	HashSet<Resource*> ResourceManagerV2::LoadResourcesFromFile(const ResourceDefinitionList& resourceDefs, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress)
+	HashSet<Resource*> ResourceManagerV2::LoadResourcesFromFile(const ResourceDefinitionList& resourceDefs, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress, uint64 resourceSpace)
 	{
 		CheckLock();
 
@@ -106,17 +143,18 @@ namespace Lina
 
 			if (res)
 			{
-				res->m_referenceCount++;
-
 				if (onProgress)
 					onProgress(++idx, def);
+
+				m_resourceSpaces[resourceSpace].insert(res);
 
 				resources.insert(res);
 				continue;
 			}
 
-			res					  = cache->Create(def.id, def.name);
-			res->m_referenceCount = 1;
+			res = cache->Create(def.id, def.name);
+
+			m_resourceSpaces[resourceSpace].insert(res);
 
 			if (def.customMeta.GetCurrentSize() != 0)
 			{
@@ -152,7 +190,7 @@ namespace Lina
 		return resources;
 	}
 
-	HashSet<Resource*> ResourceManagerV2::LoadResourcesFromProject(ProjectData* project, const HashSet<ResourceID>& resources, Delegate<void(uint32 loaded, Resource* currentItem)> onProgress)
+	HashSet<Resource*> ResourceManagerV2::LoadResourcesFromProject(ProjectData* project, const HashSet<ResourceID>& resources, Delegate<void(uint32 loaded, Resource* currentItem)> onProgress, uint64 resourceSpace)
 	{
 		CheckLock();
 
@@ -179,16 +217,18 @@ namespace Lina
 
 			if (res != nullptr)
 			{
-				res->m_referenceCount++;
-
 				if (onProgress)
 					onProgress(++idx, res);
+
+				m_resourceSpaces[resourceSpace].insert(res);
+
 				loaded.insert(res);
 				continue;
 			}
 
-			res					  = cache->Create(id, dir->name);
-			res->m_referenceCount = 1;
+			res = cache->Create(id, dir->name);
+
+			m_resourceSpaces[resourceSpace].insert(res);
 
 			IStream stream = Serialization::LoadFromFile(project->GetResourcePath(id).c_str());
 
@@ -231,13 +271,7 @@ namespace Lina
 		{
 			ResourceCacheBase* cache = GetCache(def.tid);
 			Resource*		   r	 = cache->GetIfExists(def.id);
-
 			if (r == nullptr)
-				continue;
-
-			r->m_referenceCount--;
-
-			if (r->m_referenceCount > 0)
 				continue;
 
 			toDestroy.insert(r);
@@ -248,9 +282,6 @@ namespace Lina
 
 		for (Resource* res : toDestroy)
 		{
-			if (res->m_referenceCount > 0)
-				continue;
-
 			res->DestroyHW();
 			ResourceCacheBase* cache = GetCache(res->GetTID());
 			cache->Destroy(res->GetID());

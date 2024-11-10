@@ -113,9 +113,7 @@ namespace Lina::Editor
 		if (m_previewOnly)
 			return;
 
-		m_editor->GetApp()->GetResourceManager().UnloadResources({
-			{.id = m_resource->GetID(), .tid = m_resource->GetTID()},
-		});
+		m_editor->GetApp()->GetResourceManager().UnloadResourceSpace(m_resourceSpace);
 		m_resource = nullptr;
 	}
 
@@ -144,7 +142,9 @@ namespace Lina::Editor
 			return;
 		}
 
-		m_editor->GetApp()->GetResourceManager().LoadResourcesFromProject(m_editor->GetProjectManager().GetProjectData(), {m_subData}, NULL);
+		m_resourceSpace = m_subData;
+
+		m_editor->GetApp()->GetResourceManager().LoadResourcesFromProject(m_editor->GetProjectManager().GetProjectData(), {m_subData}, NULL, m_resourceSpace);
 		m_resource = m_editor->GetApp()->GetResourceManager().GetIfExists(m_resourceTID, m_subData);
 
 		if (resDir->parent == m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().GetChildByName(EDITOR_DEF_RESOURCES_FOLDER))

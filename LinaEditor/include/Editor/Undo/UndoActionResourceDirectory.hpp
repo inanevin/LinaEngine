@@ -117,7 +117,7 @@ namespace Lina::Editor
 			m_prevStream.Destroy();
 		};
 
-		static UndoActionMaterialDataChanged* Create(Editor* editor, ResourceID resourceID, const OStream& prevStream);
+		static UndoActionMaterialDataChanged* Create(Editor* editor, ResourceID resourceID, const OStream& prevStream, uint64 resourceSpace);
 		virtual void						  Execute(Editor* editor) override;
 		virtual void						  Undo(Editor* editor) override;
 
@@ -125,8 +125,9 @@ namespace Lina::Editor
 		void Apply(Editor* editor, bool applyMeta);
 
 	private:
-		ResourceID m_resourceID = 0;
-		OStream	   m_prevStream = {};
+		ResourceID m_resourceID	   = 0;
+		uint64	   m_resourceSpace = 0;
+		OStream	   m_prevStream	   = {};
 	};
 
 	class UndoActionMaterialShaderChanged : public UndoAction

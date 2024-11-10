@@ -313,7 +313,7 @@ namespace Lina
 		outResources.insert(m_gfxSettings.skyModel);
 	}
 
-	HashSet<Resource*> EntityWorld::LoadMissingResources(ResourceManagerV2& rm, ProjectData* project, const HashSet<ResourceID>& extraResources)
+	HashSet<Resource*> EntityWorld::LoadMissingResources(ResourceManagerV2& rm, ProjectData* project, const HashSet<ResourceID>& extraResources, uint64 resourceSpace)
 	{
 		HashSet<ResourceID> resources = extraResources;
 		CollectResourceNeeds(resources);
@@ -322,7 +322,8 @@ namespace Lina
 
 		// First load whatever is requested + needed by the components.
 		if (!resources.empty())
-			allLoaded = rm.LoadResourcesFromProject(project, resources, [](uint32 loaded, Resource* current) {});
+			allLoaded = rm.LoadResourcesFromProject(
+				project, resources, [](uint32 loaded, Resource* current) {}, resourceSpace);
 
 		// Load materials required by the models.
 		HashSet<ResourceID>	  modelMaterials;
@@ -333,7 +334,8 @@ namespace Lina
 
 			return false;
 		});
-		HashSet<Resource*> modelNeeds = rm.LoadResourcesFromProject(project, modelMaterials, [](uint32 loaded, Resource* current) {});
+		HashSet<Resource*> modelNeeds = rm.LoadResourcesFromProject(
+			project, modelMaterials, [](uint32 loaded, Resource* current) {}, resourceSpace);
 		allLoaded.insert(modelNeeds.begin(), modelNeeds.end());
 
 		// Load shaders, textures and samplers required by the materials.
@@ -353,7 +355,8 @@ namespace Lina
 			}
 			return false;
 		});
-		HashSet<Resource*> matNeeds = rm.LoadResourcesFromProject(project, materialDependencies, [](uint32 loaded, Resource* current) {});
+		HashSet<Resource*> matNeeds = rm.LoadResourcesFromProject(
+			project, materialDependencies, [](uint32 loaded, Resource* current) {}, resourceSpace);
 		allLoaded.insert(matNeeds.begin(), matNeeds.end());
 
 		return allLoaded;

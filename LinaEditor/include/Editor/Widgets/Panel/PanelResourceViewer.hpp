@@ -72,6 +72,7 @@ namespace Lina::Editor
 		Button*	  m_reimportButton = nullptr;
 		bool	  m_previewOnly	   = false;
 		bool	  m_runtimeDirty   = false;
+		uint64	  m_resourceSpace  = 0;
 	};
 
 } // namespace Lina::Editor

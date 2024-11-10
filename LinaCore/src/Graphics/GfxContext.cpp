@@ -223,6 +223,7 @@ namespace Lina
 			else if (res->GetTID() == GetTypeID<Model>())
 			{
 				join = true;
+				static_cast<Model*>(res)->RemoveUpload(&m_meshManagerDefault);
 			}
 			else if (res->GetTID() == GetTypeID<Font>())
 			{

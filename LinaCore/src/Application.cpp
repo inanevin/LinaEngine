@@ -60,6 +60,7 @@ namespace Lina
 
 		m_gfxContext.Initialize(&m_resourceManager, s_lgx, &m_guiBackend);
 		m_guiBackend.Initialize(&m_resourceManager);
+		m_worldProcessor.Initialize(this);
 
 		const bool preInitOK = GetAppDelegate()->PreInitialize();
 
