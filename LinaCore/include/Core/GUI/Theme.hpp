@@ -76,7 +76,7 @@ namespace Lina
 			Color accentPrimary3  = Color(0.38499f, 0.08519f, 0.1258f, 1.0f);
 			Color accentSecondary = Color(7, 131, 214, 255.0f, true, true);
 
-			Color accentError = Color(0.302f, 0.004f, 0.013f, 1.0f);
+			Color accentError = Color(0.705f, 0.004f, 0.013f, 1.0f);
 			Color accentWarn  = Color(0.509f, 0.5f, 0.032, 1.0f);
 
 			Color outlineColorBase	   = silent1;

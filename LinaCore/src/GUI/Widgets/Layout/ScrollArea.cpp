@@ -47,6 +47,9 @@ namespace Lina
 
 		CheckScroll();
 
+		if (!m_props.tryKeepAtEnd)
+			m_lockScrollToEnd = false;
+
 		if (m_isPressed)
 		{
 			const Vector2 mouseAbs = m_lgxWindow->GetInput()->GetMousePositionAbs();
@@ -64,6 +67,9 @@ namespace Lina
 				const float targetBarRatio = Math::Clamp((targetBarStart - GetPosY()) / GetSizeY(), 0.0f, 1.0f);
 				m_scrollAmount			   = targetBarRatio * m_totalChildSize;
 			}
+
+			if (m_props.tryKeepAtEnd)
+				m_lockScrollToEnd = m_scrollAmount > m_maxScroll || Math::Equals(m_scrollAmount, m_maxScroll, 1.0f);
 		}
 
 		CheckScroll();
@@ -125,11 +131,13 @@ namespace Lina
 
 	void ScrollArea::ScrollToStart()
 	{
+		CheckScroll();
 		m_scrollAmount = m_minScroll;
 	}
 
 	void ScrollArea::ScrollToEnd()
 	{
+		CheckScroll();
 		m_scrollAmount = m_maxScroll;
 	}
 
@@ -206,6 +214,10 @@ namespace Lina
 			return true;
 
 		m_scrollAmount -= amt * m_totalChildSize * m_props.mouseWheelMultiplier;
+
+		if (m_props.tryKeepAtEnd)
+			m_lockScrollToEnd = m_scrollAmount > m_maxScroll || Math::Equals(m_scrollAmount, m_maxScroll, 1.0f);
+
 		CheckScroll();
 		return true;
 	}
@@ -227,11 +239,14 @@ namespace Lina
 		m_minScroll			   = 0.0f;
 		m_maxScroll			   = Math::Max(m_totalChildSize - usedSize, 0.0f);
 
-		m_scrollAmount = Math::Clamp(m_scrollAmount, m_minScroll, m_maxScroll);
+		if (m_lockScrollToEnd)
+			m_scrollAmount = m_maxScroll;
+		else
+			m_scrollAmount = Math::Clamp(m_scrollAmount, m_minScroll, m_maxScroll);
 	}
 
 	bool ScrollArea::IsScrollAtEnd() const
 	{
-		return Math::Equals(m_scrollAmount, m_maxScroll, 0.01f);
+		return Math::Equals(m_scrollAmount, m_maxScroll, 1.0f);
 	}
 } // namespace Lina

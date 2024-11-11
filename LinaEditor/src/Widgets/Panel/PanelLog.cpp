@@ -99,6 +99,7 @@ namespace Lina::Editor
 		logScroll->SetAlignedPosX(0.0f);
 		logScroll->SetAlignedSize(Vector2(1.0f, 0.0f));
 		logScroll->GetProps().direction					 = DirectionOrientation::Vertical;
+		logScroll->GetProps().tryKeepAtEnd				 = true;
 		logScroll->GetWidgetProps().drawBackground		 = true;
 		logScroll->GetWidgetProps().colorBackground		 = Theme::GetDef().background0;
 		logScroll->GetWidgetProps().rounding			 = 0.0f;
@@ -172,7 +173,7 @@ namespace Lina::Editor
 			s_logLevels.push_back({
 				.level = LogLevel::Error,
 				.show  = true,
-				.color = Color::Red,
+				.color = Theme::GetDef().accentError,
 				.title = Locale::GetStr(LocaleStr::Error),
 			});
 
@@ -238,13 +239,6 @@ namespace Lina::Editor
 		text->SetUserData(&data);
 		text->GetProps().fetchWrapFromParent = true;
 		m_logLayout->AddChild(text);
-
-		const bool atEnd = m_logScroll->IsScrollAtEnd();
-
-		m_logScroll->CheckScroll();
-
-		if (atEnd)
-			m_logScroll->ScrollToEnd();
 	}
 
 	void PanelLog::UpdateTextVisibility()

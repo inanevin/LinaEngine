@@ -226,9 +226,7 @@ namespace Lina
 			lastFPSUpdate = gameTime;
 			LINA_TRACE("FPS: {0} Time: {1}", SystemInfo::GetMeasuredFPS(), static_cast<float>(SystemInfo::GetDeltaTime()) * 1000.0f);
 
-			LINA_ERR("Test error :");
-			LINA_WARN("Test warn");
-			LINA_INFO("Hello m8 this is a test info text");
+			LINA_ERR("OKAY THIS IS A REALLY LONG TEST ERROR I HOPE IT WORKS PROPERLY I really need it to");
 		}
 	}
 

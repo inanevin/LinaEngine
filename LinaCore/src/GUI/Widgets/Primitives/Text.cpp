@@ -44,10 +44,8 @@ namespace Lina
 		if (m_props.fetchWrapFromParent)
 			m_props.wrapWidth = m_parent->GetSizeX();
 
-		if (!Math::Equals(m_props.wrapWidth, 0.0f, 0.1f))
-			CalculateTextSize();
-
-		if (!Math::Equals(m_lgxWindow->GetDPIScale(), m_calculatedDPIScale, 0.01f))
+		const bool calculate = !Math::Equals(m_props.wrapWidth, 0.0f, 0.1f) || !Math::Equals(m_lgxWindow->GetDPIScale(), m_calculatedDPIScale, 0.01f);
+		if (calculate)
 			CalculateTextSize();
 	}
 

@@ -48,6 +48,7 @@ namespace Lina
 			float				 barRounding		  = Theme::GetDef().baseRounding * 2;
 			float				 barThickness		  = Theme::GetDef().baseItemHeight / 2;
 			float				 mouseWheelMultiplier = 0.05f;
+			bool				 tryKeepAtEnd		  = false;
 
 			void SaveToStream(OStream& stream) const
 			{
@@ -128,6 +129,7 @@ namespace Lina
 		Vector2	   m_start				  = {};
 		Vector2	   m_end				  = {};
 		Vector2	   m_sz					  = {};
+		bool	   m_lockScrollToEnd	  = false;
 	};
 
 	LINA_WIDGET_BEGIN(ScrollArea, Layout)
