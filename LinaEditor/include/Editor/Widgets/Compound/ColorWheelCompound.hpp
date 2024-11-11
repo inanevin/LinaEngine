@@ -57,11 +57,14 @@ namespace Lina::Editor
 		struct Properties
 		{
 			Delegate<void(const Color& linearColor)> onValueChanged;
+			Vector3*								 trackColorv3 = nullptr;
+			Vector4*								 trackColorv4 = nullptr;
 		};
 
 		virtual void Construct() override;
 		virtual void Initialize() override;
 		void		 SetTargetColor(const Color& col, bool callback = true);
+		void		 FetchFromTrackedColors();
 
 		inline Properties& GetProps()
 		{

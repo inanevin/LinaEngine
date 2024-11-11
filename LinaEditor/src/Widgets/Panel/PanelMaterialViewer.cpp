@@ -243,16 +243,19 @@ namespace Lina::Editor
 			b->GetProps().onClicked		= [data, comps, this, b]() {
 				PanelColorWheel* panel = Editor::Get()->GetWindowPanelManager().OpenColorWheelPanel(b);
 				panel->SetListener(this);
+				m_colorWheel = panel;
 
 				if (comps == 3)
 				{
 					Vector3* v = reinterpret_cast<Vector3*>(data);
 					panel->GetWheel()->SetTargetColor(Color(v->x, v->y, v->z, 1.0f), false);
+					panel->GetWheel()->GetProps().trackColorv3 = v;
 				}
 				else if (comps == 4)
 				{
 					Vector4* v = reinterpret_cast<Vector4*>(data);
 					panel->GetWheel()->SetTargetColor(Color(v->x, v->y, v->z, v->w), false);
+					panel->GetWheel()->GetProps().trackColorv4 = v;
 				}
 
 				m_latestColorWheelComps = comps;
@@ -416,11 +419,15 @@ namespace Lina::Editor
 	void PanelMaterialViewer::OnPanelColorWheelClosed()
 	{
 		UpdateMaterial();
+		m_colorWheel = nullptr;
 	}
 
 	void PanelMaterialViewer::UpdateMaterial()
 	{
 		Material* mat = static_cast<Material*>(m_resource);
+
+		if (m_colorWheel)
+			m_colorWheel->GetWheel()->FetchFromTrackedColors();
 
 		OStream stream;
 		mat->SaveToStream(stream);

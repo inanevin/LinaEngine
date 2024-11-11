@@ -101,6 +101,7 @@ namespace Lina::Editor
 		ResourceID				  m_previousShaderID	  = 0;
 		uint8*					  m_latestColorWheelData  = nullptr;
 		uint32					  m_latestColorWheelComps = 0;
+		PanelColorWheel*		  m_colorWheel			  = nullptr;
 	};
 
 	LINA_CLASS_BEGIN(MaterialViewerDisplayType)

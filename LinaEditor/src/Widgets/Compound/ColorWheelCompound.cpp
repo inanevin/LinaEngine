@@ -372,6 +372,20 @@ namespace Lina::Editor
 		Recalculate(true, callback);
 	}
 
+	void ColorWheelCompound::FetchFromTrackedColors()
+	{
+		if (m_props.trackColorv3)
+		{
+			m_editedColor = Color(m_props.trackColorv3->x, m_props.trackColorv3->y, m_props.trackColorv3->z, 1.0f);
+			Recalculate(false, false);
+		}
+		else if (m_props.trackColorv4)
+		{
+			m_editedColor = Color(m_props.trackColorv4->x, m_props.trackColorv4->y, m_props.trackColorv4->z, m_props.trackColorv4->w);
+			Recalculate(false, false);
+		}
+	}
+
 	void ColorWheelCompound::SwitchColorDisplay(ColorDisplay display)
 	{
 		m_selectedDisplay = display;

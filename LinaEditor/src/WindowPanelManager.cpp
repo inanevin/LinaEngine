@@ -323,12 +323,6 @@ namespace Lina::Editor
 		PanelColorWheel* wh	   = static_cast<PanelColorWheel*>(OpenPanel(PanelType::ColorWheel, 0, requester));
 		m_panelColorWheel	   = wh;
 		m_panelColorWheelOwner = requester;
-
-		requester->SetDestructHook([this]() {
-			if (m_panelColorWheel)
-				m_panelColorWheel->GetWheel()->GetProps().onValueChanged = [](const Color& linearColor) {};
-		});
-
 		return wh;
 	}
 
@@ -449,8 +443,6 @@ namespace Lina::Editor
 	{
 		if (panel->GetType() == PanelType::ColorWheel)
 		{
-			if (m_panelColorWheelOwner)
-				m_panelColorWheelOwner->SetDestructHook(NULL);
 
 			m_panelColorWheel	   = nullptr;
 			m_panelColorWheelOwner = nullptr;
