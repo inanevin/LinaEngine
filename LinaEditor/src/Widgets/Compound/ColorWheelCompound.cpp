@@ -67,7 +67,7 @@ namespace Lina::Editor
 		field->SetAlignedSizeY(1.0f);
 		field->SetFixedSizeX(baseItemHeight * 2.0f);
 		field->SetAlignedPosY(0.0f);
-		field->GetProps().onValueChanged = [this](float val, bool fromSlider) { Recalculate(true); };
+		field->GetProps().onValueChanged = [this](float val, bool fromSlider) { Recalculate(true, true); };
 
 		ColorSlider* slider						= m_manager->Allocate<ColorSlider>("ColorComponentColorSlider");
 		slider->GetWidgetProps().drawBackground = true;
@@ -78,7 +78,7 @@ namespace Lina::Editor
 		slider->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_SIZE_ALIGN_X | WF_POS_ALIGN_Y);
 		slider->SetAlignedSize(Vector2(0.0f, 1.0f));
 		slider->SetAlignedPosY(0.0f);
-		slider->GetProps().onValueChanged = [this](float val) { Recalculate(true); };
+		slider->GetProps().onValueChanged = [this](float val) { Recalculate(true, true); };
 
 		DirectionalLayout* layout			  = m_manager->Allocate<DirectionalLayout>("ColorComponentRow");
 		layout->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
@@ -117,7 +117,7 @@ namespace Lina::Editor
 		field->SetAlignedSizeX(1.0f);
 		field->SetAlignedPosX(0.0f);
 		field->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		field->GetProps().onValueChanged = [this](float val, bool fromSlider) { Recalculate(false); };
+		field->GetProps().onValueChanged = [this](float val, bool fromSlider) { Recalculate(false, true); };
 
 		ColorSlider* slider								  = m_manager->Allocate<ColorSlider>("HSVSlider");
 		slider->GetWidgetProps().colorBackgroundDirection = DirectionOrientation::Vertical;
@@ -131,7 +131,7 @@ namespace Lina::Editor
 		slider->GetProps().value				= val;
 		slider->GetProps().step					= 0.0f;
 		slider->GetWidgetProps().lvgUserData	= isHue ? &m_colorSliderUserData : nullptr;
-		slider->GetProps().onValueChanged		= [this](float val) { Recalculate(false); };
+		slider->GetProps().onValueChanged		= [this](float val) { Recalculate(false, true); };
 		slider->GetWidgetProps().drawBackground = true;
 
 		// Layout
@@ -191,7 +191,7 @@ namespace Lina::Editor
 		m_wheel->SetAlignedPos(Vector2::Zero);
 		m_wheel->GetProps().hue			   = &m_hsv.x;
 		m_wheel->GetProps().saturation	   = &m_hsv.y;
-		m_wheel->GetProps().onValueChanged = [this](float, float) { Recalculate(false); };
+		m_wheel->GetProps().onValueChanged = [this](float, float) { Recalculate(false, true); };
 		topRowLeftSide->AddChild(m_wheel);
 
 		// HSV
@@ -249,7 +249,7 @@ namespace Lina::Editor
 			m_editedColor.FromHex(str);
 			m_editedColor255 = m_editedColor * 255.0f;
 			m_editedColor255.Round();
-			Recalculate(true);
+			Recalculate(true, true);
 		};
 		m_hexField->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
 		m_hexField->SetFixedSizeX(baseItemHeight * 6);
@@ -363,13 +363,13 @@ namespace Lina::Editor
 	void ColorWheelCompound::Initialize()
 	{
 		Widget::Initialize();
-		Recalculate(true);
+		Recalculate(true, true);
 	}
 
-	void ColorWheelCompound::SetTargetColor(const Color& col)
+	void ColorWheelCompound::SetTargetColor(const Color& col, bool callback)
 	{
 		m_editedColor = col.Linear2SRGB();
-		Recalculate(true);
+		Recalculate(true, callback);
 	}
 
 	void ColorWheelCompound::SwitchColorDisplay(ColorDisplay display)
@@ -432,7 +432,7 @@ namespace Lina::Editor
 		}
 	}
 
-	void ColorWheelCompound::Recalculate(bool sourceRGB)
+	void ColorWheelCompound::Recalculate(bool sourceRGB, bool callback)
 	{
 		if (m_selectedDisplay == ColorDisplay::RGB255)
 			m_editedColor = m_editedColor255 / 255.0f;
@@ -468,7 +468,7 @@ namespace Lina::Editor
 		m_colorComp4.slider->GetWidgetProps().colorBackground.end	= Color(m_editedColor.x, m_editedColor.y, m_editedColor.z, 1.0f).SRGB2Linear();
 		m_wheel->GetProps().darknessAlpha							= m_hsv.z;
 
-		if (m_props.onValueChanged)
+		if (callback && m_props.onValueChanged)
 			m_props.onValueChanged(m_editedColor.SRGB2Linear());
 
 		m_hexField->GetText()->GetProps().text = m_editedColor.GetHex();

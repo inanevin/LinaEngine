@@ -61,7 +61,7 @@ namespace Lina::Editor
 
 		virtual void Construct() override;
 		virtual void Initialize() override;
-		void		 SetTargetColor(const Color& col);
+		void		 SetTargetColor(const Color& col, bool callback = true);
 
 		inline Properties& GetProps()
 		{
@@ -102,7 +102,7 @@ namespace Lina::Editor
 	private:
 		SaturationValueComponent ConstructHSVComponent(const String& label, bool isHue, float* val);
 		ColorComponent			 ConstructColorComponent(const String& label, float* val);
-		void					 Recalculate(bool sourceRGB);
+		void					 Recalculate(bool sourceRGB, bool callback);
 		void					 SwitchColorDisplay(ColorDisplay display);
 
 	private:
