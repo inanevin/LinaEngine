@@ -33,7 +33,19 @@ SOFTWARE.
 
 namespace Lina
 {
-	Mutex Log::s_logMtx;
+	Mutex				 Log::s_logMtx;
+	Vector<LogListener*> Log::s_logListeners;
+
+	void Log::AddLogListener(LogListener* listener)
+	{
+		s_logListeners.push_back(listener);
+	}
+
+	void Log::RemoveLogListener(LogListener* listener)
+	{
+		auto it = linatl::find_if(s_logListeners.begin(), s_logListeners.end(), [listener](LogListener* l) -> bool { return listener == l; });
+		s_logListeners.erase(it);
+	}
 
 	void Log::LogImpl(LogLevel level, const char* msg)
 	{
@@ -61,6 +73,9 @@ namespace Lina
 #else
 		std::cout << msgStr.c_str();
 #endif
+
+		for (LogListener* list : s_logListeners)
+			list->OnLog(level, msg);
 	}
 
 	const char* Log::GetLogLevel(LogLevel level)

@@ -417,6 +417,9 @@ namespace Lina
 		float sz = 0.0f;
 		for (auto* c : m_children)
 		{
+			if (c->GetFlags().IsSet(WF_HIDE))
+				continue;
+
 			if (m_props.direction == DirectionOrientation::Horizontal)
 				sz += c->GetSizeX() + GetWidgetProps().childPadding;
 			else

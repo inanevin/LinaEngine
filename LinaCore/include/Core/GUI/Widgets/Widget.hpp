@@ -164,6 +164,17 @@ namespace Lina
 		virtual void LoadFromStream(IStream& stream);
 	};
 
+	/*
+	struct TransformProps
+	{
+		Rect rect = Rect();
+		Vector2 alignedSize = Vector2::Zero;
+		Vector2 alignedPos	= Vector2::Zero;
+		Vector2 fixedSize	= Vector2::Zero;
+		Anchor	anchorX		= Anchor::Start;
+		Anchor	anchorY		= Anchor::Start;
+	};
+	*/
 	class Widget
 	{
 	public:

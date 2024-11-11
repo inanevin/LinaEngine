@@ -79,6 +79,7 @@ SOFTWARE.
 #define LINA_NOTIMPLEMENTED LINA_ASSERT(false, "Implementation missing!")
 
 #include "Common/Data/Mutex.hpp"
+#include "Common/Data/Vector.hpp"
 
 namespace Lina
 {
@@ -95,9 +96,16 @@ namespace Lina
 		Warn	 = 6,
 	};
 
+	class LogListener
+	{
+	public:
+		virtual void OnLog(LogLevel level, const char* msg) = 0;
+	};
 	class Log
 	{
 	public:
+		static void		   AddLogListener(LogListener* listener);
+		static void		   RemoveLogListener(LogListener* listener);
 		static void		   LogImpl(LogLevel level, const char* msg);
 		static const char* GetLogLevel(LogLevel level);
 
@@ -108,7 +116,8 @@ namespace Lina
 
 	private:
 		friend class Engine;
-		static Mutex s_logMtx;
+		static Mutex				s_logMtx;
+		static Vector<LogListener*> s_logListeners;
 	};
 } // namespace Lina
 

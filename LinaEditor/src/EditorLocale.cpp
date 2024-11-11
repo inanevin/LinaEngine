@@ -158,6 +158,13 @@ namespace Lina::Editor
 		{LocaleStr::ReimportedResource, "Reimported resource: "},
 		{LocaleStr::ReimportShader, "Reimport Shader"},
 		{LocaleStr::AutoReimport, "Auto Reimport"},
+		{LocaleStr::Log, "Log"},
+		{LocaleStr::EnterConsoleCommand, "Enter Console Command"},
+		{LocaleStr::LogLevels, "Log Levels"},
+		{LocaleStr::Info, "Info"},
+		{LocaleStr::Warning, "Warning"},
+		{LocaleStr::Error, "Error"},
+		{LocaleStr::Trace, "Trace"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

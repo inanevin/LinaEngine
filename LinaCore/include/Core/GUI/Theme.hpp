@@ -76,21 +76,22 @@ namespace Lina
 			Color accentPrimary3  = Color(0.38499f, 0.08519f, 0.1258f, 1.0f);
 			Color accentSecondary = Color(7, 131, 214, 255.0f, true, true);
 
-			Color accentError = Color(0.24513f, 0.00972f, 0.02122f, 1.0f);
-			Color accentWarn  = Color(0.16513f, 0.16513f, 0.02122f, 1.0f);
+			Color accentError = Color(0.302f, 0.004f, 0.013f, 1.0f);
+			Color accentWarn  = Color(0.509f, 0.5f, 0.032, 1.0f);
 
 			Color outlineColorBase	   = silent1;
 			Color outlineColorControls = accentPrimary0;
 
-			float baseIndent		   = 12.0f;
-			float baseIndentInner	   = 8.0f;
-			float baseSliderPerc	   = 0.25f;
-			float baseRounding		   = 0.45f;
-			float miniRounding		   = 0.1f;
-			float baseOutlineThickness = 1.0f;
-			float baseItemHeight	   = 24.0f;
-			float popupAnimTime		   = 0.1f;
-			float baseBorderThickness  = 6.0f;
+			float  baseIndent			= 12.0f;
+			float  baseIndentInner		= 8.0f;
+			float  baseSliderPerc		= 0.25f;
+			float  baseRounding			= 0.45f;
+			float  miniRounding			= 0.1f;
+			float  baseOutlineThickness = 1.0f;
+			float  baseItemHeight		= 24.0f;
+			float  popupAnimTime		= 0.1f;
+			float  baseBorderThickness	= 6.0f;
+			uint32 baseDropShadowSteps	= 4;
 
 			ResourceID defaultFont		= 0;
 			ResourceID defaultBoldFont	= 0;

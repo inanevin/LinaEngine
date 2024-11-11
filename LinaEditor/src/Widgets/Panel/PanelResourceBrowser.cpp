@@ -55,16 +55,10 @@ namespace Lina::Editor
 		header->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
 		vertical->AddChild(header);
 
-		Button* importButton = WidgetUtility::BuildIconTextButton(this, ICON_PLUS, Locale::GetStr(LocaleStr::Import));
-		importButton->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_ALIGN_X);
-		importButton->SetAlignedPosY(0.0f);
-		importButton->SetAlignedSize(Vector2(0.3f, 1.0f));
-		header->AddChild(importButton);
-
 		InputField* searchField = m_manager->Allocate<InputField>();
 		searchField->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		searchField->SetAlignedPosY(0.0f);
-		searchField->SetAlignedSize(Vector2(0.0, 1.0f));
+		searchField->SetAlignedSize(Vector2(0.5f, 1.0f));
 		searchField->GetProps().usePlaceHolder	= true;
 		searchField->GetProps().placeHolderText = Locale::GetStr(LocaleStr::Search);
 		header->AddChild(searchField);

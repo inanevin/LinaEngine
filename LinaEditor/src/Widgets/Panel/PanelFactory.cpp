@@ -41,6 +41,7 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelPhysicsMaterialViewer.hpp"
 #include "Editor/Widgets/Panel/PanelMaterialViewer.hpp"
 #include "Editor/Widgets/Panel/PanelAudioViewer.hpp"
+#include "Editor/Widgets/Panel/PanelLog.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 
 namespace Lina::Editor
@@ -63,6 +64,9 @@ namespace Lina::Editor
 			break;
 		case PanelType::Entities:
 			panel = source->GetWidgetManager()->Allocate<PanelEntities>("Entities");
+			break;
+		case PanelType::Log:
+			panel = source->GetWidgetManager()->Allocate<PanelLog>("Log");
 			break;
 		case PanelType::WidgetEditor:
 			panel = source->GetWidgetManager()->Allocate<PanelWidgetEditor>("Widget Editor");
@@ -99,9 +103,9 @@ namespace Lina::Editor
 			break;
 		}
 
-		panel->GetWidgetProps().drawBackground		 = true;
-		panel->GetWidgetProps().outlineThickness	 = Theme::GetDef().baseOutlineThickness;
-		panel->GetWidgetProps().outlineIsInner		 = true;
+		panel->GetWidgetProps().drawBackground	 = true;
+		panel->GetWidgetProps().outlineThickness = 0.0f;
+		// panel->GetWidgetProps().outlineIsInner		 = true;
 		panel->GetWidgetProps().rounding			 = 0.0f;
 		panel->GetWidgetProps().colorBackground		 = Theme::GetDef().background1;
 		panel->GetWidgetProps().dropshadow.enabled	 = true;

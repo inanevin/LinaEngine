@@ -80,7 +80,7 @@ namespace Lina::Editor
 		controller->GetWidgetProps().colorBackground	  = Theme::GetDef().background0;
 		controller->GetWidgetProps().outlineThickness	  = 0.0f;
 		controller->GetWidgetProps().dropshadow.enabled	  = true;
-		controller->GetWidgetProps().dropshadow.steps	  = 4;
+		controller->GetWidgetProps().dropshadow.steps	  = Theme::GetDef().baseDropShadowSteps;
 		controller->GetWidgetProps().dropshadow.direction = Direction::Top;
 		controller->GetWidgetProps().dropshadow.isInner	  = true;
 		controller->GetContextMenu()->SetListener(this);

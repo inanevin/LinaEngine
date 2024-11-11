@@ -657,7 +657,7 @@ namespace Lina
 				idx++;
 			}
 
-			// total *= w->GetAlignedSizeX();
+			total *= w->GetAlignedSizeX();
 			w->SetSizeX(total + w->GetWidgetProps().childMargins.left + w->GetWidgetProps().childMargins.right);
 		}
 

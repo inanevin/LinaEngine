@@ -26,33 +26,56 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Editor/Widgets/Panel/PanelWorld.hpp"
-#include "Editor/Editor.hpp"
-#include "Common/Platform/LinaVGIncl.hpp"
+#pragma once
 
-#include "Common/Math/Math.hpp"
-#include "Core/World/EntityWorld.hpp"
-#include "Core/Graphics/Resource/Texture.hpp"
-#include "Core/Graphics/Renderers/WorldRenderer.hpp"
+#include "Editor/Widgets/Panel/Panel.hpp"
+
+namespace Lina
+{
+	class DirectionalLayout;
+	class ScrollArea;
+} // namespace Lina
 
 namespace Lina::Editor
 {
-	void PanelWorld::Construct()
-	{
-		Panel::Construct();
-	}
 
-	void PanelWorld::Tick(float delta)
+	class PanelLog : public Panel, public LogListener
 	{
-		// m_world = m_wm->GetMainWorld();
-		// if (!m_world)
-		// 	return;
-		//
-		// if (m_worldRenderer == nullptr)
-		// 	m_worldRenderer = Editor::Get()->GetWorldRenderer(m_world);
-		//
-		// const Vector2ui size = Vector2ui(static_cast<uint32>(Math::CeilToInt(GetSizeX())), static_cast<uint32>(Math::CeilToInt(GetSizeY())));
-		// m_worldRenderer->Resize(size);
-	}
+	private:
+		static constexpr uint32 LOG_LEVEL_COUNT = 4;
+
+		struct LogLevelData
+		{
+			LogLevel level = LogLevel::Info;
+			bool	 show  = false;
+			Color	 color = {};
+			String	 title = "";
+		};
+
+	public:
+		PanelLog() : Panel(PanelType::Log){};
+		virtual ~PanelLog() = default;
+
+		virtual void Construct() override;
+		virtual void Destruct() override;
+
+		virtual void SaveLayoutToStream(OStream& stream);
+		virtual void LoadLayoutFromStream(IStream& stream);
+
+	protected:
+		virtual void OnLog(LogLevel level, const char* msg) override;
+
+	private:
+		void UpdateTextVisibility();
+
+	private:
+		DirectionalLayout*			m_logLayout = nullptr;
+		ScrollArea*					m_logScroll = nullptr;
+		String						m_searchStr = "";
+		static Vector<LogLevelData> s_logLevels;
+	};
+
+	LINA_WIDGET_BEGIN(PanelLog, Hidden)
+	LINA_CLASS_END(PanelLog)
 
 } // namespace Lina::Editor

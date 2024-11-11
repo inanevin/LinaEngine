@@ -40,13 +40,14 @@ namespace Lina
 
 		struct Properties
 		{
-			DirectionOrientation direction			= DirectionOrientation::Horizontal;
-			Color				 colorBarBackground = Theme::GetDef().background2;
-			ColorGrad			 colorBar			= {Theme::GetDef().accentPrimary1, Theme::GetDef().accentPrimary0};
-			Color				 colorHovered		= Theme::GetDef().accentPrimary2;
-			Color				 colorPressed		= Theme::GetDef().accentPrimary1;
-			float				 barRounding		= Theme::GetDef().baseRounding * 2;
-			float				 barThickness		= Theme::GetDef().baseItemHeight / 2;
+			DirectionOrientation direction			  = DirectionOrientation::Horizontal;
+			Color				 colorBarBackground	  = Theme::GetDef().background2;
+			ColorGrad			 colorBar			  = {Theme::GetDef().accentPrimary1, Theme::GetDef().accentPrimary0};
+			Color				 colorHovered		  = Theme::GetDef().accentPrimary2;
+			Color				 colorPressed		  = Theme::GetDef().accentPrimary1;
+			float				 barRounding		  = Theme::GetDef().baseRounding * 2;
+			float				 barThickness		  = Theme::GetDef().baseItemHeight / 2;
+			float				 mouseWheelMultiplier = 0.05f;
 
 			void SaveToStream(OStream& stream) const
 			{
@@ -68,7 +69,11 @@ namespace Lina
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 		virtual bool OnMouseWheel(float amt) override;
 		void		 ScrollToChild(Widget* w);
-		bool		 IsBarHovered();
+		bool		 IsBarHovered() const;
+		void		 ScrollToStart();
+		void		 ScrollToEnd();
+		void		 CheckScroll();
+		bool		 IsScrollAtEnd() const;
 
 		virtual void SaveToStream(OStream& stream) const override
 		{
@@ -103,8 +108,6 @@ namespace Lina
 		}
 
 	private:
-		void ClampScroll();
-
 	private:
 		static constexpr float SCROLL_SMOOTH = 15.0f;
 		LINA_REFLECTION_ACCESS(ScrollArea);

@@ -67,6 +67,7 @@ include/Editor/Widgets/Popups/NotificationDisplayer.hpp
 include/Editor/Widgets/Popups/InfoTooltip.hpp
 include/Editor/Widgets/Panel/Panel.hpp
 include/Editor/Widgets/Panel/PanelWorld.hpp
+include/Editor/Widgets/Panel/PanelLog.hpp
 include/Editor/Widgets/Panel/PanelWidgetEditor.hpp
 include/Editor/Widgets/Panel/PanelWidgetEditorProperties.hpp
 include/Editor/Widgets/Panel/PanelPerformance.hpp
@@ -150,6 +151,7 @@ src/Widgets/Popups/InfoTooltip.cpp
 src/Widgets/Panel/Panel.cpp
 src/Widgets/Panel/PanelPerformance.cpp
 src/Widgets/Panel/PanelWorld.cpp
+src/Widgets/Panel/PanelLog.cpp
 src/Widgets/Panel/PanelWidgetEditor.cpp
 src/Widgets/Panel/PanelWidgetEditorProperties.cpp
 src/Widgets/Panel/PanelEntities.cpp

@@ -45,7 +45,7 @@ namespace Lina
 		if (m_targetWidget == nullptr)
 			m_targetWidget = m_children.front();
 
-		ClampScroll();
+		CheckScroll();
 
 		if (m_isPressed)
 		{
@@ -66,7 +66,7 @@ namespace Lina
 			}
 		}
 
-		ClampScroll();
+		CheckScroll();
 		m_targetWidget->SetScrollerOffset(Math::Lerp(m_targetWidget->GetScrollerOffset(), m_scrollAmount, delta * SCROLL_SMOOTH));
 
 		// Calculate bar
@@ -102,7 +102,7 @@ namespace Lina
 
 	void ScrollArea::ScrollToChild(Widget* w)
 	{
-		ClampScroll();
+		CheckScroll();
 
 		if (m_props.direction == DirectionOrientation::Horizontal)
 		{
@@ -123,6 +123,16 @@ namespace Lina
 			m_scrollAmount += endPos - m_end.y;
 	}
 
+	void ScrollArea::ScrollToStart()
+	{
+		m_scrollAmount = m_minScroll;
+	}
+
+	void ScrollArea::ScrollToEnd()
+	{
+		m_scrollAmount = m_maxScroll;
+	}
+
 	void ScrollArea::Draw()
 	{
 		Widget::Draw();
@@ -131,6 +141,9 @@ namespace Lina
 			return;
 
 		if (!m_targetWidget)
+			return;
+
+		if (Math::Equals(m_minScroll, m_maxScroll, 0.01f))
 			return;
 
 		LinaVG::StyleOptions bgOpts;
@@ -153,7 +166,7 @@ namespace Lina
 		m_lvg->DrawRect(m_barRect.pos.AsLVG(), m_barRect.GetEnd().AsLVG(), barOpts, 0.0f, m_drawOrder + 1);
 	}
 
-	bool ScrollArea::IsBarHovered()
+	bool ScrollArea::IsBarHovered() const
 	{
 		return m_barRect.IsPointInside(m_lgxWindow->GetMousePosition());
 	}
@@ -192,12 +205,12 @@ namespace Lina
 		if (Widget::OnMouseWheel(amt))
 			return true;
 
-		m_scrollAmount -= amt * m_totalChildSize * 0.01f;
-		ClampScroll();
+		m_scrollAmount -= amt * m_totalChildSize * m_props.mouseWheelMultiplier;
+		CheckScroll();
 		return true;
 	}
 
-	void ScrollArea::ClampScroll()
+	void ScrollArea::CheckScroll()
 	{
 		if (!m_targetWidget)
 			return;
@@ -215,5 +228,10 @@ namespace Lina
 		m_maxScroll			   = Math::Max(m_totalChildSize - usedSize, 0.0f);
 
 		m_scrollAmount = Math::Clamp(m_scrollAmount, m_minScroll, m_maxScroll);
+	}
+
+	bool ScrollArea::IsScrollAtEnd() const
+	{
+		return Math::Equals(m_scrollAmount, m_maxScroll, 0.01f);
 	}
 } // namespace Lina

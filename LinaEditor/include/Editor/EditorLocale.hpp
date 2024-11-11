@@ -161,6 +161,13 @@ namespace Lina::Editor
 		ReimportedResource,
 		ReimportShader,
 		AutoReimport,
+		Log,
+		EnterConsoleCommand,
+		LogLevels,
+		Info,
+		Warning,
+		Error,
+		Trace,
 	};
 
 	class Locale

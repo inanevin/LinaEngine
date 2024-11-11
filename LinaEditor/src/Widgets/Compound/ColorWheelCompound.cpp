@@ -376,13 +376,27 @@ namespace Lina::Editor
 	{
 		if (m_props.trackColorv3)
 		{
-			m_editedColor = Color(m_props.trackColorv3->x, m_props.trackColorv3->y, m_props.trackColorv3->z, 1.0f);
-			Recalculate(false, false);
+			m_editedColor = Color(m_props.trackColorv3->x, m_props.trackColorv3->y, m_props.trackColorv3->z, 1.0f).Linear2SRGB();
+			if (m_editedColor.x < 0.0f)
+				m_editedColor.x = 0.0f;
+			if (m_editedColor.y < 0.0f)
+				m_editedColor.y = 0.0f;
+			if (m_editedColor.z < 0.0f)
+				m_editedColor.z = 0.0f;
+			Recalculate(true, false);
 		}
 		else if (m_props.trackColorv4)
 		{
-			m_editedColor = Color(m_props.trackColorv4->x, m_props.trackColorv4->y, m_props.trackColorv4->z, m_props.trackColorv4->w);
-			Recalculate(false, false);
+			m_editedColor = Color(m_props.trackColorv4->x, m_props.trackColorv4->y, m_props.trackColorv4->z, m_props.trackColorv4->w).Linear2SRGB();
+			if (m_editedColor.x < 0.0f)
+				m_editedColor.x = 0.0f;
+			if (m_editedColor.y < 0.0f)
+				m_editedColor.y = 0.0f;
+			if (m_editedColor.z < 0.0f)
+				m_editedColor.z = 0.0f;
+			if (m_editedColor.w < 0.0f)
+				m_editedColor.w = 0.0f;
+			Recalculate(true, false);
 		}
 	}
 
