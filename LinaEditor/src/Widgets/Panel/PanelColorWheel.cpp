@@ -40,6 +40,17 @@ namespace Lina::Editor
 		cw->SetAlignedSize(Vector2::One);
 		AddChild(cw);
 		m_colorWheel = cw;
+
+		cw->GetProps().onValueChanged = [this](const Color& color) {
+			if (m_listener)
+				m_listener->OnPanelColorWheelValueChanged(color);
+		};
+	}
+
+	void PanelColorWheel::Destruct()
+	{
+		if (m_listener)
+			m_listener->OnPanelColorWheelClosed();
 	}
 
 } // namespace Lina::Editor

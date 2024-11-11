@@ -40,6 +40,14 @@ namespace Lina::Editor
 	class Editor;
 	class ColorWheelCompound;
 
+	class PanelColorWheelListener
+	{
+	public:
+		virtual void OnPanelColorWheelValueChanged(const Color& linearColor) = 0;
+		virtual void OnPanelColorWheelListenerChanged()						 = 0;
+		virtual void OnPanelColorWheelClosed()								 = 0;
+	};
+
 	class PanelColorWheel : public Panel
 	{
 	public:
@@ -47,24 +55,23 @@ namespace Lina::Editor
 		virtual ~PanelColorWheel() = default;
 
 		virtual void		Construct() override;
+		virtual void		Destruct() override;
 		ColorWheelCompound* GetWheel() const
 		{
 			return m_colorWheel;
 		}
 
-		inline void SetRequester(Widget* w)
+		inline void SetListener(PanelColorWheelListener* list)
 		{
-			m_requester = w;
-		}
+			if (m_listener)
+				m_listener->OnPanelColorWheelListenerChanged();
 
-		inline Widget* GetRequester() const
-		{
-			return m_requester;
+			m_listener = list;
 		}
 
 	private:
-		ColorWheelCompound* m_colorWheel = nullptr;
-		Widget*				m_requester	 = nullptr;
+		PanelColorWheelListener* m_listener	  = nullptr;
+		ColorWheelCompound*		 m_colorWheel = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(PanelColorWheel, Hidden)

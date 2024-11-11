@@ -30,7 +30,6 @@ SOFTWARE.
 #include "Editor/Editor.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Widgets/World/WorldDisplayer.hpp"
-#include "Editor/Widgets/Panel/PanelColorWheel.hpp"
 #include "Editor/Widgets/Compound/ColorWheelCompound.hpp"
 #include "Editor/Actions/EditorActionResources.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
@@ -243,25 +242,21 @@ namespace Lina::Editor
 			b->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::SelectColor);
 			b->GetProps().onClicked		= [data, comps, this, b]() {
 				PanelColorWheel* panel = Editor::Get()->GetWindowPanelManager().OpenColorWheelPanel(b);
-				panel->SetRequester(this);
+				panel->SetListener(this);
 
 				if (comps == 3)
 				{
 					Vector3* v = reinterpret_cast<Vector3*>(data);
-					panel->GetWheel()->SetTargetColor(Color(v->x, v->y, v->z, 1.0f));
+					panel->GetWheel()->SetTargetColor(Color(v->x, v->y, v->z, 1.0f), false);
 				}
 				else if (comps == 4)
 				{
 					Vector4* v = reinterpret_cast<Vector4*>(data);
-					panel->GetWheel()->SetTargetColor(Color(v->x, v->y, v->z, v->w));
+					panel->GetWheel()->SetTargetColor(Color(v->x, v->y, v->z, v->w), false);
 				}
 
-				panel->GetWheel()->GetProps().onValueChanged = [data, comps, this](const Color& col) {
-					Color val = col;
-					for (uint8 i = 0; i < comps; i++)
-						MEMCPY(data + sizeof(float) * i, &val[i], sizeof(float));
-					UpdateMaterial();
-				};
+				m_latestColorWheelComps = comps;
+				m_latestColorWheelData	= data;
 			};
 			return b;
 		};
@@ -401,6 +396,26 @@ namespace Lina::Editor
 
 		if (m_previewOnly)
 			DisableRecursively(m_inspector);
+	}
+
+	void PanelMaterialViewer::OnPanelColorWheelValueChanged(const Color& linearColor)
+	{
+		Color val = linearColor;
+		for (uint8 i = 0; i < m_latestColorWheelComps; i++)
+			MEMCPY(m_latestColorWheelData + sizeof(float) * i, &val[i], sizeof(float));
+
+		// Update without commands.
+		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
+	}
+
+	void PanelMaterialViewer::OnPanelColorWheelListenerChanged()
+	{
+		UpdateMaterial();
+	}
+
+	void PanelMaterialViewer::OnPanelColorWheelClosed()
+	{
+		UpdateMaterial();
 	}
 
 	void PanelMaterialViewer::UpdateMaterial()

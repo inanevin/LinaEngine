@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelResourceViewer.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
+#include "Editor/Widgets/Panel/PanelColorWheel.hpp"
 
 namespace Lina
 {
@@ -54,7 +55,7 @@ namespace Lina::Editor
 		Cylinder,
 	};
 
-	class PanelMaterialViewer : public PanelResourceViewer
+	class PanelMaterialViewer : public PanelResourceViewer, public PanelColorWheelListener
 	{
 	public:
 		PanelMaterialViewer() : PanelResourceViewer(PanelType::MaterialViewer, GetTypeID<Material>(), GetTypeID<PanelMaterialViewer>()){};
@@ -75,6 +76,10 @@ namespace Lina::Editor
 			return m_world;
 		}
 
+		virtual void OnPanelColorWheelValueChanged(const Color& linearColor) override;
+		virtual void OnPanelColorWheelListenerChanged() override;
+		virtual void OnPanelColorWheelClosed() override;
+
 	private:
 		void UpdateMaterial();
 
@@ -92,8 +97,10 @@ namespace Lina::Editor
 		Material*				  m_materialInWorld = nullptr;
 		Vector<uint32>			  m_propertyFoldValues;
 		OStream					  m_previousStream;
-		ResourceID				  m_shaderID		 = 0;
-		ResourceID				  m_previousShaderID = 0;
+		ResourceID				  m_shaderID			  = 0;
+		ResourceID				  m_previousShaderID	  = 0;
+		uint8*					  m_latestColorWheelData  = nullptr;
+		uint32					  m_latestColorWheelComps = 0;
 	};
 
 	LINA_CLASS_BEGIN(MaterialViewerDisplayType)
