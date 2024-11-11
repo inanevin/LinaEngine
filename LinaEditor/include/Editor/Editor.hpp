@@ -38,7 +38,7 @@ SOFTWARE.
 #include "Editor/EditorTaskManager.hpp"
 #include "Editor/Project/ProjectManager.hpp"
 #include "Editor/Graphics/EditorRenderer.hpp"
-#include "Editor/Undo/UndoManager.hpp"
+#include "Editor/Actions/EditorActionManager.hpp"
 #include "Editor/Resources/EditorResources.hpp"
 
 namespace Lina
@@ -89,9 +89,6 @@ namespace Lina::Editor
 		void SaveSettings();
 		void RequestExit();
 
-		// Renderers
-		WorldRenderer* GetWorldRenderer(EntityWorld* world);
-
 		inline EntityWorld* GetCurrentWorld() const
 		{
 			return m_currentWorld;
@@ -127,9 +124,9 @@ namespace Lina::Editor
 			return m_editorRenderer;
 		}
 
-		inline UndoManager& GetUndoManager()
+		inline EditorActionManager& GetEditorActionManager()
 		{
-			return m_undoManager;
+			return m_editorActionManager;
 		}
 
 		inline EditorTaskManager& GetTaskManager()
@@ -138,19 +135,19 @@ namespace Lina::Editor
 		}
 
 	private:
-		UndoManager		   m_undoManager;
-		EditorRenderer	   m_editorRenderer;
-		WindowPanelManager m_windowPanelManager;
-		AtlasManager	   m_atlasManager;
-		ProjectManager	   m_projectManager;
-		EditorSettings	   m_settings			  = {};
-		WidgetManager*	   m_primaryWidgetManager = nullptr;
-		EntityWorld*	   m_currentWorld		  = nullptr;
-		EditorRoot*		   m_editorRoot			  = nullptr;
-		LinaGX::Window*	   m_mainWindow			  = nullptr;
-		static Editor*	   s_editor;
-		EditorTaskManager  m_taskManager;
-		EditorResources	   m_editorResources;
+		EditorActionManager m_editorActionManager;
+		EditorRenderer		m_editorRenderer;
+		WindowPanelManager	m_windowPanelManager;
+		AtlasManager		m_atlasManager;
+		ProjectManager		m_projectManager;
+		EditorSettings		m_settings			   = {};
+		WidgetManager*		m_primaryWidgetManager = nullptr;
+		EntityWorld*		m_currentWorld		   = nullptr;
+		EditorRoot*			m_editorRoot		   = nullptr;
+		LinaGX::Window*		m_mainWindow		   = nullptr;
+		static Editor*		s_editor;
+		EditorTaskManager	m_taskManager;
+		EditorResources		m_editorResources;
 	};
 
 } // namespace Lina::Editor

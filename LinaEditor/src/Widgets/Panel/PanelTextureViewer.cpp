@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Editor/Widgets/Panel/PanelTextureViewer.hpp"
 #include "Editor/Editor.hpp"
-#include "Editor/Undo/UndoActionResourceDirectory.hpp"
+#include "Editor/Actions/EditorActionResources.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
 
 #include "Core/GUI/Widgets/WidgetManager.hpp"
@@ -67,18 +67,24 @@ namespace Lina::Editor
 		m_texturePanel->GetWidgetProps().rounding		  = 0.0f;
 		m_texturePanel->GetWidgetProps().lvgUserData	  = &m_guiUserData;
 
-		UpdateTextureProps();
+		StoreEditorActionBuffer();
+		UpdateResourceProperties();
 		RebuildContents();
 	}
 
-	void PanelTextureViewer::UpdateTextureProps()
+	void PanelTextureViewer::StoreEditorActionBuffer()
+	{
+		Texture* txt = static_cast<Texture*>(m_resource);
+		m_prevMeta	 = txt->GetMeta();
+	}
+
+	void PanelTextureViewer::UpdateResourceProperties()
 	{
 		Texture* txt		= static_cast<Texture*>(m_resource);
 		m_textureName		= txt->GetName();
 		m_textureDimensions = TO_STRING(txt->GetSize().x) + " x " + TO_STRING(txt->GetSize().y);
 		m_totalSizeKb		= UtilStr::FloatToString(static_cast<float>(txt->GetTotalSize()) / 1000.0f, 1) + " KB";
 		m_textureFormat		= ReflectionSystem::Get().Resolve<LinaGX::Format>().GetProperty<String>(static_cast<StringID>(txt->GetMeta().format));
-		m_prevMeta			= txt->GetMeta();
 	}
 
 	void PanelTextureViewer::RebuildContents()
@@ -93,11 +99,8 @@ namespace Lina::Editor
 			m_guiUserData.mipLevel		  = m_mipLevel;
 		});
 
-		CommonWidgets::BuildClassReflection(m_inspector, &txt->GetMeta(), ReflectionSystem::Get().Resolve<Texture::Metadata>(), [this, txt](const MetaType& meta, FieldBase* field) {
-			FieldValue val = field->Value(&txt->GetMeta());
-
-			UndoActionTextureDataChanged::Create(m_editor, txt->GetID(), m_prevMeta);
-		});
+		CommonWidgets::BuildClassReflection(
+			m_inspector, &txt->GetMeta(), ReflectionSystem::Get().Resolve<Texture::Metadata>(), [this, txt](const MetaType& meta, FieldBase* field) { EditorActionResourceTexture::Create(m_editor, txt->GetID(), m_prevMeta, txt->GetMeta()); });
 
 		Widget*		mipLevelField	  = m_inspector->FindChildWithDebugName("Mip Level");
 		InputField* mipLevel		  = static_cast<InputField*>(Widget::GetWidgetOfType<InputField>(mipLevelField));

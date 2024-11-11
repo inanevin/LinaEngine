@@ -36,7 +36,6 @@ SOFTWARE.
 
 namespace Lina
 {
-#define CHECKBOX_SPEED 24
 
 	void Checkbox::Construct()
 	{
@@ -56,7 +55,7 @@ namespace Lina
 			return;
 
 		// Alpha & color
-		const float alpha				 = Math::Lerp(m_icon->GetProps().color.start.w, *m_props.value ? 1.0f : 0.0f, delta * CHECKBOX_SPEED);
+		const float alpha				 = *m_props.value ? 1.0f : 0.0f;
 		m_icon->GetProps().color.start.w = alpha;
 		m_icon->GetProps().color.end.w	 = alpha;
 	}

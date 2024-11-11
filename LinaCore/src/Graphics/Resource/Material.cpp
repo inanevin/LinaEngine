@@ -47,7 +47,9 @@ namespace Lina
 	void Material::DestroyProperties()
 	{
 		for (MaterialProperty* p : m_properties)
+		{
 			delete p;
+		}
 		m_properties.clear();
 	}
 
@@ -58,7 +60,7 @@ namespace Lina
 
 		const Vector<ShaderPropertyDefinition>& properties = shader->GetPropertyDefinitions();
 
-		Vector<MaterialProperty*> newProperties;
+		DestroyProperties();
 
 		for (const ShaderPropertyDefinition& def : properties)
 		{
@@ -106,13 +108,8 @@ namespace Lina
 			else
 				MEMSET(prop->data.data(), 0, dataSize);
 
-			newProperties.push_back(prop);
+			m_properties.push_back(prop);
 		}
-
-		for (MaterialProperty* p : m_properties)
-			delete p;
-		m_properties.clear();
-		m_properties = newProperties;
 	}
 
 	bool Material::LoadFromFile(const String& path)
@@ -130,6 +127,7 @@ namespace Lina
 
 	void Material::SaveToStream(OStream& stream) const
 	{
+
 		Resource::SaveToStream(stream);
 		stream << VERSION;
 		stream << m_shader;
@@ -139,6 +137,8 @@ namespace Lina
 
 	void Material::LoadFromStream(IStream& stream)
 	{
+		DestroyProperties();
+
 		Resource::LoadFromStream(stream);
 		uint32 version = 0;
 		stream >> version;

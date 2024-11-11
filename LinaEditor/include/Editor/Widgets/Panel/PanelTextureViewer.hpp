@@ -53,7 +53,9 @@ namespace Lina::Editor
 
 		virtual void Construct() override;
 		virtual void Initialize() override;
-		void		 UpdateTextureProps();
+
+		virtual void StoreEditorActionBuffer() override;
+		virtual void UpdateResourceProperties() override;
 		virtual void RebuildContents() override;
 
 	private:

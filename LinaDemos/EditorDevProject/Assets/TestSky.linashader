@@ -96,7 +96,6 @@ struct LinaMaterial
    float sunSize;
    bool drawGrid;
    float horizonDiffusion;
-   LinaTexture2D diffuse;
 };
 
 #define GRID_COLOR vec4(1.0,0.0,0.0,1.0)

@@ -233,6 +233,7 @@ namespace Lina
 		if (!m_meta.generateMipmaps && m_allLevels.size() > 1)
 		{
 			ClearAllMipLevels();
+			CalculateTotalSize();
 		}
 		else if (m_meta.generateMipmaps && m_allLevels.size() == 1)
 		{

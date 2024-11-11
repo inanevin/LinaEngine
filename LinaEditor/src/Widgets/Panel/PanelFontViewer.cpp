@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelFontViewer.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
-#include "Editor/Undo/UndoActionResourceDirectory.hpp"
+#include "Editor/Actions/EditorActionResources.hpp"
 
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
@@ -60,8 +60,22 @@ namespace Lina::Editor
 		m_fontDisplay->GetProps().valuePtr			  = &m_displayString;
 		m_fontDisplay->GetProps().fetchWrapFromParent = true;
 		m_fontDisplay->GetProps().isDynamic			  = true;
-		UpdateFontProps();
+
+		StoreEditorActionBuffer();
+		UpdateResourceProperties();
 		RebuildContents();
+	}
+
+	void PanelFontViewer::StoreEditorActionBuffer()
+	{
+		Font* font	 = static_cast<Font*>(m_resource);
+		m_storedMeta = font->GetMeta();
+	}
+
+	void PanelFontViewer::UpdateResourceProperties()
+	{
+		Font* font = static_cast<Font*>(m_resource);
+		m_fontName = font->GetName();
 	}
 
 	void PanelFontViewer::RebuildContents()
@@ -73,17 +87,11 @@ namespace Lina::Editor
 
 		CommonWidgets::BuildClassReflection(m_inspector, this, ReflectionSystem::Get().Resolve<PanelFontViewer>(), [this](const MetaType& meta, FieldBase* field) { m_fontDisplay->GetProps().textScale = m_scale; });
 
-		CommonWidgets::BuildClassReflection(m_inspector, &font->GetMeta(), ReflectionSystem::Get().Resolve<Font::Metadata>(), [this, font](const MetaType& meta, FieldBase* field) { UndoActionFontDataChanged::Create(m_editor, font->GetID(), m_storedMeta); });
+		CommonWidgets::BuildClassReflection(
+			m_inspector, &font->GetMeta(), ReflectionSystem::Get().Resolve<Font::Metadata>(), [this, font](const MetaType& meta, FieldBase* field) { EditorActionResourceFont::Create(m_editor, font->GetID(), m_storedMeta, font->GetMeta()); });
 
 		if (m_previewOnly)
 			DisableRecursively(m_inspector);
-	}
-
-	void PanelFontViewer::UpdateFontProps()
-	{
-		Font* font	 = static_cast<Font*>(m_resource);
-		m_fontName	 = font->GetName();
-		m_storedMeta = font->GetMeta();
 	}
 
 } // namespace Lina::Editor

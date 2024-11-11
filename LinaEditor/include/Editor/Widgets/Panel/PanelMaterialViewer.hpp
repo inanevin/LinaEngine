@@ -63,9 +63,12 @@ namespace Lina::Editor
 		virtual void Construct() override;
 		virtual void Destruct() override;
 		virtual void Initialize() override;
-		virtual void PreTick() override;
+
+		void		 StoreShaderID();
+		virtual void StoreEditorActionBuffer() override;
+		virtual void UpdateResourceProperties() override;
 		virtual void RebuildContents() override;
-		void		 StoreBuffer();
+		void		 SetupWorld();
 
 		inline EntityWorld* GetWorld() const
 		{
@@ -73,10 +76,7 @@ namespace Lina::Editor
 		}
 
 	private:
-		void SetupWorld();
-		void UpdateMaterialProps();
 		void UpdateMaterial();
-		void UpdateShaderID(ResourceID id);
 
 	private:
 		LINA_REFLECTION_ACCESS(PanelMaterialViewer);
@@ -91,14 +91,9 @@ namespace Lina::Editor
 		String					  m_shaderTypeStr	= "";
 		Material*				  m_materialInWorld = nullptr;
 		Vector<uint32>			  m_propertyFoldValues;
-		ResourceID				  m_storedShaderID = 0;
 		OStream					  m_previousStream;
-		ResourceID				  m_shaderID				= 0;
-		bool					  m_rebuildNextFrame		= false;
-		uint32					  m_shaderReimportTicks		= 0;
-		String					  m_shaderAbsPath			= "";
-		ResourceDirectory*		  m_shaderResourceDirectory = nullptr;
-		bool					  m_autoReimport			= true;
+		ResourceID				  m_shaderID		 = 0;
+		ResourceID				  m_previousShaderID = 0;
 	};
 
 	LINA_CLASS_BEGIN(MaterialViewerDisplayType)

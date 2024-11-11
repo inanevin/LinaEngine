@@ -26,41 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Editor/Undo/UndoManager.hpp"
-#include "Editor/Undo/UndoAction.hpp"
+#include "Editor/Actions/EditorAction.hpp"
 
 namespace Lina::Editor
 {
-	void UndoManager::Initialize(Editor* editor)
-	{
-		m_editor = editor;
-	}
 
-	void UndoManager::Shutdown()
-	{
-		while (!m_undoStack.empty())
-		{
-			UndoAction* action = m_undoStack.top();
-			m_undoStack.pop();
-			delete action;
-		}
-	}
-	void UndoManager::AddToStack(UndoAction* action)
-	{
-		m_undoStack.push(action);
-		action->Execute(m_editor);
-	}
-
-	void UndoManager::Undo()
-	{
-		if (m_undoStack.empty())
-			return;
-
-		UndoAction* action = m_undoStack.top();
-		m_undoStack.pop();
-
-		action->Undo(m_editor);
-		LINA_TRACE("Editor -> undo action!");
-		delete action;
-	}
 } // namespace Lina::Editor

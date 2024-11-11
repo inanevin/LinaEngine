@@ -28,25 +28,24 @@ SOFTWARE.
 
 #pragma once
 
-#include "Common/Data/Stack.hpp"
-
 namespace Lina::Editor
 {
-	class UndoAction;
 	class Editor;
 
-	class UndoManager
+	class EditorAction
 	{
 	public:
-		void Initialize(Editor* editor);
-		void Shutdown();
+		enum class ExecType
+		{
+			Create,
+			Undo,
+			Redo
+		};
 
-		void AddToStack(UndoAction* action);
-		void Undo();
+		EditorAction(){};
+		virtual ~EditorAction(){};
 
-	private:
-		Stack<UndoAction*> m_undoStack;
-		Editor*			   m_editor = nullptr;
+		virtual void Execute(Editor* editor, ExecType type) = 0;
 	};
 
 } // namespace Lina::Editor

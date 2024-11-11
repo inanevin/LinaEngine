@@ -51,6 +51,7 @@ namespace Lina::Editor
 	class NotificationDisplayer;
 	class SurfaceRenderer;
 	class PanelColorWheel;
+	class PanelResourceViewer;
 
 	class EditorPayloadListener
 	{
@@ -105,14 +106,15 @@ namespace Lina::Editor
 		Widget* GetPayloadRoot();
 
 		// Panel and windows
-		Panel*	OpenPanel(PanelType type, ResourceID subData, Widget* requestingWidget);
-		Widget* PrepareNewWindowToDock(const Vector2& pos, const Vector2& size);
-		void	CloseWindow(StringID sid);
-		void	CloseAllSubwindows();
-		void	OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size);
-		void	OnPanelDestruct(Panel* panel);
-		Panel*	FindPanelOfType(PanelType type, ResourceID subData, DockArea*& owningArea);
-		Panel*	FindPanelOfType(PanelType type, ResourceID subData);
+		Panel*						 OpenPanel(PanelType type, ResourceID subData, Widget* requestingWidget);
+		Widget*						 PrepareNewWindowToDock(const Vector2& pos, const Vector2& size);
+		void						 CloseWindow(StringID sid);
+		void						 CloseAllSubwindows();
+		void						 OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size);
+		void						 OnPanelDestruct(Panel* panel);
+		Panel*						 FindPanelOfType(PanelType type, ResourceID subData, DockArea*& owningArea);
+		Panel*						 FindPanelOfType(PanelType type, ResourceID subData);
+		Vector<PanelResourceViewer*> FindResourceViewers(ResourceID subData);
 
 		PanelColorWheel* OpenColorWheelPanel(Widget* requester);
 

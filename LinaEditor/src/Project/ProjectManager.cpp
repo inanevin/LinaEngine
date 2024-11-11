@@ -579,9 +579,12 @@ namespace Lina::Editor
 					});
 				}
 
-				Panel* panel = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::Any, res->GetID());
-				if (panel)
+				Vector<PanelResourceViewer*> panels = m_editor->GetWindowPanelManager().FindResourceViewers(res->GetID());
+				for (PanelResourceViewer* panel : panels)
+				{
+					panel->UpdateResourceProperties();
 					panel->RebuildContents();
+				}
 			}
 
 			m_editor->GetApp()->GetResourceManager().ReloadResourceHW(toReload);

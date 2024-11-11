@@ -48,8 +48,10 @@ namespace Lina::Editor
 
 		virtual void Construct() override;
 		virtual void Initialize() override;
+
+		virtual void StoreEditorActionBuffer() override;
+		virtual void UpdateResourceProperties() override;
 		virtual void RebuildContents() override;
-		void		 UpdateFontProps();
 
 	private:
 		LINA_REFLECTION_ACCESS(PanelFontViewer);

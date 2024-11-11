@@ -26,74 +26,70 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#include "Core/GUI/Widgets/Widget.hpp"
-#include "Editor/CommonEditor.hpp"
+#include "Editor/Actions/EditorActionManager.hpp"
+#include "Editor/Actions/EditorAction.hpp"
 
 namespace Lina::Editor
 {
-	class Tab;
-
-	struct PanelPayloadData
+	void EditorActionManager::Initialize(Editor* editor)
 	{
-		PanelType type		= PanelType::Entities;
-		StringID  subData	= 0;
-		Vector2	  panelSize = Vector2::Zero;
-		String	  panelName = "";
-	};
+		m_editor = editor;
+	}
 
-	enum PanelFlags
+	void EditorActionManager::Shutdown()
 	{
-		PF_NONE			  = 1 << 0,
-		PF_FLOATING_POPUP = 1 << 1,
-	};
+		ClearUndoStack();
+		ClearRedoStack();
+	}
 
-	class Panel : public Widget
+	void EditorActionManager::AddToStack(EditorAction* action)
 	{
-	public:
-		Panel() = default;
-		Panel(PanelType type, uint32 flags = 0) : m_panelType(type), m_panelFlags(flags), Widget(){};
-		virtual ~Panel() = default;
+		ClearRedoStack();
+		m_undoStack.push(action);
+		action->Execute(m_editor, EditorAction::ExecType::Create);
+	}
 
-		virtual void SaveLayoutToStream(OStream& stream){};
-		virtual void LoadLayoutFromStream(IStream& stream){};
-		virtual void Destruct() override;
-		void		 RefreshTab();
+	void EditorActionManager::Undo()
+	{
+		if (m_undoStack.empty())
+			return;
 
-		inline PanelType GetType() const
+		EditorAction* action = m_undoStack.top();
+		m_undoStack.pop();
+
+		action->Execute(m_editor, EditorAction::ExecType::Undo);
+		m_redoStack.push(action);
+	}
+
+	void EditorActionManager::Redo()
+	{
+		if (m_redoStack.empty())
+			return;
+
+		EditorAction* action = m_redoStack.top();
+		m_redoStack.pop();
+		action->Execute(m_editor, EditorAction::ExecType::Redo);
+
+		m_undoStack.push(action);
+	}
+
+	void EditorActionManager::ClearUndoStack()
+	{
+		while (!m_undoStack.empty())
 		{
-			return m_panelType;
+			EditorAction* action = m_undoStack.top();
+			m_undoStack.pop();
+			delete action;
 		}
+	}
 
-		inline ResourceID GetSubData() const
+	void EditorActionManager::ClearRedoStack()
+	{
+		while (!m_redoStack.empty())
 		{
-			return m_subData;
+			EditorAction* action = m_redoStack.top();
+			m_redoStack.pop();
+			delete action;
 		}
-
-		inline const Bitmask32& GetPanelFlags() const
-		{
-			return m_panelFlags;
-		}
-
-		inline void SetSubdata(ResourceID data)
-		{
-			m_subData = data;
-		}
-
-		inline void SetTab(Tab* tab)
-		{
-			m_tab = tab;
-		}
-
-	protected:
-		PanelType  m_panelType	= PanelType::ResourceBrowser;
-		ResourceID m_subData	= 0;
-		Bitmask32  m_panelFlags = 0;
-		Tab*	   m_tab		= nullptr;
-	};
-
-	LINA_WIDGET_BEGIN(Panel, Hidden)
-	LINA_CLASS_END(Panel)
-
+	}
 } // namespace Lina::Editor

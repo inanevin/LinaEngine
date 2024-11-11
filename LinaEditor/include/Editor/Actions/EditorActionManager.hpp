@@ -26,9 +26,33 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Editor/Undo/UndoAction.hpp"
+#pragma once
+
+#include "Common/Data/Stack.hpp"
 
 namespace Lina::Editor
 {
+	class EditorAction;
+	class Editor;
+
+	class EditorActionManager
+	{
+	public:
+		void Initialize(Editor* editor);
+		void Shutdown();
+
+		void AddToStack(EditorAction* action);
+		void Undo();
+		void Redo();
+
+	private:
+		void ClearUndoStack();
+		void ClearRedoStack();
+
+	private:
+		Stack<EditorAction*> m_undoStack;
+		Stack<EditorAction*> m_redoStack;
+		Editor*				 m_editor = nullptr;
+	};
 
 } // namespace Lina::Editor

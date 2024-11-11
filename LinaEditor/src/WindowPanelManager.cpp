@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Editor/WindowPanelManager.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/Widgets/Panel/Panel.hpp"
+#include "Editor/Widgets/Panel/PanelResourceViewer.hpp"
 #include "Editor/Widgets/Panel/PanelFactory.hpp"
 #include "Editor/Widgets/Compound/ColorWheelCompound.hpp"
 #include "Editor/Widgets/Panel/PanelColorWheel.hpp"
@@ -252,11 +253,11 @@ namespace Lina::Editor
 
 			for (auto* panel : panels)
 			{
-				if (panel->GetType() == type || type == PanelType::Any)
+				if (panel->GetType() == type)
 				{
 					outOwningArea = area;
 					retVal		  = panel;
-					if (panel->GetSubData() == subData)
+					if (subData == 0 || panel->GetSubData() == subData)
 					{
 						return panel;
 					}
@@ -271,6 +272,27 @@ namespace Lina::Editor
 		DockArea* owning;
 		Panel*	  panel = FindPanelOfType(type, subData, owning);
 		return panel;
+	}
+
+	Vector<PanelResourceViewer*> WindowPanelManager::FindResourceViewers(ResourceID subData)
+	{
+		Vector<PanelResourceViewer*> panels;
+
+		auto check = [&](PanelType pt) {
+			Panel* panel = FindPanelOfType(pt, subData);
+			if (panel != nullptr)
+				panels.push_back(static_cast<PanelResourceViewer*>(panel));
+		};
+
+		check(PanelType::AudioViewer);
+		check(PanelType::TextureViewer);
+		check(PanelType::SamplerViewer);
+		check(PanelType::FontViewer);
+		check(PanelType::MaterialViewer);
+		check(PanelType::ModelViewer);
+		check(PanelType::PhysicsMaterialViewer);
+
+		return panels;
 	}
 
 	Panel* WindowPanelManager::FindPanelOfType(PanelType type, ResourceID subData, DockArea*& owningArea)
@@ -289,7 +311,7 @@ namespace Lina::Editor
 
 			foundPanel = FindPanelFromDockAreas(type, areas, owningArea, subData);
 
-			if (foundPanel != nullptr && foundPanel->GetSubData() == subData)
+			if (foundPanel != nullptr && (subData == 0 || foundPanel->GetSubData() == subData))
 				return foundPanel;
 		}
 

@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Editor/Editor.hpp"
 #include "Editor/Widgets/World/WorldDisplayer.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
-#include "Editor/Undo/UndoActionResourceDirectory.hpp"
+#include "Editor/Actions/EditorActionResources.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
@@ -71,8 +71,21 @@ namespace Lina::Editor
 
 		m_guiUserData.sampler = m_resource->GetID();
 
-		UpdateSamplerProps();
+		StoreEditorActionBuffer();
+		UpdateResourceProperties();
 		RebuildContents();
+	}
+
+	void PanelSamplerViewer::StoreEditorActionBuffer()
+	{
+		TextureSampler* sampler = static_cast<TextureSampler*>(m_resource);
+		m_storedDesc			= sampler->GetDesc();
+	}
+
+	void PanelSamplerViewer::UpdateResourceProperties()
+	{
+		TextureSampler* sampler = static_cast<TextureSampler*>(m_resource);
+		m_samplerName			= sampler->GetName();
 	}
 
 	void PanelSamplerViewer::RebuildContents()
@@ -85,15 +98,12 @@ namespace Lina::Editor
 
 		});
 
-		CommonWidgets::BuildClassReflection(
-			m_inspector, &sampler->GetDesc(), ReflectionSystem::Get().Resolve<LinaGX::SamplerDesc>(), [this, sampler](const MetaType& meta, FieldBase* field) { UndoActionSamplerDataChanged::Create(m_editor, sampler->GetID(), m_storedDesc); });
-	}
+		CommonWidgets::BuildClassReflection(m_inspector, &sampler->GetDesc(), ReflectionSystem::Get().Resolve<LinaGX::SamplerDesc>(), [this, sampler](const MetaType& meta, FieldBase* field) {
+			EditorActionResourceSampler::Create(m_editor, sampler->GetID(), m_storedDesc, sampler->GetDesc());
+		});
 
-	void PanelSamplerViewer::UpdateSamplerProps()
-	{
-		TextureSampler* sampler = static_cast<TextureSampler*>(m_resource);
-		m_samplerName			= sampler->GetName();
-		m_storedDesc			= sampler->GetDesc();
+		if (m_previewOnly)
+			DisableRecursively(m_inspector);
 	}
 
 } // namespace Lina::Editor

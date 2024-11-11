@@ -34,7 +34,7 @@ SOFTWARE.
 #include "Editor/Widgets/FX/ProgressCircleFill.hpp"
 #include "Editor/Resources/ResourcePipeline.hpp"
 #include "Editor/IO/ThumbnailGenerator.hpp"
-#include "Editor/Undo/UndoActionResourceDirectory.hpp"
+#include "Editor/Actions/EditorActionResources.hpp"
 #include "Core/Meta/ProjectData.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
@@ -555,7 +555,7 @@ namespace Lina::Editor
 			text->GetProps().text = str;
 			text->CalculateTextSize();
 			text->GetWidgetManager()->AddToKillList(inp);
-			UndoActionResourceRename::Create(m_editor, dir, str);
+			EditorActionResourceRename::Create(m_editor, dir->guid, dir->name, str);
 		};
 
 		text->GetWidgetManager()->AddToForeground(inp);

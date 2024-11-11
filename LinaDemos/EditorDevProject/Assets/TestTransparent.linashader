@@ -26,20 +26,73 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#LINA_SHADER_TRANSPARENT_SURFACE
 
-namespace Lina::Editor
+#lina_vs
+
+struct LinaVertexToFrag
 {
-	class Editor;
+   vec2 uv;
+};
 
-	class UndoAction
-	{
-	public:
-		UndoAction(){};
-		virtual ~UndoAction(){};
+// do not modify
+struct LinaVertexInput
+{
+   vec3 pos;
+   vec3 normal;
+   vec2 uv;
+   uint materialID;
+   LinaEntity entity;
+};
 
-		virtual void Undo(Editor* editor)	 = 0;
-		virtual void Execute(Editor* editor) = 0;
-	};
+// do not modify
+struct LinaVertexOutput
+{
+   vec4 pos;
+   LinaVertexToFrag toFrag;
+};
 
-} // namespace Lina::Editor
+void LINA_VERTEX_FUNC(in LinaVertexInput inVertex, out LinaVertexOutput outVertex)
+{
+   outVertex.pos = vec4(inVertex.pos, 1.0);
+   outVertex.toFrag.uv = inVertex.uv;
+}
+
+#lina_end
+
+#lina_fs
+
+struct LinaVertexToFrag
+{
+   vec2 uv;
+};
+
+// do not modify
+struct LinaFragInput
+{
+   uint materialID;
+   LinaVertexToFrag fromVertex;
+};
+
+// do not modify
+struct LinaFragOutput
+{
+   vec4 color;
+};
+
+struct LinaMaterial
+{
+   vec4 color;
+   vec4 tilingAndOffset;
+   LinaTexture2D txtAlbedo;
+   LinaTexture2D txtNormal;
+};
+
+void LINA_FRAG_FUNC(in LinaFragInput inFrag, out LinaFragOutput outFrag)
+{
+   LinaMaterial material = LINA_GET_MATERIAL(inFrag.materialID);
+   vec2 uv = inFrag.fromVertex.uv * material.tilingAndOffset.xy + material.tilingAndOffset.zw;
+   outFrag.color = LINA_SAMPLE_TEXTURE(material.txtAlbedo, uv) * material.color;
+}
+
+#lina_end

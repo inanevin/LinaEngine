@@ -53,6 +53,10 @@ namespace Lina::Editor
 		virtual void Destruct() override;
 		virtual void Initialize() override;
 
+		virtual void StoreEditorActionBuffer(){};
+		virtual void UpdateResourceProperties(){};
+		virtual void RebuildContents(){};
+
 	protected:
 		Widget* BuildButtonLayout();
 		void	SaveResource();
