@@ -30,7 +30,6 @@ SOFTWARE.
 
 #include "Core/ApplicationDelegate.hpp"
 #include "Common/Data/HashMap.hpp"
-#include "Common/JobSystem/TaskRunner.hpp"
 #include "Meta/EditorSettings.hpp"
 #include "Editor/CommonEditor.hpp"
 #include "Atlas/AtlasManager.hpp"
@@ -63,7 +62,7 @@ namespace Lina::Editor
 	class DockArea;
 	class WorldRendererExtEditor;
 
-	class Editor : public ApplicationDelegate, public TaskRunner
+	class Editor : public ApplicationDelegate
 	{
 
 	private:

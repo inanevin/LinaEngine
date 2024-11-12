@@ -96,7 +96,7 @@ namespace Lina::Editor
 		void			 PreTick();
 		void			 Shutdown();
 		SurfaceRenderer* GetSurfaceRenderer(StringID sid);
-		Widget*			 LockAllForegrounds(LinaGX::Window* srcWindow, const String& text);
+		Widget*			 LockAllForegrounds(LinaGX::Window* srcWindow, Delegate<Widget*(Widget* owner)> otherWindowContents);
 		void			 UnlockAllForegrounds();
 
 		// Payload

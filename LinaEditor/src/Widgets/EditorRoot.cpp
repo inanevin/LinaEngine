@@ -321,13 +321,22 @@ namespace Lina::Editor
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::File)))
 		{
 			outData = {
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::NewProject)},
 				FileMenuItem::Data{
-					.text = Locale::GetStr(LocaleStr::LoadProject),
+					.text		= Locale::GetStr(LocaleStr::NewProject),
+					.headerIcon = ICON_FILE,
 				},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::SaveProject)},
+				FileMenuItem::Data{
+					.text		= Locale::GetStr(LocaleStr::LoadProject),
+					.headerIcon = ICON_IMPORT,
+				},
+				FileMenuItem::Data{
+					.text		= Locale::GetStr(LocaleStr::SaveProject),
+					.headerIcon = ICON_SAVE,
+				},
 				FileMenuItem::Data{.isDivider = true},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Exit)},
+				FileMenuItem::Data{
+					.text = Locale::GetStr(LocaleStr::Exit),
+				},
 			};
 			return;
 		}

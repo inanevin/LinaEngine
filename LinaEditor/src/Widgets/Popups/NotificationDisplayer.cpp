@@ -125,7 +125,7 @@ namespace Lina::Editor
 		notification->GetWidgetProps().colorBackground.end	 = Theme::GetDef().background0;
 		notification->GetWidgetProps().outlineThickness		 = Theme::GetDef().baseOutlineThickness;
 		notification->GetWidgetProps().colorOutline			 = Theme::GetDef().accentPrimary0;
-		notification->GetWidgetProps().rounding				 = 0.1f;
+		notification->GetWidgetProps().rounding				 = 0.2f;
 		AddChild(notification);
 
 		NotificationItem* item	 = new NotificationItem();
@@ -150,25 +150,26 @@ namespace Lina::Editor
 
 			if (desc.icon == NotificationIcon::Info)
 			{
-				icon->GetProps().icon						= ICON_INFO;
+				icon->GetProps().icon						= ICON_INFO_CIRCLE;
 				icon->GetProps().color						= Theme::GetDef().foreground0;
 				notification->GetWidgetProps().colorOutline = Theme::GetDef().foreground0;
 			}
 			else if (desc.icon == NotificationIcon::Warning)
 			{
-				icon->GetProps().icon						= ICON_WARN;
+
+				icon->GetProps().icon						= ICON_EXCLAMATION_TRIANGLE;
 				icon->GetProps().color						= Theme::GetDef().accentWarn;
 				notification->GetWidgetProps().colorOutline = Theme::GetDef().accentWarn;
 			}
 			else if (desc.icon == NotificationIcon::Err)
 			{
-				icon->GetProps().icon						= ICON_ERROR;
+				icon->GetProps().icon						= ICON_XMARK_CIRCLE;
 				icon->GetProps().color						= Theme::GetDef().accentError;
 				notification->GetWidgetProps().colorOutline = Theme::GetDef().accentError;
 			}
 			else if (desc.icon == NotificationIcon::OK)
 			{
-				icon->GetProps().icon						= ICON_SUCCESS_CHECK;
+				icon->GetProps().icon						= ICON_CHECK_CIRCLE;
 				icon->GetProps().color						= Theme::GetDef().accentSecondary;
 				notification->GetWidgetProps().colorOutline = Theme::GetDef().accentSecondary;
 			}

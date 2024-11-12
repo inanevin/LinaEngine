@@ -389,7 +389,7 @@ namespace Lina::Editor
 			ResourceDirectory* dir = m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResourceDirectory(mat->GetShader());
 			if (dir == nullptr)
 				return;
-			m_editor->GetProjectManager().ReimportChangedSources(dir, this);
+			m_editor->GetProjectManager().ReimportChangedSources(dir, m_lgxWindow);
 		};
 
 		buttonLayout->AddChild(button);

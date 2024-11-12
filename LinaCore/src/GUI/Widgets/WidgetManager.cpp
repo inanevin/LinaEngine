@@ -116,7 +116,7 @@ namespace Lina
 		m_foregroundRoot->RemoveChild(w);
 	}
 
-	Widget* WidgetManager::LockForeground(const String& showText)
+	Widget* WidgetManager::LockForeground()
 	{
 		if (m_foregroundLock)
 			return m_foregroundLock;
@@ -133,18 +133,6 @@ namespace Lina
 		lock->GetWidgetProps().colorBackground.start.w = lock->GetWidgetProps().colorBackground.end.w = 0.75f;
 		m_foregroundRoot->AddChild(lock);
 		m_foregroundLock = lock;
-
-		if (!showText.empty())
-		{
-			Text* txt			 = Allocate<Text>("Info");
-			txt->GetProps().text = showText;
-			txt->GetProps().font = Theme::GetDef().altBigFont;
-			txt->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
-			txt->SetAlignedPos(Vector2(0.5f, 0.5f));
-			txt->SetAnchorX(Anchor::Center);
-			txt->SetAnchorY(Anchor::Center);
-			lock->AddChild(txt);
-		}
 
 		return lock;
 	}
@@ -199,6 +187,9 @@ namespace Lina
 		widget->PreDestruct();
 		for (auto* c : widget->m_children)
 			Deallocate(c);
+
+		for (Widget* w : widget->m_addChildRequests)
+			Deallocate(w);
 
 		const TypeID tid = widget->m_tid;
 		widget->Destruct();

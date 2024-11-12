@@ -78,7 +78,7 @@ namespace Lina::Editor
 				},
 			};
 
-			Widget* lock = m_editor->GetWindowPanelManager().LockAllForegrounds(m_primaryWidgetManager->GetRoot()->GetWindow(), Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow));
+			Widget* lock = m_editor->GetWindowPanelManager().LockAllForegrounds(m_primaryWidgetManager->GetRoot()->GetWindow(), nullptr);
 
 			lock->AddChild(CommonWidgets::BuildGenericPopupWithButtons(lock, Locale::GetStr(LocaleStr::NoProjectFound), buttons));
 		}
@@ -87,6 +87,16 @@ namespace Lina::Editor
 	void ProjectManager::Shutdown()
 	{
 		RemoveCurrentProject();
+	}
+
+	void ProjectManager::PreTick()
+	{
+		if (m_currentProject == nullptr)
+			return;
+
+		m_lastReimportCheckTicks++;
+		if (m_lastReimportCheckTicks > REIMPORT_CHECK_TICKS)
+			ReimportChangedSources(&m_currentProject->GetResourceRoot(), m_editor->GetWindowPanelManager().GetMainWindow());
 	}
 
 	void ProjectManager::OpenDialogCreateProject()
@@ -335,6 +345,8 @@ namespace Lina::Editor
 			for (ProjectManagerListener* listener : m_listeners)
 				listener->OnProjectOpened(m_currentProject);
 			m_editor->GetSettings().GetLayout().ApplyStoredLayout();
+
+			ReimportChangedSources(&m_currentProject->GetResourceRoot(), m_editor->GetWindowPanelManager().GetMainWindow());
 		};
 		m_editor->GetTaskManager().AddTask(task);
 	}
@@ -457,75 +469,87 @@ namespace Lina::Editor
 		}
 	}
 
-	void ProjectManager::ReimportDirectory(ResourceDirectory* c, String& progress)
+	void ProjectManager::CollectReimportResources(ResourceDirectory* dir)
 	{
-		if (c->resourceType != ResourceType::ExternalSource)
+		if (dir->resourceType != ResourceType::ExternalSource)
 			return;
 
-		const String path = FileSystem::GetFilePath(m_currentProject->GetPath()) + c->sourcePathRelativeToProject;
+		const String path = FileSystem::GetFilePath(m_currentProject->GetPath()) + dir->sourcePathRelativeToProject;
 
 		if (!FileSystem::FileOrPathExists(path))
 			return;
 
 		const StringID lastModifiedSID = TO_SID(FileSystem::GetLastModifiedDate(path));
 
-		if (lastModifiedSID == c->lastModifiedSID)
+		if (lastModifiedSID == dir->lastModifiedSID)
 			return;
 
-		c->lastModifiedSID = lastModifiedSID;
-
-		progress = c->name;
-
-		MetaType&	 meta	 = ReflectionSystem::Get().Resolve(c->resourceTID);
-		Resource*	 res	 = static_cast<Resource*>(meta.GetFunction<void*()>("Allocate"_hs)());
-		const String resPath = m_currentProject->GetResourcePath(c->resourceID);
-
-		// Load all data first.
-		IStream stream = Serialization::LoadFromFile(resPath.c_str());
-		if (!stream.Empty())
-			res->LoadFromStream(stream);
-		stream.Destroy();
-
-		// Now reload from file & save if success.
-		bool success = res->LoadFromFile(path);
-		if (success)
-			res->SaveToFileAsBinary(resPath);
-
-		m_reimportQueue.insert({.id = c->resourceID, .tid = c->resourceTID, .success = success, .displayName = res->GetName()});
-		meta.GetFunction<void(void*)>("Deallocate"_hs)(res);
-
-		// TextureAtlasImage* img = ThumbnailGenerator::GenerateThumbnail(editor->GetProjectManager().GetProjectData(), c->resourceID, c->resourceTID, editor->GetAtlasManager());
-		// editor->GetProjectManager().SetThumbnail(c, img);
+		dir->lastModifiedSID = lastModifiedSID;
+		m_resourcesToReimport.push_back(dir);
 	}
 
-	void ProjectManager::ReimportRecursively(ResourceDirectory* root, String& progress)
+	void ProjectManager::CollectReimportResourcesRecursively(ResourceDirectory* dir)
 	{
-		for (ResourceDirectory* c : root->children)
+		for (ResourceDirectory* c : dir->children)
 		{
 			if (c->isFolder)
 			{
-				ReimportRecursively(c, progress);
+				CollectReimportResourcesRecursively(c);
 				continue;
 			}
 
-			ReimportDirectory(c, progress);
+			CollectReimportResources(c);
 		}
 	}
 
-	void ProjectManager::ReimportChangedSources(ResourceDirectory* root, Widget* requestingWidget)
+	void ProjectManager::ReimportChangedSources(ResourceDirectory* root, LinaGX::Window* window)
 	{
-		m_reimportQueue.clear();
+		m_lastReimportCheckTicks = 0;
+
+		m_reimportResults.clear();
+		m_resourcesToReimport.clear();
+
+		CollectReimportResourcesRecursively(root);
+
+		if (m_resourcesToReimport.empty())
+			return;
 
 		EditorTask* task = m_editor->GetTaskManager().CreateTask();
 
-		task->ownerWindow  = requestingWidget->GetWindow();
+		task->ownerWindow  = window;
 		task->title		   = Locale::GetStr(LocaleStr::Reimporting);
 		task->progressText = Locale::GetStr(LocaleStr::Working);
 		task->task		   = [this, root, task]() {
-			if (!root->isFolder)
-				ReimportDirectory(root, task->progressText);
-			else
-				ReimportRecursively(root, task->progressText);
+			for (ResourceDirectory* dir : m_resourcesToReimport)
+			{
+				task->progressText = dir->name;
+
+				MetaType&	 meta	 = ReflectionSystem::Get().Resolve(dir->resourceTID);
+				Resource*	 res	 = static_cast<Resource*>(meta.GetFunction<void*()>("Allocate"_hs)());
+				const String resPath = m_currentProject->GetResourcePath(dir->resourceID);
+
+				// Load all data first.
+				IStream stream = Serialization::LoadFromFile(resPath.c_str());
+				if (!stream.Empty())
+					res->LoadFromStream(stream);
+				stream.Destroy();
+
+				const String path = FileSystem::GetFilePath(m_currentProject->GetPath()) + dir->sourcePathRelativeToProject;
+
+				// Now reload from file & save if success.
+				bool success = res->LoadFromFile(path);
+				if (success)
+					res->SaveToFileAsBinary(resPath);
+
+				meta.GetFunction<void*(void*)>("Deallocate"_hs)(res);
+
+				m_reimportResults.push_back({
+							.id			 = dir->resourceID,
+							.tid		 = dir->resourceTID,
+							.success	 = success,
+							.displayName = dir->name,
+				});
+			}
 		};
 
 		task->onComplete = [this]() {
@@ -536,7 +560,7 @@ namespace Lina::Editor
 
 			HashSet<Resource*> toReload;
 
-			for (const ReimportData& reimport : m_reimportQueue)
+			for (const ReimportResult& reimport : m_reimportResults)
 			{
 				if (reimport.success)
 				{
@@ -590,46 +614,11 @@ namespace Lina::Editor
 			m_editor->GetApp()->GetResourceManager().ReloadResourceHW(toReload);
 
 			// RefreshThumbnails();
+
+			m_reimportResults.clear();
+			m_resourcesToReimport.clear();
 		};
 		m_editor->GetTaskManager().AddTask(task);
-	}
-
-	void ProjectManager::ReloadResourceInstances(Resource* res)
-	{
-		// Resource* resource = m_editor->GetApp()->GetResourceManager().GetIfExists(res->GetTID(), res->GetID());
-		// if (resource != nullptr)
-		// {
-		// 	resource->SetIsReloaded(true);
-		// 	m_editor->GetEditorRenderer().VerifyResources();
-		// }
-		//
-		// const Vector<WorldRenderer*>& worldRenderers = m_editor->GetEditorRenderer().GetWorldRenderers();
-		//
-		// if (worldRenderers.empty())
-		// 	return;
-		//
-		// OStream ostream;
-		// res->SaveToStream(ostream);
-		//
-		// IStream istream;
-		// istream.Create(ostream.GetDataRaw(), ostream.GetCurrentSize());
-		//
-		// for (WorldRenderer* wr : worldRenderers)
-		// {
-		// 	Resource* resInWorld = wr->GetWorld()->GetResourceManagerV2().GetIfExists(res->GetTID(), res->GetID());
-		//
-		// 	if (resInWorld == nullptr)
-		// 		continue;
-		//
-		// 	resInWorld->LoadFromStream(istream);
-		// 	resInWorld->SetIsReloaded(true);
-		// 	wr->GetWorld()->LoadMissingResources(m_currentProject, {});
-		// 	wr->GetWorld()->VerifyResources();
-		// 	istream.Seek(0);
-		// }
-		//
-		// ostream.Destroy();
-		// istream.Destroy();
 	}
 
 } // namespace Lina::Editor

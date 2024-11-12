@@ -190,6 +190,9 @@ namespace Lina::Editor
 
 	void PanelLog::Destruct()
 	{
+		for (Widget* w : m_newLogs)
+			m_manager->Deallocate(w);
+		m_newLogs.clear();
 		Log::RemoveLogListener(this);
 	}
 

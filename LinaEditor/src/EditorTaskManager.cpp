@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Common/Math/Math.hpp"
 #include "Common/System/SystemInfo.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
+#include "Editor/Graphics/SurfaceRenderer.hpp"
 
 namespace Lina::Editor
 {
@@ -100,7 +101,7 @@ namespace Lina::Editor
 
 	void EditorTaskManager::StartTask(EditorTask* task)
 	{
-		Widget* lock = m_editor->GetWindowPanelManager().LockAllForegrounds(task->ownerWindow, Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow));
+		Widget* lock = m_editor->GetWindowPanelManager().LockAllForegrounds(task->ownerWindow, [task](Widget* windowRoot) -> Widget* { return CommonWidgets::BuildGenericPopupProgress(windowRoot, task->title, false); });
 		Widget* pp	 = CommonWidgets::BuildGenericPopupProgress(lock, task->title, !task->useProgress);
 		lock->AddChild(pp);
 		m_lockProgress = static_cast<Text*>(pp->FindChildWithDebugName("Progress"));

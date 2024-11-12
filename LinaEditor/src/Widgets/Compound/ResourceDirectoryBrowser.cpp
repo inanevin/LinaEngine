@@ -291,6 +291,7 @@ namespace Lina::Editor
 			outData.push_back(FileMenuItem::Data{
 				.text		 = Locale::GetStr(LocaleStr::Rename),
 				.altText	 = "F2",
+				.headerIcon	 = ICON_EDIT_PEN,
 				.hasDropdown = false,
 				.isDisabled	 = renameDisabled,
 				.userData	 = userData,
@@ -300,6 +301,7 @@ namespace Lina::Editor
 
 			outData.push_back(FileMenuItem::Data{
 				.text		 = Locale::GetStr(LocaleStr::Import),
+				.headerIcon	 = ICON_IMPORT,
 				.hasDropdown = false,
 				.isDisabled	 = importDisabled,
 				.userData	 = userData,
@@ -307,6 +309,7 @@ namespace Lina::Editor
 
 			outData.push_back(FileMenuItem::Data{
 				.text		 = Locale::GetStr(LocaleStr::ReimportChangedFiles),
+				.headerIcon	 = ICON_ROTATE,
 				.hasDropdown = false,
 				.isDisabled	 = reimportAllDisabled,
 				.userData	 = userData,
@@ -324,12 +327,14 @@ namespace Lina::Editor
 			outData.push_back(FileMenuItem::Data{
 				.text		= Locale::GetStr(LocaleStr::Delete),
 				.altText	= "DEL",
+				.headerIcon = ICON_TRASH,
 				.isDisabled = deleteDisabled,
 				.userData	= userData,
 			});
 			outData.push_back(FileMenuItem::Data{
 				.text		= Locale::GetStr(LocaleStr::Duplicate),
 				.altText	= "CTRL + D",
+				.headerIcon = ICON_COPY,
 				.isDisabled = duplicateDisabled,
 				.userData	= userData,
 			});
@@ -397,7 +402,7 @@ namespace Lina::Editor
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::ReimportChangedFiles)))
 		{
-			m_editor->GetProjectManager().ReimportChangedSources(selection.front(), this);
+			m_editor->GetProjectManager().ReimportChangedSources(selection.front(), m_lgxWindow);
 			return true;
 		}
 
@@ -570,7 +575,7 @@ namespace Lina::Editor
 	{
 		const String text = Locale::GetStr(LocaleStr::AreYouSureYouWantToDeleteI) + " " + TO_STRING(dirs.size()) + " " + Locale::GetStr(LocaleStr::AreYouSureYouWantToDeleteII);
 
-		Widget* lockRoot = m_editor->GetWindowPanelManager().LockAllForegrounds(m_lgxWindow, Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow));
+		Widget* lockRoot = m_editor->GetWindowPanelManager().LockAllForegrounds(m_lgxWindow, [](Widget* owner) -> Widget* { return CommonWidgets::BuildSimpleForegroundLockText(owner, Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow)); });
 
 		Vector<CommonWidgets::GenericPopupButton> buttons = {
 			{

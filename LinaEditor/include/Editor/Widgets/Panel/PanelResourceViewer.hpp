@@ -59,8 +59,6 @@ namespace Lina::Editor
 
 	protected:
 		Widget* BuildButtonLayout();
-		void	SaveResource();
-		void	ReimportResource();
 		void	SetRuntimeDirty(bool runtimeDirty);
 		Button* BuildButton(const String& title, const String& icon);
 		void	DisableRecursively(Widget* parent);

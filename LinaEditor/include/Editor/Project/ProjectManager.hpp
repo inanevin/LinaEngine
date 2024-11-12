@@ -54,25 +54,12 @@ namespace Lina::Editor
 	{
 
 	private:
-		struct ReimportData
+		struct ReimportResult
 		{
 			ResourceID id		   = 0;
 			TypeID	   tid		   = 0;
 			bool	   success	   = false;
 			String	   displayName = "";
-
-			bool operator==(const ReimportData& other) const
-			{
-				return id == other.id;
-			}
-		};
-
-		struct ReimportDataHash
-		{
-			std::size_t operator()(const ReimportData& rd) const noexcept
-			{
-				return std::hash<ResourceID>{}(rd.id);
-			}
 		};
 
 	public:
@@ -84,6 +71,7 @@ namespace Lina::Editor
 		};
 		void Initialize(Editor* editor);
 		void Shutdown();
+		void PreTick();
 
 		void	   OpenDialogSelectProject();
 		void	   OpenDialogCreateProject();
@@ -102,8 +90,9 @@ namespace Lina::Editor
 
 		TextureAtlasImage* GetThumbnail(ResourceDirectory* dir);
 		void			   SetThumbnail(ResourceDirectory* dir, TextureAtlasImage* img);
-		void			   ReimportChangedSources(ResourceDirectory* root, Widget* requestingWidget);
-		void			   ReloadResourceInstances(Resource* res);
+		void			   ReimportChangedSources(ResourceDirectory* root, LinaGX::Window* requestingWindow);
+		void			   CollectReimportResources(ResourceDirectory* dir);
+		void			   CollectReimportResourcesRecursively(ResourceDirectory* dir);
 
 	private:
 		void OnPressedOpenProject();
@@ -115,10 +104,9 @@ namespace Lina::Editor
 		void RemoveDandlingDirectories(ProjectData* projectData, ResourceDirectory* dir);
 		void GenerateInitialThumbnails(ProjectData* projectData, ResourceDirectory* dir);
 
-		void ReimportDirectory(ResourceDirectory* c, String& progress);
-		void ReimportRecursively(ResourceDirectory* root, String& progress);
-
 	private:
+		static constexpr uint64 REIMPORT_CHECK_TICKS = 30;
+
 		WidgetManager*							m_primaryWidgetManager = nullptr;
 		Editor*									m_editor			   = nullptr;
 		ProjectData*							m_currentProject	   = nullptr;
@@ -127,6 +115,8 @@ namespace Lina::Editor
 		HashMap<ResourceID, TextureAtlasImage*> m_resourceThumbnails;
 		HashMap<ResourceID, TextureAtlasImage*> m_resourceThumbnailsOnFlight;
 		HashSet<ResourceID>						m_thumbnailQueue;
-		HashSet<ReimportData, ReimportDataHash> m_reimportQueue;
+		Vector<ReimportResult>					m_reimportResults;
+		Vector<ResourceDirectory*>				m_resourcesToReimport;
+		uint64									m_lastReimportCheckTicks = 0;
 	};
 } // namespace Lina::Editor

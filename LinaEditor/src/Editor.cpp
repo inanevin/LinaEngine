@@ -186,7 +186,7 @@ namespace Lina::Editor
 			m_editorActionManager.Redo();
 		}
 
-		TaskRunner::Poll();
+		m_projectManager.PreTick();
 		m_taskManager.PreTick();
 		m_windowPanelManager.PreTick();
 		m_editorRenderer.PreTick();

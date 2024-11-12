@@ -86,7 +86,7 @@ namespace Lina
 		bool	PassKey(Widget* widget, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction);
 		bool	PassMouse(Widget* widget, uint32 button, LinaGX::InputAction inputAction);
 		bool	PassMouseWheel(Widget* widget, float amt);
-		Widget* LockForeground(const String& showText);
+		Widget* LockForeground();
 		void	UnlockForeground();
 
 		inline Widget* GetRoot() const

@@ -101,6 +101,8 @@ namespace Lina::Editor
 		static Widget* ThrowResourceSelector(Widget* src, ResourceID currentResourceID, TypeID resourceType, Delegate<void(ResourceDirectory*)>&& onSelected);
 		static Widget* BuildThumbnailTooltip(void* thumbnailOwner);
 
+		static Widget* BuildSimpleForegroundLockText(Widget* src, const String& text);
+
 	private:
 	};
 } // namespace Lina::Editor

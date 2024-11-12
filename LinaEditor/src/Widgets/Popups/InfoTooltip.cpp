@@ -64,17 +64,17 @@ namespace Lina::Editor
 
 		if (m_tooltipProps.level == LogLevel::Error)
 		{
-			m_icon->GetProps().icon	 = ICON_ERROR;
+			m_icon->GetProps().icon	 = ICON_XMARK_CIRCLE;
 			m_icon->GetProps().color = Theme::GetDef().accentError;
 		}
 		else if (m_tooltipProps.level == LogLevel::Warn)
 		{
-			m_icon->GetProps().icon	 = ICON_WARN;
+			m_icon->GetProps().icon	 = ICON_EXCLAMATION_TRIANGLE;
 			m_icon->GetProps().color = Theme::GetDef().accentWarn;
 		}
 		else
 		{
-			m_icon->GetProps().icon	 = ICON_INFO;
+			m_icon->GetProps().icon	 = ICON_INFO_CIRCLE;
 			m_icon->GetProps().color = Theme::GetDef().foreground0;
 		}
 		AddChild(m_icon);

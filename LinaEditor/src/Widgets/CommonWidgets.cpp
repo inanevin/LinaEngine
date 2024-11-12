@@ -443,6 +443,19 @@ namespace Lina::Editor
 		return thumbnailRect;
 	}
 
+	Widget* CommonWidgets::BuildSimpleForegroundLockText(Widget* src, const String& text)
+	{
+		WidgetManager* wm	 = src->GetWidgetManager();
+		Text*		   txt	 = wm->Allocate<Text>("Info");
+		txt->GetProps().text = text;
+		txt->GetProps().font = Theme::GetDef().altBigFont;
+		txt->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+		txt->SetAlignedPos(Vector2(0.5f, 0.5f));
+		txt->SetAnchorX(Anchor::Center);
+		txt->SetAnchorY(Anchor::Center);
+		return txt;
+	}
+
 	Widget* CommonWidgets::BuildDefaultListItem(Widget* src, void* userData, float margin, const String& icn, const Color& iconColor, const String& txt, bool foldNudge)
 	{
 		WidgetManager* wm = src->GetWidgetManager();

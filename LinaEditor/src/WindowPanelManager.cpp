@@ -470,7 +470,7 @@ namespace Lina::Editor
 		}
 	}
 
-	Widget* WindowPanelManager::LockAllForegrounds(LinaGX::Window* srcWindow, const String& text)
+	Widget* WindowPanelManager::LockAllForegrounds(LinaGX::Window* srcWindow, Delegate<Widget*(Widget* owner)> otherWindowContents)
 	{
 		Widget* lock = nullptr;
 
@@ -478,11 +478,18 @@ namespace Lina::Editor
 		{
 			if (pair.first == srcWindow)
 			{
-				lock	   = pair.second->GetWidgetManager().LockForeground("");
+				lock	   = pair.second->GetWidgetManager().LockForeground();
 				m_mainLock = lock;
 				continue;
 			}
-			pair.second->GetWidgetManager().LockForeground(text);
+
+			Widget* otherLock = pair.second->GetWidgetManager().LockForeground();
+
+			if (otherWindowContents != nullptr)
+			{
+				Widget* w = otherWindowContents(otherLock);
+				otherLock->AddChild(w);
+			}
 		}
 
 		return lock;
