@@ -60,6 +60,9 @@ namespace Lina
 		static String Duplicate(const String& path);
 		static String GetRelative(const String& src, const String& target);
 		static void	  PerformMove(const String& targetFile, const String& targetDirectory);
+		static String GetSystemTimeStr();
+		static void	  GetSystemTimeInts(int32& hours, int32& minutes, int32& seconds);
+		static String GetTimeStrFromMicroseconds(int64 microseconds);
 
 		// Utility
 

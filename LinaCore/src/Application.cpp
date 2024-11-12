@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Core/CommonCore.hpp"
 #include "Core/Reflection/CommonReflection.hpp"
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
+#include "Common/FileSystem/FileSystem.hpp"
 
 namespace Lina
 {
@@ -43,14 +44,23 @@ namespace Lina
 
 	bool Application::Initialize(const SystemInitializationInfo& initInfo)
 	{
+		PlatformTime::Initialize();
+		SystemInfo::SetAppStartCPUMicroseconds(PlatformTime::GetCPUMicroseconds());
+		SystemInfo::SetAppStartCycles(PlatformTime::GetCPUCycles());
+		SystemInfo::SetMainThreadID(SystemInfo::GetCurrentThreadID());
+
+		// System time as microseconds
+		int32 hours = 0, minutes = 0, seconds = 0;
+		FileSystem::GetSystemTimeInts(hours, minutes, seconds);
+		const int64_t microseconds = 1000000 * static_cast<int64_t>(hours) * 3600 + static_cast<int64_t>(minutes) * 60 + static_cast<int64_t>(seconds);
+		SystemInfo::SetAppStartSystemTimeMicroseconds(microseconds);
+
 		m_appDelegate		 = initInfo.appDelegate;
 		m_appDelegate->m_app = this;
 		LINA_ASSERT(m_appDelegate != nullptr, "Application listener can not be empty!");
 
 		// Setup
-		PlatformTime::Initialize();
-		SystemInfo::SetAppStartCycles(PlatformTime::GetCPUCycles());
-		SystemInfo::SetMainThreadID(SystemInfo::GetCurrentThreadID());
+
 		PROFILER_INIT;
 		PROFILER_REGISTER_THREAD("Main");
 
@@ -204,6 +214,9 @@ namespace Lina
 		int64		 deltaUs  = current - previous;
 		previous			  = current;
 
+		SystemInfo::SetAppTimeMicroseconds(PlatformTime::GetCPUMicroseconds() - SystemInfo::GetAppStartCPUMicroseconds());
+		SystemInfo::SetCurrentSystemTimeMicroseconds(SystemInfo::GetAppStartSystemTimeMicroseconds() + SystemInfo::GetAppTimeMicroseconds());
+
 		if (deltaUs <= 0)
 			deltaUs = 16667;
 		else if (deltaUs >= 50000)
@@ -225,8 +238,6 @@ namespace Lina
 			lastFPSFrames = frames;
 			lastFPSUpdate = gameTime;
 			LINA_TRACE("FPS: {0} Time: {1}", SystemInfo::GetMeasuredFPS(), static_cast<float>(SystemInfo::GetDeltaTime()) * 1000.0f);
-
-			LINA_ERR("OKAY THIS IS A REALLY LONG TEST ERROR I HOPE IT WORKS PROPERLY I really need it to");
 		}
 	}
 

@@ -403,6 +403,38 @@ namespace Lina
 		}
 	}
 
+	String FileSystem::GetSystemTimeStr()
+	{
+		std::time_t		   now		 = std::time(nullptr);
+		std::tm*		   localTime = std::localtime(&now);
+		std::ostringstream oss;
+		oss << std::setw(2) << std::setfill('0') << localTime->tm_hour << ":" << std::setw(2) << std::setfill('0') << localTime->tm_min << ":" << std::setw(2) << std::setfill('0') << localTime->tm_sec;
+		return oss.str();
+	}
+
+	void FileSystem::GetSystemTimeInts(int32& hours, int32& minutes, int32& seconds)
+	{
+		std::time_t now		  = std::time(nullptr);
+		std::tm*	localTime = std::localtime(&now);
+		hours				  = localTime->tm_hour;
+		minutes				  = localTime->tm_min;
+		seconds				  = localTime->tm_sec;
+	}
+
+	String FileSystem::GetTimeStrFromMicroseconds(int64 microseconds)
+	{
+		int64_t totalSeconds = microseconds / 1000000;
+
+		int hours	= (totalSeconds / 3600) % 24; // Wrap-around using modulo 24
+		int minutes = (totalSeconds / 60) % 60;
+		int seconds = totalSeconds % 60;
+
+		std::ostringstream oss;
+		oss << std::setw(2) << std::setfill('0') << hours << ":" << std::setw(2) << std::setfill('0') << minutes << ":" << std::setw(2) << std::setfill('0') << seconds;
+
+		return oss.str();
+	}
+
 	char* FileSystem::WCharToChar(const wchar_t* input)
 	{
 		// Count required buffer size (plus one for null-terminator).

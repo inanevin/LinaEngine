@@ -28,6 +28,8 @@ SOFTWARE.
 
 #include "Editor/Widgets/Panel/PanelLog.hpp"
 #include "Editor/EditorLocale.hpp"
+#include "Common/FileSystem/FileSystem.hpp"
+#include "Common/System/SystemInfo.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
 #include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
@@ -229,7 +231,8 @@ namespace Lina::Editor
 
 		LogLevelData& data = s_logLevels[idx];
 
-		const String levelHeader = "[" + data.title + "] ";
+		const String sysTime	 = "[" + FileSystem::GetTimeStrFromMicroseconds(SystemInfo::GetCurrentSystemTimeMicroseconds()) + "] ";
+		const String levelHeader = sysTime + "[" + data.title + "] ";
 
 		Text* text = m_manager->Allocate<Text>();
 		text->GetFlags().Set(WF_POS_ALIGN_X);

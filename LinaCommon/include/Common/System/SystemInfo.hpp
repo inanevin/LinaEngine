@@ -44,55 +44,51 @@ namespace Lina
 	public:
 		static constexpr float IDEAL_DT_F = 0.016667f;
 
-		/// <summary>
-		/// Total elapsed seconds since application start.
-		/// </summary>
-		/// <returns></returns>
+		static inline int64 GetAppTimeMicroseconds()
+		{
+			return s_appTimeMicroseconds;
+		}
+
+		static inline int64 GetAppStartCPUMicroseconds()
+		{
+			return s_appStartMicroseconds;
+		}
+
+		static inline int64 GetCurrentSystemTimeMicroseconds()
+		{
+			return s_currentSystemTimeMicroseconds;
+		}
+
+		static inline int64 GetAppStartSystemTimeMicroseconds()
+		{
+			return s_appStartSystemTimeMicroseconds;
+		}
+
 		static inline double GetAppTime()
 		{
 			return s_appTime;
 		}
 
-		/// <summary>
-		/// Total elapsed seconds since application start.
-		/// </summary>
-		/// <returns></returns>
 		static inline float GetAppTimeF()
 		{
 			return static_cast<float>(s_appTime);
 		}
 
-		/// <summary>
-		/// Time it took to process last frame in seconds. It is affected by frame-rate-smoothing.
-		/// </summary>
-		/// <returns></returns>
 		static inline double GetDeltaTime()
 		{
 			return s_deltaTime;
 		}
 
-		/// <summary>
-		/// Time it took to process last frame in seconds. Unaffected by smoothing.
-		/// </summary>
-		/// <returns></returns>
 		static inline double GetRealDeltaTime()
 		{
 			return s_realDeltaTime;
 		}
 
-		/// <summary>
-		/// Time it took to process last frame in microseconds. Unaffected by smoothing.
-		/// </summary>
-		/// <returns></returns>
 		static inline int64 GetRealDeltaTimeMicroSeconds()
 		{
 			return s_realDeltaTimeMicroseconds;
 		}
 
-		/// <summary>
-		/// DeltaTime but in precision microseconds.
-		/// </summary>
-		/// <returns></returns>
 		static inline int64 GetDeltaTimeMicroSeconds()
 		{
 			return s_deltaTimeMicroseconds;
@@ -144,6 +140,26 @@ namespace Lina
 
 		static double CalculateRunningAverageDT(int64 deltaMicroseconds);
 
+		static inline void SetAppTimeMicroseconds(int64 microseconds)
+		{
+			s_appTimeMicroseconds = microseconds;
+		}
+
+		static inline void SetAppStartCPUMicroseconds(int64 microseconds)
+		{
+			s_appStartMicroseconds = microseconds;
+		}
+
+		static inline void SetCurrentSystemTimeMicroseconds(int64 microseconds)
+		{
+			s_currentSystemTimeMicroseconds = microseconds;
+		}
+
+		static inline void SetAppStartSystemTimeMicroseconds(int64 microseconds)
+		{
+			s_appStartSystemTimeMicroseconds = microseconds;
+		}
+
 		static inline void SetDeltaTimeMicroSeconds(int64 microseconds)
 		{
 			s_deltaTimeMicroseconds = microseconds;
@@ -192,6 +208,10 @@ namespace Lina
 		static double s_realDeltaTime;
 		static double s_timescale;
 		static bool	  s_appHasFocus;
+		static int64  s_currentSystemTimeMicroseconds;
+		static int64  s_appTimeMicroseconds;
+		static int64  s_appStartMicroseconds;
+		static int64  s_appStartSystemTimeMicroseconds;
 		static int64  s_deltaTimeMicroseconds;
 		static int64  s_realDeltaTimeMicroseconds;
 		static int64  s_appStartCycles;
