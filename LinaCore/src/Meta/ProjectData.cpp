@@ -107,7 +107,7 @@ namespace Lina
 		dup->guid				 = m_resourceGUIDCounter++;
 		dup->m_bucketIdent		 = ident;
 
-		parent->children.push_back(dir);
+		parent->children.push_back(dup);
 		dup->parent = parent;
 		return dup;
 	}

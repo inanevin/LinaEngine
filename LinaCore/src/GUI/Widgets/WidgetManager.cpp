@@ -215,6 +215,7 @@ namespace Lina
 
 	void WidgetManager::OnWindowKey(LinaGX::Window* window, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
 	{
+
 		if (keycode == LINAGX_KEY_ESCAPE && inputAction != LinaGX::InputAction::Released)
 		{
 			Vector<Widget*> removeList;
@@ -234,13 +235,19 @@ namespace Lina
 				return;
 		}
 
+		const bool foregroundExists		= !m_foregroundRoot->GetChildren().empty();
+		const bool controlsInForeground = m_foregroundRoot->IsWidgetInHierarchy(GetControlsOwner());
+
 		if (keycode == LINAGX_KEY_TAB && inputAction != LinaGX::InputAction::Released && GetControlsOwner() != nullptr)
 		{
-			if (m_window->GetInput()->GetKey(LINAGX_KEY_LSHIFT))
-				MoveControlsToPrev();
-			else
-				MoveControlsToNext();
-			return;
+			if (!foregroundExists || (foregroundExists && controlsInForeground))
+			{
+				if (m_window->GetInput()->GetKey(LINAGX_KEY_LSHIFT))
+					MoveControlsToPrev();
+				else
+					MoveControlsToNext();
+				return;
+			}
 		}
 
 		if (PassKey(m_foregroundRoot, keycode, scancode, inputAction))
@@ -254,6 +261,8 @@ namespace Lina
 		// If we have some items in the foreground
 		// check if any was clicked, if not, then remove the non-blocker ones
 		// this is used for removing popups mostly.
+		bool onlyForeground = false;
+
 		if (inputAction == LinaGX::InputAction::Pressed && !m_foregroundRoot->GetChildren().empty())
 		{
 			Vector<Widget*> removeList;
@@ -264,6 +273,8 @@ namespace Lina
 					if (!c->GetFlags().IsSet(WF_FOREGROUND_BLOCKER) && !c->GetFlags().IsSet(WF_TOOLTIP))
 						removeList.push_back(c);
 				}
+				else
+					onlyForeground = true;
 			}
 
 			for (auto* w : removeList)
@@ -273,7 +284,7 @@ namespace Lina
 			}
 
 			if (!removeList.empty())
-				return;
+				onlyForeground = true;
 		}
 
 		if (button == LINAGX_MOUSE_0 && inputAction == LinaGX::InputAction::Pressed && m_controlOwner != nullptr && !m_controlOwner->GetIsHovered())
@@ -287,6 +298,8 @@ namespace Lina
 				return;
 		}
 
+		if (onlyForeground)
+			return;
 		PassMouse(m_rootWidget, button, inputAction);
 	}
 
