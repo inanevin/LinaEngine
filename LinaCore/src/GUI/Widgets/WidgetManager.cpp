@@ -238,6 +238,9 @@ namespace Lina
 				RemoveFromForeground(w);
 				Deallocate(w);
 			}
+
+			if (!removeList.empty())
+				return;
 		}
 
 		if (keycode == LINAGX_KEY_TAB && inputAction != LinaGX::InputAction::Released && GetControlsOwner() != nullptr)
@@ -277,6 +280,9 @@ namespace Lina
 				RemoveFromForeground(w);
 				Deallocate(w);
 			}
+
+			if (!removeList.empty())
+				return;
 		}
 
 		if (button == LINAGX_MOUSE_0 && inputAction == LinaGX::InputAction::Pressed && m_controlOwner != nullptr && !m_controlOwner->GetIsHovered())
@@ -574,6 +580,11 @@ namespace Lina
 
 		for (auto* c : w->GetChildren())
 			PassPreTick(c);
+
+		for (Widget* r : w->m_addChildRequests)
+			w->AddChild(r);
+
+		w->m_addChildRequests.clear();
 	}
 
 	void WidgetManager::PassCalculateSize(Widget* w, float delta)

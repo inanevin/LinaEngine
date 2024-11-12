@@ -307,8 +307,9 @@ namespace Lina::Editor
 			return true;
 		}
 
-		if (sid == TO_SID(Locale::GetStr(LocaleStr::More)))
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::Discord)))
 		{
+			PlatformProcess::OpenURL("https://discord.gg/QYeTkEtRMB");
 			return true;
 		}
 
@@ -349,9 +350,9 @@ namespace Lina::Editor
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::About)))
 		{
 			outData = {
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Website)},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Github)},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::More)},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Website), .headerIcon = ICON_GLOBE},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Github), .headerIcon = ICON_GITHUB},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Discord), .headerIcon = ICON_DISCORD},
 			};
 			return;
 		}

@@ -83,6 +83,7 @@ namespace Lina::Editor
 		SaveWorldAs,
 		Exit,
 		Github,
+		Discord,
 		Website,
 		More,
 		Entities,

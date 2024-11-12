@@ -79,9 +79,10 @@ namespace Lina::Editor
 		m_surfaceRenderers[window] = renderer;
 
 		NotificationDisplayer* notificationDisplayer = renderer->GetWidgetManager().Allocate<NotificationDisplayer>();
-		notificationDisplayer->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		notificationDisplayer->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_CONTROLS_DRAW_ORDER);
 		notificationDisplayer->SetAlignedPos(Vector2::Zero);
 		notificationDisplayer->SetAlignedSize(Vector2::One);
+		notificationDisplayer->SetDrawOrder(FOREGROUND_DRAW_ORDER + 111);
 		renderer->GetWidgetManager().GetRoot()->AddChild(notificationDisplayer);
 	}
 
@@ -136,7 +137,6 @@ namespace Lina::Editor
 			}
 
 			m_windowCloseRequests.clear();
-			m_editor->SaveSettings();
 		}
 
 		if (m_payloadRequest.active)
@@ -383,7 +383,6 @@ namespace Lina::Editor
 			dock->GetWindow()->SetSize(inf.size.AsLGX2UI());
 		}
 
-		m_editor->SaveSettings();
 		return panel;
 	}
 

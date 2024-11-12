@@ -193,6 +193,15 @@ namespace Lina::Editor
 		Log::RemoveLogListener(this);
 	}
 
+	void PanelLog::PreTick()
+	{
+		LOCK_GUARD(Log::GetLogMutex());
+
+		for (Widget* w : m_newLogs)
+			m_logLayout->AddChildRequest(w);
+		m_newLogs.clear();
+	}
+
 	void PanelLog::SaveLayoutToStream(OStream& stream)
 	{
 		const size_t sz = s_logLevels.size();
@@ -241,7 +250,7 @@ namespace Lina::Editor
 		text->GetProps().color = data.color;
 		text->SetUserData(&data);
 		text->GetProps().fetchWrapFromParent = true;
-		m_logLayout->AddChild(text);
+		m_newLogs.push_back(text);
 	}
 
 	void PanelLog::UpdateTextVisibility()

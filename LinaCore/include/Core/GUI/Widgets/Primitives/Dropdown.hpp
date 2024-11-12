@@ -109,6 +109,7 @@ namespace Lina
 		Icon*	   m_icon		 = nullptr;
 		Text*	   m_text		 = nullptr;
 		Vector2	   m_iconBgStart = Vector2::Zero;
+		Widget*	   m_popup		 = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(Dropdown, Primitive)

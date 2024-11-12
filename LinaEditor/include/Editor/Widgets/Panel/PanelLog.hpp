@@ -58,6 +58,7 @@ namespace Lina::Editor
 
 		virtual void Construct() override;
 		virtual void Destruct() override;
+		virtual void PreTick() override;
 
 		virtual void SaveLayoutToStream(OStream& stream);
 		virtual void LoadLayoutFromStream(IStream& stream);
@@ -72,6 +73,7 @@ namespace Lina::Editor
 		DirectionalLayout*			m_logLayout = nullptr;
 		ScrollArea*					m_logScroll = nullptr;
 		String						m_searchStr = "";
+		Vector<Widget*>				m_newLogs;
 		static Vector<LogLevelData> s_logLevels;
 	};
 

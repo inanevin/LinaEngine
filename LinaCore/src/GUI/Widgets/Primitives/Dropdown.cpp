@@ -72,7 +72,7 @@ namespace Lina
 		if (button != LINAGX_MOUSE_0)
 			return false;
 
-		if (m_isHovered && (action == LinaGX::InputAction::Pressed || action == LinaGX::InputAction::Repeated))
+		if (m_isHovered && action == LinaGX::InputAction::Pressed)
 		{
 			CreatePopup();
 			return true;
@@ -84,9 +84,6 @@ namespace Lina
 	void Dropdown::CreatePopup()
 	{
 
-		// Vector<String> items;
-		// Vector<int32>  selectedItems;
-
 		Popup* popup = m_manager->Allocate<Popup>("Popup");
 		popup->SetPos(GetPos() + Vector2(0.0f, GetSizeY()));
 		popup->GetProps().selectedIcon	= Theme::GetDef().iconCircleFilled;
@@ -94,14 +91,6 @@ namespace Lina
 
 		if (m_props.onAddItems)
 			m_props.onAddItems(popup);
-
-		// const int32 sz = static_cast<int32>(items.size());
-		// for (int32 i = 0; i < sz; i++)
-		// {
-		// 	const auto& it	  = items[i];
-		// 	auto		found = linatl::find_if(selectedItems.begin(), selectedItems.end(), [i](int32 itm) -> bool { return i == itm; });
-		// 	popup->AddToggleItem(it, found != selectedItems.end(), nullptr, 1.5f, !it.empty());
-		// }
 
 		popup->GetProps().onSelectedItem = [this, popup](int32 idx, void* ud) {
 			if (m_props.onSelected)
@@ -118,9 +107,9 @@ namespace Lina
 			}
 		};
 
+		m_popup = popup;
+		popup->SetDestructHook([this]() { m_popup = nullptr; });
 		popup->Initialize();
-		// if (selectedItems.size() == 1 && selectedItems.front() != -1)
-		// 	popup->ScrollToItem(selectedItems.front());
 
 		m_manager->AddToForeground(popup);
 		m_manager->GrabControls(popup);

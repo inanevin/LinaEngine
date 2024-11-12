@@ -61,17 +61,15 @@ namespace Lina::Editor
 		for (Vector<NotificationItem*>::iterator it = m_items.begin(); it != m_items.end();)
 		{
 			NotificationItem* item = *it;
-
 			item->tween.Tick(delta);
-
 			const float itemSz = item->layout->GetSizeY();
+
 			item->layout->SetPosY(Math::Lerp(item->layout->GetPosY(), posY - itemSz, delta * POS_SPEED));
 			posY -= Theme::GetDef().baseIndent + itemSz;
 
 			const float targetX = maxX - item->layout->GetSizeX();
-			const float startX	= maxX;
-			const float actualX = Math::Lerp(startX, targetX, item->tween.GetValue());
-			item->layout->SetPosX(actualX);
+			item->layout->SetPosX(targetX - item->tween.GetValue());
+			item->layout->SetPosY(posY);
 
 			if (!item->done)
 			{
@@ -81,8 +79,7 @@ namespace Lina::Editor
 
 					if (item->timer > static_cast<float>(item->autoDestroySeconds))
 					{
-						item->done	= true;
-						item->tween = Tween(1.0f, 0.0f, TWEEN_TIME, TweenType::Linear);
+						item->done = true;
 					}
 				}
 
@@ -94,13 +91,12 @@ namespace Lina::Editor
 
 					if (item->slider->GetProps()._localValue > 0.99f)
 					{
-						item->done	= true;
-						item->tween = Tween(1.0f, 0.0f, TWEEN_TIME, TweenType::Linear);
+						item->done = true;
 					}
 				}
 			}
 
-			if (item->done && item->tween.GetIsCompleted())
+			if (item->done)
 			{
 				it = m_items.erase(it);
 				RemoveChild(item->layout);
@@ -112,36 +108,35 @@ namespace Lina::Editor
 		}
 	}
 
-	void NotificationDisplayer::Draw()
-	{
-		Widget::Draw();
-	}
-
 	void NotificationDisplayer::AddNotification(const NotificationDesc& desc)
 	{
 		DirectionalLayout* notification = m_manager->Allocate<DirectionalLayout>("Notification");
-		notification->GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_USE_FIXED_SIZE_Y | WF_CONTROLS_DRAW_ORDER);
-		notification->SetAlignedSize(Vector2(1.0f, 2.0f));
-		notification->SetFixedSizeY(Theme::GetDef().baseItemHeight * 2);
+		notification->GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_USE_FIXED_SIZE_Y);
+		notification->SetAlignedSizeX(1.0f);
+		notification->SetFixedSizeY(Theme::GetDef().baseItemHeight * 1.5f);
 		notification->SetAnchorX(Anchor::Start);
 		notification->SetAnchorY(Anchor::End);
 		notification->GetProps().direction					 = DirectionOrientation::Horizontal;
-		notification->GetWidgetProps().childMargins			 = TBLR::Eq(Theme::GetDef().baseIndent);
+		notification->GetWidgetProps().childMargins.left	 = Theme::GetDef().baseIndent;
+		notification->GetWidgetProps().childMargins.right	 = Theme::GetDef().baseIndent;
 		notification->GetWidgetProps().childPadding			 = Theme::GetDef().baseIndent;
 		notification->GetWidgetProps().drawBackground		 = true;
 		notification->GetWidgetProps().colorBackground.start = Theme::GetDef().background0;
-		notification->GetWidgetProps().colorBackground.end	 = Theme::GetDef().background1;
+		notification->GetWidgetProps().colorBackground.end	 = Theme::GetDef().background0;
 		notification->GetWidgetProps().outlineThickness		 = Theme::GetDef().baseOutlineThickness;
 		notification->GetWidgetProps().colorOutline			 = Theme::GetDef().accentPrimary0;
-		notification->SetDrawOrder(FOREGROUND_DRAW_ORDER);
+		notification->GetWidgetProps().rounding				 = 0.1f;
 		AddChild(notification);
 
 		NotificationItem* item	 = new NotificationItem();
-		item->tween				 = Tween(0.0f, 1.0f, TWEEN_TIME, TweenType::Linear);
 		item->layout			 = notification;
 		item->onProgress		 = desc.onProgress;
 		item->autoDestroySeconds = desc.autoDestroySeconds;
 		item->onClicked			 = desc.onClicked;
+		item->tween				 = Tween(Theme::GetDef().baseItemHeight * 2, 0.0f, TWEEN_TIME, TweenType::Bounce);
+
+		notification->SetPosY(GetEndFromMargins().y);
+		m_items.insert(m_items.begin(), item);
 
 		if (desc.icon != NotificationIcon::None && desc.icon != NotificationIcon::Loading)
 		{
@@ -149,29 +144,31 @@ namespace Lina::Editor
 			icon->GetFlags().Set(WF_POS_ALIGN_Y);
 			icon->SetAlignedPosY(0.5f);
 			icon->SetAnchorY(Anchor::Center);
-			icon->SetAlignedSizeY(1.0f);
 			icon->GetProps().dynamicSizeToParent = true;
-			icon->GetProps().dynamicSizeScale	 = 1.5f;
+			icon->GetProps().dynamicSizeScale	 = 0.75f;
 			notification->AddChild(icon);
 
 			if (desc.icon == NotificationIcon::Info)
 			{
-				icon->GetProps().icon  = ICON_INFO;
-				icon->GetProps().color = Theme::GetDef().silent2;
+				icon->GetProps().icon						= ICON_INFO;
+				icon->GetProps().color						= Theme::GetDef().foreground0;
+				notification->GetWidgetProps().colorOutline = Theme::GetDef().foreground0;
 			}
 			else if (desc.icon == NotificationIcon::Warning)
 			{
-				icon->GetProps().icon  = ICON_WARN;
-				icon->GetProps().color = Theme::GetDef().accentWarn;
+				icon->GetProps().icon						= ICON_WARN;
+				icon->GetProps().color						= Theme::GetDef().accentWarn;
+				notification->GetWidgetProps().colorOutline = Theme::GetDef().accentWarn;
 			}
 			else if (desc.icon == NotificationIcon::Err)
 			{
-				icon->GetProps().icon  = ICON_ERROR;
-				icon->GetProps().color = Theme::GetDef().accentError;
+				icon->GetProps().icon						= ICON_ERROR;
+				icon->GetProps().color						= Theme::GetDef().accentError;
+				notification->GetWidgetProps().colorOutline = Theme::GetDef().accentError;
 			}
 			else if (desc.icon == NotificationIcon::OK)
 			{
-				icon->GetProps().icon						= ICON_CHECK;
+				icon->GetProps().icon						= ICON_SUCCESS_CHECK;
 				icon->GetProps().color						= Theme::GetDef().accentSecondary;
 				notification->GetWidgetProps().colorOutline = Theme::GetDef().accentSecondary;
 			}
@@ -249,23 +246,9 @@ namespace Lina::Editor
 					if (item->onClicked)
 						item->onClicked();
 
-					item->tween = Tween(1.0f, 0.0f, TWEEN_TIME, TweenType::Linear);
-					item->done	= true;
+					item->done = true;
 				}
 			};
-		}
-
-		notification->SetPosY(GetEndFromMargins().y);
-		m_items.insert(m_items.begin(), item);
-
-		float posY = GetEndFromMargins().y;
-
-		for (NotificationItem* item : m_items)
-		{
-			const float itemSz = item->layout->GetSizeY();
-			item->layout->SetPosY(posY);
-			posY -= Theme::GetDef().baseIndent + itemSz;
-			item->layout->SetPosX(m_rect.GetEnd().x);
 		}
 	}
 

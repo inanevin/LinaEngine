@@ -489,6 +489,11 @@ namespace Lina
 			m_destructHook = hook;
 		}
 
+		inline void AddChildRequest(Widget* w)
+		{
+			m_addChildRequests.push_back(w);
+		}
+
 		V2_GET_MUTATE(FixedSize, m_fixedSize);
 		V2_GET_MUTATE(AlignedSize, m_alignedSize);
 		V2_INCREMENTERS(AlignedSize, m_alignedSize);
@@ -546,6 +551,7 @@ namespace Lina
 		uint32						m_cacheIndex			= 0;
 		WidgetProps					m_widgetProps			= {};
 		bool						m_initializing			= false;
+		Vector<Widget*>				m_addChildRequests;
 	};
 
 	LINA_WIDGET_BEGIN(Widget, General)

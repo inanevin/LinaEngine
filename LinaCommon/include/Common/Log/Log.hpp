@@ -114,6 +114,11 @@ namespace Lina
 			LogImpl(level, fmt::format(args...).c_str());
 		}
 
+		inline static Mutex& GetLogMutex()
+		{
+			return s_logMtx;
+		}
+
 	private:
 		friend class Engine;
 		static Mutex				s_logMtx;

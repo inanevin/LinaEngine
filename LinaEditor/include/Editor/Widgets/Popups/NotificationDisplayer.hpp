@@ -63,7 +63,7 @@ namespace Lina::Editor
 	struct NotificationItem
 	{
 		Tween							   tween  = {};
-		DirectionalLayout*				   layout = nullptr;
+		Widget*							   layout = nullptr;
 		Delegate<void(float& outProgress)> onProgress;
 		Delegate<void()>				   onClicked;
 		Slider*							   slider			  = nullptr;
@@ -81,14 +81,13 @@ namespace Lina::Editor
 		virtual void Construct() override;
 		virtual void Destruct() override;
 		virtual void Tick(float delta) override;
-		virtual void Draw() override;
 
 		void AddNotification(const NotificationDesc& desc);
 
 	private:
 		static constexpr float POS_SPEED	= 15.0f;
 		static constexpr float SLIDER_SPEED = 8.0f;
-		static constexpr float TWEEN_TIME	= 0.2f;
+		static constexpr float TWEEN_TIME	= 0.5f;
 
 		Vector<NotificationItem*> m_items;
 		Vector<NotificationDesc>  m_notifications;

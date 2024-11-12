@@ -165,9 +165,10 @@ namespace Lina::Editor
 #define ICON_FOLDER				 "\u0062"
 #define ICON_FOLDER_OPEN		 "\u0063"
 #define ICON_FOLDER_PLUS		 "\u0064"
-#define ICON_INFO				 "\u0065"
-#define ICON_ERROR				 "\u0066"
-#define ICON_WARN				 "\u0067"
+#define ICON_SUCCESS_CHECK		 "\u004c"
+#define ICON_ERROR				 "\u004d"
+#define ICON_WARN				 "\u004e"
+#define ICON_INFO				 "\u004f"
 #define ICON_SAVE				 "\u0068"
 #define ICON_SQUARE_PLUS		 "\u0069"
 #define ICON_CHEVRON_LEFT		 "\u0070"
@@ -188,6 +189,10 @@ namespace Lina::Editor
 #define ICON_SORT_AZ			 "\u004a"
 #define ICON_STAR				 "\u004b"
 #define ICON_TRASH				 "\u006A"
+
+#define ICON_GLOBE	 "\u005A"
+#define ICON_GITHUB	 "\u005B"
+#define ICON_DISCORD "\u005C"
 
 #define DOCK_DEFAULT_PERCENTAGE 0.4f
 #define DOCKED_MIN_SIZE			300.0f

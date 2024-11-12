@@ -154,7 +154,6 @@ namespace Lina::Editor
 			else
 				m_selectedPanel = nullptr;
 		}
-		Editor::Get()->SaveSettings();
 	}
 
 	void DockArea::PreTick()
@@ -284,7 +283,6 @@ namespace Lina::Editor
 		if (direction == Direction::Center)
 		{
 			AddPanel(panel);
-			Editor::Get()->SaveSettings();
 			return this;
 		}
 
@@ -368,7 +366,6 @@ namespace Lina::Editor
 		area->AddPanel(panel);
 		m_parent->AddChild(area);
 		FixAreaChildMargins();
-		Editor::Get()->SaveSettings();
 		return area;
 	}
 
@@ -446,7 +443,6 @@ namespace Lina::Editor
 		}
 
 		FixAreaChildMargins();
-		Editor::Get()->SaveSettings();
 	}
 
 	void DockArea::ExpandWidgetsToMyPlace(const Vector<Widget*>& widgets, Direction directionOfAreas)
