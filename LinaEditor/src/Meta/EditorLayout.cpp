@@ -96,8 +96,15 @@ namespace Lina::Editor
 		// World
 		wl.dockWidgets.push_back({
 			.alignedPos	 = Vector2(0.25f, 0.0f),
-			.alignedSize = Vector2(0.75f, 1.0f),
+			.alignedSize = Vector2(0.75f, 0.8f),
 			.panels		 = {{.panelType = PanelType::World}},
+		});
+
+		// Log
+		wl.dockWidgets.push_back({
+			.alignedPos	 = Vector2(0.25f, 0.9f),
+			.alignedSize = Vector2(0.75f, 0.1f),
+			.panels		 = {{.panelType = PanelType::Log}},
 		});
 
 		/*
@@ -114,6 +121,14 @@ namespace Lina::Editor
 		wl.dockWidgets.push_back({
 			.alignedPos	  = Vector2(0.0, 0.6f),
 			.alignedSize  = Vector2(0.25f, 0.0f),
+			.isBorder	  = true,
+			.isHorizontal = true,
+		});
+
+		// Border: World | Log
+		wl.dockWidgets.push_back({
+			.alignedPos	  = Vector2(0.25f, 0.9f),
+			.alignedSize  = Vector2(0.75f, 0.0f),
 			.isBorder	  = true,
 			.isHorizontal = true,
 		});

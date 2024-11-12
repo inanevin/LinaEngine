@@ -231,7 +231,7 @@ namespace Lina::Editor
 
 		LogLevelData& data = s_logLevels[idx];
 
-		const String sysTime	 = "[" + FileSystem::GetTimeStrFromMicroseconds(SystemInfo::GetCurrentSystemTimeMicroseconds()) + "] ";
+		const String sysTime	 = "[" + FileSystem::GetSystemTimeStr() + "] ";
 		const String levelHeader = sysTime + "[" + data.title + "] ";
 
 		Text* text = m_manager->Allocate<Text>();
