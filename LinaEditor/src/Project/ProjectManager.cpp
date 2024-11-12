@@ -541,7 +541,7 @@ namespace Lina::Editor
 				if (success)
 					res->SaveToFileAsBinary(resPath);
 
-				meta.GetFunction<void*(void*)>("Deallocate"_hs)(res);
+				meta.GetFunction<void(void*)>("Deallocate"_hs)(res);
 
 				m_reimportResults.push_back({
 							.id			 = dir->resourceID,

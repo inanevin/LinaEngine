@@ -51,8 +51,6 @@ namespace Lina::Editor
 			return GetTypeID<Shader>();
 		if (ext.compare("mp3") == 0)
 			return GetTypeID<Audio>();
-		if (ext.compare("linasampler") == 0)
-			return GetTypeID<TextureSampler>();
 		if (ext.compare("png") == 0 || ext.compare("jpg") == 0 || ext.compare("jpeg") == 0)
 			return GetTypeID<Texture>();
 		if (ext.compare("linawidget") == 0)
@@ -63,6 +61,26 @@ namespace Lina::Editor
 			return GetTypeID<Model>();
 
 		return 0;
+	}
+
+	Vector<String> ExtensionSupport::GetExtensionsFromTypeID(TypeID tid)
+	{
+		if (tid == GetTypeID<Texture>())
+			return {"png", "jpg", "jpeg"};
+
+		if (tid == GetTypeID<Model>())
+			return {"gltf", "glb"};
+
+		if (tid == GetTypeID<Font>())
+			return {"ttf", "otf"};
+
+		if (tid == GetTypeID<Audio>())
+			return {"mp3"};
+
+		if (tid == GetTypeID<Shader>())
+			return {"linashader"};
+
+		return {};
 	}
 
 	bool ExtensionSupport::RequiresOutlineFX(TypeID tid)

@@ -34,7 +34,9 @@ SOFTWARE.
 #include "Editor/Widgets/FX/ProgressCircleFill.hpp"
 #include "Editor/Resources/ResourcePipeline.hpp"
 #include "Editor/IO/ThumbnailGenerator.hpp"
+#include "Editor/IO/ExtensionSupport.hpp"
 #include "Editor/Actions/EditorActionResources.hpp"
+#include "Common/FileSystem/FileSystem.hpp"
 #include "Core/Meta/ProjectData.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
@@ -244,6 +246,7 @@ namespace Lina::Editor
 		bool alreadyInFav		 = false;
 		bool importDisabled		 = false;
 		bool reimportAllDisabled = false;
+		bool changeSrcDisabled	 = false;
 
 		Vector<ResourceDirectory*> selection = m_controller->GetSelectedUserData<ResourceDirectory>();
 
@@ -256,6 +259,7 @@ namespace Lina::Editor
 			deleteDisabled	  = true;
 			duplicateDisabled = true;
 			favDisabled		  = true;
+			changeSrcDisabled = true;
 		}
 
 		if (m_controller->GetSelectedItems().empty())
@@ -286,6 +290,9 @@ namespace Lina::Editor
 			importDisabled = true;
 		}
 
+		if (selection.empty() || selection.size() != 1 || selection.front()->isFolder)
+			changeSrcDisabled = true;
+
 		if (sid == 0)
 		{
 			outData.push_back(FileMenuItem::Data{
@@ -312,6 +319,14 @@ namespace Lina::Editor
 				.headerIcon	 = ICON_ROTATE,
 				.hasDropdown = false,
 				.isDisabled	 = reimportAllDisabled,
+				.userData	 = userData,
+			});
+
+			outData.push_back(FileMenuItem::Data{
+				.text		 = Locale::GetStr(LocaleStr::ChangeSourceAsset),
+				.headerIcon	 = ICON_FILE_PEN,
+				.hasDropdown = false,
+				.isDisabled	 = changeSrcDisabled,
 				.userData	 = userData,
 			});
 
@@ -403,6 +418,25 @@ namespace Lina::Editor
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::ReimportChangedFiles)))
 		{
 			m_editor->GetProjectManager().ReimportChangedSources(selection.front(), m_lgxWindow);
+			return true;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::ChangeSourceAsset)))
+		{
+			PlatformProcess::DialogProperties props;
+
+			const Vector<String> files = PlatformProcess::OpenDialog({
+				.title		   = Locale::GetStr(LocaleStr::Select),
+				.primaryButton = Locale::GetStr(LocaleStr::Select),
+				.extensions	   = ExtensionSupport::GetExtensionsFromTypeID(selection.front()->resourceTID),
+				.mode		   = PlatformProcess::DialogMode::SelectFile,
+			});
+
+			if (!files.empty())
+			{
+				selection.front()->sourcePathRelativeToProject = FileSystem::GetRelative(FileSystem::GetFilePath(m_editor->GetProjectManager().GetProjectData()->GetPath()), files.front());
+				m_editor->GetProjectManager().SaveProjectChanges();
+			}
 			return true;
 		}
 

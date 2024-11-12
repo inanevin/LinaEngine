@@ -191,12 +191,11 @@ namespace Lina::Editor
 #define ICON_STAR				  "\u004b"
 #define ICON_TRASH				  "\u006A"
 #define ICON_FILE				  "\u0067"
-
-#define ICON_EDIT_PEN "\u0065"
-
-#define ICON_GLOBE	 "\u005A"
-#define ICON_GITHUB	 "\u005B"
-#define ICON_DISCORD "\u005C"
+#define ICON_FILE_PEN			  "\u0066"
+#define ICON_EDIT_PEN			  "\u0065"
+#define ICON_GLOBE				  "\u005A"
+#define ICON_GITHUB				  "\u005B"
+#define ICON_DISCORD			  "\u005C"
 
 #define DOCK_DEFAULT_PERCENTAGE 0.4f
 #define DOCKED_MIN_SIZE			300.0f

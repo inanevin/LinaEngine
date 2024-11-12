@@ -169,6 +169,7 @@ namespace Lina::Editor
 		Warning,
 		Error,
 		Trace,
+		ChangeSourceAsset,
 	};
 
 	class Locale
