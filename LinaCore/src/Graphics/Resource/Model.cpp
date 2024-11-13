@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Core/Graphics/MeshManager.hpp"
 
 #include "Common/FileSystem/FileSystem.hpp"
+#include <LinaGX/Utility/ModelUtility.hpp>
 
 namespace Lina
 {

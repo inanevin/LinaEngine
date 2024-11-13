@@ -41,8 +41,6 @@ namespace Lina::Editor
 #define RESOURCE_ID_EDITOR_SAMPLERS	 RESOURCE_ID_EDITOR_SPACE + 200
 #define RESOURCE_ID_EDITOR_MATERIALS RESOURCE_ID_EDITOR_SPACE + 250
 
-#define EDITOR_DEF_RESOURCES_FOLDER "_Lina"
-
 // Fonts
 #define EDITOR_FONT_ROBOTO_PATH		 "Resources/Editor/Fonts/Roboto-Regular.ttf"
 #define EDITOR_FONT_ROBOTO_BOLD_PATH "Resources/Editor/Fonts/Roboto-Regular.ttf"
@@ -221,19 +219,12 @@ namespace Lina::Editor
 		Log,
 	};
 
-	enum class PayloadType
+	enum class ResourceDirectoryType
 	{
-		None,
-		DockedPanel,
-		EntitySelectable,
-		Resource,
-		WidgetEditorWidget,
-	};
-
-	enum ResourceLoadTaskIDs
-	{
-		RLID_CORE_RES = 100,
-		RLID_THUMB_RES,
+		Default = 0,
+		LinaAssetsFolder,
+		FavouritesFolder,
+		EngineResource,
 	};
 
 } // namespace Lina::Editor

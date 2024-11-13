@@ -49,6 +49,9 @@ SOFTWARE.
 #include "Core/World/EntityWorld.hpp"
 #include "Editor/Widgets/Popups/NotificationDisplayer.hpp"
 
+#include <LinaGX/Utility/ImageUtility.hpp>
+#include <LinaGX/Utility/ModelUtility.hpp>
+
 namespace Lina::Editor
 {
 	void ResourcePipeline::TrySetMaterialProperty(MaterialProperty* prop)

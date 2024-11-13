@@ -213,6 +213,31 @@ namespace Lina
 		m_widgetCaches.clear();
 	}
 
+	Widget* WidgetManager::Allocate(TypeID tid, const String& debugName)
+	{
+		WidgetCacheBase* cacheBase = m_widgetCaches[tid];
+
+		if (cacheBase == nullptr)
+		{
+			MetaType& type		= ReflectionSystem::Get().Resolve(tid);
+			cacheBase			= static_cast<WidgetCacheBase*>(type.GetFunction<void*()>("CreateWidgetCache"_hs)());
+			m_widgetCaches[tid] = cacheBase;
+		}
+
+		uint32	cacheIndex = 0;
+		Widget* t		   = static_cast<Widget*>(cacheBase->Create(cacheIndex));
+		t->m_cacheIndex	   = cacheIndex;
+		LINA_ASSERT(t != nullptr, "");
+		t->GetWidgetProps().debugName = debugName;
+		t->m_lgxWindow				  = m_window;
+		t->m_manager				  = this;
+		t->m_resourceManager		  = m_resourceManagerV2;
+		t->m_tid					  = tid;
+		t->m_lvg					  = m_lvg;
+		t->Construct();
+		return t;
+	}
+
 	void WidgetManager::OnWindowKey(LinaGX::Window* window, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
 	{
 

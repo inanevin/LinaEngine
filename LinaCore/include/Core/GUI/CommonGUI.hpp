@@ -31,7 +31,6 @@ SOFTWARE.
 #include "Common/SizeDefinitions.hpp"
 #include "Common/Math/Color.hpp"
 #include "Common/Math/Rect.hpp"
-#include "Common/Data/Map.hpp"
 #include "Common/Common.hpp"
 #include "Common/Reflection/ClassReflection.hpp"
 
@@ -138,8 +137,6 @@ namespace Lina
 		RGB255,
 		MAX,
 	};
-
-	extern HashMap<ColorDisplay, String> COLOR_DISPLAY_VALUES;
 
 #define FOREGROUND_DRAW_ORDER		100
 #define FOREGROUND_HIGHP_DRAW_ORDER 150

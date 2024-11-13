@@ -28,13 +28,10 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef ResourceUploadQueue_HPP
-#define ResourceUploadQueue_HPP
-
-#include "Common/Data/Mutex.hpp"
 #include "Common/Data/Vector.hpp"
 #include "Common/Data/Functional.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
+#include <LinaGX/Common/Defines/DataBuffers.hpp>
 
 namespace LinaGX
 {
@@ -73,5 +70,3 @@ namespace Lina
 		Vector<LinaGX::TextureBuffer> m_cleanUpBuffers;
 	};
 } // namespace Lina
-
-#endif

@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Editor/Editor.hpp"
+#include "Editor/Atlas/AtlasManager.hpp"
 #include "Editor/IO/ThumbnailGenerator.hpp"
 #include "Editor/CommonEditor.hpp"
 
@@ -34,7 +34,6 @@ SOFTWARE.
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
-#include "Common/JobSystem/JobSystem.hpp"
 #include "Core/Meta/ProjectData.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Audio/Audio.hpp"
@@ -47,6 +46,7 @@ SOFTWARE.
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/Physics/PhysicsMaterial.hpp"
 #include "Core/World/EntityWorld.hpp"
+#include <LinaGX/Utility/ImageUtility.hpp>
 
 namespace Lina::Editor
 {

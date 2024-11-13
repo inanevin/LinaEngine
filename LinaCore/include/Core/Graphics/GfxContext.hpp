@@ -28,11 +28,11 @@ SOFTWARE.
 
 #pragma once
 
-#include "Common/Data/HashMap.hpp"
 #include "Core/Resources/ResourceManagerListener.hpp"
 #include "Core/Graphics/ResourceUploadQueue.hpp"
 #include "Core/Graphics/Pipeline/Buffer.hpp"
 #include "Core/Graphics/MeshManager.hpp"
+#include <LinaGX/Common/CommonGfx.hpp>
 
 namespace LinaGX
 {

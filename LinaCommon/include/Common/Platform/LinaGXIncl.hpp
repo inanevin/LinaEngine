@@ -28,9 +28,6 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef LinaGXIncl_HPP
-#define LinaGXIncl_HPP
-
 #include "LinaGX/LinaGX.hpp"
 #include "Common/Data/Streams.hpp"
 
@@ -43,5 +40,3 @@ namespace Lina
 #define DEFAULT_RT_FORMAT_HDR	 LinaGX::Format::R16G16B16A16_SFLOAT
 #define HIGH_RT_FORMAT_HDR		 LinaGX::Format::R32G32B32A32_SFLOAT
 } // namespace Lina
-
-#endif

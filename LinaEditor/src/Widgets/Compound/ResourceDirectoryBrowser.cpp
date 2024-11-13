@@ -31,7 +31,6 @@ SOFTWARE.
 #include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
 #include "Editor/Widgets/Layout/ItemController.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
-#include "Editor/Widgets/FX/ProgressCircleFill.hpp"
 #include "Editor/Resources/ResourcePipeline.hpp"
 #include "Editor/IO/ThumbnailGenerator.hpp"
 #include "Editor/IO/ExtensionSupport.hpp"
@@ -56,7 +55,6 @@ SOFTWARE.
 #include "Core/Physics/PhysicsMaterial.hpp"
 #include "Core/Platform/PlatformProcess.hpp"
 #include "Core/Application.hpp"
-#include "Common/Serialization/Serialization.hpp"
 
 namespace Lina::Editor
 {
@@ -176,7 +174,20 @@ namespace Lina::Editor
 			if (!CheckIfContainsEngineResource(selection))
 				RequestDuplicate(selection);
 		};
-	}
+
+		m_linaAssets = {
+			.name	  = Locale::GetStr(LocaleStr::LinaAssets),
+			.isFolder = true,
+			.userData = static_cast<uint32>(ResourceDirectoryType::LinaAssetsFolder),
+		};
+
+		m_favourites = {
+			.name	  = Locale::GetStr(LocaleStr::Favourites),
+			.isFolder = true,
+			.userData = static_cast<uint32>(ResourceDirectoryType::LinaAssetsFolder),
+		};
+
+	} // namespace Lina::Editor
 
 	void ResourceDirectoryBrowser::Initialize()
 	{
@@ -201,6 +212,15 @@ namespace Lina::Editor
 			return;
 		ResourceDirectory& root = currentProject->GetResourceRoot();
 
+		Widget* linaAssetsFold = CommonWidgets::BuildDefaultFoldItem(this, &m_linaAssets, Theme::GetDef().baseIndent, ICON_LINA_LOGO, Theme::GetDef().accentPrimary0, m_linaAssets.name, !m_linaAssets.children.empty(), &m_linaAssets.unfolded);
+		Widget* favsFold	   = CommonWidgets::BuildDefaultFoldItem(this, &m_favourites, Theme::GetDef().baseIndent, ICON_STAR, Theme::GetDef().accentSecondary, m_favourites.name, !m_favourites.children.empty(), &m_favourites.unfolded);
+		m_layout->AddChild(linaAssetsFold);
+		m_controller->AddChild(linaAssetsFold->GetChildren().front());
+		m_layout->AddChild(favsFold);
+		m_controller->AddChild(favsFold->GetChildren().front());
+
+		// AddItemForDirectory(linaAssets, Theme::GetDef().baseIndent * 2);
+
 		Widget* rootFold = CommonWidgets::BuildDefaultFoldItem(this, &root, Theme::GetDef().baseIndent, ICON_FOLDER, Theme::GetDef().foreground0, root.name, !root.children.empty(), &root.unfolded, true);
 		m_layout->AddChild(rootFold);
 		m_controller->AddItem(rootFold->GetChildren().front());
@@ -213,6 +233,10 @@ namespace Lina::Editor
 		for (ResourceDirectory* child : dir->children)
 		{
 			if (m_props.itemTypeIDFilter != 0 && !child->isFolder && m_props.itemTypeIDFilter != child->resourceTID)
+				continue;
+
+			// Handled specially
+			if (child->userData != 0)
 				continue;
 
 			if (child->isFolder)
@@ -238,7 +262,6 @@ namespace Lina::Editor
 		if (currentProject == nullptr)
 			return;
 		ResourceDirectory& root = currentProject->GetResourceRoot();
-		ResourceDirectory* lina = root.GetChildByName(EDITOR_DEF_RESOURCES_FOLDER);
 
 		bool renameDisabled		 = false;
 		bool createDisabled		 = false;
@@ -262,6 +285,7 @@ namespace Lina::Editor
 			duplicateDisabled = true;
 			favDisabled		  = true;
 			changeSrcDisabled = true;
+			importDisabled	  = true;
 		}
 
 		if (m_controller->GetSelectedItems().empty())
@@ -272,8 +296,6 @@ namespace Lina::Editor
 			favDisabled		  = true;
 			importDisabled	  = true;
 		}
-		else if (m_controller->GetSelectedItems().front()->GetUserData() == lina)
-			importDisabled = true;
 
 		if (m_controller->GetSelectedItems().size() > 1)
 		{
@@ -686,17 +708,10 @@ namespace Lina::Editor
 	bool ResourceDirectoryBrowser::CheckIfContainsEngineResource(const Vector<ResourceDirectory*>& dirs)
 	{
 		ResourceDirectory* root = &m_editor->GetProjectManager().GetProjectData()->GetResourceRoot();
-		ResourceDirectory* lina = root->GetChildByName(EDITOR_DEF_RESOURCES_FOLDER);
 
-		for (ResourceDirectory* d : dirs)
+		for (ResourceDirectory* dir : dirs)
 		{
-			if (d == root)
-				return true;
-
-			if (d == lina)
-				return true;
-
-			if (d->parent == lina)
+			if (dir == root || dir == &m_linaAssets || dir == &m_favourites || dir->parent == &m_linaAssets || dir->parent == &m_favourites)
 				return true;
 		}
 

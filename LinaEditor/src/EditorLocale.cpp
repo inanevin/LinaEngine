@@ -168,6 +168,7 @@ namespace Lina::Editor
 		{LocaleStr::Trace, "Trace"},
 		{LocaleStr::ChangeSourceAsset, "Change Source Asset"},
 		{LocaleStr::MultipleItems, "Multiple Items"},
+		{LocaleStr::LinaAssets, "LinaAssets"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

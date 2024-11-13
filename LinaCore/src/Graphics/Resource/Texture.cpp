@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/ResourceUploadQueue.hpp"
 #include "Core/Application.hpp"
+#include <LinaGX/Utility/ImageUtility.hpp>
 
 namespace Lina
 {

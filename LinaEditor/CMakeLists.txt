@@ -23,6 +23,7 @@ set(HEADERS
 
 # Core
 include/Editor/CommonEditor.hpp
+include/Editor/PayloadListener.hpp
 include/Editor/EditorLocale.hpp
 include/Editor/Editor.hpp
 include/Editor/EditorTaskManager.hpp
@@ -62,7 +63,6 @@ include/Editor/Widgets/Docking/DockArea.hpp
 include/Editor/Widgets/Docking/DockBorder.hpp
 include/Editor/Widgets/Docking/DockWidget.hpp
 include/Editor/Widgets/Docking/DockPreview.hpp
-include/Editor/Widgets/Screens/SplashScreen.hpp
 include/Editor/Widgets/Popups/NotificationDisplayer.hpp
 include/Editor/Widgets/Popups/InfoTooltip.hpp
 include/Editor/Widgets/Panel/Panel.hpp
@@ -145,7 +145,6 @@ src/Widgets/Docking/DockWidget.cpp
 src/Widgets/Docking/DockBorder.cpp
 src/Widgets/Docking/DockArea.cpp
 src/Widgets/Docking/DockPreview.cpp
-src/Widgets/Screens/SplashScreen.cpp
 src/Widgets/Popups/NotificationDisplayer.cpp
 src/Widgets/Popups/InfoTooltip.cpp
 src/Widgets/Panel/Panel.cpp

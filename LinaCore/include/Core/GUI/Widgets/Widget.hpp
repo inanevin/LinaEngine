@@ -36,6 +36,10 @@ SOFTWARE.
 #include "Common/Data/Bitmask.hpp"
 #include "Core/Reflection/WidgetReflection.hpp"
 
+// Common inputs.
+#include <LinaGX/Core/Window.hpp>
+#include <LinaGX/Core/Input.hpp>
+
 namespace LinaGX
 {
 	class Window;

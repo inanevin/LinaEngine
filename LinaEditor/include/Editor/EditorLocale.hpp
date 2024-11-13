@@ -171,6 +171,7 @@ namespace Lina::Editor
 		Trace,
 		ChangeSourceAsset,
 		MultipleItems,
+		LinaAssets,
 	};
 
 	class Locale

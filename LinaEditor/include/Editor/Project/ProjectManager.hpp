@@ -30,6 +30,11 @@ SOFTWARE.
 
 #include "Core/Resources/CommonResources.hpp"
 
+namespace LinaGX
+{
+	class Window;
+}
+
 namespace Lina
 {
 	class ProjectData;
@@ -38,6 +43,7 @@ namespace Lina
 	struct TextureAtlasImage;
 	class Widget;
 } // namespace Lina
+
 namespace Lina::Editor
 {
 	class Editor;
@@ -118,5 +124,6 @@ namespace Lina::Editor
 		Vector<ReimportResult>					m_reimportResults;
 		Vector<ResourceDirectory*>				m_resourcesToReimport;
 		uint64									m_lastReimportCheckTicks = 0;
+		bool									m_checkReimport			 = false;
 	};
 } // namespace Lina::Editor

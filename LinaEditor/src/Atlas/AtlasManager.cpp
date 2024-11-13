@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Core/Application.hpp"
+#include <LinaGX/Utility/ImageUtility.hpp>
 
 namespace Lina::Editor
 {

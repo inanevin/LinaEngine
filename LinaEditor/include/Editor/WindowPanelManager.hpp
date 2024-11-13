@@ -32,11 +32,7 @@ SOFTWARE.
 #include "Common/StringID.hpp"
 #include "Editor/CommonEditor.hpp"
 #include "Editor/Widgets/Panel/Panel.hpp"
-
-namespace LinaGX
-{
-	class Window;
-}
+#include "Editor/PayloadListener.hpp"
 
 namespace Lina
 {
@@ -52,35 +48,6 @@ namespace Lina::Editor
 	class SurfaceRenderer;
 	class PanelColorWheel;
 	class PanelResourceViewer;
-
-	class EditorPayloadListener
-	{
-	public:
-		virtual void OnPayloadStarted(PayloadType type, Widget* payload)
-		{
-		}
-		virtual void OnPayloadEnded(PayloadType type, Widget* payload)
-		{
-		}
-		virtual bool OnPayloadDropped(PayloadType type, Widget* payload)
-		{
-			return false;
-		}
-
-		virtual LinaGX::Window* OnPayloadGetWindow()
-		{
-			return nullptr;
-		}
-	};
-
-	struct PayloadRequest
-	{
-		Widget*			payload		 = nullptr;
-		LinaGX::Window* sourceWindow = nullptr;
-		PayloadType		type		 = PayloadType::DockedPanel;
-		bool			active		 = false;
-		Vector2ui		size		 = Vector2ui::Zero;
-	};
 
 	struct WindowPanelInfo
 	{

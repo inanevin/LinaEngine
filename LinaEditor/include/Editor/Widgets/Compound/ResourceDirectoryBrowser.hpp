@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Core/GUI/Widgets/Compound/FileMenu.hpp"
 #include "Common/Data/Vector.hpp"
+#include "Core/Resources/ResourceDirectory.hpp"
 #include "Editor/Project/ProjectManager.hpp"
 
 namespace Lina
@@ -125,6 +126,8 @@ namespace Lina::Editor
 		Editor*												 m_editor			  = nullptr;
 		Vector<ResourceDirectory*>							 m_payloadItems		  = {};
 		Vector<Pair<ResourceDirectory*, TextureAtlasImage*>> m_importingResources = {};
+		ResourceDirectory									 m_linaAssets;
+		ResourceDirectory									 m_favourites;
 	};
 
 	LINA_WIDGET_BEGIN(ResourceDirectoryBrowser, Editor)

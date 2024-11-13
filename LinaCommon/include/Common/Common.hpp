@@ -30,20 +30,28 @@ SOFTWARE.
 
 #include "Common/SizeDefinitions.hpp"
 #include "Common/Data/Bitmask.hpp"
-#include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Math/Color.hpp"
 
 namespace Lina
 {
 	class ApplicationDelegate;
 
+	enum class WindowStyle
+	{
+		WindowedApplication,   // Most OS-default application, windowed with title bar and system buttons
+		BorderlessApplication, // Borderless-application, which still supports for example OS animations, taskbar interaction etc.
+		Borderless,			   // True borderless, a lifeless and soulless application window only displaying what you draw.
+		BorderlessAlpha,	   // Borderless but supports alpha blending,
+		BorderlessFullscreen,  // Borderless full-screen by default, you can change the size later on
+		Fullscreen,			   // Full-screen exclusive by default, you can change the size later on.
+	};
+
 	struct SystemInitializationInfo
 	{
 		const char*			 appName	  = "";
 		uint32				 windowWidth  = 0;
 		uint32				 windowHeight = 0;
-		LinaGX::WindowStyle	 windowStyle  = LinaGX::WindowStyle::WindowedApplication;
-		LinaGX::VSyncStyle	 vsyncStyle	  = {};
+		WindowStyle			 windowStyle  = WindowStyle::WindowedApplication;
 		ApplicationDelegate* appDelegate  = nullptr;
 		Color				 clearColor	  = Color::Black;
 	};

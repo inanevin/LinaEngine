@@ -28,10 +28,8 @@ SOFTWARE.
 
 #pragma once
 
+/*
 #include "System/IPlugin.hpp"
-
-#ifndef GamePlugin_HPP
-#define GamePlugin_HPP
 
 class GamePlugin : public Lina::IPlugin
 {
@@ -43,4 +41,5 @@ public:
 	virtual void OnAttached() override;
 	virtual void OnDetached() override;
 };
-#endif
+
+*/

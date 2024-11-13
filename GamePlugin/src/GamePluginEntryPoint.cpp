@@ -26,55 +26,54 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Profiling/Profiler.hpp"
-#include "Profiling/MemoryTracer.hpp"
 #include "GamePlugin.hpp"
 #include "GamePluginExports.hpp"
-#include "Platform/PlatformInclude.hpp"
 
 #ifdef LINA_PLATFORM_WINDOWS
 
-GamePlugin* g_plugin = nullptr;
+// GamePlugin* g_plugin = nullptr;
 
+/*
 extern "C" GAMEPLUGIN_API Lina::IPlugin* CreatePlugin(Lina::IEngineInterface* engineInterface, const Lina::String& name)
 {
-    return new GamePlugin(engineInterface, name);
+	return new GamePlugin(engineInterface, name);
 }
 
 extern "C" GAMEPLUGIN_API void DestroyPlugin(Lina::IPlugin* plugin)
 {
-    delete plugin;
+	delete plugin;
 }
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL,  // handle to DLL module
-                    DWORD     fdwReason, // reason for calling function
-                    LPVOID    lpReserved)   // reserved
+					DWORD     fdwReason, // reason for calling function
+					LPVOID    lpReserved)   // reserved
 {
-    // Perform actions based on the reason for calling.
-    switch (fdwReason)
-    {
-    case DLL_PROCESS_ATTACH: {
-    
-        MEMORY_TRACER_SET_LEAK_FILE("gamecode_memory_leaks.txt");
-        PROFILER_SET_FRAMEANALYSIS_FILE("gamecode_frame_analysis.txt");
+	// Perform actions based on the reason for calling.
+	switch (fdwReason)
+	{
+	case DLL_PROCESS_ATTACH: {
 
-        break;
-    }
-    case DLL_THREAD_ATTACH:
-        // Do thread-specific initialization.
-        break;
+		MEMORY_TRACER_SET_LEAK_FILE("gamecode_memory_leaks.txt");
+		PROFILER_SET_FRAMEANALYSIS_FILE("gamecode_frame_analysis.txt");
 
-    case DLL_THREAD_DETACH:
-        // Do thread-specific cleanup.
-        break;
+		break;
+	}
+	case DLL_THREAD_ATTACH:
+		// Do thread-specific initialization.
+		break;
 
-    case DLL_PROCESS_DETACH:
-        // Perform any necessary cleanup.
-        break;
-    }
+	case DLL_THREAD_DETACH:
+		// Do thread-specific cleanup.
+		break;
 
-    // Successful. If this is FALSE, the process will be terminated eventually
-    // https://docs.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-entry-point-function#entry-point-function-return-value
-    return TRUE;
+	case DLL_PROCESS_DETACH:
+		// Perform any necessary cleanup.
+		break;
+	}
+
+	// Successful. If this is FALSE, the process will be terminated eventually
+	// https://docs.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-entry-point-function#entry-point-function-return-value
+	return TRUE;
 }
+*/
 #endif

@@ -28,50 +28,56 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/GUI/Widgets/Widget.hpp"
-#include "Core/Resources/ResourceManagerListener.hpp"
-#include "Common/Data/Mutex.hpp"
+#include "Common/Data/Vector.hpp"
+
+namespace LinaGX
+{
+	class Window;
+}
 
 namespace Lina
 {
-	class Icon;
-	class Texture;
-	class Text;
-	class DirectionalLayout;
-}; // namespace Lina
+	class Widget;
+}
 
 namespace Lina::Editor
 {
-	class SplashScreen : public Widget, public ResourceManagerListener
+	enum class PayloadType
 	{
-	public:
-		SplashScreen()			= default;
-		virtual ~SplashScreen() = default;
-
-		static constexpr float BAR_INTERP_SPEED = 12.0f;
-
-		virtual void Construct() override;
-		virtual void Destruct() override;
-		virtual void Tick(float delta) override;
-		virtual void Draw() override;
-
-	private:
-		Mutex	 m_loadMtx;
-		Texture* m_splashImage		   = nullptr;
-		Text*	 m_versionText		   = nullptr;
-		Text*	 m_infoText1		   = nullptr;
-		Text*	 m_infoText2		   = nullptr;
-		Text*	 m_loadingInfo		   = nullptr;
-		Vector2	 m_logoTextureSize	   = Vector2::Zero;
-		Vector2	 m_logoCenter		   = Vector2::Zero;
-		Vector2	 m_logoDrawSize		   = Vector2::Zero;
-		uint32	 m_totalResourceSize   = 0;
-		uint32	 m_loadedResourceCount = 0;
-		float	 m_progress			   = 0.0f;
-		float	 m_loadingBarHeight	   = 0.0f;
+		None,
+		DockedPanel,
+		EntitySelectable,
+		Resource,
+		WidgetEditorWidget,
 	};
 
-	LINA_WIDGET_BEGIN(SplashScreen, Hidden)
-	LINA_CLASS_END(SplashScreen)
+	class EditorPayloadListener
+	{
+	public:
+		virtual void OnPayloadStarted(PayloadType type, Widget* payload)
+		{
+		}
+		virtual void OnPayloadEnded(PayloadType type, Widget* payload)
+		{
+		}
+		virtual bool OnPayloadDropped(PayloadType type, Widget* payload)
+		{
+			return false;
+		}
+
+		virtual LinaGX::Window* OnPayloadGetWindow()
+		{
+			return nullptr;
+		}
+	};
+
+	struct PayloadRequest
+	{
+		Widget*			payload		 = nullptr;
+		LinaGX::Window* sourceWindow = nullptr;
+		PayloadType		type		 = PayloadType::DockedPanel;
+		bool			active		 = false;
+		Vector2ui		size		 = Vector2ui::Zero;
+	};
 
 } // namespace Lina::Editor

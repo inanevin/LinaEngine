@@ -33,7 +33,7 @@ SOFTWARE.
 #include "Core/GUI/CommonGUI.hpp"
 #include "Core/GUI/Theme.hpp"
 #include "WidgetCache.hpp"
-#include "Core/GUI/Widgets/Widget.hpp"
+#include <LinaGX/Core/WindowListener.hpp>
 
 namespace LinaGX
 {
@@ -117,30 +117,7 @@ namespace Lina
 			return m_lastControlsManager;
 		}
 
-		Widget* Allocate(TypeID tid, const String& debugName = "Widget")
-		{
-			WidgetCacheBase* cacheBase = m_widgetCaches[tid];
-
-			if (cacheBase == nullptr)
-			{
-				MetaType& type		= ReflectionSystem::Get().Resolve(tid);
-				cacheBase			= static_cast<WidgetCacheBase*>(type.GetFunction<void*()>("CreateWidgetCache"_hs)());
-				m_widgetCaches[tid] = cacheBase;
-			}
-
-			uint32	cacheIndex = 0;
-			Widget* t		   = static_cast<Widget*>(cacheBase->Create(cacheIndex));
-			t->m_cacheIndex	   = cacheIndex;
-			LINA_ASSERT(t != nullptr, "");
-			t->GetWidgetProps().debugName = debugName;
-			t->m_lgxWindow				  = m_window;
-			t->m_manager				  = this;
-			t->m_resourceManager		  = m_resourceManagerV2;
-			t->m_tid					  = tid;
-			t->m_lvg					  = m_lvg;
-			t->Construct();
-			return t;
-		}
+		Widget* Allocate(TypeID tid, const String& debugName = "Widget");
 
 		template <typename T> T* Allocate(const String& debugName = "Widget")
 		{

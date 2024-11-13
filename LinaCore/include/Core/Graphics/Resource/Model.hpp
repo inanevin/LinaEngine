@@ -31,9 +31,9 @@ SOFTWARE.
 #include "Core/Resources/Resource.hpp"
 #include "Common/Data/Vector.hpp"
 #include "Common/Math/AABB.hpp"
-#include "Common/Platform/LinaGXIncl.hpp"
 #include "Core/Graphics/Data/ModelMaterial.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
+#include <LinaGX/Common/Defines/DataBuffers.hpp>
 
 namespace LinaGX
 {

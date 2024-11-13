@@ -94,7 +94,9 @@ namespace Lina::Editor
 		if (m_currentProject == nullptr)
 			return;
 
-		m_lastReimportCheckTicks++;
+		if (m_checkReimport)
+
+			m_lastReimportCheckTicks++;
 		if (m_lastReimportCheckTicks > REIMPORT_CHECK_TICKS)
 			ReimportChangedSources(&m_currentProject->GetResourceRoot(), m_editor->GetWindowPanelManager().GetMainWindow());
 	}
@@ -181,6 +183,7 @@ namespace Lina::Editor
 
 	void ProjectManager::OpenProject(const String& projectFile)
 	{
+		m_checkReimport = false;
 		RemoveCurrentProject();
 		m_currentProject = new ProjectData();
 		m_currentProject->SetPath(projectFile);
@@ -274,57 +277,76 @@ namespace Lina::Editor
 				},
 			};
 
-			ResourceDirectory* linaAssets = m_currentProject->GetResourceRoot().GetChildByName(EDITOR_DEF_RESOURCES_FOLDER);
-			if (linaAssets == nullptr)
+			ResourceDirectory* root = &m_currentProject->GetResourceRoot();
+
+			// Recreate resources everytime.
+			Vector<ResourceDirectory*> engineResources;
+			for (ResourceDirectory* c : root->children)
 			{
-				linaAssets = m_currentProject->CreateResourceDirectory(&m_currentProject->GetResourceRoot(),
-																	   {
-																		   .name	 = EDITOR_DEF_RESOURCES_FOLDER,
-																		   .isFolder = true,
-																	   });
+				if (c->userData != static_cast<uint32>(ResourceDirectoryType::EngineResource))
+					continue;
+
+				engineResources.push_back(c);
+				FileSystem::DeleteFileInPath(m_currentProject->GetResourcePath(c->resourceID));
 			}
 
-			// Recreate must resources everytime.
-			for (ResourceDirectory* c : linaAssets->children)
-				FileSystem::DeleteFileInPath(m_currentProject->GetResourcePath(c->resourceID));
+			for (ResourceDirectory* engineRes : engineResources)
+				m_currentProject->DestroyResourceDirectory(engineRes);
 
-			m_currentProject->DestroyChildDirectories(linaAssets);
-
-			ResourcePipeline::ImportResources(m_currentProject, linaAssets, desiredAssets, [task](uint32 count, const ResourcePipeline::ResourceImportDef& currentDef, bool isComplete) {
+			Vector<ResourceDirectory*> importedEngineResources = ResourcePipeline::ImportResources(m_currentProject, root, desiredAssets, [task](uint32 count, const ResourcePipeline::ResourceImportDef& currentDef, bool isComplete) {
 				if (!currentDef.path.empty())
 					task->progressText = currentDef.path;
 			});
 
+			for (ResourceDirectory* importedEngineResource : importedEngineResources)
+				importedEngineResource->userData = static_cast<uint32>(ResourceDirectoryType::EngineResource);
+
 			// Custom sampler.
-			if (linaAssets->FindResourceDirectory(EDITOR_SAMPLER_DEFAULT_ID) == nullptr)
+			if (root->FindResourceDirectory(EDITOR_SAMPLER_DEFAULT_ID) == nullptr)
 			{
-				task->progressText = EDITOR_SAMPLER_DEFAULT_PATH;
-				ResourcePipeline::SaveNewResource(m_currentProject, linaAssets, EDITOR_SAMPLER_DEFAULT_PATH, GetTypeID<TextureSampler>(), EDITOR_SAMPLER_DEFAULT_ID);
+				task->progressText	   = EDITOR_SAMPLER_DEFAULT_PATH;
+				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, EDITOR_SAMPLER_DEFAULT_PATH, GetTypeID<TextureSampler>(), EDITOR_SAMPLER_DEFAULT_ID);
+
+				if (dir)
+					dir->userData = static_cast<uint32>(ResourceDirectoryType::EngineResource);
 			}
 
-			if (linaAssets->FindResourceDirectory(EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID) == nullptr)
+			if (root->FindResourceDirectory(EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID) == nullptr)
 			{
-				task->progressText = EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_PATH;
-				ResourcePipeline::SaveNewResource(m_currentProject, linaAssets, EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID, EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_ID);
+				task->progressText	   = EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_PATH;
+				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID, EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_ID);
+
+				if (dir)
+					dir->userData = static_cast<uint32>(ResourceDirectoryType::EngineResource);
 			}
 
 			// Custom material
-			if (linaAssets->FindResourceDirectory(EDITOR_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_ID) == nullptr)
+			if (root->FindResourceDirectory(EDITOR_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_ID) == nullptr)
 			{
 				task->progressText = EDITOR_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_PATH;
-				ResourcePipeline::SaveNewResource(m_currentProject, linaAssets, EDITOR_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_ID, EDITOR_SHADER_DEFAULT_TRANSPARENT_SURFACE_ID);
+				ResourceDirectory* dir =
+					ResourcePipeline::SaveNewResource(m_currentProject, root, EDITOR_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_ID, EDITOR_SHADER_DEFAULT_TRANSPARENT_SURFACE_ID);
+
+				if (dir)
+					dir->userData = static_cast<uint32>(ResourceDirectoryType::EngineResource);
 			}
 
-			if (linaAssets->FindResourceDirectory(EDITOR_MATERIAL_DEFAULT_SKY_ID) == nullptr)
+			if (root->FindResourceDirectory(EDITOR_MATERIAL_DEFAULT_SKY_ID) == nullptr)
 			{
-				task->progressText = EDITOR_MATERIAL_DEFAULT_SKY_PATH;
-				ResourcePipeline::SaveNewResource(m_currentProject, linaAssets, EDITOR_MATERIAL_DEFAULT_SKY_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_SKY_ID, EDITOR_SHADER_DEFAULT_SKY_ID);
+				task->progressText	   = EDITOR_MATERIAL_DEFAULT_SKY_PATH;
+				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, EDITOR_MATERIAL_DEFAULT_SKY_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_SKY_ID, EDITOR_SHADER_DEFAULT_SKY_ID);
+
+				if (dir)
+					dir->userData = static_cast<uint32>(ResourceDirectoryType::EngineResource);
 			}
 
-			if (linaAssets->FindResourceDirectory(EDITOR_MATERIAL_DEFAULT_LIGHTING_ID) == nullptr)
+			if (root->FindResourceDirectory(EDITOR_MATERIAL_DEFAULT_LIGHTING_ID) == nullptr)
 			{
-				task->progressText = EDITOR_MATERIAL_DEFAULT_LIGHTING_PATH;
-				ResourcePipeline::SaveNewResource(m_currentProject, linaAssets, EDITOR_MATERIAL_DEFAULT_LIGHTING_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_LIGHTING_ID, EDITOR_SHADER_DEFAULT_LIGHTING_ID);
+				task->progressText	   = EDITOR_MATERIAL_DEFAULT_LIGHTING_PATH;
+				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, EDITOR_MATERIAL_DEFAULT_LIGHTING_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_LIGHTING_ID, EDITOR_SHADER_DEFAULT_LIGHTING_ID);
+
+				if (dir)
+					dir->userData = static_cast<uint32>(ResourceDirectoryType::EngineResource);
 			}
 
 			task->progressText = Locale::GetStr(LocaleStr::GeneratingThumbnails);
@@ -347,6 +369,7 @@ namespace Lina::Editor
 			m_editor->GetSettings().GetLayout().ApplyStoredLayout();
 
 			ReimportChangedSources(&m_currentProject->GetResourceRoot(), m_editor->GetWindowPanelManager().GetMainWindow());
+			m_checkReimport = true;
 		};
 		m_editor->GetTaskManager().AddTask(task);
 	}

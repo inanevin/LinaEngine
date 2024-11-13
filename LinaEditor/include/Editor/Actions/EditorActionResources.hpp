@@ -31,9 +31,9 @@ SOFTWARE.
 #include "EditorAction.hpp"
 #include "Core/Resources/CommonResources.hpp"
 #include "Common/Data/String.hpp"
-#include "Common/Platform/LinaGXIncl.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
+#include <LinaGX/Common/Defines/SamplerDesc.hpp>
 
 namespace Lina
 {

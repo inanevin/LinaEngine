@@ -28,9 +28,6 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Transformation_HPP
-#define Transformation_HPP
-
 #include "Matrix.hpp"
 #include "Quaternion.hpp"
 #include "Vector.hpp"
@@ -190,5 +187,3 @@ namespace Lina
 	};
 
 } // namespace Lina
-
-#endif

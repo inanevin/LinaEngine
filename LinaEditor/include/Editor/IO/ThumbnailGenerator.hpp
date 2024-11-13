@@ -28,18 +28,24 @@ SOFTWARE.
 
 #pragma once
 
-#include "Common/Data/String.hpp"
-#include "Common/Data/Mutex.hpp"
-#include "Common/Platform/LinaGXIncl.hpp"
-#include "Common/Data/Map.hpp"
+#include "Common/Data/Streams.hpp"
+#include "Core/Resources/CommonResources.hpp"
 
 namespace Lina
 {
 	class Font;
 	class Model;
 	class Audio;
+	class Material;
+	class Texture;
+	class ProjectData;
 	struct TextureAtlasImage;
 } // namespace Lina
+
+namespace LinaGX
+{
+	struct TextureBuffer;
+}
 
 namespace Lina::Editor
 {

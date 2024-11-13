@@ -37,7 +37,8 @@ SOFTWARE.
 namespace LinaGX
 {
 	class Instance;
-};
+	class CommandStream;
+}; // namespace LinaGX
 
 namespace Lina
 {

@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Editor/Graphics/SurfaceRenderer.hpp"
 #include "Editor/Graphics/EditorGfxHelpers.hpp"
 #include "Common/Data/CommonData.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
 
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"

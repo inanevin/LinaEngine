@@ -47,6 +47,7 @@ namespace Lina
 		stream << resourceType;
 		stream << lastModifiedSID;
 		stream << guid;
+		stream << userData;
 
 		const uint32 sz = static_cast<uint32>(children.size());
 		stream << sz;
@@ -67,6 +68,7 @@ namespace Lina
 		stream >> resourceType;
 		stream >> lastModifiedSID;
 		stream >> guid;
+		stream >> userData;
 
 		uint32 childSz = 0;
 		stream >> childSz;

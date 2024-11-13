@@ -29,8 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "DockWidget.hpp"
-#include "Editor/CommonEditor.hpp"
-#include "Editor/Editor.hpp"
+#include "Editor/PayloadListener.hpp"
 
 namespace Lina
 {

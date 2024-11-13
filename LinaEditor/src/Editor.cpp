@@ -29,7 +29,6 @@ SOFTWARE.
 #include "Editor/Editor.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Resources/EditorResources.hpp"
-#include "Editor/Widgets/Screens/SplashScreen.hpp"
 #include "Editor/Widgets/EditorRoot.hpp"
 #include "Editor/Graphics/WorldRendererExtEditor.hpp"
 #include "Editor/Graphics/SurfaceRenderer.hpp"
@@ -65,8 +64,7 @@ namespace Lina
 			.appName	  = "Lina Editor",
 			.windowWidth  = w,
 			.windowHeight = h,
-			.windowStyle  = LinaGX::WindowStyle::BorderlessApplication,
-			.vsyncStyle	  = vsync,
+			.windowStyle  = WindowStyle::BorderlessApplication,
 			.appDelegate  = new Lina::Editor::Editor(),
 			.clearColor	  = Theme::GetDef().background0,
 		};

@@ -305,6 +305,11 @@ namespace Lina::Editor
 		displayDropdown->SetAlignedSizeY(1.0f);
 		displayDropdown->SetAlignedPosY(0.0f);
 
+		static HashMap<ColorDisplay, String> COLOR_DISPLAY_VALUES = {
+			{ColorDisplay::RGB, "RGB (0-1)"},
+			{ColorDisplay::RGB255, "RGB (0-255)"},
+		};
+
 		displayDropdown->GetProps().onSelected = [this](int32 item, String& outNewTitle) -> bool {
 			SwitchColorDisplay(static_cast<ColorDisplay>(item));
 			outNewTitle = COLOR_DISPLAY_VALUES[static_cast<ColorDisplay>(item)];

@@ -56,6 +56,7 @@ namespace Lina
 		ResourceType			   resourceType	   = ResourceType::ExternalSource;
 		StringID				   lastModifiedSID = 0;
 		ResourceGUID			   guid			   = 0;
+		uint32					   userData		   = 0;
 
 		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream, ProjectData* projectData);

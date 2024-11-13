@@ -28,9 +28,6 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Lina_HPP
-#define Lina_HPP
-
 #include "Common/Common.hpp"
 #include "Core/Application.hpp"
 #include "Core/ApplicationDelegate.hpp"
@@ -39,5 +36,3 @@ namespace Lina
 {
 	extern SystemInitializationInfo Lina_GetInitInfo();
 }
-
-#endif
