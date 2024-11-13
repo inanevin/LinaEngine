@@ -41,7 +41,7 @@ namespace Lina::Editor
 {
 	void ItemController::Construct()
 	{
-		// GetFlags().Set(WF_MOUSE_PASSTHRU);
+		GetFlags().Set(WF_MOUSE_PASSTHRU);
 		FileMenu* fm = m_manager->Allocate<FileMenu>("FileMenu");
 		AddChild(fm);
 		m_contextMenu = fm;
@@ -62,27 +62,40 @@ namespace Lina::Editor
 	{
 		if (m_isPressed && !m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_0))
 		{
-			m_isPressed = false;
+			m_isPressed		 = false;
+			m_createdPayload = false;
 		}
 
-		if (!m_isPressed)
-			m_payloadAllowed = true;
-
-		if (m_isPressed && m_selectedItems.size() == 1 && m_payloadAllowed && m_props.onCreatePayload)
+		if (m_props.onCreatePayload && !m_createdPayload && m_isPressed && !m_selectedItems.empty())
 		{
-			Widget* item = m_selectedItems.front();
-			if (!item->GetIsHovered() && (!m_props.hoverAcceptItemParents || (m_props.hoverAcceptItemParents && !item->GetParent()->GetIsHovered())))
+			bool anyHovered = false;
+			for (Widget* w : m_selectedItems)
+			{
+				if (w->GetIsHovered())
+				{
+					anyHovered = true;
+					break;
+				}
+			}
+
+			// We moved out.
+			if (!anyHovered)
 			{
 				bool canCreate = true;
-				if (m_props.onCheckCanCreatePayload)
-					canCreate = m_props.onCheckCanCreatePayload(item->GetUserData());
+				for (Widget* it : m_selectedItems)
+				{
+					if (!m_props.onCheckCanCreatePayload(it->GetUserData()))
+					{
+						canCreate = false;
+						break;
+					}
+				}
 
 				if (canCreate)
 				{
-					m_props.onCreatePayload(item->GetUserData());
+					m_props.onCreatePayload();
+					m_createdPayload = true;
 				}
-
-				m_payloadAllowed = false;
 			}
 		}
 
@@ -104,8 +117,7 @@ namespace Lina::Editor
 			}
 
 			// Maybe create a dedicated payload preview rendering logic instead of modifying widget properties.
-			const bool hoverOK = item->GetIsHovered() || (m_props.hoverAcceptItemParents && item->GetParent()->GetIsHovered());
-			if (m_payloadActive && hoverOK)
+			if (m_payloadActive && item->GetIsHovered())
 			{
 				item->GetWidgetProps().outlineThickness = Theme::GetDef().baseOutlineThickness;
 				item->GetWidgetProps().outlineIsInner	= true;
@@ -320,69 +332,74 @@ namespace Lina::Editor
 		if (act == LinaGX::InputAction::Released)
 			return false;
 
-		if (m_isHovered && button == LINAGX_MOUSE_0 && (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated))
-		{
-			SetFocus(true);
+		if (!m_isHovered)
+			return false;
 
+		SetFocus(true);
+
+		if (button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Pressed)
+		{
+			m_isPressed = true;
+		}
+
+		// To allow payload drag and drop on multiple items.
+		if (button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Released && m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LCTRL))
+		{
+			for (Widget* item : m_allItems)
+			{
+				if (!item->GetIsHovered() && IsItemSelected(item))
+				{
+					UnselectItem(item);
+				}
+			}
+		}
+
+		if (button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Pressed)
+		{
 			int32 idx = 0;
 
 			for (Widget* item : m_allItems)
 			{
-				if (item->GetIsHovered() || (m_props.hoverAcceptItemParents && item->GetParent()->GetIsHovered()))
+				if (!item->GetIsHovered())
 				{
-					FoldLayout* fold = nullptr;
+					idx++;
+					continue;
+				}
 
-					if (item->GetParent()->GetTID() == GetTypeID<FoldLayout>() && item->GetParent()->GetChildren().front() == item)
-						fold = static_cast<FoldLayout*>(item->GetParent());
+				if (m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LSHIFT))
+				{
+					Widget*		lastSelection = m_selectedItems.empty() ? m_allItems.front() : m_selectedItems.back();
+					const int32 start		  = UtilVector::IndexOf(m_allItems, lastSelection);
+					const int32 end			  = idx;
+					const int32 iStart		  = Math::Min(start, end);
+					const int32 iEnd		  = Math::Max(start, end);
 
-					if (fold != nullptr)
+					for (int32 i = iStart; i <= iEnd; i++)
 					{
-						Widget* front	= fold->GetChildren().front();
-						Icon*	chevron = front->GetWidgetOfType<Icon>(front);
-
-						if (chevron && chevron->GetIsHovered())
-							fold->SetIsUnfolded(!fold->GetIsUnfolded());
-						else if (act == LinaGX::InputAction::Repeated && fold->GetIsHovered())
-							fold->SetIsUnfolded(!fold->GetIsUnfolded());
+						SelectItem(m_allItems[i], false, false);
 					}
 
-					if (m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LSHIFT))
-					{
-						Widget*		lastSelection = m_selectedItems.empty() ? m_allItems.front() : m_selectedItems.back();
-						const int32 start		  = UtilVector::IndexOf(m_allItems, lastSelection);
-						const int32 end			  = idx;
-						const int32 iStart		  = Math::Min(start, end);
-						const int32 iEnd		  = Math::Max(start, end);
-
-						for (int32 i = iStart; i <= iEnd; i++)
-						{
-							SelectItem(m_allItems[i], false, false);
-						}
-
-						return true;
-					}
-
-					if (m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LCTRL))
-					{
-						if (IsItemSelected(item))
-							UnselectItem(item);
-						else
-							SelectItem(item, false, true);
-					}
-					else
-					{
-						const bool wasSelected = IsItemSelected(item);
-						SelectItem(item, true, true);
-
-						m_isPressed = true;
-
-						// interact
-						if (act == LinaGX::InputAction::Repeated && m_props.onInteract)
-							m_props.onInteract();
-					}
 					return true;
 				}
-				idx++;
+
+				if (m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LCTRL))
+				{
+					if (!IsItemSelected(item))
+						SelectItem(item, false, true);
+				}
+				else
+				{
+					const bool wasSelected = IsItemSelected(item);
+					SelectItem(item, true, true);
+
+					m_isPressed = true;
+
+					// interact
+					if (act == LinaGX::InputAction::Repeated && m_props.onInteract)
+						m_props.onInteract();
+				}
+
+				return true;
 			}
 
 			UnselectAll();
@@ -399,7 +416,7 @@ namespace Lina::Editor
 
 			for (Widget* item : m_allItems)
 			{
-				if (item->GetIsHovered() || (m_props.hoverAcceptItemParents && item->GetParent()->GetIsHovered()))
+				if (item->GetIsHovered())
 				{
 					if (!IsItemSelected(item))
 						SelectItem(item, true, true);
@@ -446,8 +463,7 @@ namespace Lina::Editor
 
 		for (Widget* w : m_allItems)
 		{
-			const bool hoverOK = w->GetIsHovered() || (m_props.hoverAcceptItemParents && w->GetParent()->GetIsHovered());
-			if (hoverOK)
+			if (w->GetIsHovered())
 			{
 				if (m_props.onPayloadAccepted)
 					m_props.onPayloadAccepted(w->GetUserData());

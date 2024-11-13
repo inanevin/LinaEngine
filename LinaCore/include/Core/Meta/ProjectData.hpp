@@ -102,7 +102,7 @@ namespace Lina
 		Runtime									 m_runtime			   = {};
 		String									 m_projectName		   = "";
 		ResourceID								 m_resourceIDCounter   = 1;
-		uint64									 m_resourceGUIDCounter = 1;
+		ResourceGUID							 m_resourceGUIDCounter = 1;
 		ResourceDirectory						 m_rootDirectory	   = {
 										 .name	   = "Resources",
 										 .isFolder = true,

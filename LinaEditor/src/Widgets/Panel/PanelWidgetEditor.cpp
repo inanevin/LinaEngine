@@ -93,14 +93,14 @@ namespace Lina::Editor
 		itemControllerWidgets->GetWidgetProps().colorBackground		 = Theme::GetDef().background0;
 		itemControllerWidgets->GetWidgetProps().childMargins		 = {.top = Theme::GetDef().baseIndentInner, .bottom = Theme::GetDef().baseIndentInner};
 
-		itemControllerWidgets->GetProps().onCreatePayload = [this](void* userdata) {
-			Widget*		root   = m_editor->GetWindowPanelManager().GetPayloadRoot();
-			WidgetInfo* inf	   = static_cast<WidgetInfo*>(userdata);
-			Text*		t	   = root->GetWidgetManager()->Allocate<Text>();
-			t->GetProps().text = inf->title;
-			t->Initialize();
-			m_payloadCarryTID = inf->tid;
-			Editor::Get()->GetWindowPanelManager().CreatePayload(t, PayloadType::WidgetEditorWidget, t->GetSize());
+		itemControllerWidgets->GetProps().onCreatePayload = [this]() {
+			// Widget*		root   = m_editor->GetWindowPanelManager().GetPayloadRoot();
+			// WidgetInfo* inf	   = static_cast<WidgetInfo*>(userdata);
+			// Text*		t	   = root->GetWidgetManager()->Allocate<Text>();
+			// t->GetProps().text = inf->title;
+			// t->Initialize();
+			// m_payloadCarryTID = inf->tid;
+			// Editor::Get()->GetWindowPanelManager().CreatePayload(t, PayloadType::WidgetEditorWidget, t->GetSize());
 		};
 
 		itemControllerWidgets->GetProps().onCheckCanCreatePayload = [](void* userdata) -> bool { return userdata != nullptr; };
@@ -196,14 +196,14 @@ namespace Lina::Editor
 		itemControllerHierarchy->GetContextMenu()->SetListener(this);
 		itemControllerHierarchy->GetProps().payloadType = PayloadType::WidgetEditorWidget;
 
-		itemControllerHierarchy->GetProps().onCreatePayload = [this](void* userdata) {
-			Widget* root		 = m_editor->GetWindowPanelManager().GetPayloadRoot();
-			Widget* pickedWidget = static_cast<Widget*>(userdata);
-			Text*	t			 = root->GetWidgetManager()->Allocate<Text>();
-			t->GetProps().text	 = pickedWidget->GetWidgetProps().debugName;
-			t->Initialize();
-			m_payloadCarryWidget = pickedWidget;
-			Editor::Get()->GetWindowPanelManager().CreatePayload(t, PayloadType::WidgetEditorWidget, t->GetSize());
+		itemControllerHierarchy->GetProps().onCreatePayload = [this]() {
+			// Widget* root		 = m_editor->GetWindowPanelManager().GetPayloadRoot();
+			// Widget* pickedWidget = static_cast<Widget*>(userdata);
+			// Text*	t			 = root->GetWidgetManager()->Allocate<Text>();
+			// t->GetProps().text	 = pickedWidget->GetWidgetProps().debugName;
+			// t->Initialize();
+			// m_payloadCarryWidget = pickedWidget;
+			// Editor::Get()->GetWindowPanelManager().CreatePayload(t, PayloadType::WidgetEditorWidget, t->GetSize());
 		};
 
 		itemControllerHierarchy->GetProps().onCheckCanCreatePayload = [this](void* ud) -> bool {

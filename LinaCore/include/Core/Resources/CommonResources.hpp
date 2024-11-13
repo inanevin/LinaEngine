@@ -39,6 +39,8 @@ namespace Lina
 	class Resource;
 
 	typedef uint64 ResourceID;
+	typedef uint64 ResourceGUID;
+
 #define RESOURCE_ID_ENGINE_SPACE UINT64_MAX - 1000
 #define RESOURCE_ID_CUSTOM_SPACE UINT64_MAX - 10000
 #define RESOURCE_ID_MAX			 RESOURCE_ID_CUSTOM_SPACE - 1

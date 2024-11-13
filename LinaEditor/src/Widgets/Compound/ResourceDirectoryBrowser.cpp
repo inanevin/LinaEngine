@@ -152,13 +152,15 @@ namespace Lina::Editor
 		};
 
 		controller->GetProps().payloadType	   = PayloadType::Resource;
-		controller->GetProps().onCreatePayload = [this](void* ud) {
-			Widget*			   root = m_editor->GetWindowPanelManager().GetPayloadRoot();
-			ResourceDirectory* dir	= static_cast<ResourceDirectory*>(ud);
-			Text*			   t	= root->GetWidgetManager()->Allocate<Text>();
-			t->GetProps().text		= dir->name;
+		controller->GetProps().onCreatePayload = [this]() {
+			Widget*					   root		= m_editor->GetWindowPanelManager().GetPayloadRoot();
+			Vector<ResourceDirectory*> payloads = m_controller->GetSelectedUserData<ResourceDirectory>();
+
+			Text* t			   = root->GetWidgetManager()->Allocate<Text>();
+			t->GetProps().text = payloads.size() == 1 ? payloads.front()->name : Locale::GetStr(LocaleStr::MultipleItems);
 			t->Initialize();
-			m_payloadItem = dir;
+
+			m_payloadItems = payloads;
 			Editor::Get()->GetWindowPanelManager().CreatePayload(t, PayloadType::Resource, t->GetSize());
 		};
 
@@ -652,15 +654,33 @@ namespace Lina::Editor
 	void ResourceDirectoryBrowser::DropPayload(ResourceDirectory* target)
 	{
 		if (target == nullptr)
-			return;
+			target = &m_editor->GetProjectManager().GetProjectData()->GetResourceRoot();
 
 		if (!target->isFolder)
 			return;
 
-		ResourceDirectory* carry = m_payloadItem;
-		m_editor->GetProjectManager().GetProjectData()->MoveResourceDirectory(carry, target);
-		RefreshDirectory();
-		m_editor->GetProjectManager().SaveProjectChanges();
+		if (CheckIfContainsEngineResource({target}))
+			return;
+
+		Vector<ResourceGUID> previousParents;
+		Vector<ResourceGUID> resources;
+		const ResourceGUID	 targetGUID = target->guid;
+
+		for (ResourceDirectory* carry : m_payloadItems)
+		{
+			if (carry->parent == target)
+				continue;
+
+			// wtf
+			if (carry == target)
+				continue;
+
+			previousParents.push_back(carry->parent->guid);
+			resources.push_back(carry->guid);
+		}
+
+		if (!resources.empty())
+			EditorActionResourceMove::Create(m_editor, resources, previousParents, targetGUID);
 	}
 
 	bool ResourceDirectoryBrowser::CheckIfContainsEngineResource(const Vector<ResourceDirectory*>& dirs)

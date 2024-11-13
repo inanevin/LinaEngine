@@ -54,7 +54,7 @@ namespace Lina::Editor
 	*** RESOURCE RENAME
 	*/
 
-	EditorActionResourceRename* EditorActionResourceRename::Create(Editor* editor, uint64 guid, const String& oldName, const String& newName)
+	EditorActionResourceRename* EditorActionResourceRename::Create(Editor* editor, ResourceGUID guid, const String& oldName, const String& newName)
 	{
 		EditorActionResourceRename* action = new EditorActionResourceRename();
 		action->m_prevName				   = oldName;
@@ -407,6 +407,67 @@ namespace Lina::Editor
 		}
 
 		editor->GetApp()->GetResourceManager().ReloadResourceHW({mat});
+	}
+
+	EditorActionResourceMove* EditorActionResourceMove::Create(Editor* editor, const Vector<ResourceGUID>& resources, const Vector<ResourceGUID>& previousParents, ResourceGUID newParent)
+	{
+		EditorActionResourceMove* action = new EditorActionResourceMove();
+
+		LINA_ASSERT(resources.size() == previousParents.size(), "");
+
+		action->m_resourceGUIDs		  = resources;
+		action->m_previousParentGUIDs = previousParents;
+		action->m_newParentGUIDs	  = newParent;
+		editor->GetEditorActionManager().AddToStack(action);
+		return action;
+	}
+
+	void EditorActionResourceMove::Execute(Editor* editor, ExecType type)
+	{
+
+		if (type == ExecType::Undo)
+		{
+			const size_t sz = m_resourceGUIDs.size();
+			for (size_t i = 0; i < sz; i++)
+			{
+				ResourceGUID guid		= m_resourceGUIDs[i];
+				ResourceGUID targetGUID = m_previousParentGUIDs[i];
+
+				ResourceDirectory* dir = editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindByGUID(guid);
+				if (dir == nullptr)
+					continue;
+
+				ResourceDirectory* target = editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindByGUID(targetGUID);
+				if (target == nullptr)
+					continue;
+
+				if (dir->parent == target)
+					continue;
+
+				editor->GetProjectManager().GetProjectData()->MoveResourceDirectory(dir, target);
+			}
+		}
+		else
+		{
+			ResourceDirectory* target = editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindByGUID(m_newParentGUIDs);
+			if (target == nullptr)
+				return;
+
+			for (ResourceGUID guid : m_resourceGUIDs)
+			{
+				ResourceDirectory* dir = editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindByGUID(guid);
+				if (dir == nullptr)
+					continue;
+
+				if (dir->parent == target)
+					continue;
+
+				editor->GetProjectManager().GetProjectData()->MoveResourceDirectory(dir, target);
+			}
+		}
+
+		editor->GetProjectManager().SaveProjectChanges();
+		editor->GetProjectManager().NotifyProjectResourcesRefreshed();
 	}
 
 } // namespace Lina::Editor

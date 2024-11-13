@@ -123,7 +123,7 @@ namespace Lina::Editor
 		ItemController*										 m_controller		  = nullptr;
 		DirectionalLayout*									 m_layout			  = nullptr;
 		Editor*												 m_editor			  = nullptr;
-		ResourceDirectory*									 m_payloadItem		  = nullptr;
+		Vector<ResourceDirectory*>							 m_payloadItems		  = {};
 		Vector<Pair<ResourceDirectory*, TextureAtlasImage*>> m_importingResources = {};
 	};
 

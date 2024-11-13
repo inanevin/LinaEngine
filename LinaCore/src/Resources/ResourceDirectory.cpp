@@ -121,7 +121,7 @@ namespace Lina
 		return nullptr;
 	}
 
-	ResourceDirectory* ResourceDirectory::FindByGUID(uint64 g)
+	ResourceDirectory* ResourceDirectory::FindByGUID(ResourceGUID g)
 	{
 		if (guid == g)
 			return this;

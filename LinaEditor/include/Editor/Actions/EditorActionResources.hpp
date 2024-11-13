@@ -50,13 +50,28 @@ namespace Lina::Editor
 		EditorActionResourceRename()		  = default;
 		virtual ~EditorActionResourceRename() = default;
 
-		static EditorActionResourceRename* Create(Editor* editor, uint64 ResourceGUID, const String& oldName, const String& newName);
+		static EditorActionResourceRename* Create(Editor* editor, ResourceGUID ResourceGUID, const String& oldName, const String& newName);
 		virtual void					   Execute(Editor* editor, ExecType type) override;
 
 	private:
-		String m_prevName	  = "";
-		String m_newName	  = "";
-		uint64 m_resourceGUID = 0;
+		String		 m_prevName		= "";
+		String		 m_newName		= "";
+		ResourceGUID m_resourceGUID = 0;
+	};
+
+	class EditorActionResourceMove : public EditorAction
+	{
+	public:
+		EditorActionResourceMove()			= default;
+		virtual ~EditorActionResourceMove() = default;
+
+		static EditorActionResourceMove* Create(Editor* editor, const Vector<ResourceGUID>& resources, const Vector<ResourceGUID>& previousParents, ResourceGUID newParent);
+		virtual void					 Execute(Editor* editor, ExecType type) override;
+
+	private:
+		Vector<ResourceGUID> m_resourceGUIDs;
+		Vector<ResourceGUID> m_previousParentGUIDs;
+		ResourceGUID		 m_newParentGUIDs = 0;
 	};
 
 	class EditorActionResourceSampler : public EditorAction

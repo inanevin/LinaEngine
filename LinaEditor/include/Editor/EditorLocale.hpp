@@ -170,6 +170,7 @@ namespace Lina::Editor
 		Error,
 		Trace,
 		ChangeSourceAsset,
+		MultipleItems,
 	};
 
 	class Locale

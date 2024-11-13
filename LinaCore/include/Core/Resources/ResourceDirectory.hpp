@@ -55,14 +55,14 @@ namespace Lina
 		ResourceDirectory*		   parent		   = nullptr;
 		ResourceType			   resourceType	   = ResourceType::ExternalSource;
 		StringID				   lastModifiedSID = 0;
-		uint64					   guid			   = 0;
+		ResourceGUID			   guid			   = 0;
 
 		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream, ProjectData* projectData);
 
 		ResourceDirectory* GetChildByName(const String& name);
 		ResourceDirectory* FindResourceDirectory(ResourceID id);
-		ResourceDirectory* FindByGUID(uint64 guid);
+		ResourceDirectory* FindByGUID(ResourceGUID guid);
 		void			   SortChildren();
 
 		ALLOCATOR_BUCKET_MEM;

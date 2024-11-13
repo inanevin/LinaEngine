@@ -54,26 +54,23 @@ namespace Lina::Editor
 			Delegate<void()>			   onDelete;
 			Delegate<void()>			   onInteract;
 			Delegate<void(void* userdata)> onItemRenamed;
-			Delegate<void(void* userdata)> onCreatePayload;
+			Delegate<void()>			   onCreatePayload;
 			Delegate<bool(void* userdata)> onCheckCanCreatePayload;
 			Delegate<void(void* userdata)> onPayloadAccepted;
-			Color						   colorDeadItem		  = Color(0.0f, 0.0f, 0.0f, 0.0f);
-			ColorGrad					   colorSelected		  = {Theme::GetDef().accentPrimary0, Theme::GetDef().accentPrimary1};
-			ColorGrad					   colorUnfocused		  = {Theme::GetDef().silent0, Theme::GetDef().silent1};
-			bool						   hoverAcceptItemParents = false;
-			PayloadType					   payloadType			  = PayloadType::None;
+			Color						   colorDeadItem  = Color(0.0f, 0.0f, 0.0f, 0.0f);
+			ColorGrad					   colorSelected  = {Theme::GetDef().accentPrimary0, Theme::GetDef().accentPrimary1};
+			ColorGrad					   colorUnfocused = {Theme::GetDef().silent0, Theme::GetDef().silent1};
+			PayloadType					   payloadType	  = PayloadType::None;
 
 			void SaveToStream(OStream& stream) const
 			{
 				stream << colorDeadItem << colorSelected << colorUnfocused;
-				stream << hoverAcceptItemParents;
 				stream << payloadType;
 			}
 
 			void LoadFromStream(IStream& stream)
 			{
 				stream >> colorDeadItem >> colorSelected >> colorUnfocused;
-				stream >> hoverAcceptItemParents;
 				stream >> payloadType;
 			}
 		};
@@ -148,14 +145,14 @@ namespace Lina::Editor
 		}
 
 	private:
-		void*			m_lastSelected	 = nullptr;
-		bool			m_payloadAllowed = false;
-		FileMenu*		m_contextMenu	 = nullptr;
-		Properties		m_props			 = {};
+		void*			m_lastSelected = nullptr;
+		FileMenu*		m_contextMenu  = nullptr;
+		Properties		m_props		   = {};
 		Vector<Widget*> m_allItems;
 		Vector<Widget*> m_selectedItems;
-		bool			m_isFocused		= false;
-		bool			m_payloadActive = false;
+		bool			m_isFocused		 = false;
+		bool			m_payloadActive	 = false;
+		bool			m_createdPayload = false;
 	};
 
 	LINA_WIDGET_BEGIN(ItemController, Editor)
