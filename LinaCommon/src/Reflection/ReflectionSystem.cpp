@@ -32,17 +32,19 @@ namespace Lina
 {
 	void ReflectionSystem::Destroy()
 	{
-		for (auto& [tid, type] : m_metaData)
+		for (const MetaPair& pair : m_metaData)
 		{
-			for (auto& [sid, f] : type.m_fields)
+			for (auto& [sid, f] : pair.type->m_fields)
 				delete f;
 
-			for (auto& [tid, f] : type.m_functionCaches)
+			for (auto& [tid, f] : pair.type->m_functionCaches)
 				delete f;
 
-			type.m_propertyCacheManager.Destroy();
-			type.m_functionCaches.clear();
-			type.m_fields.clear();
+			pair.type->m_propertyCacheManager.Destroy();
+			pair.type->m_functionCaches.clear();
+			pair.type->m_fields.clear();
+
+			delete pair.type;
 		}
 
 		m_metaData.clear();

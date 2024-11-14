@@ -29,9 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Core/Resources/Resource.hpp"
-#include "Common/Data/HashMap.hpp"
 #include "Common/Data/Vector.hpp"
-#include "Core/Resources/Data/ResourceMetadata.hpp"
 #include "Common/Data/Mutex.hpp"
 #include "Common/Data/CommonData.hpp"
 

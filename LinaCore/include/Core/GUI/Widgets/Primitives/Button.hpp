@@ -83,9 +83,14 @@ namespace Lina
 			return m_props;
 		}
 
-		inline Text* GetText()
+		inline Text* GetText() const
 		{
 			return m_text;
+		}
+
+		inline Icon* GetIcon() const
+		{
+			return m_icon;
 		}
 
 	private:

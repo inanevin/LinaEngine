@@ -32,7 +32,6 @@ SOFTWARE.
 #include "Common/Memory/AllocatorBucket.hpp"
 #include "Common/StringID.hpp"
 #include "Common/ObjectWrapper.hpp"
-#include "Common/Data/HashMap.hpp"
 #include "Common/Data/Vector.hpp"
 #include "Common/Data/CommonData.hpp"
 #include "Common/Log/Log.hpp"
@@ -88,17 +87,21 @@ namespace Lina
 
 		virtual Resource* Get(ResourceID id) const override
 		{
-			return m_resources.at(id);
+			auto it = linatl::find_if(m_resources.begin(), m_resources.end(), [id](const ResourcePair& pair) -> bool { return id == pair.id; });
+			if (it == m_resources.end())
+			{
+				LINA_ASSERT(false, "");
+			}
+			return it->resource;
 		}
 
 		virtual Resource* GetIfExists(ResourceID id) const override
 		{
-			auto it = m_resources.find(id);
-
+			auto it = linatl::find_if(m_resources.begin(), m_resources.end(), [id](const ResourcePair& pair) -> bool { return id == pair.id; });
 			if (it == m_resources.end())
 				return nullptr;
 
-			return it->second;
+			return it->resource;
 		}
 
 		void View(Delegate<bool(T* res, uint32 index)>&& callback)
@@ -111,8 +114,8 @@ namespace Lina
 			Vector<Resource*> resources;
 			resources.reserve(m_resources.size());
 
-			for (auto [id, res] : m_resources)
-				resources.push_back(res);
+			for (const ResourcePair& pair : m_resources)
+				resources.push_back(pair.resource);
 
 			return resources;
 		}
@@ -122,36 +125,48 @@ namespace Lina
 
 		virtual Resource* Create(ResourceID id, const String& name) override
 		{
-			if (m_resources.find(id) != m_resources.end())
+			auto it = linatl::find_if(m_resources.begin(), m_resources.end(), [id](const ResourcePair& pair) -> bool { return id == pair.id; });
+			if (it != m_resources.end())
 			{
 				LINA_WARN("[Resource Cache] -> Can't create resource as it already exists.");
-				return nullptr;
+				return it->resource;
 			}
 
-			T* res			= m_resourceBucket.Allocate(id, name);
-			m_resources[id] = res;
+			T* res = m_resourceBucket.Allocate(id, name);
+			m_resources.push_back({id, res});
 			return res;
 		}
 
 		virtual void Destroy(ResourceID id) override
 		{
-			auto it = m_resources.find(id);
-			LINA_ASSERT(it != m_resources.end(), "");
-			T* res = static_cast<T*>(it->second);
+			auto it = linatl::find_if(m_resources.begin(), m_resources.end(), [id](const ResourcePair& pair) -> bool { return id == pair.id; });
+			if (it == m_resources.end())
+			{
+				LINA_ASSERT(false, "");
+			}
+
+			T* res = it->resource;
 			m_resourceBucket.Free(res);
 			m_resources.erase(it);
 		}
 
 		void Destroy()
 		{
-			for (auto [sid, res] : m_resources)
-				m_resourceBucket.Free(res);
+			for (const ResourcePair& pair : m_resources)
+				m_resourceBucket.Free(pair.resource);
 			m_resources.clear();
 		}
 
 	private:
+		struct ResourcePair
+		{
+			ResourceID id		= 0;
+			T*		   resource = nullptr;
+		};
+
+	private:
 		AllocatorBucket<T, 250> m_resourceBucket;
-		HashMap<ResourceID, T*> m_resources;
+		Vector<ResourcePair>	m_resources;
 	};
 
 } // namespace Lina

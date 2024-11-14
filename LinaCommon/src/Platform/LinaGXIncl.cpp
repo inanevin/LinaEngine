@@ -145,8 +145,9 @@ namespace Lina
 		for (int32 i = 0; i < sz; i++)
 		{
 			uint8 stg = 0;
+			auto  it  = linatl::find_if(block.isActive.begin(), block.isActive.end(), [stg](const auto& pair) -> bool { return pair.first == static_cast<LinaGX::ShaderStage>(stg); });
 			stream >> stg;
-			stream >> block.isActive[static_cast<LinaGX::ShaderStage>(stg)];
+			stream >> it->second;
 		}
 	}
 
@@ -199,8 +200,10 @@ namespace Lina
 		for (int32 i = 0; i < isActiveSz; i++)
 		{
 			uint8 stg = 0;
+			bool  act = false;
 			stream >> stg;
-			stream >> binding.isActive[static_cast<LinaGX::ShaderStage>(stg)];
+			stream >> act;
+			binding.isActive.push_back({static_cast<LinaGX::ShaderStage>(stg), act});
 		}
 
 		int32 mslBufferSz = 0;
@@ -208,9 +211,11 @@ namespace Lina
 
 		for (int32 i = 0; i < mslBufferSz; i++)
 		{
-			uint8 stg = 0;
+			uint8  stg = 0;
+			uint32 id  = 0;
 			stream >> stg;
-			stream >> binding.mslBufferID[static_cast<LinaGX::ShaderStage>(stg)];
+			stream >> id;
+			binding.mslBufferID.push_back({static_cast<LinaGX::ShaderStage>(stg), id});
 		}
 
 		uint32 bindingSz = 0;
@@ -319,9 +324,11 @@ namespace Lina
 
 		for (int32 i = 0; i < cmslSz; i++)
 		{
-			uint8 stg = 0;
+			uint8  stg = 0;
+			uint32 buf;
 			stream >> stg;
-			stream >> layout.constantsMSLBuffers[static_cast<LinaGX::ShaderStage>(stg)];
+			stream >> buf;
+			layout.constantsMSLBuffers.push_back({static_cast<LinaGX::ShaderStage>(stg), buf});
 		}
 
 		for (int32 i = 0; i < epSz; i++)
@@ -330,14 +337,16 @@ namespace Lina
 			stream >> stg;
 			String ep = "";
 			stream >> ep;
-			layout.entryPoints[static_cast<LinaGX::ShaderStage>(stg)] = ep.c_str();
+			layout.entryPoints.push_back({static_cast<LinaGX::ShaderStage>(stg), ep});
 		}
 
 		for (int32 i = 0; i < maxBufSz; i++)
 		{
-			uint8 stg = 0;
+			uint8  stg = 0;
+			uint32 id  = 0;
 			stream >> stg;
-			stream >> layout.mslMaxBufferIDs[static_cast<LinaGX::ShaderStage>(stg)];
+			stream >> id;
+			layout.mslMaxBufferIDs.push_back({static_cast<LinaGX::ShaderStage>(stg), id});
 		}
 
 		stream >> layout.constantsSet;

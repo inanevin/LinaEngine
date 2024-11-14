@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Common/System/SystemInfo.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
+#include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
@@ -42,6 +43,8 @@ SOFTWARE.
 namespace Lina::Editor
 {
 	Vector<PanelLog::LogLevelData> PanelLog::s_logLevels;
+
+#define MAX_LOGS 180
 
 	void PanelLog::Construct()
 	{
@@ -62,8 +65,8 @@ namespace Lina::Editor
 		panelLayout->AddChild(topLayout);
 
 		Dropdown* logLevelDD = m_manager->Allocate<Dropdown>("LogLevel");
-		logLevelDD->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_X_TOTAL_CHILDREN | WF_SIZE_ALIGN_Y);
-		logLevelDD->SetAlignedSizeX(1.5f);
+		logLevelDD->GetFlags().Set(WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_SIZE_ALIGN_Y);
+		logLevelDD->SetFixedSizeX(Theme::GetDef().baseItemWidth);
 		logLevelDD->SetAlignedPosY(0.0f);
 		logLevelDD->SetAlignedSizeY(1.0f);
 		logLevelDD->GetText()->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::LogLevels));
@@ -80,6 +83,7 @@ namespace Lina::Editor
 		logLevelDD->GetProps().onSelected = [this](int32 idx, String& newTitle) -> bool {
 			s_logLevels[idx].show = !s_logLevels[idx].show;
 			UpdateTextVisibility();
+			m_logScroll->ScrollToEnd();
 			return s_logLevels[idx].show;
 		};
 		topLayout->AddChild(logLevelDD);
@@ -137,14 +141,18 @@ namespace Lina::Editor
 		clearButton->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_X_COPY_Y);
 		clearButton->SetAlignedPosY(0.0f);
 		clearButton->SetAlignedSizeY(1.0f);
+		clearButton->GetWidgetProps().drawBackground			 = true;
+		clearButton->GetWidgetProps().outlineAffectedByMainColor = true;
+		clearButton->GetWidgetProps().outlineThickness			 = Theme::GetDef().baseOutlineThickness;
+		clearButton->GetWidgetProps().colorBackground			 = Color(0, 0, 0, 0);
+		clearButton->GetWidgetProps().colorHovered				 = Theme::GetDef().background4;
+		clearButton->GetWidgetProps().colorPressed				 = Theme::GetDef().background0;
+		clearButton->GetWidgetProps().hoveredIsDifferentColor	 = true;
+		clearButton->GetWidgetProps().pressedIsDifferentColor	 = true;
 		clearButton->RemoveText();
 		clearButton->CreateIcon(ICON_TRASH);
-		clearButton->GetProps().onClicked = [this]() {
-			m_logLayout->DeallocAllChildren();
-			m_logLayout->RemoveAllChildren();
-			m_logScroll->CheckScroll();
-			m_logScroll->ScrollToStart();
-		};
+		clearButton->GetIcon()->GetProps().color = Theme::GetDef().accentError.Darken(0.5f);
+
 		bottomLayout->AddChild(clearButton);
 
 		InputField* console = m_manager->Allocate<InputField>("Console");
@@ -200,8 +208,15 @@ namespace Lina::Editor
 	{
 		LOCK_GUARD(Log::GetLogMutex());
 
+		uint32 childSz = m_logLayout->GetChildren().size();
+
 		for (Widget* w : m_newLogs)
+		{
 			m_logLayout->AddChildRequest(w);
+			childSz++;
+			if (childSz > MAX_LOGS)
+				m_manager->AddToKillList(m_logLayout->GetChildren().at(0));
+		}
 		m_newLogs.clear();
 	}
 
@@ -246,7 +261,8 @@ namespace Lina::Editor
 		const String sysTime	 = "[" + FileSystem::GetSystemTimeStr() + "] ";
 		const String levelHeader = sysTime + "[" + data.title + "] ";
 
-		Text* text = m_manager->Allocate<Text>();
+		Text* text				   = m_manager->Allocate<Text>();
+		text->GetProps().isDynamic = true;
 		text->GetFlags().Set(WF_POS_ALIGN_X);
 		text->SetAlignedPosX(0.0f);
 		text->UpdateTextAndCalcSize(levelHeader + msg);

@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
 #include "Editor/Widgets/Layout/ItemController.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
+#include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
 #include "Editor/Resources/ResourcePipeline.hpp"
 #include "Editor/IO/ThumbnailGenerator.hpp"
 #include "Editor/IO/ExtensionSupport.hpp"
@@ -58,6 +59,7 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+
 	void ResourceDirectoryBrowser::Construct()
 	{
 		m_editor = Editor::Get();
@@ -166,7 +168,11 @@ namespace Lina::Editor
 
 		controller->GetProps().onCheckCanCreatePayload = [this](void* ud) {
 			ResourceDirectory* dir = static_cast<ResourceDirectory*>(ud);
-			return !CheckIfContainsEngineResource({dir});
+
+			if (dir->userData.isInFavourites)
+				return false;
+
+			return dir->userData.directoryType == 0;
 		};
 
 		controller->GetProps().onDuplicate = [this]() {
@@ -177,12 +183,6 @@ namespace Lina::Editor
 
 		m_linaAssets = {
 			.name	  = Locale::GetStr(LocaleStr::LinaAssets),
-			.isFolder = true,
-			.userData = static_cast<uint32>(ResourceDirectoryType::LinaAssetsFolder),
-		};
-
-		m_favourites = {
-			.name	  = Locale::GetStr(LocaleStr::Favourites),
 			.isFolder = true,
 			.userData = static_cast<uint32>(ResourceDirectoryType::LinaAssetsFolder),
 		};
@@ -212,20 +212,41 @@ namespace Lina::Editor
 			return;
 		ResourceDirectory& root = currentProject->GetResourceRoot();
 
-		Widget* linaAssetsFold = CommonWidgets::BuildDefaultFoldItem(this, &m_linaAssets, Theme::GetDef().baseIndent, ICON_LINA_LOGO, Theme::GetDef().accentPrimary0, m_linaAssets.name, !m_linaAssets.children.empty(), &m_linaAssets.unfolded);
-		Widget* favsFold	   = CommonWidgets::BuildDefaultFoldItem(this, &m_favourites, Theme::GetDef().baseIndent, ICON_STAR, Theme::GetDef().accentSecondary, m_favourites.name, !m_favourites.children.empty(), &m_favourites.unfolded);
+		Widget* linaAssetsFold = CommonWidgets::BuildDefaultFoldItem(this, &m_linaAssets, Theme::GetDef().baseIndent, ICON_LINA_LOGO, Theme::GetDef().accentPrimary2, m_linaAssets.name, true, &m_linaAssets.unfolded, true);
 		m_layout->AddChild(linaAssetsFold);
-		m_controller->AddChild(linaAssetsFold->GetChildren().front());
-		m_layout->AddChild(favsFold);
-		m_controller->AddChild(favsFold->GetChildren().front());
+		m_controller->AddItem(linaAssetsFold->GetChildren().front());
 
-		// AddItemForDirectory(linaAssets, Theme::GetDef().baseIndent * 2);
+		// engine res.
+		for (ResourceDirectory* child : root.children)
+		{
+			if (child->userData.directoryType != static_cast<uint32>(ResourceDirectoryType::EngineResource))
+				continue;
+
+			AddItem(&m_linaAssets, child, Theme::GetDef().baseIndent * 2);
+		}
 
 		Widget* rootFold = CommonWidgets::BuildDefaultFoldItem(this, &root, Theme::GetDef().baseIndent, ICON_FOLDER, Theme::GetDef().foreground0, root.name, !root.children.empty(), &root.unfolded, true);
 		m_layout->AddChild(rootFold);
 		m_controller->AddItem(rootFold->GetChildren().front());
 
 		AddItemForDirectory(&root, Theme::GetDef().baseIndent * 2);
+	}
+
+	void ResourceDirectoryBrowser::AddItem(ResourceDirectory* parent, ResourceDirectory* item, float margin)
+	{
+		if (item->isFolder)
+		{
+			Widget* w = CommonWidgets::BuildDefaultFoldItem(this, item, margin, ICON_FOLDER, Theme::GetDef().foreground0, item->name, !item->children.empty(), &item->unfolded);
+			m_controller->GetItem(parent)->GetParent()->AddChild(w);
+			m_controller->AddItem(w->GetChildren().front());
+			AddItemForDirectory(item, margin + Theme::GetDef().baseIndent * 2.0f);
+		}
+		else
+		{
+			Widget* w = CommonWidgets::BuildTexturedListItem(this, item, margin, m_editor->GetProjectManager().GetThumbnail(item), item->name);
+			m_controller->GetItem(parent)->GetParent()->AddChild(w);
+			m_controller->AddItem(w);
+		}
 	}
 
 	void ResourceDirectoryBrowser::AddItemForDirectory(ResourceDirectory* dir, float margin)
@@ -236,23 +257,10 @@ namespace Lina::Editor
 				continue;
 
 			// Handled specially
-			if (child->userData != 0)
+			if (child->userData.directoryType == static_cast<uint32>(ResourceDirectoryType::EngineResource))
 				continue;
 
-			if (child->isFolder)
-			{
-				Widget* w = CommonWidgets::BuildDefaultFoldItem(this, child, margin, ICON_FOLDER, Theme::GetDef().foreground0, child->name, !child->children.empty(), &child->unfolded);
-				m_controller->GetItem(dir)->GetParent()->AddChild(w);
-				m_controller->AddItem(w->GetChildren().front());
-				AddItemForDirectory(child, margin + Theme::GetDef().baseIndent * 2.0f);
-			}
-			else
-			{
-				const bool hasChildren = child->children.empty();
-				Widget*	   w		   = CommonWidgets::BuildTexturedListItem(this, child, margin, m_editor->GetProjectManager().GetThumbnail(child), child->name);
-				m_controller->GetItem(dir)->GetParent()->AddChild(w);
-				m_controller->AddItem(w);
-			}
+			AddItem(dir, child, margin);
 		}
 	}
 
@@ -263,58 +271,60 @@ namespace Lina::Editor
 			return;
 		ResourceDirectory& root = currentProject->GetResourceRoot();
 
-		bool renameDisabled		 = false;
 		bool createDisabled		 = false;
+		bool renameDisabled		 = false;
 		bool deleteDisabled		 = false;
 		bool duplicateDisabled	 = false;
 		bool favDisabled		 = false;
-		bool alreadyInFav		 = false;
-		bool importDisabled		 = false;
 		bool reimportAllDisabled = false;
 		bool changeSrcDisabled	 = false;
 
 		Vector<ResourceDirectory*> selection = m_controller->GetSelectedUserData<ResourceDirectory>();
 
-		if (selection.empty() || selection.size() != 1 || !selection.front()->isFolder)
+		auto checkPredicate = [&](Delegate<bool(ResourceDirectory*)> pred) -> bool {
+			for (ResourceDirectory* dir : selection)
+			{
+				if (pred(dir))
+					return true;
+			}
+
+			return false;
+		};
+
+		const int32 size			  = static_cast<int32>(selection.size());
+		const bool	anyFile			  = checkPredicate([](ResourceDirectory* dir) -> bool { return !dir->isFolder; });
+		const bool	anyFolder		  = checkPredicate([](ResourceDirectory* dir) -> bool { return dir->isFolder; });
+		const bool	anyEngineFolder	  = checkPredicate([this](ResourceDirectory* dir) -> bool { return dir == &m_linaAssets; });
+		const bool	anyRootFolder	  = checkPredicate([this](ResourceDirectory* dir) -> bool { return dir == &m_editor->GetProjectManager().GetProjectData()->GetResourceRoot(); });
+		const bool	anyEngineResource = checkPredicate([](ResourceDirectory* dir) -> bool { return dir->userData.directoryType == static_cast<uint32>(ResourceDirectoryType::EngineResource); });
+		const bool	anyNonExternal	  = checkPredicate([](ResourceDirectory* dir) -> bool { return dir->resourceType != ResourceType::ExternalSource; });
+
+		// Create
+		if (size != 1 || anyFile || anyEngineFolder)
+			createDisabled = true;
+
+		// Rename
+		if (size != 1 || anyEngineResource || anyEngineFolder || anyRootFolder)
+			renameDisabled = true;
+
+		// Delete
+		if (size == 0 || anyEngineResource || anyEngineFolder || anyRootFolder)
+			deleteDisabled = true;
+
+		// Duplicate
+		if (size == 0 || anyEngineResource || anyEngineFolder || anyRootFolder)
+			duplicateDisabled = true;
+
+		// Favourite
+		if (size != 1 || anyEngineFolder || anyRootFolder)
+			favDisabled = true;
+
+		// Reimport
+		if (size > 1 || anyFile || anyEngineFolder)
 			reimportAllDisabled = true;
 
-		if (CheckIfContainsEngineResource(selection))
-		{
-			renameDisabled	  = true;
-			deleteDisabled	  = true;
-			duplicateDisabled = true;
-			favDisabled		  = true;
-			changeSrcDisabled = true;
-			importDisabled	  = true;
-		}
-
-		if (m_controller->GetSelectedItems().empty())
-		{
-			renameDisabled	  = true;
-			deleteDisabled	  = true;
-			duplicateDisabled = true;
-			favDisabled		  = true;
-			importDisabled	  = true;
-		}
-
-		if (m_controller->GetSelectedItems().size() > 1)
-		{
-			createDisabled = true;
-			renameDisabled = true;
-			importDisabled = true;
-		}
-		else if (m_controller->GetSelectedItems().size() == 1)
-		{
-			ResourceDirectory* dir = static_cast<ResourceDirectory*>(m_controller->GetSelectedItems().front()->GetUserData());
-			createDisabled		   = !dir->isFolder;
-		}
-
-		if (!m_controller->GetSelectedItems().empty() && !m_controller->GetSelectedUserData<ResourceDirectory>().front()->isFolder)
-		{
-			importDisabled = true;
-		}
-
-		if (selection.empty() || selection.size() != 1 || selection.front()->isFolder)
+		// Change src
+		if (size != 1 || anyFolder || anyNonExternal || anyEngineResource)
 			changeSrcDisabled = true;
 
 		if (sid == 0)
@@ -334,7 +344,7 @@ namespace Lina::Editor
 				.text		 = Locale::GetStr(LocaleStr::Import),
 				.headerIcon	 = ICON_IMPORT,
 				.hasDropdown = false,
-				.isDisabled	 = importDisabled,
+				.isDisabled	 = createDisabled,
 				.userData	 = userData,
 			});
 
@@ -379,7 +389,8 @@ namespace Lina::Editor
 			});
 			outData.push_back(FileMenuItem::Data{.isDivider = true});
 
-			const String favText = alreadyInFav ? Locale::GetStr(LocaleStr::RemoveFromFavourites) : Locale::GetStr(LocaleStr::AddToFavourites);
+			const bool	 alreadyInFav = !selection.empty() && selection.front()->userData.isInFavourites;
+			const String favText	  = alreadyInFav ? Locale::GetStr(LocaleStr::RemoveFromFavourites) : Locale::GetStr(LocaleStr::AddToFavourites);
 
 			outData.push_back(FileMenuItem::Data{
 				.text			 = favText,
@@ -441,7 +452,11 @@ namespace Lina::Editor
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::ReimportChangedFiles)))
 		{
-			m_editor->GetProjectManager().ReimportChangedSources(selection.front(), m_lgxWindow);
+			if (selection.empty())
+				m_editor->GetProjectManager().ReimportChangedSources(&m_editor->GetProjectManager().GetProjectData()->GetResourceRoot(), m_lgxWindow);
+			else
+				m_editor->GetProjectManager().ReimportChangedSources(selection.front(), m_lgxWindow);
+
 			return true;
 		}
 
@@ -527,11 +542,24 @@ namespace Lina::Editor
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::AddToFavourites)))
 		{
+			Vector<GUID> guids;
+			guids.resize(selection.size());
+			for (size_t i = 0; i < selection.size(); i++)
+				guids[i] = selection[i]->guid;
+
+			EditorActionResourceFav::Create(m_editor, guids, true);
+
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::RemoveFromFavourites)))
 		{
+			Vector<GUID> guids;
+			guids.resize(selection.size());
+			for (size_t i = 0; i < selection.size(); i++)
+				guids[i] = selection[i]->guid;
+			EditorActionResourceFav::Create(m_editor, guids, false);
+
 			return true;
 		}
 
@@ -675,6 +703,9 @@ namespace Lina::Editor
 
 	void ResourceDirectoryBrowser::DropPayload(ResourceDirectory* target)
 	{
+		if (target == &m_linaAssets)
+			return;
+
 		if (target == nullptr)
 			target = &m_editor->GetProjectManager().GetProjectData()->GetResourceRoot();
 
@@ -684,9 +715,9 @@ namespace Lina::Editor
 		if (CheckIfContainsEngineResource({target}))
 			return;
 
-		Vector<ResourceGUID> previousParents;
-		Vector<ResourceGUID> resources;
-		const ResourceGUID	 targetGUID = target->guid;
+		Vector<GUID> previousParents;
+		Vector<GUID> resources;
+		const GUID	 targetGUID = target->guid;
 
 		for (ResourceDirectory* carry : m_payloadItems)
 		{
@@ -711,7 +742,7 @@ namespace Lina::Editor
 
 		for (ResourceDirectory* dir : dirs)
 		{
-			if (dir == root || dir == &m_linaAssets || dir == &m_favourites || dir->parent == &m_linaAssets || dir->parent == &m_favourites)
+			if (dir->userData.directoryType == static_cast<uint32>(ResourceDirectoryType::EngineResource))
 				return true;
 		}
 

@@ -28,7 +28,6 @@ SOFTWARE.
 
 #pragma once
 
-#include "Common/Data/HashMap.hpp"
 #include "Common/Data/IDList.hpp"
 #include "Core/GUI/CommonGUI.hpp"
 #include "Core/GUI/Theme.hpp"
@@ -69,7 +68,7 @@ namespace Lina
 		void	Tick(float delta, const Vector2ui& size);
 		void	Shutdown();
 		void	DebugDraw(Widget* w);
-		void	SetClip(const Rect& r, const TBLR& margin);
+		void	SetClip(const Rect& r);
 		void	UnsetClip();
 		void	AddToKillList(Widget* w);
 		void	AddToForeground(Widget* widget);
@@ -140,6 +139,16 @@ namespace Lina
 			return m_isMouseHoveringWindow;
 		}
 
+		inline void SetClipOutsideWindow(bool clip)
+		{
+			m_clipOutsideWindow = clip;
+		}
+
+		inline bool GetClipOutsideWindow() const
+		{
+			return m_clipOutsideWindow;
+		}
+
 	protected:
 		virtual void OnWindowKey(LinaGX::Window* window, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction) override;
 		virtual void OnWindowMouse(LinaGX::Window* window, uint32 button, LinaGX::InputAction inputAction) override;
@@ -161,23 +170,44 @@ namespace Lina
 	private:
 		friend class Widget;
 
+		struct WidgetCachePair
+		{
+			TypeID			 tid   = 0;
+			WidgetCacheBase* cache = nullptr;
+		};
+
+		bool FindCache(TypeID tid, WidgetCachePair& out)
+		{
+			for (const WidgetCachePair& pair : m_widgetCaches)
+			{
+				if (pair.tid == tid)
+				{
+					out = pair;
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 	private:
-		LinaGX::Window*					  m_window = nullptr;
-		LinaVG::Drawer*					  m_lvg	   = nullptr;
-		Vector<Widget*>					  m_controlsOwners;
-		Widget*							  m_controlOwner	  = nullptr;
-		Widget*							  m_rootWidget		  = nullptr;
-		Widget*							  m_foregroundRoot	  = nullptr;
-		Widget*							  m_deepestHovered	  = nullptr;
-		ResourceManagerV2*				  m_resourceManagerV2 = nullptr;
-		Vector<ClipData>				  m_clipStack;
-		float							  m_debugDrawYOffset	= 0.0f;
-		Font*							  m_defaultFont			= nullptr;
-		HashSet<Widget*>				  m_killList			= {};
-		Widget*							  m_lastControlsManager = nullptr;
-		HashMap<TypeID, WidgetCacheBase*> m_widgetCaches;
-		Widget*							  m_foregroundLock		  = nullptr;
-		bool							  m_isMouseHoveringWindow = true;
+		LinaGX::Window*			m_window = nullptr;
+		LinaVG::Drawer*			m_lvg	 = nullptr;
+		Vector<Widget*>			m_controlsOwners;
+		Widget*					m_controlOwner		= nullptr;
+		Widget*					m_rootWidget		= nullptr;
+		Widget*					m_foregroundRoot	= nullptr;
+		Widget*					m_deepestHovered	= nullptr;
+		ResourceManagerV2*		m_resourceManagerV2 = nullptr;
+		Vector<ClipData>		m_clipStack;
+		float					m_debugDrawYOffset	  = 0.0f;
+		Font*					m_defaultFont		  = nullptr;
+		Vector<Widget*>			m_killList			  = {};
+		Widget*					m_lastControlsManager = nullptr;
+		Vector<WidgetCachePair> m_widgetCaches;
+		Widget*					m_foregroundLock		= nullptr;
+		bool					m_isMouseHoveringWindow = true;
+		bool					m_clipOutsideWindow		= true;
 	};
 
 } // namespace Lina

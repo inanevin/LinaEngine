@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Core/Graphics/Utility/ShaderPreprocessor.hpp"
 #include "Common/FileSystem//FileSystem.hpp"
+#include "Common/Data/HashMap.hpp"
 
 namespace Lina
 {

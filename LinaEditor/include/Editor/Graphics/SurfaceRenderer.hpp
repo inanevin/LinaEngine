@@ -76,6 +76,7 @@ namespace Lina::Editor
 			uint32	vertexCount	   = 0;
 			uint32	indexCount	   = 0;
 			size_t	materialOffset = 0;
+			Recti	clip		   = {};
 		};
 
 		struct DrawBatch

@@ -50,13 +50,13 @@ namespace Lina::Editor
 		EditorActionResourceRename()		  = default;
 		virtual ~EditorActionResourceRename() = default;
 
-		static EditorActionResourceRename* Create(Editor* editor, ResourceGUID ResourceGUID, const String& oldName, const String& newName);
+		static EditorActionResourceRename* Create(Editor* editor, GUID GUID, const String& oldName, const String& newName);
 		virtual void					   Execute(Editor* editor, ExecType type) override;
 
 	private:
-		String		 m_prevName		= "";
-		String		 m_newName		= "";
-		ResourceGUID m_resourceGUID = 0;
+		String m_prevName	  = "";
+		String m_newName	  = "";
+		GUID   m_resourceGUID = 0;
 	};
 
 	class EditorActionResourceMove : public EditorAction
@@ -65,13 +65,27 @@ namespace Lina::Editor
 		EditorActionResourceMove()			= default;
 		virtual ~EditorActionResourceMove() = default;
 
-		static EditorActionResourceMove* Create(Editor* editor, const Vector<ResourceGUID>& resources, const Vector<ResourceGUID>& previousParents, ResourceGUID newParent);
+		static EditorActionResourceMove* Create(Editor* editor, const Vector<GUID>& resources, const Vector<GUID>& previousParents, GUID newParent);
 		virtual void					 Execute(Editor* editor, ExecType type) override;
 
 	private:
-		Vector<ResourceGUID> m_resourceGUIDs;
-		Vector<ResourceGUID> m_previousParentGUIDs;
-		ResourceGUID		 m_newParentGUIDs = 0;
+		Vector<GUID> m_resourceGUIDs;
+		Vector<GUID> m_previousParentGUIDs;
+		GUID		 m_newParentGUIDs = 0;
+	};
+
+	class EditorActionResourceFav : public EditorAction
+	{
+	public:
+		EditorActionResourceFav()		   = default;
+		virtual ~EditorActionResourceFav() = default;
+
+		static EditorActionResourceFav* Create(Editor* editor, const Vector<GUID>& resources, bool isAdd);
+		virtual void					Execute(Editor* editor, ExecType type) override;
+
+	private:
+		Vector<GUID> m_resourceGUIDs;
+		bool		 m_isAdd = false;
 	};
 
 	class EditorActionResourceSampler : public EditorAction

@@ -85,10 +85,10 @@ namespace Lina::Editor
 
 		Font* font = static_cast<Font*>(m_resource);
 
-		CommonWidgets::BuildClassReflection(m_inspector, this, ReflectionSystem::Get().Resolve<PanelFontViewer>(), [this](const MetaType& meta, FieldBase* field) { m_fontDisplay->GetProps().textScale = m_scale; });
+		CommonWidgets::BuildClassReflection(m_inspector, this, ReflectionSystem::Get().Resolve<PanelFontViewer>(), [this](MetaType* meta, FieldBase* field) { m_fontDisplay->GetProps().textScale = m_scale; });
 
 		CommonWidgets::BuildClassReflection(
-			m_inspector, &font->GetMeta(), ReflectionSystem::Get().Resolve<Font::Metadata>(), [this, font](const MetaType& meta, FieldBase* field) { EditorActionResourceFont::Create(m_editor, font->GetID(), m_storedMeta, font->GetMeta()); });
+			m_inspector, &font->GetMeta(), ReflectionSystem::Get().Resolve<Font::Metadata>(), [this, font](MetaType* meta, FieldBase* field) { EditorActionResourceFont::Create(m_editor, font->GetID(), m_storedMeta, font->GetMeta()); });
 
 		if (m_previewOnly)
 			DisableRecursively(m_inspector);

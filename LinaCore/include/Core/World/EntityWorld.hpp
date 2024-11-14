@@ -163,11 +163,14 @@ namespace Lina
 		{
 			const TypeID tid = GetTypeID<T>();
 
-			if (m_componentCaches.find(tid) == m_componentCaches.end())
-				m_componentCaches[tid] = new ComponentCache<T>(this);
-
-			ComponentCache<T>* cache = static_cast<ComponentCache<T>*>(m_componentCaches[tid]);
-			return cache;
+			auto it = linatl::find_if(m_componentCaches.begin(), m_componentCaches.end(), [tid](const ComponentCachePair& pair) -> bool { return tid == pair.tid; });
+			if (it == m_componentCaches.end())
+			{
+				ComponentCache<T>* cache = new ComponentCache<T>(this);
+				m_componentCaches.push_back({tid, cache});
+				return cache;
+			}
+			return static_cast<ComponentCache<T>*>(it->cache);
 		}
 
 		inline uint32 GetActiveEntityCount() const
@@ -224,20 +227,29 @@ namespace Lina
 		void OnCreateComponent(Component* c, Entity* e);
 		void OnDestroyComponent(Component* c, Entity* e);
 
+		void DestroyComponentCaches();
+
+	private:
+		struct ComponentCachePair
+		{
+			TypeID				tid	  = 0;
+			ComponentCacheBase* cache = nullptr;
+		};
+
 	private:
 		ALLOCATOR_BUCKET_MEM;
 
-		AllocatorBucket<Entity, 1000>		 m_entityBucket;
-		HashMap<TypeID, ComponentCacheBase*> m_componentCaches;
-		EntityID							 m_entityGUIDCounter = 1;
-		PhysicsWorld						 m_physicsWorld;
-		Bitmask32							 m_flags = 0;
-		Vector<EntityWorldListener*>		 m_listeners;
-		GfxSettings							 m_gfxSettings;
-		Screen								 m_screen = {};
-		WorldInput							 m_worldInput;
-		Camera								 m_camera			  = {};
-		SimulationSettings					 m_simulationSettings = {};
+		AllocatorBucket<Entity, 1000> m_entityBucket;
+		Vector<ComponentCachePair>	  m_componentCaches;
+		EntityID					  m_entityGUIDCounter = 1;
+		PhysicsWorld				  m_physicsWorld;
+		Bitmask32					  m_flags = 0;
+		Vector<EntityWorldListener*>  m_listeners;
+		GfxSettings					  m_gfxSettings;
+		Screen						  m_screen = {};
+		WorldInput					  m_worldInput;
+		Camera						  m_camera			   = {};
+		SimulationSettings			  m_simulationSettings = {};
 
 		float	 m_elapsedTime		  = 0.0f;
 		float	 m_interpolationAlpha = 0.0f;

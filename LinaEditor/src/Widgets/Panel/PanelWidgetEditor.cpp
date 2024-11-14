@@ -345,20 +345,20 @@ namespace Lina::Editor
 		m_widgetsController->ClearItems();
 		m_categories.clear();
 
-		const HashMap<TypeID, MetaType>& types = ReflectionSystem::Get().GetTypes();
-		for (auto& [typeID, meta] : types)
+		const Vector<MetaPair>& types = ReflectionSystem::Get().GetTypes();
+		for (const MetaPair& pair : types)
 		{
-			if (meta.HasProperty<uint32>("WidgetIdent"_hs))
+			if (pair.type->HasProperty<uint32>("WidgetIdent"_hs))
 			{
-				const String title	  = meta.GetProperty<String>("Title"_hs);
-				const String category = meta.GetProperty<String>("Category"_hs);
+				const String title	  = pair.type->GetProperty<String>("Title"_hs);
+				const String category = pair.type->GetProperty<String>("Category"_hs);
 
 				if (category.compare("Hidden") == 0)
 					continue;
 
 				WidgetInfo widgetInfo = {
 					.title = title,
-					.tid   = typeID,
+					.tid   = pair.tid,
 				};
 
 				auto it = linatl::find_if(m_categories.begin(), m_categories.end(), [&category](const CategoryInfo& inf) -> bool { return inf.title.compare(category) == 0; });
@@ -421,7 +421,7 @@ namespace Lina::Editor
 			Widget*				  item	   = CommonWidgets::BuildDefaultFoldItem(this, c, margin, "", Color::White, c->GetWidgetProps().debugName, !c->GetChildren().empty(), &c->_fold, false);
 
 			Text* classType			   = m_manager->Allocate<Text>();
-			classType->GetProps().text = "(" + ReflectionSystem::Get().Resolve(c->GetTID()).GetProperty<String>("Title"_hs) + ")";
+			classType->GetProps().text = "(" + ReflectionSystem::Get().Resolve(c->GetTID())->GetProperty<String>("Title"_hs) + ")";
 			classType->GetFlags().Set(WF_POS_ALIGN_Y);
 			classType->SetAlignedPosY(0.5f);
 			classType->SetAnchorY(Anchor::Center);

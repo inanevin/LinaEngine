@@ -92,21 +92,23 @@ namespace Lina
 			return id;
 		}
 
-		inline void SetNextResourceID(ResourceID id)
+		inline GUID ConsumeGlobalGUID()
 		{
-			m_resourceIDCounter = id;
+			const GUID guid = m_globalGUIDCounter;
+			m_globalGUIDCounter++;
+			return guid;
 		}
 
 	private:
 		AllocatorBucket<ResourceDirectory, 1000> m_directoryBucket;
-		Runtime									 m_runtime			   = {};
-		String									 m_projectName		   = "";
-		ResourceID								 m_resourceIDCounter   = 1;
-		ResourceGUID							 m_resourceGUIDCounter = 1;
-		ResourceDirectory						 m_rootDirectory	   = {
-										 .name	   = "Resources",
-										 .isFolder = true,
-		 };
+		Runtime									 m_runtime			 = {};
+		String									 m_projectName		 = "";
+		ResourceID								 m_resourceIDCounter = 1;
+		GUID									 m_globalGUIDCounter = 1;
+		ResourceDirectory						 m_rootDirectory	 = {
+									   .name	 = "Resources",
+									   .isFolder = true,
+		   };
 	};
 
 } // namespace Lina

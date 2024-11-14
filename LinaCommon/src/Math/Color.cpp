@@ -78,6 +78,16 @@ namespace Lina
 		stream >> x >> y >> z >> w;
 	}
 
+	Color Color::Brighten(float amt) const
+	{
+		return Math::Lerp(*this, Color::White, amt);
+	}
+
+	Color Color::Darken(float amt) const
+	{
+		return Math::Lerp(*this, Color::Black, amt);
+	}
+
 	Color Color::HS2SRGB() const
 	{
 		const float hue		   = x;

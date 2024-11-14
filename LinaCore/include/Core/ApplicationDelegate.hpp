@@ -29,7 +29,6 @@ SOFTWARE.
 #pragma once
 
 #include "Core/Resources/CommonResources.hpp"
-#include "Core/Resources/Data/ResourceMetadata.hpp"
 #include "Common/Data/Vector.hpp"
 #include "Common/Data/CommonData.hpp"
 #include "Common/Event/SystemEventListener.hpp"

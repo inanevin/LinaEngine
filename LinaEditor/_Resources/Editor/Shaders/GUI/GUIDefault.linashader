@@ -62,7 +62,6 @@ layout (location = 0) out vec4 outFragColor;
 
 struct LinaMaterial
 {
-   vec4 clip;
    vec4 uvTilingAndOffset;
    uint hasTexture;
    uint displayChannels;
@@ -79,11 +78,6 @@ layout( push_constant ) uniform constants
 LinaMaterial GetMaterial(uint index)
 {
    LinaMaterial mat;
-   mat.clip.x = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
-   mat.clip.y = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
-   mat.clip.z = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
-   mat.clip.w = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
-
    mat.uvTilingAndOffset.x = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
    mat.uvTilingAndOffset.y = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
    mat.uvTilingAndOffset.z = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
@@ -102,12 +96,6 @@ LinaMaterial GetMaterial(uint index)
 void main()
 {
    LinaMaterial material = GetMaterial(PushConstants.materialIndex);
-
-   if(material.clip.z > 0 && material.clip.w > 0)
-   {
-      if(gl_FragCoord.x < material.clip.x || gl_FragCoord.x > material.clip.x + material.clip.z || gl_FragCoord.y < material.clip.y || gl_FragCoord.y > material.clip.y + material.clip.w)
-         discard;
-   }
 
    vec4 color = inCol;
 

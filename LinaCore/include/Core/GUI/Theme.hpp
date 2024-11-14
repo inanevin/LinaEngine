@@ -31,7 +31,6 @@ SOFTWARE.
 #include "Common/SizeDefinitions.hpp"
 #include "Common/Math/Color.hpp"
 #include "Common/StringID.hpp"
-#include "Core/CommonCore.hpp"
 
 namespace LinaVG
 {
@@ -89,19 +88,20 @@ namespace Lina
 			float  miniRounding			= 0.1f;
 			float  baseOutlineThickness = 1.0f;
 			float  baseItemHeight		= 24.0f;
+			float  baseItemWidth		= baseItemHeight * 6.0f;
 			float  popupAnimTime		= 0.1f;
 			float  baseBorderThickness	= 6.0f;
 			uint32 baseDropShadowSteps	= 4;
 
-			ResourceID defaultFont		= 0;
-			ResourceID defaultBoldFont	= 0;
-			ResourceID altFont			= 0;
-			ResourceID altBigFont		= 0;
-			ResourceID iconFont			= 0;
-			String	   iconDropdown		= "";
-			String	   iconCircleFilled = "";
-			String	   iconSliderHandle = "";
-			String	   iconCheckbox		= "";
+			uint64 defaultFont		= 0;
+			uint64 defaultBoldFont	= 0;
+			uint64 altFont			= 0;
+			uint64 altBigFont		= 0;
+			uint64 iconFont			= 0;
+			String iconDropdown		= "";
+			String iconCircleFilled = "";
+			String iconSliderHandle = "";
+			String iconCheckbox		= "";
 		};
 
 		static ThemeDef& GetDef()
@@ -116,11 +116,7 @@ namespace Lina
 
 		static float GetBaseItemHeight(float dpiScale);
 
-		static size_t GetWidgetChunkCount(TypeID tid);
-		static void	  SetWidgetChunkCount(TypeID tid, size_t count);
-
 	private:
-		static HashMap<TypeID, size_t> s_chunkCounts;
-		static ThemeDef				   s_themeDef;
+		static ThemeDef s_themeDef;
 	};
 } // namespace Lina

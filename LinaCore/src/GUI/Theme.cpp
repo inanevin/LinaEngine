@@ -30,8 +30,7 @@ SOFTWARE.
 
 namespace Lina
 {
-	Theme::ThemeDef			Theme::s_themeDef	 = {};
-	HashMap<TypeID, size_t> Theme::s_chunkCounts = {};
+	Theme::ThemeDef Theme::s_themeDef = {};
 
 	float Theme::GetBaseItemHeight(float dpiScale)
 	{
@@ -39,18 +38,4 @@ namespace Lina
 		// return 24.0f * dpiScale;
 	}
 
-	void Theme::SetWidgetChunkCount(TypeID tid, size_t count)
-	{
-		s_chunkCounts[tid] = count;
-	}
-
-	size_t Theme::GetWidgetChunkCount(TypeID tid)
-	{
-		size_t cc = s_chunkCounts[tid];
-
-		if (cc == 0)
-			s_chunkCounts[tid] = 150; // default;
-
-		return s_chunkCounts[tid];
-	}
 } // namespace Lina

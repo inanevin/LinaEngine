@@ -221,7 +221,7 @@ namespace Lina::Editor
 		m_inspector->DeallocAllChildren();
 		m_inspector->RemoveAllChildren();
 
-		CommonWidgets::BuildClassReflection(m_inspector, this, ReflectionSystem::Get().Resolve<PanelMaterialViewer>(), [this](const MetaType& meta, FieldBase* field) { SetupWorld(); });
+		CommonWidgets::BuildClassReflection(m_inspector, this, ReflectionSystem::Get().Resolve<PanelMaterialViewer>(), [this](MetaType* meta, FieldBase* field) { SetupWorld(); });
 		Material* mat = static_cast<Material*>(m_resource);
 
 		Widget* shaderField			= CommonWidgets::BuildFieldLayoutWithRightSide(m_inspector, 0, Locale::GetStr(LocaleStr::Shader), false, nullptr, 0.6f);

@@ -792,25 +792,18 @@ namespace Lina::Editor
 
 	namespace
 	{
-		uint32 CountDependencies(MetaType& type, FieldBase* field)
+		uint32 CountDependencies(MetaType* type, FieldBase* field)
 		{
-			const HashMap<StringID, uint8>& depPos = field->GetPositiveDependencies();
-			const HashMap<StringID, uint8>& depNeg = field->GetNegativeDependencies();
+			const Vector<DependencyPair>& depPos = field->GetPositiveDependencies();
 
 			uint32 deps = 0;
 
 			HashSet<FieldBase*> depSrcs;
 
-			for (auto [sid, val] : depPos)
+			for (const DependencyPair& pair : depPos)
 			{
 				deps++;
-				depSrcs.insert(type.GetField(sid));
-			}
-
-			for (auto [sid, val] : depNeg)
-			{
-				deps++;
-				depSrcs.insert(type.GetField(sid));
+				depSrcs.insert(type->GetField(pair.id));
 			}
 
 			for (FieldBase* f : depSrcs)
@@ -821,7 +814,7 @@ namespace Lina::Editor
 
 	} // namespace
 
-	void CommonWidgets::RefreshVector(Widget* owningFold, FieldBase* field, void* vectorPtr, MetaType* meta, FieldType subType, int32 elementIndex, Delegate<void(const MetaType& meta, FieldBase* field)> onFieldChanged, bool disallowAddDelete)
+	void CommonWidgets::RefreshVector(Widget* owningFold, FieldBase* field, void* vectorPtr, MetaType* meta, FieldType subType, int32 elementIndex, Delegate<void(MetaType* meta, FieldBase* field)> onFieldChanged, bool disallowAddDelete)
 	{
 		FoldLayout* fold		   = static_cast<FoldLayout*>(owningFold);
 		Widget*		foldFirstChild = fold->GetChildren().front();
@@ -840,7 +833,7 @@ namespace Lina::Editor
 		for (int32 j = 0; j < vs; j++)
 		{
 			void*	element	 = field->GetFunction<void*(void*, int32)>("GetElementAddr"_hs)(vectorPtr, j);
-			Widget* subField = BuildField(fold, TO_STRING(j), element, *meta, field, subType, onFieldChanged, j);
+			Widget* subField = BuildField(fold, TO_STRING(j), element, meta, field, subType, onFieldChanged, j);
 			fold->AddChild(subField);
 
 			Widget* subFieldRightSide = nullptr;
@@ -1000,7 +993,7 @@ namespace Lina::Editor
 		inp->GetProps().isNumberField = true;
 		inp->GetProps().clampNumber	  = true;
 
-		// inp->GetProps().onEditEnd = [onFieldChanged, field, &metaType](const String& str) { onFieldChanged(metaType, field); };
+		// inp->GetProps().onEditEnd = [onFieldChanged, field, metaType](const String& str) { onFieldChanged(metaType, field); };
 
 		if (hasLimits)
 		{
@@ -1069,7 +1062,7 @@ namespace Lina::Editor
 		return inp;
 	}
 
-	Widget* CommonWidgets::BuildField(Widget* src, const String& title, void* memberVariablePtr, MetaType& metaType, FieldBase* field, FieldType fieldType, Delegate<void(const MetaType& meta, FieldBase* field)> onFieldChanged, int32 vectorElementIndex)
+	Widget* CommonWidgets::BuildField(Widget* src, const String& title, void* memberVariablePtr, MetaType* metaType, FieldBase* field, FieldType fieldType, Delegate<void(MetaType* meta, FieldBase* field)> onFieldChanged, int32 vectorElementIndex)
 	{
 		WidgetManager* wm = src->GetWidgetManager();
 
@@ -1095,9 +1088,9 @@ namespace Lina::Editor
 			hasLimits = true;
 		}
 
-		auto getValueField = [src, wm, hasLimits, minFloat, maxFloat, stepFloat, onFieldChanged, &metaType, field](void* ptr, uint8 bits, bool isInt = false, bool isUnsigned = false) -> InputField* {
+		auto getValueField = [src, wm, hasLimits, minFloat, maxFloat, stepFloat, onFieldChanged, metaType, field](void* ptr, uint8 bits, bool isInt = false, bool isUnsigned = false) -> InputField* {
 			InputField* inp			  = BuildFloatField(src, ptr, bits, isInt, isUnsigned, hasLimits, minFloat, maxFloat, stepFloat, true);
-			inp->GetProps().onEditEnd = [onFieldChanged, field, &metaType](const String& str) { onFieldChanged(metaType, field); };
+			inp->GetProps().onEditEnd = [onFieldChanged, field, metaType](const String& str) { onFieldChanged(metaType, field); };
 			return inp;
 		};
 
@@ -1114,7 +1107,7 @@ namespace Lina::Editor
 			if (tid == 0)
 				tid = field->GetProperty<TypeID>("SubTypeTID"_hs);
 
-			Widget* f = BuildResourceField(src, rid, tid, [rid, onFieldChanged, field, &metaType](ResourceDirectory* selected) {
+			Widget* f = BuildResourceField(src, rid, tid, [rid, onFieldChanged, field, metaType](ResourceDirectory* selected) {
 				if (!selected)
 					return;
 				*rid = selected->resourceID;
@@ -1167,10 +1160,10 @@ namespace Lina::Editor
 			newElem->SetAlignedPosY(0.0f);
 			newElem->SetAlignedSizeY(1.0f);
 			newElem->CreateIcon(ICON_PLUS);
-			newElem->GetProps().onClicked = [src, &metaType, field, subType, fieldLayout, vectorPtr, onFieldChanged, disallowAddDelete]() {
+			newElem->GetProps().onClicked = [src, metaType, field, subType, fieldLayout, vectorPtr, onFieldChanged, disallowAddDelete]() {
 				const uint32 vs = field->GetFunction<uint32(void*)>("GetVectorSize"_hs)(vectorPtr);
 				field->GetFunction<void(void*)>("AddNewElement"_hs)(vectorPtr);
-				CommonWidgets::RefreshVector(fieldLayout, field, vectorPtr, &metaType, subType, -1, onFieldChanged, disallowAddDelete);
+				CommonWidgets::RefreshVector(fieldLayout, field, vectorPtr, metaType, subType, -1, onFieldChanged, disallowAddDelete);
 			};
 			newElem->SetIsDisabled(disallowAddDelete);
 			rightSide->AddChild(newElem);
@@ -1180,13 +1173,13 @@ namespace Lina::Editor
 			clear->SetAlignedPosY(0.0f);
 			clear->SetAlignedSizeY(1.0f);
 			clear->CreateIcon(ICON_TRASH);
-			clear->GetProps().onClicked = [src, &metaType, field, subType, fieldLayout, vectorPtr, onFieldChanged, disallowAddDelete]() {
+			clear->GetProps().onClicked = [src, metaType, field, subType, fieldLayout, vectorPtr, onFieldChanged, disallowAddDelete]() {
 				field->GetFunction<void(void*)>("ClearVector"_hs)(vectorPtr);
-				CommonWidgets::RefreshVector(fieldLayout, field, vectorPtr, &metaType, subType, -1, onFieldChanged, disallowAddDelete);
+				CommonWidgets::RefreshVector(fieldLayout, field, vectorPtr, metaType, subType, -1, onFieldChanged, disallowAddDelete);
 			};
 			clear->SetIsDisabled(disallowAddDelete);
 
-			RefreshVector(fieldLayout, field, vectorPtr, &metaType, subType, -1, onFieldChanged, disallowAddDelete);
+			RefreshVector(fieldLayout, field, vectorPtr, metaType, subType, -1, onFieldChanged, disallowAddDelete);
 			rightSide->AddChild(clear);
 		}
 		else if (fieldType == FieldType::Bitmask32)
@@ -1200,11 +1193,11 @@ namespace Lina::Editor
 			dd->GetProps().closeOnSelect   = false;
 			dd->GetText()->GetProps().text = TO_STRING(mask->GetValue());
 
-			MetaType&			   subType = ReflectionSystem::Get().Resolve(field->GetProperty<TypeID>("SubType"_hs));
-			PropertyCache<String>* cache   = subType.GetPropertyCacheManager().GetPropertyCache<String>();
+			MetaType*			   subType = ReflectionSystem::Get().Resolve(field->GetProperty<TypeID>("SubType"_hs));
+			PropertyCache<String>* cache   = subType->GetPropertyCacheManager().GetPropertyCache<String>();
 			Vector<String>		   values  = cache->GetSortedVector();
 
-			dd->GetProps().onSelected = [mask, dd, onFieldChanged, &metaType, field](int32 item, String& outNewTitle) -> bool {
+			dd->GetProps().onSelected = [mask, dd, onFieldChanged, metaType, field](int32 item, String& outNewTitle) -> bool {
 				const uint32 bmVal = 1 << item;
 
 				if (mask->IsSet(bmVal))
@@ -1235,8 +1228,8 @@ namespace Lina::Editor
 			dd->SetAlignedPosY(0.0f);
 
 			const TypeID		   st	   = field->GetProperty<TypeID>("SubType"_hs);
-			MetaType&			   subType = ReflectionSystem::Get().Resolve(st);
-			PropertyCache<String>* cache   = subType.GetPropertyCacheManager().GetPropertyCache<String>();
+			MetaType*			   subType = ReflectionSystem::Get().Resolve(st);
+			PropertyCache<String>* cache   = subType->GetPropertyCacheManager().GetPropertyCache<String>();
 			Vector<String>		   values  = cache->GetSortedVector();
 
 			int32* enumVal = reflectionValue.CastPtr<int32>();
@@ -1245,7 +1238,7 @@ namespace Lina::Editor
 			if (field->HasProperty<Vector<uint32>>("OnlyShow"_hs))
 				onlyShow = field->GetProperty<Vector<uint32>>("OnlyShow"_hs);
 
-			dd->GetProps().onSelected = [enumVal, onFieldChanged, &metaType, field, values](int32 item, String& outNewTitle) -> bool {
+			dd->GetProps().onSelected = [enumVal, onFieldChanged, metaType, field, values](int32 item, String& outNewTitle) -> bool {
 				*enumVal	= item;
 				outNewTitle = values[item];
 				onFieldChanged(metaType, field);
@@ -1376,9 +1369,9 @@ namespace Lina::Editor
 			cf->SetAlignedPosY(0.0f);
 			cf->GetProps().backgroundTexture = Editor::Get()->GetApp()->GetResourceManager().GetResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID);
 			cf->GetProps().value			 = col;
-			cf->GetProps().onClicked		 = [cf, col, src, &metaType, field, onFieldChanged]() {
+			cf->GetProps().onClicked		 = [cf, col, src, metaType, field, onFieldChanged]() {
 				PanelColorWheel* panel						 = Editor::Get()->GetWindowPanelManager().OpenColorWheelPanel(cf);
-				panel->GetWheel()->GetProps().onValueChanged = [&metaType, field, onFieldChanged](const Color& col) { onFieldChanged(metaType, field); };
+				panel->GetWheel()->GetProps().onValueChanged = [metaType, field, onFieldChanged](const Color& col) { onFieldChanged(metaType, field); };
 			};
 			rightSide->AddChild(cf);
 		}
@@ -1395,7 +1388,7 @@ namespace Lina::Editor
 			inp->SetAlignedSize(Vector2(0.0f, 1.0f));
 			inp->SetAlignedPosY(0.0f);
 			inp->GetText()->GetProps().text = *strVal;
-			inp->GetProps().onEditEnd		= [strVal, onFieldChanged, &metaType, field](const String& str) {
+			inp->GetProps().onEditEnd		= [strVal, onFieldChanged, metaType, field](const String& str) {
 				  *strVal = str;
 				  onFieldChanged(metaType, field);
 			};
@@ -1412,7 +1405,7 @@ namespace Lina::Editor
 			cb->GetProps().value		   = bval;
 			cb->GetIcon()->GetProps().icon = ICON_CHECK;
 			cb->GetIcon()->CalculateIconSize();
-			cb->GetProps().onValueChanged = [onFieldChanged, &metaType, field](bool v) { onFieldChanged(metaType, field); };
+			cb->GetProps().onValueChanged = [onFieldChanged, metaType, field](bool v) { onFieldChanged(metaType, field); };
 			rightSide->AddChild(cb);
 		}
 		else if (fieldType == FieldType::UInt32)
@@ -1456,13 +1449,13 @@ namespace Lina::Editor
 			rightSide->AddChild(getValueField(reflectionValue.GetPtr(), 32));
 		}
 
-		fieldLayout->GetWidgetProps().tooltip = field->GetProperty<String>("Tooltip"_hs);
+		fieldLayout->GetWidgetProps().tooltip = field->HasProperty<String>("Tooltip"_hs) ? field->GetProperty<String>("Tooltip"_hs) : "";
 		fieldLayout->Initialize();
 		fieldLayout->SetUserData(field);
 		return fieldLayout;
 	}
 
-	Widget* CommonWidgets::BuildColorGradSlider(Widget* src, ColorGrad* color, MetaType& metaType, FieldBase* field, Delegate<void(const MetaType& meta, FieldBase* field)> onFieldChanged)
+	Widget* CommonWidgets::BuildColorGradSlider(Widget* src, ColorGrad* color, MetaType* metaType, FieldBase* field, Delegate<void(MetaType* meta, FieldBase* field)> onFieldChanged)
 	{
 		WidgetManager*	   wm	  = src->GetWidgetManager();
 		DirectionalLayout* layout = wm->Allocate<DirectionalLayout>();
@@ -1477,9 +1470,9 @@ namespace Lina::Editor
 		startButton->SetAlignedSizeY(1.0f);
 		startButton->CreateIcon(ICON_PALETTE);
 		startButton->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::StartColor);
-		startButton->GetProps().onClicked	  = [src, color, onFieldChanged, &metaType, field, startButton]() {
+		startButton->GetProps().onClicked	  = [src, color, onFieldChanged, metaType, field, startButton]() {
 			PanelColorWheel* panel						 = Editor::Get()->GetWindowPanelManager().OpenColorWheelPanel(startButton);
-			panel->GetWheel()->GetProps().onValueChanged = [color, onFieldChanged, &metaType, field](const Color& col) {
+			panel->GetWheel()->GetProps().onValueChanged = [color, onFieldChanged, metaType, field](const Color& col) {
 				color->start = col;
 				onFieldChanged(metaType, field);
 			};
@@ -1492,9 +1485,9 @@ namespace Lina::Editor
 		middleButton->SetAlignedSizeY(1.0f);
 		middleButton->CreateIcon(ICON_PALETTE);
 		middleButton->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::Both);
-		middleButton->GetProps().onClicked	   = [src, color, onFieldChanged, &metaType, field, middleButton]() {
+		middleButton->GetProps().onClicked	   = [src, color, onFieldChanged, metaType, field, middleButton]() {
 			PanelColorWheel* panel						 = Editor::Get()->GetWindowPanelManager().OpenColorWheelPanel(middleButton);
-			panel->GetWheel()->GetProps().onValueChanged = [color, onFieldChanged, &metaType, field](const Color& col) {
+			panel->GetWheel()->GetProps().onValueChanged = [color, onFieldChanged, metaType, field](const Color& col) {
 				color->start = color->end = col;
 				onFieldChanged(metaType, field);
 			};
@@ -1507,9 +1500,9 @@ namespace Lina::Editor
 		endButton->SetAlignedSizeY(1.0f);
 		endButton->CreateIcon(ICON_PALETTE);
 		endButton->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::EndColor);
-		endButton->GetProps().onClicked		= [src, color, onFieldChanged, &metaType, field, endButton]() {
+		endButton->GetProps().onClicked		= [src, color, onFieldChanged, metaType, field, endButton]() {
 			PanelColorWheel* panel						 = Editor::Get()->GetWindowPanelManager().OpenColorWheelPanel(endButton);
-			panel->GetWheel()->GetProps().onValueChanged = [color, onFieldChanged, &metaType, field](const Color& col) {
+			panel->GetWheel()->GetProps().onValueChanged = [color, onFieldChanged, metaType, field](const Color& col) {
 				color->end = col;
 				onFieldChanged(metaType, field);
 			};
@@ -1529,16 +1522,15 @@ namespace Lina::Editor
 		return layout;
 	}
 
-	void CommonWidgets::BuildClassReflection(Widget* owner, void* obj, MetaType& meta, Delegate<void(const MetaType& meta, FieldBase* field)> onFieldChanged)
+	void CommonWidgets::BuildClassReflection(Widget* owner, void* obj, MetaType* meta, Delegate<void(MetaType* meta, FieldBase* field)> onFieldChanged)
 	{
 		WidgetManager* wm = owner->GetWidgetManager();
 
-		Vector<FieldBase*> fields	  = meta.GetFieldsOrdered();
+		Vector<FieldBase*> fields	  = meta->GetFieldsOrdered();
 		Widget*			   lastParent = owner;
 
 		for (FieldBase* field : fields)
 		{
-			const StringID	type		   = field->GetProperty<StringID>("Type"_hs);
 			void*			memberVariable = field->Value(obj).GetPtr();
 			const String	title		   = field->GetProperty<String>("Title"_hs);
 			const FieldType fieldType	   = field->GetProperty<FieldType>("Type"_hs);
@@ -1549,10 +1541,8 @@ namespace Lina::Editor
 
 		for (FieldBase* field : fields)
 		{
-			const HashMap<StringID, uint8>& posDepends = field->GetPositiveDependencies();
-			const HashMap<StringID, uint8>& negDepends = field->GetNegativeDependencies();
-
-			if (posDepends.size() == 0 && negDepends.size() == 0)
+			const Vector<DependencyPair>& posDepends = field->GetPositiveDependencies();
+			if (posDepends.size() == 0)
 				continue;
 
 			Widget* current = owner->FindChildWithUserdata(field);
@@ -1561,7 +1551,7 @@ namespace Lina::Editor
 
 			for (auto [sid, val] : posDepends)
 			{
-				FieldBase* depSrc = meta.GetField(sid);
+				FieldBase* depSrc = meta->GetField(sid);
 
 				void* valPtr = depSrc->Value(obj).GetPtr();
 				current->AddPreTickHook([valPtr, val, current]() {

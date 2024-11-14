@@ -143,6 +143,9 @@ namespace Lina
 
 	void ScrollArea::Draw()
 	{
+		if (ShouldSkipDrawOutsideWindow())
+			return;
+
 		Widget::Draw();
 
 		if (!m_barVisible || !GetIsVisible() || !m_canDrawBar)

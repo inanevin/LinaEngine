@@ -188,6 +188,7 @@ namespace Lina::Editor
 			.vertexCount	= vtxSize,
 			.indexCount		= idxSize,
 			.materialOffset = m_frameMaterialBufferCounter,
+			.clip			= Recti(buf->clip.x, buf->clip.y, buf->clip.z, buf->clip.w),
 		};
 
 		GUIUserData* guiUserData = nullptr;
@@ -207,7 +208,6 @@ namespace Lina::Editor
 					Texture* texture = buf->textureHandle == nullptr ? nullptr : static_cast<Texture*>(buf->textureHandle);
 
 					GPUMaterialGUIDefault material = {
-						.clip			   = Vector4(buf->clipPosX, buf->clipPosY, buf->clipSizeX, buf->clipSizeY),
 						.uvTilingAndOffset = buf->textureUV,
 						.hasTexture		   = texture != nullptr,
 						.displayChannels   = 0,
@@ -236,7 +236,6 @@ namespace Lina::Editor
 					drawRequest.shader = m_guiColorWheel;
 
 					GPUMaterialGUIColorWheel material = {
-						.clip			= Vector4(buf->clipPosX, buf->clipPosY, buf->clipSizeX, buf->clipSizeY),
 						.wheelRadius	= 0.5f,
 						.edgeSmoothness = 0.005f,
 					};
@@ -250,7 +249,6 @@ namespace Lina::Editor
 
 					const bool				 isVertical = guiUserData->specialType == GUISpecialType::VerticalHue;
 					GPUMaterialGUIHueDisplay material	= {
-						  .clip			  = Vector4(buf->clipPosX, buf->clipPosY, buf->clipSizeX, buf->clipSizeY),
 						  .uvContribution = Vector2(isVertical == false ? 1.0f : 0.0f, isVertical ? 1.0f : 0.0f),
 					  };
 
@@ -264,7 +262,6 @@ namespace Lina::Editor
 				Texture* texture   = buf->textureHandle == nullptr ? nullptr : static_cast<Texture*>(buf->textureHandle);
 
 				GPUMaterialGUIDefault material = {
-					.clip			   = Vector4(buf->clipPosX, buf->clipPosY, buf->clipSizeX, buf->clipSizeY),
 					.uvTilingAndOffset = buf->textureUV,
 					.hasTexture		   = texture != nullptr,
 					.displayChannels   = 0,
@@ -287,7 +284,6 @@ namespace Lina::Editor
 
 			LinaVG::Atlas*	   atlas	= static_cast<LinaVG::Atlas*>(buf->textureHandle);
 			GPUMaterialGUIText material = {
-				.clip = Vector4(buf->clipPosX, buf->clipPosY, buf->clipSizeX, buf->clipSizeY),
 				.diffuse =
 					{
 						.textureIndex = guiBackend.GetFontTexture(atlas).texture->GetBindlessIndex(),
@@ -303,7 +299,6 @@ namespace Lina::Editor
 			drawRequest.shader = m_guiSDF;
 
 			GPUMaterialGUISDFText material = {
-				.clip = Vector4(buf->clipPosX, buf->clipPosY, buf->clipSizeX, buf->clipSizeY),
 				.diffuse =
 					{
 						.textureIndex = guiBackend.GetFontTexture(static_cast<LinaVG::Atlas*>(buf->textureHandle)).texture->GetBindlessIndex(),
@@ -433,6 +428,12 @@ namespace Lina::Editor
 				lastBound = request.shader;
 				lastBound->Bind(currentFrame.gfxStream, lastBound->GetGPUHandle());
 			}
+
+			LinaGX::CMDSetScissors* sc = currentFrame.gfxStream->AddCommand<LinaGX::CMDSetScissors>();
+			sc->x					   = request.clip.pos.x < 0 ? 0 : static_cast<uint32>(request.clip.pos.x);
+			sc->y					   = request.clip.pos.y < 0 ? 0 : static_cast<uint32>(request.clip.pos.y);
+			sc->width				   = request.clip.size.x <= 0 ? static_cast<uint32>(m_window->GetSize().x) : static_cast<uint32>(request.clip.size.x);
+			sc->height				   = request.clip.size.y <= 0 ? static_cast<uint32>(m_window->GetSize().y) : static_cast<uint32>(request.clip.size.y);
 
 			LinaGX::CMDBindConstants* pc = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindConstants>();
 			pc->size					 = static_cast<uint32>(sizeof(GPUEditorGUIPushConstants));

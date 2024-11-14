@@ -40,6 +40,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
+#include "Editor/Editor.hpp"
 
 namespace Lina::Editor
 {

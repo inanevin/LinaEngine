@@ -46,8 +46,7 @@ namespace Lina
 
 	struct ClipData
 	{
-		Rect rect	 = Rect();
-		TBLR margins = {};
+		Rect rect = Rect();
 	};
 
 	enum class CrossAlignment

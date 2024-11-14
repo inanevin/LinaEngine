@@ -54,7 +54,8 @@ namespace Lina
 		bool	IsClipping(const Rect& other) const;
 		bool	IsPointInside(const Vector2& p, bool equalOK = false) const;
 		bool	IsInBorder(const Vector2& p, float borderThickness, int& border) const;
-		bool	IsRectInside(const Rect& other) const;
+		bool	IsRectInside(const Rect& other, float margin = 0.0f) const;
+		bool	IsRectCompletelyOutside(const Rect& other, float margin = 0.0f) const;
 
 		inline void SaveToStream(OStream& stream) const
 		{
@@ -69,6 +70,11 @@ namespace Lina
 		Vector2 pos	 = Vector2(0, 0);
 		Vector2 size = Vector2(0, 0);
 	};
+
+	inline Rect operator+(Rect const& a, Rect const& b)
+	{
+		return Rect(a.pos.x + b.pos.x, a.pos.y + b.pos.y, a.size.x + b.size.x, a.size.y + b.size.y);
+	}
 
 	class Recti
 	{

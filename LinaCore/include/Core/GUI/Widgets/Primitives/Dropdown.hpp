@@ -68,7 +68,6 @@ namespace Lina
 		};
 
 		virtual void Construct() override;
-		virtual void Tick(float delta) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
 		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action) override;
 
@@ -105,11 +104,12 @@ namespace Lina
 	private:
 		LINA_REFLECTION_ACCESS(Dropdown);
 
-		Properties m_props		 = {};
-		Icon*	   m_icon		 = nullptr;
-		Text*	   m_text		 = nullptr;
-		Vector2	   m_iconBgStart = Vector2::Zero;
-		Widget*	   m_popup		 = nullptr;
+		Properties m_props		   = {};
+		Icon*	   m_icon		   = nullptr;
+		Text*	   m_text		   = nullptr;
+		Vector2	   m_iconBgStart   = Vector2::Zero;
+		Widget*	   m_popup		   = nullptr;
+		Widget*	   m_textContainer = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(Dropdown, Primitive)

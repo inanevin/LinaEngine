@@ -56,8 +56,8 @@ namespace Lina
 
 #define LINA_RESOURCE_BEGIN(ClassName)                                                                                                                                                                                                                             \
 	LINA_CLASS_BEGIN(ClassName)                                                                                                                                                                                                                                    \
-	Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*()>(Lina::TO_SIDC("CreateResourceCache"), std::bind(&Lina::ReflectionResourceUtility::REF_CreateResourceCacheFunc<ClassName>));                                                               \
-	Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*()>(Lina::TO_SIDC("Allocate"), std::bind(&Lina::ReflectionResourceUtility::REF_Allocate<ClassName>));                                                                                         \
-	Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void(void* ptr)>(Lina::TO_SIDC("Deallocate"), std::bind(&Lina::ReflectionResourceUtility::REF_Deallocate<ClassName>, std::placeholders::_1));
+	Lina::ReflectionSystem::Get().Meta<ClassName>()->AddFunction<void*()>(Lina::TO_SIDC("CreateResourceCache"), std::bind(&Lina::ReflectionResourceUtility::REF_CreateResourceCacheFunc<ClassName>));                                                              \
+	Lina::ReflectionSystem::Get().Meta<ClassName>()->AddFunction<void*()>(Lina::TO_SIDC("Allocate"), std::bind(&Lina::ReflectionResourceUtility::REF_Allocate<ClassName>));                                                                                        \
+	Lina::ReflectionSystem::Get().Meta<ClassName>()->AddFunction<void(void* ptr)>(Lina::TO_SIDC("Deallocate"), std::bind(&Lina::ReflectionResourceUtility::REF_Deallocate<ClassName>, std::placeholders::_1));
 
 } // namespace Lina

@@ -116,6 +116,7 @@ namespace Lina
 		LinaVG::TextOptions m_textOptions		 = {};
 		float				m_calculatedDPIScale = 0.0f;
 		LinaVG::Font*		m_lvgFont			 = nullptr;
+		float				m_lastDynScale		 = 0.0f;
 	};
 
 	LINA_WIDGET_BEGIN(Icon, Primitive)

@@ -201,7 +201,7 @@ namespace Lina
 			stream << ch.m_uv34.y;
 
 			if (ch.m_buffer != nullptr)
-				stream.WriteRaw(ch.m_buffer, ch.m_size.x * ch.m_size.y);
+				stream.WriteRaw(ch.m_buffer, static_cast<size_t>(ch.m_size.x) * static_cast<size_t>(ch.m_size.y));
 		}
 
 		const uint32 kerningSize = static_cast<uint32>(font->kerningTable.size());
@@ -276,7 +276,8 @@ namespace Lina
 
 			for (uint32 j = 0; j < xAdvSize; j++)
 			{
-				float adv1 = 0.0f, adv2 = 0.0f;
+				unsigned long adv1 = 0;
+				unsigned long adv2 = 0;
 				stream >> adv1;
 				stream >> adv2;
 				kerning.xAdvances[adv1] = adv2;

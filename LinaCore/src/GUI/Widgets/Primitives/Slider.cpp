@@ -109,6 +109,12 @@ namespace Lina
 
 	void Slider::Draw()
 	{
+		if (!GetIsVisible())
+			return;
+
+		if (ShouldSkipDrawOutsideWindow())
+			return;
+
 		const bool hasControls = m_manager->IsControlsOwner(this);
 
 		LinaVG::StyleOptions bg;

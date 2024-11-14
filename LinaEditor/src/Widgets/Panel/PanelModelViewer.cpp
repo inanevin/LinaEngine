@@ -161,11 +161,11 @@ namespace Lina::Editor
 		m_inspector->AddChild(foldGeneral);
 		m_inspector->AddChild(foldModel);
 
-		CommonWidgets::BuildClassReflection(foldGeneral, this, ReflectionSystem::Get().Resolve<PanelModelViewer>(), [this](const MetaType& meta, FieldBase* field) {
+		CommonWidgets::BuildClassReflection(foldGeneral, this, ReflectionSystem::Get().Resolve<PanelModelViewer>(), [this](MetaType* meta, FieldBase* field) {
 
 		});
 
-		CommonWidgets::BuildClassReflection(foldModel, &m_model->GetMeta(), ReflectionSystem::Get().Resolve<Model::Metadata>(), [this](const MetaType& meta, FieldBase* field) {
+		CommonWidgets::BuildClassReflection(foldModel, &m_model->GetMeta(), ReflectionSystem::Get().Resolve<Model::Metadata>(), [this](MetaType* meta, FieldBase* field) {
 			SetRuntimeDirty(true);
 			// RegenModel("");
 		});

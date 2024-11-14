@@ -44,7 +44,7 @@ namespace Lina
 		if (m_props.fetchWrapFromParent)
 			m_props.wrapWidth = m_parent->GetSizeX();
 
-		const bool calculate = !Math::Equals(m_props.wrapWidth, 0.0f, 0.1f) || !Math::Equals(m_lgxWindow->GetDPIScale(), m_calculatedDPIScale, 0.01f);
+		const bool calculate = !Math::Equals(m_lastCalculatedWrapWidth, m_props.wrapWidth, 2.0f) || !Math::Equals(m_lgxWindow->GetDPIScale(), m_calculatedDPIScale, 0.01f);
 		if (calculate)
 			CalculateTextSize();
 	}
@@ -52,6 +52,9 @@ namespace Lina
 	void Text::Draw()
 	{
 		if (!GetIsVisible())
+			return;
+
+		if (ShouldSkipDrawOutsideWindow())
 			return;
 
 		if (!Math::Equals(m_lgxWindow->GetDPIScale(), m_calculatedDPIScale, 0.01f))
@@ -97,13 +100,14 @@ namespace Lina
 		else
 			opts.color = m_props.color.AsLVG();
 
-		opts.cpuClipping = m_props.customClip.AsLVG4();
-		opts.wordWrap	 = m_props.wordWrap;
+		// opts.cpuClipping = m_props.customClip.AsLVG4();
+		opts.wordWrap = m_props.wordWrap;
 
 		if (GetIsDisabled())
 			opts.color = m_props.colorDisabled.AsLVG4();
 
 		auto p = (m_rect.pos + Vector2(0.0f, m_rect.size.y));
+
 		m_lvg->DrawTextDefault(m_props.text.c_str(), p.AsLVG(), opts, 0.0f, m_drawOrder, m_props.isDynamic);
 	}
 
@@ -115,10 +119,11 @@ namespace Lina
 
 	void Text::CalculateTextSize()
 	{
-		const float dpiScale = m_lgxWindow->GetDPIScale();
-		auto*		font	 = m_resourceManager->GetResource<Font>(m_props.font);
-		m_lvgFont			 = font->GetFont(dpiScale);
-		m_calculatedDPIScale = dpiScale;
+		const float dpiScale	  = m_lgxWindow->GetDPIScale();
+		auto*		font		  = m_resourceManager->GetResource<Font>(m_props.font);
+		m_lvgFont				  = font->GetFont(dpiScale);
+		m_calculatedDPIScale	  = dpiScale;
+		m_lastCalculatedWrapWidth = m_props.wrapWidth;
 
 		if (m_lvgFont == nullptr)
 			return;

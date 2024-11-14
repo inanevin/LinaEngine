@@ -94,13 +94,12 @@ namespace Lina::Editor
 		m_inspector->DeallocAllChildren();
 		m_inspector->RemoveAllChildren();
 
-		CommonWidgets::BuildClassReflection(m_inspector, this, ReflectionSystem::Get().Resolve<PanelSamplerViewer>(), [](const MetaType& meta, FieldBase* field) {
+		CommonWidgets::BuildClassReflection(m_inspector, this, ReflectionSystem::Get().Resolve<PanelSamplerViewer>(), [](MetaType* meta, FieldBase* field) {
 
 		});
 
-		CommonWidgets::BuildClassReflection(m_inspector, &sampler->GetDesc(), ReflectionSystem::Get().Resolve<LinaGX::SamplerDesc>(), [this, sampler](const MetaType& meta, FieldBase* field) {
-			EditorActionResourceSampler::Create(m_editor, sampler->GetID(), m_storedDesc, sampler->GetDesc());
-		});
+		CommonWidgets::BuildClassReflection(
+			m_inspector, &sampler->GetDesc(), ReflectionSystem::Get().Resolve<LinaGX::SamplerDesc>(), [this, sampler](MetaType* meta, FieldBase* field) { EditorActionResourceSampler::Create(m_editor, sampler->GetID(), m_storedDesc, sampler->GetDesc()); });
 
 		if (m_previewOnly)
 			DisableRecursively(m_inspector);

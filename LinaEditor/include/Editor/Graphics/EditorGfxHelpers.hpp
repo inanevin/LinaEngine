@@ -40,14 +40,12 @@ namespace Lina::Editor
 
 	struct GPUMaterialGUIColorWheel
 	{
-		Vector4 clip;
-		float	wheelRadius;
-		float	edgeSmoothness;
+		float wheelRadius;
+		float edgeSmoothness;
 	};
 
 	struct GPUMaterialGUIDefault
 	{
-		Vector4				 clip;
 		Vector4				 uvTilingAndOffset;
 		uint32				 hasTexture;
 		uint32				 displayChannels;
@@ -58,13 +56,11 @@ namespace Lina::Editor
 
 	struct GPUMaterialGUIHueDisplay
 	{
-		Vector4 clip;
 		Vector2 uvContribution;
 	};
 
 	struct GPUMaterialGUISDFText
 	{
-		Vector4				 clip;
 		LinaTexture2DBinding diffuse;
 		Vector4				 outlineColor;
 		float				 thickness;
@@ -75,7 +71,6 @@ namespace Lina::Editor
 
 	struct GPUMaterialGUIText
 	{
-		Vector4				 clip;
 		LinaTexture2DBinding diffuse;
 	};
 

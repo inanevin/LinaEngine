@@ -45,9 +45,9 @@ namespace Lina
 
 #define LINA_WIDGET_BEGIN(ClassName, Category)                                                                                                                                                                                                                     \
 	LINA_CLASS_BEGIN(ClassName)                                                                                                                                                                                                                                    \
-	Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*()>("CreateWidgetCache"_hs, std::bind(&Lina::ReflectionWidgetUtility::REF_CreateWidgetCacheFunc<ClassName>));                                                                                 \
-	Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<uint32>("WidgetIdent"_hs, 0);                                                                                                                                                                      \
-	Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>("Title"_hs, TOSTRING(ClassName));                                                                                                                                                    \
-	Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>("Category"_hs, TOSTRING(Category));
+	Lina::ReflectionSystem::Get().Meta<ClassName>()->AddFunction<void*()>("CreateWidgetCache"_hs, std::bind(&Lina::ReflectionWidgetUtility::REF_CreateWidgetCacheFunc<ClassName>));                                                                                \
+	Lina::ReflectionSystem::Get().Meta<ClassName>()->AddProperty<uint32>("WidgetIdent"_hs, 0);                                                                                                                                                                     \
+	Lina::ReflectionSystem::Get().Meta<ClassName>()->AddProperty<Lina::String>("Title"_hs, TOSTRING(ClassName));                                                                                                                                                   \
+	Lina::ReflectionSystem::Get().Meta<ClassName>()->AddProperty<Lina::String>("Category"_hs, TOSTRING(Category));
 
 } // namespace Lina

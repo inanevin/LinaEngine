@@ -354,7 +354,7 @@ namespace Lina::Editor
 			}
 		}
 
-		if (button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Pressed)
+		if (button == LINAGX_MOUSE_0 && (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated))
 		{
 			int32 idx = 0;
 

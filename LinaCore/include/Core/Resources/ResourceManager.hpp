@@ -28,7 +28,6 @@ SOFTWARE.
 
 #pragma once
 
-#include "Common/Data/HashMap.hpp"
 #include "Common/Data/Vector.hpp"
 #include "CommonResources.hpp"
 #include "ResourceCache.hpp"
@@ -46,6 +45,12 @@ namespace Lina
 	class ResourceManagerV2
 	{
 	public:
+		struct CachePair
+		{
+			TypeID			   tid	 = 0;
+			ResourceCacheBase* cache = nullptr;
+		};
+
 		ResourceManagerV2(){};
 		~ResourceManagerV2(){};
 
@@ -53,7 +58,7 @@ namespace Lina
 		HashSet<Resource*> LoadResourcesFromProject(ProjectData* project, const HashSet<ResourceID>& resources, Delegate<void(uint32 loaded, Resource* currentItem)> onProgress, uint64 resourceSpace = 0);
 		void			   UnloadResources(const ResourceDefinitionList& resources);
 		void			   ReloadResourceHW(const HashSet<Resource*>& resources);
-		void			   UnloadResourceSpace(StringID id);
+		void			   UnloadResourceSpace(uint64 id);
 
 		void AddListener(ResourceManagerListener* listener);
 		void RemoveListener(ResourceManagerListener* listener);
@@ -63,11 +68,16 @@ namespace Lina
 		template <typename T> ResourceCache<T>* GetCache()
 		{
 			const TypeID tid = GetTypeID<T>();
+			auto		 it	 = linatl::find_if(m_caches.begin(), m_caches.end(), [tid](const CachePair& pair) -> bool { return tid == pair.tid; });
 
-			if (m_caches.find(tid) == m_caches.end())
-				m_caches[tid] = new ResourceCache<T>();
+			if (it == m_caches.end())
+			{
+				ResourceCache<T>* cache = new ResourceCache<T>();
+				m_caches.push_back({tid, cache});
+				return cache;
+			}
 
-			ResourceCache<T>* cache = static_cast<ResourceCache<T>*>(m_caches[tid]);
+			ResourceCache<T>* cache = static_cast<ResourceCache<T>*>(it->cache);
 			return cache;
 		}
 
@@ -119,7 +129,7 @@ namespace Lina
 			return id;
 		}
 
-		inline const HashMap<TypeID, ResourceCacheBase*>& GetCaches() const
+		inline const Vector<CachePair>& GetCaches() const
 		{
 			return m_caches;
 		}
@@ -130,15 +140,24 @@ namespace Lina
 		}
 
 	private:
-		ResourceCacheBase* GetCache(TypeID tid);
-		void			   CheckLock();
+		struct SpacePair
+		{
+			uint64			   id	 = 0;
+			HashSet<Resource*> space = {};
+		};
 
 	private:
-		Vector<ResourceManagerListener*>	m_listeners;
-		ResourceID							m_customResourceID = RESOURCE_ID_CUSTOM_SPACE;
-		HashMap<TypeID, ResourceCacheBase*> m_caches;
-		bool								m_locked = false;
-		HashMap<uint64, HashSet<Resource*>> m_resourceSpaces;
+		ResourceCacheBase*	GetCache(TypeID tid);
+		HashSet<Resource*>& GetSpace(uint64 space);
+
+		void CheckLock();
+
+	private:
+		Vector<ResourceManagerListener*> m_listeners;
+		ResourceID						 m_customResourceID = RESOURCE_ID_CUSTOM_SPACE;
+		Vector<SpacePair>				 m_resourceSpaces;
+		Vector<CachePair>				 m_caches;
+		bool							 m_locked = false;
 	};
 
 } // namespace Lina

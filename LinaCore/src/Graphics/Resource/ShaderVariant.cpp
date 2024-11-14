@@ -42,34 +42,28 @@ namespace Lina
 
 	void ShaderVariant::SaveToStream(OStream& stream) const
 	{
+		stream << id;
 		stream << blendDisable << depthTest << depthWrite << cullMode << frontFace << depthOp << depthBiasEnable << depthBiasClamp << depthBiasConstant << depthBiasSlope << depthFormat << topology;
 		stream << name;
 		stream << targets;
 
-		const uint32 size = static_cast<uint32>(_outCompiledBlobs.size());
+		const uint32 size = static_cast<uint32>(_compileData.size());
 		stream << size;
 
-		for (const auto& [stage, blob] : _outCompiledBlobs)
+		for (const LinaGX::ShaderCompileData& data : _compileData)
 		{
-			stream << stage;
-			stream << static_cast<uint32>(blob.size);
-			stream.WriteRawEndianSafe(blob.ptr, blob.size);
-		}
-		SaveLinaGXShaderLayout(stream, _outLayout);
-
-		const uint32 compileDataSize = static_cast<uint32>(_compileData.size());
-		stream << compileDataSize;
-
-		for (const auto& [stage, data] : _compileData)
-		{
-			stream << stage;
+			stream << data.stage;
 			stream << data.text;
 			stream << data.includePath;
+			stream << static_cast<uint32>(data.outBlob.size);
+			stream.WriteRawEndianSafe(data.outBlob.ptr, data.outBlob.size);
 		}
+		SaveLinaGXShaderLayout(stream, _outLayout);
 	}
 
 	void ShaderVariant::LoadFromStream(IStream& stream)
 	{
+		stream >> id;
 		stream >> blendDisable >> depthTest >> depthWrite >> cullMode >> frontFace >> depthOp >> depthBiasEnable >> depthBiasClamp >> depthBiasConstant >> depthBiasSlope >> depthFormat >> topology;
 		stream >> name;
 		stream >> targets;
@@ -81,7 +75,10 @@ namespace Lina
 		{
 			uint32				sz = 0;
 			LinaGX::ShaderStage stage;
+			LINAGX_STRING		text = "", includePath = "";
 			stream >> stage;
+			stream >> text;
+			stream >> includePath;
 			stream >> sz;
 
 			LinaGX::DataBlob blob = {.ptr = nullptr, .size = static_cast<size_t>(sz)};
@@ -92,23 +89,11 @@ namespace Lina
 				stream.ReadToRawEndianSafe(blob.ptr, blob.size);
 			}
 
-			_outCompiledBlobs[stage] = blob;
+			_compileData.push_back({.stage = stage, .text = text, .includePath = includePath, .outBlob = blob});
 		}
 
 		_outLayout = {};
 		LoadLinaGXShaderLayout(stream, _outLayout);
-
-		uint32 compileDataSz = 0;
-		stream >> compileDataSz;
-
-		for (uint32 i = 0; i < compileDataSz; i++)
-		{
-			LinaGX::ShaderStage stage = {};
-			stream >> stage;
-			auto& data = _compileData[stage];
-			stream >> data.text;
-			stream >> data.includePath;
-		}
 	}
 
 } // namespace Lina

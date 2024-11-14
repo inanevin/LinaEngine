@@ -61,6 +61,9 @@ namespace Lina
 
 	void ColorField::Draw()
 	{
+		if (ShouldSkipDrawOutsideWindow())
+			return;
+
 		if (m_props.value == nullptr && m_props.gradValue == nullptr)
 			return;
 

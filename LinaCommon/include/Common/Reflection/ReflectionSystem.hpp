@@ -28,11 +28,8 @@ SOFTWARE.
 
 #pragma once
 
-#include "Common/Data/String.hpp"
-#include "Common/Data/HashMap.hpp"
 #include "Common/StringID.hpp"
 #include "Common/Data/Functional.hpp"
-#include "Common/Data/CommonData.hpp"
 #include <type_traits>
 
 namespace Lina
@@ -46,40 +43,80 @@ namespace Lina
 
 	template <typename T> class PropertyCache : public PropertyCacheBase
 	{
+	private:
+		struct PropertyPair
+		{
+			StringID id	 = 0;
+			T		 val = T();
+		};
+
 	public:
 		void AddProperty(StringID sid, T p)
 		{
-			if (m_properties.find(sid) != m_properties.end())
+			if (HasProperty(sid))
 				return;
-			m_properties[sid] = p;
+
+			m_properties.push_back({sid, p});
 			_order.push_back(sid);
 		}
 
 		T GetProperty(StringID sid)
 		{
-			return m_properties[sid];
+			PropertyPair out = {};
+			if (!FindPair(sid, out))
+			{
+				LINA_ASSERT(false, "");
+			}
+			return out.val;
 		}
 
 		bool HasProperty(StringID sid) const
 		{
-			return m_properties.find(sid) != m_properties.end();
+			PropertyPair out = {};
+			return FindPair(sid, out);
 		}
 
 		Vector<T> GetSortedVector()
 		{
-			Vector<T> vec;
+			Vector<T>	 vec;
+			PropertyPair out = {};
 			for (StringID sid : _order)
-				vec.push_back(m_properties[sid]);
+			{
+				if (FindPair(sid, out))
+					vec.push_back(out.val);
+			}
 			return vec;
 		}
 
 	private:
-		HashMap<StringID, T> m_properties;
+		bool FindPair(StringID id, PropertyPair& pair) const
+		{
+			for (const PropertyPair& p : m_properties)
+			{
+				if (p.id == id)
+				{
+					pair = p;
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+	private:
+		Vector<PropertyPair> m_properties;
 		Vector<StringID>	 _order;
+	};
+
+	struct PropertyCachePair
+	{
+		TypeID			   tid	 = 0;
+		PropertyCacheBase* cache = nullptr;
 	};
 
 	class PropertyCacheManager
 	{
+	private:
 	public:
 		PropertyCacheManager() = default;
 
@@ -89,60 +126,80 @@ namespace Lina
 
 		template <typename T> bool HasProperty(StringID sid) const
 		{
-			const TypeID tid = GetTypeID<T>();
-			auto		 it	 = m_propertyCaches.find(tid);
-			if (it == m_propertyCaches.end())
+			const TypeID	  tid = GetTypeID<T>();
+			PropertyCachePair out = {};
+			if (!FindPair(tid, out))
 				return false;
-
-			return static_cast<PropertyCache<T>*>(it->second)->HasProperty(sid);
+			return static_cast<PropertyCache<T>*>(out.cache)->HasProperty(sid);
 		}
 
 		template <typename T> inline void AddProperty(StringID sid, T param)
 		{
 			const TypeID tid = GetTypeID<T>();
-			auto		 it	 = m_propertyCaches.find(tid);
-			if (it == m_propertyCaches.end())
+
+			PropertyCachePair out = {};
+
+			if (!FindPair(tid, out))
 			{
 				PropertyCache<T>* cache = new PropertyCache<T>();
-				m_propertyCaches[tid]	= cache;
+				m_propertyCaches.push_back({.tid = tid, .cache = cache});
 				cache->AddProperty(sid, param);
 			}
 			else
 			{
-				PropertyCache<T>* cache = static_cast<PropertyCache<T>*>(it->second);
+				PropertyCache<T>* cache = static_cast<PropertyCache<T>*>(out.cache);
 				cache->AddProperty(sid, param);
 			}
 		}
 
-		template <typename T> inline T GetProperty(StringID sid) const
+		template <typename T> inline PropertyCache<T>* GetPropertyCache() const
 		{
-			const TypeID	   tid	 = GetTypeID<T>();
-			PropertyCacheBase* cache = m_propertyCaches.at(tid);
-			return static_cast<PropertyCache<T>*>(cache)->GetProperty(sid);
+			const TypeID	  tid = GetTypeID<T>();
+			PropertyCachePair out = {};
+
+			if (!FindPair(tid, out))
+			{
+				LINA_ASSERT(false, "");
+				return nullptr;
+			}
+
+			return static_cast<PropertyCache<T>*>(out.cache);
 		}
 
-		template <typename T> inline PropertyCache<T>* GetPropertyCache()
+		template <typename T> inline T GetProperty(StringID sid) const
 		{
-			const TypeID	   tid	 = GetTypeID<T>();
-			PropertyCacheBase* cache = m_propertyCaches.at(tid);
-			return static_cast<PropertyCache<T>*>(cache);
+			return GetPropertyCache<T>()->GetProperty(sid);
 		}
 
 		void Destroy()
 		{
-			for (auto& [tid, p] : m_propertyCaches)
-				delete p;
-
+			for (PropertyCachePair& pair : m_propertyCaches)
+				delete pair.cache;
 			m_propertyCaches.clear();
 		}
 
-		const HashMap<TypeID, PropertyCacheBase*>& GetPropertyCaches() const
+		const Vector<PropertyCachePair>& GetPropertyCaches() const
 		{
 			return m_propertyCaches;
 		}
 
 	private:
-		HashMap<TypeID, PropertyCacheBase*> m_propertyCaches;
+		bool FindPair(TypeID tid, PropertyCachePair& pair) const
+		{
+			for (const PropertyCachePair& p : m_propertyCaches)
+			{
+				if (p.tid == tid)
+				{
+					pair = p;
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+	private:
+		Vector<PropertyCachePair> m_propertyCaches;
 	};
 
 	class FieldValue
@@ -194,37 +251,87 @@ namespace Lina
 
 	template <typename T> class FunctionCache : public FunctionCacheBase
 	{
+	private:
+		struct FunctionPair
+		{
+			StringID	id	 = 0;
+			Delegate<T> func = {};
+		};
+
 	public:
 		void AddFunction(StringID sid, Delegate<T>&& f)
 		{
-			m_functions[sid] = f;
+			FunctionPair out = {};
+			if (FindPair(sid, out))
+			{
+				out.func = f;
+				return;
+			}
+
+			m_functions.push_back({.id = sid, .func = f});
 		}
 
 		Delegate<T> GetFunction(StringID sid)
 		{
-			return m_functions[sid];
+			FunctionPair out = {};
+			if (!FindPair(sid, out))
+			{
+				LINA_ASSERT(false, "");
+			}
+			return out.func;
 		}
 
 		bool HasFunction(StringID sid)
 		{
-			return m_functions.find(sid) != m_functions.end();
+			FunctionPair out = {};
+			return FindPair(sid, out);
 		}
 
 		FunctionCache()			 = default;
 		virtual ~FunctionCache() = default;
 
 	private:
-		HashMap<StringID, Delegate<T>> m_functions;
+		bool FindPair(TypeID id, FunctionPair& pair) const
+		{
+			for (const FunctionPair& f : m_functions)
+			{
+				if (f.id == id)
+				{
+					pair = f;
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+	private:
+		Vector<FunctionPair> m_functions;
+	};
+
+	struct FunctionCachePair
+	{
+		TypeID			   tid	 = 0;
+		FunctionCacheBase* cache = nullptr;
+	};
+
+	struct DependencyPair
+	{
+		StringID id	 = 0;
+		uint8	 dep = 0;
 	};
 
 	class FieldBase
 	{
+
+	private:
 	public:
 		FieldBase() = default;
 		virtual ~FieldBase()
 		{
-			for (auto [sid, cache] : m_functionCaches)
-				delete cache;
+			for (FunctionCachePair& pair : m_functionCaches)
+				delete pair.cache;
+
 			m_functionCaches.clear();
 			m_propertyCacheManager.Destroy();
 		}
@@ -249,7 +356,7 @@ namespace Lina
 			return m_propertyCacheManager.HasProperty<T>(sid);
 		}
 
-		const HashMap<TypeID, PropertyCacheBase*>& GetPropertyCaches() const
+		const Vector<PropertyCachePair>& GetPropertyCaches() const
 		{
 			return m_propertyCacheManager.GetPropertyCaches();
 		}
@@ -257,16 +364,18 @@ namespace Lina
 		template <typename T> inline void AddFunction(StringID sid, Delegate<T>&& del)
 		{
 			const TypeID tid = GetTypeID<T>();
-			auto		 it	 = m_functionCaches.find(tid);
-			if (it == m_functionCaches.end())
+
+			FunctionCachePair out = {};
+
+			if (!FindFunctionCache(tid, out))
 			{
 				FunctionCache<T>* cache = new FunctionCache<T>();
-				m_functionCaches[tid]	= cache;
+				m_functionCaches.push_back({tid, cache});
 				cache->AddFunction(sid, linatl::move(del));
 			}
 			else
 			{
-				FunctionCache<T>* cache = static_cast<FunctionCache<T>*>(it->second);
+				FunctionCache<T>* cache = static_cast<FunctionCache<T>*>(out.cache);
 
 				if (cache->HasFunction(sid))
 					return;
@@ -276,30 +385,36 @@ namespace Lina
 
 		template <typename T> inline Delegate<T> GetFunction(StringID sid)
 		{
-			const TypeID	  tid	= GetTypeID<T>();
-			FunctionCache<T>* cache = static_cast<FunctionCache<T>*>(m_functionCaches[tid]);
+			const TypeID tid = GetTypeID<T>();
+
+			FunctionCachePair out = {};
+
+			if (!FindFunctionCache(tid, out))
+			{
+				LINA_ASSERT(false, "");
+			}
+
+			FunctionCache<T>* cache = static_cast<FunctionCache<T>*>(out.cache);
 			return cache->GetFunction(sid);
 		}
 
 		inline void AddPositiveDependency(StringID sid, uint8 val)
 		{
-			m_positiveDependencies[sid] = val;
+			DependencyPair out = {};
+			if (FindPosDepCache(sid, out))
+			{
+				out.dep = val;
+				return;
+			}
+
+			m_positiveDependencies.push_back({sid, val});
 		}
 
-		inline void AdNegativeDependency(StringID sid, uint8 val)
-		{
-			m_negativeDependencies[sid] = val;
-		}
-
-		const HashMap<StringID, uint8>& GetPositiveDependencies() const
+		const Vector<DependencyPair>& GetPositiveDependencies() const
 		{
 			return m_positiveDependencies;
 		}
 
-		const HashMap<StringID, uint8>& GetNegativeDependencies() const
-		{
-			return m_negativeDependencies;
-		}
 		int32 _order = 0;
 
 		inline bool* GetFoldValuePtr()
@@ -308,11 +423,39 @@ namespace Lina
 		}
 
 	private:
-		bool								m_foldValue = false;
-		HashMap<StringID, uint8>			m_positiveDependencies;
-		HashMap<StringID, uint8>			m_negativeDependencies;
-		HashMap<TypeID, FunctionCacheBase*> m_functionCaches;
-		PropertyCacheManager				m_propertyCacheManager;
+		bool FindFunctionCache(TypeID tid, FunctionCachePair& pair) const
+		{
+			for (const FunctionCachePair& f : m_functionCaches)
+			{
+				if (f.tid == tid)
+				{
+					pair = f;
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		bool FindPosDepCache(StringID id, DependencyPair& pair) const
+		{
+			for (const DependencyPair& d : m_positiveDependencies)
+			{
+				if (d.id == id)
+				{
+					pair = d;
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+	private:
+		bool					  m_foldValue = false;
+		Vector<DependencyPair>	  m_positiveDependencies;
+		Vector<FunctionCachePair> m_functionCaches;
+		PropertyCacheManager	  m_propertyCacheManager;
 	};
 
 	template <typename T, class C> class Field : public FieldBase
@@ -348,12 +491,23 @@ namespace Lina
 		T m_var = T();
 	};
 
+	struct FieldPair
+	{
+		StringID   sid	 = 0;
+		FieldBase* field = nullptr;
+	};
+
 	class MetaType
 	{
 	public:
 		inline FieldBase* GetField(StringID sid)
 		{
-			return m_fields[sid];
+			FieldPair out = {};
+			if (!FindField(sid, out))
+			{
+				LINA_ASSERT(false, "");
+			}
+			return out.field;
 		}
 
 		template <auto DATA, typename Class> void AddField(StringID sid)
@@ -361,12 +515,13 @@ namespace Lina
 			Field<decltype(DATA), Class>* f = new Field<decltype(DATA), Class>();
 			f->m_var						= DATA;
 			f->_order						= static_cast<int32>(m_fields.size());
-			m_fields[sid]					= f;
+			m_fields.push_back({sid, f});
 		}
 
 		inline bool HasField(StringID sid) const
 		{
-			return m_fields.find(sid) != m_fields.end();
+			FieldPair out = {};
+			return FindField(sid, out);
 		}
 
 		template <typename T> inline void AddProperty(StringID sid, T param)
@@ -387,16 +542,18 @@ namespace Lina
 		template <typename T> inline void AddFunction(StringID sid, Delegate<T>&& del)
 		{
 			const TypeID tid = GetTypeID<T>();
-			auto		 it	 = m_functionCaches.find(tid);
-			if (it == m_functionCaches.end())
+
+			FunctionCachePair out = {};
+
+			if (!FindFunctionCache(tid, out))
 			{
 				FunctionCache<T>* cache = new FunctionCache<T>();
-				m_functionCaches[tid]	= cache;
+				m_functionCaches.push_back({tid, cache});
 				cache->AddFunction(sid, linatl::move(del));
 			}
 			else
 			{
-				FunctionCache<T>* cache = static_cast<FunctionCache<T>*>(it->second);
+				FunctionCache<T>* cache = static_cast<FunctionCache<T>*>(out.cache);
 
 				if (cache->HasFunction(sid))
 					return;
@@ -406,12 +563,20 @@ namespace Lina
 
 		template <typename T> inline Delegate<T> GetFunction(StringID sid)
 		{
-			const TypeID	  tid	= GetTypeID<T>();
-			FunctionCache<T>* cache = static_cast<FunctionCache<T>*>(m_functionCaches[tid]);
+			const TypeID tid = GetTypeID<T>();
+
+			FunctionCachePair out = {};
+
+			if (!FindFunctionCache(tid, out))
+			{
+				LINA_ASSERT(false, "");
+			}
+
+			FunctionCache<T>* cache = static_cast<FunctionCache<T>*>(out.cache);
 			return cache->GetFunction(sid);
 		}
 
-		const HashMap<StringID, FieldBase*>& GetFields() const
+		const Vector<FieldPair>& GetFields() const
 		{
 			return m_fields;
 		}
@@ -421,8 +586,8 @@ namespace Lina
 			Vector<FieldBase*> fields;
 			fields.reserve(m_fields.size());
 
-			for (auto [sid, fb] : m_fields)
-				fields.push_back(fb);
+			for (const FieldPair& pair : m_fields)
+				fields.push_back(pair.field);
 
 			linatl::sort(fields.begin(), fields.end(), [](FieldBase* f1, FieldBase* f2) -> bool { return f1->_order < f2->_order; });
 			return fields;
@@ -434,13 +599,48 @@ namespace Lina
 		}
 
 	private:
+		bool FindFunctionCache(TypeID tid, FunctionCachePair& pair) const
+		{
+			for (const FunctionCachePair& f : m_functionCaches)
+			{
+				if (f.tid == tid)
+				{
+					pair = f;
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		bool FindField(StringID sid, FieldPair& pair) const
+		{
+			for (const FieldPair& f : m_fields)
+			{
+				if (f.sid == sid)
+				{
+					pair = f;
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+	private:
 		friend class ReflectionSystem;
-		PropertyCacheManager				m_propertyCacheManager;
-		HashMap<TypeID, FunctionCacheBase*> m_functionCaches;
-		HashMap<StringID, FieldBase*>		m_fields;
+		PropertyCacheManager	  m_propertyCacheManager;
+		Vector<FunctionCachePair> m_functionCaches;
+		Vector<FieldPair>		  m_fields;
 	};
 
 	class GlobalAllocationWrapper;
+
+	struct MetaPair
+	{
+		TypeID	  tid  = 0;
+		MetaType* type = {};
+	};
 
 	class ReflectionSystem
 	{
@@ -451,31 +651,71 @@ namespace Lina
 			return instance;
 		}
 
-		template <typename T> MetaType& Meta()
+		template <typename T> MetaType* Meta()
 		{
 			const TypeID tid = GetTypeID<T>();
-			return m_metaData[tid];
+
+			auto it = linatl::find_if(m_metaData.begin(), m_metaData.end(), [tid](MetaPair& pair) -> bool { return tid == pair.tid; });
+
+			if (it == m_metaData.end())
+			{
+				MetaType* meta = new MetaType();
+				m_metaData.push_back({tid, meta});
+				return meta;
+			}
+			return it->type;
 		}
 
-		template <typename T> MetaType& Resolve()
+		template <typename T> MetaType* Resolve()
 		{
 			const TypeID tid = GetTypeID<T>();
-			return m_metaData[tid];
+
+			auto it = linatl::find_if(m_metaData.begin(), m_metaData.end(), [tid](MetaPair& pair) -> bool { return tid == pair.tid; });
+
+			if (it == m_metaData.end())
+			{
+				MetaType* meta = new MetaType();
+				m_metaData.push_back({tid, meta});
+				return meta;
+			}
+			return it->type;
 		}
 
-		MetaType& Resolve(TypeID tid)
+		MetaType* Resolve(TypeID tid)
 		{
-			LINA_ASSERT(m_metaData.find(tid) != m_metaData.end(), "");
-			return m_metaData[tid];
+			auto it = linatl::find_if(m_metaData.begin(), m_metaData.end(), [tid](MetaPair& pair) -> bool { return tid == pair.tid; });
+
+			if (it == m_metaData.end())
+			{
+				MetaType* meta = new MetaType();
+				m_metaData.push_back({tid, meta});
+				return meta;
+			}
+			return it->type;
 		}
 
-		const HashMap<TypeID, MetaType>& GetTypes() const
+		const Vector<MetaPair>& GetTypes() const
 		{
 			return m_metaData;
 		}
 
 	protected:
 		void Destroy();
+
+	private:
+		bool FindPair(TypeID tid, MetaPair& pair) const
+		{
+			for (const MetaPair& m : m_metaData)
+			{
+				if (m.tid == tid)
+				{
+					pair = m;
+					return true;
+				}
+			}
+
+			return false;
+		}
 
 	private:
 		friend class GlobalAllocationWrapper;
@@ -488,6 +728,6 @@ namespace Lina
 		}
 
 	private:
-		HashMap<TypeID, MetaType> m_metaData;
+		Vector<MetaPair> m_metaData;
 	};
 } // namespace Lina

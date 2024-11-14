@@ -86,10 +86,10 @@ namespace Lina
 
 #define LINA_COMPONENT_BEGIN(ClassName, Category)                                                                                                                                                                                                                  \
 	LINA_CLASS_BEGIN(ClassName)                                                                                                                                                                                                                                    \
-	Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*(EntityWorld*)>("CreateComponentCache"_hs, std::bind(&Lina::ReflectionComponentUtility::REF_CreateComponentCacheFunc<ClassName>, std::placeholders::_1));                                     \
-	Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void(OStream&, void*)>("SaveToStream"_hs, std::bind(&Lina::ReflectionComponentUtility::REF_SaveToStream<ClassName>, std::placeholders::_1, std::placeholders::_2));                                \
-	Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void(IStream&, void*)>("LoadFromStream"_hs, std::bind(&Lina::ReflectionComponentUtility::REF_LoadFromStream<ClassName>, std::placeholders::_1, std::placeholders::_2));                            \
-	Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>("Title"_hs, TOSTRING(ClassName));                                                                                                                                                    \
-	Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>("Category"_hs, TOSTRING(Category));
+	Lina::ReflectionSystem::Get().Meta<ClassName>()->AddFunction<void*(EntityWorld*)>("CreateComponentCache"_hs, std::bind(&Lina::ReflectionComponentUtility::REF_CreateComponentCacheFunc<ClassName>, std::placeholders::_1));                                    \
+	Lina::ReflectionSystem::Get().Meta<ClassName>()->AddFunction<void(OStream&, void*)>("SaveToStream"_hs, std::bind(&Lina::ReflectionComponentUtility::REF_SaveToStream<ClassName>, std::placeholders::_1, std::placeholders::_2));                               \
+	Lina::ReflectionSystem::Get().Meta<ClassName>()->AddFunction<void(IStream&, void*)>("LoadFromStream"_hs, std::bind(&Lina::ReflectionComponentUtility::REF_LoadFromStream<ClassName>, std::placeholders::_1, std::placeholders::_2));                           \
+	Lina::ReflectionSystem::Get().Meta<ClassName>()->AddProperty<Lina::String>("Title"_hs, TOSTRING(ClassName));                                                                                                                                                   \
+	Lina::ReflectionSystem::Get().Meta<ClassName>()->AddProperty<Lina::String>("Category"_hs, TOSTRING(Category));
 
 } // namespace Lina

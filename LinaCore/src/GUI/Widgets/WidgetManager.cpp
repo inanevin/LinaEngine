@@ -150,6 +150,7 @@ namespace Lina
 	void WidgetManager::Draw()
 	{
 		PROFILER_FUNCTION();
+
 		m_rootWidget->Draw();
 
 		if (!m_foregroundRoot->GetChildren().empty())
@@ -194,7 +195,13 @@ namespace Lina
 		const TypeID tid = widget->m_tid;
 		widget->Destruct();
 
-		WidgetCacheBase* cache = m_widgetCaches.at(tid);
+		WidgetCachePair out = {};
+		if (!FindCache(tid, out))
+		{
+			LINA_ASSERT(false, "");
+		}
+
+		WidgetCacheBase* cache = out.cache;
 		cache->Destroy(widget);
 	}
 
@@ -207,22 +214,24 @@ namespace Lina
 
 		m_window->RemoveListener(this);
 
-		for (auto [tid, cache] : m_widgetCaches)
-			delete cache;
+		for (const WidgetCachePair& pair : m_widgetCaches)
+			delete pair.cache;
 
 		m_widgetCaches.clear();
 	}
 
 	Widget* WidgetManager::Allocate(TypeID tid, const String& debugName)
 	{
-		WidgetCacheBase* cacheBase = m_widgetCaches[tid];
-
-		if (cacheBase == nullptr)
+		WidgetCachePair	 out	   = {};
+		WidgetCacheBase* cacheBase = nullptr;
+		if (!FindCache(tid, out))
 		{
-			MetaType& type		= ReflectionSystem::Get().Resolve(tid);
-			cacheBase			= static_cast<WidgetCacheBase*>(type.GetFunction<void*()>("CreateWidgetCache"_hs)());
-			m_widgetCaches[tid] = cacheBase;
+			MetaType* type = ReflectionSystem::Get().Resolve(tid);
+			cacheBase	   = static_cast<WidgetCacheBase*>(type->GetFunction<void*()>("CreateWidgetCache"_hs)());
+			m_widgetCaches.push_back({tid, cacheBase});
 		}
+		else
+			cacheBase = out.cache;
 
 		uint32	cacheIndex = 0;
 		Widget* t		   = static_cast<Widget*>(cacheBase->Create(cacheIndex));
@@ -397,19 +406,29 @@ namespace Lina
 			w->DebugDraw(DEBUG_DRAW_ORDER);
 	}
 
-	void WidgetManager::SetClip(const Rect& r, const TBLR& margins)
+	void WidgetManager::SetClip(const Rect& r)
 	{
 		const ClipData cd = {
-			.rect	 = r,
-			.margins = margins,
+			.rect = r,
 		};
 
 		m_clipStack.push_back(cd);
 
-		m_lvg->SetClipPosX(static_cast<uint32>(r.pos.x + margins.left));
-		m_lvg->SetClipPosY(static_cast<uint32>(r.pos.y + margins.top));
-		m_lvg->SetClipSizeX(static_cast<uint32>(r.size.x - (margins.left + margins.right)));
-		m_lvg->SetClipSizeY(static_cast<uint32>(r.size.y - (margins.top + margins.bottom)));
+		LinaVG::Vec4i rect = {};
+		rect.x			   = static_cast<int32>(r.pos.x);
+		rect.y			   = static_cast<int32>(r.pos.y);
+
+		if (r.size.x < 0.0f)
+			rect.z = 0;
+		else
+			rect.z = static_cast<uint32>(r.size.x);
+
+		if (r.size.y < 0.0f)
+			rect.w = 0;
+		else
+			rect.w = static_cast<uint32>(r.size.y);
+
+		m_lvg->SetClipRect(rect);
 	}
 
 	void WidgetManager::UnsetClip()
@@ -418,24 +437,35 @@ namespace Lina
 
 		if (m_clipStack.empty())
 		{
-			m_lvg->SetClipPosX(0);
-			m_lvg->SetClipPosY(0);
-			m_lvg->SetClipSizeX(0);
-			m_lvg->SetClipSizeY(0);
+			m_lvg->SetClipRect({0, 0, 0, 0});
 		}
 		else
 		{
-			const ClipData& cd = m_clipStack[m_clipStack.size() - 1];
-			m_lvg->SetClipPosX(static_cast<uint32>(cd.rect.pos.x + cd.margins.left));
-			m_lvg->SetClipPosY(static_cast<uint32>(cd.rect.pos.y + cd.margins.top));
-			m_lvg->SetClipSizeX(static_cast<uint32>(cd.rect.size.x - (cd.margins.left + cd.margins.right)));
-			m_lvg->SetClipSizeY(static_cast<uint32>(cd.rect.size.y - (cd.margins.top + cd.margins.bottom)));
+			const ClipData& cd	 = m_clipStack[m_clipStack.size() - 1];
+			LinaVG::Vec4i	rect = {};
+			rect.x				 = static_cast<int32>(cd.rect.pos.x);
+			rect.y				 = static_cast<int32>(cd.rect.pos.y);
+
+			if (cd.rect.size.x < 0.0f)
+				rect.z = 0;
+			else
+				rect.z = static_cast<uint32>(cd.rect.size.x);
+
+			if (cd.rect.size.y < 0.0f)
+				rect.w = 0;
+			else
+				rect.w = static_cast<uint32>(cd.rect.size.y);
+
+			m_lvg->SetClipRect(rect);
 		}
 	}
 
 	void WidgetManager::AddToKillList(Widget* w)
 	{
-		m_killList.insert(w);
+		auto it = linatl::find_if(m_killList.begin(), m_killList.end(), [w](Widget* wid) -> bool { return w == wid; });
+		if (it != m_killList.end())
+			return;
+		m_killList.push_back(w);
 	}
 
 	LinaGX::CursorType WidgetManager::FindCursorType(Widget* w)

@@ -54,6 +54,9 @@ namespace Lina
 		static Color ColorLinear(float r, float g, float b, float a);
 		static Color Color255Linear(float r, float g, float b, float);
 
+		Color Brighten(float amt) const;
+		Color Darken(float amt) const;
+
 		LinaVG::Vec4 AsLVG4() const
 		{
 			return LinaVG::Vec4(x, y, z, w);

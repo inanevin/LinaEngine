@@ -60,11 +60,14 @@ namespace Lina
 				DestroyEntity(e);
 			return false;
 		});
+		DestroyComponentCaches();
+	}
 
-		for (Pair<TypeID, ComponentCacheBase*> pair : m_componentCaches)
-		{
-			delete pair.second;
-		}
+	void EntityWorld::DestroyComponentCaches()
+	{
+		for (const ComponentCachePair& pair : m_componentCaches)
+			delete pair.cache;
+		m_componentCaches.clear();
 	}
 
 	void EntityWorld::Tick(float delta)
@@ -86,9 +89,9 @@ namespace Lina
 
 	void EntityWorld::BeginPlay()
 	{
-		for (auto [tid, cache] : m_componentCaches)
+		for (const ComponentCachePair& pair : m_componentCaches)
 		{
-			cache->ForEach([](Component* c) { c->OnBeginPlay(); });
+			pair.cache->ForEach([](Component* c) { c->OnBeginPlay(); });
 		}
 	}
 
@@ -96,22 +99,22 @@ namespace Lina
 	{
 		m_playMode = PlayMode::None;
 
-		for (auto [tid, cache] : m_componentCaches)
+		for (const ComponentCachePair& pair : m_componentCaches)
 		{
-			cache->ForEach([](Component* c) { c->OnEndPlay(); });
+			pair.cache->ForEach([](Component* c) { c->OnEndPlay(); });
 		}
 	}
 
 	void EntityWorld::TickPlay(float deltaTime)
 	{
-		for (auto [tid, cache] : m_componentCaches)
+		for (const ComponentCachePair& pair : m_componentCaches)
 		{
-			cache->ForEach([deltaTime](Component* c) { c->OnTick(deltaTime); });
+			pair.cache->ForEach([deltaTime](Component* c) { c->OnTick(deltaTime); });
 		}
 
-		for (auto [tid, cache] : m_componentCaches)
+		for (const ComponentCachePair& pair : m_componentCaches)
 		{
-			cache->ForEach([deltaTime](Component* c) { c->OnPostTick(deltaTime); });
+			pair.cache->ForEach([deltaTime](Component* c) { c->OnPostTick(deltaTime); });
 		}
 	}
 
@@ -137,15 +140,15 @@ namespace Lina
 		for (auto child : e->m_children)
 			DestroyEntityData(child);
 
-		for (auto& [tid, cache] : m_componentCaches)
+		for (const ComponentCachePair& pair : m_componentCaches)
 		{
-			Component* c = cache->Get(e);
+			Component* c = pair.cache->Get(e);
 
 			if (c == nullptr)
 				continue;
 
 			OnDestroyComponent(c, e);
-			cache->Destroy(c);
+			pair.cache->Destroy(c);
 		}
 
 		m_entityBucket.Free(e);
@@ -177,10 +180,10 @@ namespace Lina
 		const uint32 cacheSize = static_cast<uint32>(m_componentCaches.size());
 		stream << cacheSize;
 
-		for (auto& [tid, cache] : m_componentCaches)
+		for (const ComponentCachePair& pair : m_componentCaches)
 		{
-			stream << tid;
-			cache->SaveToStream(stream);
+			stream << pair.tid;
+			pair.cache->SaveToStream(stream);
 		}
 	}
 
@@ -198,6 +201,8 @@ namespace Lina
 
 	void EntityWorld::LoadFromStream(IStream& stream)
 	{
+		DestroyComponentCaches();
+
 		Resource::LoadFromStream(stream);
 		uint32 version = 0;
 		stream >> version;
@@ -239,11 +244,12 @@ namespace Lina
 			TypeID tid = 0;
 			stream >> tid;
 
-			MetaType&			type  = ReflectionSystem::Get().Resolve(tid);
-			void*				ptr	  = type.GetFunction<void*(EntityWorld*)>("CreateComponentCache"_hs)(this);
+			MetaType*			type  = ReflectionSystem::Get().Resolve(tid);
+			void*				ptr	  = type->GetFunction<void*(EntityWorld*)>("CreateComponentCache"_hs)(this);
 			ComponentCacheBase* cache = static_cast<ComponentCacheBase*>(ptr);
 			cache->LoadFromStream(stream, tempEntities);
-			m_componentCaches[tid] = cache;
+
+			m_componentCaches.push_back({tid, cache});
 
 			cache->ForEach([this](Component* c) { OnCreateComponent(c, c->m_entity); });
 		}
@@ -303,9 +309,9 @@ namespace Lina
 
 	void EntityWorld::CollectResourceNeeds(HashSet<ResourceID>& outResources)
 	{
-		for (auto [tid, cache] : m_componentCaches)
+		for (const ComponentCachePair& pair : m_componentCaches)
 		{
-			cache->ForEach([&](Component* c) { c->CollectReferences(outResources); });
+			pair.cache->ForEach([&](Component* c) { c->CollectReferences(outResources); });
 		}
 
 		outResources.insert(m_gfxSettings.lightingMaterial);

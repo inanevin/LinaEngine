@@ -183,11 +183,11 @@ namespace Lina::Editor
 			m_inspector->AddChild(foldGeneral);
 			m_inspector->AddChild(foldShader);
 
-			CommonWidgets::BuildClassReflection(foldGeneral, this, ReflectionSystem::Get().Resolve<PanelShaderViewer>(), [this](const MetaType& meta, FieldBase* field) {
+			CommonWidgets::BuildClassReflection(foldGeneral, this, ReflectionSystem::Get().Resolve<PanelShaderViewer>(), [this](MetaType* meta, FieldBase* field) {
 
 			});
 
-			CommonWidgets::BuildClassReflection(foldShader, &m_shader->GetMeta(), ReflectionSystem::Get().Resolve<Shader::Metadata>(), [this](const MetaType& meta, FieldBase* field) {
+			CommonWidgets::BuildClassReflection(foldShader, &m_shader->GetMeta(), ReflectionSystem::Get().Resolve<Shader::Metadata>(), [this](MetaType* meta, FieldBase* field) {
 				SetRuntimeDirty(true);
 				// RegenShader("");
 			});

@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelPhysicsMaterialViewer.hpp"
 #include "Editor/Widgets/Panel/PanelAudioViewer.hpp"
 #include "Editor/Widgets/Panel/PanelSamplerViewer.hpp"
+#include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
 #include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
 #include "Editor/IO/ThumbnailGenerator.hpp"
 #include "Core/Graphics/Resource/TextureSampler.hpp"
@@ -54,7 +55,7 @@ namespace Lina::Editor
 	*** RESOURCE RENAME
 	*/
 
-	EditorActionResourceRename* EditorActionResourceRename::Create(Editor* editor, ResourceGUID guid, const String& oldName, const String& newName)
+	EditorActionResourceRename* EditorActionResourceRename::Create(Editor* editor, GUID guid, const String& oldName, const String& newName)
 	{
 		EditorActionResourceRename* action = new EditorActionResourceRename();
 		action->m_prevName				   = oldName;
@@ -98,8 +99,8 @@ namespace Lina::Editor
 		else
 		{
 			// Open, modify, close resource.
-			MetaType& meta	 = ReflectionSystem::Get().Resolve(dir->resourceTID);
-			Resource* res	 = static_cast<Resource*>(meta.GetFunction<void*()>("Allocate"_hs)());
+			MetaType* meta	 = ReflectionSystem::Get().Resolve(dir->resourceTID);
+			Resource* res	 = static_cast<Resource*>(meta->GetFunction<void*()>("Allocate"_hs)());
 			IStream	  stream = Serialization::LoadFromFile(resPath.c_str());
 			if (!stream.Empty())
 			{
@@ -108,7 +109,7 @@ namespace Lina::Editor
 				res->SaveToFileAsBinary(resPath);
 			}
 			stream.Destroy();
-			meta.GetFunction<void(void*)>("Deallocate"_hs)(res);
+			meta->GetFunction<void(void*)>("Deallocate"_hs)(res);
 		}
 
 		// Find and update any resource panel using this.
@@ -409,7 +410,7 @@ namespace Lina::Editor
 		editor->GetApp()->GetResourceManager().ReloadResourceHW({mat});
 	}
 
-	EditorActionResourceMove* EditorActionResourceMove::Create(Editor* editor, const Vector<ResourceGUID>& resources, const Vector<ResourceGUID>& previousParents, ResourceGUID newParent)
+	EditorActionResourceMove* EditorActionResourceMove::Create(Editor* editor, const Vector<GUID>& resources, const Vector<GUID>& previousParents, GUID newParent)
 	{
 		EditorActionResourceMove* action = new EditorActionResourceMove();
 
@@ -430,8 +431,8 @@ namespace Lina::Editor
 			const size_t sz = m_resourceGUIDs.size();
 			for (size_t i = 0; i < sz; i++)
 			{
-				ResourceGUID guid		= m_resourceGUIDs[i];
-				ResourceGUID targetGUID = m_previousParentGUIDs[i];
+				GUID guid		= m_resourceGUIDs[i];
+				GUID targetGUID = m_previousParentGUIDs[i];
 
 				ResourceDirectory* dir = editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindByGUID(guid);
 				if (dir == nullptr)
@@ -453,7 +454,7 @@ namespace Lina::Editor
 			if (target == nullptr)
 				return;
 
-			for (ResourceGUID guid : m_resourceGUIDs)
+			for (GUID guid : m_resourceGUIDs)
 			{
 				ResourceDirectory* dir = editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindByGUID(guid);
 				if (dir == nullptr)
@@ -468,6 +469,38 @@ namespace Lina::Editor
 
 		editor->GetProjectManager().SaveProjectChanges();
 		editor->GetProjectManager().NotifyProjectResourcesRefreshed();
+	}
+
+	EditorActionResourceFav* EditorActionResourceFav::Create(Editor* editor, const Vector<GUID>& resources, bool isAdd)
+	{
+		EditorActionResourceFav* action = new EditorActionResourceFav();
+		action->m_resourceGUIDs			= resources;
+		action->m_isAdd					= isAdd;
+		editor->GetEditorActionManager().AddToStack(action);
+		return action;
+	}
+
+	void EditorActionResourceFav::Execute(Editor* editor, ExecType type)
+	{
+		ProjectManager& projectManager = editor->GetProjectManager();
+
+		for (GUID guid : m_resourceGUIDs)
+		{
+			ResourceDirectory* dir = projectManager.GetProjectData()->GetResourceRoot().FindByGUID(guid);
+			if (dir == nullptr)
+				continue;
+
+			if (type == ExecType::Undo)
+				dir->userData.isInFavourites = !m_isAdd;
+			else
+				dir->userData.isInFavourites = m_isAdd;
+		}
+
+		projectManager.SaveProjectChanges();
+
+		Panel* panel = editor->GetWindowPanelManager().FindPanelOfType(PanelType::ResourceBrowser, 0);
+		if (panel)
+			static_cast<PanelResourceBrowser*>(panel)->GetBrowser()->RefreshDirectory();
 	}
 
 } // namespace Lina::Editor

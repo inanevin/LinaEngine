@@ -155,7 +155,7 @@ namespace Lina
 			Vector2 min = m_rect.pos;
 			Vector2 max = m_rect.GetEnd();
 
-			for (int32 i = 0; i < m_widgetProps.dropshadow.steps; i++)
+			for (uint32 i = 0; i < m_widgetProps.dropshadow.steps; i++)
 			{
 				m_lvg->DrawRect(min.AsLVG(), max.AsLVG(), opts, 0.0f, m_drawOrder);
 				min -= Vector2(m_widgetProps.dropshadow.thickness);
@@ -195,7 +195,7 @@ namespace Lina
 				max -= dir * m_widgetProps.dropshadow.thickness;
 			}
 
-			for (int32 i = 0; i < m_widgetProps.dropshadow.steps; i++)
+			for (uint32 i = 0; i < m_widgetProps.dropshadow.steps; i++)
 			{
 				m_lvg->DrawRect(min.AsLVG(), max.AsLVG(), opts, 0.0f, m_drawOrder + m_widgetProps.dropshadow.drawOrderIncrement);
 				min += m_widgetProps.dropshadow.thickness * dir * (m_widgetProps.dropshadow.isInner ? -1.0f : 1.0f);
@@ -210,21 +210,34 @@ namespace Lina
 		{
 			Vector2				 size = m_rect.GetEnd() - m_rect.pos;
 			LinaVG::StyleOptions opts;
-			opts.color						  = m_widgetProps.colorBackground.AsLVG();
 			opts.outlineOptions.thickness	  = m_widgetProps.outlineThickness;
 			opts.outlineOptions.drawDirection = m_widgetProps.outlineIsInner ? LinaVG::OutlineDrawDirection::Inwards : LinaVG::OutlineDrawDirection::Outwards;
-			opts.outlineOptions.color		  = m_manager->IsControlsOwner(this) ? m_widgetProps.colorOutlineControls.AsLVG() : m_widgetProps.colorOutline.AsLVG();
+
 			opts.rounding = m_widgetProps.rounding = m_widgetProps.rounding;
 			opts.userData						   = m_widgetProps.lvgUserData;
 
+			ColorGrad mainColor = m_widgetProps.colorBackground;
+
 			if (m_widgetProps.hoveredIsDifferentColor && m_isHovered)
-				opts.color = m_widgetProps.colorHovered.AsLVG();
+				mainColor = m_widgetProps.colorHovered;
 
 			if (m_widgetProps.pressedIsDifferentColor && m_isPressed)
-				opts.color = m_widgetProps.colorPressed.AsLVG();
+				mainColor = m_widgetProps.colorPressed;
 
 			if (GetIsDisabled())
-				opts.color = m_widgetProps.colorDisabled.AsLVG();
+				mainColor = m_widgetProps.colorDisabled;
+
+			opts.color = mainColor.AsLVG();
+
+			ColorGrad outlineColor = m_manager->IsControlsOwner(this) ? m_widgetProps.colorOutlineControls : m_widgetProps.colorOutline;
+
+			if (m_widgetProps.outlineAffectedByMainColor)
+			{
+				outlineColor.start = outlineColor.start * mainColor.start;
+				outlineColor.end   = outlineColor.end * mainColor.end;
+			}
+
+			opts.outlineOptions.color = outlineColor.AsLVG();
 
 			if (!m_widgetProps.onlyRound.empty())
 			{
@@ -342,20 +355,33 @@ namespace Lina
 
 	void Widget::DrawChildren()
 	{
-		if (m_widgetProps.clipChildren)
-			m_manager->SetClip(m_widgetProps.customClip ? m_widgetProps.customClipRect : m_rect, {});
+		CheckClipChildren();
 
 		linatl::for_each(m_children.begin(), m_children.end(), [](Widget* child) -> void {
 			if (child->GetIsVisible() && !child->GetFlags().IsSet(WF_HIDE))
 				child->Draw();
 		});
 
-		if (m_widgetProps.clipChildren)
-			m_manager->UnsetClip();
+		CheckClipChildrenEnd();
+	}
+
+	bool Widget::ShouldSkipDrawOutsideWindow() const
+	{
+		if (!m_manager->GetClipOutsideWindow())
+			return false;
+
+		const Rect windowRect = Rect(0, 0, static_cast<float>(m_lgxWindow->GetSize().x), static_cast<float>(m_lgxWindow->GetSize().y));
+		if (windowRect.IsRectCompletelyOutside(m_rect))
+			return true;
+
+		return false;
 	}
 
 	void Widget::Draw()
 	{
+		if (ShouldSkipDrawOutsideWindow())
+			return;
+
 		DrawBackground();
 		DrawDropshadow();
 		DrawChildren();
@@ -388,7 +414,7 @@ namespace Lina
 	{
 		stream << static_cast<uint32>(WIDGETPROPS_VERSION);
 		stream << dropshadow;
-		stream << clipChildren << customClip << drawBackground << backgroundIsCentralGradient;
+		stream << clipChildren << drawBackground << backgroundIsCentralGradient;
 		stream << interpolateColor << fitTexture << hoveredIsDifferentColor << pressedIsDifferentColor;
 		stream << activeTextureTiling << useSpecialTexture << outlineIsInner;
 		stream << colorInterpolateSpeed << outlineThickness << rounding << childPadding;
@@ -401,13 +427,14 @@ namespace Lina
 		stream << colorBackground;
 		stream << colorOutline;
 		stream << colorOutlineControls;
+		stream << outlineAffectedByMainColor;
 		stream << colorHovered;
 		stream << colorPressed;
 		stream << colorDisabled;
 		stream << colorBackgroundDirection;
 		stream << textureTiling;
 		stream << onlyRound;
-		stream << customClipRect;
+		stream << childrenClipOffset;
 	}
 
 	void WidgetProps::LoadFromStream(IStream& stream)
@@ -415,7 +442,7 @@ namespace Lina
 		uint32 version = 0;
 		stream >> version;
 		stream >> dropshadow;
-		stream >> clipChildren >> customClip >> drawBackground >> backgroundIsCentralGradient;
+		stream >> clipChildren >> drawBackground >> backgroundIsCentralGradient;
 		stream >> interpolateColor >> fitTexture >> hoveredIsDifferentColor >> pressedIsDifferentColor;
 		stream >> activeTextureTiling >> useSpecialTexture >> outlineIsInner;
 		stream >> colorInterpolateSpeed >> outlineThickness >> rounding >> childPadding;
@@ -428,13 +455,14 @@ namespace Lina
 		stream >> colorBackground;
 		stream >> colorOutline;
 		stream >> colorOutlineControls;
+		stream >> outlineAffectedByMainColor;
 		stream >> colorHovered;
 		stream >> colorPressed;
 		stream >> colorDisabled;
 		stream >> colorBackgroundDirection;
 		stream >> textureTiling;
 		stream >> onlyRound;
-		stream >> customClipRect;
+		stream >> childrenClipOffset;
 	}
 
 	void Widget::SaveToStream(OStream& stream) const
@@ -695,6 +723,21 @@ namespace Lina
 		}
 
 		return false;
+	}
+
+	void Widget::CheckClipChildren()
+	{
+		if (m_widgetProps.clipChildren)
+		{
+			const Rect clip = m_rect + m_widgetProps.childrenClipOffset;
+			m_manager->SetClip(clip);
+		}
+	}
+
+	void Widget::CheckClipChildrenEnd()
+	{
+		if (m_widgetProps.clipChildren)
+			m_manager->UnsetClip();
 	}
 
 } // namespace Lina

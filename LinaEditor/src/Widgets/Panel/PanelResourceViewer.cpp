@@ -147,7 +147,7 @@ namespace Lina::Editor
 		m_editor->GetApp()->GetResourceManager().LoadResourcesFromProject(m_editor->GetProjectManager().GetProjectData(), {m_subData}, NULL, m_resourceSpace);
 		m_resource = m_editor->GetApp()->GetResourceManager().GetIfExists(m_resourceTID, m_subData);
 
-		if (resDir->userData == static_cast<uint32>(ResourceDirectoryType::EngineResource))
+		if (resDir->userData.directoryType == static_cast<uint32>(ResourceDirectoryType::EngineResource))
 			m_previewOnly = true;
 
 		if (m_resource == nullptr)

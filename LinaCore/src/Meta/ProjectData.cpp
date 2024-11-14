@@ -39,7 +39,7 @@ namespace Lina
 		in >> version;
 		in >> m_resourceIDCounter;
 		in >> m_projectName;
-		in >> m_resourceGUIDCounter;
+		in >> m_globalGUIDCounter;
 		m_rootDirectory.LoadFromStream(in, this);
 	}
 
@@ -48,7 +48,7 @@ namespace Lina
 		out << VERSION;
 		out << m_resourceIDCounter;
 		out << m_projectName;
-		out << m_resourceGUIDCounter;
+		out << m_globalGUIDCounter;
 		m_rootDirectory.SaveToStream(out);
 	}
 
@@ -76,7 +76,7 @@ namespace Lina
 		ResourceDirectory* dir		   = m_directoryBucket.Allocate();
 		BucketIdentifier   bucketIdent = dir->m_bucketIdent;
 		*dir						   = desc;
-		dir->guid					   = m_resourceGUIDCounter++;
+		dir->guid					   = ConsumeGlobalGUID();
 		dir->m_bucketIdent			   = bucketIdent;
 
 		parent->children.push_back(dir);
@@ -104,7 +104,7 @@ namespace Lina
 		ResourceDirectory* dup	 = m_directoryBucket.Allocate();
 		BucketIdentifier   ident = dup->m_bucketIdent;
 		*dup					 = *dir;
-		dup->guid				 = m_resourceGUIDCounter++;
+		dup->guid				 = ConsumeGlobalGUID();
 		dup->m_bucketIdent		 = ident;
 
 		parent->children.push_back(dup);

@@ -84,7 +84,7 @@ namespace Lina::Editor
 		m_textureName		= txt->GetName();
 		m_textureDimensions = TO_STRING(txt->GetSize().x) + " x " + TO_STRING(txt->GetSize().y);
 		m_totalSizeKb		= UtilStr::FloatToString(static_cast<float>(txt->GetTotalSize()) / 1000.0f, 1) + " KB";
-		m_textureFormat		= ReflectionSystem::Get().Resolve<LinaGX::Format>().GetProperty<String>(static_cast<StringID>(txt->GetMeta().format));
+		m_textureFormat		= ReflectionSystem::Get().Resolve<LinaGX::Format>()->GetProperty<String>(static_cast<StringID>(txt->GetMeta().format));
 	}
 
 	void PanelTextureViewer::RebuildContents()
@@ -94,13 +94,13 @@ namespace Lina::Editor
 
 		Texture* txt = static_cast<Texture*>(m_resource);
 
-		CommonWidgets::BuildClassReflection(m_inspector, this, ReflectionSystem::Get().Resolve<PanelTextureViewer>(), [this](const MetaType& meta, FieldBase* field) {
+		CommonWidgets::BuildClassReflection(m_inspector, this, ReflectionSystem::Get().Resolve<PanelTextureViewer>(), [this](MetaType* meta, FieldBase* field) {
 			m_guiUserData.displayChannels = m_displayChannels;
 			m_guiUserData.mipLevel		  = m_mipLevel;
 		});
 
 		CommonWidgets::BuildClassReflection(
-			m_inspector, &txt->GetMeta(), ReflectionSystem::Get().Resolve<Texture::Metadata>(), [this, txt](const MetaType& meta, FieldBase* field) { EditorActionResourceTexture::Create(m_editor, txt->GetID(), m_prevMeta, txt->GetMeta()); });
+			m_inspector, &txt->GetMeta(), ReflectionSystem::Get().Resolve<Texture::Metadata>(), [this, txt](MetaType* meta, FieldBase* field) { EditorActionResourceTexture::Create(m_editor, txt->GetID(), m_prevMeta, txt->GetMeta()); });
 
 		Widget*		mipLevelField	  = m_inspector->FindChildWithDebugName("Mip Level");
 		InputField* mipLevel		  = static_cast<InputField*>(Widget::GetWidgetOfType<InputField>(mipLevelField));

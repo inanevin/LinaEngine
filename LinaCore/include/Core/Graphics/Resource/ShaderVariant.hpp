@@ -44,11 +44,20 @@ namespace Lina
 		void LoadFromStream(IStream& stream);
 	};
 
+	struct CompileDataPair
+	{
+		LinaGX::ShaderStage		  stage		  = {};
+		LinaGX::ShaderCompileData compileData = {};
+		LinaGX::DataBlob		  blob		  = {};
+	};
+
 	struct ShaderVariant
 	{
-		LINAGX_MAP<LinaGX::ShaderStage, LinaGX::DataBlob>		   _outCompiledBlobs;
-		LinaGX::ShaderLayout									   _outLayout	= {};
-		LINAGX_MAP<LinaGX::ShaderStage, LinaGX::ShaderCompileData> _compileData = {};
+		StringID id = 0;
+
+		LinaGX::ShaderLayout _outLayout = {};
+
+		LINAGX_VEC<LinaGX::ShaderCompileData> _compileData = {};
 
 		String					   name				   = "";
 		bool					   blendDisable		   = false;

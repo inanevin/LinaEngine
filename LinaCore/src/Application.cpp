@@ -229,7 +229,7 @@ namespace Lina
 		const float		gameTime	  = SystemInfo::GetAppTimeF();
 		static float	lastFPSUpdate = gameTime;
 		static uint64	lastFPSFrames = SystemInfo::GetFrames();
-		constexpr float measureTime	  = 1.0f;
+		constexpr float measureTime	  = .02f;
 
 		if (gameTime > lastFPSUpdate + measureTime)
 		{

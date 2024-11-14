@@ -41,8 +41,13 @@ namespace Lina::Editor
 
 	bool EditorResources::LoadPriorityResources(ResourceManagerV2& manager)
 	{
-		Shader::Metadata meta		  = {};
-		meta.variants["Swapchain"_hs] = ShaderVariant{
+		Shader::Metadata meta = {};
+
+		meta.variants.push_back({});
+		ShaderVariant& variant = meta.variants.back();
+
+		variant = ShaderVariant{
+			.id			  = "Swapchain"_hs,
 			.blendDisable = false,
 			.depthTest	  = false,
 			.depthWrite	  = false,

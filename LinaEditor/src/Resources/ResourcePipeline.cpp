@@ -156,13 +156,13 @@ namespace Lina::Editor
 		LinaGX::TextureBuffer thumb = {};
 
 		auto saveDefault = [&]() {
-			MetaType& meta = ReflectionSystem::Get().Resolve(tid);
-			Resource* res  = static_cast<Resource*>(meta.GetFunction<void*()>("Allocate"_hs)());
+			MetaType* meta = ReflectionSystem::Get().Resolve(tid);
+			Resource* res  = static_cast<Resource*>(meta->GetFunction<void*()>("Allocate"_hs)());
 			res->SetName(name);
 			res->SetPath(path);
 			res->SetID(id);
 			res->SaveToFileAsBinary(path);
-			meta.GetFunction<void(void*)>("Deallocate"_hs)(res);
+			meta->GetFunction<void(void*)>("Deallocate"_hs)(res);
 		};
 
 		if (tid == GetTypeID<Material>())
@@ -251,8 +251,8 @@ namespace Lina::Editor
 			};
 
 			auto loadDefault = [&]() {
-				MetaType& meta = ReflectionSystem::Get().Resolve(resourceTID);
-				Resource* res  = static_cast<Resource*>(meta.GetFunction<void*()>("Allocate"_hs)());
+				MetaType* meta = ReflectionSystem::Get().Resolve(resourceTID);
+				Resource* res  = static_cast<Resource*>(meta->GetFunction<void*()>("Allocate"_hs)());
 				if (res->LoadFromFile(def.path))
 				{
 					res->SetName(name);
@@ -261,7 +261,7 @@ namespace Lina::Editor
 					res->SaveToFileAsBinary(projectData->GetResourcePath(res->GetID()));
 					createDirectory(res->GetID());
 				}
-				meta.GetFunction<void(void*)>("Deallocate"_hs)(res);
+				meta->GetFunction<void(void*)>("Deallocate"_hs)(res);
 			};
 
 			if (resourceTID == GetTypeID<Model>())
@@ -425,9 +425,9 @@ namespace Lina::Editor
 			dup->resourceID				= newID;
 			FileSystem::ChangeDirectoryName(duplicated, projectData->GetResourcePath(newID));
 
-			MetaType& refMeta = ReflectionSystem::Get().Resolve(directory->resourceTID);
+			MetaType* refMeta = ReflectionSystem::Get().Resolve(directory->resourceTID);
 
-			Resource* res	 = static_cast<Resource*>(refMeta.GetFunction<void*()>("Allocate"_hs)());
+			Resource* res	 = static_cast<Resource*>(refMeta->GetFunction<void*()>("Allocate"_hs)());
 			IStream	  stream = Serialization::LoadFromFile(projectData->GetResourcePath(newID).c_str());
 			if (!stream.Empty())
 			{
@@ -435,7 +435,7 @@ namespace Lina::Editor
 				res->SetID(newID);
 				res->SaveToFileAsBinary(projectData->GetResourcePath(newID));
 			}
-			refMeta.GetFunction<void(void* ptr)>("Deallocate"_hs)(res);
+			refMeta->GetFunction<void(void* ptr)>("Deallocate"_hs)(res);
 
 			stream.Destroy();
 			TextureAtlasImage* img = ThumbnailGenerator::GenerateThumbnail(editor->GetProjectManager().GetProjectData(), dup->resourceID, dup->resourceTID, editor->GetAtlasManager());

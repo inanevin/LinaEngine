@@ -31,7 +31,6 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/Panel.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/GUI/Widgets/Compound/FileMenu.hpp"
-#include "Editor/Editor.hpp"
 
 namespace Lina
 {

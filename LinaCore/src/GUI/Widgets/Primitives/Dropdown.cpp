@@ -42,24 +42,37 @@ namespace Lina
 
 	void Dropdown::Construct()
 	{
+		GetWidgetProps().childMargins.left	= Theme::GetDef().baseIndent;
+		GetWidgetProps().childMargins.right = Theme::GetDef().baseIndent;
+
+		Widget* textContainer = m_manager->Allocate<Widget>("TextContainer");
+		textContainer->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_ALIGN_X);
+		textContainer->SetAlignedPos(Vector2::Zero);
+		textContainer->SetAlignedSize(Vector2(0.8f, 1.0f));
+		textContainer->GetWidgetProps().clipChildren = true;
+		m_textContainer								 = textContainer;
+		AddChild(textContainer);
+
 		m_text						 = m_manager->Allocate<Text>("Title");
 		m_text->GetProps().isDynamic = true;
+		m_text->GetFlags().Set(WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
+		m_text->SetAlignedPos(Vector2(0.0f, 0.5f));
+		m_text->SetAnchorY(Anchor::Center);
+		textContainer->AddChild(m_text);
+
 		m_icon						 = m_manager->Allocate<Icon>("Arrow");
 		m_icon->GetProps().isDynamic = true;
 		m_icon->GetProps().icon		 = Theme::GetDef().iconDropdown;
+		m_icon->GetFlags().Set(WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
+		m_icon->SetAlignedPosY(0.5f);
+		m_icon->SetAlignedPosX(1.0f);
+		m_icon->SetAnchorX(Anchor::End);
+		m_icon->SetAnchorY(Anchor::Center);
 		m_icon->CalculateIconSize();
-		AddChild(m_text);
+
 		AddChild(m_icon);
 		GetWidgetProps().drawBackground			 = true;
 		GetWidgetProps().hoveredIsDifferentColor = true;
-	}
-
-	void Dropdown::Tick(float delta)
-	{
-		m_iconBgStart = m_rect.GetEnd() - Vector2(m_rect.size.y, m_rect.size.y) + Vector2::One;
-		m_text->SetPos(Vector2(m_rect.pos.x + m_props.horizontalIndent, m_rect.pos.y + m_rect.size.y * 0.5f - m_text->GetHalfSizeY()));
-		m_icon->SetPos((m_iconBgStart + m_rect.GetEnd()) * 0.5f - m_icon->GetHalfSize());
-		m_text->GetProps().customClip = Vector4(m_rect.pos.x, m_rect.pos.y, m_rect.size.x - m_icon->GetSizeX(), m_rect.size.y);
 	}
 
 	bool Dropdown::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action)

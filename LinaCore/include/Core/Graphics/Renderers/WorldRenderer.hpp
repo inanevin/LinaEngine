@@ -34,7 +34,6 @@ SOFTWARE.
 #include "Core/Graphics/ResourceUploadQueue.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Graphics/MeshManager.hpp"
-#include "Common/Data/Map.hpp"
 #include "Core/Graphics/GUI/GUIBackend.hpp"
 #include "Core/Graphics/GfxContext.hpp"
 

@@ -40,6 +40,14 @@ namespace Lina
 	struct TextureAtlasImage;
 	class ProjectData;
 
+	// Don't like editor leaking here, but makes our lives so much easier.
+	struct ResourceUserData
+	{
+		uint32	  directoryType	 = 0;
+		Bitmask32 directoryMask	 = 0;
+		bool	  isInFavourites = false;
+	};
+
 	struct ResourceDirectory
 	{
 		static constexpr uint32 VERSION = 0;
@@ -55,15 +63,15 @@ namespace Lina
 		ResourceDirectory*		   parent		   = nullptr;
 		ResourceType			   resourceType	   = ResourceType::ExternalSource;
 		StringID				   lastModifiedSID = 0;
-		ResourceGUID			   guid			   = 0;
-		uint32					   userData		   = 0;
+		GUID					   guid			   = 0;
+		ResourceUserData		   userData		   = {};
 
 		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream, ProjectData* projectData);
 
 		ResourceDirectory* GetChildByName(const String& name);
 		ResourceDirectory* FindResourceDirectory(ResourceID id);
-		ResourceDirectory* FindByGUID(ResourceGUID guid);
+		ResourceDirectory* FindByGUID(GUID guid);
 		void			   SortChildren();
 
 		ALLOCATOR_BUCKET_MEM;

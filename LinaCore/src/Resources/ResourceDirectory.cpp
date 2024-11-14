@@ -47,7 +47,9 @@ namespace Lina
 		stream << resourceType;
 		stream << lastModifiedSID;
 		stream << guid;
-		stream << userData;
+		stream << userData.directoryType;
+		stream << userData.directoryMask;
+		stream << userData.isInFavourites;
 
 		const uint32 sz = static_cast<uint32>(children.size());
 		stream << sz;
@@ -68,7 +70,9 @@ namespace Lina
 		stream >> resourceType;
 		stream >> lastModifiedSID;
 		stream >> guid;
-		stream >> userData;
+		stream >> userData.directoryType;
+		stream >> userData.directoryMask;
+		stream >> userData.isInFavourites;
 
 		uint32 childSz = 0;
 		stream >> childSz;
@@ -123,7 +127,7 @@ namespace Lina
 		return nullptr;
 	}
 
-	ResourceDirectory* ResourceDirectory::FindByGUID(ResourceGUID g)
+	ResourceDirectory* ResourceDirectory::FindByGUID(GUID g)
 	{
 		if (guid == g)
 			return this;

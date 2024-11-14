@@ -29,7 +29,6 @@ SOFTWARE.
 #pragma once
 
 #include "Core/Graphics/Resource/Shader.hpp"
-#include "Common/Data/HashMap.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Data/String.hpp"
 

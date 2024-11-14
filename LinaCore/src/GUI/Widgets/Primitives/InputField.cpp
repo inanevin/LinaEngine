@@ -63,7 +63,10 @@ namespace Lina
 
 	void InputField::Construct()
 	{
-		GetWidgetProps().drawBackground = true;
+		GetWidgetProps().drawBackground			   = true;
+		GetWidgetProps().clipChildren			   = true;
+		GetWidgetProps().childrenClipOffset.pos.x  = Theme::GetDef().baseIndent / 2;
+		GetWidgetProps().childrenClipOffset.size.x = -Theme::GetDef().baseIndent;
 
 		m_text						 = m_manager->Allocate<Text>("InputFieldText");
 		m_text->GetProps().isDynamic = true;
@@ -221,7 +224,12 @@ namespace Lina
 		if (!GetIsVisible())
 			return;
 
+		if (ShouldSkipDrawOutsideWindow())
+			return;
+
 		Widget::DrawBackground();
+
+		CheckClipChildren();
 
 		// Number field slider background.
 		if (m_props.isNumberField && !m_props.disableNumberSlider && !m_isEditing && m_props.valuePtr)
@@ -284,8 +292,7 @@ namespace Lina
 			}
 		}
 
-		if (m_props.clipText)
-			m_text->GetProps().customClip = Vector4(m_rect.pos.x, m_rect.pos.y, m_rect.size.x, m_rect.size.y);
+		// m_text->GetProps().customClip = Vector4(m_rect.pos.x, m_rect.pos.y, m_rect.size.x, m_rect.size.y);
 
 		m_text->Draw();
 
@@ -294,6 +301,8 @@ namespace Lina
 			m_placeholderText->GetProps().customClip = Vector4(m_rect.pos.x, m_rect.pos.y, m_rect.size.x, m_rect.size.y);
 			m_placeholderText->Draw();
 		}
+
+		CheckClipChildrenEnd();
 	}
 
 	void InputField::StartEditing()

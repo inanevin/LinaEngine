@@ -98,19 +98,8 @@ namespace Lina::Editor
 			RefreshDirectory();
 		}
 
-		virtual void SaveToStream(OStream& stream) const override
-		{
-			Widget::SaveToStream(stream);
-			stream << m_props;
-		}
-
-		virtual void LoadFromStream(IStream& stream) override
-		{
-			Widget::LoadFromStream(stream);
-			stream >> m_props;
-		}
-
 	private:
+		void AddItem(ResourceDirectory* parent, ResourceDirectory* item, float margin);
 		void AddItemForDirectory(ResourceDirectory* dir, float margin);
 		void RequestRename(ResourceDirectory* dir);
 		void RequestDelete(Vector<ResourceDirectory*> dirs);
@@ -127,7 +116,6 @@ namespace Lina::Editor
 		Vector<ResourceDirectory*>							 m_payloadItems		  = {};
 		Vector<Pair<ResourceDirectory*, TextureAtlasImage*>> m_importingResources = {};
 		ResourceDirectory									 m_linaAssets;
-		ResourceDirectory									 m_favourites;
 	};
 
 	LINA_WIDGET_BEGIN(ResourceDirectoryBrowser, Editor)

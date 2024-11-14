@@ -30,7 +30,6 @@ SOFTWARE.
 
 #include "Common/Math/Vector.hpp"
 #include "Common/Math/Rect.hpp"
-#include "Common/Memory/CommonMemory.hpp"
 #include "Core/GUI/CommonGUI.hpp"
 #include "Core/GUI/Theme.hpp"
 #include "Common/Data/Bitmask.hpp"
@@ -127,7 +126,6 @@ namespace Lina
 	struct WidgetProps
 	{
 		bool				 clipChildren				 = false;
-		bool				 customClip					 = false;
 		bool				 drawBackground				 = false;
 		bool				 backgroundIsCentralGradient = false;
 		bool				 interpolateColor			 = false;
@@ -137,6 +135,7 @@ namespace Lina
 		bool				 activeTextureTiling		 = false;
 		bool				 useSpecialTexture			 = false;
 		bool				 outlineIsInner				 = false;
+		bool				 outlineAffectedByMainColor	 = false;
 		float				 colorInterpolateSpeed		 = 0.0f;
 		float				 outlineThickness			 = Theme::GetDef().baseOutlineThickness;
 		float				 rounding					 = 0.0f;
@@ -160,7 +159,7 @@ namespace Lina
 		void*				 specialTexture				 = 0;
 		Vector2				 textureTiling				 = Vector2::One;
 		Vector<int32>		 onlyRound					 = {};
-		Rect				 customClipRect				 = {};
+		Rect				 childrenClipOffset			 = {};
 		ColorGrad			 _interpolatedColor			 = Color();
 		DropshadowProps		 dropshadow;
 
@@ -250,8 +249,11 @@ namespace Lina
 		Widget* FindChildWithUserdata(void* ud);
 		Widget* FindChildWithDebugName(const String& name);
 		Widget* FindDeepestHovered();
+		bool	ShouldSkipDrawOutsideWindow() const;
 
 		bool IsWidgetInHierarchy(Widget* widget);
+		void CheckClipChildren();
+		void CheckClipChildrenEnd();
 
 		virtual float CalculateChildrenSize()
 		{
@@ -621,8 +623,7 @@ namespace Lina
 	LINA_FIELD(WidgetProps, colorBorders, "Border Color", FieldType::Color, 0);
 	LINA_FIELD(WidgetProps, childMargins, "Child Margins", FieldType::TBLR, 0);
 	LINA_FIELD(WidgetProps, childPadding, "Child Padding", FieldType::Float, 0);
-	LINA_FIELD(WidgetProps, customClip, "Custom Clip", FieldType::Boolean, 0);
-	LINA_FIELD(WidgetProps, customClipRect, "Custom Clip Rect", FieldType::Rect, 0);
+	LINA_FIELD(WidgetProps, childrenClipOffset, "Custom Clip Rect", FieldType::Rect, 0);
 	LINA_FIELD_VEC(WidgetProps, onlyRound, "Only Round", FieldType::Int32, int32, 0);
 	LINA_FIELD(WidgetProps, dropshadow, "Dropshadow Props", FieldType::UserClass, GetTypeID<DropshadowProps>());
 
@@ -644,7 +645,7 @@ namespace Lina
 	LINA_FIELD_DEPENDENCY_POS(WidgetProps, fitTexture, "drawBackground", 1);
 	LINA_FIELD_DEPENDENCY_POS(WidgetProps, textureTiling, "drawBackground", 1);
 	LINA_FIELD_DEPENDENCY_POS(WidgetProps, activeTextureTiling, "drawBackground", 1);
-	LINA_FIELD_DEPENDENCY_POS(WidgetProps, customClipRect, "customClip", 1);
+	LINA_FIELD_DEPENDENCY_POS(WidgetProps, childrenClipOffset, "clipChildren", 1);
 
 	LINA_CLASS_END(WidgetProps)
 

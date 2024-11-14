@@ -70,7 +70,6 @@ vec3 hueSaturationToRGB(float hue, float saturation) {
 
 struct LinaMaterial
 {
-   vec4 clip;
    float wheelRadius;
    float edgeSmoothness;
 };
@@ -83,11 +82,6 @@ layout( push_constant ) uniform constants
 LinaMaterial GetMaterial(uint index)
 {
    LinaMaterial mat;
-   mat.clip.x = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
-   mat.clip.y = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
-   mat.clip.z = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
-   mat.clip.w = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
-
    mat.wheelRadius = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
    mat.edgeSmoothness = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
 
@@ -97,12 +91,6 @@ LinaMaterial GetMaterial(uint index)
 void main()
 {
    LinaMaterial material = GetMaterial(PushConstants.materialIndex);
-
-   if(material.clip.z > 0 && material.clip.w > 0)
-   {
-      if(gl_FragCoord.x < material.clip.x || gl_FragCoord.x > material.clip.x + material.clip.z || gl_FragCoord.y < material.clip.y || gl_FragCoord.y > material.clip.y + material.clip.w)
-         discard;
-   }
 
     vec2 position = inUV - vec2(0.5, 0.5);
     float d = length(position);

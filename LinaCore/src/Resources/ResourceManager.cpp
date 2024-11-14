@@ -46,19 +46,21 @@ namespace Lina
 {
 	void ResourceManagerV2::Shutdown()
 	{
-
-		for (auto [tid, cache] : m_caches)
+		for (const CachePair& pair : m_caches)
 		{
-			Vector<Resource*> resources = cache->GetAllResources();
+			Vector<Resource*> resources = pair.cache->GetAllResources();
 
 			for (Resource* res : resources)
 			{
 				if (res->IsHWValid())
 					res->DestroyHW();
 			}
-
-			delete cache;
 		}
+
+		// Seperate bc res->DestroyHW() might still access some caches.
+		for (const CachePair& pair : m_caches)
+			delete pair.cache;
+		m_caches.clear();
 	}
 
 	void ResourceManagerV2::ReloadResourceHW(const HashSet<Resource*>& resources)
@@ -84,9 +86,9 @@ namespace Lina
 		}
 	}
 
-	void ResourceManagerV2::UnloadResourceSpace(StringID id)
+	void ResourceManagerV2::UnloadResourceSpace(uint64 id)
 	{
-		HashSet<Resource*>& resources = m_resourceSpaces.at(id);
+		HashSet<Resource*>& resources = GetSpace(id);
 
 		ResourceDefinitionList unloadList;
 
@@ -94,14 +96,14 @@ namespace Lina
 		{
 			bool foundInAnotherSpace = false;
 
-			for (const auto& space : m_resourceSpaces)
+			for (const SpacePair& pair : m_resourceSpaces)
 			{
-				if (space.first == id)
+				if (pair.id == id)
 					continue;
 
-				auto it = linatl::find_if(space.second.begin(), space.second.end(), [res](Resource* r) -> bool { return r == res; });
+				auto it = linatl::find_if(pair.space.begin(), pair.space.end(), [res](Resource* r) -> bool { return r == res; });
 
-				if (it != space.second.end())
+				if (it != pair.space.end())
 				{
 					foundInAnotherSpace = true;
 					break;
@@ -150,15 +152,15 @@ namespace Lina
 				if (onProgress)
 					onProgress(++idx, def);
 
-				m_resourceSpaces[resourceSpace].insert(res);
-
+				HashSet<Resource*>& space = GetSpace(resourceSpace);
+				space.insert(res);
 				continue;
 			}
 
 			res = cache->Create(def.id, def.name);
 
-			m_resourceSpaces[resourceSpace].insert(res);
-
+			HashSet<Resource*>& space = GetSpace(resourceSpace);
+			space.insert(res);
 			if (def.customMeta.GetCurrentSize() != 0)
 			{
 				IStream stream;
@@ -224,14 +226,16 @@ namespace Lina
 				if (onProgress)
 					onProgress(++idx, res);
 
-				m_resourceSpaces[resourceSpace].insert(res);
+				HashSet<Resource*>& space = GetSpace(resourceSpace);
+				space.insert(res);
 
 				continue;
 			}
 
 			res = cache->Create(id, dir->name);
 
-			m_resourceSpaces[resourceSpace].insert(res);
+			HashSet<Resource*>& space = GetSpace(resourceSpace);
+			space.insert(res);
 
 			IStream stream = Serialization::LoadFromFile(project->GetResourcePath(id).c_str());
 
@@ -293,19 +297,29 @@ namespace Lina
 
 	ResourceCacheBase* ResourceManagerV2::GetCache(TypeID tid)
 	{
-		auto			   it	 = m_caches.find(tid);
-		ResourceCacheBase* cache = nullptr;
+		auto it = linatl::find_if(m_caches.begin(), m_caches.end(), [tid](const CachePair& pair) -> bool { return tid == pair.tid; });
 		if (it == m_caches.end())
 		{
-			MetaType& type = ReflectionSystem::Get().Resolve(tid);
-			void*	  ptr  = type.GetFunction<void*()>("CreateResourceCache"_hs)();
-			cache		   = static_cast<ResourceCacheBase*>(ptr);
-			m_caches[tid]  = cache;
+			MetaType*		   type	 = ReflectionSystem::Get().Resolve(tid);
+			void*			   ptr	 = type->GetFunction<void*()>("CreateResourceCache"_hs)();
+			ResourceCacheBase* cache = static_cast<ResourceCacheBase*>(ptr);
+			m_caches.push_back({tid, cache});
+			return cache;
 		}
-		else
-			cache = it->second;
 
-		return cache;
+		return it->cache;
+	}
+
+	HashSet<Resource*>& ResourceManagerV2::GetSpace(uint64 id)
+	{
+		auto it = linatl::find_if(m_resourceSpaces.begin(), m_resourceSpaces.end(), [id](const SpacePair& pair) -> bool { return id == pair.id; });
+		if (it == m_resourceSpaces.end())
+		{
+			m_resourceSpaces.push_back({id, {}});
+			return m_resourceSpaces.back().space;
+		}
+
+		return it->space;
 	}
 
 	void ResourceManagerV2::CheckLock()

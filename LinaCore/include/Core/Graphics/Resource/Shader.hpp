@@ -32,7 +32,6 @@ SOFTWARE.
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Data/Streams.hpp"
-#include "Common/Data/HashMap.hpp"
 #include "Common/Data/Queue.hpp"
 #include "ShaderVariant.hpp"
 #include <variant>
@@ -51,7 +50,7 @@ namespace Lina
 	public:
 		struct Metadata
 		{
-			HashMap<StringID, ShaderVariant> variants;
+			Vector<ShaderVariant> variants;
 
 			void SaveToStream(OStream& out) const
 			{
@@ -84,12 +83,13 @@ namespace Lina
 
 		inline uint32 GetGPUHandle() const
 		{
-			return m_gpuHandles.at(m_meta.variants.begin()->first);
+			return m_gpuHandles.front().second;
 		}
 
 		inline uint32 GetGPUHandle(StringID sid)
 		{
-			return m_gpuHandles.at(sid);
+			auto it = linatl::find_if(m_gpuHandles.begin(), m_gpuHandles.end(), [sid](Pair<StringID, uint32> pair) -> bool { return sid == pair.first; });
+			return it->second;
 		}
 
 		inline const Metadata& GetMeta() const
@@ -116,7 +116,7 @@ namespace Lina
 		ALLOCATOR_BUCKET_MEM;
 		LINA_REFLECTION_ACCESS(Shader);
 
-		HashMap<StringID, uint32>		 m_gpuHandles;
+		Vector<Pair<StringID, uint32>>	 m_gpuHandles;
 		Metadata						 m_meta		  = {};
 		ShaderType						 m_shaderType = ShaderType::Custom;
 		Vector<ShaderPropertyDefinition> m_propertyDefinitions;

@@ -283,7 +283,7 @@ namespace Lina::Editor
 			Vector<ResourceDirectory*> engineResources;
 			for (ResourceDirectory* c : root->children)
 			{
-				if (c->userData != static_cast<uint32>(ResourceDirectoryType::EngineResource))
+				if (c->userData.directoryType != static_cast<uint32>(ResourceDirectoryType::EngineResource))
 					continue;
 
 				engineResources.push_back(c);
@@ -299,7 +299,7 @@ namespace Lina::Editor
 			});
 
 			for (ResourceDirectory* importedEngineResource : importedEngineResources)
-				importedEngineResource->userData = static_cast<uint32>(ResourceDirectoryType::EngineResource);
+				importedEngineResource->userData.directoryType = static_cast<uint32>(ResourceDirectoryType::EngineResource);
 
 			// Custom sampler.
 			if (root->FindResourceDirectory(EDITOR_SAMPLER_DEFAULT_ID) == nullptr)
@@ -308,7 +308,7 @@ namespace Lina::Editor
 				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, EDITOR_SAMPLER_DEFAULT_PATH, GetTypeID<TextureSampler>(), EDITOR_SAMPLER_DEFAULT_ID);
 
 				if (dir)
-					dir->userData = static_cast<uint32>(ResourceDirectoryType::EngineResource);
+					dir->userData.directoryType = static_cast<uint32>(ResourceDirectoryType::EngineResource);
 			}
 
 			if (root->FindResourceDirectory(EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID) == nullptr)
@@ -317,7 +317,7 @@ namespace Lina::Editor
 				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID, EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_ID);
 
 				if (dir)
-					dir->userData = static_cast<uint32>(ResourceDirectoryType::EngineResource);
+					dir->userData.directoryType = static_cast<uint32>(ResourceDirectoryType::EngineResource);
 			}
 
 			// Custom material
@@ -328,7 +328,7 @@ namespace Lina::Editor
 					ResourcePipeline::SaveNewResource(m_currentProject, root, EDITOR_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_ID, EDITOR_SHADER_DEFAULT_TRANSPARENT_SURFACE_ID);
 
 				if (dir)
-					dir->userData = static_cast<uint32>(ResourceDirectoryType::EngineResource);
+					dir->userData.directoryType = static_cast<uint32>(ResourceDirectoryType::EngineResource);
 			}
 
 			if (root->FindResourceDirectory(EDITOR_MATERIAL_DEFAULT_SKY_ID) == nullptr)
@@ -337,7 +337,7 @@ namespace Lina::Editor
 				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, EDITOR_MATERIAL_DEFAULT_SKY_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_SKY_ID, EDITOR_SHADER_DEFAULT_SKY_ID);
 
 				if (dir)
-					dir->userData = static_cast<uint32>(ResourceDirectoryType::EngineResource);
+					dir->userData.directoryType = static_cast<uint32>(ResourceDirectoryType::EngineResource);
 			}
 
 			if (root->FindResourceDirectory(EDITOR_MATERIAL_DEFAULT_LIGHTING_ID) == nullptr)
@@ -346,7 +346,7 @@ namespace Lina::Editor
 				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, EDITOR_MATERIAL_DEFAULT_LIGHTING_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_LIGHTING_ID, EDITOR_SHADER_DEFAULT_LIGHTING_ID);
 
 				if (dir)
-					dir->userData = static_cast<uint32>(ResourceDirectoryType::EngineResource);
+					dir->userData.directoryType = static_cast<uint32>(ResourceDirectoryType::EngineResource);
 			}
 
 			task->progressText = Locale::GetStr(LocaleStr::GeneratingThumbnails);
@@ -494,6 +494,9 @@ namespace Lina::Editor
 
 	void ProjectManager::CollectReimportResources(ResourceDirectory* dir)
 	{
+		if (dir->userData.directoryType != static_cast<uint32>(ResourceDirectoryType::Default))
+			return;
+
 		if (dir->resourceType != ResourceType::ExternalSource)
 			return;
 
@@ -547,8 +550,8 @@ namespace Lina::Editor
 			{
 				task->progressText = dir->name;
 
-				MetaType&	 meta	 = ReflectionSystem::Get().Resolve(dir->resourceTID);
-				Resource*	 res	 = static_cast<Resource*>(meta.GetFunction<void*()>("Allocate"_hs)());
+				MetaType*	 meta	 = ReflectionSystem::Get().Resolve(dir->resourceTID);
+				Resource*	 res	 = static_cast<Resource*>(meta->GetFunction<void*()>("Allocate"_hs)());
 				const String resPath = m_currentProject->GetResourcePath(dir->resourceID);
 
 				// Load all data first.
@@ -564,7 +567,7 @@ namespace Lina::Editor
 				if (success)
 					res->SaveToFileAsBinary(resPath);
 
-				meta.GetFunction<void(void*)>("Deallocate"_hs)(res);
+				meta->GetFunction<void(void*)>("Deallocate"_hs)(res);
 
 				m_reimportResults.push_back({
 							.id			 = dir->resourceID,

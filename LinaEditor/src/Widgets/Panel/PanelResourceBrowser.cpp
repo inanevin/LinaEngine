@@ -79,4 +79,5 @@ namespace Lina::Editor
 	void PanelResourceBrowser::SaveLayoutDefaults(OStream& stream)
 	{
 	}
+
 } // namespace Lina::Editor

@@ -40,6 +40,7 @@ namespace Lina
 
 	void Icon::CalculateSize(float dt)
 	{
+
 		const float dpiScale = m_lgxWindow->GetDPIScale();
 		if (!Math::Equals(dpiScale, m_calculatedDPIScale, 0.01f))
 			CalculateIconSize();
@@ -50,7 +51,9 @@ namespace Lina
 			const float	  targetSize = Math::Min(sz.x, sz.y) * m_props.dynamicSizeScale;
 			const float	  scale		 = targetSize / static_cast<float>(m_lvgFont->size);
 			m_props.textScale		 = scale;
-			CalculateIconSize();
+
+			if (!Math::Equals(m_props.textScale, m_lastDynScale, 0.1f))
+				CalculateIconSize();
 		}
 	}
 
@@ -59,12 +62,15 @@ namespace Lina
 		if (!GetIsVisible())
 			return;
 
+		if (ShouldSkipDrawOutsideWindow())
+			return;
+
 		if (m_lvgFont == nullptr)
 			return;
 
-		m_textOptions.color		  = m_props.color.AsLVG();
-		m_textOptions.textScale	  = m_props.textScale;
-		m_textOptions.cpuClipping = m_props.customClip.AsLVG4();
+		m_textOptions.color		= m_props.color.AsLVG();
+		m_textOptions.textScale = m_props.textScale;
+		// m_textOptions.cpuClipping = m_props.customClip.AsLVG4();
 
 		if (m_props.enableHoverPressColors)
 		{
@@ -92,6 +98,7 @@ namespace Lina
 		if (m_lvgFont == nullptr)
 			return;
 
+		m_lastDynScale		 = m_props.textScale;
 		m_calculatedDPIScale = dpiScale;
 		m_textOptions.font	 = m_lvgFont;
 		m_rect.size			 = static_cast<float>(Math::RoundToIntEven(m_lvgFont->size * m_props.textScale));

@@ -223,8 +223,12 @@ namespace Lina::Editor
 	{
 		Default = 0,
 		LinaAssetsFolder,
-		FavouritesFolder,
 		EngineResource,
+	};
+
+	enum ResourceDirectoryMask
+	{
+		RDM_NONE = 1 << 0,
 	};
 
 } // namespace Lina::Editor
