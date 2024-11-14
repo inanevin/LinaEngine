@@ -48,6 +48,7 @@ namespace Lina
 	class Material;
 	class ResourceManagerV2;
 	class GUIBackend;
+	class Application;
 
 	class GfxContext : public ResourceManagerListener
 	{

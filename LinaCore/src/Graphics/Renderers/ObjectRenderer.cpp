@@ -188,7 +188,7 @@ namespace Lina
 
 					GPUIndirectConstants0 constants = {
 						.entity			   = instance.entity,
-						.materialByteIndex = mat->GetBindlessIndex() / sizeof(uint32),
+						.materialByteIndex = mat->GetBindlessIndex() / static_cast<uint32>(sizeof(uint32)),
 					};
 
 					indirectConstants.BufferData(drawCount * sizeof(GPUIndirectConstants0), (uint8*)&constants, sizeof(GPUIndirectConstants0));
