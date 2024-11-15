@@ -181,7 +181,7 @@ namespace Lina::Editor
 				RequestDuplicate(selection);
 		};
 
-		m_linaAssets = {
+		m_linaAssets = ResourceDirectory{
 			.name	  = Locale::GetStr(LocaleStr::LinaAssets),
 			.isFolder = true,
 			.userData = static_cast<uint32>(ResourceDirectoryType::LinaAssetsFolder),
