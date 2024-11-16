@@ -45,7 +45,7 @@ namespace Lina::Editor
 		struct TooltipProperties
 		{
 			String	  text		= "";
-			LogLevel  level		= LogLevel::Info;
+			LogLevel  level		= LogLevel::LOG_LEVEL_INFO;
 			Direction direction = Direction::Right;
 			float	  time		= 5.0f;
 		};

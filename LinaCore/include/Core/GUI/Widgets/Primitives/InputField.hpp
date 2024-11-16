@@ -35,6 +35,7 @@ SOFTWARE.
 namespace Lina
 {
 	class Text;
+	class Icon;
 
 #define INPF_VALUE_MIN -99999
 #define INPF_VALUE_MAX 99999
@@ -58,11 +59,12 @@ namespace Lina
 			Color	  colorHighlight	  = Theme::GetDef().accentPrimary1;
 			Color	  colorCaret		  = Theme::GetDef().foreground0;
 			ColorGrad colorNumberFill	  = {Theme::GetDef().accentPrimary1, Theme::GetDef().accentPrimary0};
-			Color	  colorPlaceHolder	  = Theme::GetDef().outlineColorBase;
+			Color	  colorPlaceHolder	  = Theme::GetDef().silent1;
 			Color	  colorTextDefault	  = Theme::GetDef().foreground0;
 			float	  outlineThickness	  = Theme::GetDef().baseOutlineThickness;
 			float	  horizontalIndent	  = Theme::GetDef().baseIndentInner;
 			String	  placeHolderText	  = "";
+			String	  placeHolderIcon	  = "";
 			bool	  usePlaceHolder	  = false;
 			bool	  isNumberField		  = false;
 			bool	  disableNumberSlider = false;
@@ -197,6 +199,7 @@ namespace Lina
 		Properties m_props				  = {};
 		Text*	   m_text				  = nullptr;
 		Text*	   m_placeholderText	  = nullptr;
+		Icon*	   m_placeholderIcon	  = nullptr;
 		Vector2	   m_textStart			  = Vector2::Zero;
 		Vector2	   m_textEnd			  = Vector2::Zero;
 		uint32	   m_caretInsertPos		  = 0;

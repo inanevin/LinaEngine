@@ -221,7 +221,7 @@ namespace Lina::Editor
 			const String path = m_model->GetPath();
 			if (!FileSystem::FileOrPathExists(path))
 			{
-				CommonWidgets::ThrowInfoTooltip(Locale::GetStr(LocaleStr::FileNotFound), LogLevel::Error, 3.0f, reimportButton);
+				CommonWidgets::ThrowInfoTooltip(Locale::GetStr(LocaleStr::FileNotFound), LogLevel::LOG_LEVEL_ERROR, 3.0f, reimportButton);
 				return;
 			}
 

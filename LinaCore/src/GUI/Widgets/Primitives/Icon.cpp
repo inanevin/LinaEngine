@@ -98,10 +98,12 @@ namespace Lina
 		if (m_lvgFont == nullptr)
 			return;
 
-		m_lastDynScale		 = m_props.textScale;
-		m_calculatedDPIScale = dpiScale;
-		m_textOptions.font	 = m_lvgFont;
-		m_rect.size			 = static_cast<float>(Math::RoundToIntEven(m_lvgFont->size * m_props.textScale));
+		m_lastDynScale			= m_props.textScale;
+		m_calculatedDPIScale	= dpiScale;
+		m_textOptions.font		= m_lvgFont;
+		m_textOptions.textScale = m_props.textScale;
+		// m_rect.size				= static_cast<float>(m_lvgFont->size * m_props.textScale);
+		m_rect.size = m_lvg->CalculateTextSize(m_props.icon.c_str(), m_textOptions);
 	}
 
 	bool Icon::OnMouse(uint32 button, LinaGX::InputAction act)

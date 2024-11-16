@@ -37,6 +37,51 @@ namespace Lina::Editor
 	// Version bumps
 	// 0: initial
 
+	struct SettingsPanelLog
+	{
+		Bitmask32 logLevelMask = LOG_LEVEL_INFO | LOG_LEVEL_ERROR | LOG_LEVEL_WARNING;
+
+		void SaveToStream(OStream& out) const
+		{
+			out << logLevelMask;
+		}
+
+		void LoadFromStream(IStream& in)
+		{
+			in >> logLevelMask;
+		}
+	};
+
+	struct SettingsPanelResources
+	{
+		uint32 filter = 0;
+
+		void SaveToStream(OStream& out) const
+		{
+			out << filter;
+		}
+
+		void LoadFromStream(IStream& in)
+		{
+			in >> filter;
+		}
+	};
+
+	struct SettingsPanelStats
+	{
+		uint32 selectedTab = 0;
+
+		void SaveToStream(OStream& out) const
+		{
+			out << selectedTab;
+		}
+
+		void LoadFromStream(IStream& in)
+		{
+			in >> selectedTab;
+		}
+	};
+
 	class EditorSettings : public Serializable
 	{
 	public:
@@ -69,10 +114,30 @@ namespace Lina::Editor
 			return m_layout;
 		}
 
+		inline SettingsPanelLog& GetSettingsPanelLog()
+		{
+			return m_settingsPanelLog;
+		}
+
+		inline SettingsPanelStats& GetSettingsPanelStats()
+		{
+			return m_settingsPanelStats;
+		}
+
+		inline SettingsPanelResources& GetSettingsPanelResources()
+		{
+			return m_settingsPanelResources;
+		}
+
 	private:
 		String		 m_lastProjectPath = "";
 		ResourceID	 m_lastWorldID	   = 0;
 		EditorLayout m_layout		   = {};
+
+		// Panel settings
+		SettingsPanelLog	   m_settingsPanelLog;
+		SettingsPanelStats	   m_settingsPanelStats;
+		SettingsPanelResources m_settingsPanelResources;
 	};
 
 } // namespace Lina::Editor

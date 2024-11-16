@@ -222,28 +222,77 @@ namespace Lina::Editor
 			if (child->userData.directoryType != static_cast<uint32>(ResourceDirectoryType::EngineResource))
 				continue;
 
+			if (!m_searchStr.empty())
+			{
+				if (UtilStr::ToLower(child->name).find(m_searchStr) == String::npos)
+					continue;
+			}
+
+			if (m_filter != Filter::None)
+			{
+				if (m_filter == Filter::Favourites)
+				{
+					if (!child->userData.isInFavourites)
+						continue;
+				}
+			}
+
 			AddItem(&m_linaAssets, child, Theme::GetDef().baseIndent * 2);
 		}
 
-		Widget* rootFold = CommonWidgets::BuildDefaultFoldItem(this, &root, Theme::GetDef().baseIndent, ICON_FOLDER, Theme::GetDef().foreground0, root.name, !root.children.empty(), &root.unfolded, true);
+		String rootName		 = root.name;
+		String rootIcon		 = ICON_FOLDER;
+		Color  rootIconColor = Theme::GetDef().foreground0;
+		if (m_filter == Filter::Favourites)
+		{
+			rootName += ": (" + Locale::GetStr(LocaleStr::Favourites) + ")";
+			rootIcon	  = ICON_STAR;
+			rootIconColor = Theme::GetDef().accentSecondary;
+		}
+
+		Widget* rootFold = CommonWidgets::BuildDefaultFoldItem(this, &root, Theme::GetDef().baseIndent, rootIcon, rootIconColor, rootName, !root.children.empty(), &root.unfolded, true);
 		m_layout->AddChild(rootFold);
 		m_controller->AddItem(rootFold->GetChildren().front());
 
 		AddItemForDirectory(&root, Theme::GetDef().baseIndent * 2);
 	}
 
+	void ResourceDirectoryBrowser::SetFilter(Filter filter)
+	{
+		m_filter = filter;
+		RefreshDirectory();
+	}
+
+	void ResourceDirectoryBrowser::SetSearchStr(const String& searchStr)
+	{
+		m_searchStr = UtilStr::ToLower(searchStr);
+		RefreshDirectory();
+	}
+
+	String ResourceDirectoryBrowser::GetFilterStr(Filter filter)
+	{
+		if (filter == Filter::None)
+			return Locale::GetStr(LocaleStr::None);
+
+		if (filter == Filter::Favourites)
+			return Locale::GetStr(LocaleStr::Favourites);
+
+		return String();
+	}
+
 	void ResourceDirectoryBrowser::AddItem(ResourceDirectory* parent, ResourceDirectory* item, float margin)
 	{
 		if (item->isFolder)
 		{
-			Widget* w = CommonWidgets::BuildDefaultFoldItem(this, item, margin, ICON_FOLDER, Theme::GetDef().foreground0, item->name, !item->children.empty(), &item->unfolded);
+			Widget* w = CommonWidgets::BuildDefaultFoldItem(
+				this, item, margin, ICON_FOLDER, Theme::GetDef().foreground0, item->name, !item->children.empty(), &item->unfolded, false, false, item->userData.isInFavourites ? ICON_STAR : "", Theme::GetDef().accentSecondary);
 			m_controller->GetItem(parent)->GetParent()->AddChild(w);
 			m_controller->AddItem(w->GetChildren().front());
 			AddItemForDirectory(item, margin + Theme::GetDef().baseIndent * 2.0f);
 		}
 		else
 		{
-			Widget* w = CommonWidgets::BuildTexturedListItem(this, item, margin, m_editor->GetProjectManager().GetThumbnail(item), item->name);
+			Widget* w = CommonWidgets::BuildTexturedListItem(this, item, margin, m_editor->GetProjectManager().GetThumbnail(item), item->name, item->userData.isInFavourites ? ICON_STAR : "", Theme::GetDef().accentSecondary);
 			m_controller->GetItem(parent)->GetParent()->AddChild(w);
 			m_controller->AddItem(w);
 		}
@@ -260,6 +309,20 @@ namespace Lina::Editor
 			if (child->userData.directoryType == static_cast<uint32>(ResourceDirectoryType::EngineResource))
 				continue;
 
+			if (!m_searchStr.empty())
+			{
+				if (UtilStr::ToLower(child->name).find(m_searchStr) == String::npos)
+					continue;
+			}
+
+			if (m_filter != Filter::None)
+			{
+				if (m_filter == Filter::Favourites)
+				{
+					if (!child->userData.isInFavourites)
+						continue;
+				}
+			}
 			AddItem(dir, child, margin);
 		}
 	}
@@ -271,13 +334,12 @@ namespace Lina::Editor
 			return;
 		ResourceDirectory& root = currentProject->GetResourceRoot();
 
-		bool createDisabled		 = false;
-		bool renameDisabled		 = false;
-		bool deleteDisabled		 = false;
-		bool duplicateDisabled	 = false;
-		bool favDisabled		 = false;
-		bool reimportAllDisabled = false;
-		bool changeSrcDisabled	 = false;
+		bool createDisabled	   = false;
+		bool renameDisabled	   = false;
+		bool deleteDisabled	   = false;
+		bool duplicateDisabled = false;
+		bool favDisabled	   = false;
+		bool changeSrcDisabled = false;
 
 		Vector<ResourceDirectory*> selection = m_controller->GetSelectedUserData<ResourceDirectory>();
 
@@ -319,10 +381,6 @@ namespace Lina::Editor
 		if (size != 1 || anyEngineFolder || anyRootFolder)
 			favDisabled = true;
 
-		// Reimport
-		if (size > 1 || anyFile || anyEngineFolder)
-			reimportAllDisabled = true;
-
 		// Change src
 		if (size != 1 || anyFolder || anyNonExternal || anyEngineResource)
 			changeSrcDisabled = true;
@@ -345,14 +403,6 @@ namespace Lina::Editor
 				.headerIcon	 = ICON_IMPORT,
 				.hasDropdown = false,
 				.isDisabled	 = createDisabled,
-				.userData	 = userData,
-			});
-
-			outData.push_back(FileMenuItem::Data{
-				.text		 = Locale::GetStr(LocaleStr::ReimportChangedFiles),
-				.headerIcon	 = ICON_ROTATE,
-				.hasDropdown = false,
-				.isDisabled	 = reimportAllDisabled,
 				.userData	 = userData,
 			});
 
@@ -447,16 +497,6 @@ namespace Lina::Editor
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Duplicate)))
 		{
 			RequestDuplicate(roots);
-			return true;
-		}
-
-		if (sid == TO_SID(Locale::GetStr(LocaleStr::ReimportChangedFiles)))
-		{
-			if (selection.empty())
-				m_editor->GetProjectManager().ReimportChangedSources(&m_editor->GetProjectManager().GetProjectData()->GetResourceRoot(), m_lgxWindow);
-			else
-				m_editor->GetProjectManager().ReimportChangedSources(selection.front(), m_lgxWindow);
-
 			return true;
 		}
 
@@ -622,8 +662,15 @@ namespace Lina::Editor
 		m_editor->GetProjectManager().SaveProjectChanges();
 
 		RefreshDirectory();
-		m_controller->MakeVisibleRecursively(m_controller->GetItem(newCreated));
-		m_controller->SelectItem(m_controller->GetItem(newCreated), true, false);
+
+		Widget* w = m_controller->GetItem(newCreated);
+
+		// search str or filters can prevent it from being added
+		if (w)
+		{
+			m_controller->MakeVisibleRecursively(w);
+			m_controller->SelectItem(w, true, false);
+		}
 
 		return true;
 	}

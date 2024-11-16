@@ -57,13 +57,13 @@ namespace Lina
 		HANDLE hConsole;
 		int	   color = 15;
 
-		if ((level == LogLevel::Trace) || (level == LogLevel::Debug))
+		if ((level == LogLevel::LOG_LEVEL_TRACE))
 			color = 3;
-		else if ((level == LogLevel::Info) || (level == LogLevel::None))
+		else if ((level == LogLevel::LOG_LEVEL_INFO))
 			color = 15;
-		else if ((level == LogLevel::Warn))
+		else if ((level == LogLevel::LOG_LEVEL_WARNING))
 			color = 6;
-		else if ((level == LogLevel::Error) || (level == LogLevel::Critical))
+		else if ((level == LogLevel::LOG_LEVEL_ERROR) || (level == LogLevel::LOG_LEVEL_CRITICAL))
 			color = 4;
 
 		hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -82,19 +82,15 @@ namespace Lina
 	{
 		switch (level)
 		{
-		case LogLevel::Critical:
+		case LogLevel::LOG_LEVEL_CRITICAL:
 			return "Critical";
-		case LogLevel::Debug:
-			return "Debug";
-		case LogLevel::Error:
+		case LogLevel::LOG_LEVEL_ERROR:
 			return "Error";
-		case LogLevel::Info:
+		case LogLevel::LOG_LEVEL_INFO:
 			return "Info";
-		case LogLevel::None:
-			return "None";
-		case LogLevel::Trace:
+		case LogLevel::LOG_LEVEL_TRACE:
 			return "Trace";
-		case LogLevel::Warn:
+		case LogLevel::LOG_LEVEL_WARNING:
 			return "Warn";
 		default:
 			return "";

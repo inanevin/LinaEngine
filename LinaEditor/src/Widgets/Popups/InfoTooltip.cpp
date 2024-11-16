@@ -62,12 +62,12 @@ namespace Lina::Editor
 		m_icon->SetAlignedPosY(0.5f);
 		m_icon->GetProps().textScale = 0.6f;
 
-		if (m_tooltipProps.level == LogLevel::Error)
+		if (m_tooltipProps.level == LogLevel::LOG_LEVEL_ERROR)
 		{
 			m_icon->GetProps().icon	 = ICON_XMARK_CIRCLE;
 			m_icon->GetProps().color = Theme::GetDef().accentError;
 		}
-		else if (m_tooltipProps.level == LogLevel::Warn)
+		else if (m_tooltipProps.level == LogLevel::LOG_LEVEL_WARNING)
 		{
 			m_icon->GetProps().icon	 = ICON_EXCLAMATION_TRIANGLE;
 			m_icon->GetProps().color = Theme::GetDef().accentWarn;
@@ -137,10 +137,10 @@ namespace Lina::Editor
 
 	Color InfoTooltip::GetColorFromLevel()
 	{
-		if (m_tooltipProps.level == LogLevel::Error)
+		if (m_tooltipProps.level == LogLevel::LOG_LEVEL_ERROR)
 			return Theme::GetDef().accentError;
 
-		if (m_tooltipProps.level == LogLevel::Warn)
+		if (m_tooltipProps.level == LogLevel::LOG_LEVEL_WARNING)
 			return Theme::GetDef().accentWarn;
 
 		return Theme::GetDef().outlineColorBase;

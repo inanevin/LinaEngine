@@ -46,13 +46,16 @@ namespace Lina::Editor
 	class Editor;
 	class ItemController;
 
-	enum class Mode
-	{
-	};
-
 	class ResourceDirectoryBrowser : public Widget, public FileMenuListener, public ProjectManagerListener
 	{
 	public:
+		enum class Filter
+		{
+			None = 0,
+			Favourites,
+			Max,
+		};
+
 		ResourceDirectoryBrowser()			= default;
 		virtual ~ResourceDirectoryBrowser() = default;
 
@@ -71,10 +74,13 @@ namespace Lina::Editor
 			}
 		};
 
-		virtual void Construct() override;
-		virtual void Destruct() override;
-		virtual void Initialize() override;
-		void		 RefreshDirectory();
+		virtual void  Construct() override;
+		virtual void  Destruct() override;
+		virtual void  Initialize() override;
+		void		  RefreshDirectory();
+		void		  SetFilter(Filter filter);
+		void		  SetSearchStr(const String& str);
+		static String GetFilterStr(Filter filter);
 
 		inline Properties& GetProps()
 		{
@@ -116,6 +122,8 @@ namespace Lina::Editor
 		Vector<ResourceDirectory*>							 m_payloadItems		  = {};
 		Vector<Pair<ResourceDirectory*, TextureAtlasImage*>> m_importingResources = {};
 		ResourceDirectory									 m_linaAssets;
+		Filter												 m_filter	 = Filter::None;
+		String												 m_searchStr = "";
 	};
 
 	LINA_WIDGET_BEGIN(ResourceDirectoryBrowser, Editor)

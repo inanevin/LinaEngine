@@ -57,7 +57,7 @@ namespace Lina
 		m_icon->SetAnchorX(Anchor::Center);
 		m_icon->SetAnchorY(Anchor::Center);
 		m_icon->GetProps().icon				   = icon;
-		m_icon->GetProps().dynamicSizeScale	   = 0.75f;
+		m_icon->GetProps().dynamicSizeScale	   = 0.8f;
 		m_icon->GetProps().dynamicSizeToParent = true;
 		m_icon->CalculateIconSize();
 		AddChild(m_icon);

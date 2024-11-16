@@ -38,6 +38,7 @@ namespace Lina
 
 namespace Lina::Editor
 {
+	class Editor;
 
 	class PanelLog : public Panel, public LogListener
 	{
@@ -46,10 +47,9 @@ namespace Lina::Editor
 
 		struct LogLevelData
 		{
-			LogLevel level = LogLevel::Info;
-			bool	 show  = false;
-			Color	 color = {};
-			String	 title = "";
+			uint32 mask	 = 0;
+			Color  color = {};
+			String title = "";
 		};
 
 	public:
@@ -60,9 +60,6 @@ namespace Lina::Editor
 		virtual void Destruct() override;
 		virtual void PreTick() override;
 
-		virtual void SaveLayoutToStream(OStream& stream);
-		virtual void LoadLayoutFromStream(IStream& stream);
-
 	protected:
 		virtual void OnLog(LogLevel level, const char* msg) override;
 
@@ -70,11 +67,12 @@ namespace Lina::Editor
 		void UpdateTextVisibility();
 
 	private:
-		DirectionalLayout*			m_logLayout = nullptr;
-		ScrollArea*					m_logScroll = nullptr;
-		String						m_searchStr = "";
-		Vector<Widget*>				m_newLogs;
-		static Vector<LogLevelData> s_logLevels;
+		Editor*				 m_editor;
+		DirectionalLayout*	 m_logLayout = nullptr;
+		ScrollArea*			 m_logScroll = nullptr;
+		String				 m_searchStr = "";
+		Vector<Widget*>		 m_newLogs;
+		Vector<LogLevelData> m_logLevels;
 	};
 
 	LINA_WIDGET_BEGIN(PanelLog, Hidden)

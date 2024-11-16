@@ -305,8 +305,8 @@ namespace Lina::Editor
 						.samplerIndex = m_editor->GetEditorRenderer().GetGUITextSampler()->GetBindlessIndex(),
 					},
 				.outlineColor	  = Vector4(0, 0, 0, 0),
-				.thickness		  = 0.5f,
-				.softness		  = 0.02f,
+				.thickness		  = 0.52f,
+				.softness		  = 0.025f,
 				.outlineThickness = 0.0f,
 				.outlineSoftness  = 0.02f,
 			};

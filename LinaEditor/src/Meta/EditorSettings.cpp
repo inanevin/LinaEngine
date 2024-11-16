@@ -43,6 +43,9 @@ namespace Lina::Editor
 		in >> m_lastProjectPath;
 		in >> m_lastWorldID;
 		in >> m_layout;
+		in >> m_settingsPanelLog;
+		in >> m_settingsPanelStats;
+		in >> m_settingsPanelResources;
 	}
 
 	void EditorSettings::SaveToStream(OStream& out)
@@ -51,5 +54,8 @@ namespace Lina::Editor
 		out << m_lastProjectPath;
 		out << m_lastWorldID;
 		out << m_layout;
+		out << m_settingsPanelLog;
+		out << m_settingsPanelStats;
+		out << m_settingsPanelResources;
 	}
 } // namespace Lina::Editor

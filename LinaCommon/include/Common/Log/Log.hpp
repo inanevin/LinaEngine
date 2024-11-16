@@ -36,11 +36,11 @@ SOFTWARE.
 
 #ifdef LINA_DEBUG
 
-#define LINA_ERR(...)	   Lina::Log::LogMessage(Lina::LogLevel::Error, __VA_ARGS__)
-#define LINA_WARN(...)	   Lina::Log::LogMessage(Lina::LogLevel::Warn, __VA_ARGS__)
-#define LINA_INFO(...)	   Lina::Log::LogMessage(Lina::LogLevel::Info, __VA_ARGS__)
-#define LINA_TRACE(...)	   Lina::Log::LogMessage(Lina::LogLevel::Trace, __VA_ARGS__)
-#define LINA_CRITICAL(...) Lina::Log::LogMessage(Lina::LogLevel::Critical, __VA_ARGS__)
+#define LINA_ERR(...)	   Lina::Log::LogMessage(Lina::LogLevel::LOG_LEVEL_ERROR, __VA_ARGS__)
+#define LINA_WARN(...)	   Lina::Log::LogMessage(Lina::LogLevel::LOG_LEVEL_WARNING, __VA_ARGS__)
+#define LINA_INFO(...)	   Lina::Log::LogMessage(Lina::LogLevel::LOG_LEVEL_INFO, __VA_ARGS__)
+#define LINA_TRACE(...)	   Lina::Log::LogMessage(Lina::LogLevel::LOG_LEVEL_TRACE, __VA_ARGS__)
+#define LINA_CRITICAL(...) Lina::Log::LogMessage(Lina::LogLevel::LOG_LEVEL_CRITICAL, __VA_ARGS__)
 
 #else
 
@@ -83,17 +83,13 @@ SOFTWARE.
 
 namespace Lina
 {
-	enum class LogLevel;
-
-	enum class LogLevel
+	enum LogLevel
 	{
-		None	 = 0,
-		Debug	 = 1,
-		Info	 = 2,
-		Critical = 3,
-		Error	 = 4,
-		Trace	 = 5,
-		Warn	 = 6,
+		LOG_LEVEL_INFO	   = 1 << 0,
+		LOG_LEVEL_CRITICAL = 1 << 1,
+		LOG_LEVEL_ERROR	   = 1 << 2,
+		LOG_LEVEL_TRACE	   = 1 << 3,
+		LOG_LEVEL_WARNING  = 1 << 4,
 	};
 
 	class LogListener

@@ -169,6 +169,8 @@ namespace Lina::Editor
 		{LocaleStr::ChangeSourceAsset, "Change Source Asset"},
 		{LocaleStr::MultipleItems, "Multiple Items"},
 		{LocaleStr::LinaAssets, "LinaAssets"},
+		{LocaleStr::Filter, "Filter"},
+		{LocaleStr::None, "None"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

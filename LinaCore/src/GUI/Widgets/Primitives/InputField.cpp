@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
+#include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Platform/PlatformProcess.hpp"
@@ -80,10 +81,17 @@ namespace Lina
 		m_placeholderText->SetAlignedPosY(0.5f);
 		m_placeholderText->SetAnchorY(Anchor::Center);
 
+		m_placeholderIcon = m_manager->Allocate<Icon>("InputFieldPlaceholderIcon");
+		m_placeholderIcon->GetFlags().Set(WF_POS_ALIGN_Y);
+		m_placeholderIcon->SetAlignedPosY(0.5f);
+		m_placeholderIcon->SetAnchorY(Anchor::Center);
+
 		AddChild(m_text);
 		AddChild(m_placeholderText);
+		AddChild(m_placeholderIcon);
 
 		m_placeholderText->SetIsDisabled(true);
+		m_placeholderIcon->SetIsDisabled(true);
 	}
 
 	void InputField::Initialize()
@@ -176,10 +184,16 @@ namespace Lina
 			m_placeholderText->GetProps().color = m_props.colorPlaceHolder;
 			m_placeholderText->CalculateTextSize();
 			m_placeholderText->SetIsDisabled(false);
+
+			m_placeholderIcon->GetProps().icon	= m_props.placeHolderIcon;
+			m_placeholderIcon->GetProps().color = m_props.colorPlaceHolder;
+			m_placeholderIcon->CalculateIconSize();
+			m_placeholderIcon->SetIsDisabled(false);
 		}
 		else if (!m_placeholderText->GetIsDisabled() && !m_text->GetProps().text.empty())
 		{
 			m_placeholderText->SetIsDisabled(true);
+			m_placeholderIcon->SetIsDisabled(true);
 		}
 
 		if (m_isPressed)
@@ -196,7 +210,16 @@ namespace Lina
 		const size_t characterCount = m_text->GetProps().text.size();
 		m_averageCharacterStep		= characterCount == 0 ? 0.0f : textSize.x / static_cast<float>(characterCount);
 		m_text->SetPosX(m_textStart.x);
-		m_placeholderText->SetPosX(m_text->GetPosX());
+
+		if (m_props.placeHolderIcon.empty())
+		{
+			m_placeholderText->SetPosX(m_text->GetPosX());
+		}
+		else
+		{
+			m_placeholderIcon->SetPosX(m_text->GetPosX());
+			m_placeholderText->SetPosX(m_placeholderIcon->GetSizeX() + m_text->GetPosX() + Theme::GetDef().baseIndentInner);
+		}
 
 		// Caret alpha
 		if (m_isEditing)
@@ -298,7 +321,7 @@ namespace Lina
 
 		if (!m_placeholderText->GetIsDisabled())
 		{
-			m_placeholderText->GetProps().customClip = Vector4(m_rect.pos.x, m_rect.pos.y, m_rect.size.x, m_rect.size.y);
+			m_placeholderIcon->Draw();
 			m_placeholderText->Draw();
 		}
 

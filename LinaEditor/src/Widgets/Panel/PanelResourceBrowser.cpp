@@ -29,17 +29,22 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
 #include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
 #include "Editor/EditorLocale.hpp"
+#include "Editor/Editor.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
-#include "Core/GUI/Widgets/Primitives/Button.hpp"
+#include "Core/GUI/Widgets/Layout/Popup.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
-#include "Core/GUI/Widgets/WidgetUtility.hpp"
+#include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
+#include "Core/GUI/Widgets/Primitives/Icon.hpp"
+#include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/Graphics/Resource/GUIWidget.hpp"
 
 namespace Lina::Editor
 {
 	void PanelResourceBrowser::Construct()
 	{
+		SettingsPanelResources& settings = Editor::Get()->GetSettings().GetSettingsPanelResources();
+
 		DirectionalLayout* vertical = m_manager->Allocate<DirectionalLayout>();
 		vertical->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		vertical->GetProps().direction			= DirectionOrientation::Vertical;
@@ -55,12 +60,39 @@ namespace Lina::Editor
 		header->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
 		vertical->AddChild(header);
 
+		Dropdown* filterDD = m_manager->Allocate<Dropdown>("Fiter");
+		filterDD->GetFlags().Set(WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_SIZE_ALIGN_Y);
+		filterDD->SetAlignedPosY(0.0f);
+		filterDD->SetAlignedSizeY(1.0f);
+		filterDD->SetFixedSizeX(Theme::GetDef().baseItemWidth * 1.5f);
+		filterDD->GetIcon()->GetProps().icon = ICON_FILTER;
+		filterDD->GetText()->GetProps().text = Locale::GetStr(LocaleStr::Filter) + ": " + ResourceDirectoryBrowser::GetFilterStr(static_cast<ResourceDirectoryBrowser::Filter>(settings.filter));
+		filterDD->GetProps().onAddItems		 = [this](Popup* popup) {
+			 const int32			 max	  = static_cast<int32>(ResourceDirectoryBrowser::Filter::Max);
+			 SettingsPanelResources& settings = Editor::Get()->GetSettings().GetSettingsPanelResources();
+
+			 for (int32 i = 0; i < max; i++)
+				 popup->AddToggleItem(ResourceDirectoryBrowser::GetFilterStr(static_cast<ResourceDirectoryBrowser::Filter>(i)), settings.filter == i, i);
+		};
+
+		filterDD->GetProps().onSelected = [this](int32 idx, String& newTitle) -> bool {
+			SettingsPanelResources& settings = Editor::Get()->GetSettings().GetSettingsPanelResources();
+			settings.filter					 = static_cast<uint32>(idx);
+			Editor::Get()->SaveSettings();
+			newTitle = Locale::GetStr(LocaleStr::Filter) + ": " + ResourceDirectoryBrowser::GetFilterStr(static_cast<ResourceDirectoryBrowser::Filter>(settings.filter));
+			m_resourceBrowser->SetFilter(static_cast<ResourceDirectoryBrowser::Filter>(settings.filter));
+			return true;
+		};
+
+		header->AddChild(filterDD);
+
 		InputField* searchField = m_manager->Allocate<InputField>();
 		searchField->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		searchField->SetAlignedPosY(0.0f);
-		searchField->SetAlignedSize(Vector2(0.5f, 1.0f));
+		searchField->SetAlignedSize(Vector2(0.0f, 1.0f));
 		searchField->GetProps().usePlaceHolder	= true;
 		searchField->GetProps().placeHolderText = Locale::GetStr(LocaleStr::Search);
+		searchField->GetProps().placeHolderIcon = ICON_SEARCH;
 		header->AddChild(searchField);
 
 		ResourceDirectoryBrowser* dirBrowser = m_manager->Allocate<ResourceDirectoryBrowser>();
@@ -69,11 +101,9 @@ namespace Lina::Editor
 		dirBrowser->SetAlignedSize(Vector2(1.0f, 0.0f));
 		vertical->AddChild(dirBrowser);
 		m_resourceBrowser = dirBrowser;
+		m_resourceBrowser->SetFilter(static_cast<ResourceDirectoryBrowser::Filter>(settings.filter));
 
-		searchField->GetProps().onEdited = [dirBrowser](const String& str) {
-			// TODO: Update search string for directory browser.
-			dirBrowser->RefreshDirectory();
-		};
+		searchField->GetProps().onEdited = [dirBrowser](const String& str) { dirBrowser->SetSearchStr(str); };
 	}
 
 	void PanelResourceBrowser::SaveLayoutDefaults(OStream& stream)

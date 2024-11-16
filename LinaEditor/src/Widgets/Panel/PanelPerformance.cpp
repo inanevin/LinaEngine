@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Editor/Widgets/Compound/TabRow.hpp"
 #include "Editor/Widgets/Compound/Tab.hpp"
 #include "Editor/EditorLocale.hpp"
+#include "Editor/Editor.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
@@ -41,6 +42,8 @@ namespace Lina::Editor
 
 	void PanelPerformance::Construct()
 	{
+		m_editor = Editor::Get();
+
 		DirectionalLayout* layout	 = m_manager->Allocate<DirectionalLayout>("Layout");
 		layout->GetProps().direction = DirectionOrientation::Vertical;
 		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
@@ -54,9 +57,15 @@ namespace Lina::Editor
 		tabRow->SetAlignedSizeX(1.0f);
 		tabRow->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		tabRow->SetCanCloseTabs(false);
-		tabRow->GetWidgetProps().drawBackground = true;
-		tabRow->GetWidgetProps().rounding		= 0.0f;
-		tabRow->GetProps().onTabSelected		= [this](void* userData) { SelectContent(static_cast<Widget*>(userData)); };
+		tabRow->GetWidgetProps().drawBackground	 = true;
+		tabRow->GetWidgetProps().colorBackground = Theme::GetDef().background2;
+		tabRow->GetWidgetProps().rounding		 = 0.0f;
+		tabRow->GetProps().onTabSelected		 = [this](void* userData) {
+			SelectContent(static_cast<Widget*>(userData));
+			m_editor->GetSettings().GetSettingsPanelStats().selectedTab = UtilVector::IndexOf(m_tabContents, m_currentContent);
+			m_editor->SaveSettings();
+		};
+		tabRow->GetWidgetProps().outlineThickness = 0.0f;
 
 		layout->AddChild(tabRow);
 
@@ -68,15 +77,16 @@ namespace Lina::Editor
 
 		DirectionalLayout* mem = BuildContentLayout(Locale::GetStr(LocaleStr::Memory));
 
-		tabRow->AddTab(cpu, cpu->GetWidgetProps().debugName);
-		tabRow->AddTab(gpu, gpu->GetWidgetProps().debugName);
-		tabRow->AddTab(mem, mem->GetWidgetProps().debugName);
+		tabRow->AddTab(cpu, cpu->GetWidgetProps().debugName)->GetWidgetProps().colorBackground = Theme::GetDef().background2;
+		tabRow->AddTab(gpu, gpu->GetWidgetProps().debugName)->GetWidgetProps().colorBackground = Theme::GetDef().background2;
+		tabRow->AddTab(mem, mem->GetWidgetProps().debugName)->GetWidgetProps().colorBackground = Theme::GetDef().background2;
 		m_tabContents.push_back(cpu);
 		m_tabContents.push_back(gpu);
 		m_tabContents.push_back(mem);
 		m_layout = layout;
 		m_tabRow = tabRow;
-		SelectContent(0);
+
+		SelectContent(m_editor->GetSettings().GetSettingsPanelStats().selectedTab);
 	}
 
 	void PanelPerformance::Destruct()
@@ -89,24 +99,6 @@ namespace Lina::Editor
 				continue;
 			m_manager->Deallocate(widget);
 		}
-	}
-
-	void PanelPerformance::Draw()
-	{
-		Panel::Draw();
-		Widget::Draw();
-	}
-
-	void PanelPerformance::LoadLayoutFromStream(IStream& stream)
-	{
-		int32 content = 0;
-		stream >> content;
-		SelectContent(content);
-	}
-
-	void PanelPerformance::SaveLayoutToStream(OStream& stream)
-	{
-		stream << UtilVector::IndexOf(m_tabContents, m_currentContent);
 	}
 
 	void PanelPerformance::SelectContent(Widget* w)

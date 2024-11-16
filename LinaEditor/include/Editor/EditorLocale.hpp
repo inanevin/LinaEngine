@@ -172,6 +172,8 @@ namespace Lina::Editor
 		ChangeSourceAsset,
 		MultipleItems,
 		LinaAssets,
+		Filter,
+		None,
 	};
 
 	class Locale

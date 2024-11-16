@@ -37,6 +37,8 @@ namespace Lina
 namespace Lina::Editor
 {
 	class TabRow;
+	class Editor;
+
 	class PanelPerformance : public Panel
 	{
 	public:
@@ -45,10 +47,6 @@ namespace Lina::Editor
 
 		virtual void Construct() override;
 		virtual void Destruct() override;
-		virtual void Draw() override;
-
-		virtual void LoadLayoutFromStream(IStream& stream) override;
-		virtual void SaveLayoutToStream(OStream& stream) override;
 
 	private:
 		void			   SelectContent(int32 index);
@@ -59,6 +57,7 @@ namespace Lina::Editor
 		void			   BuildContentsMemory(DirectionalLayout* parent);
 
 	private:
+		Editor*			   m_editor = nullptr;
 		Vector<Widget*>	   m_tabContents;
 		Widget*			   m_currentContent = nullptr;
 		DirectionalLayout* m_layout			= nullptr;

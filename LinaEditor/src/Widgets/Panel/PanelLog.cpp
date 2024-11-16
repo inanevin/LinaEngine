@@ -40,14 +40,17 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Layout/Popup.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 
+#include "Editor/Widgets/CommonWidgets.hpp"
+#include "Editor/Editor.hpp"
+
 namespace Lina::Editor
 {
-	Vector<PanelLog::LogLevelData> PanelLog::s_logLevels;
-
 #define MAX_LOGS 180
 
 	void PanelLog::Construct()
 	{
+		m_editor = Editor::Get();
+
 		DirectionalLayout* panelLayout = m_manager->Allocate<DirectionalLayout>("PanelLayout");
 		panelLayout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		panelLayout->SetAlignedPos(Vector2::Zero);
@@ -64,6 +67,13 @@ namespace Lina::Editor
 		topLayout->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
 		panelLayout->AddChild(topLayout);
 
+		Button* clearButton				  = CommonWidgets::BuildIconButton(this, ICON_TRASH);
+		clearButton->GetProps().onClicked = [this]() {
+			m_logLayout->DeallocAllChildren();
+			m_logLayout->RemoveAllChildren();
+		};
+		topLayout->AddChild(clearButton);
+
 		Dropdown* logLevelDD = m_manager->Allocate<Dropdown>("LogLevel");
 		logLevelDD->GetFlags().Set(WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_SIZE_ALIGN_Y);
 		logLevelDD->SetFixedSizeX(Theme::GetDef().baseItemWidth);
@@ -72,19 +82,26 @@ namespace Lina::Editor
 		logLevelDD->GetText()->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::LogLevels));
 
 		logLevelDD->GetProps().onAddItems = [this](Popup* popup) {
-			const size_t sz = s_logLevels.size();
+			const size_t sz = m_logLevels.size();
 			for (size_t i = 0; i < sz; i++)
 			{
-				const LogLevelData& data = s_logLevels[i];
-				popup->AddToggleItem(data.title, data.show, static_cast<int32>(i));
+				const LogLevelData& data = m_logLevels[i];
+
+				const bool show = m_editor->GetSettings().GetSettingsPanelLog().logLevelMask.IsSet(data.mask);
+				popup->AddToggleItem(data.title, show, static_cast<int32>(i));
 			}
 		};
 
 		logLevelDD->GetProps().onSelected = [this](int32 idx, String& newTitle) -> bool {
-			s_logLevels[idx].show = !s_logLevels[idx].show;
+			const LogLevelData& data = m_logLevels[idx];
+
+			const bool show = m_editor->GetSettings().GetSettingsPanelLog().logLevelMask.IsSet(data.mask);
+			m_editor->GetSettings().GetSettingsPanelLog().logLevelMask.Set(data.mask, !show);
+			m_editor->SaveSettings();
+
 			UpdateTextVisibility();
 			m_logScroll->ScrollToEnd();
-			return s_logLevels[idx].show;
+			return !show;
 		};
 		topLayout->AddChild(logLevelDD);
 
@@ -93,6 +110,7 @@ namespace Lina::Editor
 		search->SetAlignedPosY(0.0f);
 		search->SetAlignedSize(Vector2(0.0f, 1.0f));
 		search->GetProps().placeHolderText = Locale::GetStr(LocaleStr::Search);
+		search->GetProps().placeHolderIcon = ICON_SEARCH;
 		search->GetProps().onEdited		   = [this](const String& str) {
 			   m_searchStr = UtilStr::ToLower(str);
 			   UpdateTextVisibility();
@@ -128,68 +146,32 @@ namespace Lina::Editor
 		logScroll->AddChild(logArea);
 		m_logLayout = logArea;
 
-		DirectionalLayout* bottomLayout = m_manager->Allocate<DirectionalLayout>("BottomLayout");
-		bottomLayout->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-		bottomLayout->SetAlignedPosX(0.0f);
-		bottomLayout->SetAlignedSizeX(1.0f);
-		bottomLayout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		bottomLayout->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
-		panelLayout->AddChild(bottomLayout);
 		AddChild(panelLayout);
-
-		Button* clearButton = m_manager->Allocate<Button>("Clear");
-		clearButton->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_X_COPY_Y);
-		clearButton->SetAlignedPosY(0.0f);
-		clearButton->SetAlignedSizeY(1.0f);
-		clearButton->GetWidgetProps().drawBackground			 = true;
-		clearButton->GetWidgetProps().outlineAffectedByMainColor = true;
-		clearButton->GetWidgetProps().outlineThickness			 = Theme::GetDef().baseOutlineThickness;
-		clearButton->GetWidgetProps().colorBackground			 = Color(0, 0, 0, 0);
-		clearButton->GetWidgetProps().colorHovered				 = Theme::GetDef().background4;
-		clearButton->GetWidgetProps().colorPressed				 = Theme::GetDef().background0;
-		clearButton->GetWidgetProps().hoveredIsDifferentColor	 = true;
-		clearButton->GetWidgetProps().pressedIsDifferentColor	 = true;
-		clearButton->RemoveText();
-		clearButton->CreateIcon(ICON_TRASH);
-		clearButton->GetIcon()->GetProps().color = Theme::GetDef().accentError.Darken(0.5f);
-
-		bottomLayout->AddChild(clearButton);
-
-		InputField* console = m_manager->Allocate<InputField>("Console");
-		console->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		console->SetAlignedPosY(0.0f);
-		console->SetAlignedSize(Vector2(0.0f, 1.0f));
-		console->GetProps().placeHolderText = Locale::GetStr(LocaleStr::EnterConsoleCommand);
-		bottomLayout->AddChild(console);
 
 		Log::AddLogListener(this);
 
-		if (s_logLevels.empty())
+		if (m_logLevels.empty())
 		{
-			s_logLevels.push_back({
-				.level = LogLevel::Info,
-				.show  = true,
+			m_logLevels.push_back({
+				.mask  = LOG_LEVEL_INFO,
 				.color = Color::White,
 				.title = Locale::GetStr(LocaleStr::Info),
 			});
 
-			s_logLevels.push_back({
-				.level = LogLevel::Warn,
-				.show  = true,
+			m_logLevels.push_back({
+				.mask  = LOG_LEVEL_WARNING,
 				.color = Theme::GetDef().accentWarn,
 				.title = Locale::GetStr(LocaleStr::Warning),
 			});
 
-			s_logLevels.push_back({
-				.level = LogLevel::Error,
-				.show  = true,
+			m_logLevels.push_back({
+				.mask  = LOG_LEVEL_ERROR,
 				.color = Theme::GetDef().accentError,
 				.title = Locale::GetStr(LocaleStr::Error),
 			});
 
-			s_logLevels.push_back({
-				.level = LogLevel::Trace,
-				.show  = false,
+			m_logLevels.push_back({
+				.mask  = LOG_LEVEL_TRACE,
 				.color = Theme::GetDef().accentSecondary,
 				.title = Locale::GetStr(LocaleStr::Trace),
 			});
@@ -220,31 +202,21 @@ namespace Lina::Editor
 		m_newLogs.clear();
 	}
 
-	void PanelLog::SaveLayoutToStream(OStream& stream)
-	{
-		const size_t sz = s_logLevels.size();
-		for (size_t i = 0; i < sz; i++)
-			stream << s_logLevels[i].show;
-	}
-
-	void PanelLog::LoadLayoutFromStream(IStream& stream)
-	{
-		const size_t sz = s_logLevels.size();
-		for (size_t i = 0; i < sz; i++)
-			stream >> s_logLevels[i].show;
-	}
-
 	void PanelLog::OnLog(LogLevel level, const char* msg)
 	{
-		const size_t sz	 = s_logLevels.size();
+		const Bitmask32& currentMask = m_editor->GetSettings().GetSettingsPanelLog().logLevelMask;
+
+		const size_t sz	 = m_logLevels.size();
 		size_t		 idx = 0;
 		for (size_t i = 0; i < sz; i++)
 		{
-			const LogLevelData& data = s_logLevels[i];
-			if (data.level == level)
+			const LogLevelData& data = m_logLevels[i];
+			if (data.mask == level)
 			{
-				idx = i;
-				if (!data.show)
+				idx				= i;
+				const bool show = currentMask.IsSet(data.mask);
+
+				if (!show)
 					return;
 			}
 		}
@@ -256,7 +228,7 @@ namespace Lina::Editor
 				return;
 		}
 
-		LogLevelData& data = s_logLevels[idx];
+		LogLevelData& data = m_logLevels[idx];
 
 		const String sysTime	 = "[" + FileSystem::GetSystemTimeStr() + "] ";
 		const String levelHeader = sysTime + "[" + data.title + "] ";
@@ -274,7 +246,8 @@ namespace Lina::Editor
 
 	void PanelLog::UpdateTextVisibility()
 	{
-		const Vector<Widget*> texts = m_logLayout->GetChildren();
+		const Vector<Widget*> texts		  = m_logLayout->GetChildren();
+		const Bitmask32&	  currentMask = m_editor->GetSettings().GetSettingsPanelLog().logLevelMask;
 
 		for (Widget* text : texts)
 		{
@@ -289,7 +262,7 @@ namespace Lina::Editor
 				searchStrNotOK		   = strLower.find(m_searchStr) == String::npos;
 			}
 
-			text->GetFlags().Set(WF_HIDE, !targetLevel->show || searchStrNotOK);
+			text->GetFlags().Set(WF_HIDE, !currentMask.IsSet(targetLevel->mask) || searchStrNotOK);
 		}
 	}
 

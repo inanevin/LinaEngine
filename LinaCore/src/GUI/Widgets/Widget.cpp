@@ -231,10 +231,10 @@ namespace Lina
 
 			ColorGrad outlineColor = m_manager->IsControlsOwner(this) ? m_widgetProps.colorOutlineControls : m_widgetProps.colorOutline;
 
-			if (m_widgetProps.outlineAffectedByMainColor)
+			if (m_widgetProps.outlineAffectedByMainColor && !m_manager->IsControlsOwner(this))
 			{
-				outlineColor.start = outlineColor.start * mainColor.start;
-				outlineColor.end   = outlineColor.end * mainColor.end;
+				outlineColor.start.w = outlineColor.start.w * mainColor.start.w;
+				outlineColor.end.w	 = outlineColor.end.w * mainColor.end.w;
 			}
 
 			opts.outlineOptions.color = outlineColor.AsLVG();

@@ -547,7 +547,6 @@ namespace Lina::Editor
 			m_selectedItems.clear();
 
 		m_lastSelected = item->GetUserData();
-		m_manager->GrabControls(this);
 
 		auto exists = linatl::find_if(m_selectedItems.begin(), m_selectedItems.end(), [item](Widget* it) -> bool { return item == it; });
 		if (exists == m_selectedItems.end())
@@ -556,7 +555,7 @@ namespace Lina::Editor
 		if (callEvent && m_props.onItemSelected)
 			m_props.onItemSelected(item->GetUserData());
 
-		SetFocus(true);
+		// SetFocus(true);
 	}
 
 	void ItemController::UnselectItem(Widget* item)

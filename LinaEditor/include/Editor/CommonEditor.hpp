@@ -194,6 +194,9 @@ namespace Lina::Editor
 #define ICON_GLOBE				  "\u005A"
 #define ICON_GITHUB				  "\u005B"
 #define ICON_DISCORD			  "\u005C"
+#define ICON_SEARCH				  "\u006B"
+#define ICON_TERMINAL			  "\u006C"
+#define ICON_FILTER				  "\u006D"
 
 #define DOCK_DEFAULT_PERCENTAGE 0.4f
 #define DOCKED_MIN_SIZE			300.0f
