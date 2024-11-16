@@ -112,6 +112,7 @@ namespace Lina::Editor
 		void RequestDuplicate(Vector<ResourceDirectory*> dirs);
 		void DeleteItems(Vector<ResourceDirectory*> dirs);
 		void DropPayload(ResourceDirectory* target);
+		bool CheckIfContainsSearchStr(ResourceDirectory* dir);
 		bool CheckIfContainsEngineResource(const Vector<ResourceDirectory*>& dirs);
 
 	private:

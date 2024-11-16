@@ -224,7 +224,7 @@ namespace Lina::Editor
 
 			if (!m_searchStr.empty())
 			{
-				if (UtilStr::ToLower(child->name).find(m_searchStr) == String::npos)
+				if (!CheckIfContainsSearchStr(child))
 					continue;
 			}
 
@@ -311,7 +311,7 @@ namespace Lina::Editor
 
 			if (!m_searchStr.empty())
 			{
-				if (UtilStr::ToLower(child->name).find(m_searchStr) == String::npos)
+				if (!CheckIfContainsSearchStr(child))
 					continue;
 			}
 
@@ -781,6 +781,20 @@ namespace Lina::Editor
 
 		if (!resources.empty())
 			EditorActionResourceMove::Create(m_editor, resources, previousParents, targetGUID);
+	}
+
+	bool ResourceDirectoryBrowser::CheckIfContainsSearchStr(ResourceDirectory* dir)
+	{
+		if (UtilStr::ToLower(dir->name).find(m_searchStr) != String::npos)
+			return true;
+
+		for (ResourceDirectory* c : dir->children)
+		{
+			if (CheckIfContainsSearchStr(c))
+				return true;
+		}
+
+		return false;
 	}
 
 	bool ResourceDirectoryBrowser::CheckIfContainsEngineResource(const Vector<ResourceDirectory*>& dirs)
