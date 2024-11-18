@@ -28,82 +28,86 @@ SOFTWARE.
 
 #include "Editor/Widgets/Compound/IconTabs.hpp"
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
-#include "Core/GUI/Widgets/Primitives/Text.hpp"
+#include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
+#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 
 namespace Lina::Editor
 {
-	void IconTabs::Initialize()
+	void IconTabs::Construct()
 	{
-		int32 idx = 0;
+		m_verticalLayout = m_manager->Allocate<DirectionalLayout>("Layout");
+		m_verticalLayout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		m_verticalLayout->SetAlignedPos(Vector2::Zero);
+		m_verticalLayout->SetAlignedSize(Vector2::One);
+		m_verticalLayout->GetProps().mode	   = DirectionalLayout::Mode::EqualSizes;
+		m_verticalLayout->GetProps().direction = DirectionOrientation::Vertical;
+		AddChild(m_verticalLayout);
+	}
 
-		for (const auto& ic : m_tabProps.icons)
+	void IconTabs::Refresh()
+	{
+		m_verticalLayout->DeallocAllChildren();
+		m_verticalLayout->RemoveAllChildren();
+
+		const size_t sz = m_props.icons.size();
+
+		for (size_t i = 0; i < sz; i++)
 		{
-			Button* btn = m_manager->Allocate<Button>("IconButton");
-			SetButtonColors(btn, idx == m_tabProps.selected);
-			btn->GetProps().onClicked = [this, idx]() {
-				// Set colors.
-				if (m_tabProps.selected != -1)
-					SetButtonColors(static_cast<Button*>(m_children[m_tabProps.selected]), false);
-				m_tabProps.selected = idx;
-				SetButtonColors(static_cast<Button*>(m_children[m_tabProps.selected]), true);
-
-				// Cb
-				if (m_tabProps.onSelectionChanged)
-					m_tabProps.onSelectionChanged(idx);
+			const IconData& ic = m_props.icons[i];
+			Button*			w  = m_manager->Allocate<Button>("IconBG");
+			w->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X);
+			w->SetAlignedPosX(0.0f);
+			w->SetAlignedSizeX(1.0f);
+			w->GetWidgetProps().tooltip		   = ic.tooltip;
+			w->GetWidgetProps().drawBackground = true;
+			w->GetWidgetProps().rounding = w->GetWidgetProps().outlineThickness = 0.0f;
+			w->GetWidgetProps().colorBackground									= Theme::GetDef().background2;
+			w->GetWidgetProps().colorBackgroundAlt								= Theme::GetDef().background1;
+			w->GetWidgetProps().colorHovered									= Theme::GetDef().background3;
+			w->RemoveText();
+			w->GetProps().onClicked = [i, this]() {
+				if (m_props.onSelected)
+					m_props.onSelected(static_cast<int32>(i));
 			};
 
-			if (!m_tabProps.tooltips.empty())
-				btn->GetWidgetProps().tooltip = m_tabProps.tooltips[idx];
+			m_verticalLayout->AddChild(w);
 
-			btn->GetText()->GetProps().font		   = Theme::GetDef().iconFont;
-			btn->GetText()->GetProps().textScale   = m_tabProps.iconScale;
-			btn->GetText()->GetProps().text		   = ic;
-			btn->GetWidgetProps().outlineThickness = 0.0f;
-
-			if (m_props.direction == DirectionOrientation::Horizontal)
+			if (i != 0)
 			{
-				btn->GetFlags().Set(WF_POS_ALIGN_Y);
-				btn->SetAlignedPosY(0.0f);
-			}
-			else
-			{
-				btn->GetFlags().Set(WF_POS_ALIGN_X);
-				btn->SetAlignedPosX(0.0f);
+				w->GetWidgetProps().borderThickness.top = Theme::GetDef().baseSeparatorThickness;
+				w->GetWidgetProps().colorBorders		= Theme::GetDef().background0;
 			}
 
-			if (idx < static_cast<int32>(m_tabProps.icons.size() - 1))
-			{
-				btn->GetWidgetProps().colorBorders			 = Theme::GetDef().black;
-				btn->GetWidgetProps().borderThickness.bottom = Theme::GetDef().baseOutlineThickness * 2;
-			}
+			Icon* icon = m_manager->Allocate<Icon>("Icon");
+			icon->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+			icon->SetAlignedPos(Vector2(0.5f, 0.5f));
+			icon->SetAnchorX(Anchor::Center);
+			icon->SetAnchorY(Anchor::Center);
+			icon->GetProps().dynamicSizeToParent = true;
+			icon->GetProps().dynamicSizeScale	 = 0.7f;
+			icon->GetProps().icon				 = ic.icon;
+			icon->GetProps().color				 = ic.color;
+			w->AddChild(icon);
+			w->Initialize();
+		}
+	}
 
-			if (idx == 0)
-			{
-				btn->GetWidgetProps().rounding	= m_tabProps.topRounding;
-				btn->GetWidgetProps().onlyRound = {0, 1};
-			}
-			else if (idx == static_cast<int32>(m_tabProps.icons.size()) - 1)
-			{
-				btn->GetWidgetProps().rounding	= m_tabProps.bottomRounding;
-				btn->GetWidgetProps().onlyRound = {2, 3};
-			}
-			else
-				btn->GetWidgetProps().rounding = 0.0f;
+	void IconTabs::SetSelected(int32 selected)
+	{
+		if (m_verticalLayout->GetChildren().size() != m_props.icons.size())
+			Refresh();
 
-			btn->GetFlags().Set(WF_SIZE_ALIGN_X);
-			btn->SetAlignedSizeX(1.0f);
+		const Vector<Widget*> children = m_verticalLayout->GetChildren();
 
-			btn->Initialize();
-			AddChild(btn);
+		int32 idx = 0;
+
+		for (Widget* w : children)
+		{
+			w->GetWidgetProps().altColorsToggled		= selected == idx;
+			w->GetWidgetProps().hoveredIsDifferentColor = w->GetWidgetProps().pressedIsDifferentColor = selected != idx;
 			idx++;
 		}
 	}
 
-	void IconTabs::SetButtonColors(Button* btn, bool isSelected)
-	{
-		btn->GetWidgetProps().colorBackground = isSelected ? Theme::GetDef().accentPrimary0 : Theme::GetDef().background1;
-		btn->GetWidgetProps().colorHovered	  = isSelected ? Theme::GetDef().accentPrimary2 : Theme::GetDef().background3;
-		btn->GetWidgetProps().colorPressed	  = isSelected ? Theme::GetDef().accentPrimary1 : Theme::GetDef().background2;
-	}
 } // namespace Lina::Editor

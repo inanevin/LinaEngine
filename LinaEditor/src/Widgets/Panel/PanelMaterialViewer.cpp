@@ -237,7 +237,7 @@ namespace Lina::Editor
 			Button* b = m_manager->Allocate<Button>();
 			b->GetFlags().Set(WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
 			b->SetAlignedPosY(0.0f);
-			b->SetAlignedSizeY(1.0f);
+			b->SetAlignedSize(Vector2::One);
 			b->CreateIcon(ICON_PALETTE);
 			b->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::SelectColor);
 			b->GetProps().onClicked		= [data, comps, this, b]() {
@@ -310,7 +310,7 @@ namespace Lina::Editor
 				DirectionalLayout* rightSide = buildDefaultLayout(p->propDef.name);
 				Checkbox*		   v0		 = m_manager->Allocate<Checkbox>();
 				v0->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y);
-				v0->SetAlignedSizeY(1.0f);
+				v0->SetAlignedSize(Vector2::One);
 				v0->SetAlignedPosY(0.0f);
 				v0->GetProps().value		   = reinterpret_cast<bool*>(p->data.data());
 				v0->GetIcon()->GetProps().icon = ICON_CHECK;

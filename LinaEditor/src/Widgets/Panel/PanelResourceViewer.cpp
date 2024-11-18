@@ -63,7 +63,7 @@ namespace Lina::Editor
 		bg->SetAlignedSize(Vector2(0.7f, 1.0f));
 		bg->GetWidgetProps().childMargins	  = TBLR::Eq(Theme::GetDef().baseIndent);
 		bg->GetWidgetProps().drawBackground	  = true;
-		bg->GetWidgetProps().colorBackground  = Theme::GetDef().background1;
+		bg->GetWidgetProps().colorBackground  = Theme::GetDef().background2;
 		bg->GetWidgetProps().outlineThickness = 0.0f;
 		bg->GetWidgetProps().rounding		  = 0.0f;
 		bg->GetWidgetProps().childMargins	  = TBLR::Eq(Theme::GetDef().baseIndent);
@@ -188,7 +188,7 @@ namespace Lina::Editor
 	{
 		for (Widget* c : parent->GetChildren())
 		{
-			c->SetIsDisabled(true);
+			c->GetFlags().Set(WF_DISABLED);
 			DisableRecursively(c);
 		}
 	}

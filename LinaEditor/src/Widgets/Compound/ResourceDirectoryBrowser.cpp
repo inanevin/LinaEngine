@@ -42,7 +42,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
-#include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
+#include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
 #include "Core/Graphics/Resource/GUIWidget.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
@@ -55,6 +55,7 @@ SOFTWARE.
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Physics/PhysicsMaterial.hpp"
 #include "Core/Platform/PlatformProcess.hpp"
+#include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
 #include "Core/Application.hpp"
 
 namespace Lina::Editor
@@ -79,7 +80,7 @@ namespace Lina::Editor
 		controller->SetAlignedSize(Vector2::One);
 		controller->GetWidgetProps().childMargins		  = {.top = Theme::GetDef().baseIndentInner, .bottom = Theme::GetDef().baseIndentInner};
 		controller->GetWidgetProps().drawBackground		  = true;
-		controller->GetWidgetProps().colorBackground	  = Theme::GetDef().background0;
+		controller->GetWidgetProps().colorBackground	  = Theme::GetDef().background1;
 		controller->GetWidgetProps().outlineThickness	  = 0.0f;
 		controller->GetWidgetProps().dropshadow.enabled	  = true;
 		controller->GetWidgetProps().dropshadow.steps	  = Theme::GetDef().baseDropShadowSteps;
@@ -169,7 +170,7 @@ namespace Lina::Editor
 		controller->GetProps().onCheckCanCreatePayload = [this](void* ud) {
 			ResourceDirectory* dir = static_cast<ResourceDirectory*>(ud);
 
-			if (dir->userData.isInFavourites)
+			if (m_filter != Filter::None)
 				return false;
 
 			return dir->userData.directoryType == 0;
@@ -212,9 +213,19 @@ namespace Lina::Editor
 			return;
 		ResourceDirectory& root = currentProject->GetResourceRoot();
 
-		Widget* linaAssetsFold = CommonWidgets::BuildDefaultFoldItem(this, &m_linaAssets, Theme::GetDef().baseIndent, ICON_LINA_LOGO, Theme::GetDef().accentPrimary2, m_linaAssets.name, true, &m_linaAssets.unfolded, true);
-		m_layout->AddChild(linaAssetsFold);
-		m_controller->AddItem(linaAssetsFold->GetChildren().front());
+		const CommonWidgets::ResDirItemProperties linaAssetsProps = {
+			.chevron	   = m_linaAssets.userData.unfolded ? ICON_CHEVRON_DOWN : ICON_CHEVRON_RIGHT,
+			.mainIcon	   = ICON_LINA_LOGO,
+			.mainIconColor = Theme::GetDef().accentPrimary2,
+			.title		   = m_linaAssets.name,
+			.margin		   = Theme::GetDef().baseIndent,
+			.unfoldValue   = &m_linaAssets.userData.unfolded,
+			.userData	   = &m_linaAssets,
+		};
+
+		FoldLayout* foldLinaAssets = CommonWidgets::BuildResDirItem(this, linaAssetsProps);
+		m_layout->AddChild(foldLinaAssets);
+		m_controller->AddItem(foldLinaAssets->GetChildren().front());
 
 		// engine res.
 		for (ResourceDirectory* child : root.children)
@@ -250,9 +261,19 @@ namespace Lina::Editor
 			rootIconColor = Theme::GetDef().accentSecondary;
 		}
 
-		Widget* rootFold = CommonWidgets::BuildDefaultFoldItem(this, &root, Theme::GetDef().baseIndent, rootIcon, rootIconColor, rootName, !root.children.empty(), &root.unfolded, true);
-		m_layout->AddChild(rootFold);
-		m_controller->AddItem(rootFold->GetChildren().front());
+		const CommonWidgets::ResDirItemProperties rootProps = {
+			.chevron	   = root.userData.unfolded ? ICON_CHEVRON_DOWN : ICON_CHEVRON_RIGHT,
+			.mainIcon	   = rootIcon,
+			.mainIconColor = rootIconColor,
+			.title		   = rootName,
+			.margin		   = Theme::GetDef().baseIndent,
+			.unfoldValue   = &root.userData.unfolded,
+			.userData	   = &root,
+		};
+
+		FoldLayout* foldRoot = CommonWidgets::BuildResDirItem(this, rootProps);
+		m_layout->AddChild(foldRoot);
+		m_controller->AddItem(foldRoot->GetChildren().front());
 
 		AddItemForDirectory(&root, Theme::GetDef().baseIndent * 2);
 	}
@@ -282,10 +303,34 @@ namespace Lina::Editor
 
 	void ResourceDirectoryBrowser::AddItem(ResourceDirectory* parent, ResourceDirectory* item, float margin)
 	{
+		const CommonWidgets::ResDirItemProperties props = {
+			.chevron		 = item->isFolder ? (item->userData.unfolded ? ICON_CHEVRON_DOWN : ICON_CHEVRON_RIGHT) : "",
+			.typeText		 = item->isFolder ? "" : ReflectionSystem::Get().Resolve(item->resourceTID)->GetProperty<String>("TypeAbbv"_hs),
+			.typeColor		 = item->isFolder ? Color::White : ReflectionSystem::Get().Resolve(item->resourceTID)->GetProperty<Color>("Color"_hs),
+			.mainIcon		 = item->isFolder ? ICON_FOLDER : "",
+			.mainIconColor	 = Theme::GetDef().foreground0,
+			.image			 = item->isFolder ? nullptr : m_editor->GetProjectManager().GetThumbnail(item),
+			.title			 = item->name,
+			.footerIcon		 = item->userData.isInFavourites ? ICON_STAR : "",
+			.footerIconColor = Theme::GetDef().accentPrimary0,
+			.margin			 = margin,
+			.unfoldValue	 = &item->userData.unfolded,
+			.userData		 = item,
+		};
+
+		FoldLayout* fold = CommonWidgets::BuildResDirItem(this, props);
+		m_controller->GetItem(parent)->GetParent()->AddChild(fold);
+		m_controller->AddItem(fold->GetChildren().front());
+
+		if (item->isFolder)
+			AddItemForDirectory(item, margin + Theme::GetDef().baseIndent * 2.0f);
+
+		return;
+
 		if (item->isFolder)
 		{
 			Widget* w = CommonWidgets::BuildDefaultFoldItem(
-				this, item, margin, ICON_FOLDER, Theme::GetDef().foreground0, item->name, !item->children.empty(), &item->unfolded, false, false, item->userData.isInFavourites ? ICON_STAR : "", Theme::GetDef().accentSecondary);
+				this, item, margin, ICON_FOLDER, Theme::GetDef().foreground0, item->name, !item->children.empty(), &item->userData.unfolded, false, false, item->userData.isInFavourites ? ICON_STAR : "", Theme::GetDef().accentSecondary);
 			m_controller->GetItem(parent)->GetParent()->AddChild(w);
 			m_controller->AddItem(w->GetChildren().front());
 			AddItemForDirectory(item, margin + Theme::GetDef().baseIndent * 2.0f);
@@ -296,7 +341,7 @@ namespace Lina::Editor
 			m_controller->GetItem(parent)->GetParent()->AddChild(w);
 			m_controller->AddItem(w);
 		}
-	}
+	} // namespace Lina::Editor
 
 	void ResourceDirectoryBrowser::AddItemForDirectory(ResourceDirectory* dir, float margin)
 	{
@@ -504,10 +549,13 @@ namespace Lina::Editor
 		{
 			PlatformProcess::DialogProperties props;
 
+			const String   extensions	 = ReflectionSystem::Get().Resolve(selection.front()->resourceTID)->GetProperty<String>("Extensions"_hs);
+			Vector<String> extensionsVec = {};
+			UtilStr::SeperateByChar(extensions, extensionsVec, ',');
 			const Vector<String> files = PlatformProcess::OpenDialog({
 				.title		   = Locale::GetStr(LocaleStr::Select),
 				.primaryButton = Locale::GetStr(LocaleStr::Select),
-				.extensions	   = ExtensionSupport::GetExtensionsFromTypeID(selection.front()->resourceTID),
+				.extensions	   = extensionsVec,
 				.mode		   = PlatformProcess::DialogMode::SelectFile,
 			});
 

@@ -86,8 +86,8 @@ namespace Lina
 		WF_KEY_PASSTHRU			 = 1 << 19,
 		WF_SKIP_FLOORING		 = 1 << 20,
 		WF_HIDE					 = 1 << 21,
-		WF_DISABLED_BY_PARENT	 = 1 << 22,
-		WF_TOOLTIP				 = 1 << 23,
+		WF_TOOLTIP				 = 1 << 22,
+		WF_DISABLED				 = 1 << 23,
 	};
 
 	LINA_CLASS_BEGIN(WidgetFlags)

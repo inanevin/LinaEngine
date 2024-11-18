@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Editor/Graphics/WorldRendererExtEditor.hpp"
 #include "Editor/Graphics/SurfaceRenderer.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
+#include "Editor/IO/ExtensionSupport.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Serialization/Serialization.hpp"
 #include "Core/Application.hpp"
@@ -102,6 +103,7 @@ namespace Lina::Editor
 		Theme::GetDef().iconCircleFilled = ICON_CIRCLE_FILLED;
 		Theme::GetDef().iconSliderHandle = ICON_CIRCLE_FILLED;
 
+		ExtensionSupport::AddTypeInfoToReflection();
 		m_atlasManager.Initialize(this);
 		m_windowPanelManager.Initialize(this);
 		m_editorActionManager.Initialize(this);

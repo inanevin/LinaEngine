@@ -148,7 +148,7 @@ namespace Lina
 
 		Widget::Draw();
 
-		if (!m_barVisible || !GetIsVisible() || !m_canDrawBar)
+		if (!m_barVisible || GetFlags().IsSet(WF_HIDE) || !m_canDrawBar)
 			return;
 
 		if (!m_targetWidget)

@@ -116,6 +116,24 @@ namespace Lina::Editor
 
 		static Button* BuildIconButton(Widget* src, const String& icon);
 
+		struct ResDirItemProperties
+		{
+			String			   chevron		   = "";
+			String			   typeText		   = "";
+			Color			   typeColor	   = Color::White;
+			String			   mainIcon		   = "";
+			Color			   mainIconColor   = Color::White;
+			TextureAtlasImage* image		   = nullptr;
+			String			   title		   = "";
+			String			   footerIcon	   = "";
+			Color			   footerIconColor = Color::White;
+			float			   margin		   = 0.0f;
+			bool*			   unfoldValue	   = nullptr;
+			void*			   userData		   = nullptr;
+		};
+
+		static FoldLayout* BuildResDirItem(Widget* src, const ResDirItemProperties& props);
+
 	private:
 	};
 } // namespace Lina::Editor

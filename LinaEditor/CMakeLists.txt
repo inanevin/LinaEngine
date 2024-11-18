@@ -55,6 +55,7 @@ include/Editor/Widgets/DockTestbed.hpp
 include/Editor/Widgets/EditorRoot.hpp
 include/Editor/Widgets/Compound/ColorWheelCompound.hpp
 include/Editor/Widgets/Compound/Tab.hpp
+include/Editor/Widgets/Compound/Table.hpp
 include/Editor/Widgets/Compound/TabRow.hpp
 include/Editor/Widgets/Compound/IconTabs.hpp
 include/Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp
@@ -138,6 +139,7 @@ src/Widgets/EditorRoot.cpp
 src/Widgets/Compound/ColorWheelCompound.cpp
 src/Widgets/Compound/TabRow.cpp
 src/Widgets/Compound/Tab.cpp
+src/Widgets/Compound/Table.cpp
 src/Widgets/Compound/IconTabs.cpp
 src/Widgets/Compound/ResourceDirectoryBrowser.cpp
 src/Widgets/Compound/WindowBar.cpp

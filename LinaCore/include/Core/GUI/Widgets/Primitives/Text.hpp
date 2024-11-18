@@ -49,7 +49,6 @@ namespace Lina
 			String				  text						= "";
 			ResourceID			  font						= Theme::GetDef().defaultFont;
 			ColorGrad			  color						= Theme::GetDef().foreground0;
-			Color				  colorDisabled				= Theme::GetDef().silent1;
 			LinaVG::TextAlignment alignment					= LinaVG::TextAlignment::Left;
 			Vector4				  customClip				= Vector4::Zero;
 			float				  textScale					= 1.0f;
@@ -64,7 +63,7 @@ namespace Lina
 
 			void SaveToStream(OStream& stream) const
 			{
-				stream << color << colorDisabled << customClip;
+				stream << color << customClip;
 				stream << text;
 				stream << textScale << wrapWidth << isDynamic << fetchCustomClipFromSelf << fetchWrapFromParent << fetchWrapFromParent << wordWrap;
 				stream << alignment;
@@ -72,7 +71,7 @@ namespace Lina
 
 			void LoadFromStream(IStream& stream)
 			{
-				stream >> color >> colorDisabled >> customClip;
+				stream >> color >> customClip;
 				stream >> text;
 				stream >> textScale >> wrapWidth >> isDynamic >> fetchCustomClipFromSelf >> fetchWrapFromParent >> fetchWrapFromParent >> wordWrap;
 				stream >> alignment;
@@ -136,7 +135,6 @@ namespace Lina
 	LINA_FIELD(Text::Properties, fetchCustomClipFromParent, "Clip From Parent", FieldType::Boolean, 0)
 	LINA_FIELD(Text::Properties, fetchCustomClipFromSelf, "Clip From Self", FieldType::Boolean, 0)
 	LINA_FIELD(Text::Properties, color, "Color", FieldType::ColorGrad, 0)
-	LINA_FIELD(Text::Properties, colorDisabled, "Color Disabled", FieldType::Color, 0)
 	LINA_CLASS_END(TextProperties)
 
 } // namespace Lina

@@ -171,7 +171,10 @@ namespace Lina::Editor
 			{
 				if (dockWidget.isBorder)
 				{
-					DockBorder* border = panelArea->GetWidgetManager()->Allocate<DockBorder>("Border");
+					DockBorder* border						  = panelArea->GetWidgetManager()->Allocate<DockBorder>("Border");
+					border->GetWidgetProps().drawBackground	  = true;
+					border->GetWidgetProps().outlineThickness = border->GetWidgetProps().rounding = 0.0f;
+					border->GetWidgetProps().colorBackground									  = Theme::GetDef().background0;
 					border->SetAlignedPos(dockWidget.alignedPos);
 					border->SetAlignedSize(dockWidget.alignedSize);
 					border->SetDirectionOrientation(dockWidget.isHorizontal ? DirectionOrientation::Horizontal : DirectionOrientation::Vertical);

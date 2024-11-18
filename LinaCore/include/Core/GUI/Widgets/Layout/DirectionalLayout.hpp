@@ -50,13 +50,14 @@ namespace Lina
 
 		struct Properties
 		{
-			DirectionOrientation direction			= DirectionOrientation::Horizontal;
-			Mode				 mode				= Mode::Default;
-			Color				 colorBorder		= Theme::GetDef().background0;
-			Color				 colorBorderHovered = Theme::GetDef().background3;
-			float				 borderThickness	= Theme::GetDef().baseBorderThickness;
-			float				 borderMinSize		= 0.15f;
-			bool				 receiveInput		= false;
+			DirectionOrientation direction			  = DirectionOrientation::Horizontal;
+			Mode				 mode				  = Mode::Default;
+			Color				 colorBorder		  = Theme::GetDef().background0;
+			Color				 colorBorderHovered	  = Theme::GetDef().background3;
+			float				 borderThickness	  = Theme::GetDef().baseBorderThickness;
+			float				 borderMinSize		  = 0.1f;
+			int32				 borderExpandForMouse = 0;
+			bool				 receiveInput		  = false;
 
 			Delegate<void()> onClicked;
 			Delegate<void()> onDoubleClicked;
@@ -71,7 +72,6 @@ namespace Lina
 		};
 
 		virtual void			   Destruct() override;
-		virtual void			   Initialize() override;
 		virtual void			   PreTick() override;
 		virtual void			   Tick(float delta) override;
 		virtual void			   Draw() override;
@@ -108,6 +108,7 @@ namespace Lina
 		void				   BehaviourEqualPositions(float delta);
 		void				   BehaviourEqualSizes(float delta);
 		void				   BehaviourBorders(float delta);
+		void				   GetPressRect(const Rect& original, Rect& outPress);
 
 	protected:
 		LINA_REFLECTION_ACCESS(DirectionalLayout);
@@ -135,6 +136,7 @@ namespace Lina
 	LINA_FIELD(DirectionalLayout::Properties, colorBorder, "Color Border", FieldType::Color, 0)
 	LINA_FIELD(DirectionalLayout::Properties, colorBorderHovered, "Color Border Hovered", FieldType::Color, 0)
 	LINA_FIELD(DirectionalLayout::Properties, borderThickness, "Border Thickness", FieldType::Float, 0)
+	LINA_FIELD(DirectionalLayout::Properties, borderExpandForMouse, "Border Mouse Expand", FieldType::Int32, 0)
 	LINA_FIELD(DirectionalLayout::Properties, borderMinSize, "Border Min Size", FieldType::Float, 0)
 	LINA_FIELD_LIMITS(DirectionalLayout::Properties, borderMinSize, 0.0f, 1.0f, 0.1f)
 	LINA_FIELD(DirectionalLayout::Properties, receiveInput, "Receive Input", FieldType::Boolean, 0)
@@ -142,6 +144,7 @@ namespace Lina
 	LINA_FIELD_DEPENDENCY_POS(DirectionalLayout::Properties, colorBorder, "mode", 3)
 	LINA_FIELD_DEPENDENCY_POS(DirectionalLayout::Properties, colorBorderHovered, "mode", 3)
 	LINA_FIELD_DEPENDENCY_POS(DirectionalLayout::Properties, borderThickness, "mode", 3)
+	LINA_FIELD_DEPENDENCY_POS(DirectionalLayout::Properties, borderExpandForMouse, "mode", 3)
 	LINA_FIELD_DEPENDENCY_POS(DirectionalLayout::Properties, borderMinSize, "mode", 3)
 	LINA_CLASS_END(DirectionalLayoutProperties)
 

@@ -90,10 +90,12 @@ namespace Lina::Editor
 		tab->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_SKIP_FLOORING);
 		tab->SetAlignedPosY(0.0f);
 		tab->SetAlignedSizeY(1.0f);
-		tab->m_ownerRow			 = this;
 		tab->GetProps().fixedTab = isFixed;
 		tab->GetProps().title	 = title;
 		tab->SetUserData(userData);
+		tab->GetWidgetProps().drawBackground   = true;
+		tab->GetWidgetProps().outlineThickness = tab->GetWidgetProps().rounding;
+		tab->m_ownerRow						   = this;
 		tab->Initialize();
 		AddChild(tab);
 		m_tabs.push_back(tab);
@@ -135,8 +137,9 @@ namespace Lina::Editor
 	{
 		for (auto* c : m_children)
 		{
-			Tab* t					 = static_cast<Tab*>(c);
-			t->GetProps().isSelected = t->GetUserData() == userData;
+			Tab* t								= static_cast<Tab*>(c);
+			t->GetProps().isSelected			= t->GetUserData() == userData;
+			t->GetWidgetProps().colorBackground = t->GetProps().isSelected ? m_props.selectedTabColor : m_widgetProps.colorBackground;
 		}
 	}
 

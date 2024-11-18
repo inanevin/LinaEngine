@@ -96,7 +96,7 @@ namespace Lina::Editor
 		const bool worldHasFocus = m_manager->GetControlsOwner() == this && m_lgxWindow->HasFocus();
 		m_worldRenderer->GetWorld()->GetInput().SetIsActive(worldHasFocus);
 
-		m_loading->SetVisible(m_worldRenderer->GetWorld()->GetFlags().IsSet(WORLD_FLAGS_LOADING));
+		m_loading->GetFlags().Set(WF_HIDE, !m_worldRenderer->GetWorld()->GetFlags().IsSet(WORLD_FLAGS_LOADING));
 
 		// Screen setup
 		Screen& sc = m_worldRenderer->GetWorld()->GetScreen();

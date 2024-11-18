@@ -50,6 +50,7 @@ namespace Lina
 		stream << userData.directoryType;
 		stream << userData.directoryMask;
 		stream << userData.isInFavourites;
+		stream << userData.unfolded;
 
 		const uint32 sz = static_cast<uint32>(children.size());
 		stream << sz;
@@ -73,6 +74,7 @@ namespace Lina
 		stream >> userData.directoryType;
 		stream >> userData.directoryMask;
 		stream >> userData.isInFavourites;
+		stream >> userData.unfolded;
 
 		uint32 childSz = 0;
 		stream >> childSz;
@@ -88,20 +90,33 @@ namespace Lina
 
 	void ResourceDirectory::SortChildren()
 	{
-		Vector<ResourceDirectory*> folders, files;
+
+		struct Sort
+		{
+			TypeID					   tid = 0;
+			Vector<ResourceDirectory*> dirs;
+		};
+
+		Vector<Sort> sortVec;
+
 		for (ResourceDirectory* c : children)
 		{
-			if (c->isFolder)
-				folders.push_back(c);
+			auto it = linatl::find_if(sortVec.begin(), sortVec.end(), [c](const Sort& sort) -> bool { return c->resourceTID == sort.tid; });
+			if (it == sortVec.end())
+				sortVec.push_back({.tid = c->resourceTID, .dirs = {c}});
 			else
-				files.push_back(c);
+				it->dirs.push_back(c);
 		}
 
-		linatl::sort(folders.begin(), folders.end(), [](ResourceDirectory* folder, ResourceDirectory* other) -> bool { return folder->name < other->name; });
-		linatl::sort(files.begin(), files.end(), [](ResourceDirectory* file, ResourceDirectory* other) -> bool { return file->name < other->name; });
 		children.clear();
-		children.insert(children.end(), folders.begin(), folders.end());
-		children.insert(children.end(), files.begin(), files.end());
+
+		linatl::sort(sortVec.begin(), sortVec.end(), [](Sort& sort0, Sort& sort1) -> bool { return sort0.tid < sort1.tid; });
+
+		for (Sort& sort : sortVec)
+		{
+			linatl::sort(sort.dirs.begin(), sort.dirs.end(), [](ResourceDirectory* dir0, ResourceDirectory* dir1) -> bool { return dir0->name < dir1->name; });
+			children.insert(children.end(), sort.dirs.begin(), sort.dirs.end());
+		}
 	}
 
 	ResourceDirectory* ResourceDirectory::GetChildByName(const String& name)

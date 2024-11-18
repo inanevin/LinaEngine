@@ -107,7 +107,7 @@ namespace Lina::Editor
 		panel->GetWidgetProps().outlineThickness = 0.0f;
 		// panel->GetWidgetProps().outlineIsInner		 = true;
 		panel->GetWidgetProps().rounding			 = 0.0f;
-		panel->GetWidgetProps().colorBackground		 = Theme::GetDef().background1;
+		panel->GetWidgetProps().colorBackground		 = Theme::GetDef().background2;
 		panel->GetWidgetProps().dropshadow.enabled	 = true;
 		panel->GetWidgetProps().dropshadow.direction = Direction::Top;
 		panel->GetWidgetProps().dropshadow.isInner	 = true;

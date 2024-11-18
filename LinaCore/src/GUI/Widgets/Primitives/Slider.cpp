@@ -39,13 +39,14 @@ namespace Lina
 {
 	void Slider::Construct()
 	{
-		m_handle									= m_manager->Allocate<Icon>("Handle");
-		m_handle->GetProps().enableHoverPressColors = true;
-		m_handle->GetProps().colorHovered			= Theme::GetDef().accentPrimary2;
-		m_handle->GetProps().color					= Theme::GetDef().accentPrimary0;
-		m_handle->GetProps().colorPressed			= Theme::GetDef().accentPrimary0;
-		m_handle->GetProps().icon					= Theme::GetDef().iconSliderHandle;
-		m_handle->GetProps().textScale				= 0.5f;
+		m_handle										   = m_manager->Allocate<Icon>("Handle");
+		m_handle->GetWidgetProps().hoveredIsDifferentColor = true;
+		m_handle->GetWidgetProps().pressedIsDifferentColor = true;
+		m_handle->GetWidgetProps().colorHovered			   = Theme::GetDef().accentPrimary2;
+		m_handle->GetProps().color						   = Theme::GetDef().accentPrimary0;
+		m_handle->GetWidgetProps().colorPressed			   = Theme::GetDef().accentPrimary0;
+		m_handle->GetProps().icon						   = Theme::GetDef().iconSliderHandle;
+		m_handle->GetProps().textScale					   = 0.5f;
 		m_handle->GetFlags().Set(WF_CONTROLS_DRAW_ORDER);
 		AddChild(m_handle);
 	}
@@ -109,7 +110,7 @@ namespace Lina
 
 	void Slider::Draw()
 	{
-		if (!GetIsVisible())
+		if (GetFlags().IsSet(WF_HIDE))
 			return;
 
 		if (ShouldSkipDrawOutsideWindow())

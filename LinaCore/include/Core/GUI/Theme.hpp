@@ -53,9 +53,9 @@ namespace Lina
 			Color black = Color(0.00202f, 0.00202f, 0.00396f, 1.0f);
 
 			// Default
-			Color background0 = Color(20.0f, 20.0f, 20.0f, 255.0f, true, true);
-			Color background1 = Color(26.0f, 26.0f, 26.0f, 255.0f, true, true);
-			Color background2 = Color(33.0f, 33.0f, 33.0f, 255.0f, true, true);
+			Color background0 = Color(14.0f, 14.0f, 14.0f, 255.0f, true, true);
+			Color background1 = Color(20.0f, 20.0f, 20.0f, 255.0f, true, true);
+			Color background2 = Color(28.0f, 28.0f, 28.0f, 255.0f, true, true);
 			Color background3 = Color(0.02181f, 0.02181f, 0.02822f, 1.0f);
 			Color background4 = Color(0.02881f, 0.02881f, 0.03622f, 1.0f);
 			Color background5 = Color(0.03581f, 0.03581f, 0.04222f, 1.0f);
@@ -70,28 +70,35 @@ namespace Lina
 			// Color accentPrimary0  = Color(0.16513f, 0.00972f, 0.02122f, 1.0f); // used proper red
 			Color accentPrimary0 = Color(91.0f, 0.0f, 72.0f, 255.0f, true, true);
 			// Color accentPrimary1  = Color(0.14126f, 0.03071f, 0.0382f, 1.0f); // primary 1 on red color
-			Color accentPrimary1  = Color(151.0f, 0.0f, 119.0f, 255.0f, true, true);
-			Color accentPrimary2  = Color(180.0f, 5.0f, 149.0f, 255.0f, true, true);
-			Color accentPrimary3  = Color(0.38499f, 0.08519f, 0.1258f, 1.0f);
-			Color accentSecondary = Color(7, 131, 214, 255.0f, true, true);
+			Color accentPrimary1   = Color(151.0f, 0.0f, 119.0f, 255.0f, true, true);
+			Color accentPrimary2   = Color(180.0f, 5.0f, 149.0f, 255.0f, true, true);
+			Color accentPrimary3   = Color(0.38499f, 0.08519f, 0.1258f, 1.0f);
+			Color accentSecondary  = Color(7, 131, 214, 255.0f, true, true);
+			Color accentSuccess	   = Color(0, 204.0f, 136.0f, 255.0f, true, true);
+			Color accentSuccess1   = Color(0.0f, 179.0f, 89.0f, 255.0f, true, true);
+			Color accentOrange	   = Color(255.0f, 102.0f, 0.0f, 255.0f, true, true);
+			Color accentDarkIndigo = Color(0.129f, 0.129f, 0.278f, 1.0f);
+			Color accentCyan	   = Color(0.0f, 220.0f, 240.0f, 255.0f, true, true);
 
-			Color accentError = Color(0.705f, 0.004f, 0.013f, 1.0f);
-			Color accentWarn  = Color(0.509f, 0.5f, 0.032f, 1.0f);
+			Color accentError	   = Color(0.705f, 0.004f, 0.013f, 1.0f);
+			Color accentWarn	   = Color(0.509f, 0.5f, 0.032f, 1.0f);
+			Color accentYellowGold = Color(1.0f, 0.792f, 0.039f, 1.0f);
 
 			Color outlineColorBase	   = silent1;
 			Color outlineColorControls = accentPrimary0;
 
-			float  baseIndent			= 12.0f;
-			float  baseIndentInner		= 8.0f;
-			float  baseSliderPerc		= 0.25f;
-			float  baseRounding			= 0.45f;
-			float  miniRounding			= 0.1f;
-			float  baseOutlineThickness = 1.0f;
-			float  baseItemHeight		= 24.0f;
-			float  baseItemWidth		= baseItemHeight * 6.0f;
-			float  popupAnimTime		= 0.1f;
-			float  baseBorderThickness	= 6.0f;
-			uint32 baseDropShadowSteps	= 4;
+			float  baseIndent			  = 12.0f;
+			float  baseIndentInner		  = 8.0f;
+			float  baseSliderPerc		  = 0.25f;
+			float  baseRounding			  = 0.45f;
+			float  miniRounding			  = 0.1f;
+			float  baseOutlineThickness	  = 1.0f;
+			float  baseSeparatorThickness = 2.0f;
+			float  baseItemHeight		  = 24.0f;
+			float  baseItemWidth		  = baseItemHeight * 6.0f;
+			float  popupAnimTime		  = 0.1f;
+			float  baseBorderThickness	  = 6.0f;
+			uint32 baseDropShadowSteps	  = 4;
 
 			uint64 defaultFont		= 0;
 			uint64 defaultBoldFont	= 0;

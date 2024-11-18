@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Editor/Widgets/Docking/DockPreview.hpp"
 #include "Editor/Widgets/Docking/DockBorder.hpp"
 #include "Editor/Widgets/Compound/TabRow.hpp"
+#include "Editor/Widgets/Compound/Tab.hpp"
 #include "Editor/Widgets/Panel/Panel.hpp"
 #include "Editor/Widgets/Panel/PanelFactory.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
@@ -59,6 +60,9 @@ namespace Lina::Editor
 
 		m_tabRow = m_manager->Allocate<TabRow>("DockTabRow");
 		m_tabRow->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+		m_tabRow->GetWidgetProps().drawBackground	= true;
+		m_tabRow->GetWidgetProps().colorBackground	= Theme::GetDef().background1;
+		m_tabRow->GetWidgetProps().outlineThickness = m_tabRow->GetWidgetProps().rounding = 0.0f;
 		m_tabRow->SetAlignedPos(Vector2::Zero);
 		m_tabRow->SetAlignedSizeX(1.0f);
 		m_tabRow->SetFixedSizeY(Theme::GetDef().baseItemHeight * 1.25f);
@@ -78,7 +82,7 @@ namespace Lina::Editor
 		m_preview->SetAlignedSize(Vector2::One);
 		m_preview->GetProps().isCentral = true;
 
-		m_preview->SetVisible(false);
+		m_preview->GetFlags().Set(WF_HIDE);
 		AddChild(m_preview);
 		Editor::Get()->GetWindowPanelManager().AddPayloadListener(this);
 	}
@@ -116,6 +120,7 @@ namespace Lina::Editor
 		if (m_tabRow)
 		{
 			Tab* tab = m_tabRow->AddTab(w, w->GetWidgetProps().debugName, w->GetPanelFlags().IsSet(PF_FLOATING_POPUP));
+
 			w->SetTab(tab);
 			m_tabRow->SetSelected(w);
 		}
@@ -197,10 +202,10 @@ namespace Lina::Editor
 			m_preview->SetDirectionDisabled(Direction::Right, horizontalSize < DOCKED_MIN_SIZE);
 			m_preview->SetDirectionDisabled(Direction::Top, verticalSize < DOCKED_MIN_SIZE);
 			m_preview->SetDirectionDisabled(Direction::Bottom, verticalSize < DOCKED_MIN_SIZE);
-			m_preview->SetVisible(true);
+			m_preview->GetFlags().Remove(WF_HIDE);
 		}
 		else
-			m_preview->SetVisible(false);
+			m_preview->GetFlags().Set(WF_HIDE);
 	}
 
 	void DockArea::Tick(float delta)
@@ -235,8 +240,7 @@ namespace Lina::Editor
 			m_selectedPanel->Draw();
 		}
 
-		if (m_preview->GetIsVisible())
-			m_preview->Draw();
+		m_preview->Draw();
 	}
 
 	void DockArea::OnPayloadStarted(PayloadType type, Widget* payload)

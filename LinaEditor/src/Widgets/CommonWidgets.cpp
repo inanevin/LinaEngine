@@ -277,6 +277,146 @@ namespace Lina::Editor
 		return layout;
 	}
 
+	FoldLayout* CommonWidgets::BuildResDirItem(Widget* src, const ResDirItemProperties& props)
+	{
+		WidgetManager* wm = src->GetWidgetManager();
+
+		bool* unfoldValue = props.unfoldValue;
+
+		FoldLayout* fold = wm->Allocate<FoldLayout>("Fold");
+		fold->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X);
+		fold->SetAlignedPosX(0.0f);
+		fold->SetAlignedSizeX(1.0f);
+		fold->GetProps().tweenDuration = 0.25f;
+		fold->GetProps().tweenPower	   = Theme::GetDef().baseIndentInner;
+		fold->SetIsUnfolded(unfoldValue != nullptr ? *unfoldValue : false);
+		fold->SetUserData(props.userData);
+
+		fold->GetProps().onFoldChanged = [fold, unfoldValue](bool unfolded) {
+			Icon* icon = fold->GetWidgetOfType<Icon>(fold);
+
+			if (icon)
+			{
+				icon->GetProps().icon = unfolded ? ICON_CHEVRON_DOWN : ICON_CHEVRON_RIGHT;
+				icon->CalculateIconSize();
+
+				if (unfoldValue != nullptr)
+					*unfoldValue = unfolded;
+			}
+		};
+
+		DirectionalLayout* layout = wm->Allocate<DirectionalLayout>("Layout");
+		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+		layout->SetAlignedPos(Vector2::Zero);
+		layout->SetAlignedSizeX(1.0f);
+		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+
+		layout->GetWidgetProps().childPadding			  = Theme::GetDef().baseIndentInner;
+		layout->GetWidgetProps().childMargins.left		  = props.margin;
+		layout->GetWidgetProps().childMargins.right		  = Theme::GetDef().baseIndent;
+		layout->GetWidgetProps().outlineThickness		  = 0.0f;
+		layout->GetWidgetProps().rounding				  = 0.0f;
+		layout->GetWidgetProps().drawBackground			  = true;
+		layout->GetWidgetProps().colorBackgroundDirection = DirectionOrientation::Vertical;
+		layout->GetWidgetProps().colorBackground		  = Color(0.0f, 0.0f, 0.0f, 0.0f);
+		layout->GetWidgetProps().interpolateColor		  = true;
+		layout->GetWidgetProps().colorInterpolateSpeed	  = 20.0f;
+		layout->SetUserData(props.userData);
+		fold->AddChild(layout);
+
+		Widget* space0 = wm->Allocate<Widget>("Space0");
+		space0->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_X_COPY_Y);
+		space0->SetAlignedPosY(0.5f);
+		space0->SetAnchorY(Anchor::Center);
+		space0->SetAlignedSize(Vector2(0.55f, 1.0f));
+		layout->AddChild(space0);
+
+		Widget* space1 = wm->Allocate<Widget>("Space1");
+		space1->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_X_COPY_Y);
+		space1->SetAlignedPosY(0.5f);
+		space1->SetAnchorY(Anchor::Center);
+		space1->SetAlignedSize(Vector2(1.0f, 0.75f));
+		layout->AddChild(space1);
+
+		if (!props.chevron.empty())
+		{
+			Icon* icon			  = wm->Allocate<Icon>("Chevron");
+			icon->GetProps().icon = props.chevron;
+			icon->GetFlags().Set(WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
+			icon->SetAlignedPos(Vector2(0.5f, 0.5f));
+			icon->SetAnchorY(Anchor::Center);
+			icon->SetAnchorX(Anchor::Center);
+			icon->GetProps().dynamicSizeToParent = true;
+			icon->GetProps().dynamicSizeScale	 = 1.0f;
+			space0->AddChild(icon);
+		}
+		else if (!props.typeText.empty())
+		{
+			Text* text				   = wm->Allocate<Text>("TypeText");
+			text->GetProps().textScale = 0.9f;
+			text->UpdateTextAndCalcSize(props.typeText);
+			text->GetProps().color = props.typeColor;
+			text->GetFlags().Set(WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
+			text->SetAlignedPos(Vector2(0.5f, 0.5f));
+			text->SetAnchorY(Anchor::Center);
+			text->SetAnchorX(Anchor::Center);
+			space0->AddChild(text);
+		}
+
+		if (!props.mainIcon.empty())
+		{
+			Icon* icon			   = wm->Allocate<Icon>("MainIcon");
+			icon->GetProps().icon  = props.mainIcon;
+			icon->GetProps().color = props.mainIconColor;
+			icon->GetFlags().Set(WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
+			icon->SetAlignedPos(Vector2(0.5f, 0.5f));
+			icon->SetAnchorY(Anchor::Center);
+			icon->SetAnchorX(Anchor::Center);
+			icon->GetProps().dynamicSizeToParent = true;
+			icon->GetProps().dynamicSizeScale	 = 1.0f;
+			space1->AddChild(icon);
+		}
+		else if (props.image != nullptr)
+		{
+			space1->GetWidgetProps().drawBackground	  = true;
+			space1->GetWidgetProps().textureAtlas	  = props.image;
+			space1->GetWidgetProps().outlineThickness = 0.0f;
+			space1->GetWidgetProps().rounding		  = 0.0f;
+			space1->GetWidgetProps().colorBackground  = Color::White;
+			space1->SetCustomTooltipUserData(space1);
+			space1->SetBuildCustomTooltip(BIND(&CommonWidgets::BuildThumbnailTooltip, std::placeholders::_1));
+		}
+
+		if (!props.title.empty())
+		{
+			Text* text = wm->Allocate<Text>("Title");
+			text->UpdateTextAndCalcSize(props.title);
+			text->GetProps().color = Theme::GetDef().foreground0;
+			text->GetFlags().Set(WF_POS_ALIGN_Y);
+			text->SetAlignedPosY(0.5f);
+			text->SetAnchorY(Anchor::Center);
+			layout->AddChild(text);
+		}
+
+		if (!props.footerIcon.empty())
+		{
+			Icon* footer			= wm->Allocate<Icon>("Footer");
+			footer->GetProps().icon = props.footerIcon;
+			footer->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+			footer->SetAlignedPosY(0.5f);
+			footer->SetAlignedPosX(1.0f);
+			footer->SetAnchorX(Anchor::End);
+			footer->SetAnchorY(Anchor::Center);
+			footer->GetProps().dynamicSizeToParent = true;
+			footer->GetProps().dynamicSizeScale	   = 0.8f;
+			footer->GetProps().color			   = props.footerIconColor;
+			layout->AddChild(footer);
+		}
+
+		fold->Initialize();
+		return fold;
+	}
+
 	Widget* CommonWidgets::BuildDefaultFoldItem(
 		Widget* src, void* userdata, float margin, const String& icon, const Color& iconColor, const String& title, bool hasChildren, bool* unfoldVal, bool isRoot, bool boldText, const String& footerIcon, const Color& footerIconColor)
 	{
@@ -332,7 +472,7 @@ namespace Lina::Editor
 		headerIcon->GetProps().dynamicSizeToParent = true;
 		headerIcon->GetProps().dynamicSizeScale	   = 0.55f;
 		layout->AddChild(headerIcon);
-		headerIcon->SetVisible(hasChildren);
+		headerIcon->GetFlags().Set(WF_HIDE, hasChildren);
 
 		if (!icon.empty())
 		{
@@ -404,7 +544,7 @@ namespace Lina::Editor
 		chevron->GetProps().dynamicSizeToParent = true;
 		chevron->GetProps().dynamicSizeScale	= 0.55f;
 		layout->AddChild(chevron);
-		chevron->SetVisible(false);
+		chevron->GetFlags().Set(WF_HIDE);
 
 		Widget* bg = wm->Allocate<Widget>("BG");
 		bg->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_X_COPY_Y);
@@ -496,7 +636,7 @@ namespace Lina::Editor
 		Button*		   button = wm->Allocate<Button>("IconButton");
 		button->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_X_COPY_Y);
 		button->SetAlignedPosY(0.0f);
-		button->SetAlignedSizeY(1.0f);
+		button->SetAlignedSize(Vector2::One);
 		button->GetWidgetProps().drawBackground				= true;
 		button->GetWidgetProps().outlineAffectedByMainColor = true;
 		button->GetWidgetProps().outlineThickness			= Theme::GetDef().baseOutlineThickness;
@@ -541,7 +681,7 @@ namespace Lina::Editor
 			chevron->GetProps().dynamicSizeToParent = true;
 			chevron->GetProps().dynamicSizeScale	= 0.55f;
 			layout->AddChild(chevron);
-			chevron->SetVisible(false);
+			chevron->GetFlags().Set(WF_HIDE);
 		}
 
 		if (!icn.empty())
@@ -550,7 +690,7 @@ namespace Lina::Editor
 			bg->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_X_COPY_Y);
 			bg->SetAlignedPosY(0.5f);
 			bg->SetAnchorY(Anchor::Center);
-			bg->SetAlignedSizeY(1.0f);
+			bg->SetAlignedSize(Vector2::One);
 			layout->AddChild(bg);
 
 			Icon* icon			   = wm->Allocate<Icon>("Folder");
@@ -648,7 +788,7 @@ namespace Lina::Editor
 		fill->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_COPY_X);
 		fill->SetAlignedPosX(0.5f);
 		fill->SetAnchorX(Anchor::Center);
-		fill->SetAlignedSizeX(0.5f);
+		fill->SetAlignedSize(Vector2(0.5f, 1.0f));
 		fill->GetProps().rotate = isRotatingCircle;
 		layout->AddChild(fill);
 
@@ -792,7 +932,7 @@ namespace Lina::Editor
 			icn->GetFlags().Set(WF_POS_ALIGN_Y);
 			icn->SetAlignedPosY(0.5f);
 			icn->SetAnchorY(Anchor::Center);
-			icn->SetVisible(i == dependencies - 1);
+			icn->GetFlags().Set(WF_HIDE, i != dependencies - 1);
 			layout->AddChild(icn);
 		}
 
@@ -910,26 +1050,26 @@ namespace Lina::Editor
 			Button* duplicate = fold->GetWidgetManager()->Allocate<Button>();
 			duplicate->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y);
 			duplicate->SetAlignedPosY(0.0f);
-			duplicate->SetAlignedSizeY(1.0f);
+			duplicate->SetAlignedSize(Vector2::One);
 			duplicate->CreateIcon(ICON_COPY);
 			duplicate->GetProps().onClicked = [j, fold, field, vectorPtr, meta, subType, elementIndex, onFieldChanged, disallowAddDelete]() {
 				field->GetFunction<void(void*, int32)>("DuplicateElement"_hs)(vectorPtr, j);
 				RefreshVector(fold, field, vectorPtr, meta, subType, elementIndex, onFieldChanged, disallowAddDelete);
 			};
-			duplicate->SetIsDisabled(disallowAddDelete);
+			duplicate->GetFlags().Set(WF_DISABLED, disallowAddDelete);
 
 			buttonLayout->AddChild(duplicate);
 
 			Button* remove = fold->GetWidgetManager()->Allocate<Button>();
 			remove->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y);
 			remove->SetAlignedPosY(0.0f);
-			remove->SetAlignedSizeY(1.0f);
+			remove->SetAlignedSize(Vector2::One);
 			remove->CreateIcon(ICON_MINUS);
 			remove->GetProps().onClicked = [j, fold, field, vectorPtr, meta, subType, elementIndex, onFieldChanged, disallowAddDelete]() {
 				field->GetFunction<void(void*, int32)>("RemoveElement"_hs)(vectorPtr, j);
 				RefreshVector(fold, field, vectorPtr, meta, subType, elementIndex, onFieldChanged, disallowAddDelete);
 			};
-			remove->SetIsDisabled(disallowAddDelete);
+			remove->GetFlags().Set(WF_DISABLED, disallowAddDelete);
 			buttonLayout->AddChild(remove);
 		}
 	}
@@ -958,7 +1098,7 @@ namespace Lina::Editor
 		Widget* thumb = wm->Allocate<Widget>("Thumb");
 		thumb->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_X_COPY_Y);
 		thumb->SetAlignedPosY(0.5f);
-		thumb->SetAlignedSizeY(0.5f);
+		thumb->SetAlignedSize(Vector2(1.0f, 0.5f));
 		thumb->SetAnchorY(Anchor::Center);
 		thumb->GetWidgetProps().drawBackground	 = true;
 		thumb->GetWidgetProps().colorBackground	 = Color::White;
@@ -1220,7 +1360,7 @@ namespace Lina::Editor
 				field->GetFunction<void(void*)>("AddNewElement"_hs)(vectorPtr);
 				CommonWidgets::RefreshVector(fieldLayout, field, vectorPtr, metaType, subType, -1, onFieldChanged, disallowAddDelete);
 			};
-			newElem->SetIsDisabled(disallowAddDelete);
+			newElem->GetFlags().Set(WF_DISABLED, disallowAddDelete);
 			rightSide->AddChild(newElem);
 
 			Button* clear = wm->Allocate<Button>();
@@ -1232,7 +1372,7 @@ namespace Lina::Editor
 				field->GetFunction<void(void*)>("ClearVector"_hs)(vectorPtr);
 				CommonWidgets::RefreshVector(fieldLayout, field, vectorPtr, metaType, subType, -1, onFieldChanged, disallowAddDelete);
 			};
-			clear->SetIsDisabled(disallowAddDelete);
+			clear->GetFlags().Set(WF_DISABLED, disallowAddDelete);
 
 			RefreshVector(fieldLayout, field, vectorPtr, metaType, subType, -1, onFieldChanged, disallowAddDelete);
 			rightSide->AddChild(clear);
@@ -1455,7 +1595,7 @@ namespace Lina::Editor
 			bool*	  bval			   = reflectionValue.CastPtr<bool>();
 			Checkbox* cb			   = wm->Allocate<Checkbox>();
 			cb->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y);
-			cb->SetAlignedSizeY(1.0f);
+			cb->SetAlignedSize(Vector2::One);
 			cb->SetAlignedPosY(0.0f);
 			cb->GetProps().value		   = bval;
 			cb->GetIcon()->GetProps().icon = ICON_CHECK;
@@ -1522,7 +1662,7 @@ namespace Lina::Editor
 		Button* startButton = wm->Allocate<Button>();
 		startButton->GetFlags().Set(WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
 		startButton->SetAlignedPosY(0.0f);
-		startButton->SetAlignedSizeY(1.0f);
+		startButton->SetAlignedSize(Vector2::One);
 		startButton->CreateIcon(ICON_PALETTE);
 		startButton->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::StartColor);
 		startButton->GetProps().onClicked	  = [src, color, onFieldChanged, metaType, field, startButton]() {
@@ -1537,7 +1677,7 @@ namespace Lina::Editor
 		Button* middleButton = wm->Allocate<Button>();
 		middleButton->GetFlags().Set(WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
 		middleButton->SetAlignedPosY(0.0f);
-		middleButton->SetAlignedSizeY(1.0f);
+		middleButton->SetAlignedSize(Vector2::One);
 		middleButton->CreateIcon(ICON_PALETTE);
 		middleButton->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::Both);
 		middleButton->GetProps().onClicked	   = [src, color, onFieldChanged, metaType, field, middleButton]() {
@@ -1552,7 +1692,7 @@ namespace Lina::Editor
 		Button* endButton = wm->Allocate<Button>();
 		endButton->GetFlags().Set(WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
 		endButton->SetAlignedPosY(0.0f);
-		endButton->SetAlignedSizeY(1.0f);
+		endButton->SetAlignedSize(Vector2::One);
 		endButton->CreateIcon(ICON_PALETTE);
 		endButton->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::EndColor);
 		endButton->GetProps().onClicked		= [src, color, onFieldChanged, metaType, field, endButton]() {
@@ -1689,9 +1829,9 @@ namespace Lina::Editor
 		select->SetTickHook([bw, select, resourceType](float delta) {
 			Vector<ResourceDirectory*> selection = bw->GetItemController()->GetSelectedUserData<ResourceDirectory>();
 			if (selection.size() == 1 && selection.front()->resourceTID == resourceType)
-				select->SetIsDisabled(false);
+				select->GetFlags().Remove(WF_DISABLED);
 			else
-				select->SetIsDisabled(true);
+				select->GetFlags().Set(WF_DISABLED);
 		});
 
 		select->GetProps().onClicked = [layout, bw, onSelected, wm]() {

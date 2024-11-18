@@ -125,16 +125,16 @@ namespace Lina::Editor
 
 	void WindowBar::SetCloseDisabled(bool isDisabled)
 	{
-		m_windowButtons->GetChildren().at(2)->SetIsDisabled(isDisabled);
+		m_windowButtons->GetChildren().at(2)->GetFlags().Set(WF_DISABLED, isDisabled);
 	}
 
 	void WindowBar::SetMinimizeDisabled(bool isDisabled)
 	{
-		m_windowButtons->GetChildren().at(0)->SetIsDisabled(isDisabled);
+		m_windowButtons->GetChildren().at(0)->GetFlags().Set(WF_DISABLED, isDisabled);
 	}
 
 	void WindowBar::SetMaximizeDisabled(bool isDisabled)
 	{
-		m_windowButtons->GetChildren().at(1)->SetIsDisabled(isDisabled);
+		m_windowButtons->GetChildren().at(1)->GetFlags().Set(WF_DISABLED, isDisabled);
 	}
 } // namespace Lina::Editor

@@ -47,6 +47,7 @@ namespace Lina::Editor
 			Delegate<void(void* userData)> onTabClosed;
 			Delegate<void(void* userData)> onTabDockedOut;
 			Delegate<void(void* userData)> onTabSelected;
+			Color						   selectedTabColor = Theme::GetDef().background2;
 
 			void SaveToStream(OStream& stream) const
 			{

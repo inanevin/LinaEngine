@@ -48,33 +48,28 @@ namespace Lina
 		struct Properties
 		{
 			Delegate<void()> onClicked;
-			String			 icon					= "";
-			ResourceID		 font					= Theme::GetDef().iconFont;
-			ColorGrad		 color					= Theme::GetDef().foreground0;
-			Color			 colorHovered			= Theme::GetDef().foreground0;
-			Color			 colorPressed			= Theme::GetDef().foreground0;
-			Color			 colorDisabled			= Theme::GetDef().silent1;
-			float			 textScale				= 0.5f;
-			bool			 isDynamic				= true;
-			bool			 enableHoverPressColors = false;
+			String			 icon	   = "";
+			ResourceID		 font	   = Theme::GetDef().iconFont;
+			ColorGrad		 color	   = Theme::GetDef().foreground0;
+			float			 textScale = 0.5f;
+			bool			 isDynamic = true;
 
-			Vector4 customClip			= Vector4::Zero;
-			bool	dynamicSizeToParent = false;
-			float	dynamicSizeScale	= 1.0f;
+			bool  dynamicSizeToParent = false;
+			float dynamicSizeScale	  = 1.0f;
 
 			void SaveToStream(OStream& stream) const
 			{
-				stream << color << colorHovered << colorPressed << colorDisabled << customClip;
+				stream << color;
 				stream << icon;
-				stream << font << textScale << isDynamic << enableHoverPressColors;
+				stream << font << textScale << isDynamic;
 				stream << dynamicSizeToParent << dynamicSizeScale;
 			}
 
 			void LoadFromStream(IStream& stream)
 			{
-				stream >> color >> colorHovered >> colorPressed >> colorDisabled >> customClip;
+				stream >> color;
 				stream >> icon;
-				stream >> font >> textScale >> isDynamic >> enableHoverPressColors;
+				stream >> font >> textScale >> isDynamic;
 				;
 				stream >> dynamicSizeToParent >> dynamicSizeScale;
 			}
@@ -128,17 +123,10 @@ namespace Lina
 	LINA_FIELD(Icon::Properties, font, "Font", FieldType::ResourceID, GetTypeID<Font>())
 	LINA_FIELD(Icon::Properties, textScale, "Scale", FieldType::Float, 0)
 	LINA_FIELD(Icon::Properties, isDynamic, "Dynamic", FieldType::Boolean, 0)
-	LINA_FIELD(Icon::Properties, enableHoverPressColors, "Enable Hover/Press Colors", FieldType::Boolean, 0)
-	LINA_FIELD(Icon::Properties, colorHovered, "Color Hovered", FieldType::Color, 0)
-	LINA_FIELD(Icon::Properties, colorPressed, "Color Pressed", FieldType::Color, 0)
 	LINA_FIELD(Icon::Properties, color, "Color", FieldType::ColorGrad, 0)
-	LINA_FIELD(Icon::Properties, colorDisabled, "Color Disabled", FieldType::Color, 0)
-	LINA_FIELD(Icon::Properties, customClip, "Custom Clip", FieldType::Rect, 0)
 	LINA_FIELD(Icon::Properties, dynamicSizeToParent, "Dynamic Size To Parent", FieldType::Boolean, 0)
 	LINA_FIELD(Icon::Properties, dynamicSizeScale, "Scale", FieldType::Float, 0)
 
-	LINA_FIELD_DEPENDENCY_POS(Icon::Properties, colorHovered, "enableHoverPressColors", 1)
-	LINA_FIELD_DEPENDENCY_POS(Icon::Properties, colorPressed, "enableHoverPressColors", 1)
 	LINA_FIELD_DEPENDENCY_POS(Icon::Properties, dynamicSizeScale, "dynamicSizeToParent", 1)
 	LINA_CLASS_END(IconProperties)
 

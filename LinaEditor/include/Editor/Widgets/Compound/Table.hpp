@@ -28,7 +28,7 @@ SOFTWARE.
 
 #pragma once
 
-#include "Editor/Widgets/Panel/Panel.hpp"
+#include "Core/GUI/Widgets/Widget.hpp"
 
 namespace Lina
 {
@@ -36,32 +36,41 @@ namespace Lina
 }
 namespace Lina::Editor
 {
-	class Editor;
-	class IconTabs;
+	class ItemController;
 
-	class PanelPerformance : public Panel
+	class Table : public Widget
 	{
 	public:
-		PanelPerformance() : Panel(PanelType::Performance){};
-		virtual ~PanelPerformance() = default;
+		struct Column
+		{
+			String title = "";
+		};
+
+		Table()			 = default;
+		virtual ~Table() = default;
+
+		struct Properties
+		{
+			Vector<Column> columns;
+		};
 
 		virtual void Construct() override;
-		virtual void Destruct() override;
+		virtual void Initialize() override;
+		void		 Refresh();
+		void		 AddRow(const Vector<Widget*>& columns);
+
+		inline Properties& GetProps()
+		{
+			return m_props;
+		}
 
 	private:
-		void SelectContent(int32 index);
-		void BuildContentsProfiling();
-		void BuildContentsMemory();
-		void BuildContentsResources();
-
-	private:
-		Editor*			   m_editor			= nullptr;
-		Widget*			   m_currentContent = nullptr;
-		DirectionalLayout* m_layout			= nullptr;
-		IconTabs*		   m_iconTabs		= nullptr;
+		Properties		   m_props		= {};
+		DirectionalLayout* m_contents	= nullptr;
+		ItemController*	   m_controller = nullptr;
 	};
 
-	LINA_WIDGET_BEGIN(PanelPerformance, Hidden)
-	LINA_CLASS_END(PanelPerformance)
+	LINA_WIDGET_BEGIN(Table, Hidden)
+	LINA_CLASS_END(Table)
 
 } // namespace Lina::Editor

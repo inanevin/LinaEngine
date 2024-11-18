@@ -416,6 +416,7 @@ namespace Lina::Editor
 	{
 		ProjectData*	   projectData = editor->GetProjectManager().GetProjectData();
 		ResourceDirectory* dup		   = projectData->DuplicateResourceDirectory(newParent, directory);
+		dup->children.clear();
 
 		if (!directory->isFolder)
 		{

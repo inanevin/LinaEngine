@@ -60,16 +60,18 @@ namespace Lina::Editor
 		m_icon->GetFlags().Set(WF_POS_ALIGN_Y | WF_CONTROLS_DRAW_ORDER);
 		m_icon->SetAlignedPosY(0.5f);
 		m_icon->SetAnchorY(Anchor::Center);
-		m_icon->GetProps().icon					  = ICON_XMARK;
-		m_icon->GetProps().enableHoverPressColors = true;
-		m_icon->GetProps().textScale			  = 0.5f;
-		m_icon->GetProps().color.start.w		  = 0.5f;
-		m_icon->GetProps().color.end.w			  = 0.5f;
-		m_icon->GetProps().colorHovered			  = Theme::GetDef().foreground0;
-		m_icon->GetProps().colorPressed			  = Theme::GetDef().foreground0;
-		m_icon->GetProps().colorPressed.w		  = 0.25f;
-		m_icon->GetProps().colorDisabled		  = Color(0.0f, 0.0f, 0.0f, 0.0f);
-		m_icon->GetProps().onClicked			  = [this]() { m_requestedClose = true; };
+		m_icon->GetProps().icon							 = ICON_XMARK;
+		m_icon->GetWidgetProps().hoveredIsDifferentColor = true;
+		m_icon->GetWidgetProps().pressedIsDifferentColor = true;
+		m_icon->GetProps().textScale					 = 0.5f;
+		m_icon->GetProps().color.start.w				 = 0.5f;
+		m_icon->GetProps().color.end.w					 = 0.5f;
+		m_icon->GetWidgetProps().colorHovered			 = Theme::GetDef().foreground0;
+		m_icon->GetWidgetProps().colorPressed			 = Theme::GetDef().foreground0;
+		m_icon->GetWidgetProps().colorPressed.start.w	 = 0.25f;
+		m_icon->GetWidgetProps().colorPressed.end.w		 = 0.25f;
+		m_icon->GetWidgetProps().colorDisabled			 = Color(0.0f, 0.0f, 0.0f, 0.0f);
+		m_icon->GetProps().onClicked					 = [this]() { m_requestedClose = true; };
 		layout->AddChild(m_icon);
 	}
 
@@ -82,7 +84,7 @@ namespace Lina::Editor
 	void Tab::CalculateSize(float delta)
 	{
 		const float indent	 = Theme::GetDef().baseIndent;
-		const float iconSize = m_icon->GetIsDisabled() ? 0.0f : m_icon->GetSizeX();
+		const float iconSize = m_icon->GetFlags().IsSet(WF_DISABLED) ? 0.0f : m_icon->GetSizeX();
 		SetSizeX(SELECTION_RECT_WIDTH + m_text->GetSizeX() + iconSize + indent * 4.0f);
 	}
 
@@ -133,20 +135,7 @@ namespace Lina::Editor
 	{
 		const int32 drawOrder = m_isPressed ? m_drawOrder + 1 : m_drawOrder;
 
-		// Draw background.
-		LinaVG::StyleOptions background;
-		if (m_props.isSelected)
-		{
-			// background.color.start = Theme::GetDef().background3.AsLVG4();
-			// background.color.end   = Theme::GetDef().background4.AsLVG4();
-			background.color = Theme::GetDef().background2.AsLVG4();
-		}
-		else
-			background.color = m_isHovered ? Theme::GetDef().background2.AsLVG4() : Theme::GetDef().background0.AsLVG4();
-
-		background.color.start.w = background.color.end.w = m_alpha;
-
-		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), background, 0.0f, drawOrder);
+		Widget::DrawBackground();
 
 		// Draw selection indicator rect.
 		LinaVG::StyleOptions selectionRect;
@@ -207,7 +196,7 @@ namespace Lina::Editor
 
 	bool Tab::OnMousePos(const Vector2& pos)
 	{
-		if (!m_requestDockOut && m_isPressed && !m_icon->GetIsDisabled())
+		if (!m_requestDockOut && m_isPressed && !m_icon->GetFlags().IsSet(WF_DISABLED))
 		{
 			const Vector2& mp	  = pos;
 			const float	   margin = Theme::GetDef().baseIndent * 4.0f;
@@ -222,7 +211,7 @@ namespace Lina::Editor
 
 	void Tab::DisableClosing(bool disabled)
 	{
-		m_icon->SetIsDisabled(disabled);
+		m_icon->GetFlags().Set(WF_DISABLED, disabled);
 	}
 
 } // namespace Lina::Editor

@@ -127,8 +127,8 @@ namespace Lina::Editor
 		saveIcon->GetFlags().Set(WF_POS_ALIGN_Y);
 		saveIcon->SetAlignedPosY(0.5f);
 		saveIcon->SetAnchorY(Anchor::Center);
-		saveIcon->GetProps().color		   = Theme::GetDef().accentWarn;
-		saveIcon->GetProps().colorDisabled = Theme::GetDef().silent0;
+		saveIcon->GetProps().color				 = Theme::GetDef().accentWarn;
+		saveIcon->GetWidgetProps().colorDisabled = Theme::GetDef().silent0;
 		projectName->AddChild(saveIcon);
 
 		Text* projectNameText = m_manager->Allocate<Text>("ProjectNameText");
@@ -188,10 +188,10 @@ namespace Lina::Editor
 
 		if (projectData)
 		{
-			if (m_saveIcon->GetIsDisabled() && projectData->GetIsDirty())
-				m_saveIcon->SetIsDisabled(false);
-			else if (!m_saveIcon->GetIsDisabled() && !projectData->GetIsDirty())
-				m_saveIcon->SetIsDisabled(true);
+			if (m_saveIcon->GetFlags().IsSet(WF_DISABLED) && projectData->GetIsDirty())
+				m_saveIcon->GetFlags().Remove(WF_DISABLED);
+			else if (!m_saveIcon->GetFlags().IsSet(WF_DISABLED) && !projectData->GetIsDirty())
+				m_saveIcon->GetFlags().Set(WF_DISABLED);
 		}
 
 		const Color targetColor							 = m_lgxWindow->HasFocus() ? Theme::GetDef().accentPrimary0 : Theme::GetDef().background2;

@@ -126,13 +126,10 @@ namespace Lina
 	void Widget::Initialize()
 	{
 		m_initializing					 = true;
-		m_widgetProps._interpolatedColor = m_widgetProps.colorBackground;
+		const ColorGrad col				 = m_widgetProps.altColorsToggled ? m_widgetProps.colorBackgroundAlt : m_widgetProps.colorBackground;
+		m_widgetProps._interpolatedColor = col;
 		m_manager->InitializeWidget(this);
-		linatl::for_each(m_children.begin(), m_children.end(), [this](Widget* child) -> void {
-			child->Initialize();
-			if (GetIsDisabled())
-				child->SetIsDisabled(true);
-		});
+		linatl::for_each(m_children.begin(), m_children.end(), [this](Widget* child) -> void { child->Initialize(); });
 		m_initializing = false;
 	}
 
@@ -216,7 +213,7 @@ namespace Lina
 			opts.rounding = m_widgetProps.rounding = m_widgetProps.rounding;
 			opts.userData						   = m_widgetProps.lvgUserData;
 
-			ColorGrad mainColor = m_widgetProps.colorBackground;
+			ColorGrad mainColor = m_widgetProps.altColorsToggled ? m_widgetProps.colorBackgroundAlt : m_widgetProps.colorBackground;
 
 			if (m_widgetProps.hoveredIsDifferentColor && m_isHovered)
 				mainColor = m_widgetProps.colorHovered;
@@ -224,7 +221,7 @@ namespace Lina
 			if (m_widgetProps.pressedIsDifferentColor && m_isPressed)
 				mainColor = m_widgetProps.colorPressed;
 
-			if (GetIsDisabled())
+			if (GetFlags().IsSet(WF_DISABLED))
 				mainColor = m_widgetProps.colorDisabled;
 
 			opts.color = mainColor.AsLVG();
@@ -341,10 +338,12 @@ namespace Lina
 			{
 				LinaVG::StyleOptions style	= opts;
 				LinaVG::StyleOptions style2 = opts;
-				style.color.start			= m_widgetProps.colorBackground.start.AsLVG4();
-				style.color.end				= m_widgetProps.colorBackground.end.AsLVG4();
-				style2.color.start			= m_widgetProps.colorBackground.end.AsLVG4();
-				style2.color.end			= m_widgetProps.colorBackground.start.AsLVG4();
+
+				const ColorGrad col = m_widgetProps.altColorsToggled ? m_widgetProps.colorBackgroundAlt : m_widgetProps.colorBackground;
+				style.color.start	= col.start.AsLVG4();
+				style.color.end		= col.end.AsLVG4();
+				style2.color.start	= col.end.AsLVG4();
+				style2.color.end	= col.start.AsLVG4();
 				m_lvg->DrawRect(GetPos().AsLVG(), Vector2((m_rect.GetEnd().x + GetPos().x) * 0.5f, m_rect.GetEnd().y).AsLVG(), style, 0.0f, m_drawOrder);
 				m_lvg->DrawRect(Vector2((m_rect.GetEnd().x + GetPos().x) * 0.5f, GetPos().y).AsLVG(), m_rect.GetEnd().AsLVG(), style2, 0.0f, m_drawOrder);
 			}
@@ -358,7 +357,7 @@ namespace Lina
 		CheckClipChildren();
 
 		linatl::for_each(m_children.begin(), m_children.end(), [](Widget* child) -> void {
-			if (child->GetIsVisible() && !child->GetFlags().IsSet(WF_HIDE))
+			if (!child->GetFlags().IsSet(WF_HIDE))
 				child->Draw();
 		});
 
@@ -425,6 +424,7 @@ namespace Lina
 		stream << borderThickness.top << borderThickness.bottom << borderThickness.left << borderThickness.right;
 		stream << colorBorders;
 		stream << colorBackground;
+		stream << colorBackgroundAlt;
 		stream << colorOutline;
 		stream << colorOutlineControls;
 		stream << outlineAffectedByMainColor;
@@ -453,6 +453,7 @@ namespace Lina
 		stream >> borderThickness.top >> borderThickness.bottom >> borderThickness.left >> borderThickness.right;
 		stream >> colorBorders;
 		stream >> colorBackground;
+		stream >> colorBackgroundAlt;
 		stream >> colorOutline;
 		stream >> colorOutlineControls;
 		stream >> outlineAffectedByMainColor;
@@ -594,7 +595,7 @@ namespace Lina
 
 	void Widget::SetIsHovered()
 	{
-		if (m_isDisabled)
+		if (GetFlags().IsSet(WF_DISABLED))
 		{
 			m_isHovered = false;
 			return;
@@ -676,14 +677,6 @@ namespace Lina
 	Vector2 Widget::GetEndFromMargins()
 	{
 		return m_rect.GetEnd() - Vector2(m_widgetProps.childMargins.right, m_widgetProps.childMargins.bottom);
-	}
-
-	void Widget::SetIsDisabled(bool isDisabled)
-	{
-		m_isDisabled = isDisabled;
-
-		for (auto* c : m_children)
-			c->SetIsDisabled(isDisabled);
 	}
 
 	Vector2 Widget::GetMonitorSize()

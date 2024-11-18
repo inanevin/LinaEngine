@@ -148,6 +148,7 @@ namespace Lina
 		TBLR				 borderThickness			 = {};
 		Color				 colorBorders				 = Theme::GetDef().outlineColorBase;
 		ColorGrad			 colorBackground			 = Theme::GetDef().background0;
+		ColorGrad			 colorBackgroundAlt			 = Theme::GetDef().background0;
 		ColorGrad			 colorOutline				 = Theme::GetDef().outlineColorBase;
 		ColorGrad			 colorOutlineControls		 = Theme::GetDef().outlineColorControls;
 		ColorGrad			 colorHovered				 = Theme::GetDef().background2;
@@ -162,6 +163,7 @@ namespace Lina
 		Rect				 childrenClipOffset			 = {};
 		ColorGrad			 _interpolatedColor			 = Color();
 		DropshadowProps		 dropshadow;
+		bool				 altColorsToggled = false;
 
 		virtual void SaveToStream(OStream& stream) const;
 		virtual void LoadFromStream(IStream& stream);
@@ -237,7 +239,6 @@ namespace Lina
 		void	DeallocAllChildren();
 		void	RemoveAllChildren();
 		void	SetIsHovered();
-		void	SetIsDisabled(bool isDisabled);
 		void	DrawBorders();
 		void	DrawTooltip();
 		Vector2 GetStartFromMargins();
@@ -360,11 +361,6 @@ namespace Lina
 			return m_anchorY;
 		}
 
-		inline bool GetIsDisabled() const
-		{
-			return m_isDisabled;
-		}
-
 		inline WidgetManager* GetWidgetManager() const
 		{
 			return m_manager;
@@ -373,16 +369,6 @@ namespace Lina
 		inline System* GetSystem() const
 		{
 			return m_system;
-		}
-
-		inline void SetVisible(bool visible)
-		{
-			m_isVisible = visible;
-		}
-
-		inline bool GetIsVisible() const
-		{
-			return m_isVisible;
 		}
 
 		inline void SetCustomTooltipUserData(void* ud)
@@ -548,8 +534,6 @@ namespace Lina
 		Anchor						m_anchorY				= Anchor::Start;
 		bool						m_isHovered				= false;
 		bool						m_isPressed				= false;
-		bool						m_isDisabled			= false;
-		bool						m_isVisible				= true;
 		uint32						m_loadedVersion			= 0;
 		float						m_scrollerOffset		= 0.0f;
 		void*						m_customTooltipUserData = nullptr;
@@ -606,6 +590,7 @@ namespace Lina
 	LINA_FIELD(WidgetProps, colorInterpolateSpeed, "Color Interpolate Speed", FieldType::Float, 0);
 	LINA_FIELD(WidgetProps, colorBackgroundDirection, "Background Direction", FieldType::Enum, GetTypeID<DirectionOrientation>());
 	LINA_FIELD(WidgetProps, colorBackground, "Background Color", FieldType::ColorGrad, 0);
+	LINA_FIELD(WidgetProps, colorBackgroundAlt, "Alt Background Color", FieldType::ColorGrad, 0);
 	LINA_FIELD(WidgetProps, colorOutline, "Outline Color", FieldType::ColorGrad, 0);
 	LINA_FIELD(WidgetProps, colorOutlineControls, "Outline Color in Control", FieldType::ColorGrad, 0);
 	LINA_FIELD(WidgetProps, colorDisabled, "Disabled Color", FieldType::ColorGrad, 0);
@@ -632,6 +617,7 @@ namespace Lina
 	LINA_FIELD_DEPENDENCY_POS(WidgetProps, colorInterpolateSpeed, "interpolateColor", 1);
 	LINA_FIELD_DEPENDENCY_POS(WidgetProps, colorBackgroundDirection, "drawBackground", 1);
 	LINA_FIELD_DEPENDENCY_POS(WidgetProps, colorBackground, "drawBackground", 1);
+	LINA_FIELD_DEPENDENCY_POS(WidgetProps, colorBackgroundAlt, "drawBackground", 1);
 	LINA_FIELD_DEPENDENCY_POS(WidgetProps, colorOutline, "drawBackground", 1);
 	LINA_FIELD_DEPENDENCY_POS(WidgetProps, colorOutlineControls, "drawBackground", 1);
 	LINA_FIELD_DEPENDENCY_POS(WidgetProps, colorDisabled, "drawBackground", 1);

@@ -180,7 +180,7 @@ namespace Lina::Editor
 			loading->GetFlags().Set(WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
 			loading->SetAlignedPosY(0.5f);
 			loading->SetAnchorY(Anchor::Center);
-			loading->SetAlignedSizeY(1.0f);
+			loading->SetAlignedSize(Vector2::One);
 			notification->AddChild(loading);
 		}
 

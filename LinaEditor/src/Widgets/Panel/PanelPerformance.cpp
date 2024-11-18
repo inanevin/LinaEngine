@@ -27,8 +27,8 @@ SOFTWARE.
 */
 
 #include "Editor/Widgets/Panel/PanelPerformance.hpp"
-#include "Editor/Widgets/Compound/TabRow.hpp"
-#include "Editor/Widgets/Compound/Tab.hpp"
+#include "Editor/Widgets/Compound/IconTabs.hpp"
+#include "Editor/Widgets/Compound/Table.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Editor.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
@@ -45,46 +45,56 @@ namespace Lina::Editor
 		m_editor = Editor::Get();
 
 		DirectionalLayout* layout	 = m_manager->Allocate<DirectionalLayout>("Layout");
-		layout->GetProps().direction = DirectionOrientation::Vertical;
+		layout->GetProps().direction = DirectionOrientation::Horizontal;
 		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		layout->SetAlignedPos(Vector2::Zero);
 		layout->SetAlignedSize(Vector2::One);
 		AddChild(layout);
 
-		TabRow* tabRow = m_manager->Allocate<TabRow>("TabRow");
-		tabRow->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-		tabRow->SetAlignedPosX(0.0f);
-		tabRow->SetAlignedSizeX(1.0f);
-		tabRow->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		tabRow->SetCanCloseTabs(false);
-		tabRow->GetWidgetProps().drawBackground	 = true;
-		tabRow->GetWidgetProps().colorBackground = Theme::GetDef().background2;
-		tabRow->GetWidgetProps().rounding		 = 0.0f;
-		tabRow->GetProps().onTabSelected		 = [this](void* userData) {
-			SelectContent(static_cast<Widget*>(userData));
-			m_editor->GetSettings().GetSettingsPanelStats().selectedTab = UtilVector::IndexOf(m_tabContents, m_currentContent);
-			m_editor->SaveSettings();
+		IconTabs* iconTabs = m_manager->Allocate<IconTabs>("IconTabs");
+		iconTabs->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X);
+		iconTabs->SetAlignedPosY(0.0f);
+		iconTabs->SetAlignedSizeY(1.0f);
+		iconTabs->SetFixedSizeX(Theme::GetDef().baseItemHeight * 2);
+		iconTabs->GetProps().icons = {
+			{
+				.color	 = Theme::GetDef().foreground1,
+				.icon	 = ICON_GAUGE,
+				.tooltip = Locale::GetStr(LocaleStr::Profiling),
+			},
+			{
+				.color	 = Theme::GetDef().foreground1,
+				.icon	 = ICON_MEMORY,
+				.tooltip = Locale::GetStr(LocaleStr::Memory),
+			},
+			{
+				.color	 = Theme::GetDef().foreground1,
+				.icon	 = ICON_CUBE,
+				.tooltip = Locale::GetStr(LocaleStr::Resources),
+			},
 		};
-		tabRow->GetWidgetProps().outlineThickness = 0.0f;
+		iconTabs->GetWidgetProps().borderThickness.right = Theme::GetDef().baseSeparatorThickness;
+		iconTabs->GetWidgetProps().colorBorders			 = Theme::GetDef().background0;
+		iconTabs->GetProps().onSelected					 = [this](int32 idx) {
+			 m_editor->GetSettings().GetSettingsPanelStats().selectedTab = idx;
+			 m_editor->SaveSettings();
+			 SelectContent(idx);
+		};
+		iconTabs->GetWidgetProps().colorBackground	  = Theme::GetDef().background2;
+		iconTabs->GetWidgetProps().colorBackgroundAlt = Theme::GetDef().background1;
+		m_iconTabs									  = iconTabs;
+		layout->AddChild(iconTabs);
 
-		layout->AddChild(tabRow);
-
-		DirectionalLayout* cpu = BuildContentLayout("CPU");
-		BuildContentsCPU(cpu);
-
-		DirectionalLayout* gpu = BuildContentLayout("GPU");
-		BuildContentsGPU(gpu);
-
-		DirectionalLayout* mem = BuildContentLayout(Locale::GetStr(LocaleStr::Memory));
-
-		tabRow->AddTab(cpu, cpu->GetWidgetProps().debugName)->GetWidgetProps().colorBackground = Theme::GetDef().background2;
-		tabRow->AddTab(gpu, gpu->GetWidgetProps().debugName)->GetWidgetProps().colorBackground = Theme::GetDef().background2;
-		tabRow->AddTab(mem, mem->GetWidgetProps().debugName)->GetWidgetProps().colorBackground = Theme::GetDef().background2;
-		m_tabContents.push_back(cpu);
-		m_tabContents.push_back(gpu);
-		m_tabContents.push_back(mem);
-		m_layout = layout;
-		m_tabRow = tabRow;
+		DirectionalLayout* contents	   = m_manager->Allocate<DirectionalLayout>("Contents");
+		contents->GetProps().direction = DirectionOrientation::Vertical;
+		contents->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		contents->SetAlignedPosY(0.0f);
+		contents->SetAlignedSize(Vector2(0.0f, 1.0f));
+		contents->GetWidgetProps().childMargins.top	   = Theme::GetDef().baseIndent;
+		contents->GetWidgetProps().childMargins.bottom = Theme::GetDef().baseIndent;
+		contents->GetWidgetProps().childPadding		   = Theme::GetDef().baseIndent;
+		layout->AddChild(contents);
+		m_layout = contents;
 
 		SelectContent(m_editor->GetSettings().GetSettingsPanelStats().selectedTab);
 	}
@@ -92,95 +102,84 @@ namespace Lina::Editor
 	void PanelPerformance::Destruct()
 	{
 		Panel::Destruct();
-
-		for (auto* widget : m_tabContents)
-		{
-			if (widget == m_currentContent)
-				continue;
-			m_manager->Deallocate(widget);
-		}
-	}
-
-	void PanelPerformance::SelectContent(Widget* w)
-	{
-		if (m_currentContent)
-			m_layout->RemoveChild(m_currentContent);
-
-		m_currentContent = w;
-		m_layout->AddChild(m_currentContent);
-		m_tabRow->SetSelected(w);
 	}
 
 	void PanelPerformance::SelectContent(int32 index)
 	{
-		SelectContent(m_tabContents[index]);
+		m_iconTabs->SetSelected(index);
+
+		m_layout->DeallocAllChildren();
+		m_layout->RemoveAllChildren();
+
+		if (index == 0)
+			BuildContentsProfiling();
+		else if (index == 1)
+			BuildContentsMemory();
+		else
+			BuildContentsResources();
 	}
 
-	DirectionalLayout* PanelPerformance::BuildContentLayout(const String& name)
+	void PanelPerformance::BuildContentsProfiling()
 	{
-		DirectionalLayout* content = m_manager->Allocate<DirectionalLayout>(name);
-		content->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		content->SetAlignedPosX(0.0f);
-		content->SetAlignedSize(Vector2(1.0f, 0.0f));
-		content->GetProps().direction		   = DirectionOrientation::Vertical;
-		content->GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent);
-		content->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
-		return content;
-	}
+		auto wrap = [&](Widget* child) -> DirectionalLayout* {
+			DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Wrap");
+			layout->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+			layout->SetAlignedPosX(0.0f);
+			layout->SetAlignedSizeX(1.0f);
+			layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+			layout->GetProps().direction				= DirectionOrientation::Horizontal;
+			layout->GetWidgetProps().childMargins.left	= Theme::GetDef().baseIndent;
+			layout->GetWidgetProps().childMargins.right = Theme::GetDef().baseIndent;
+			child->GetFlags().Set(WF_POS_ALIGN_Y);
+			child->SetAlignedPosY(0.6f);
+			child->SetAnchorY(Anchor::Center);
+			layout->AddChild(child);
+			return layout;
+		};
 
-	void PanelPerformance::BuildContentsCPU(DirectionalLayout* parent)
-	{
-		Text* fps = m_manager->Allocate<Text>("FPS");
-		fps->GetFlags().Set(WF_POS_ALIGN_X);
-		fps->SetAlignedPosX(0.0f);
-		fps->SetTickHook([fps](float delta) {
-			fps->GetProps().text = "FPS: " + TO_STRING(SystemInfo::GetMeasuredFPS());
-			fps->CalculateTextSize();
-		});
+		Text* frameTime = m_manager->Allocate<Text>("FrameTime");
 
-		parent->AddChild(fps);
+		frameTime->GetProps().isDynamic = true;
+		frameTime->SetTickHook([frameTime](float delta) {
+			static float elapsed = 1.0f;
 
-		Text* frameMS = m_manager->Allocate<Text>("FrameMS");
-		frameMS->GetFlags().Set(WF_POS_ALIGN_X);
-		frameMS->SetAlignedPosX(0.0f);
-		frameMS->SetTickHook([frameMS](float delta) {
-			frameMS->GetProps().text = Locale::GetStr(LocaleStr::FrameTime) + ": " + TO_STRING(SystemInfo::GetDeltaTime() * 1000.0f) + " (ms)";
-			frameMS->CalculateTextSize();
-		});
+			elapsed += delta;
 
-		parent->AddChild(frameMS);
-	}
-
-	void PanelPerformance::BuildContentsGPU(DirectionalLayout* parent)
-	{
-#ifdef LINA_DEBUG
-
-		Text* dc = m_manager->Allocate<Text>("DrawCalls");
-		dc->GetFlags().Set(WF_POS_ALIGN_X);
-		dc->SetAlignedPosX(0.0f);
-		dc->SetTickHook([dc](float delta) {
-			uint32 totalDrawCalls = 0;
-			uint32 totalTris	  = 0;
-
-			const auto& drawCalls = Profiler::Get()->GetPrevFrame().drawCalls;
-
-			for (const auto& [category, vec] : drawCalls)
+			if (elapsed > 1.0f)
 			{
-				totalDrawCalls += static_cast<uint32>(vec.size());
-
-				for (const auto& call : vec)
-					totalTris += call.tris;
+				const float	 fps = 1.0f / delta;
+				const String str = UtilStr::FloatToString(delta, 8) + " ms - " + TO_STRING(static_cast<int32>(fps)) + " (FPS)";
+				frameTime->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::FrameTime) + ": " + str);
+				elapsed = 0.0f;
 			}
-
-			dc->GetProps().text = Locale::GetStr(LocaleStr::DrawCalls) + ": " + TO_STRING(totalDrawCalls) + " (" + TO_STRING(totalTris) + "Tris)";
-			dc->CalculateTextSize();
 		});
+		m_layout->AddChild(wrap(frameTime));
 
-		parent->AddChild(dc);
-#endif
+		Table* table = m_manager->Allocate<Table>("Table");
+		table->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		table->SetAlignedPosX(0.0f);
+		table->SetAlignedSize(Vector2(1.0f, 0.0f));
+		table->GetProps().columns = {
+			{
+				.title = "Test",
+			},
+			{
+				.title = "Test2",
+			},
+			{
+				.title = "Test2",
+			},
+
+		};
+		m_layout->AddChild(table);
 	}
 
-	void PanelPerformance::BuildContentsMemory(DirectionalLayout* parent)
+	void PanelPerformance::BuildContentsMemory()
 	{
 	}
+
+	void PanelPerformance::BuildContentsResources()
+	{
+	}
+
 } // namespace Lina::Editor

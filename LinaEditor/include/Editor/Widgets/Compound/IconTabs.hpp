@@ -31,50 +31,45 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Common/Data/Vector.hpp"
 
-#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
-
 namespace Lina
 {
-	class Button;
-} // namespace Lina
-
+	class DirectionalLayout;
+}
 namespace Lina::Editor
 {
-	class IconTabs : public DirectionalLayout
+	class IconTabs : public Widget
 	{
 	public:
 		IconTabs()			= default;
 		virtual ~IconTabs() = default;
 
-		struct TabProperties
+		struct IconData
 		{
-			Delegate<void(int32 selected)> onSelectionChanged;
-			Vector<String>				   icons;
-			Vector<String>				   tooltips;
-			int32						   selected		  = -1;
-			float						   iconScale	  = 0.5f;
-			float						   topRounding	  = 0.0f;
-			float						   bottomRounding = 0.0f;
+			Color  color   = Theme::GetDef().foreground0;
+			String icon	   = "";
+			String tooltip = "";
+		};
+		struct Properties
+		{
+			Vector<IconData>	  icons;
+			Delegate<void(int32)> onSelected;
 
 			void SaveToStream(OStream& stream) const
 			{
-				stream << selected << iconScale << topRounding << bottomRounding;
-				stream << icons << tooltips;
 			}
 
 			void LoadFromStream(IStream& stream)
 			{
-				stream >> selected >> iconScale >> topRounding >> bottomRounding;
-				uint32 iconsSz = 0, tooltipsSz = 0;
-				stream >> icons >> tooltips;
 			}
 		};
 
-		virtual void Initialize() override;
+		virtual void Construct() override;
+		void		 Refresh();
+		void		 SetSelected(int32 idx);
 
-		inline TabProperties& GetTabProps()
+		inline Properties& GetProps()
 		{
-			return m_tabProps;
+			return m_props;
 		}
 
 		virtual void SaveToStream(OStream& stream) const override
@@ -90,10 +85,8 @@ namespace Lina::Editor
 		}
 
 	private:
-		void SetButtonColors(Button* btn, bool isSelected);
-
-	private:
-		TabProperties m_tabProps = {};
+		DirectionalLayout* m_verticalLayout = nullptr;
+		Properties		   m_props			= {};
 	};
 
 	LINA_WIDGET_BEGIN(IconTabs, Editor)

@@ -40,29 +40,24 @@ namespace Lina
 
 		if (m_children.size() == 1)
 		{
+			m_children[0]->CalculateSize(delta);
 			SetSizeY(m_children[0]->GetSizeY());
 			return;
 		}
 
-		float childrenTotalHeight = 0.0f;
-		for (auto* c : m_children)
-		{
-			if (c->GetFlags().IsSet(WF_HIDE))
-				continue;
-
-			c->CalculateSize(delta);
-			childrenTotalHeight += c->GetSizeY() + GetWidgetProps().childPadding;
-		}
-		childrenTotalHeight -= GetWidgetProps().childPadding;
-
-		float targetY = 0.0f;
-
 		if (m_unfolded)
-			targetY = childrenTotalHeight;
+		{
+			float childrenTotalHeight = 0.0f;
+			for (auto* c : m_children)
+			{
+				c->CalculateSize(delta);
+				childrenTotalHeight += c->GetSizeY() + GetWidgetProps().childPadding;
+			}
+			childrenTotalHeight -= GetWidgetProps().childPadding;
+			SetSizeY(childrenTotalHeight);
+		}
 		else
-			targetY = m_children[0]->GetSizeY();
-
-		SetSizeY(targetY);
+			SetSizeY(m_children[0]->GetSizeY());
 	}
 
 	void FoldLayout::Tick(float delta)
@@ -84,9 +79,13 @@ namespace Lina
 		size_t idx = 0;
 		for (auto* c : m_children)
 		{
-			if (c->GetFlags().IsSet(WF_HIDE))
+			if (!m_unfolded && idx != 0)
+			{
+				c->GetFlags().Set(WF_HIDE);
 				continue;
+			}
 
+			c->GetFlags().Remove(WF_HIDE);
 			c->GetFlags().Remove(WF_POS_ALIGN_X);
 			c->SetPosX(x);
 			c->SetPosY(y);
@@ -95,14 +94,6 @@ namespace Lina
 			if (idx != 0)
 			{
 				c->SetPosX(c->GetPosX() + tweenValue);
-				// c->SetIsDisabled(!m_unfolded);
-
-				if (m_unfolded)
-					c->GetFlags().Remove(WF_DISABLED_BY_PARENT);
-				else
-					c->GetFlags().Set(WF_DISABLED_BY_PARENT);
-
-				c->SetVisible(m_unfolded);
 			}
 
 			idx++;

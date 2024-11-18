@@ -99,7 +99,7 @@ namespace Lina::Editor
 
 	void DockPreview::Tick(float delta)
 	{
-		if (!GetIsVisible())
+		if (GetFlags().IsSet(WF_HIDE))
 			return;
 
 		m_dockPreviewTween.Tick(delta);
@@ -142,6 +142,9 @@ namespace Lina::Editor
 
 	void DockPreview::Draw()
 	{
+		if (GetFlags().IsSet(WF_HIDE))
+			return;
+
 		const int32 start = m_props.isCentral ? 0 : 1;
 		for (int32 i = start; i < 5; i++)
 			DrawDockRect(m_dockRects[i]);

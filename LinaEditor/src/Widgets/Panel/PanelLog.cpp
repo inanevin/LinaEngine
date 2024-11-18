@@ -55,16 +55,19 @@ namespace Lina::Editor
 		panelLayout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		panelLayout->SetAlignedPos(Vector2::Zero);
 		panelLayout->SetAlignedSize(Vector2::One);
-		panelLayout->GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent);
-		panelLayout->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
-		panelLayout->GetProps().direction		   = DirectionOrientation::Vertical;
+		panelLayout->GetWidgetProps().childMargins.top	  = Theme::GetDef().baseIndent;
+		panelLayout->GetWidgetProps().childMargins.bottom = Theme::GetDef().baseIndent;
+		panelLayout->GetWidgetProps().childPadding		  = Theme::GetDef().baseIndent;
+		panelLayout->GetProps().direction				  = DirectionOrientation::Vertical;
 
 		DirectionalLayout* topLayout = m_manager->Allocate<DirectionalLayout>("TopLayout");
 		topLayout->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
 		topLayout->SetAlignedPosX(0.0f);
 		topLayout->SetAlignedSizeX(1.0f);
 		topLayout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		topLayout->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
+		topLayout->GetWidgetProps().childPadding	   = Theme::GetDef().baseIndent;
+		topLayout->GetWidgetProps().childMargins.left  = Theme::GetDef().baseIndent;
+		topLayout->GetWidgetProps().childMargins.right = Theme::GetDef().baseIndent;
 		panelLayout->AddChild(topLayout);
 
 		Button* clearButton				  = CommonWidgets::BuildIconButton(this, ICON_TRASH);
@@ -125,7 +128,7 @@ namespace Lina::Editor
 		logScroll->GetProps().direction					 = DirectionOrientation::Vertical;
 		logScroll->GetProps().tryKeepAtEnd				 = true;
 		logScroll->GetWidgetProps().drawBackground		 = true;
-		logScroll->GetWidgetProps().colorBackground		 = Theme::GetDef().background0;
+		logScroll->GetWidgetProps().colorBackground		 = Theme::GetDef().background1;
 		logScroll->GetWidgetProps().rounding			 = 0.0f;
 		logScroll->GetWidgetProps().outlineThickness	 = 0.0f;
 		logScroll->GetWidgetProps().dropshadow.enabled	 = true;

@@ -37,58 +37,49 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Audio/Audio.hpp"
 #include "Core/World/EntityWorld.hpp"
+#include "Core/Physics/PhysicsMaterial.hpp"
+#include "Common/Reflection/ReflectionSystem.hpp"
 
 namespace Lina::Editor
 {
-
-	TypeID ExtensionSupport::GetTypeIDForExtension(const String& ext)
+	void ExtensionSupport::AddTypeInfoToReflection()
 	{
-		if (ext.compare("linaworld") == 0)
-			return GetTypeID<EntityWorld>();
-		if (ext.compare("linamaterial") == 0)
-			return GetTypeID<Material>();
-		if (ext.compare("linashader") == 0)
-			return GetTypeID<Shader>();
-		if (ext.compare("mp3") == 0)
-			return GetTypeID<Audio>();
-		if (ext.compare("png") == 0 || ext.compare("jpg") == 0 || ext.compare("jpeg") == 0)
-			return GetTypeID<Texture>();
-		if (ext.compare("linawidget") == 0)
-			return GetTypeID<GUIWidget>();
-		if (ext.compare("ttf") == 0 || ext.compare("otf") == 0)
-			return GetTypeID<Font>();
-		if (ext.compare("gltf") == 0 || ext.compare("glb") == 0)
-			return GetTypeID<Model>();
+		ReflectionSystem& ref = ReflectionSystem::Get();
 
-		return 0;
-	}
+		ref.Meta<Material>()->AddProperty<Color>("Color"_hs, Theme::GetDef().accentPrimary2);
+		ref.Meta<Material>()->AddProperty<String>("TypeAbbv"_hs, "M");
 
-	Vector<String> ExtensionSupport::GetExtensionsFromTypeID(TypeID tid)
-	{
-		if (tid == GetTypeID<Texture>())
-			return {"png", "jpg", "jpeg"};
+		ref.Meta<Model>()->AddProperty<Color>("Color"_hs, Theme::GetDef().accentSecondary);
+		ref.Meta<Model>()->AddProperty<String>("Extensions"_hs, "gltf, glb");
+		ref.Meta<Model>()->AddProperty<String>("TypeAbbv"_hs, "MD");
 
-		if (tid == GetTypeID<Model>())
-			return {"gltf", "glb"};
+		ref.Meta<GUIWidget>()->AddProperty<Color>("Color"_hs, Theme::GetDef().accentDarkIndigo);
+		ref.Meta<GUIWidget>()->AddProperty<String>("TypeAbbv"_hs, "G");
 
-		if (tid == GetTypeID<Font>())
-			return {"ttf", "otf"};
+		ref.Meta<Font>()->AddProperty<Color>("Color"_hs, Theme::GetDef().accentOrange);
+		ref.Meta<Font>()->AddProperty<String>("Extensions"_hs, "otf, ttf");
+		ref.Meta<Font>()->AddProperty<String>("TypeAbbv"_hs, "F");
 
-		if (tid == GetTypeID<Audio>())
-			return {"mp3"};
+		ref.Meta<Texture>()->AddProperty<Color>("Color"_hs, Theme::GetDef().accentSuccess);
+		ref.Meta<Texture>()->AddProperty<String>("Extensions"_hs, "png, jpg, jpeg");
+		ref.Meta<Texture>()->AddProperty<String>("TypeAbbv"_hs, "T");
 
-		if (tid == GetTypeID<Shader>())
-			return {"linashader"};
+		ref.Meta<TextureSampler>()->AddProperty<Color>("Color"_hs, Theme::GetDef().accentSuccess1);
+		ref.Meta<TextureSampler>()->AddProperty<String>("TypeAbbv"_hs, "SM");
 
-		return {};
-	}
+		ref.Meta<Shader>()->AddProperty<Color>("Color"_hs, Theme::GetDef().accentCyan);
+		ref.Meta<Shader>()->AddProperty<String>("Extensions"_hs, "linashader");
+		ref.Meta<Shader>()->AddProperty<String>("TypeAbbv"_hs, "S");
 
-	bool ExtensionSupport::RequiresOutlineFX(TypeID tid)
-	{
-		if (tid == GetTypeID<Shader>() || tid == GetTypeID<Audio>() || tid == GetTypeID<EntityWorld>())
-			return false;
+		ref.Meta<Audio>()->AddProperty<Color>("Color"_hs, Theme::GetDef().accentWarn);
+		ref.Meta<Audio>()->AddProperty<String>("Extensions"_hs, "mp3");
+		ref.Meta<Audio>()->AddProperty<String>("TypeAbbv"_hs, "A");
 
-		return true;
+		ref.Meta<EntityWorld>()->AddProperty<Color>("Color"_hs, Theme::GetDef().foreground0);
+		ref.Meta<EntityWorld>()->AddProperty<String>("TypeAbbv"_hs, "W");
+
+		ref.Meta<PhysicsMaterial>()->AddProperty<Color>("Color"_hs, Theme::GetDef().accentYellowGold);
+		ref.Meta<PhysicsMaterial>()->AddProperty<String>("TypeAbbv"_hs, "PM");
 	}
 
 } // namespace Lina::Editor

@@ -46,6 +46,7 @@ namespace Lina
 		uint32	  directoryType	 = 0;
 		Bitmask32 directoryMask	 = 0;
 		bool	  isInFavourites = false;
+		bool	  unfolded		 = false;
 	};
 
 	struct ResourceDirectory
@@ -56,7 +57,6 @@ namespace Lina
 		String					   name						   = "";
 		String					   sourcePathRelativeToProject = "";
 		bool					   isFolder					   = false;
-		bool					   unfolded					   = false;
 		ResourceID				   resourceID				   = 0;
 		TypeID					   resourceTID				   = 0;
 		Vector<ResourceDirectory*> children;

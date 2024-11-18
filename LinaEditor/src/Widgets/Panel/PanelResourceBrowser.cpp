@@ -47,9 +47,10 @@ namespace Lina::Editor
 
 		DirectionalLayout* vertical = m_manager->Allocate<DirectionalLayout>();
 		vertical->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		vertical->GetProps().direction			= DirectionOrientation::Vertical;
-		vertical->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
-		vertical->GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent);
+		vertical->GetProps().direction				   = DirectionOrientation::Vertical;
+		vertical->GetWidgetProps().childPadding		   = Theme::GetDef().baseIndent;
+		vertical->GetWidgetProps().childMargins.top	   = Theme::GetDef().baseIndent;
+		vertical->GetWidgetProps().childMargins.bottom = Theme::GetDef().baseIndent;
 		AddChild(vertical);
 
 		DirectionalLayout* header = m_manager->Allocate<DirectionalLayout>();
@@ -57,7 +58,9 @@ namespace Lina::Editor
 		header->SetAlignedPosX(0.0f);
 		header->SetAlignedSizeX(1.0f);
 		header->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		header->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
+		header->GetWidgetProps().childPadding		= Theme::GetDef().baseIndent;
+		header->GetWidgetProps().childMargins.left	= Theme::GetDef().baseIndent;
+		header->GetWidgetProps().childMargins.right = Theme::GetDef().baseIndent;
 		vertical->AddChild(header);
 
 		Dropdown* filterDD = m_manager->Allocate<Dropdown>("Fiter");

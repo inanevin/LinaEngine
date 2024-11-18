@@ -44,7 +44,7 @@ namespace Lina
 
 	LinaGX::CursorType InputField::GetCursorOverride()
 	{
-		if (GetIsDisabled())
+		if (GetFlags().IsSet(WF_DISABLED))
 			return LinaGX::CursorType::Default;
 
 		// Cursor status.
@@ -90,8 +90,8 @@ namespace Lina
 		AddChild(m_placeholderText);
 		AddChild(m_placeholderIcon);
 
-		m_placeholderText->SetIsDisabled(true);
-		m_placeholderIcon->SetIsDisabled(true);
+		m_placeholderText->GetFlags().Set(WF_HIDE, true);
+		m_placeholderIcon->GetFlags().Set(WF_HIDE, true);
 	}
 
 	void InputField::Initialize()
@@ -178,22 +178,22 @@ namespace Lina
 
 	void InputField::Tick(float delta)
 	{
-		if (m_placeholderText->GetIsDisabled() && m_text->GetProps().text.empty())
+		if (m_placeholderText->GetFlags().IsSet(WF_HIDE) && m_text->GetProps().text.empty())
 		{
 			m_placeholderText->GetProps().text	= m_props.placeHolderText;
 			m_placeholderText->GetProps().color = m_props.colorPlaceHolder;
 			m_placeholderText->CalculateTextSize();
-			m_placeholderText->SetIsDisabled(false);
+			m_placeholderText->GetFlags().Remove(WF_HIDE);
 
 			m_placeholderIcon->GetProps().icon	= m_props.placeHolderIcon;
 			m_placeholderIcon->GetProps().color = m_props.colorPlaceHolder;
 			m_placeholderIcon->CalculateIconSize();
-			m_placeholderIcon->SetIsDisabled(false);
+			m_placeholderIcon->GetFlags().Remove(WF_HIDE);
 		}
-		else if (!m_placeholderText->GetIsDisabled() && !m_text->GetProps().text.empty())
+		else if (!m_placeholderText->GetFlags().IsSet(WF_HIDE) && !m_text->GetProps().text.empty())
 		{
-			m_placeholderText->SetIsDisabled(true);
-			m_placeholderIcon->SetIsDisabled(true);
+			m_placeholderText->GetFlags().Set(WF_HIDE);
+			m_placeholderIcon->GetFlags().Set(WF_HIDE);
 		}
 
 		if (m_isPressed)
@@ -244,7 +244,7 @@ namespace Lina
 
 	void InputField::Draw()
 	{
-		if (!GetIsVisible())
+		if (GetFlags().IsSet(WF_HIDE))
 			return;
 
 		if (ShouldSkipDrawOutsideWindow())
@@ -319,7 +319,7 @@ namespace Lina
 
 		m_text->Draw();
 
-		if (!m_placeholderText->GetIsDisabled())
+		if (!m_placeholderText->GetFlags().IsSet(WF_HIDE))
 		{
 			m_placeholderIcon->Draw();
 			m_placeholderText->Draw();

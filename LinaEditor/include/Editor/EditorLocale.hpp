@@ -174,6 +174,8 @@ namespace Lina::Editor
 		LinaAssets,
 		Filter,
 		None,
+		Profiling,
+		ApplicationTime,
 	};
 
 	class Locale

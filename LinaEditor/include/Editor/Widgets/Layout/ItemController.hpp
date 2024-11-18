@@ -35,6 +35,7 @@ namespace Lina
 {
 	class FileMenu;
 	class Text;
+
 } // namespace Lina
 
 namespace Lina::Editor

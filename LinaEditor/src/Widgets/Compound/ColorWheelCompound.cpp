@@ -180,7 +180,7 @@ namespace Lina::Editor
 		Widget* topRowLeftSide = m_manager->Allocate<Widget>("TopRowLeftSide");
 		topRowLeftSide->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_X_COPY_Y);
 		topRowLeftSide->SetAlignedPosY(0.0f);
-		topRowLeftSide->SetAlignedSizeY(1.0f);
+		topRowLeftSide->SetAlignedSize(Vector2::One);
 		topRowLeftSide->GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent);
 		m_topRow->AddChild(topRowLeftSide);
 

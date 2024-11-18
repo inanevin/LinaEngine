@@ -36,12 +36,9 @@ namespace Lina
 }
 namespace Lina::Editor
 {
-
 	class ExtensionSupport
 	{
 	public:
-		static TypeID		  GetTypeIDForExtension(const String& ext);
-		static Vector<String> GetExtensionsFromTypeID(TypeID tid);
-		static bool			  RequiresOutlineFX(TypeID tid);
+		static void AddTypeInfoToReflection();
 	};
 } // namespace Lina::Editor

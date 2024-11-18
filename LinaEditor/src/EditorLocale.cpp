@@ -171,6 +171,8 @@ namespace Lina::Editor
 		{LocaleStr::LinaAssets, "LinaAssets"},
 		{LocaleStr::Filter, "Filter"},
 		{LocaleStr::None, "None"},
+		{LocaleStr::Profiling, "Profiling"},
+		{LocaleStr::ApplicationTime, "Application Time"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

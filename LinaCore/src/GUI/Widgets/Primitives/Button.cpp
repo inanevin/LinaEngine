@@ -50,7 +50,7 @@ namespace Lina
 
 	void Button::CreateIcon(const String& icon)
 	{
-		m_text->SetVisible(false);
+		m_text->GetFlags().Set(WF_HIDE);
 		m_icon = m_manager->Allocate<Icon>();
 		m_icon->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 		m_icon->SetAlignedPos(Vector2(0.5f, 0.5f));

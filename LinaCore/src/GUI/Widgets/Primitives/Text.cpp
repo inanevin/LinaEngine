@@ -51,7 +51,7 @@ namespace Lina
 
 	void Text::Draw()
 	{
-		if (!GetIsVisible())
+		if (GetFlags().IsSet(WF_HIDE))
 			return;
 
 		if (ShouldSkipDrawOutsideWindow())
@@ -95,16 +95,13 @@ namespace Lina
 		opts.wrapWidth		= m_props.wrapWidth;
 		opts.newLineSpacing = 0.0f;
 
-		if (GetIsDisabled())
-			opts.color = m_props.colorDisabled.AsLVG4();
+		if (GetFlags().IsSet(WF_DISABLED))
+			opts.color = m_widgetProps.colorDisabled.AsLVG();
 		else
 			opts.color = m_props.color.AsLVG();
 
 		// opts.cpuClipping = m_props.customClip.AsLVG4();
 		opts.wordWrap = m_props.wordWrap;
-
-		if (GetIsDisabled())
-			opts.color = m_props.colorDisabled.AsLVG4();
 
 		auto p = (m_rect.pos + Vector2(0.0f, m_rect.size.y));
 

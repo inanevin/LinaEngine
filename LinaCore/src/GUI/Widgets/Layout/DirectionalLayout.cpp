@@ -42,11 +42,6 @@ namespace Lina
 			m_props.onDestructed();
 	}
 
-	void DirectionalLayout::Initialize()
-	{
-		Widget::Initialize();
-	}
-
 	void DirectionalLayout::PreTick()
 	{
 		if (GetIsHovered() && !m_lastHoverStatus)
@@ -193,6 +188,22 @@ namespace Lina
 			}
 		}
 	}
+	void DirectionalLayout::GetPressRect(const Rect& original, Rect& outPress)
+	{
+		outPress = original;
+
+		if (m_props.direction == DirectionOrientation::Horizontal)
+		{
+			outPress.pos.x -= m_props.borderThickness * m_props.borderExpandForMouse;
+			outPress.size.x += m_props.borderThickness * m_props.borderExpandForMouse * 2;
+		}
+		else
+		{
+			outPress.pos.y -= m_props.borderThickness * m_props.borderExpandForMouse;
+			outPress.size.y += m_props.borderThickness * m_props.borderExpandForMouse * 2;
+		}
+	}
+
 	void DirectionalLayout::BehaviourEqualSizes(float delta)
 	{
 		if (m_children.empty())
@@ -309,6 +320,8 @@ namespace Lina
 
 		const uint32 childSz = static_cast<uint32>(m_children.size());
 
+		Rect pressRect = {};
+
 		for (uint32 i = 0; i < childSz - 1; i++)
 		{
 			const Rect& r = m_borderRects[i];
@@ -316,7 +329,10 @@ namespace Lina
 			if (m_pressedBorder != -1)
 				opts.color = m_pressedBorder == i ? m_props.colorBorderHovered.AsLVG4() : m_props.colorBorder.AsLVG4();
 			else
-				opts.color = r.IsPointInside(m_lgxWindow->GetMousePosition()) ? m_props.colorBorderHovered.AsLVG4() : m_props.colorBorder.AsLVG4();
+			{
+				GetPressRect(r, pressRect);
+				opts.color = pressRect.IsPointInside(m_lgxWindow->GetMousePosition()) ? m_props.colorBorderHovered.AsLVG4() : m_props.colorBorder.AsLVG4();
+			}
 
 			m_lvg->DrawRect(r.pos.AsLVG(), r.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 		}
@@ -337,13 +353,17 @@ namespace Lina
 		{
 			if (act == LinaGX::InputAction::Pressed)
 			{
-				int32 i = 0;
+				int32 i			= 0;
+				Rect  pressRect = {};
+
 				for (const Rect& rect : m_borderRects)
 				{
-					if (rect.IsPointInside(m_lgxWindow->GetMousePosition()))
+					GetPressRect(rect, pressRect);
+
+					if (pressRect.IsPointInside(m_lgxWindow->GetMousePosition()))
 					{
 						m_pressedBorder	  = i;
-						m_borderPressDiff = m_props.direction == DirectionOrientation::Vertical ? (m_lgxWindow->GetMousePosition().y - rect.GetCenter().y) : (m_lgxWindow->GetMousePosition().x - rect.GetCenter().x);
+						m_borderPressDiff = m_props.direction == DirectionOrientation::Vertical ? (m_lgxWindow->GetMousePosition().y - pressRect.GetCenter().y) : (m_lgxWindow->GetMousePosition().x - pressRect.GetCenter().x);
 
 						return true;
 					}
@@ -437,6 +457,7 @@ namespace Lina
 		stream << mode << direction << colorBorder << colorBorderHovered;
 		stream << borderThickness;
 		stream << borderMinSize;
+		stream << borderExpandForMouse;
 	}
 
 	void DirectionalLayout::Properties::LoadFromStream(IStream& stream)
@@ -444,18 +465,24 @@ namespace Lina
 		stream >> mode >> direction >> colorBorder >> colorBorderHovered;
 		stream >> borderThickness;
 		stream >> borderMinSize;
+		stream >> borderExpandForMouse;
 	}
 
 	LinaGX::CursorType DirectionalLayout::GetCursorOverride()
 	{
 		if (m_props.mode == Mode::Bordered)
 		{
+			Rect pressRect = {};
+
 			for (const Rect& rect : m_borderRects)
 			{
-				if (rect.IsPointInside(m_lgxWindow->GetMousePosition()))
+				GetPressRect(rect, pressRect);
+
+				if (pressRect.IsPointInside(m_lgxWindow->GetMousePosition()))
 					return m_props.direction == DirectionOrientation::Horizontal ? LinaGX::CursorType::SizeHorizontal : LinaGX::CursorType::SizeVertical;
 			}
 		}
 		return LinaGX::CursorType::Default;
 	}
+
 } // namespace Lina

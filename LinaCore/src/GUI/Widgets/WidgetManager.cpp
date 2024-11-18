@@ -82,7 +82,6 @@ namespace Lina
 				m_window->SetCursorType(FindCursorType(m_foregroundRoot));
 		}
 
-		// m_foregroundRoot->SetDrawOrder(FOREGROUND_DRAW_ORDER);
 		PassPreTick(m_foregroundRoot);
 		PassPreTick(m_rootWidget);
 	}
@@ -372,6 +371,9 @@ namespace Lina
 		if (!drawRects)
 			return;
 
+		if (w->GetFlags().IsSet(WF_HIDE))
+			return;
+
 		for (auto* c : w->m_children)
 			DebugDraw(c);
 
@@ -526,10 +528,7 @@ namespace Lina
 		if (widget->GetFlags().IsSet(WF_HIDE))
 			return false;
 
-		if (widget->GetFlags().IsSet(WF_DISABLED_BY_PARENT))
-			return false;
-
-		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnKey(keycode, scancode, inputAction) && !widget->GetFlags().IsSet(WF_KEY_PASSTHRU))
+		if (!widget->GetFlags().IsSet(WF_DISABLED) && widget->OnKey(keycode, scancode, inputAction) && !widget->GetFlags().IsSet(WF_KEY_PASSTHRU))
 			return true;
 
 		for (auto* c : widget->GetChildren())
@@ -546,10 +545,7 @@ namespace Lina
 		if (widget->GetFlags().IsSet(WF_HIDE))
 			return false;
 
-		if (widget->GetFlags().IsSet(WF_DISABLED_BY_PARENT))
-			return false;
-
-		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnMouse(button, inputAction) && !widget->GetFlags().IsSet(WF_MOUSE_PASSTHRU))
+		if (!widget->GetFlags().IsSet(WF_DISABLED) && widget->OnMouse(button, inputAction) && !widget->GetFlags().IsSet(WF_MOUSE_PASSTHRU))
 			return true;
 
 		for (auto* c : widget->GetChildren())
@@ -566,10 +562,7 @@ namespace Lina
 		if (widget->GetFlags().IsSet(WF_HIDE))
 			return false;
 
-		if (widget->GetFlags().IsSet(WF_DISABLED_BY_PARENT))
-			return false;
-
-		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnMouseWheel(amt) && !widget->GetFlags().IsSet(WF_MOUSE_PASSTHRU))
+		if (!widget->GetFlags().IsSet(WF_DISABLED) && widget->OnMouseWheel(amt) && !widget->GetFlags().IsSet(WF_MOUSE_PASSTHRU))
 			return true;
 
 		for (auto* c : widget->GetChildren())
@@ -586,10 +579,7 @@ namespace Lina
 		if (widget->GetFlags().IsSet(WF_HIDE))
 			return false;
 
-		if (widget->GetFlags().IsSet(WF_DISABLED_BY_PARENT))
-			return false;
-
-		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnMousePos(pos) && !widget->GetFlags().IsSet(WF_MOUSE_PASSTHRU))
+		if (!widget->GetFlags().IsSet(WF_DISABLED) && widget->OnMousePos(pos) && !widget->GetFlags().IsSet(WF_MOUSE_PASSTHRU))
 			return true;
 
 		for (auto* c : widget->GetChildren())
@@ -687,10 +677,10 @@ namespace Lina
 			}
 
 			if (c->GetFlags().IsSet(WF_SIZE_X_COPY_Y))
-				c->SetSizeX(c->GetSizeY());
+				c->SetSizeX(c->GetSizeY() * c->GetAlignedSizeX());
 
 			if (c->GetFlags().IsSet(WF_SIZE_Y_COPY_X))
-				c->SetSizeY(c->GetSizeX());
+				c->SetSizeY(c->GetSizeX() * c->GetAlignedSizeY());
 
 			if (!c->GetFlags().IsSet(WF_SKIP_FLOORING))
 			{
@@ -902,7 +892,7 @@ namespace Lina
 					current = current->m_next;
 			}
 
-			if (current && current->GetFlags().IsSet(WF_CONTROLLABLE) && !current->GetIsDisabled() && current->GetIsVisible() && !current->GetFlags().IsSet(WF_HIDE) && !current->GetFlags().IsSet(WF_DISABLED_BY_PARENT))
+			if (current && current->GetFlags().IsSet(WF_CONTROLLABLE) && !current->GetFlags().IsSet(WF_DISABLED) && !current->GetFlags().IsSet(WF_HIDE))
 				return current;
 		} while (current != nullptr && current != start);
 
@@ -927,7 +917,7 @@ namespace Lina
 			else
 				current = current->m_parent;
 
-			if (current && current->GetFlags().IsSet(WF_CONTROLLABLE) && !current->GetIsDisabled() && current->GetIsVisible() && !current->GetFlags().IsSet(WF_HIDE) && !current->GetFlags().IsSet(WF_DISABLED_BY_PARENT))
+			if (current && current->GetFlags().IsSet(WF_CONTROLLABLE) && !current->GetFlags().IsSet(WF_DISABLED) && !current->GetFlags().IsSet(WF_HIDE))
 				return current;
 
 		} while (current != nullptr && current != start);

@@ -68,8 +68,8 @@ namespace Lina
 		txt->GetFlags().Set(WF_POS_ALIGN_Y);
 		txt->SetAlignedPosY(0.5f);
 		txt->SetAnchorY(Anchor::Center);
-		txt->GetProps().text		  = m_itemData.text;
-		txt->GetProps().colorDisabled = Theme::GetDef().silent2;
+		txt->GetProps().text				= m_itemData.text;
+		txt->GetWidgetProps().colorDisabled = Theme::GetDef().silent2;
 		AddChild(txt);
 		m_text = txt;
 
@@ -265,7 +265,7 @@ namespace Lina
 				}
 			};
 
-			it->SetIsDisabled(subItem.isDisabled);
+			it->GetFlags().Set(WF_DISABLED, subItem.isDisabled);
 
 			popup->AddChild(it);
 		}

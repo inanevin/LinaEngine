@@ -52,14 +52,14 @@ namespace Lina
 			const float	  scale		 = targetSize / static_cast<float>(m_lvgFont->size);
 			m_props.textScale		 = scale;
 
-			if (!Math::Equals(m_props.textScale, m_lastDynScale, 0.1f))
+			if (!Math::Equals(m_props.textScale, m_lastDynScale, 0.01f))
 				CalculateIconSize();
 		}
 	}
 
 	void Icon::Draw()
 	{
-		if (!GetIsVisible())
+		if (GetFlags().IsSet(WF_HIDE))
 			return;
 
 		if (ShouldSkipDrawOutsideWindow())
@@ -70,19 +70,14 @@ namespace Lina
 
 		m_textOptions.color		= m_props.color.AsLVG();
 		m_textOptions.textScale = m_props.textScale;
-		// m_textOptions.cpuClipping = m_props.customClip.AsLVG4();
 
-		if (m_props.enableHoverPressColors)
-		{
-			if (m_isHovered)
-				m_textOptions.color.start = m_textOptions.color.end = m_props.colorHovered.AsLVG4();
+		if (m_widgetProps.hoveredIsDifferentColor && m_isHovered)
+			m_textOptions.color = m_widgetProps.colorHovered.AsLVG();
+		else if (m_widgetProps.pressedIsDifferentColor && m_isPressed)
+			m_textOptions.color = m_widgetProps.colorPressed.AsLVG();
 
-			if (m_isPressed)
-				m_textOptions.color.start = m_textOptions.color.end = m_props.colorPressed.AsLVG4();
-		}
-
-		if (GetIsDisabled())
-			m_textOptions.color.start = m_textOptions.color.end = m_props.colorDisabled.AsLVG4();
+		if (GetFlags().IsSet(WF_DISABLED))
+			m_textOptions.color = m_widgetProps.colorDisabled.AsLVG();
 
 		m_lvg->DrawTextDefault(m_props.icon.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), m_textOptions, 0.0f, m_drawOrder, m_props.isDynamic);
 

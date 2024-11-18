@@ -149,7 +149,7 @@ namespace Lina::Editor
 		{
 			for (Widget* r : m_selectedItems)
 			{
-				if (r->GetIsVisible() && !r->GetIsDisabled())
+				if (!r->GetFlags().IsSet(WF_DISABLED))
 				{
 					item = r;
 					break;
@@ -161,7 +161,7 @@ namespace Lina::Editor
 			for (Vector<Widget*>::iterator it = m_selectedItems.end() - 1; it >= m_selectedItems.begin(); it--)
 			{
 				Widget* r = *it;
-				if (r->GetIsVisible() && !r->GetIsDisabled())
+				if (!r->GetFlags().IsSet(WF_DISABLED))
 				{
 					item = r;
 					break;
@@ -192,6 +192,7 @@ namespace Lina::Editor
 		const int32 sz	  = static_cast<int32>(m_allItems.size());
 		bool		found = false;
 
+		auto shouldSkip = [](Widget* item) -> bool {};
 		for (int32 i = 0; i < sz; i++)
 		{
 			Widget* item = m_allItems[i];
@@ -204,7 +205,7 @@ namespace Lina::Editor
 
 			if (found)
 			{
-				if (item->GetIsVisible() && !item->GetIsDisabled())
+				if (!item->GetFlags().IsSet(WF_DISABLED))
 				{
 					SelectItem(item, true, true);
 					return this;
@@ -238,7 +239,7 @@ namespace Lina::Editor
 
 			if (found)
 			{
-				if (item->GetIsVisible() && !item->GetIsDisabled())
+				if (!item->GetFlags().IsSet(WF_DISABLED))
 				{
 					SelectItem(item, true, true);
 					return this;
@@ -422,6 +423,7 @@ namespace Lina::Editor
 						SelectItem(item, true, true);
 
 					m_contextMenu->CreateItems(0, m_lgxWindow->GetMousePosition(), nullptr);
+					LINA_TRACE("CREATE ITEMS_");
 					return true;
 				}
 			}
@@ -521,7 +523,6 @@ namespace Lina::Editor
 
 		FoldLayout* fold = static_cast<FoldLayout*>(parent);
 		fold->SetIsUnfolded(true);
-		parent->SetVisible(true);
 		MakeVisibleRecursively(parent);
 	}
 
