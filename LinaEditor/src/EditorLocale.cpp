@@ -179,6 +179,7 @@ namespace Lina::Editor
 		{LocaleStr::Preview, "Preview"},
 		{LocaleStr::Spaces, "Spaces"},
 		{LocaleStr::Meta, "Meta"},
+		{LocaleStr::SizeHW, "Size (HW)"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

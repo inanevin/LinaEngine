@@ -49,6 +49,7 @@ namespace Lina::Editor
 			Name,
 			ID,
 			Type,
+			Size,
 		};
 
 		PanelPerformance() : Panel(PanelType::Performance){};
@@ -58,6 +59,8 @@ namespace Lina::Editor
 		virtual void Destruct() override;
 		virtual void OnResourceManagerPreDestroyHW(const HashSet<Resource*>& resources) override;
 		virtual void OnResourceManagerGeneratedHW(const HashSet<Resource*>& resources) override;
+		virtual void SaveLayoutToStream(OStream& stream) override;
+		virtual void LoadLayoutFromStream(IStream& stream) override;
 
 	private:
 		void SelectContent(uint8 idx);

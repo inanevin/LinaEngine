@@ -136,9 +136,10 @@ namespace Lina::Editor
 		virtual void SaveToStream(OStream& out);
 		virtual void LoadFromStream(IStream& in);
 
-		void ApplyStoredLayout();
-		void StoreLayout();
-		void StoreDefaultLayout();
+		void			 ApplyStoredLayout();
+		void			 StoreLayout();
+		void			 StoreDefaultLayout();
+		const PanelData& FindPanelData(PanelType type);
 
 	private:
 		Vector<WindowLayout> m_windows;

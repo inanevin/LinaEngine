@@ -266,6 +266,7 @@ namespace Lina::Editor
 				// Detach & attach
 				PanelPayloadData* sub	= static_cast<PanelPayloadData*>(payload->GetUserData());
 				Panel*			  panel = PanelFactory::CreatePanel(this, sub->type, sub->subData);
+				Editor::Get()->GetWindowPanelManager().FillPanelLayout(panel);
 				panel->Initialize();
 				delete sub;
 				AddDockArea(hoveredDir, panel);

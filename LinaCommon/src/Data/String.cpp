@@ -302,6 +302,20 @@ namespace Lina
 
 		out.push_back(str.substr(start));
 	}
+	String UtilStr::SizeBytesToString(size_t sz, uint32 decimals)
+	{
+		if (sz < 1000)
+			return TO_STRING(sz) + " b";
+
+		if (sz < 1000000)
+		{
+			const float val = static_cast<float>(sz) / 1000.0f;
+			return FloatToString(val, decimals) + " kb";
+		}
+
+		const float val = static_cast<float>(sz) / 1000000.0f;
+		return FloatToString(val, decimals) + " mb";
+	}
 } // namespace Lina
 
 #ifdef LINA_COMPILER_MSVC

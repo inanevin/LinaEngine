@@ -103,18 +103,13 @@ namespace Lina::Editor
 			// add layout
 
 			DirectionalLayout* vertical = m_manager->Allocate<DirectionalLayout>("Vertical");
-			vertical->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
+			vertical->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_X | WF_SIZE_ALIGN_X);
 			vertical->SetAlignedPosY(0.0f);
 			vertical->SetAlignedSizeY(1.0f);
+			vertical->SetAlignedPosX(posX);
+			vertical->SetAlignedSizeX(alignmentEqual);
 			vertical->GetProps().direction = DirectionOrientation::Vertical;
-			// vertical->GetWidgetProps().clipChildren = true;
 			m_layout->AddChild(vertical);
-
-			if (!Math::Equals(def.fixedSize, 0.0f, 0.1f))
-			{
-				vertical->GetFlags().Set(WF_USE_FIXED_SIZE_X);
-				vertical->SetFixedSizeX(def.fixedSize);
-			}
 
 			posX += alignmentEqual;
 
@@ -144,7 +139,6 @@ namespace Lina::Editor
 			header->GetWidgetProps().drawBackground	  = true;
 			header->GetWidgetProps().outlineThickness = header->GetWidgetProps().rounding = 0.0f;
 			header->GetWidgetProps().colorBackground									  = Theme::GetDef().background3;
-			// header->GetWidgetProps().drawOrderIncrement									  = 1;
 			vertical->AddChild(header);
 
 			Text* text = m_manager->Allocate<Text>("Text");

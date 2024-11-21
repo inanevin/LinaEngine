@@ -181,7 +181,8 @@ namespace Lina::Editor
 		Type,
 		Preview,
 		Spaces,
-		Meta
+		Meta,
+		SizeHW,
 	};
 
 	class Locale

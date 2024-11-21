@@ -40,7 +40,7 @@ namespace Lina
 {
 	void DirectionalLayout::Construct()
 	{
-		GetFlags().Set(WF_MOUSE_PASSTHRU);
+		// GetFlags().Set(WF_MOUSE_PASSTHRU);
 	}
 
 	void DirectionalLayout::Destruct()
@@ -134,9 +134,6 @@ namespace Lina
 						}
 					}
 				}
-
-				if (m_props.onBordersChanged)
-					m_props.onBordersChanged();
 			}
 		}
 	}
@@ -171,7 +168,7 @@ namespace Lina
 			return;
 
 		const uint32 sz = static_cast<uint32>(m_children.size());
-
+		/*
 		float  totalFixedSize	  = 0.0f;
 		uint32 totalFixedElements = 0;
 
@@ -210,7 +207,7 @@ namespace Lina
 			const float remainingSize = GetSizeY() - totalFixedSize;
 			flexibleSizePerElement	  = flexibleElements == 0 ? 0.0f : (remainingSize / static_cast<float>(flexibleElements));
 		}
-
+		*/
 		float targetPos = 0.0f;
 
 		for (uint32 i = 0; i < sz; i++)
@@ -219,21 +216,21 @@ namespace Lina
 
 			if (m_props.direction == DirectionOrientation::Horizontal)
 			{
-				c->SetPosX(m_start.x + targetPos);
+				// c->SetPosX(m_start.x + targetPos);
+				//
+				// if (c->GetFlags().IsSet(WF_USE_FIXED_SIZE_X))
+				//{
+				//	c->SetSizeX(c->GetFixedSizeX());
+				//	targetPos += c->GetFixedSizeX();
+				// }
+				// else
+				//{
+				//	c->SetSizeX(flexibleSizePerElement);
+				//	targetPos += flexibleSizePerElement;
+				// }
 
-				if (c->GetFlags().IsSet(WF_USE_FIXED_SIZE_X))
-				{
-					c->SetSizeX(c->GetFixedSizeX());
-					targetPos += c->GetFixedSizeX();
-				}
-				else
-				{
-					c->SetSizeX(flexibleSizePerElement);
-					targetPos += flexibleSizePerElement;
-				}
-
-				// c->SetPosX(m_start.x + GetSizeX() * c->GetAlignedPosX());
-				// c->SetSizeX(GetSizeX() * c->GetAlignedSizeX());
+				c->SetPosX(m_start.x + GetSizeX() * c->GetAlignedPosX());
+				c->SetSizeX(GetSizeX() * c->GetAlignedSizeX());
 
 				if (i < sz - 1)
 				{
@@ -244,21 +241,21 @@ namespace Lina
 			}
 			else
 			{
-				c->SetPosY(m_start.y + targetPos);
+				// c->SetPosY(m_start.y + targetPos);
+				//
+				// if (c->GetFlags().IsSet(WF_USE_FIXED_SIZE_Y))
+				//{
+				//	c->SetSizeY(c->GetFixedSizeY());
+				//	targetPos += c->GetFixedSizeY();
+				// }
+				// else
+				//{
+				//	c->SetSizeY(flexibleSizePerElement);
+				//	targetPos += flexibleSizePerElement;
+				// }
 
-				if (c->GetFlags().IsSet(WF_USE_FIXED_SIZE_Y))
-				{
-					c->SetSizeY(c->GetFixedSizeY());
-					targetPos += c->GetFixedSizeY();
-				}
-				else
-				{
-					c->SetSizeY(flexibleSizePerElement);
-					targetPos += flexibleSizePerElement;
-				}
-
-				// c->SetPosY(m_start.y + GetSizeY() * c->GetAlignedPosY());
-				// c->SetSizeY(GetSizeY() * c->GetAlignedSizeY());
+				c->SetPosY(m_start.y + GetSizeY() * c->GetAlignedPosY());
+				c->SetSizeY(GetSizeY() * c->GetAlignedSizeY());
 
 				if (i < sz - 1)
 				{
@@ -450,6 +447,9 @@ namespace Lina
 			{
 				if (m_pressedBorder != -1)
 				{
+					if (m_props.onBordersChanged)
+						m_props.onBordersChanged();
+
 					m_pressedBorder = -1;
 					return true;
 				}
@@ -461,7 +461,7 @@ namespace Lina
 			if (m_props.onDoubleClicked)
 				m_props.onDoubleClicked();
 
-			return true;
+			return false;
 		}
 
 		if (button == LINAGX_MOUSE_1 && m_isHovered && act == LinaGX::InputAction::Pressed)
@@ -469,7 +469,7 @@ namespace Lina
 			if (m_props.onRightClicked)
 				m_props.onRightClicked();
 
-			return true;
+			return false;
 		}
 
 		if (button != LINAGX_MOUSE_0)
@@ -482,7 +482,7 @@ namespace Lina
 			if (m_props.onPressed)
 				m_props.onPressed();
 
-			return true;
+			return false;
 		}
 
 		if (act == LinaGX::InputAction::Released)
@@ -493,13 +493,13 @@ namespace Lina
 					m_props.onClicked();
 
 				m_isPressed = false;
-				return true;
+				return false;
 			}
 
 			if (m_isPressed)
 			{
 				m_isPressed = false;
-				return true;
+				return false;
 			}
 		}
 

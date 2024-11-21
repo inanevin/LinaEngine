@@ -47,7 +47,6 @@ namespace Lina::Editor
 		{
 			String text		 = "";
 			bool   clickable = false;
-			float  fixedSize = 0.0f;
 		};
 
 		struct Column

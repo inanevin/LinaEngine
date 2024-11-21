@@ -58,6 +58,7 @@ namespace Lina
 		static String		  ToUpper(const String& str);
 		static String		  ToLower(const String& str);
 		static void			  SeperateByChar(const String& str, Vector<String>& out, char c);
+		static String		  SizeBytesToString(size_t sz, uint32 decimals);
 		/// <summary>
 		/// Returns a list of strings that fall in between each of the split string.
 		/// e.g. given a filesystem path will return a list of all directories in the path and the last file if there is one

@@ -144,6 +144,24 @@ namespace Lina::Editor
 		m_windows.push_back(wl);
 	}
 
+	const EditorLayout::PanelData& EditorLayout::FindPanelData(PanelType type)
+	{
+		for (const WindowLayout& wl : m_windows)
+		{
+			for (const DockWidgetData& dwd : wl.dockWidgets)
+			{
+				int32 i = 0;
+				for (const PanelData& pd : dwd.panels)
+				{
+					if (pd.panelType == type)
+						return pd;
+				}
+			}
+		}
+
+		return {};
+	}
+
 	void EditorLayout::ApplyStoredLayout()
 	{
 		if (m_windows.empty())

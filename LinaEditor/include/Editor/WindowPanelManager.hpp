@@ -82,6 +82,7 @@ namespace Lina::Editor
 		Panel*						 FindPanelOfType(PanelType type, ResourceID subData, DockArea*& owningArea);
 		Panel*						 FindPanelOfType(PanelType type, ResourceID subData);
 		Vector<PanelResourceViewer*> FindResourceViewers(ResourceID subData);
+		void						 FillPanelLayout(Panel* panel);
 
 		PanelColorWheel* OpenColorWheelPanel(Widget* requester);
 

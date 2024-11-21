@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Editor/Widgets/Docking/DockBorder.hpp"
 #include "Editor/Widgets/Docking/DockArea.hpp"
+#include "Editor/Editor.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Data/CommonData.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
@@ -198,6 +199,7 @@ namespace Lina::Editor
 
 		if (m_isPressed && button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Released)
 		{
+			Editor::Get()->SaveSettings();
 			m_isPressed = false;
 			return true;
 		}

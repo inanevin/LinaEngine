@@ -135,12 +135,53 @@ namespace Lina::Editor
 		RefreshResourcesTable();
 	}
 
+	void PanelPerformance::SaveLayoutToStream(OStream& stream)
+	{
+
+		if (m_resourcesTable != nullptr)
+		{
+			const Vector<Widget*> children = m_resourcesTable->GetHorizontalLayout()->GetChildren();
+			const uint32		  sz	   = static_cast<uint32>(children.size());
+			stream << sz;
+			for (Widget* w : children)
+			{
+				stream << w->GetAlignedPosX();
+				stream << w->GetAlignedSizeX();
+			}
+		}
+		else
+			stream << 0;
+	}
+
+	void PanelPerformance::LoadLayoutFromStream(IStream& stream)
+	{
+		uint32 sz = 0;
+		stream >> sz;
+
+		for (uint32 i = 0; i < sz; i++)
+		{
+			float posX = 0.0f, sizeX = 0.0f;
+			stream >> posX >> sizeX;
+			if (m_resourcesTable != nullptr)
+			{
+				const Vector<Widget*>& children = m_resourcesTable->GetHorizontalLayout()->GetChildren();
+				if (i < static_cast<uint32>(children.size()))
+				{
+					children[i]->SetAlignedPosX(posX);
+					children[i]->SetAlignedSizeX(sizeX);
+				}
+			}
+		}
+	}
+
 	void PanelPerformance::SelectContent(uint8 idx)
 	{
 		m_iconTabs->SetSelected(idx);
 
 		m_layout->DeallocAllChildren();
 		m_layout->RemoveAllChildren();
+
+		m_resourcesTable = nullptr;
 
 		if (idx == 0)
 			BuildContentsProfiling();
@@ -231,7 +272,8 @@ namespace Lina::Editor
 
 		header->AddChild(search);
 
-		m_resourcesTable = m_manager->Allocate<Table>("Table");
+		m_resourcesTable													 = m_manager->Allocate<Table>("Table");
+		m_resourcesTable->GetHorizontalLayout()->GetProps().onBordersChanged = [this]() { m_editor->SaveSettings(); };
 		m_resourcesTable->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		m_resourcesTable->SetAlignedPosX(0.0f);
 		m_resourcesTable->SetAlignedSize(Vector2(1.0f, 0.0f));
@@ -248,17 +290,14 @@ namespace Lina::Editor
 			{
 				.text	   = Locale::GetStr(LocaleStr::Type),
 				.clickable = true,
-				.fixedSize = Theme::GetDef().baseItemHeight * 4,
 			},
 			{
 				.text	   = Locale::GetStr(LocaleStr::Preview),
 				.clickable = false,
-				.fixedSize = Theme::GetDef().baseItemHeight * 3,
 			},
 			{
-				.text	   = Locale::GetStr(LocaleStr::Meta),
-				.clickable = false,
-				.fixedSize = Theme::GetDef().baseItemHeight * 6,
+				.text	   = Locale::GetStr(LocaleStr::SizeHW),
+				.clickable = true,
 			},
 		});
 
@@ -271,6 +310,8 @@ namespace Lina::Editor
 				m_resourcesSort = ResourcesSort::ID;
 			if (idx == 2)
 				m_resourcesSort = ResourcesSort::Type;
+			if (idx == 4)
+				m_resourcesSort = ResourcesSort::Size;
 
 			if (prev != m_resourcesSort)
 			{
@@ -333,6 +374,9 @@ namespace Lina::Editor
 
 			if (m_resourcesSort == ResourcesSort::Type)
 				return r1.type < r2.type;
+
+			if (m_resourcesSort == ResourcesSort::Size)
+				return r1.size < r2.size;
 
 			return false;
 		});
@@ -405,7 +449,7 @@ namespace Lina::Editor
 			else
 				widgets[3] = createVis(m_editor->GetProjectManager().GetThumbnail(dir), color);
 
-			widgets[4] = createText(row.size == 0 ? "-" : (TO_STRING(row.size) + " (bytes)"), color, Theme::GetDef().foreground0);
+			widgets[4] = createText(row.size == 0 ? "-" : UtilStr::SizeBytesToString(row.size, 2), color, Theme::GetDef().foreground0);
 
 			m_resourcesTable->AddRow(widgets);
 		}

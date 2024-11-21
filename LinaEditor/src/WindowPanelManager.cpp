@@ -192,6 +192,7 @@ namespace Lina::Editor
 						PanelPayloadData* sub		= static_cast<PanelPayloadData*>(m_payloadRequest.payload->GetUserData());
 						Widget*			  panelArea = PrepareNewWindowToDock(mp, sub->panelSize);
 						Panel*			  panel		= PanelFactory::CreatePanel(panelArea, sub->type, sub->subData);
+						FillPanelLayout(panel);
 						panel->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 						panel->GetFlags().Remove(WF_POS_ALIGN_Y);
 						panel->SetAlignedPosX(0.0f);
@@ -295,6 +296,19 @@ namespace Lina::Editor
 		return panels;
 	}
 
+	void WindowPanelManager::FillPanelLayout(Panel* panel)
+	{
+		const EditorLayout::PanelData& pd = m_editor->GetSettings().GetLayout().FindPanelData(panel->GetType());
+
+		if (!pd.layoutData.empty())
+		{
+			IStream stream;
+			stream.Create(pd.layoutData);
+			panel->LoadLayoutFromStream(stream);
+			stream.Destroy();
+		}
+	}
+
 	Panel* WindowPanelManager::FindPanelOfType(PanelType type, ResourceID subData, DockArea*& owningArea)
 	{
 		Vector<DockArea*> primaryAreas;
@@ -342,6 +356,7 @@ namespace Lina::Editor
 		if (foundPanel != nullptr)
 		{
 			Panel* panel = PanelFactory::CreatePanel(owningArea, type, subData);
+			FillPanelLayout(panel);
 			owningArea->AddPanel(panel);
 			return panel;
 		}
@@ -374,6 +389,8 @@ namespace Lina::Editor
 		Panel* panel = PanelFactory::CreatePanel(dock, type, subData);
 		dock->GetWindow()->SetTitle(panel->GetWidgetProps().debugName);
 		dock->AddPanel(panel);
+
+		FillPanelLayout(panel);
 
 		auto info = m_windowPanelInfos.find(type);
 		if (info != m_windowPanelInfos.end())
