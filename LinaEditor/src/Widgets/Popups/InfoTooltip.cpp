@@ -46,7 +46,7 @@ namespace Lina::Editor
 		GetWidgetProps().colorBackground  = Theme::GetDef().background0;
 		GetWidgetProps().rounding		  = 0;
 		GetWidgetProps().outlineThickness = Theme::GetDef().baseOutlineThickness;
-		GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_SIZE_Y_MAX_CHILDREN | WF_SIZE_AFTER_CHILDREN);
+		GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_SIZE_Y_MAX_CHILDREN);
 		SetAlignedSizeX(1.0f);
 		SetAlignedSizeY(1.0f);
 		GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
@@ -127,12 +127,6 @@ namespace Lina::Editor
 		m_counter += delta;
 		if (m_counter > m_tooltipProps.time)
 			m_manager->AddToKillList(this);
-	}
-
-	void InfoTooltip::Draw()
-	{
-		GetWidgetProps().colorOutline = GetColorFromLevel();
-		DirectionalLayout::Draw();
 	}
 
 	Color InfoTooltip::GetColorFromLevel()

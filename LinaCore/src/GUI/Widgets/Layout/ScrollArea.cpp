@@ -30,42 +30,43 @@ SOFTWARE.
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
+#include "Common/System/SystemInfo.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina
 {
-	void ScrollArea::Tick(float delta)
+	void ScrollArea::PreTick()
 	{
-		if (m_children.empty())
+		if (m_targetWidget == nullptr && !m_children.empty())
+			m_targetWidget = m_children.front();
+
+		if (m_targetWidget == nullptr)
 			return;
 
 		if (m_isPressed && !m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_0))
 			m_isPressed = false;
-
-		if (m_targetWidget == nullptr)
-			m_targetWidget = m_children.front();
-
-		CheckScroll();
 
 		if (!m_props.tryKeepAtEnd)
 			m_lockScrollToEnd = false;
 
 		if (m_isPressed)
 		{
-			const Vector2 mouseAbs = m_lgxWindow->GetInput()->GetMousePositionAbs();
-			const Vector2 mouse	   = Vector2(mouseAbs.x - static_cast<float>(m_lgxWindow->GetPosition().x), mouseAbs.y - static_cast<float>(m_lgxWindow->GetPosition().y));
+			const Vector2 mouseAbs = m_lgxWindow->GetMouseDelta();
+			// const Vector2 mouse	   = Vector2(mouseAbs.x - static_cast<float>(m_lgxWindow->GetPosition().x), mouseAbs.y - static_cast<float>(m_lgxWindow->GetPosition().y));
 
 			if (m_props.direction == DirectionOrientation::Horizontal)
 			{
-				const float targetBarStart = mouse.x - m_pressDelta;
-				const float targetBarRatio = Math::Clamp((targetBarStart - GetPosX()) / GetSizeX(), 0.0f, 1.0f);
-				m_scrollAmount			   = targetBarRatio * m_totalChildSize;
+				const float newBarPosition	= m_lgxWindow->GetMousePosition().x - m_pressDiff;
+				const float barPositionDiff = newBarPosition - m_barRect.pos.x;
+				const float ratio			= barPositionDiff / m_barRect.size.x;
+				m_scrollAmount				= m_scrollAmount + ratio * m_maxScroll;
 			}
 			else
 			{
-				const float targetBarStart = mouse.y - m_pressDelta;
-				const float targetBarRatio = Math::Clamp((targetBarStart - GetPosY()) / GetSizeY(), 0.0f, 1.0f);
-				m_scrollAmount			   = targetBarRatio * m_totalChildSize;
+				const float newBarPosition	= m_lgxWindow->GetMousePosition().y - m_pressDiff;
+				const float barPositionDiff = newBarPosition - m_barRect.pos.y;
+				const float ratio			= barPositionDiff / m_barRect.size.y;
+				m_scrollAmount				= m_scrollAmount + ratio * m_maxScroll;
 			}
 
 			if (m_props.tryKeepAtEnd)
@@ -73,10 +74,16 @@ namespace Lina
 		}
 
 		CheckScroll();
-		m_targetWidget->SetScrollerOffset(Math::Lerp(m_targetWidget->GetScrollerOffset(), m_scrollAmount, delta * SCROLL_SMOOTH));
+		m_targetWidget->SetScrollerOffset(Math::Lerp(m_targetWidget->GetScrollerOffset(), m_scrollAmount, static_cast<float>(SystemInfo::GetDeltaTime()) * SCROLL_SMOOTH));
+
+		for (Widget* w : m_offsetTargets)
+			w->SetScrollerOffset(m_targetWidget->GetScrollerOffset());
+
+		Widget* displayWidget = m_displayWidget ? m_displayWidget : m_targetWidget;
 
 		// Calculate bar
-		const float scrollBackgroundSize = m_props.direction == DirectionOrientation::Horizontal ? m_targetWidget->GetSizeX() : m_targetWidget->GetSizeY();
+		const float scrollBackgroundSize = m_props.direction == DirectionOrientation::Horizontal ? (displayWidget->GetSizeX() - m_widgetProps.childMargins.left - m_widgetProps.childMargins.right)
+																								 : (displayWidget->GetSizeY() - m_widgetProps.childMargins.top - m_widgetProps.childMargins.bottom);
 		const float barCrossAxisSize	 = m_props.barThickness;
 		const float barMainAxisSize		 = scrollBackgroundSize * m_sizeToChildSizeRatio;
 		const float barPosition			 = m_scrollAmount / m_totalChildSize;
@@ -88,16 +95,16 @@ namespace Lina
 
 		if (m_props.direction == DirectionOrientation::Horizontal)
 		{
-			bgStart	 = Vector2(m_targetWidget->GetPosX(), m_targetWidget->GetRect().GetEnd().y - barCrossAxisSize);
-			bgEnd	 = m_targetWidget->GetRect().GetEnd();
-			barStart = Vector2(bgStart.x + m_targetWidget->GetSizeX() * barPosition, bgStart.y);
+			bgStart	 = Vector2(displayWidget->GetPosX() + m_widgetProps.childMargins.left, displayWidget->GetRect().GetEnd().y - barCrossAxisSize);
+			bgEnd	 = displayWidget->GetRect().GetEnd() - Vector2(m_widgetProps.childMargins.right, 0.0f);
+			barStart = Vector2(bgStart.x + displayWidget->GetSizeX() * barPosition, bgStart.y);
 			barEnd	 = Vector2(barStart.x + barMainAxisSize, bgEnd.y);
 		}
 		else
 		{
-			bgStart	 = Vector2(m_targetWidget->GetRect().GetEnd().x - barCrossAxisSize, m_targetWidget->GetPosY());
-			bgEnd	 = m_targetWidget->GetRect().GetEnd();
-			barStart = Vector2(bgStart.x, bgStart.y + m_targetWidget->GetSizeY() * barPosition);
+			bgStart	 = Vector2(displayWidget->GetRect().GetEnd().x - barCrossAxisSize, displayWidget->GetPosY() + m_widgetProps.childMargins.top);
+			bgEnd	 = displayWidget->GetRect().GetEnd() - Vector2(0.0f, m_widgetProps.childMargins.bottom);
+			barStart = Vector2(bgStart.x, bgStart.y + displayWidget->GetSizeY() * barPosition);
 			barEnd	 = Vector2(bgEnd.x, barStart.y + barMainAxisSize);
 		}
 
@@ -143,11 +150,6 @@ namespace Lina
 
 	void ScrollArea::Draw()
 	{
-		if (ShouldSkipDrawOutsideWindow())
-			return;
-
-		Widget::Draw();
-
 		if (!m_barVisible || GetFlags().IsSet(WF_HIDE) || !m_canDrawBar)
 			return;
 
@@ -159,7 +161,7 @@ namespace Lina
 
 		LinaVG::StyleOptions bgOpts;
 		bgOpts.color = m_props.colorBarBackground.AsLVG4();
-		m_lvg->DrawRect(m_barBGRect.pos.AsLVG(), m_barBGRect.GetEnd().AsLVG(), bgOpts, 0.0f, m_drawOrder + 1);
+		// m_lvg->DrawRect(m_barBGRect.pos.AsLVG(), m_barBGRect.GetEnd().AsLVG(), bgOpts, 0.0f, m_drawOrder + 1);
 
 		LinaVG::StyleOptions barOpts;
 		barOpts.rounding = m_props.barRounding;
@@ -194,8 +196,8 @@ namespace Lina
 
 		if (isHovered && !m_isPressed && (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated))
 		{
-			m_isPressed	 = true;
-			m_pressDelta = m_props.direction == DirectionOrientation::Horizontal ? (m_lgxWindow->GetMousePosition().x - m_barRect.pos.x) : (m_lgxWindow->GetMousePosition().y - m_barRect.pos.y);
+			m_isPressed = true;
+			m_pressDiff = m_props.direction == DirectionOrientation::Horizontal ? (m_lgxWindow->GetMousePosition().x - m_barRect.pos.x) : (m_lgxWindow->GetMousePosition().y - m_barRect.pos.y);
 			return true;
 		}
 
@@ -236,6 +238,9 @@ namespace Lina
 		const float usedSize = m_props.direction == DirectionOrientation::Horizontal ? m_sz.x : m_sz.y;
 
 		m_totalChildSize = m_targetWidget->CalculateChildrenSize();
+
+		if (Math::Equals(m_totalChildSize, 0.0f, 0.1f))
+			return;
 
 		m_sizeToChildSizeRatio = usedSize / m_totalChildSize;
 		m_barVisible		   = m_sizeToChildSizeRatio < 0.9f;

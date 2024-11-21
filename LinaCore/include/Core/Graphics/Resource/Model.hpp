@@ -67,15 +67,16 @@ namespace Lina
 		Model(ResourceID id, const String& name) : Resource(id, GetTypeID<Model>(), name){};
 		virtual ~Model();
 
-		virtual bool LoadFromFile(const String& path) override;
-		virtual void SaveToStream(OStream& stream) const override;
-		virtual void LoadFromStream(IStream& stream) override;
-		virtual void GenerateHW() override;
-		virtual void DestroyHW() override;
-		void		 DestroyTextureDefs();
-		void		 Upload(MeshManager* mm);
-		void		 RemoveUpload(MeshManager* mm);
-		ModelNode*	 GetFirstNodeWMesh();
+		virtual bool   LoadFromFile(const String& path) override;
+		virtual void   SaveToStream(OStream& stream) const override;
+		virtual void   LoadFromStream(IStream& stream) override;
+		virtual size_t GetSize() const override;
+		virtual void   GenerateHW() override;
+		virtual void   DestroyHW() override;
+		void		   DestroyTextureDefs();
+		void		   Upload(MeshManager* mm);
+		void		   RemoveUpload(MeshManager* mm);
+		ModelNode*	   GetFirstNodeWMesh();
 
 		inline const Vector<ModelNode*>& GetRootNodes() const
 		{

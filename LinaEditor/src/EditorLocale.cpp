@@ -48,6 +48,7 @@ namespace Lina::Editor
 		{LocaleStr::Open, "Open"},
 		{LocaleStr::Cancel, "Cancel"},
 		{LocaleStr::Name, "Name"},
+		{LocaleStr::Path, "Path"},
 		{LocaleStr::Location, "Location"},
 		{LocaleStr::Select, "Select"},
 		{LocaleStr::CreatingProject, "Creating project"},
@@ -173,6 +174,11 @@ namespace Lina::Editor
 		{LocaleStr::None, "None"},
 		{LocaleStr::Profiling, "Profiling"},
 		{LocaleStr::ApplicationTime, "Application Time"},
+		{LocaleStr::ID, "ID"},
+		{LocaleStr::Type, "Type"},
+		{LocaleStr::Preview, "Preview"},
+		{LocaleStr::Spaces, "Spaces"},
+		{LocaleStr::Meta, "Meta"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

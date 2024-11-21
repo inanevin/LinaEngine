@@ -70,6 +70,11 @@ namespace Lina
 		stream << m_meta;
 	}
 
+	size_t Audio::GetSize() const
+	{
+		return 0;
+	}
+
 	void Audio::GenerateHW()
 	{
 		LINA_ASSERT(m_hwValid == false, "");

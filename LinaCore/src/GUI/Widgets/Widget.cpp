@@ -85,11 +85,6 @@ namespace Lina
 		m_children.push_back(w);
 	}
 
-	void Widget::ExecuteNextFrame(Delegate<void()>&& cb)
-	{
-		m_executeNextFrame.push_back(cb);
-	}
-
 	void Widget::RemoveChild(Widget* w)
 	{
 		if (w->m_prev != nullptr)
@@ -131,6 +126,7 @@ namespace Lina
 		m_manager->InitializeWidget(this);
 		linatl::for_each(m_children.begin(), m_children.end(), [this](Widget* child) -> void { child->Initialize(); });
 		m_initializing = false;
+		m_initialized  = true;
 	}
 
 	void Widget::DrawDropshadow()
@@ -352,18 +348,6 @@ namespace Lina
 		}
 	}
 
-	void Widget::DrawChildren()
-	{
-		CheckClipChildren();
-
-		linatl::for_each(m_children.begin(), m_children.end(), [](Widget* child) -> void {
-			if (!child->GetFlags().IsSet(WF_HIDE))
-				child->Draw();
-		});
-
-		CheckClipChildrenEnd();
-	}
-
 	bool Widget::ShouldSkipDrawOutsideWindow() const
 	{
 		if (!m_manager->GetClipOutsideWindow())
@@ -374,18 +358,6 @@ namespace Lina
 			return true;
 
 		return false;
-	}
-
-	void Widget::Draw()
-	{
-		if (ShouldSkipDrawOutsideWindow())
-			return;
-
-		DrawBackground();
-		DrawDropshadow();
-		DrawChildren();
-		DrawBorders();
-		DrawTooltip();
 	}
 
 	void DropshadowProps::SaveToStream(OStream& stream) const
@@ -526,7 +498,7 @@ namespace Lina
 			const Vector2 start = m_rect.pos;
 			const Vector2 end	= start + Vector2(0, m_rect.size.y);
 			border.thickness	= m_widgetProps.borderThickness.left;
-			m_lvg->DrawLine(start.AsLVG(), end.AsLVG(), border, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder);
+			m_lvg->DrawLine(start.AsLVG(), end.AsLVG(), border, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder + 1);
 		}
 
 		if (!Math::Equals(m_widgetProps.borderThickness.right, 0.0f, 0.5f))
@@ -534,7 +506,7 @@ namespace Lina
 			const Vector2 start = m_rect.pos + Vector2(m_rect.size.x, 0.0f);
 			const Vector2 end	= start + Vector2(0, m_rect.size.y);
 			border.thickness	= m_widgetProps.borderThickness.right;
-			m_lvg->DrawLine(start.AsLVG(), end.AsLVG(), border, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder);
+			m_lvg->DrawLine(start.AsLVG(), end.AsLVG(), border, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder + 1);
 		}
 
 		if (!Math::Equals(m_widgetProps.borderThickness.top, 0.0f, 0.5f))
@@ -542,7 +514,7 @@ namespace Lina
 			const Vector2 start = m_rect.pos;
 			const Vector2 end	= start + Vector2(m_rect.size.x, 0.0f);
 			border.thickness	= m_widgetProps.borderThickness.top;
-			m_lvg->DrawLine(start.AsLVG(), end.AsLVG(), border, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder);
+			m_lvg->DrawLine(start.AsLVG(), end.AsLVG(), border, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder + 1);
 		}
 
 		if (!Math::Equals(m_widgetProps.borderThickness.bottom, 0.0f, 0.5f))
@@ -550,7 +522,7 @@ namespace Lina
 			const Vector2 start = m_rect.pos + Vector2(0.0f, m_rect.size.y);
 			const Vector2 end	= start + Vector2(m_rect.size.x, 0.0f);
 			border.thickness	= m_widgetProps.borderThickness.bottom;
-			m_lvg->DrawLine(start.AsLVG(), end.AsLVG(), border, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder);
+			m_lvg->DrawLine(start.AsLVG(), end.AsLVG(), border, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder + 1);
 		}
 	}
 

@@ -43,7 +43,7 @@ namespace Lina::Editor
 {
 	void PanelResourceBrowser::Construct()
 	{
-		SettingsPanelResources& settings = Editor::Get()->GetSettings().GetSettingsPanelResources();
+		ParameterCollection& params = Editor::Get()->GetSettings().GetParams();
 
 		DirectionalLayout* vertical = m_manager->Allocate<DirectionalLayout>();
 		vertical->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
@@ -69,21 +69,20 @@ namespace Lina::Editor
 		filterDD->SetAlignedSizeY(1.0f);
 		filterDD->SetFixedSizeX(Theme::GetDef().baseItemWidth * 1.5f);
 		filterDD->GetIcon()->GetProps().icon = ICON_FILTER;
-		filterDD->GetText()->GetProps().text = Locale::GetStr(LocaleStr::Filter) + ": " + ResourceDirectoryBrowser::GetFilterStr(static_cast<ResourceDirectoryBrowser::Filter>(settings.filter));
+		filterDD->GetText()->GetProps().text = Locale::GetStr(LocaleStr::Filter) + ": " + ResourceDirectoryBrowser::GetFilterStr(static_cast<ResourceDirectoryBrowser::Filter>(params.GetParamUint8("panelResBrowserFilter"_hs, 0)));
 		filterDD->GetProps().onAddItems		 = [this](Popup* popup) {
-			 const int32			 max	  = static_cast<int32>(ResourceDirectoryBrowser::Filter::Max);
-			 SettingsPanelResources& settings = Editor::Get()->GetSettings().GetSettingsPanelResources();
+			 const uint8 max	= static_cast<uint8>(ResourceDirectoryBrowser::Filter::Max);
+			 const uint8 filter = Editor::Get()->GetSettings().GetParams().GetParamUint8("panelResBrowserFilter"_hs, 0);
 
-			 for (int32 i = 0; i < max; i++)
-				 popup->AddToggleItem(ResourceDirectoryBrowser::GetFilterStr(static_cast<ResourceDirectoryBrowser::Filter>(i)), settings.filter == i, i);
+			 for (uint8 i = 0; i < max; i++)
+				 popup->AddToggleItem(ResourceDirectoryBrowser::GetFilterStr(static_cast<ResourceDirectoryBrowser::Filter>(i)), filter == i, i);
 		};
 
 		filterDD->GetProps().onSelected = [this](int32 idx, String& newTitle) -> bool {
-			SettingsPanelResources& settings = Editor::Get()->GetSettings().GetSettingsPanelResources();
-			settings.filter					 = static_cast<uint32>(idx);
+			Editor::Get()->GetSettings().GetParams().SetParamUint8("panelResBrowserFilter"_hs, static_cast<uint8>(idx));
 			Editor::Get()->SaveSettings();
-			newTitle = Locale::GetStr(LocaleStr::Filter) + ": " + ResourceDirectoryBrowser::GetFilterStr(static_cast<ResourceDirectoryBrowser::Filter>(settings.filter));
-			m_resourceBrowser->SetFilter(static_cast<ResourceDirectoryBrowser::Filter>(settings.filter));
+			newTitle = Locale::GetStr(LocaleStr::Filter) + ": " + ResourceDirectoryBrowser::GetFilterStr(static_cast<ResourceDirectoryBrowser::Filter>(idx));
+			m_resourceBrowser->SetFilter(static_cast<ResourceDirectoryBrowser::Filter>(idx));
 			return true;
 		};
 
@@ -104,7 +103,8 @@ namespace Lina::Editor
 		dirBrowser->SetAlignedSize(Vector2(1.0f, 0.0f));
 		vertical->AddChild(dirBrowser);
 		m_resourceBrowser = dirBrowser;
-		m_resourceBrowser->SetFilter(static_cast<ResourceDirectoryBrowser::Filter>(settings.filter));
+
+		m_resourceBrowser->SetFilter(static_cast<ResourceDirectoryBrowser::Filter>(params.GetParamUint8("panelResBrowserFilter"_hs, 0)));
 
 		searchField->GetProps().onEdited = [dirBrowser](const String& str) { dirBrowser->SetSearchStr(str); };
 	}

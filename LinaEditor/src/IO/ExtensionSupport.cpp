@@ -46,38 +46,48 @@ namespace Lina::Editor
 	{
 		ReflectionSystem& ref = ReflectionSystem::Get();
 
+		ref.Meta<Material>()->AddProperty<String>("DisplayName"_hs, "Material");
 		ref.Meta<Material>()->AddProperty<Color>("Color"_hs, Theme::GetDef().accentPrimary2);
 		ref.Meta<Material>()->AddProperty<String>("TypeAbbv"_hs, "M");
 
+		ref.Meta<Model>()->AddProperty<String>("DisplayName"_hs, "Model");
 		ref.Meta<Model>()->AddProperty<Color>("Color"_hs, Theme::GetDef().accentSecondary);
 		ref.Meta<Model>()->AddProperty<String>("Extensions"_hs, "gltf, glb");
 		ref.Meta<Model>()->AddProperty<String>("TypeAbbv"_hs, "MD");
 
+		ref.Meta<GUIWidget>()->AddProperty<String>("DisplayName"_hs, "GUI Widget");
 		ref.Meta<GUIWidget>()->AddProperty<Color>("Color"_hs, Theme::GetDef().accentDarkIndigo);
 		ref.Meta<GUIWidget>()->AddProperty<String>("TypeAbbv"_hs, "G");
 
+		ref.Meta<Font>()->AddProperty<String>("DisplayName"_hs, "Font");
 		ref.Meta<Font>()->AddProperty<Color>("Color"_hs, Theme::GetDef().accentOrange);
 		ref.Meta<Font>()->AddProperty<String>("Extensions"_hs, "otf, ttf");
 		ref.Meta<Font>()->AddProperty<String>("TypeAbbv"_hs, "F");
 
+		ref.Meta<Texture>()->AddProperty<String>("DisplayName"_hs, "Texture");
 		ref.Meta<Texture>()->AddProperty<Color>("Color"_hs, Theme::GetDef().accentSuccess);
 		ref.Meta<Texture>()->AddProperty<String>("Extensions"_hs, "png, jpg, jpeg");
 		ref.Meta<Texture>()->AddProperty<String>("TypeAbbv"_hs, "T");
 
+		ref.Meta<TextureSampler>()->AddProperty<String>("DisplayName"_hs, "Sampler");
 		ref.Meta<TextureSampler>()->AddProperty<Color>("Color"_hs, Theme::GetDef().accentSuccess1);
 		ref.Meta<TextureSampler>()->AddProperty<String>("TypeAbbv"_hs, "SM");
 
+		ref.Meta<Shader>()->AddProperty<String>("DisplayName"_hs, "Shader");
 		ref.Meta<Shader>()->AddProperty<Color>("Color"_hs, Theme::GetDef().accentCyan);
 		ref.Meta<Shader>()->AddProperty<String>("Extensions"_hs, "linashader");
 		ref.Meta<Shader>()->AddProperty<String>("TypeAbbv"_hs, "S");
 
+		ref.Meta<Audio>()->AddProperty<String>("DisplayName"_hs, "Audio");
 		ref.Meta<Audio>()->AddProperty<Color>("Color"_hs, Theme::GetDef().accentWarn);
 		ref.Meta<Audio>()->AddProperty<String>("Extensions"_hs, "mp3");
 		ref.Meta<Audio>()->AddProperty<String>("TypeAbbv"_hs, "A");
 
+		ref.Meta<EntityWorld>()->AddProperty<String>("DisplayName"_hs, "World");
 		ref.Meta<EntityWorld>()->AddProperty<Color>("Color"_hs, Theme::GetDef().foreground0);
 		ref.Meta<EntityWorld>()->AddProperty<String>("TypeAbbv"_hs, "W");
 
+		ref.Meta<PhysicsMaterial>()->AddProperty<String>("DisplayName"_hs, "Phys Material");
 		ref.Meta<PhysicsMaterial>()->AddProperty<Color>("Color"_hs, Theme::GetDef().accentYellowGold);
 		ref.Meta<PhysicsMaterial>()->AddProperty<String>("TypeAbbv"_hs, "PM");
 	}

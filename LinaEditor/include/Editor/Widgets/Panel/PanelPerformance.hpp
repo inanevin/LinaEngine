@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Editor/Widgets/Panel/Panel.hpp"
+#include "Core/Resources/ResourceManagerListener.hpp"
 
 namespace Lina
 {
@@ -37,28 +38,42 @@ namespace Lina
 namespace Lina::Editor
 {
 	class Editor;
+	class Table;
 	class IconTabs;
 
-	class PanelPerformance : public Panel
+	class PanelPerformance : public Panel, public ResourceManagerListener
 	{
 	public:
+		enum class ResourcesSort : uint8
+		{
+			Name,
+			ID,
+			Type,
+		};
+
 		PanelPerformance() : Panel(PanelType::Performance){};
 		virtual ~PanelPerformance() = default;
 
 		virtual void Construct() override;
 		virtual void Destruct() override;
+		virtual void OnResourceManagerPreDestroyHW(const HashSet<Resource*>& resources) override;
+		virtual void OnResourceManagerGeneratedHW(const HashSet<Resource*>& resources) override;
 
 	private:
-		void SelectContent(int32 index);
+		void SelectContent(uint8 idx);
 		void BuildContentsProfiling();
 		void BuildContentsMemory();
 		void BuildContentsResources();
+		void RefreshResourcesTable();
 
 	private:
-		Editor*			   m_editor			= nullptr;
-		Widget*			   m_currentContent = nullptr;
-		DirectionalLayout* m_layout			= nullptr;
-		IconTabs*		   m_iconTabs		= nullptr;
+		Editor*			   m_editor				= nullptr;
+		Widget*			   m_currentContent		= nullptr;
+		DirectionalLayout* m_layout				= nullptr;
+		IconTabs*		   m_iconTabs			= nullptr;
+		ResourcesSort	   m_resourcesSort		= ResourcesSort::Name;
+		Table*			   m_resourcesTable		= nullptr;
+		String			   m_resourcesSearchStr = "";
 	};
 
 	LINA_WIDGET_BEGIN(PanelPerformance, Hidden)

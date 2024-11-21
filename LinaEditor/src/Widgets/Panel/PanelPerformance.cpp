@@ -31,8 +31,12 @@ SOFTWARE.
 #include "Editor/Widgets/Compound/Table.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Editor.hpp"
+#include "Core/Application.hpp"
+#include "Core/Meta/ProjectData.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
+#include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
+#include "Core/GUI/Widgets/Primitives/InputField.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Common/System/SystemInfo.hpp"
 #include "Common/Profiling/Profiler.hpp"
@@ -44,6 +48,11 @@ namespace Lina::Editor
 	{
 		m_editor = Editor::Get();
 
+		const uint8 selectedTab	  = m_editor->GetSettings().GetParams().GetParamUint8("panelPerformanceTab"_hs, 0);
+		const uint8 resourcesSort = m_editor->GetSettings().GetParams().GetParamUint8("panelPerformanceResSort"_hs, 0);
+
+		m_resourcesSort = static_cast<ResourcesSort>(resourcesSort);
+
 		DirectionalLayout* layout	 = m_manager->Allocate<DirectionalLayout>("Layout");
 		layout->GetProps().direction = DirectionOrientation::Horizontal;
 		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
@@ -52,7 +61,7 @@ namespace Lina::Editor
 		AddChild(layout);
 
 		IconTabs* iconTabs = m_manager->Allocate<IconTabs>("IconTabs");
-		iconTabs->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X);
+		iconTabs->GetFlags().Set(WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_USE_FIXED_SIZE_Y);
 		iconTabs->SetAlignedPosY(0.0f);
 		iconTabs->SetAlignedSizeY(1.0f);
 		iconTabs->SetFixedSizeX(Theme::GetDef().baseItemHeight * 2);
@@ -73,12 +82,13 @@ namespace Lina::Editor
 				.tooltip = Locale::GetStr(LocaleStr::Resources),
 			},
 		};
-		iconTabs->GetWidgetProps().borderThickness.right = Theme::GetDef().baseSeparatorThickness;
-		iconTabs->GetWidgetProps().colorBorders			 = Theme::GetDef().background0;
-		iconTabs->GetProps().onSelected					 = [this](int32 idx) {
-			 m_editor->GetSettings().GetSettingsPanelStats().selectedTab = idx;
-			 m_editor->SaveSettings();
-			 SelectContent(idx);
+
+		iconTabs->SetFixedSizeY(iconTabs->GetFixedSizeX() * static_cast<float>(iconTabs->GetProps().icons.size()));
+
+		iconTabs->GetProps().onSelected = [this](uint8 idx) {
+			m_editor->GetSettings().GetParams().SetParamUint8("panelPerformanceTab"_hs, idx);
+			m_editor->SaveSettings();
+			SelectContent(idx);
 		};
 		iconTabs->GetWidgetProps().colorBackground	  = Theme::GetDef().background2;
 		iconTabs->GetWidgetProps().colorBackgroundAlt = Theme::GetDef().background1;
@@ -90,30 +100,51 @@ namespace Lina::Editor
 		contents->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		contents->SetAlignedPosY(0.0f);
 		contents->SetAlignedSize(Vector2(0.0f, 1.0f));
-		contents->GetWidgetProps().childMargins.top	   = Theme::GetDef().baseIndent;
-		contents->GetWidgetProps().childMargins.bottom = Theme::GetDef().baseIndent;
-		contents->GetWidgetProps().childPadding		   = Theme::GetDef().baseIndent;
+		contents->GetWidgetProps().borderThickness.left = Theme::GetDef().baseSeparatorThickness;
+		contents->GetWidgetProps().colorBorders			= Theme::GetDef().background0;
+		contents->GetWidgetProps().childMargins.top		= Theme::GetDef().baseIndent;
+		contents->GetWidgetProps().childMargins.bottom	= Theme::GetDef().baseIndent;
+		contents->GetWidgetProps().childPadding			= Theme::GetDef().baseIndent;
 		layout->AddChild(contents);
 		m_layout = contents;
 
-		SelectContent(m_editor->GetSettings().GetSettingsPanelStats().selectedTab);
+		SelectContent(selectedTab);
+
+		m_editor->GetApp()->GetResourceManager().AddListener(this);
 	}
 
 	void PanelPerformance::Destruct()
 	{
+		m_editor->GetApp()->GetResourceManager().RemoveListener(this);
 		Panel::Destruct();
 	}
 
-	void PanelPerformance::SelectContent(int32 index)
+	void PanelPerformance::OnResourceManagerPreDestroyHW(const HashSet<Resource*>& resources)
 	{
-		m_iconTabs->SetSelected(index);
+		if (m_iconTabs->GetSelected() != 2)
+			return;
+
+		RefreshResourcesTable();
+	}
+
+	void PanelPerformance::OnResourceManagerGeneratedHW(const HashSet<Resource*>& resources)
+	{
+		if (m_iconTabs->GetSelected() != 2)
+			return;
+
+		RefreshResourcesTable();
+	}
+
+	void PanelPerformance::SelectContent(uint8 idx)
+	{
+		m_iconTabs->SetSelected(idx);
 
 		m_layout->DeallocAllChildren();
 		m_layout->RemoveAllChildren();
 
-		if (index == 0)
+		if (idx == 0)
 			BuildContentsProfiling();
-		else if (index == 1)
+		else if (idx == 1)
 			BuildContentsMemory();
 		else
 			BuildContentsResources();
@@ -139,6 +170,7 @@ namespace Lina::Editor
 
 		Text* frameTime = m_manager->Allocate<Text>("FrameTime");
 
+		frameTime->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::FrameTime) + ": - ms");
 		frameTime->GetProps().isDynamic = true;
 		frameTime->SetTickHook([frameTime](float delta) {
 			static float elapsed = 1.0f;
@@ -148,7 +180,7 @@ namespace Lina::Editor
 			if (elapsed > 1.0f)
 			{
 				const float	 fps = 1.0f / delta;
-				const String str = UtilStr::FloatToString(delta, 8) + " ms - " + TO_STRING(static_cast<int32>(fps)) + " (FPS)";
+				const String str = UtilStr::FloatToString(delta * 1000.0f, 8) + " ms - " + TO_STRING(static_cast<int32>(fps)) + " (FPS)";
 				frameTime->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::FrameTime) + ": " + str);
 				elapsed = 0.0f;
 			}
@@ -159,18 +191,6 @@ namespace Lina::Editor
 		table->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		table->SetAlignedPosX(0.0f);
 		table->SetAlignedSize(Vector2(1.0f, 0.0f));
-		table->GetProps().columns = {
-			{
-				.title = "Test",
-			},
-			{
-				.title = "Test2",
-			},
-			{
-				.title = "Test2",
-			},
-
-		};
 		m_layout->AddChild(table);
 	}
 
@@ -180,6 +200,215 @@ namespace Lina::Editor
 
 	void PanelPerformance::BuildContentsResources()
 	{
+		DirectionalLayout* header = m_manager->Allocate<DirectionalLayout>("Header");
+		header->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+		header->SetAlignedPosX(0.0f);
+		header->SetAlignedSizeX(1.0f);
+		header->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		header->GetProps().direction				= DirectionOrientation::Horizontal;
+		header->GetWidgetProps().childMargins.left	= Theme::GetDef().baseIndent;
+		header->GetWidgetProps().childMargins.right = Theme::GetDef().baseIndent;
+		header->GetWidgetProps().childPadding		= Theme::GetDef().baseIndent;
+		m_layout->AddChild(header);
+
+		// Dropdown* showDD = m_manager->Allocate<Dropdown>("DD");
+		// showDD->GetFlags().Set(WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_SIZE_ALIGN_Y);
+		// showDD->SetAlignedPosY(0.0f);
+		// showDD->SetAlignedSizeY(1.0f);
+		// showDD->SetFixedSize(Theme::GetDef().baseItemWidth);
+		// header->AddChild(showDD);
+
+		InputField* search = m_manager->Allocate<InputField>("Search");
+		search->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		search->SetAlignedPosY(0.0f);
+		search->SetAlignedSize(Vector2(0.0f, 1.0f));
+		search->GetProps().placeHolderIcon = ICON_SEARCH;
+		search->GetProps().placeHolderText = Locale::GetStr(LocaleStr::Search);
+		search->GetProps().onEdited		   = [this](const String& str) {
+			   m_resourcesSearchStr = UtilStr::ToLower(str);
+			   RefreshResourcesTable();
+		};
+
+		header->AddChild(search);
+
+		m_resourcesTable = m_manager->Allocate<Table>("Table");
+		m_resourcesTable->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		m_resourcesTable->SetAlignedPosX(0.0f);
+		m_resourcesTable->SetAlignedSize(Vector2(1.0f, 0.0f));
+		m_resourcesTable->GetHorizontalLayout()->GetProps().borderMinSize = 0.08f;
+		m_resourcesTable->BuildHeaders({
+			{
+				.text	   = Locale::GetStr(LocaleStr::Name),
+				.clickable = true,
+			},
+			{
+				.text	   = Locale::GetStr(LocaleStr::ID),
+				.clickable = true,
+			},
+			{
+				.text	   = Locale::GetStr(LocaleStr::Type),
+				.clickable = true,
+				.fixedSize = Theme::GetDef().baseItemHeight * 4,
+			},
+			{
+				.text	   = Locale::GetStr(LocaleStr::Preview),
+				.clickable = false,
+				.fixedSize = Theme::GetDef().baseItemHeight * 3,
+			},
+			{
+				.text	   = Locale::GetStr(LocaleStr::Meta),
+				.clickable = false,
+				.fixedSize = Theme::GetDef().baseItemHeight * 6,
+			},
+		});
+
+		m_resourcesTable->GetProps().onColumnClicked = [this](uint32 idx) {
+			const ResourcesSort prev = m_resourcesSort;
+
+			if (idx == 0)
+				m_resourcesSort = ResourcesSort::Name;
+			if (idx == 1)
+				m_resourcesSort = ResourcesSort::ID;
+			if (idx == 2)
+				m_resourcesSort = ResourcesSort::Type;
+
+			if (prev != m_resourcesSort)
+			{
+				m_editor->GetSettings().GetParams().SetParamUint8("panelPerformanceResSort"_hs, static_cast<uint8>(m_resourcesSort));
+				m_editor->SaveSettings();
+				RefreshResourcesTable();
+			}
+		};
+		m_layout->AddChild(m_resourcesTable);
+		RefreshResourcesTable();
+	}
+
+	void PanelPerformance::RefreshResourcesTable()
+	{
+		m_resourcesTable->ClearRows();
+
+		ResourceManagerV2& rm = m_editor->GetApp()->GetResourceManager();
+
+		const Vector<ResourceManagerV2::CachePair>& caches = rm.GetCaches();
+
+		struct Row
+		{
+			String	   displayName = "";
+			ResourceID id		   = 0;
+			TypeID	   type		   = 0;
+			size_t	   size		   = 0;
+		};
+
+		Vector<Row> rows;
+		rows.reserve(100);
+
+		for (const ResourceManagerV2::CachePair& pair : caches)
+		{
+			const TypeID			tid		  = pair.tid;
+			const Vector<Resource*> resources = pair.cache->GetAllResources();
+			for (Resource* res : resources)
+			{
+				const String name = res->GetName().empty() ? res->GetPath() : res->GetName();
+
+				if (!m_resourcesSearchStr.empty() && UtilStr::ToLower(name).find(m_resourcesSearchStr) == String::npos)
+					continue;
+
+				const Row row = {
+					.displayName = name,
+					.id			 = res->GetID(),
+					.type		 = res->GetTID(),
+					.size		 = res->GetSize(),
+				};
+
+				rows.push_back(row);
+			}
+		}
+
+		linatl::sort(rows.begin(), rows.end(), [this](const Row& r1, const Row& r2) -> bool {
+			if (m_resourcesSort == ResourcesSort::Name)
+				return r1.displayName < r2.displayName;
+
+			if (m_resourcesSort == ResourcesSort::ID)
+				return r1.id < r2.id;
+
+			if (m_resourcesSort == ResourcesSort::Type)
+				return r1.type < r2.type;
+
+			return false;
+		});
+
+		Vector<Widget*> widgets;
+		widgets.resize(5);
+
+		auto createText = [&](const String& title, const Color& background, const Color& textColor) -> Widget* {
+			Widget* wrap = m_manager->Allocate<Widget>("Wrap");
+			wrap->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+			wrap->SetAlignedPosX(0.0f);
+			wrap->SetAlignedSizeX(1.0f);
+			wrap->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+			wrap->GetWidgetProps().childMargins.left = Theme::GetDef().baseIndent;
+			wrap->GetWidgetProps().drawBackground	 = true;
+			wrap->GetWidgetProps().outlineThickness	 = 0.0f;
+			wrap->GetWidgetProps().rounding			 = 0.0f;
+			wrap->GetWidgetProps().colorBackground	 = background;
+
+			Text* txt = m_manager->Allocate<Text>("Txt");
+			txt->UpdateTextAndCalcSize(title);
+			txt->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+			txt->SetAlignedPos(Vector2(0.0f, 0.5f));
+			txt->SetAnchorY(Anchor::Center);
+			txt->GetProps().color = textColor;
+			wrap->AddChild(txt);
+
+			return wrap;
+		};
+
+		auto createVis = [&](TextureAtlasImage* img, const Color& background) -> Widget* {
+			Widget* wrap = m_manager->Allocate<Widget>("Wrap");
+			wrap->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+			wrap->SetAlignedPosX(0.0f);
+			wrap->SetAlignedSizeX(1.0f);
+			wrap->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+			wrap->GetWidgetProps().childMargins.left = Theme::GetDef().baseIndent;
+			wrap->GetWidgetProps().drawBackground	 = true;
+			wrap->GetWidgetProps().outlineThickness	 = 0.0f;
+			wrap->GetWidgetProps().rounding			 = 0.0f;
+			wrap->GetWidgetProps().colorBackground	 = background;
+
+			Widget* txt = m_manager->Allocate<Widget>("Txt");
+			txt->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y);
+			txt->SetAlignedPos(Vector2(0.0f, 0.5f));
+			txt->SetAnchorY(Anchor::Center);
+			txt->SetAlignedSize(Vector2(1.0f, 0.75f));
+			txt->GetWidgetProps().drawBackground  = true;
+			txt->GetWidgetProps().colorBackground = Color::White;
+			txt->GetWidgetProps().textureAtlas	  = img;
+			wrap->AddChild(txt);
+			return wrap;
+		};
+
+		bool colorSwitch = false;
+
+		for (const Row& row : rows)
+		{
+			const Color color = colorSwitch ? Theme::GetDef().background2 : Theme::GetDef().background1;
+			colorSwitch		  = !colorSwitch;
+
+			widgets[0] = createText(row.displayName, color, Theme::GetDef().foreground0);
+			widgets[1] = createText(TO_STRING(row.id), color, Theme::GetDef().foreground0);
+			widgets[2] = createText(ReflectionSystem::Get().Resolve(row.type)->GetProperty<String>("DisplayName"_hs), color, ReflectionSystem::Get().Resolve(row.type)->GetProperty<Color>("Color"_hs));
+
+			ResourceDirectory* dir = m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResourceDirectory(row.id);
+
+			if (dir == nullptr)
+				widgets[3] = createText("-", color, Theme::GetDef().foreground0);
+			else
+				widgets[3] = createVis(m_editor->GetProjectManager().GetThumbnail(dir), color);
+
+			widgets[4] = createText(row.size == 0 ? "-" : (TO_STRING(row.size) + " (bytes)"), color, Theme::GetDef().foreground0);
+
+			m_resourcesTable->AddRow(widgets);
+		}
 	}
 
 } // namespace Lina::Editor

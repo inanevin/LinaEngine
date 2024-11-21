@@ -37,6 +37,7 @@ set (SOURCES
 	src/Data/DelegateQueue.cpp
 	src/Data/String.cpp
 	src/Data/CommonData.cpp
+	src/Data/ParameterCollection.cpp
 
 	# Events
 	src/Event/Event.cpp
@@ -139,6 +140,7 @@ set(HEADERS
 	include/Common/Data/Queue.hpp
 	include/Common/Data/PriorityQueue.hpp
 	include/Common/Data/Deque.hpp
+	include/Common/Data/ParameterCollection.hpp
 
 	include/Common/Data/String.hpp
 	include/Common/Data/CommonData.hpp

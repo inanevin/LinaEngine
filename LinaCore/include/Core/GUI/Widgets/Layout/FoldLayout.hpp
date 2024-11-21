@@ -36,7 +36,7 @@ namespace Lina
 	class FoldLayout : public Widget
 	{
 	public:
-		FoldLayout() : Widget(WF_SIZE_AFTER_CHILDREN){};
+		FoldLayout() : Widget(){};
 		virtual ~FoldLayout() = default;
 
 		struct Properties

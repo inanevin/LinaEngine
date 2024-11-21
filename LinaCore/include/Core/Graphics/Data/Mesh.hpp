@@ -88,6 +88,10 @@ namespace Lina
 		{
 			return m_node;
 		}
+		inline size_t GetSize() const
+		{
+			return sizeof(MeshDefault) + sizeof(PrimitiveDefault) * m_primitives.size() + sizeof(VertexDefault) * m_vertices.size() + sizeof(uint16) * m_indices16.size();
+		}
 
 	private:
 		friend class Model;

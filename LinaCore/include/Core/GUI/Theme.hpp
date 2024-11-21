@@ -98,7 +98,7 @@ namespace Lina
 			float  baseItemWidth		  = baseItemHeight * 6.0f;
 			float  popupAnimTime		  = 0.1f;
 			float  baseBorderThickness	  = 6.0f;
-			uint32 baseDropShadowSteps	  = 4;
+			uint32 baseDropShadowSteps	  = 8;
 
 			uint64 defaultFont		= 0;
 			uint64 defaultBoldFont	= 0;

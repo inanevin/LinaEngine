@@ -57,7 +57,6 @@ namespace Lina
 			float				 borderThickness	  = Theme::GetDef().baseBorderThickness;
 			float				 borderMinSize		  = 0.1f;
 			int32				 borderExpandForMouse = 0;
-			bool				 receiveInput		  = false;
 
 			Delegate<void()> onClicked;
 			Delegate<void()> onDoubleClicked;
@@ -66,11 +65,13 @@ namespace Lina
 			Delegate<void()> onDestructed;
 			Delegate<void()> onHoverBegin;
 			Delegate<void()> onHoverEnd;
+			Delegate<void()> onBordersChanged;
 
 			void SaveToStream(OStream& stream) const;
 			void LoadFromStream(IStream& stream);
 		};
 
+		virtual void			   Construct() override;
 		virtual void			   Destruct() override;
 		virtual void			   PreTick() override;
 		virtual void			   Tick(float delta) override;
@@ -139,7 +140,6 @@ namespace Lina
 	LINA_FIELD(DirectionalLayout::Properties, borderExpandForMouse, "Border Mouse Expand", FieldType::Int32, 0)
 	LINA_FIELD(DirectionalLayout::Properties, borderMinSize, "Border Min Size", FieldType::Float, 0)
 	LINA_FIELD_LIMITS(DirectionalLayout::Properties, borderMinSize, 0.0f, 1.0f, 0.1f)
-	LINA_FIELD(DirectionalLayout::Properties, receiveInput, "Receive Input", FieldType::Boolean, 0)
 
 	LINA_FIELD_DEPENDENCY_POS(DirectionalLayout::Properties, colorBorder, "mode", 3)
 	LINA_FIELD_DEPENDENCY_POS(DirectionalLayout::Properties, colorBorderHovered, "mode", 3)

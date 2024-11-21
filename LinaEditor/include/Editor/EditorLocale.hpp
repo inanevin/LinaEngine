@@ -51,6 +51,7 @@ namespace Lina::Editor
 		Open,
 		Cancel,
 		Name,
+		Path,
 		Location,
 		Select,
 		CreatingProject,
@@ -176,6 +177,11 @@ namespace Lina::Editor
 		None,
 		Profiling,
 		ApplicationTime,
+		ID,
+		Type,
+		Preview,
+		Spaces,
+		Meta
 	};
 
 	class Locale

@@ -71,12 +71,13 @@ namespace Lina
 		Font(ResourceID id, const String& name) : Resource(id, GetTypeID<Font>(), name){};
 		virtual ~Font();
 
-		LinaVG::Font* GetFont(float dpiScale);
-		virtual bool  LoadFromFile(const String& path) override;
-		virtual void  LoadFromStream(IStream& stream) override;
-		virtual void  SaveToStream(OStream& stream) const override;
-		virtual void  GenerateHW() override;
-		virtual void  DestroyHW() override;
+		LinaVG::Font*  GetFont(float dpiScale);
+		virtual bool   LoadFromFile(const String& path) override;
+		virtual void   LoadFromStream(IStream& stream) override;
+		virtual void   SaveToStream(OStream& stream) const override;
+		virtual void   GenerateHW() override;
+		virtual void   DestroyHW() override;
+		virtual size_t GetSize() const override;
 
 		void Upload(LinaVG::Text& lvgText);
 

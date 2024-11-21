@@ -93,7 +93,6 @@ namespace Lina
 		float totalHeight = 0.0f;
 		for (Widget* c : m_background->GetChildren())
 		{
-
 			totalHeight += c->GetFixedSizeY();
 		}
 

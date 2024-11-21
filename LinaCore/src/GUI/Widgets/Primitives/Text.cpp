@@ -51,12 +51,6 @@ namespace Lina
 
 	void Text::Draw()
 	{
-		if (GetFlags().IsSet(WF_HIDE))
-			return;
-
-		if (ShouldSkipDrawOutsideWindow())
-			return;
-
 		if (!Math::Equals(m_lgxWindow->GetDPIScale(), m_calculatedDPIScale, 0.01f))
 			CalculateTextSize();
 

@@ -53,12 +53,10 @@ namespace Lina::Editor
 		InfoTooltip()		   = default;
 		virtual ~InfoTooltip() = default;
 
-		virtual void Construct() override;
-		virtual void Initialize() override;
-		virtual void PreTick() override;
-		virtual void Tick(float delta) override;
-		virtual void Draw() override;
-
+		virtual void			  Construct() override;
+		virtual void			  Initialize() override;
+		virtual void			  PreTick() override;
+		virtual void			  Tick(float delta) override;
 		inline TooltipProperties& GetTooltipProps()
 		{
 			return m_tooltipProps;

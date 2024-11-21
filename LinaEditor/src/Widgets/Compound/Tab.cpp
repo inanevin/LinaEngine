@@ -129,13 +129,14 @@ namespace Lina::Editor
 		m_selectionRect.pos				 = Vector2(selectionRectStart.x, Math::Remap(m_selectionRectAnim.GetValue(), 0.0f, 1.0f, selectionRectEnd.y, selectionRectStart.y));
 		m_selectionRect.size.x			 = 2.0f;
 		m_selectionRect.size.y			 = selectionRectEnd.y - m_selectionRect.pos.y;
+
+		m_icon->GetProps().color.end.w = m_icon->GetProps().color.start.w = m_text->GetProps().color.start.w = m_text->GetProps().color.end.w = m_alpha;
+		m_icon->GetFlags().Set(WF_HIDE, m_props.fixedTab);
 	}
 
 	void Tab::Draw()
 	{
 		const int32 drawOrder = m_isPressed ? m_drawOrder + 1 : m_drawOrder;
-
-		Widget::DrawBackground();
 
 		// Draw selection indicator rect.
 		LinaVG::StyleOptions selectionRect;
@@ -151,16 +152,6 @@ namespace Lina::Editor
 
 		selectionRect.color.start.w = selectionRect.color.end.w = m_alpha;
 		m_lvg->DrawRect(m_selectionRect.pos.AsLVG(), m_selectionRect.GetEnd().AsLVG(), selectionRect, 0.0f, drawOrder);
-
-		m_icon->GetProps().color.end.w = m_icon->GetProps().color.start.w = m_text->GetProps().color.start.w = m_text->GetProps().color.end.w = m_alpha;
-
-		m_icon->SetDrawOrder(drawOrder);
-		m_text->SetDrawOrder(drawOrder);
-
-		if (!m_props.fixedTab)
-			m_icon->Draw();
-
-		m_text->Draw();
 	}
 
 	bool Tab::OnMouse(uint32 button, LinaGX::InputAction action)

@@ -96,6 +96,14 @@ namespace Lina
 		m_hwLvgFonts.clear();
 	}
 
+	size_t Font::GetSize() const
+	{
+		size_t total = m_file.size();
+		for (LinaVG::Font* font : m_hwLvgFonts)
+			total += font->structSizeInBytes;
+		return total;
+	}
+
 	void Font::GenerateHW()
 	{
 		LINA_ASSERT(m_hwValid == false, "");

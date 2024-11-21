@@ -40,8 +40,8 @@ namespace Lina
 
 	void Icon::CalculateSize(float dt)
 	{
-
 		const float dpiScale = m_lgxWindow->GetDPIScale();
+
 		if (!Math::Equals(dpiScale, m_calculatedDPIScale, 0.01f))
 			CalculateIconSize();
 
@@ -59,12 +59,6 @@ namespace Lina
 
 	void Icon::Draw()
 	{
-		if (GetFlags().IsSet(WF_HIDE))
-			return;
-
-		if (ShouldSkipDrawOutsideWindow())
-			return;
-
 		if (m_lvgFont == nullptr)
 			return;
 
@@ -79,9 +73,7 @@ namespace Lina
 		if (GetFlags().IsSet(WF_DISABLED))
 			m_textOptions.color = m_widgetProps.colorDisabled.AsLVG();
 
-		m_lvg->DrawTextDefault(m_props.icon.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), m_textOptions, 0.0f, m_drawOrder, m_props.isDynamic);
-
-		DrawTooltip();
+		m_lvg->DrawTextDefault(m_props.useAltIcon ? m_props.iconAlt.c_str() : m_props.icon.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), m_textOptions, 0.0f, m_drawOrder, m_props.isDynamic);
 	}
 
 	void Icon::CalculateIconSize()
@@ -97,8 +89,7 @@ namespace Lina
 		m_calculatedDPIScale	= dpiScale;
 		m_textOptions.font		= m_lvgFont;
 		m_textOptions.textScale = m_props.textScale;
-		// m_rect.size				= static_cast<float>(m_lvgFont->size * m_props.textScale);
-		m_rect.size = m_lvg->CalculateTextSize(m_props.icon.c_str(), m_textOptions);
+		m_rect.size				= m_lvg->CalculateTextSize(m_props.useAltIcon ? m_props.iconAlt.c_str() : m_props.icon.c_str(), m_textOptions);
 	}
 
 	bool Icon::OnMouse(uint32 button, LinaGX::InputAction act)

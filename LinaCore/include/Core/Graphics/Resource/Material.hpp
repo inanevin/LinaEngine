@@ -89,13 +89,14 @@ namespace Lina
 
 		Material(ResourceID id, const String& name) : Resource(id, GetTypeID<Material>(), name){};
 		virtual ~Material();
-		virtual bool LoadFromFile(const String& path) override;
-		virtual void SaveToStream(OStream& stream) const override;
-		virtual void LoadFromStream(IStream& stream) override;
-		virtual void GenerateHW() override;
-		virtual void DestroyHW() override;
-		void		 SetShader(Shader* shader);
-		size_t		 BufferDataInto(Buffer& buf, size_t padding, ResourceManagerV2* rm, GfxContext* context);
+		virtual bool   LoadFromFile(const String& path) override;
+		virtual void   SaveToStream(OStream& stream) const override;
+		virtual void   LoadFromStream(IStream& stream) override;
+		virtual size_t GetSize() const override;
+		virtual void   GenerateHW() override;
+		virtual void   DestroyHW() override;
+		void		   SetShader(Shader* shader);
+		size_t		   BufferDataInto(Buffer& buf, size_t padding, ResourceManagerV2* rm, GfxContext* context);
 
 		template <typename T> void SetProperty(StringID sid, T val)
 		{

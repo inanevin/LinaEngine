@@ -55,8 +55,13 @@ namespace Lina::Editor
 
 	LinaGX::CursorType DockBorder::GetCursorOverride()
 	{
-		if (m_isHovered)
-			return m_orientation == DirectionOrientation::Horizontal ? LinaGX::CursorType::SizeVertical : LinaGX::CursorType::SizeHorizontal;
+		const LinaGX::CursorType targetType = m_orientation == DirectionOrientation::Horizontal ? LinaGX::CursorType::SizeVertical : LinaGX::CursorType::SizeHorizontal;
+
+		if (m_isPressed)
+			return targetType;
+
+		if (m_isHovered && !m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_0))
+			return targetType;
 
 		return LinaGX::CursorType::Default;
 	}

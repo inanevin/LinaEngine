@@ -84,9 +84,7 @@ namespace Lina
 
 	void ColorSlider::Draw()
 	{
-		if (ShouldSkipDrawOutsideWindow())
-			return;
-
+		/*
 		if (m_props.backgroundTexture || GetWidgetProps().lvgUserData != nullptr)
 		{
 			if (!m_children.empty())
@@ -100,6 +98,7 @@ namespace Lina
 		{
 			Widget::Draw();
 		}
+			*/
 
 		if (!m_props.value)
 			return;

@@ -37,6 +37,10 @@ namespace Lina
 {
 	void FileMenuItem::Initialize()
 	{
+		if (m_initialized)
+			return;
+		Widget::Initialize();
+
 		if (m_itemData.isDivider)
 		{
 			Widget* rect = m_manager->Allocate<Widget>("Divider");
@@ -98,8 +102,6 @@ namespace Lina
 			AddChild(altTxt);
 			m_altText = altTxt;
 		}
-
-		Widget::Initialize();
 	}
 
 	void FileMenuItem::PreTick()
@@ -227,7 +229,6 @@ namespace Lina
 			if (!subItem.isDivider)
 			{
 				it->GetWidgetProps().hoveredIsDifferentColor = true;
-				it->GetProps().receiveInput					 = true;
 				it->GetWidgetProps().rounding				 = 0.0f;
 				it->GetWidgetProps().outlineThickness		 = 0.0f;
 				it->GetWidgetProps().drawBackground			 = true;
@@ -265,7 +266,8 @@ namespace Lina
 				}
 			};
 
-			it->GetFlags().Set(WF_DISABLED, subItem.isDisabled);
+			it->Initialize();
+			m_manager->SetDisabledRecursively(it, subItem.isDisabled);
 
 			popup->AddChild(it);
 		}

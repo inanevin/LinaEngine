@@ -49,7 +49,7 @@ namespace Lina::Editor
 	class ResourceDirectoryBrowser : public Widget, public FileMenuListener, public ProjectManagerListener
 	{
 	public:
-		enum class Filter
+		enum class Filter : uint8
 		{
 			None = 0,
 			Favourites,
@@ -105,8 +105,8 @@ namespace Lina::Editor
 		}
 
 	private:
-		void AddItem(ResourceDirectory* parent, ResourceDirectory* item, float margin);
-		void AddItemForDirectory(ResourceDirectory* dir, float margin);
+		void AddItem(Widget* parent, ResourceDirectory* item, float margin);
+		void AddItemForDirectory(Widget* parent, ResourceDirectory* dir, float margin);
 		void RequestRename(ResourceDirectory* dir);
 		void RequestDelete(Vector<ResourceDirectory*> dirs);
 		void RequestDuplicate(Vector<ResourceDirectory*> dirs);

@@ -90,7 +90,8 @@ namespace Lina::Editor
 			{
 				const LogLevelData& data = m_logLevels[i];
 
-				const bool show = m_editor->GetSettings().GetSettingsPanelLog().logLevelMask.IsSet(data.mask);
+				const Bitmask32 mask = m_editor->GetSettings().GetParams().GetParamUint32("logPanelLevelMask"_hs);
+				const bool		show = mask.IsSet(data.mask);
 				popup->AddToggleItem(data.title, show, static_cast<int32>(i));
 			}
 		};
@@ -98,8 +99,10 @@ namespace Lina::Editor
 		logLevelDD->GetProps().onSelected = [this](int32 idx, String& newTitle) -> bool {
 			const LogLevelData& data = m_logLevels[idx];
 
-			const bool show = m_editor->GetSettings().GetSettingsPanelLog().logLevelMask.IsSet(data.mask);
-			m_editor->GetSettings().GetSettingsPanelLog().logLevelMask.Set(data.mask, !show);
+			Bitmask32  mask = m_editor->GetSettings().GetParams().GetParamUint32("logPanelLevelMask"_hs);
+			const bool show = mask.IsSet(data.mask);
+			mask.Set(data.mask, !show);
+			m_editor->GetSettings().GetParams().SetParamUint32("logPanelLevelMask"_hs, mask.GetValue());
 			m_editor->SaveSettings();
 
 			UpdateTextVisibility();
@@ -135,6 +138,7 @@ namespace Lina::Editor
 		logScroll->GetWidgetProps().dropshadow.isInner	 = true;
 		logScroll->GetWidgetProps().dropshadow.direction = Direction::Top;
 		logScroll->GetWidgetProps().dropshadow.steps	 = Theme::GetDef().baseDropShadowSteps;
+		logScroll->GetWidgetProps().dropshadow.color	 = Theme::GetDef().background0;
 		panelLayout->AddChild(logScroll);
 		m_logScroll = logScroll;
 
@@ -179,6 +183,8 @@ namespace Lina::Editor
 				.title = Locale::GetStr(LocaleStr::Trace),
 			});
 		}
+
+		m_editor->GetSettings().GetParams().GetParamUint32("logPanelLevelMask"_hs, LOG_LEVEL_INFO | LOG_LEVEL_WARNING | LOG_LEVEL_ERROR);
 	}
 
 	void PanelLog::Destruct()
@@ -207,7 +213,7 @@ namespace Lina::Editor
 
 	void PanelLog::OnLog(LogLevel level, const char* msg)
 	{
-		const Bitmask32& currentMask = m_editor->GetSettings().GetSettingsPanelLog().logLevelMask;
+		const Bitmask32 currentMask = m_editor->GetSettings().GetParams().GetParamUint32("logPanelLevelMask"_hs);
 
 		const size_t sz	 = m_logLevels.size();
 		size_t		 idx = 0;
@@ -250,7 +256,7 @@ namespace Lina::Editor
 	void PanelLog::UpdateTextVisibility()
 	{
 		const Vector<Widget*> texts		  = m_logLayout->GetChildren();
-		const Bitmask32&	  currentMask = m_editor->GetSettings().GetSettingsPanelLog().logLevelMask;
+		const Bitmask32		  currentMask = m_editor->GetSettings().GetParams().GetParamUint32("logPanelLevelMask"_hs);
 
 		for (Widget* text : texts)
 		{

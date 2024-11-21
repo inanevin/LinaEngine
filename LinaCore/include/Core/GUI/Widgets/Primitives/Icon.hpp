@@ -40,7 +40,7 @@ namespace Lina
 	class Icon : public Widget
 	{
 	public:
-		Icon() : Widget(WF_OWNS_SIZE)
+		Icon() : Widget()
 		{
 		}
 		virtual ~Icon() = default;
@@ -48,11 +48,13 @@ namespace Lina
 		struct Properties
 		{
 			Delegate<void()> onClicked;
-			String			 icon	   = "";
-			ResourceID		 font	   = Theme::GetDef().iconFont;
-			ColorGrad		 color	   = Theme::GetDef().foreground0;
-			float			 textScale = 0.5f;
-			bool			 isDynamic = true;
+			String			 icon		= "";
+			String			 iconAlt	= "";
+			ResourceID		 font		= Theme::GetDef().iconFont;
+			ColorGrad		 color		= Theme::GetDef().foreground0;
+			float			 textScale	= 0.5f;
+			bool			 isDynamic	= true;
+			bool			 useAltIcon = false;
 
 			bool  dynamicSizeToParent = false;
 			float dynamicSizeScale	  = 1.0f;

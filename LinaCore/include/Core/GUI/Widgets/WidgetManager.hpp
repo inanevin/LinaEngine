@@ -87,6 +87,7 @@ namespace Lina
 		bool	PassMouseWheel(Widget* widget, float amt);
 		Widget* LockForeground();
 		void	UnlockForeground();
+		void	SetDisabledRecursively(Widget* root, bool disabled);
 
 		inline Widget* GetRoot() const
 		{
@@ -165,6 +166,7 @@ namespace Lina
 		void		PassCalculateSize(Widget* w, float delta);
 		void		PassPreTick(Widget* w);
 		void		PassTick(Widget* w, float delta);
+		void		PassDraw(Widget* w);
 		ScrollArea* FindScrollAreaAbove(Widget* w);
 
 	private:

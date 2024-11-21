@@ -226,6 +226,15 @@ namespace Lina
 		}
 	}
 
+	size_t Model::GetSize() const
+	{
+		size_t total = sizeof(ModelMaterial) * m_materialDefs.size() + sizeof(ModelTexture) * m_textureDefs.size() + sizeof(Model);
+		total += sizeof(Metadata);
+		for (MeshDefault* m : m_meshes)
+			total += m->GetSize();
+		return total;
+	}
+
 	void Model::SaveToStream(OStream& stream) const
 	{
 		Resource::SaveToStream(stream);

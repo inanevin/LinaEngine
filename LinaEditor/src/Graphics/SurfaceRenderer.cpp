@@ -449,7 +449,7 @@ namespace Lina::Editor
 			draw->baseVertexLocation			  = request.startVertex;
 
 #ifdef LINA_DEBUG
-			PROFILER_ADD_DRAWCALL(request.indexCount / 3, "Surface Renderer", 0);
+			// PROFILER_ADD_DRAWCALL(request.indexCount / 3, "Surface Renderer", 0);
 #endif
 		}
 

@@ -65,7 +65,7 @@ namespace Lina
 
 		virtual void Construct() override;
 		virtual void Initialize() override;
-		virtual void Draw() override;
+		virtual void Tick(float delta) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
 
 		inline virtual void SaveToStream(OStream& stream) const override

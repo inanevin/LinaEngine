@@ -147,6 +147,14 @@ namespace Lina
 		stream >> m_shaderType;
 	}
 
+	size_t Material::GetSize() const
+	{
+		size_t total = 0.0f;
+		for (MaterialProperty* p : m_properties)
+			total += sizeof(MaterialProperty) + p->data.size();
+		return total;
+	}
+
 	void Material::GenerateHW()
 	{
 		LINA_ASSERT(m_hwValid == false, "");

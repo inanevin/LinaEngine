@@ -55,10 +55,10 @@ namespace LinaVG
 
 namespace Lina
 {
+	class Icon;
 	class System;
 	class ResourceManagerV2;
 	class IStream;
-	class Ostream;
 	class WidgetManager;
 	struct TextureAtlasImage;
 	class Texture;
@@ -225,16 +225,14 @@ namespace Lina
 		virtual void PreTick(){};
 		virtual void CalculateSize(float delta){};
 		virtual void Tick(float delta){};
-		virtual void Draw();
+		virtual void Draw(){};
 		virtual void SaveToStream(OStream& stream) const;
 		virtual void LoadFromStream(IStream& stream);
 
 		void	SetWidgetManager(WidgetManager* wm);
 		void	DrawDropshadow();
 		void	DrawBackground();
-		void	DrawChildren();
 		void	AddChild(Widget* w);
-		void	ExecuteNextFrame(Delegate<void()>&& cb);
 		void	RemoveChild(Widget* w);
 		void	DeallocAllChildren();
 		void	RemoveAllChildren();
@@ -476,11 +474,6 @@ namespace Lina
 			return m_cacheIndex;
 		}
 
-		inline void SetDestructHook(Delegate<void()> hook)
-		{
-			m_destructHook = hook;
-		}
-
 		inline void AddChildRequest(Widget* w)
 		{
 			m_addChildRequests.push_back(w);
@@ -519,8 +512,6 @@ namespace Lina
 		Widget*						m_localControlsOwner   = nullptr;
 		Delegate<Widget*(void*)>	m_buildCustomTooltip;
 		Vector<Widget*>				m_children;
-		Vector<Delegate<void()>>	m_executeNextFrame;
-		Delegate<void()>			m_destructHook;
 		Delegate<void(float delta)> m_tickHook;
 		Vector<Delegate<void()>>	m_preTickHooks;
 		Rect						m_rect					= {};
@@ -541,6 +532,7 @@ namespace Lina
 		uint32						m_cacheIndex			= 0;
 		WidgetProps					m_widgetProps			= {};
 		bool						m_initializing			= false;
+		bool						m_initialized			= false;
 		Vector<Widget*>				m_addChildRequests;
 	};
 

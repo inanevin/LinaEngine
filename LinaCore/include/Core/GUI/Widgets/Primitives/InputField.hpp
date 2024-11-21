@@ -79,14 +79,13 @@ namespace Lina
 			String*	  valueStr			  = nullptr;
 
 			bool centerText = false;
-			bool wrapText	= false;
 
 			void SaveToStream(OStream& stream) const
 			{
 				stream << colorHighlight << colorCaret << colorNumberFill << colorPlaceHolder << colorTextDefault;
 				stream << placeHolderText;
 				stream << outlineThickness << horizontalIndent << usePlaceHolder << isNumberField << disableNumberSlider << clampNumber;
-				stream << valueMin << valueMax << valueStep << centerText << wrapText << decimals;
+				stream << valueMin << valueMax << valueStep << centerText << decimals;
 			}
 
 			void LoadFromStream(IStream& stream)
@@ -94,13 +93,12 @@ namespace Lina
 				stream >> colorHighlight >> colorCaret >> colorNumberFill >> colorPlaceHolder >> colorTextDefault;
 				stream >> placeHolderText;
 				stream >> outlineThickness >> horizontalIndent >> usePlaceHolder >> isNumberField >> disableNumberSlider >> clampNumber;
-				stream >> valueMin >> valueMax >> valueStep >> centerText >> wrapText >> decimals;
+				stream >> valueMin >> valueMax >> valueStep >> centerText >> decimals;
 			}
 		};
 
 		virtual void			   Construct() override;
 		virtual void			   Initialize() override;
-		virtual void			   CalculateSize(float delta) override;
 		virtual void			   PreTick() override;
 		virtual void			   Tick(float delta) override;
 		virtual void			   Draw() override;

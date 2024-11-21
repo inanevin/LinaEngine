@@ -144,12 +144,26 @@ namespace Lina::Editor
 		if (m_allItems.empty())
 			return;
 
+		auto skipItem = [](Widget* w) -> bool {
+			if (w->GetFlags().IsSet(WF_HIDE) || w->GetFlags().IsSet(WF_DISABLED))
+				return true;
+
+			if (w->GetParent() != nullptr)
+			{
+				Widget* parent = w->GetParent();
+
+				if (parent->GetFlags().IsSet(WF_HIDE) || parent->GetFlags().IsSet(WF_DISABLED))
+					return true;
+			}
+			return false;
+		};
+
 		Widget* item = nullptr;
 		if (isForward)
 		{
 			for (Widget* r : m_selectedItems)
 			{
-				if (!r->GetFlags().IsSet(WF_DISABLED))
+				if (!skipItem(r))
 				{
 					item = r;
 					break;
@@ -161,7 +175,7 @@ namespace Lina::Editor
 			for (Vector<Widget*>::iterator it = m_selectedItems.end() - 1; it >= m_selectedItems.begin(); it--)
 			{
 				Widget* r = *it;
-				if (!r->GetFlags().IsSet(WF_DISABLED))
+				if (!skipItem(r))
 				{
 					item = r;
 					break;
@@ -189,27 +203,38 @@ namespace Lina::Editor
 
 		Widget* currentSelected = m_selectedItems.back();
 
-		const int32 sz	  = static_cast<int32>(m_allItems.size());
-		bool		found = false;
+		const int32 idx = UtilVector::IndexOf(m_allItems, currentSelected);
 
-		auto shouldSkip = [](Widget* item) -> bool {};
-		for (int32 i = 0; i < sz; i++)
+		if (idx == -1)
+		{
+			SetFocus(false);
+			return nullptr;
+		}
+
+		const int32 sz = static_cast<int32>(m_allItems.size());
+
+		auto skipItem = [](Widget* w) -> bool {
+			if (w->GetFlags().IsSet(WF_HIDE) || w->GetFlags().IsSet(WF_DISABLED))
+				return true;
+
+			if (w->GetParent() != nullptr)
+			{
+				Widget* parent = w->GetParent();
+
+				if (parent->GetFlags().IsSet(WF_HIDE) || parent->GetFlags().IsSet(WF_DISABLED))
+					return true;
+			}
+			return false;
+		};
+
+		for (int32 i = idx + 1; i < sz; i++)
 		{
 			Widget* item = m_allItems[i];
 
-			if (item == currentSelected)
+			if (!skipItem(item))
 			{
-				found = true;
-				continue;
-			}
-
-			if (found)
-			{
-				if (!item->GetFlags().IsSet(WF_DISABLED))
-				{
-					SelectItem(item, true, true);
-					return this;
-				}
+				SelectItem(item, true, true);
+				return this;
 			}
 		}
 
@@ -224,26 +249,37 @@ namespace Lina::Editor
 
 		Widget* currentSelected = m_selectedItems.front();
 
-		const int32 sz	  = static_cast<int32>(m_allItems.size());
-		bool		found = false;
+		const int32 sz	= static_cast<int32>(m_allItems.size());
+		const int32 idx = UtilVector::IndexOf(m_allItems, currentSelected);
 
-		for (int32 i = sz - 1; i >= 0; i--)
+		if (idx == -1)
+		{
+			SetFocus(false);
+			return nullptr;
+		}
+
+		auto skipItem = [](Widget* w) -> bool {
+			if (w->GetFlags().IsSet(WF_HIDE) || w->GetFlags().IsSet(WF_DISABLED))
+				return true;
+
+			if (w->GetParent() != nullptr)
+			{
+				Widget* parent = w->GetParent();
+
+				if (parent->GetFlags().IsSet(WF_HIDE) || parent->GetFlags().IsSet(WF_DISABLED))
+					return true;
+			}
+			return false;
+		};
+
+		for (int32 i = idx - 1; i >= 0; i--)
 		{
 			Widget* item = m_allItems[i];
 
-			if (item == currentSelected)
+			if (!skipItem)
 			{
-				found = true;
-				continue;
-			}
-
-			if (found)
-			{
-				if (!item->GetFlags().IsSet(WF_DISABLED))
-				{
-					SelectItem(item, true, true);
-					return this;
-				}
+				SelectItem(item, true, true);
+				return this;
 			}
 		}
 
@@ -483,18 +519,26 @@ namespace Lina::Editor
 		return false;
 	}
 
-	void ItemController::AddItem(Widget* widget)
-	{
-		m_allItems.push_back(widget);
-
-		if (m_lastSelected == widget->GetUserData())
-			SelectItem(widget, true, false);
-	}
-
 	void ItemController::ClearItems()
 	{
 		m_allItems.clear();
 		UnselectAll();
+	}
+
+	void ItemController::GatherItems(Widget* parent)
+	{
+		const Vector<Widget*> children = parent->GetChildren();
+		for (Widget* c : children)
+		{
+			if (c->GetFlags().IsSet(WF_TREEITEM))
+			{
+				m_allItems.push_back(c);
+				if (m_lastSelected == c->GetUserData())
+					SelectItem(c, true, false);
+			}
+
+			GatherItems(c);
+		}
 	}
 
 	void ItemController::UnselectAll()

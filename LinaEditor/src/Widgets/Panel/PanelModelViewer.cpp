@@ -132,6 +132,7 @@ namespace Lina::Editor
 
 	void PanelModelViewer::Initialize()
 	{
+		/*
 		if (m_model != nullptr)
 			return;
 
@@ -258,6 +259,7 @@ namespace Lina::Editor
 
 		m_worldDisplayer->DisplayWorld(m_worldRenderer);
 		Panel::Initialize();
+		*/
 	}
 
 	void PanelModelViewer::SetupScene()

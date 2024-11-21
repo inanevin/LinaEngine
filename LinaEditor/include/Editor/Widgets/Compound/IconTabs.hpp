@@ -52,7 +52,7 @@ namespace Lina::Editor
 		struct Properties
 		{
 			Vector<IconData>	  icons;
-			Delegate<void(int32)> onSelected;
+			Delegate<void(uint8)> onSelected;
 
 			void SaveToStream(OStream& stream) const
 			{
@@ -65,7 +65,7 @@ namespace Lina::Editor
 
 		virtual void Construct() override;
 		void		 Refresh();
-		void		 SetSelected(int32 idx);
+		void		 SetSelected(uint8 idx);
 
 		inline Properties& GetProps()
 		{
@@ -84,9 +84,15 @@ namespace Lina::Editor
 			stream >> m_props;
 		}
 
+		inline uint8 GetSelected() const
+		{
+			return m_selected;
+		}
+
 	private:
 		DirectionalLayout* m_verticalLayout = nullptr;
 		Properties		   m_props			= {};
+		uint8			   m_selected		= 0;
 	};
 
 	LINA_WIDGET_BEGIN(IconTabs, Editor)

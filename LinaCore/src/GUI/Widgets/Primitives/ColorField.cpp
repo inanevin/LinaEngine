@@ -59,19 +59,13 @@ namespace Lina
 		}
 	}
 
-	void ColorField::Draw()
+	void ColorField::Tick(float delta)
 	{
-		if (ShouldSkipDrawOutsideWindow())
-			return;
-
-		if (m_props.value == nullptr && m_props.gradValue == nullptr)
-			return;
-
 		if (m_props.backgroundTexture)
 		{
-			if (!m_children.empty())
-				m_children[0]->DrawBackground();
-			m_drawOrder++;
+			// if (!m_children.empty())
+			// 	m_children[0]->DrawBackground();
+			// m_drawOrder++;
 
 			if (m_props.value)
 				GetWidgetProps().colorBackground = m_props.convertToLinear ? m_props.value->SRGB2Linear() : *m_props.value;
@@ -81,10 +75,6 @@ namespace Lina
 				GetWidgetProps().colorBackground.start = m_props.convertToLinear ? m_props.gradValue->start.SRGB2Linear() : m_props.gradValue->start;
 				GetWidgetProps().colorBackground.end   = m_props.convertToLinear ? m_props.gradValue->end.SRGB2Linear() : m_props.gradValue->end;
 			}
-
-			Widget::DrawBackground();
-			Widget::DrawBorders();
-			Widget::DrawTooltip();
 		}
 		else
 		{
@@ -96,8 +86,6 @@ namespace Lina
 				GetWidgetProps().colorBackground.start = m_props.convertToLinear ? m_props.gradValue->start.SRGB2Linear() : m_props.gradValue->start;
 				GetWidgetProps().colorBackground.end   = m_props.convertToLinear ? m_props.gradValue->end.SRGB2Linear() : m_props.gradValue->end;
 			}
-
-			Widget::Draw();
 		}
 	}
 

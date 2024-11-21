@@ -110,12 +110,6 @@ namespace Lina
 
 	void Slider::Draw()
 	{
-		if (GetFlags().IsSet(WF_HIDE))
-			return;
-
-		if (ShouldSkipDrawOutsideWindow())
-			return;
-
 		const bool hasControls = m_manager->IsControlsOwner(this);
 
 		LinaVG::StyleOptions bg;
@@ -134,8 +128,6 @@ namespace Lina
 		fill.color.end			= m_props.direction == DirectionOrientation::Horizontal ? m_props.colorFill.end.AsLVG4() : m_props.colorFill.start.AsLVG4();
 		fill.color.gradientType = m_props.direction == DirectionOrientation::Horizontal ? LinaVG::GradientType::Horizontal : LinaVG::GradientType::Vertical;
 		m_lvg->DrawRect(m_fillStart.AsLVG(), m_fillEnd.AsLVG(), fill, 0.0f, m_drawOrder);
-
-		m_handle->Draw();
 	}
 
 	void Slider::GetStartEnd(Vector2& outStart, Vector2& outEnd, float fillPercent)

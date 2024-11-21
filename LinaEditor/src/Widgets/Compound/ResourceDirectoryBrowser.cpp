@@ -83,6 +83,7 @@ namespace Lina::Editor
 		controller->GetWidgetProps().colorBackground	  = Theme::GetDef().background1;
 		controller->GetWidgetProps().outlineThickness	  = 0.0f;
 		controller->GetWidgetProps().dropshadow.enabled	  = true;
+		controller->GetWidgetProps().dropshadow.color	  = Theme::GetDef().background0;
 		controller->GetWidgetProps().dropshadow.steps	  = Theme::GetDef().baseDropShadowSteps;
 		controller->GetWidgetProps().dropshadow.direction = Direction::Top;
 		controller->GetWidgetProps().dropshadow.isInner	  = true;
@@ -214,7 +215,8 @@ namespace Lina::Editor
 		ResourceDirectory& root = currentProject->GetResourceRoot();
 
 		const CommonWidgets::ResDirItemProperties linaAssetsProps = {
-			.chevron	   = m_linaAssets.userData.unfolded ? ICON_CHEVRON_DOWN : ICON_CHEVRON_RIGHT,
+			.chevron	   = ICON_CHEVRON_RIGHT,
+			.chevronAlt	   = ICON_CHEVRON_DOWN,
 			.mainIcon	   = ICON_LINA_LOGO,
 			.mainIconColor = Theme::GetDef().accentPrimary2,
 			.title		   = m_linaAssets.name,
@@ -223,9 +225,8 @@ namespace Lina::Editor
 			.userData	   = &m_linaAssets,
 		};
 
-		FoldLayout* foldLinaAssets = CommonWidgets::BuildResDirItem(this, linaAssetsProps);
-		m_layout->AddChild(foldLinaAssets);
-		m_controller->AddItem(foldLinaAssets->GetChildren().front());
+		FoldLayout* layoutLinaAssets = CommonWidgets::BuildTreeItem(this, linaAssetsProps);
+		m_layout->AddChild(layoutLinaAssets);
 
 		// engine res.
 		for (ResourceDirectory* child : root.children)
@@ -248,7 +249,7 @@ namespace Lina::Editor
 				}
 			}
 
-			AddItem(&m_linaAssets, child, Theme::GetDef().baseIndent * 2);
+			AddItem(layoutLinaAssets, child, Theme::GetDef().baseIndent * 2);
 		}
 
 		String rootName		 = root.name;
@@ -262,7 +263,8 @@ namespace Lina::Editor
 		}
 
 		const CommonWidgets::ResDirItemProperties rootProps = {
-			.chevron	   = root.userData.unfolded ? ICON_CHEVRON_DOWN : ICON_CHEVRON_RIGHT,
+			.chevron	   = ICON_CHEVRON_RIGHT,
+			.chevronAlt	   = ICON_CHEVRON_DOWN,
 			.mainIcon	   = rootIcon,
 			.mainIconColor = rootIconColor,
 			.title		   = rootName,
@@ -271,11 +273,12 @@ namespace Lina::Editor
 			.userData	   = &root,
 		};
 
-		FoldLayout* foldRoot = CommonWidgets::BuildResDirItem(this, rootProps);
-		m_layout->AddChild(foldRoot);
-		m_controller->AddItem(foldRoot->GetChildren().front());
+		FoldLayout* layoutRoot = CommonWidgets::BuildTreeItem(this, rootProps);
+		m_layout->AddChild(layoutRoot);
 
-		AddItemForDirectory(&root, Theme::GetDef().baseIndent * 2);
+		AddItemForDirectory(layoutRoot, &root, Theme::GetDef().baseIndent * 2);
+
+		m_controller->GatherItems(m_layout);
 	}
 
 	void ResourceDirectoryBrowser::SetFilter(Filter filter)
@@ -301,10 +304,11 @@ namespace Lina::Editor
 		return String();
 	}
 
-	void ResourceDirectoryBrowser::AddItem(ResourceDirectory* parent, ResourceDirectory* item, float margin)
+	void ResourceDirectoryBrowser::AddItem(Widget* parent, ResourceDirectory* item, float margin)
 	{
 		const CommonWidgets::ResDirItemProperties props = {
-			.chevron		 = item->isFolder ? (item->userData.unfolded ? ICON_CHEVRON_DOWN : ICON_CHEVRON_RIGHT) : "",
+			.chevron		 = item->isFolder ? ICON_CHEVRON_RIGHT : "",
+			.chevronAlt		 = item->isFolder ? ICON_CHEVRON_DOWN : "",
 			.typeText		 = item->isFolder ? "" : ReflectionSystem::Get().Resolve(item->resourceTID)->GetProperty<String>("TypeAbbv"_hs),
 			.typeColor		 = item->isFolder ? Color::White : ReflectionSystem::Get().Resolve(item->resourceTID)->GetProperty<Color>("Color"_hs),
 			.mainIcon		 = item->isFolder ? ICON_FOLDER : "",
@@ -312,38 +316,21 @@ namespace Lina::Editor
 			.image			 = item->isFolder ? nullptr : m_editor->GetProjectManager().GetThumbnail(item),
 			.title			 = item->name,
 			.footerIcon		 = item->userData.isInFavourites ? ICON_STAR : "",
-			.footerIconColor = Theme::GetDef().accentPrimary0,
+			.footerIconColor = Theme::GetDef().accentSecondary,
 			.margin			 = margin,
 			.unfoldValue	 = &item->userData.unfolded,
 			.userData		 = item,
 		};
 
-		FoldLayout* fold = CommonWidgets::BuildResDirItem(this, props);
-		m_controller->GetItem(parent)->GetParent()->AddChild(fold);
-		m_controller->AddItem(fold->GetChildren().front());
+		FoldLayout* layout = CommonWidgets::BuildTreeItem(this, props);
+		parent->AddChild(layout);
 
 		if (item->isFolder)
-			AddItemForDirectory(item, margin + Theme::GetDef().baseIndent * 2.0f);
+			AddItemForDirectory(layout, item, margin + Theme::GetDef().baseIndent * 2.0f);
 
-		return;
-
-		if (item->isFolder)
-		{
-			Widget* w = CommonWidgets::BuildDefaultFoldItem(
-				this, item, margin, ICON_FOLDER, Theme::GetDef().foreground0, item->name, !item->children.empty(), &item->userData.unfolded, false, false, item->userData.isInFavourites ? ICON_STAR : "", Theme::GetDef().accentSecondary);
-			m_controller->GetItem(parent)->GetParent()->AddChild(w);
-			m_controller->AddItem(w->GetChildren().front());
-			AddItemForDirectory(item, margin + Theme::GetDef().baseIndent * 2.0f);
-		}
-		else
-		{
-			Widget* w = CommonWidgets::BuildTexturedListItem(this, item, margin, m_editor->GetProjectManager().GetThumbnail(item), item->name, item->userData.isInFavourites ? ICON_STAR : "", Theme::GetDef().accentSecondary);
-			m_controller->GetItem(parent)->GetParent()->AddChild(w);
-			m_controller->AddItem(w);
-		}
 	} // namespace Lina::Editor
 
-	void ResourceDirectoryBrowser::AddItemForDirectory(ResourceDirectory* dir, float margin)
+	void ResourceDirectoryBrowser::AddItemForDirectory(Widget* parent, ResourceDirectory* dir, float margin)
 	{
 		for (ResourceDirectory* child : dir->children)
 		{
@@ -368,7 +355,7 @@ namespace Lina::Editor
 						continue;
 				}
 			}
-			AddItem(dir, child, margin);
+			AddItem(parent, child, margin);
 		}
 	}
 

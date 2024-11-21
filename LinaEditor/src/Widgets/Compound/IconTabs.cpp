@@ -63,21 +63,18 @@ namespace Lina::Editor
 			w->GetWidgetProps().drawBackground = true;
 			w->GetWidgetProps().rounding = w->GetWidgetProps().outlineThickness = 0.0f;
 			w->GetWidgetProps().colorBackground									= Theme::GetDef().background2;
-			w->GetWidgetProps().colorBackgroundAlt								= Theme::GetDef().background1;
+			w->GetWidgetProps().colorBackgroundAlt								= Theme::GetDef().accentPrimary0;
 			w->GetWidgetProps().colorHovered									= Theme::GetDef().background3;
 			w->RemoveText();
 			w->GetProps().onClicked = [i, this]() {
 				if (m_props.onSelected)
-					m_props.onSelected(static_cast<int32>(i));
+					m_props.onSelected(static_cast<uint8>(i));
 			};
 
-			m_verticalLayout->AddChild(w);
+			w->GetWidgetProps().borderThickness.bottom = Theme::GetDef().baseSeparatorThickness;
+			w->GetWidgetProps().colorBorders		   = Theme::GetDef().background0;
 
-			if (i != 0)
-			{
-				w->GetWidgetProps().borderThickness.top = Theme::GetDef().baseSeparatorThickness;
-				w->GetWidgetProps().colorBorders		= Theme::GetDef().background0;
-			}
+			m_verticalLayout->AddChild(w);
 
 			Icon* icon = m_manager->Allocate<Icon>("Icon");
 			icon->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
@@ -85,7 +82,7 @@ namespace Lina::Editor
 			icon->SetAnchorX(Anchor::Center);
 			icon->SetAnchorY(Anchor::Center);
 			icon->GetProps().dynamicSizeToParent = true;
-			icon->GetProps().dynamicSizeScale	 = 0.7f;
+			icon->GetProps().dynamicSizeScale	 = 0.5f;
 			icon->GetProps().icon				 = ic.icon;
 			icon->GetProps().color				 = ic.color;
 			w->AddChild(icon);
@@ -93,14 +90,16 @@ namespace Lina::Editor
 		}
 	}
 
-	void IconTabs::SetSelected(int32 selected)
+	void IconTabs::SetSelected(uint8 selected)
 	{
+		m_selected = selected;
+
 		if (m_verticalLayout->GetChildren().size() != m_props.icons.size())
 			Refresh();
 
 		const Vector<Widget*> children = m_verticalLayout->GetChildren();
 
-		int32 idx = 0;
+		uint8 idx = 0;
 
 		for (Widget* w : children)
 		{

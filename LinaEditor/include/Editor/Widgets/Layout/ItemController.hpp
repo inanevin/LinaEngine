@@ -76,8 +76,8 @@ namespace Lina::Editor
 			}
 		};
 
-		void	AddItem(Widget* widget);
 		void	ClearItems();
+		void	GatherItems(Widget* parent);
 		void	SetFocus(bool isFocused);
 		void	SelectItem(Widget* item, bool clearSelected, bool callEvent, bool makeVisible = false);
 		void	UnselectItem(Widget* item);

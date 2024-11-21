@@ -44,11 +44,11 @@ SOFTWARE.
 
 #else
 
-#define LINA_ERR(...)	   Lina::Log::LogMessage(Lina::LogLevel::Error, __VA_ARGS__)
-#define LINA_WARN(...)	   Lina::Log::LogMessage(Lina::LogLevel::Warn, __VA_ARGS__)
-#define LINA_INFO(...)	   Lina::Log::LogMessage(Lina::LogLevel::Info, __VA_ARGS__)
-#define LINA_TRACE(...)	   Lina::Log::LogMessage(Lina::LogLevel::Trace, __VA_ARGS__)
-#define LINA_CRITICAL(...) Lina::Log::LogMessage(Lina::LogLevel::Critical, __VA_ARGS__)
+#define LINA_ERR(...)	   Lina::Log::LogMessage(Lina::LogLevel::LOG_LEVEL_ERROR, __VA_ARGS__)
+#define LINA_WARN(...)	   Lina::Log::LogMessage(Lina::LogLevel::LOG_LEVEL_WARNING, __VA_ARGS__)
+#define LINA_INFO(...)	   Lina::Log::LogMessage(Lina::LogLevel::LOG_LEVEL_INFO, __VA_ARGS__)
+#define LINA_TRACE(...)	   Lina::Log::LogMessage(Lina::LogLevel::LOG_LEVEL_TRACE, __VA_ARGS__)
+#define LINA_CRITICAL(...) Lina::Log::LogMessage(Lina::LogLevel::LOG_LEVEL_CRITICAL, __VA_ARGS__)
 
 #endif
 

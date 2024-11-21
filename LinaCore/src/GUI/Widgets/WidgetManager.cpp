@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
+#include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
@@ -146,16 +147,21 @@ namespace Lina
 		m_foregroundLock = nullptr;
 	}
 
+	void WidgetManager::SetDisabledRecursively(Widget* root, bool disabled)
+	{
+		root->GetFlags().Set(WF_DISABLED, disabled);
+		for (Widget* w : root->m_children)
+			SetDisabledRecursively(w, disabled);
+	}
+
 	void WidgetManager::Draw()
 	{
-		PROFILER_FUNCTION();
+		PassDraw(m_rootWidget);
 
 		m_rootWidget->Draw();
 
 		if (!m_foregroundRoot->GetChildren().empty())
-		{
-			m_foregroundRoot->Draw();
-		}
+			PassDraw(m_foregroundRoot);
 
 		if (!m_foregroundRoot->GetChildren().empty())
 			DebugDraw(m_foregroundRoot);
@@ -176,15 +182,11 @@ namespace Lina
 		if (IsControlsOwner(widget))
 			ReleaseControls(widget);
 
-		if (widget->m_destructHook)
-			widget->m_destructHook();
-
 		// if (m_lastControlsManager == widget)
 		// 	m_lastControlsManager = nullptr;
 
-		widget->m_customTooltip = nullptr;
-
 		widget->PreDestruct();
+
 		for (auto* c : widget->m_children)
 			Deallocate(c);
 
@@ -593,13 +595,11 @@ namespace Lina
 
 	void WidgetManager::PassPreTick(Widget* w)
 	{
-		for (auto cb : w->m_executeNextFrame)
-			cb();
+		if (w->GetFlags().IsSet(WF_HIDE))
+			return;
 
 		for (auto cb : w->m_preTickHooks)
 			cb();
-
-		w->m_executeNextFrame.clear();
 
 		if (!w->GetFlags().IsSet(WF_CONTROLS_DRAW_ORDER) && w->GetParent())
 			w->SetDrawOrder(w->GetParent()->GetDrawOrder() + w->GetWidgetProps().drawOrderIncrement);
@@ -638,8 +638,8 @@ namespace Lina
 
 	void WidgetManager::PassCalculateSize(Widget* w, float delta)
 	{
-		if (!w->GetFlags().IsSet(WF_SIZE_AFTER_CHILDREN))
-			w->CalculateSize(delta);
+		if (w->GetFlags().IsSet(WF_HIDE))
+			return;
 
 		Vector<Widget*> expandingChildren;
 		Vector2			totalNonExpandingSize = Vector2::Zero;
@@ -652,7 +652,6 @@ namespace Lina
 
 		for (auto* c : w->GetChildren())
 		{
-
 			c->CalculateSize(delta);
 
 			const Vector2 alignedSize = c->GetAlignedSize();
@@ -697,9 +696,6 @@ namespace Lina
 			if (isExpandingX || isExpandingY)
 				expandingChildren.push_back(c);
 		}
-
-		if (w->GetFlags().IsSet(WF_SIZE_AFTER_CHILDREN))
-			w->CalculateSize(delta);
 
 		if (w->GetFlags().IsSet(WF_SIZE_X_TOTAL_CHILDREN))
 		{
@@ -768,6 +764,8 @@ namespace Lina
 			w->SetSizeY(max * w->GetAlignedSizeY() + w->GetWidgetProps().childMargins.top + w->GetWidgetProps().childMargins.bottom);
 		}
 
+		w->CalculateSize(delta);
+
 		if (!expandingChildren.empty())
 		{
 			const Vector2 start						 = w->GetStartFromMargins();
@@ -812,6 +810,9 @@ namespace Lina
 
 	void WidgetManager::PassTick(Widget* w, float delta)
 	{
+		if (w->GetFlags().IsSet(WF_HIDE))
+			return;
+
 		if (w->GetFlags().IsSet(WF_POS_ALIGN_X) && w->GetParent())
 			w->SetPosX(CalculateAlignedPosX(w));
 
@@ -835,6 +836,28 @@ namespace Lina
 
 		if (w->GetFlags().IsSet(WF_TICK_AFTER_CHILDREN))
 			w->Tick(delta);
+	}
+
+	void WidgetManager::PassDraw(Widget* w)
+	{
+		if (w->ShouldSkipDrawOutsideWindow())
+			return;
+
+		if (w->GetFlags().IsSet(WF_HIDE))
+			return;
+
+		w->DrawBackground();
+		w->DrawDropshadow();
+		w->Draw();
+		w->DrawBorders();
+		w->DrawTooltip();
+
+		w->CheckClipChildren();
+
+		for (Widget* child : w->GetChildren())
+			PassDraw(child);
+
+		w->CheckClipChildrenEnd();
 	}
 
 	ScrollArea* WidgetManager::FindScrollAreaAbove(Widget* w)

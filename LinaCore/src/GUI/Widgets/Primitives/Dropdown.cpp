@@ -120,8 +120,6 @@ namespace Lina
 			}
 		};
 
-		m_popup = popup;
-		popup->SetDestructHook([this]() { m_popup = nullptr; });
 		popup->Initialize();
 
 		m_manager->AddToForeground(popup);

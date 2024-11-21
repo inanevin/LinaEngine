@@ -82,20 +82,6 @@ namespace Lina::Editor
 		static Widget* GetPopupItemWithSelectionToggle(Widget* source, const String& title, bool isSelected);
 
 		static Widget* BuildPayloadForPanel(Widget* src, const String& name);
-		static Widget* BuildDefaultFoldItem(Widget*		  src,
-											void*		  userdata,
-											float		  margin,
-											const String& icon,
-											const Color&  iconColor,
-											const String& title,
-											bool		  hasChildren,
-											bool*		  unfoldVal,
-											bool		  isRoot		  = false,
-											bool		  boldText		  = false,
-											const String& footerIcon	  = "",
-											const Color&  footerIconColor = {});
-		static Widget* BuildDefaultListItem(Widget* src, void* userData, float margin, const String& icon, const Color& iconColor, const String& title, bool foldNudge);
-		static Widget* BuildTexturedListItem(Widget* src, void* userData, float margin, TextureAtlasImage* txt, const String& title, const String& footerIcon = "", const Color& footerIconColor = {});
 
 		static InputField* BuildFloatField(Widget* src, void* ptr, uint8 bits, bool isInt, bool isUnsigned, bool hasLimits, float minLimit = 0.0f, float maxLimit = 1.0f, float step = 0.1f, bool canSelectThemeValues = false);
 		static Widget*	   BuildTextureField(Widget* src, ProjectData* project, LinaTexture2D* txt, uint32 dependencies, const String& title, bool* foldVal, Delegate<void()> onValueChanged);
@@ -119,6 +105,7 @@ namespace Lina::Editor
 		struct ResDirItemProperties
 		{
 			String			   chevron		   = "";
+			String			   chevronAlt	   = "";
 			String			   typeText		   = "";
 			Color			   typeColor	   = Color::White;
 			String			   mainIcon		   = "";
@@ -132,7 +119,7 @@ namespace Lina::Editor
 			void*			   userData		   = nullptr;
 		};
 
-		static FoldLayout* BuildResDirItem(Widget* src, const ResDirItemProperties& props);
+		static FoldLayout* BuildTreeItem(Widget* src, const ResDirItemProperties& props);
 
 	private:
 	};

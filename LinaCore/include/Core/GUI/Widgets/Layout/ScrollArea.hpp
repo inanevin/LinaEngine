@@ -65,7 +65,7 @@ namespace Lina
 			}
 		};
 
-		virtual void Tick(float delta) override;
+		virtual void PreTick() override;
 		virtual void Draw() override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 		virtual bool OnMouseWheel(float amt) override;
@@ -98,6 +98,10 @@ namespace Lina
 			m_targetWidget = target;
 		}
 
+		inline void SetDisplayTarget(Widget* widget)
+		{
+			m_displayWidget = widget;
+		}
 		inline bool GetIsBarVisible() const
 		{
 			return m_barVisible && m_canDrawBar;
@@ -108,28 +112,40 @@ namespace Lina
 			m_canDrawBar = canDraw;
 		}
 
+		inline void AddOffsetTarget(Widget* w)
+		{
+			m_offsetTargets.push_back(w);
+		}
+
+		inline void ClearOffsetTargets()
+		{
+			m_offsetTargets.clear();
+		}
+
 	private:
 	private:
 		static constexpr float SCROLL_SMOOTH = 15.0f;
 		LINA_REFLECTION_ACCESS(ScrollArea);
 
-		Properties m_props				  = {};
-		bool	   m_canDrawBar			  = true;
-		float	   m_scrollAmount		  = 0.0f;
-		float	   m_minScroll			  = 0.0f;
-		float	   m_maxScroll			  = 0.0f;
-		float	   m_sizeToChildSizeRatio = 0.0f;
-		float	   m_pressDelta			  = 0.0f;
-		float	   m_totalChildSize		  = 0.0f;
-		Widget*	   m_targetWidget		  = nullptr;
-		bool	   m_barVisible			  = false;
-		bool	   m_barHovered			  = false;
-		Rect	   m_barBGRect			  = {};
-		Rect	   m_barRect			  = {};
-		Vector2	   m_start				  = {};
-		Vector2	   m_end				  = {};
-		Vector2	   m_sz					  = {};
-		bool	   m_lockScrollToEnd	  = false;
+		Properties		m_props				   = {};
+		bool			m_canDrawBar		   = true;
+		float			m_scrollAmount		   = 0.0f;
+		float			m_minScroll			   = 0.0f;
+		float			m_maxScroll			   = 0.0f;
+		float			m_sizeToChildSizeRatio = 0.0f;
+		float			m_pressDiff			   = 0.0f;
+		float			m_totalChildSize	   = 0.0f;
+		Widget*			m_targetWidget		   = nullptr;
+		Widget*			m_displayWidget		   = nullptr;
+		bool			m_barVisible		   = false;
+		bool			m_barHovered		   = false;
+		Rect			m_barBGRect			   = {};
+		Rect			m_barRect			   = {};
+		Vector2			m_start				   = {};
+		Vector2			m_end				   = {};
+		Vector2			m_sz				   = {};
+		bool			m_lockScrollToEnd	   = false;
+		Vector<Widget*> m_offsetTargets;
 	};
 
 	LINA_WIDGET_BEGIN(ScrollArea, Layout)

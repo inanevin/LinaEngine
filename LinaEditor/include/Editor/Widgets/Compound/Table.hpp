@@ -33,7 +33,9 @@ SOFTWARE.
 namespace Lina
 {
 	class DirectionalLayout;
-}
+	class Text;
+	class ScrollArea;
+} // namespace Lina
 namespace Lina::Editor
 {
 	class ItemController;
@@ -41,9 +43,18 @@ namespace Lina::Editor
 	class Table : public Widget
 	{
 	public:
+		struct HeaderDefinition
+		{
+			String text		 = "";
+			bool   clickable = false;
+			float  fixedSize = 0.0f;
+		};
+
 		struct Column
 		{
-			String title = "";
+			Text*			   columnText	  = nullptr;
+			DirectionalLayout* verticalLayout = nullptr;
+			DirectionalLayout* contents		  = nullptr;
 		};
 
 		Table()			 = default;
@@ -51,13 +62,19 @@ namespace Lina::Editor
 
 		struct Properties
 		{
-			Vector<Column> columns;
+			Delegate<void(uint32)> onColumnClicked;
 		};
 
 		virtual void Construct() override;
-		virtual void Initialize() override;
-		void		 Refresh();
-		void		 AddRow(const Vector<Widget*>& columns);
+
+		void BuildHeaders(const Vector<HeaderDefinition>& headerDef);
+		void ClearRows();
+		void AddRow(const Vector<Widget*>& columns);
+
+		inline DirectionalLayout* GetHorizontalLayout() const
+		{
+			return m_layout;
+		}
 
 		inline Properties& GetProps()
 		{
@@ -66,8 +83,10 @@ namespace Lina::Editor
 
 	private:
 		Properties		   m_props		= {};
-		DirectionalLayout* m_contents	= nullptr;
+		DirectionalLayout* m_layout		= nullptr;
 		ItemController*	   m_controller = nullptr;
+		Vector<Column>	   m_columns;
+		ScrollArea*		   m_scroll = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(Table, Hidden)

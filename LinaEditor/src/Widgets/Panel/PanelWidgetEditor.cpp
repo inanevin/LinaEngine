@@ -324,7 +324,6 @@ namespace Lina::Editor
 
 	void PanelWidgetEditor::Draw()
 	{
-		Widget::Draw();
 		Vector<Widget*> selection = m_hierarchyController->GetSelectedUserData<Widget>();
 
 		LinaVG::StyleOptions opts;
@@ -379,15 +378,15 @@ namespace Lina::Editor
 
 		for (CategoryInfo& category : m_categories)
 		{
-			Widget* cat = CommonWidgets::BuildDefaultFoldItem(this, nullptr, Theme::GetDef().baseIndent, "", Color::White, category.title, true, nullptr, true, true);
-			m_widgetsController->AddItem(cat->GetChildren().front());
-			m_widgetsLayout->AddChild(cat);
+			// Widget* cat = CommonWidgets::BuildDefaultFoldItem(this, nullptr, Theme::GetDef().baseIndent, "", Color::White, category.title, true, nullptr, true, true);
+			// m_widgetsController->AddItem(cat->GetChildren().front());
+			// m_widgetsLayout->AddChild(cat);
 
 			for (WidgetInfo& wif : category.widgets)
 			{
-				Widget* wi = CommonWidgets::BuildDefaultListItem(this, &wif, Theme::GetDef().baseIndent * 2.0f, "", Color::White, wif.title, true);
-				cat->AddChild(wi);
-				m_widgetsController->AddItem(wi);
+				// Widget* wi = CommonWidgets::BuildDefaultListItem(this, &wif, Theme::GetDef().baseIndent * 2.0f, "", Color::White, wif.title, true);
+				// cat->AddChild(wi);
+				// m_widgetsController->AddItem(wi);
 			}
 		}
 	}
@@ -404,12 +403,12 @@ namespace Lina::Editor
 		m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResourceDirectory(m_currentWidget->GetID());
 
 		Widget* sourceWidget = &m_currentWidget->GetRoot();
-		Widget* rootInEditor = CommonWidgets::BuildDefaultFoldItem(this, sourceWidget, Theme::GetDef().baseIndent, "", Color::White, sourceWidget->GetWidgetProps().debugName, true, &sourceWidget->_fold, true);
-
-		m_hierarchyController->AddItem(rootInEditor->GetChildren().front());
-		m_hierarchyLayout->AddChild(rootInEditor);
-
-		AddItemForWidget(rootInEditor, sourceWidget, Theme::GetDef().baseIndent * 2);
+		// Widget* rootInEditor = CommonWidgets::BuildDefaultFoldItem(this, sourceWidget, Theme::GetDef().baseIndent, "", Color::White, sourceWidget->GetWidgetProps().debugName, true, &sourceWidget->_fold, true);
+		//
+		// m_hierarchyController->AddItem(rootInEditor->GetChildren().front());
+		// m_hierarchyLayout->AddChild(rootInEditor);
+		//
+		// AddItemForWidget(rootInEditor, sourceWidget, Theme::GetDef().baseIndent * 2);
 	}
 
 	void PanelWidgetEditor::AddItemForWidget(Widget* rootInEditor, Widget* sourceWidget, float margin)
@@ -418,19 +417,19 @@ namespace Lina::Editor
 		{
 			const std::type_info& typeInfo = typeid(c);
 			const String		  typeName = typeInfo.name();
-			Widget*				  item	   = CommonWidgets::BuildDefaultFoldItem(this, c, margin, "", Color::White, c->GetWidgetProps().debugName, !c->GetChildren().empty(), &c->_fold, false);
-
-			Text* classType			   = m_manager->Allocate<Text>();
-			classType->GetProps().text = "(" + ReflectionSystem::Get().Resolve(c->GetTID())->GetProperty<String>("Title"_hs) + ")";
-			classType->GetFlags().Set(WF_POS_ALIGN_Y);
-			classType->SetAlignedPosY(0.5f);
-			classType->SetAnchorY(Anchor::Center);
-			classType->Initialize();
-			item->GetChildren().front()->AddChild(classType);
-
-			m_hierarchyController->AddItem(item->GetChildren().front());
-			rootInEditor->AddChild(item);
-			AddItemForWidget(item, c, margin + Theme::GetDef().baseIndent);
+			// Widget*				  item	   = CommonWidgets::BuildDefaultFoldItem(this, c, margin, "", Color::White, c->GetWidgetProps().debugName, !c->GetChildren().empty(), &c->_fold, false);
+			//
+			// Text* classType			   = m_manager->Allocate<Text>();
+			// classType->GetProps().text = "(" + ReflectionSystem::Get().Resolve(c->GetTID())->GetProperty<String>("Title"_hs) + ")";
+			// classType->GetFlags().Set(WF_POS_ALIGN_Y);
+			// classType->SetAlignedPosY(0.5f);
+			// classType->SetAnchorY(Anchor::Center);
+			// classType->Initialize();
+			// item->GetChildren().front()->AddChild(classType);
+			//
+			// m_hierarchyController->AddItem(item->GetChildren().front());
+			// rootInEditor->AddChild(item);
+			// AddItemForWidget(item, c, margin + Theme::GetDef().baseIndent);
 		}
 	}
 

@@ -49,9 +49,13 @@ namespace Lina
 		Resource(ResourceID id, TypeID tid, const String& name) : m_id(id), m_tid(tid), m_name(name){};
 		virtual ~Resource();
 
-		virtual void GenerateHW(){};
-		virtual void DestroyHW(){};
-		virtual void SetCustomMeta(IStream& stream){};
+		virtual void   GenerateHW(){};
+		virtual void   DestroyHW(){};
+		virtual void   SetCustomMeta(IStream& stream){};
+		virtual size_t GetSize() const
+		{
+			return 0;
+		};
 
 		virtual bool LoadFromFile(const String& path)
 		{

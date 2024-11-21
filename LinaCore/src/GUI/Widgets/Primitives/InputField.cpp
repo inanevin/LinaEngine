@@ -111,15 +111,6 @@ namespace Lina
 		}
 	}
 
-	void InputField::CalculateSize(float delta)
-	{
-		if (m_props.wrapText)
-		{
-			m_text->GetProps().wrapWidth = m_isEditing ? 0.0f : GetSizeX();
-			m_text->CalculateTextSize();
-		}
-	}
-
 	void InputField::PreTick()
 	{
 		if (m_middlePressed && m_props.isNumberField && !m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_MIDDLE))
@@ -244,15 +235,6 @@ namespace Lina
 
 	void InputField::Draw()
 	{
-		if (GetFlags().IsSet(WF_HIDE))
-			return;
-
-		if (ShouldSkipDrawOutsideWindow())
-			return;
-
-		Widget::DrawBackground();
-
-		CheckClipChildren();
 
 		// Number field slider background.
 		if (m_props.isNumberField && !m_props.disableNumberSlider && !m_isEditing && m_props.valuePtr)
@@ -314,18 +296,6 @@ namespace Lina
 				m_lvg->DrawRect(topLeft.AsLVG(), bottomRight.AsLVG(), highlight, 0, m_drawOrder);
 			}
 		}
-
-		// m_text->GetProps().customClip = Vector4(m_rect.pos.x, m_rect.pos.y, m_rect.size.x, m_rect.size.y);
-
-		m_text->Draw();
-
-		if (!m_placeholderText->GetFlags().IsSet(WF_HIDE))
-		{
-			m_placeholderIcon->Draw();
-			m_placeholderText->Draw();
-		}
-
-		CheckClipChildrenEnd();
 	}
 
 	void InputField::StartEditing()

@@ -84,8 +84,6 @@ namespace Lina::Editor
 			opts.color = m_props.colorProgress.AsLVG4();
 			m_lvg->DrawCircle(m_rect.GetCenter().AsLVG(), rad, opts, 36, 0.0f, 100.0f, 101.0f + 349.0f * m_progress, m_drawOrder + 1);
 		}
-
-		Widget::Draw();
 	}
 
 	void ProgressCircleFill::UpdateProgress(float prog)

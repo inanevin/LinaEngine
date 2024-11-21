@@ -230,17 +230,11 @@ namespace Lina::Editor
 
 	void DockArea::Draw()
 	{
-		if (m_tabRow)
-			m_tabRow->Draw();
-
 		if (m_selectedPanel)
 		{
 			const Color ds = Color(Theme::GetDef().black.x, Theme::GetDef().black.y, Theme::GetDef().black.z, 0.5f);
 			WidgetUtility::DrawDropShadow(m_lvg, m_selectedPanel->GetRect().pos, Vector2(m_selectedPanel->GetRect().GetEnd().x, m_selectedPanel->GetPosY()), m_drawOrder, ds, 6);
-			m_selectedPanel->Draw();
 		}
-
-		m_preview->Draw();
 	}
 
 	void DockArea::OnPayloadStarted(PayloadType type, Widget* payload)
