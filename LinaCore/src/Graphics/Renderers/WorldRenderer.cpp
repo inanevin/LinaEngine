@@ -240,10 +240,13 @@ namespace Lina
 		}
 
 		m_gfxContext->MarkBindlessDirty();
+
+		LINA_TRACE("CREATED WR RESOURCES");
 	}
 
 	void WorldRenderer::DestroySizeRelativeResources()
 	{
+		LINA_TRACE("DESTROYING WR RESOURCES");
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data = m_pfd[i];
@@ -416,6 +419,7 @@ namespace Lina
 			barrierToAttachment->textureBarriers[4]	 = GfxHelpers::GetTextureBarrierColorRead2Att(currentFrame.lightingPassOutput->GetGPUHandle());
 		}
 
+		LINA_TRACE("WR RENDERING WORLD TO TEXTURE INDEX {0}", frameIndex);
 		// Global vertex/index buffers.
 		m_deferredPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
 		m_deferredPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxContext->GetPipelineLayoutPersistent(RenderPassType::Deferred));

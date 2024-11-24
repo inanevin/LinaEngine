@@ -118,8 +118,9 @@ namespace Lina::Editor
 		}
 
 		const uint32 frameIndex		= Application::GetLGX()->GetCurrentFrameIndex();
-		Texture*	 target			= m_worldRenderer->GetLightingPassOutput(frameIndex);
+		Texture*	 target			= m_worldRenderer->GetLightingPassOutput((frameIndex + 1) % 2); // 1 frame behind renderer
 		GetWidgetProps().rawTexture = target;
+		LINA_TRACE("DISPLAYER PRODUCING FRAME TO BE RENDERER WITH TEXTURE {0} {1}", target->GetName(), target->GetPath());
 	}
 
 	bool WorldDisplayer::OnMouse(uint32 button, LinaGX::InputAction act)

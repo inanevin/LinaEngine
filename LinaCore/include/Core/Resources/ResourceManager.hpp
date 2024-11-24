@@ -29,7 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Common/Data/Vector.hpp"
-#include "Common/Data/Stack.hpp"
+#include "Common/Data/Deque.hpp"
 #include "CommonResources.hpp"
 #include "ResourceCache.hpp"
 #include "ResourceManagerListener.hpp"
@@ -111,7 +111,7 @@ namespace Lina
 			CheckLock();
 			if (id > RESOURCE_ID_CUSTOM_SPACE && id < RESOURCE_ID_CUSTOM_SPACE_MAX)
 			{
-				m_freeCustomIDs.push(id);
+				m_freeCustomIDs.push_back(id);
 			}
 			GetCache<T>()->Destroy(id);
 		}
@@ -131,8 +131,8 @@ namespace Lina
 		{
 			if (!m_freeCustomIDs.empty())
 			{
-				const ResourceID id = m_freeCustomIDs.top();
-				m_freeCustomIDs.pop();
+				const ResourceID id = m_freeCustomIDs.front();
+				m_freeCustomIDs.pop_front();
 				return id;
 			}
 
@@ -165,7 +165,7 @@ namespace Lina
 		void CheckLock();
 
 	private:
-		Stack<ResourceID>				 m_freeCustomIDs;
+		Deque<ResourceID>				 m_freeCustomIDs;
 		Vector<ResourceManagerListener*> m_listeners;
 		ResourceID						 m_customResourceID = RESOURCE_ID_CUSTOM_SPACE;
 		Vector<SpacePair>				 m_resourceSpaces;

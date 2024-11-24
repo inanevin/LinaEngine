@@ -411,7 +411,7 @@ namespace Lina::Editor
 			if (req.textureID == 0)
 				continue;
 
-			Texture* res = m_resourceManagerV2->GetResource<Texture>(req.textureID);
+			Texture* res = m_resourceManagerV2->GetIfExists<Texture>(req.textureID);
 			if (res == nullptr)
 			{
 				req._invalid = true;
@@ -420,6 +420,14 @@ namespace Lina::Editor
 
 			LinaTexture2DBinding* binding = reinterpret_cast<LinaTexture2DBinding*>(m_renderDraw.materialBuffer.data() + req.texturePadding);
 			binding->textureIndex		  = res->GetBindlessIndex();
+
+			if (res->GetName().find("Font") != String::npos)
+				continue;
+
+			if (res->GetName().find("Atlas") != String::npos)
+				continue;
+
+			LINA_TRACE("Buffering material {0} {1}", res->GetName(), res->GetPath());
 		}
 
 		materialBuffer.BufferData(0, m_renderDraw.materialBuffer.data(), m_renderDraw.materialBufferCounter);

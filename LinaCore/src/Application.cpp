@@ -120,14 +120,14 @@ namespace Lina
 		m_renderJoinPossible = false;
 		m_resourceManager.SetLocked(true);
 
-		// auto renderJob = m_executor.Async([this]() { Render(); });
+		LINA_TRACE("STARTING TICK AND RENDER IN PARALLEL, LGX FRAME {0}", s_lgx->GetCurrentFrameIndex());
+		auto renderJob = m_executor.Async([this]() { Render(); });
 
 		m_worldProcessor.Tick(static_cast<float>(delta));
 		GetAppDelegate()->Tick(static_cast<float>(delta));
 
-		// renderJob.get();
+		renderJob.get();
 		m_appDelegate->SyncRender();
-		Render();
 
 		m_renderJoinPossible = true;
 		m_resourceManager.SetLocked(false);
