@@ -37,6 +37,14 @@ SOFTWARE.
 #include <Cocoa/Cocoa.h>
 #include <CoreVideo/CoreVideo.h>
 
+#include <mach/mach.h>
+#include <mach/task_info.h>
+#include <mach/mach_init.h>
+#include <mach/mach_error.h>
+#include <mach/mach_host.h>
+#include <mach/vm_map.h>
+#include <sys/sysctl.h>  // For sysctl to get total memory
+
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 110000 // macOS 11.0 or later
 #include <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #endif
@@ -393,6 +401,63 @@ namespace Lina
 	{
 		const String command = "open " + url;
 		system(command.c_str());
+	}
+
+	namespace
+	{
+		float CalculateCPULoad(unsigned long long idleTicks, unsigned long long totalTicks)
+		{
+			static unsigned long long _previousTotalTicks = 0;
+			static unsigned long long _previousIdleTicks = 0;
+
+			unsigned long long totalTicksSinceLastTime = totalTicks-_previousTotalTicks;
+			unsigned long long idleTicksSinceLastTime  = idleTicks-_previousIdleTicks;
+			float ret = 1.0f-((totalTicksSinceLastTime > 0) ? ((float)idleTicksSinceLastTime)/totalTicksSinceLastTime : 0);
+			_previousTotalTicks = totalTicks;
+			_previousIdleTicks  = idleTicks;
+			return ret;
+		}
+	}
+
+	float PlatformProcess::GetCPULoad()
+	{
+		host_cpu_load_info_data_t cpuinfo;
+		mach_msg_type_number_t count = HOST_CPU_LOAD_INFO_COUNT;
+		if (host_statistics(mach_host_self(), HOST_CPU_LOAD_INFO, (host_info_t)&cpuinfo, &count) == KERN_SUCCESS)
+		{
+			unsigned long long totalTicks = 0;
+			for(int i=0; i<CPU_STATE_MAX; i++)
+			    totalTicks += cpuinfo.cpu_ticks[i];
+			return CalculateCPULoad(cpuinfo.cpu_ticks[CPU_STATE_IDLE], totalTicks);
+		}
+		else
+		 return -1.0f;
+	}
+
+	PlatformProcess::MemoryInformation PlatformProcess::QueryMemInformation()
+	{
+		  MemoryInformation info = {};
+
+		task_basic_info_data_t taskInfo;
+		mach_msg_type_number_t taskInfoCount = TASK_BASIC_INFO_COUNT;
+
+		if (task_info(mach_task_self(), TASK_BASIC_INFO, (task_info_t)&taskInfo, &taskInfoCount) == KERN_SUCCESS)
+		{
+		    info.currentUsage = static_cast<uint32>(taskInfo.resident_size);
+		    info.peakUsage = 0; 
+		}
+
+		// Get total physical memory using sysctl
+		int mib[2] = {CTL_HW, HW_MEMSIZE};
+		uint64_t totalMemory;
+		size_t size = sizeof(totalMemory);
+
+		if (sysctl(mib, 2, &totalMemory, &size, NULL, 0) == 0)
+		{
+		    info.totalMemory = static_cast<uint32>( totalMemory);
+		}
+
+    return info;
 	}
 
 } // namespace Lina

@@ -172,8 +172,6 @@ namespace Lina
 	{
 		PerFrameData& pfd = m_pfd[frameIndex];
 
-		UpdateBindless(frameIndex);
-
 		if (m_uploadQueue.FlushAll(pfd.copyStream))
 		{
 			pfd.copySemaphore.Increment();

@@ -73,6 +73,7 @@ namespace Lina
 		void Initialize(Application* app);
 		void Shutdown();
 		void PollUploads(uint32 frameIndex);
+		void UpdateBindless(uint32 frameIndex);
 
 		virtual void OnResourceManagerPreDestroyHW(const HashSet<Resource*>& resources) override;
 		virtual void OnResourceManagerGeneratedHW(const HashSet<Resource*>& resources) override;
@@ -104,8 +105,6 @@ namespace Lina
 		}
 
 	private:
-		void UpdateBindless(uint32 frameIndex);
-
 	private:
 		Application*		m_app		 = nullptr;
 		ResourceManagerV2*	m_rm		 = nullptr;

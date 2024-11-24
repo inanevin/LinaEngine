@@ -830,6 +830,9 @@ namespace Lina
 		if (w->ShouldSkipDrawOutsideWindow())
 			return;
 
+		if (w->GetSizeX() < 0.5f || w->GetSizeY() < 0.5f)
+			return;
+
 		if (w->GetFlags().IsSet(WF_HIDE))
 			return;
 

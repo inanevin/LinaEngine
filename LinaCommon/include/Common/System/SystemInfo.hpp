@@ -76,17 +76,17 @@ namespace Lina
 
 		static inline double GetDeltaTime()
 		{
-			return s_deltaTime;
+			return s_deltaTimeSeconds;
 		}
 
-		static inline double GetRealDeltaTime()
+		static inline double GetSmoothedDeltaTime()
 		{
-			return s_realDeltaTime;
+			return s_smoothedDeltaSeconds;
 		}
 
-		static inline int64 GetRealDeltaTimeMicroSeconds()
+		static inline int64 GetSmoothedDeltaMicroseconds()
 		{
-			return s_realDeltaTimeMicroseconds;
+			return s_smoothedDeltaMicroseconds;
 		}
 
 		static inline int64 GetDeltaTimeMicroSeconds()
@@ -160,10 +160,10 @@ namespace Lina
 			s_appStartSystemTimeMicroseconds = microseconds;
 		}
 
-		static inline void SetDeltaTimeMicroSeconds(int64 microseconds)
+		static inline void SetSmoothedDeltaMicroseconds(int64 microseconds)
 		{
-			s_deltaTimeMicroseconds = microseconds;
-			s_deltaTime				= static_cast<double>(microseconds) * 0.000001;
+			s_smoothedDeltaMicroseconds = microseconds;
+			s_smoothedDeltaSeconds		= static_cast<double>(microseconds) * 0.000001;
 		}
 
 		static inline void SetAppTime(double seconds)
@@ -186,10 +186,10 @@ namespace Lina
 			s_measuredFPS = fps;
 		}
 
-		static inline void SetRealDeltaTimeMicroSeconds(int64 microseconds)
+		static inline void SetDeltaTimeMicroseconds(int64 microseconds)
 		{
-			s_realDeltaTimeMicroseconds = microseconds;
-			s_realDeltaTime				= static_cast<double>(microseconds) * 0.000001;
+			s_deltaTimeMicroseconds = microseconds;
+			s_deltaTimeSeconds		= static_cast<double>(microseconds) * 0.000001;
 		}
 
 		static inline void SetAppStartCycles(int64 cycles)
@@ -204,16 +204,16 @@ namespace Lina
 
 	private:
 		static double s_appTime;
-		static double s_deltaTime;
-		static double s_realDeltaTime;
+		static double s_deltaTimeSeconds;
 		static double s_timescale;
 		static bool	  s_appHasFocus;
 		static int64  s_currentSystemTimeMicroseconds;
 		static int64  s_appTimeMicroseconds;
 		static int64  s_appStartMicroseconds;
 		static int64  s_appStartSystemTimeMicroseconds;
+		static int64  s_smoothedDeltaMicroseconds;
+		static double s_smoothedDeltaSeconds;
 		static int64  s_deltaTimeMicroseconds;
-		static int64  s_realDeltaTimeMicroseconds;
 		static int64  s_appStartCycles;
 		static uint64 s_frames;
 		static uint32 s_measuredFPS;

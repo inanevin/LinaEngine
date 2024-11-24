@@ -28,10 +28,7 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Profiler_HPP
-#define Profiler_HPP
-
-#ifdef LINA_DEBUG
+#ifdef LINA_ENABLE_PROFILER
 
 #define MAX_FRAME_BACKTRACE 500
 #define BACKTRACE_CLEANUP	200
@@ -42,6 +39,7 @@ SOFTWARE.
 #include "Common/Data/Queue.hpp"
 #include "Common/Data/Deque.hpp"
 #include "Common/StringID.hpp"
+#include "Common/Data/Mutex.hpp"
 #include <source_location>
 
 namespace Lina
@@ -82,40 +80,32 @@ namespace Lina
 		ParallelHashMapMutex<StringID, Vector<DrawCall>> drawCalls;
 	};
 
-	struct DeviceCPUInfo
-	{
-		// Total % of CPU used by this process.
-		double processUse = 0.0;
-
-		// Total % of CPU utilization by this process.
-		double processUtilization = 0.0;
-
-		int						numberOfCores	   = 0;
-		double					averageFrameTimeNS = 0.0;
-		HashMap<uint64, double> cpuUsages;
-	};
-
-	struct DeviceGPUInfo
-	{
-		uint64 m_memoryHeapSize	 = 0;
-		uint32 m_memoryHeapCount = 0;
-	};
-
 	class Profiler
 	{
 	public:
+		struct DrawInfo
+		{
+			Atomic<uint32> drawCalls;
+			Atomic<uint32> tris;
+			Atomic<uint32> vertices;
+			Atomic<uint32> indices;
+		};
+
 		static Profiler* Get()
 		{
 			return s_instance;
 		}
 
-		DeviceCPUInfo& QueryCPUInfo();
-		void		   StartFrame();
-		uint32		   StartBlock(const char* blockName, StringID threadName);
-		void		   EndBlock(StringID threadName, uint32 id);
-		void		   DumpFrameAnalysis(const String& path);
-		void		   RegisterThread(const char* name, StringID sid);
-		void		   AddDrawCall(uint32 tris, const String& category, uint32 meta);
+		void   StartFrame();
+		uint32 StartBlock(const char* blockName, StringID threadName);
+		void   EndBlock(StringID threadName, uint32 id);
+		void   DumpFrameAnalysis(const String& path);
+		void   RegisterThread(const char* name, StringID sid);
+
+		void ResetDrawInfo();
+		void AddDrawCall(uint32 count);
+		void AddTris(uint32 tris);
+		void AddVerticesIndices(uint32 vertices, uint32 indices);
 
 		inline ProfilerFrame& GetFrame()
 		{
@@ -130,11 +120,10 @@ namespace Lina
 			return *(m_frameQueue.rbegin() + 1);
 		}
 
-		inline void SetGPUInfo(const DeviceGPUInfo& info)
+		inline const DrawInfo& GetDrawInfo() const
 		{
-			m_gpuInfo = info;
+			return m_drawInfo;
 		}
-
 		const char* FrameAnalysisFile = "lina_frame_analysis.txt";
 
 	protected:
@@ -158,8 +147,7 @@ namespace Lina
 		Deque<ProfilerFrame>		   m_frameQueue;
 		double						   m_lastCPUQueryTime		= 0.0;
 		bool						   m_totalFrameQueueReached = false;
-		DeviceCPUInfo				   m_cpuInfo;
-		DeviceGPUInfo				   m_gpuInfo;
+		DrawInfo					   m_drawInfo;
 	};
 
 #define PROFILER_INIT						  Lina::Profiler::Initialize()
@@ -171,7 +159,10 @@ namespace Lina
 #define PROFILER_SET_FRAMEANALYSIS_FILE(FILE) Lina::Profiler::Get()->FrameAnalysisFile = FILE
 #define PROFILER_REGISTER_THREAD(NAME)		  Lina::Profiler::Get()->RegisterThread(NAME, static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())))
 
-#define PROFILER_ADD_DRAWCALL(TRIS, CATEGORY, META) Lina::Profiler::Get()->AddDrawCall(TRIS, CATEGORY, META)
+#define PROFILER_RESET_DRAWINFO()		   Lina::Profiler::Get()->ResetDrawInfo()
+#define PROFILER_ADD_DRAWCALL(X)		   Lina::Profiler::Get()->AddDrawCall(X)
+#define PROFILER_ADD_TRIS(X)			   Lina::Profiler::Get()->AddTris(X)
+#define PROFILER_ADD_VERTICESINDICES(X, Y) Lina::Profiler::Get()->AddVerticesIndices(X, Y)
 
 } // namespace Lina
 
@@ -185,8 +176,10 @@ namespace Lina
 #define PROFILER_FUNCTION(...)
 #define PROFILER_SET_FRAMEANALYSIS_FILE(FILE)
 #define PROFILER_REGISTER_THREAD(NAME)
-#define PROFILER_ADD_DRAWCALL(TRIS, CATEGORY, META)
 
-#endif
+#define PROFILER_RESET_DRAWINFO()
+#define PROFILER_ADD_DRAWCALL(X)
+#define PROFILER_ADD_TRIS(X)
+#define PROFILER_ADD_VERTICESINDICES(X, Y)
 
 #endif

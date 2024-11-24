@@ -35,18 +35,10 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	void LineGraph::Construct()
-	{
-		GetWidgetProps().rounding			 = 0.0f;
-		GetWidgetProps().outlineThickness	 = Theme::GetDef().baseOutlineThickness;
-		GetWidgetProps().childMargins.left	 = Theme::GetDef().baseIndent;
-		GetWidgetProps().childMargins.right	 = Theme::GetDef().baseIndent;
-		GetWidgetProps().childMargins.bottom = Theme::GetDef().baseIndent;
-		GetWidgetProps().childMargins.top	 = Theme::GetDef().baseIndent;
-	}
 
 	void LineGraph::Draw()
 	{
+
 		if (m_font == nullptr)
 			m_font = Editor::Get()->GetApp()->GetResourceManager().GetResource<Font>(m_props.font);
 
@@ -219,7 +211,7 @@ namespace Lina::Editor
 		}
 
 		// Grid background.
-		if (m_props.drawBackground)
+		if (m_props.drawGridBackground)
 		{
 			LinaVG::StyleOptions bgOpts;
 			bgOpts.color = m_props.colorBackground.AsLVG();
@@ -270,7 +262,7 @@ namespace Lina::Editor
 		for (const PointGroup& group : m_props.groups)
 		{
 			pointStyle.thickness = group.thickness;
-			pointStyle.aaEnabled = true;
+			// pointStyle.aaEnabled = true;
 
 			Vector<PointData> sortedPoints = group.points;
 			linatl::sort(sortedPoints.begin(), sortedPoints.end(), [](const PointData& p1, const PointData& p2) -> bool { return p1.mainAxisValue < p2.mainAxisValue; });
@@ -286,8 +278,6 @@ namespace Lina::Editor
 				const float		 xRatio = Math::Remap(point.mainAxisValue, mainAxisMin, mainAxisMax, 0.0f, 1.0f);
 
 				const LinaVG::Vec2 pointPos = LinaVG::Vec2(bottomLeft.x + graphSize.x * xRatio, topLeft.y + graphSize.y * yRatio);
-				// if (i == 0)
-				// 	m_groupPoints.push_back(LinaVG::Vec2(bottomLeft.x, pointPos.y));
 				m_groupPoints.push_back(pointPos);
 			}
 
@@ -309,38 +299,53 @@ namespace Lina::Editor
 			}
 		}
 
-		LinaVG::TextOptions legendTextOpts;
-		legendTextOpts.font		 = m_font->GetFont(m_lgxWindow->GetDPIScale());
-		legendTextOpts.alignment = LinaVG::TextAlignment::Right;
-
-		LinaVG::StyleOptions legendRectOpts;
-
-		const float legendRectSize = legendTextOpts.font->size;
-
-		Vector2 legendPos = topRight + Vector2(-afterTextIndent, afterTextIndent);
-
-		for (Legend& legend : m_props.legends)
+		if (!m_props.legends.empty())
 		{
-			legendTextOpts.color = m_props.colorLegendText.AsLVG4();
+			LinaVG::TextOptions legendTextOpts;
+			legendTextOpts.font		 = m_font->GetFont(m_lgxWindow->GetDPIScale());
+			legendTextOpts.alignment = LinaVG::TextAlignment::Left;
+			legendTextOpts.color	 = m_props.colorLegendText.AsLVG4();
 
-			const Vector2 sz = m_lvg->CalculateTextSize(legend.text.c_str(), legendTextOpts);
-			m_lvg->DrawTextDefault(legend.text.c_str(), Vector2(legendPos.x, legendPos.y + sz.y).AsLVG(), legendTextOpts, 0.0f, m_drawOrder);
+			LinaVG::StyleOptions legendRectOpts;
 
-			if (legend.axis.empty())
+			const float legendBarWidth	= legendTextOpts.font->size;
+			Vector2		totalLegendSize = Vector2::Zero;
+
+			for (Legend& legend : m_props.legends)
 			{
-				legendRectOpts.color = legend.color.AsLVG4();
-
-				const Vector2 tl = Vector2(legendPos.x - sz.x - afterTextIndent - legendRectSize, legendPos.y);
-				const Vector2 br = Vector2(tl.x + legendRectSize, tl.y + legendRectSize);
-				m_lvg->DrawRect(tl.AsLVG(), br.AsLVG(), legendRectOpts, 0.0f, m_drawOrder);
-			}
-			else
-			{
-				legendTextOpts.color = legend.color.AsLVG4();
-				m_lvg->DrawTextDefault(legend.axis.c_str(), Vector2(legendPos.x - sz.x - afterTextIndent, legendPos.y + sz.y).AsLVG(), legendTextOpts, 0.0f, m_drawOrder);
+				legend._calculatedSize = m_lvg->CalculateTextSize(legend.text.c_str(), legendTextOpts);
+				totalLegendSize.y += legend._calculatedSize.y + afterTextIndent;
+				totalLegendSize.x = Math::Max(totalLegendSize.x, legend._calculatedSize.x);
 			}
 
-			legendPos.y += legendTextOpts.font->size + afterTextIndent;
+			totalLegendSize.y += afterTextIndent * 2;
+			totalLegendSize.x += afterTextIndent * 4 + legendBarWidth + afterTextIndent;
+
+			const Vector2 legendRectMin = topLeft + Vector2(afterTextIndent, afterTextIndent);
+			const Vector2 legendRectMax = legendRectMin + totalLegendSize;
+
+			LinaVG::StyleOptions legendRect;
+			legendRect.color					= Color::Black.AsLVG4();
+			legendRect.outlineOptions.color		= Theme::GetDef().outlineColorBase.AsLVG4();
+			legendRect.outlineOptions.thickness = Theme::GetDef().baseOutlineThickness;
+			m_lvg->DrawRect(legendRectMin.AsLVG(), legendRectMax.AsLVG(), legendRect, 0.0f, m_drawOrder);
+
+			float posY = legendRectMin.y + afterTextIndent * 2;
+
+			for (Legend& legend : m_props.legends)
+			{
+				LinaVG::StyleOptions legendLine;
+				legendLine.color		= legend.color.AsLVG();
+				const Vector2 lineBegin = Vector2(legendRectMin.x + afterTextIndent * 2, posY);
+				const Vector2 lineEnd	= lineBegin + Vector2(legendBarWidth, 0.0f);
+				m_lvg->DrawLine(lineBegin.AsLVG(), lineEnd.AsLVG(), legendLine, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder);
+
+				const Vector2 textPos = Vector2(lineEnd.x + afterTextIndent, posY + legend._calculatedSize.y * 0.5f);
+				m_lvg->DrawTextDefault(legend.text.c_str(), textPos.AsLVG(), legendTextOpts, 0.0f, m_drawOrder, true);
+
+				posY += legend._calculatedSize.y + afterTextIndent;
+			}
 		}
 	}
+
 } // namespace Lina::Editor

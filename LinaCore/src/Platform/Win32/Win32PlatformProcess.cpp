@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Core/Lina.hpp"
 #include <shobjidl.h> // For IFileDialog and related interfaces
 #include <shellapi.h>
+#include <Psapi.h>
 
 #ifdef LINA_COMPILER_MSVC
 #pragma warning(push)
@@ -439,6 +440,61 @@ namespace Lina
 	void PlatformProcess::OpenURL(const String& str)
 	{
 		ShellExecute(0, "open", str.c_str(), NULL, NULL, SW_SHOWNORMAL);
+	}
+
+	namespace
+	{
+		static unsigned long long FileTimeToInt64(const FILETIME& ft)
+		{
+			return (((unsigned long long)(ft.dwHighDateTime)) << 32) | ((unsigned long long)ft.dwLowDateTime);
+		}
+
+		static float CalculateCPULoad(unsigned long long idleTicks, unsigned long long totalTicks)
+		{
+			static unsigned long long _previousTotalTicks = 0;
+			static unsigned long long _previousIdleTicks  = 0;
+
+			unsigned long long totalTicksSinceLastTime = totalTicks - _previousTotalTicks;
+			unsigned long long idleTicksSinceLastTime  = idleTicks - _previousIdleTicks;
+
+			float ret = 1.0f - ((totalTicksSinceLastTime > 0) ? ((float)idleTicksSinceLastTime) / totalTicksSinceLastTime : 0);
+
+			_previousTotalTicks = totalTicks;
+			_previousIdleTicks	= idleTicks;
+			return ret;
+		}
+
+	} // namespace
+
+	float PlatformProcess::GetCPULoad()
+	{
+		FILETIME idleTime, kernelTime, userTime;
+		return GetSystemTimes(&idleTime, &kernelTime, &userTime) ? CalculateCPULoad(FileTimeToInt64(idleTime), FileTimeToInt64(kernelTime) + FileTimeToInt64(userTime)) : -1.0f;
+	}
+
+	PlatformProcess::MemoryInformation PlatformProcess::QueryMemInformation()
+	{
+		MemoryInformation info = {};
+
+		// Get the current process handle
+		HANDLE					processHandle = GetCurrentProcess();
+		PROCESS_MEMORY_COUNTERS memCounters	  = {};
+
+		if (GetProcessMemoryInfo(processHandle, &memCounters, sizeof(memCounters)))
+		{
+			info.currentUsage = static_cast<uint32>(memCounters.WorkingSetSize);
+			info.peakUsage	  = static_cast<uint32>(memCounters.PeakWorkingSetSize);
+		}
+
+		// Get total physical memory
+		MEMORYSTATUSEX memStatus;
+		memStatus.dwLength = sizeof(memStatus);
+		if (GlobalMemoryStatusEx(&memStatus))
+		{
+			info.totalMemory = static_cast<uint32>(memStatus.ullTotalPhys);
+		}
+
+		return info;
 	}
 } // namespace Lina
 

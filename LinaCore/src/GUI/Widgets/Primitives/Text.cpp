@@ -56,8 +56,8 @@ namespace Lina
 
 		if (m_props.fetchCustomClipFromParent && m_parent)
 		{
-			const Vector2 start = m_parent->GetStartFromMargins();
-			const Vector2 end	= m_parent->GetEndFromMargins();
+			const Vector2 start = m_parent->GetRect().pos;
+			const Vector2 end	= m_parent->GetRect().GetEnd();
 			m_props.customClip	= Vector4(start.x, start.y, end.x - start.x, end.y - start.y + 10.0f);
 		}
 
@@ -94,8 +94,8 @@ namespace Lina
 		else
 			opts.color = m_props.color.AsLVG();
 
-		// opts.cpuClipping = m_props.customClip.AsLVG4();
-		opts.wordWrap = m_props.wordWrap;
+		opts.cpuClipping = m_props.customClip.AsLVG4();
+		opts.wordWrap	 = m_props.wordWrap;
 
 		auto p = (m_rect.pos + Vector2(0.0f, m_rect.size.y));
 

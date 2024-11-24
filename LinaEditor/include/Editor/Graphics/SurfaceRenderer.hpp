@@ -32,7 +32,6 @@ SOFTWARE.
 #include "Common/Math/Vector.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Core/Graphics/Pipeline/Buffer.hpp"
-#include "Core/Graphics/Data/RenderData.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
@@ -70,25 +69,28 @@ namespace Lina::Editor
 
 		struct DrawRequest
 		{
-			Shader* shader		   = nullptr;
-			uint32	startVertex	   = 0;
-			uint32	startIndex	   = 0;
-			uint32	vertexCount	   = 0;
-			uint32	indexCount	   = 0;
-			size_t	materialOffset = 0;
-			Recti	clip		   = {};
+			Shader*	   shader		  = nullptr;
+			uint32	   startVertex	  = 0;
+			uint32	   startIndex	  = 0;
+			uint32	   vertexCount	  = 0;
+			uint32	   indexCount	  = 0;
+			size_t	   materialOffset = 0;
+			Recti	   clip			  = {};
+			ResourceID textureID	  = 0;
+			size_t	   texturePadding = 0;
+
+			bool _invalid = false;
 		};
 
-		struct DrawBatch
+		struct Draw
 		{
-			Vector<DrawRequest> drawRequests;
-			size_t				indirectBufferOffset = 0;
-
-			void Clear()
-			{
-				indirectBufferOffset = 0;
-				drawRequests.clear();
-			}
+			Span<uint8>			guiVertexBuffer		  = {};
+			Span<uint8>			guiIndexBuffer		  = {};
+			Span<uint8>			materialBuffer		  = {};
+			uint32				vertexCounter		  = 0;
+			uint32				indexCounter		  = 0;
+			size_t				materialBufferCounter = 0;
+			Vector<DrawRequest> requests;
 		};
 
 	public:
@@ -146,8 +148,7 @@ namespace Lina::Editor
 		LinaVG::Drawer m_lvgDrawer;
 		WidgetManager  m_widgetManager;
 
-		HashMap<Shader*, DrawBatch> m_drawData;
-		Vector<DrawRequest>			m_drawRequests;
+		Vector<DrawRequest> m_drawRequests;
 
 		Shader* m_guiDefault	= nullptr;
 		Shader* m_guiColorWheel = nullptr;
@@ -158,6 +159,9 @@ namespace Lina::Editor
 		uint32 m_frameVertexCounter			= 0;
 		uint32 m_frameIndexCounter			= 0;
 		size_t m_frameMaterialBufferCounter = 0;
+
+		Draw m_cpuDraw	  = {};
+		Draw m_renderDraw = {};
 	};
 
 } // namespace Lina::Editor

@@ -42,19 +42,21 @@ namespace Lina::Editor
 #define RESOURCE_ID_EDITOR_MATERIALS RESOURCE_ID_EDITOR_SPACE + 250
 
 // Fonts
-#define EDITOR_FONT_ROBOTO_PATH		 "Resources/Editor/Fonts/Roboto-Regular.ttf"
-#define EDITOR_FONT_ROBOTO_BOLD_PATH "Resources/Editor/Fonts/Roboto-Regular.ttf"
-#define EDITOR_FONT_PLAY_BIG_PATH	 "Resources/Editor/Fonts/Play-Big.ttf"
-#define EDITOR_FONT_ICON_PATH		 "Resources/Editor/Fonts/EditorIcons.ttf"
-#define EDITOR_FONT_PLAY_PATH		 "Resources/Editor/Fonts/Play-Regular.ttf"
-#define EDITOR_FONT_PLAY_BOLD_PATH	 "Resources/Editor/Fonts/Play-Bold.ttf"
+#define EDITOR_FONT_ROBOTO_PATH		   "Resources/Editor/Fonts/Roboto-Regular.ttf"
+#define EDITOR_FONT_ROBOTO_BOLD_PATH   "Resources/Editor/Fonts/Roboto-Regular.ttf"
+#define EDITOR_FONT_PLAY_BIG_PATH	   "Resources/Editor/Fonts/Play-Big.ttf"
+#define EDITOR_FONT_ICON_PATH		   "Resources/Editor/Fonts/EditorIcons.ttf"
+#define EDITOR_FONT_PLAY_PATH		   "Resources/Editor/Fonts/Play-Regular.ttf"
+#define EDITOR_FONT_PLAY_BOLD_PATH	   "Resources/Editor/Fonts/Play-Bold.ttf"
+#define EDITOR_FONT_PLAY_VERY_BIG_PATH "Resources/Editor/Fonts/Play-Big.ttf"
 
-#define EDITOR_FONT_ROBOTO_ID	   RESOURCE_ID_EDITOR_FONTS
-#define EDITOR_FONT_ROBOTO_BOLD_ID RESOURCE_ID_EDITOR_FONTS + 1
-#define EDITOR_FONT_PLAY_BIG_ID	   RESOURCE_ID_EDITOR_FONTS + 2
-#define EDITOR_FONT_ICON_ID		   RESOURCE_ID_EDITOR_FONTS + 3
-#define EDITOR_FONT_PLAY_ID		   RESOURCE_ID_EDITOR_FONTS + 4
-#define EDITOR_FONT_PLAY_BOLD_ID   RESOURCE_ID_EDITOR_FONTS + 5
+#define EDITOR_FONT_ROBOTO_ID		 RESOURCE_ID_EDITOR_FONTS
+#define EDITOR_FONT_ROBOTO_BOLD_ID	 RESOURCE_ID_EDITOR_FONTS + 1
+#define EDITOR_FONT_PLAY_BIG_ID		 RESOURCE_ID_EDITOR_FONTS + 2
+#define EDITOR_FONT_ICON_ID			 RESOURCE_ID_EDITOR_FONTS + 3
+#define EDITOR_FONT_PLAY_ID			 RESOURCE_ID_EDITOR_FONTS + 4
+#define EDITOR_FONT_PLAY_BOLD_ID	 RESOURCE_ID_EDITOR_FONTS + 5
+#define EDITOR_FONT_PLAY_VERY_BIG_ID RESOURCE_ID_EDITOR_FONTS + 6
 
 // Shaders
 #define EDITOR_SHADER_GUI_DEFAULT_PATH				   "Resources/Editor/Shaders/GUI/GUIDefault.linashader"

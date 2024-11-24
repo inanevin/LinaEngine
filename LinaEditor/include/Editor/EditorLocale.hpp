@@ -97,6 +97,7 @@ namespace Lina::Editor
 		Selected,
 		NothingInDirectory,
 		Memory,
+		PeakMemory,
 		FrameTime,
 		DrawCalls,
 		GeneratingThumbnails,
@@ -183,6 +184,13 @@ namespace Lina::Editor
 		Spaces,
 		Meta,
 		SizeHW,
+		CPUUtilization,
+		Vertices,
+		Indices,
+		Delta,
+		SmoothedDelta,
+		Tris,
+		DPIScale,
 	};
 
 	class Locale

@@ -72,13 +72,19 @@ namespace Lina::Editor
 			.isSDF	= false,
 		};
 
+		Font::Metadata fontMeta4 = {
+			.points = {{.size = 32, .dpiLimit = 1.0f}, {.size = 36, .dpiLimit = 1.8f}, {.size = 38, .dpiLimit = 10.0f}},
+			.isSDF	= false,
+		};
+
 		OStream shaderStream;
 		meta.SaveToStream(shaderStream);
 
-		OStream fontStream1, fontStream2, fontStream3;
+		OStream fontStream1, fontStream2, fontStream3, fontStream4;
 		fontMeta1.SaveToStream(fontStream1);
 		fontMeta2.SaveToStream(fontStream2);
 		fontMeta3.SaveToStream(fontStream3);
+		fontMeta4.SaveToStream(fontStream4);
 
 		ResourceDefinitionList defs = {
 			{
@@ -155,6 +161,12 @@ namespace Lina::Editor
 				.tid		= GetTypeID<Font>(),
 				.customMeta = fontStream3,
 			},
+			{
+				.id			= EDITOR_FONT_PLAY_VERY_BIG_ID,
+				.name		= EDITOR_FONT_PLAY_VERY_BIG_PATH,
+				.tid		= GetTypeID<Font>(),
+				.customMeta = fontStream4,
+			},
 		};
 
 		manager.LoadResourcesFromFile(defs, NULL);
@@ -162,6 +174,7 @@ namespace Lina::Editor
 		fontStream1.Destroy();
 		fontStream2.Destroy();
 		fontStream3.Destroy();
+		fontStream4.Destroy();
 		shaderStream.Destroy();
 
 		for (const ResourceDef& def : defs)

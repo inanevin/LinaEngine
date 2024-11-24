@@ -29,70 +29,56 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
+#include "Core/Resources/CommonResources.hpp"
 
 namespace Lina
 {
-	class DirectionalLayout;
 	class Text;
-	class ScrollArea;
-} // namespace Lina
+	class Circle;
+}; // namespace Lina
+
 namespace Lina::Editor
 {
-	class ItemController;
-
-	class Table : public Widget
+	class CircleGauge : public Widget
 	{
 	public:
-		struct HeaderDefinition
-		{
-			String text		 = "";
-			bool   clickable = false;
-		};
-
-		struct Column
-		{
-			Text*			   columnText	  = nullptr;
-			DirectionalLayout* verticalLayout = nullptr;
-			DirectionalLayout* contents		  = nullptr;
-		};
-
-		Table()			 = default;
-		virtual ~Table() = default;
+		CircleGauge()		   = default;
+		virtual ~CircleGauge() = default;
 
 		struct Properties
 		{
-			bool				   displayHeaders = true;
-			bool				   useRowWrapper  = true;
-			Color				   colorRow		  = Theme::GetDef().background1;
-			Color				   colorRowAlt	  = Theme::GetDef().background2;
-			Delegate<void(uint32)> onColumnClicked;
 		};
 
 		virtual void Construct() override;
-
-		void BuildHeaders(const Vector<HeaderDefinition>& headerDef);
-		void ClearRows();
-		void AddRow(const Vector<Widget*>& columns);
-
-		inline DirectionalLayout* GetHorizontalLayout() const
-		{
-			return m_layout;
-		}
 
 		inline Properties& GetProps()
 		{
 			return m_props;
 		}
 
+		Circle* GetCircle() const
+		{
+			return m_circle;
+		}
+
+		Text* GetTitle() const
+		{
+			return m_title;
+		}
+
+		Text* GetDataText() const
+		{
+			return m_dataText;
+		}
+
 	private:
-		Properties		   m_props		= {};
-		DirectionalLayout* m_layout		= nullptr;
-		ItemController*	   m_controller = nullptr;
-		Vector<Column>	   m_columns;
-		ScrollArea*		   m_scroll = nullptr;
+		Vector<LinaVG::Vec2> m_groupPoints;
+		Properties			 m_props	= {};
+		Circle*				 m_circle	= nullptr;
+		Text*				 m_title	= nullptr;
+		Text*				 m_dataText = nullptr;
 	};
 
-	LINA_WIDGET_BEGIN(Table, Hidden)
-	LINA_CLASS_END(Table)
-
+	LINA_WIDGET_BEGIN(CircleGauge, Graph)
+	LINA_CLASS_END(CircleGauge)
 } // namespace Lina::Editor

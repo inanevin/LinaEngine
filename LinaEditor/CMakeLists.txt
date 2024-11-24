@@ -54,6 +54,7 @@ include/Editor/Widgets/Testbed.hpp
 include/Editor/Widgets/DockTestbed.hpp
 include/Editor/Widgets/EditorRoot.hpp
 include/Editor/Widgets/Graph/LineGraph.hpp
+include/Editor/Widgets/Graph/CircleGauge.hpp
 include/Editor/Widgets/Compound/ColorWheelCompound.hpp
 include/Editor/Widgets/Compound/Tab.hpp
 include/Editor/Widgets/Compound/Table.hpp
@@ -138,6 +139,7 @@ src/Widgets/Testbed.cpp
 src/Widgets/DockTestbed.cpp
 src/Widgets/EditorRoot.cpp
 src/Widgets/Graph/LineGraph.cpp
+src/Widgets/Graph/CircleGauge.cpp
 src/Widgets/Compound/ColorWheelCompound.cpp
 src/Widgets/Compound/TabRow.cpp
 src/Widgets/Compound/Tab.cpp
@@ -215,12 +217,16 @@ set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER LinaEngine)
 #--------------------------------------------------------------------
 include(${CMAKE_SOURCE_DIR}/CMake/ProjectSettings.cmake)
 include(${CMAKE_SOURCE_DIR}/CMake/ExecutableSettings.cmake)
+target_compile_definitions(LinaCommon PUBLIC LINA_ENABLE_PROFILER)
+target_compile_definitions(LinaCore PUBLIC LINA_ENABLE_PROFILER)
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_ENABLE_PROFILER)
 
 #--------------------------------------------------------------------
 # Set include directories
 #--------------------------------------------------------------------
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCore/include)
+
 #--------------------------------------------------------------------
 # Links
 #--------------------------------------------------------------------

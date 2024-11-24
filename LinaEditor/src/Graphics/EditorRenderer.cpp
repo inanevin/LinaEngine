@@ -86,21 +86,23 @@ namespace Lina::Editor
 		{
 			if (rend->CheckVisibility())
 				m_validSurfaceRenderers.push_back(rend);
+
+			rend->PreTick();
 		}
 
-		if (m_validSurfaceRenderers.size() == 1)
-		{
-			m_validSurfaceRenderers[0]->PreTick();
-		}
-		else
-		{
-			Taskflow tf;
-			tf.for_each_index(0, static_cast<int>(m_validSurfaceRenderers.size()), 1, [&](int i) {
-				SurfaceRenderer* rend = m_validSurfaceRenderers.at(i);
-				rend->PreTick();
-			});
-			m_executor.RunAndWait(tf);
-		}
+		// if (m_validSurfaceRenderers.size() == 1)
+		// {
+		// 	m_validSurfaceRenderers[0]->PreTick();
+		// }
+		// else
+		// {
+		// 	Taskflow tf;
+		// 	tf.for_each_index(0, static_cast<int>(m_validSurfaceRenderers.size()), 1, [&](int i) {
+		// 		SurfaceRenderer* rend = m_validSurfaceRenderers.at(i);
+		// 		rend->PreTick();
+		// 	});
+		// 	m_executor.RunAndWait(tf);
+		// }
 	}
 
 	void EditorRenderer::Tick(float delta)

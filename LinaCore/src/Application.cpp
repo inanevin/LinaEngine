@@ -115,16 +115,17 @@ namespace Lina
 		s_lgx->TickWindowSystem();
 		GetAppDelegate()->PreTick();
 
+		PROFILER_RESET_DRAWINFO();
+
 		m_renderJoinPossible = false;
 		m_resourceManager.SetLocked(true);
 
-		// auto renderJob = m_executor.Async([this]() { m_appDelegate->Render(); });
+		// auto renderJob = m_executor.Async([this]() { Render(); });
 
 		m_worldProcessor.Tick(static_cast<float>(delta));
 		GetAppDelegate()->Tick(static_cast<float>(delta));
 
 		// renderJob.get();
-
 		m_appDelegate->SyncRender();
 		Render();
 
@@ -201,6 +202,7 @@ namespace Lina
 		const uint32 frameIndex = s_lgx->GetCurrentFrameIndex();
 		s_lgx->StartFrame();
 
+		m_gfxContext.UpdateBindless(s_lgx->GetCurrentFrameIndex());
 		m_gfxContext.PollUploads(frameIndex);
 		m_appDelegate->Render(frameIndex);
 
@@ -222,9 +224,8 @@ namespace Lina
 		else if (deltaUs >= 50000)
 			deltaUs = 50000;
 
-		const double avgDeltaMicroseconds = SystemInfo::CalculateRunningAverageDT(deltaUs);
-		SystemInfo::SetRealDeltaTimeMicroSeconds(deltaUs);
-		SystemInfo::SetDeltaTimeMicroSeconds(static_cast<int64>(avgDeltaMicroseconds));
+		SystemInfo::SetDeltaTimeMicroseconds(deltaUs);
+		SystemInfo::SetSmoothedDeltaMicroseconds(static_cast<int64>(SystemInfo::CalculateRunningAverageDT(deltaUs)));
 
 		const float		gameTime	  = SystemInfo::GetAppTimeF();
 		static float	lastFPSUpdate = gameTime;
@@ -237,7 +238,7 @@ namespace Lina
 			SystemInfo::SetMeasuredFPS(static_cast<uint32>(static_cast<float>((frames - lastFPSFrames)) / measureTime));
 			lastFPSFrames = frames;
 			lastFPSUpdate = gameTime;
-			LINA_TRACE("FPS: {0} Time: {1}", SystemInfo::GetMeasuredFPS(), static_cast<float>(SystemInfo::GetDeltaTime()) * 1000.0f);
+			// LINA_TRACE("FPS: {0} Time: {1}", SystemInfo::GetMeasuredFPS(), static_cast<float>(SystemInfo::GetDeltaTime()) * 1000.0f);
 		}
 	}
 

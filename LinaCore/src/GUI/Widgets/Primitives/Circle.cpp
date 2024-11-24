@@ -26,50 +26,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#include "Common/Data/String.hpp"
+#include "Core/GUI/Widgets/Primitives/Circle.hpp"
+#include "Common/Math/Math.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
 
 namespace Lina
 {
-	class EngineInterface;
-	class SystemEventDispatcher;
-
-	class PlatformProcess
+	void Circle::Draw()
 	{
-	public:
-		enum class DialogMode
-		{
-			SelectDirectory,
-			SelectFile,
-		};
+		const Vector2 sz  = GetEndFromMargins() - GetStartFromMargins();
+		const float	  rad = m_props.useXForRadius ? (sz.x * 0.5f - m_props.thickness * 2) : (Math::Min(sz.x, sz.y) * 0.5f - m_props.thickness * 2);
 
-		struct DialogProperties
-		{
-			String		   title				 = "";
-			String		   primaryButton		 = "";
-			String		   extensionsDescription = "";
-			Vector<String> extensions; // no dots
-			DialogMode	   mode			  = DialogMode::SelectDirectory;
-			bool		   multiSelection = false;
-		};
+		LinaVG::StyleOptions style;
+		style.aaEnabled			 = m_props.useAA;
+		style.thickness			 = m_props.thickness;
+		style.color				 = m_props.colorBackground.AsLVG();
+		style.isFilled			 = m_props.isFilled;
+		style.color.gradientType = LinaVG::GradientType::Horizontal;
 
-		struct MemoryInformation
-		{
-			uint32 currentUsage = 0;
-			uint32 peakUsage	= 0;
-			uint32 totalMemory	= 0;
-		};
+		const Vector2 pos = m_props.useXForRadius ? Vector2(m_rect.GetCenter().x, m_rect.GetCenter().y + sz.y * 0.25f) : m_rect.GetCenter();
+		// bg
+		m_lvg->DrawCircle(pos.AsLVG(), rad, style, 36, 0.0f, m_props.startAngle, m_props.endAngle, m_drawOrder);
 
-		static void				 PumpOSMessages();
-		static void				 LoadPlugin(const char* name, EngineInterface* engInterface, SystemEventDispatcher* dispatcher);
-		static void				 UnloadPlugin(void* handle);
-		static void				 CopyToClipboard(const char* str);
-		static bool				 TryGetStringFromClipboard(String& outStr);
-		static Vector<String>	 OpenDialog(const DialogProperties& properties);
-		static String			 SaveDialog(const DialogProperties& properties);
-		static void				 OpenURL(const String& url);
-		static float			 GetCPULoad();
-		static MemoryInformation QueryMemInformation();
-	};
+		// fg
+		if (Math::Equals(m_props.foregroundFill, 0.0f, 0.01f))
+			return;
+		style.color = m_props.colorForeground.AsLVG();
+		m_lvg->DrawCircle(pos.AsLVG(), rad, style, 36, 0.0f, m_props.startAngle, m_props.startAngle + (m_props.endAngle - m_props.startAngle) * m_props.foregroundFill, m_drawOrder);
+	}
 } // namespace Lina

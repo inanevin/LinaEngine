@@ -61,25 +61,6 @@ namespace Lina::Editor
 		m_layout->GetProps().borderExpandForMouse	= 4;
 		m_layout->GetWidgetProps().outlineThickness = m_layout->GetWidgetProps().rounding = 0.0f;
 		AddChild(m_layout);
-		// m_scroll->AddChild(m_layout);
-		// m_scroll->SetDisplayTarget(m_layout);
-
-		//
-		// m_controller = m_manager->Allocate<ItemController>("Controller");
-		// m_controller->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		// m_controller->SetAlignedPos(Vector2::Zero);
-		// m_controller->SetAlignedSize(Vector2::One);
-		// scroll->AddChild(m_controller);
-
-		// m_contents = m_manager->Allocate<DirectionalLayout>("Contents");
-		// m_contents->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		// m_contents->SetAlignedPos(Vector2::Zero);
-		// m_contents->SetAlignedSize(Vector2::One);
-		// m_contents->GetProps().direction = DirectionOrientation::Horizontal;
-		//
-		// layout->AddChild(m_contents);
-
-		// scroll->SetTarget(m_contents);
 	}
 
 	void Table::BuildHeaders(const Vector<HeaderDefinition>& headerDefs)
@@ -113,41 +94,46 @@ namespace Lina::Editor
 
 			posX += alignmentEqual;
 
-			// add header
 			Widget* header = nullptr;
+			Text*	text   = nullptr;
 
-			const uint32 i = static_cast<uint32>(m_columns.size());
-
-			if (def.clickable)
+			if (m_props.displayHeaders)
 			{
-				Button* but				  = m_manager->Allocate<Button>("Header");
-				but->GetProps().onClicked = [this, i]() {
-					if (m_props.onColumnClicked)
-						m_props.onColumnClicked(i);
-				};
-				header								  = but;
-				header->GetWidgetProps().colorHovered = Theme::GetDef().background4;
-				header->GetWidgetProps().colorPressed = Theme::GetDef().background2;
+				// add header
+
+				const uint32 i = static_cast<uint32>(m_columns.size());
+
+				if (def.clickable)
+				{
+					Button* but				  = m_manager->Allocate<Button>("Header");
+					but->GetProps().onClicked = [this, i]() {
+						if (m_props.onColumnClicked)
+							m_props.onColumnClicked(i);
+					};
+					header								  = but;
+					header->GetWidgetProps().colorHovered = Theme::GetDef().background4;
+					header->GetWidgetProps().colorPressed = Theme::GetDef().background2;
+				}
+				else
+					header = m_manager->Allocate<Widget>("Wrapper");
+
+				header->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+				header->SetAlignedPosX(0.0f);
+				header->SetAlignedSizeX(1.0f);
+				header->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+				header->GetWidgetProps().drawBackground	  = true;
+				header->GetWidgetProps().outlineThickness = header->GetWidgetProps().rounding = 0.0f;
+				header->GetWidgetProps().colorBackground									  = Theme::GetDef().background3;
+				vertical->AddChild(header);
+
+				text = m_manager->Allocate<Text>("Text");
+				text->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+				text->SetAlignedPos(Vector2(0.5f, 0.5f));
+				text->SetAnchorX(Anchor::Center);
+				text->SetAnchorY(Anchor::Center);
+				text->UpdateTextAndCalcSize(def.text);
+				header->AddChild(text);
 			}
-			else
-				header = m_manager->Allocate<Widget>("Wrapper");
-
-			header->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-			header->SetAlignedPosX(0.0f);
-			header->SetAlignedSizeX(1.0f);
-			header->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-			header->GetWidgetProps().drawBackground	  = true;
-			header->GetWidgetProps().outlineThickness = header->GetWidgetProps().rounding = 0.0f;
-			header->GetWidgetProps().colorBackground									  = Theme::GetDef().background3;
-			vertical->AddChild(header);
-
-			Text* text = m_manager->Allocate<Text>("Text");
-			text->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
-			text->SetAlignedPos(Vector2(0.5f, 0.5f));
-			text->SetAnchorX(Anchor::Center);
-			text->SetAnchorY(Anchor::Center);
-			text->UpdateTextAndCalcSize(def.text);
-			header->AddChild(text);
 
 			DirectionalLayout* contents = m_manager->Allocate<DirectionalLayout>("Contents");
 			contents->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
@@ -188,7 +174,25 @@ namespace Lina::Editor
 		for (size_t i = 0; i < sz; i++)
 		{
 			DirectionalLayout* vertical = m_columns[i].contents;
-			vertical->AddChild(columns[i]);
+
+			if (m_props.useRowWrapper)
+			{
+				Widget* wrap = m_manager->Allocate<Widget>("Wrap");
+				wrap->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+				wrap->SetAlignedPosX(0.0f);
+				wrap->SetAlignedSizeX(1.0f);
+				wrap->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+				wrap->GetWidgetProps().childMargins.left = Theme::GetDef().baseIndent;
+				wrap->GetWidgetProps().drawBackground	 = true;
+				wrap->GetWidgetProps().outlineThickness	 = 0.0f;
+				// wrap->GetWidgetProps().clipChildren = true;
+				wrap->GetWidgetProps().rounding		   = 0.0f;
+				wrap->GetWidgetProps().colorBackground = vertical->GetChildren().size() % 2 == 0 ? m_props.colorRow : m_props.colorRowAlt;
+				wrap->AddChild(columns[i]);
+				vertical->AddChild(wrap);
+			}
+			else
+				vertical->AddChild(columns[i]);
 		}
 	}
 

@@ -114,6 +114,9 @@ namespace Lina
 
 				Vector<PerShaderDraw>* perShaderDraws = targetMaterial->GetShaderType() == ShaderType::OpaqueSurface ? &m_cpuDeferredDraws : &m_cpuForwardDraws;
 
+				PROFILER_ADD_VERTICESINDICES(mesh->GetVertexCount(), mesh->GetIndexCount());
+				PROFILER_ADD_TRIS(mesh->GetIndexCount() / 3);
+
 				auto foundPerShader = linatl::find_if(perShaderDraws->begin(), perShaderDraws->end(), [shaderID](const PerShaderDraw& draw) -> bool { return draw.shader == shaderID; });
 
 				if (foundPerShader == perShaderDraws->end())
@@ -126,6 +129,8 @@ namespace Lina
 							.instances = {instanceData},
 						}},
 					};
+
+					PROFILER_ADD_DRAWCALL(1);
 
 					perShaderDraws->push_back(draw);
 				}
@@ -228,13 +233,6 @@ namespace Lina
 			draw->count							 = static_cast<uint32>(perShader.meshes.size());
 			draw->indirectBuffer				 = indirectBuffer.GetGPUResource();
 			draw->indirectBufferOffset			 = indirectBuffer.GetIndirectCount() * static_cast<uint32>(m_lgx->GetIndexedIndirectCommandSize());
-
-#ifdef LINA_DEBUG
-			// uint32 totalTris = 0;
-			// for (const auto& md : perShader.meshes)
-			// 	totalTris += md.mesh.indexCount / 3;
-			// PROFILER_ADD_DRAWCALL(totalTris, "WorldRenderer", 0);
-#endif
 		}
 	}
 

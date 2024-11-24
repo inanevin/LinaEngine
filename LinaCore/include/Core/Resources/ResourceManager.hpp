@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Common/Data/Vector.hpp"
+#include "Common/Data/Stack.hpp"
 #include "CommonResources.hpp"
 #include "ResourceCache.hpp"
 #include "ResourceManagerListener.hpp"
@@ -108,13 +109,17 @@ namespace Lina
 		template <typename T> void DestroyResource(ResourceID id)
 		{
 			CheckLock();
+			if (id > RESOURCE_ID_CUSTOM_SPACE && id < RESOURCE_ID_CUSTOM_SPACE_MAX)
+			{
+				m_freeCustomIDs.push(id);
+			}
 			GetCache<T>()->Destroy(id);
 		}
 
 		template <typename T> void DestroyResource(T* res)
 		{
 			CheckLock();
-			GetCache<T>()->Destroy(res->GetID());
+			DestroyResource<T>(res->GetID());
 		}
 
 		Resource* GetIfExists(TypeID tid, ResourceID id)
@@ -124,6 +129,13 @@ namespace Lina
 
 		inline ResourceID ConsumeResourceID()
 		{
+			if (!m_freeCustomIDs.empty())
+			{
+				const ResourceID id = m_freeCustomIDs.top();
+				m_freeCustomIDs.pop();
+				return id;
+			}
+
 			const ResourceID id = m_customResourceID;
 			m_customResourceID++;
 			return id;
@@ -153,6 +165,7 @@ namespace Lina
 		void CheckLock();
 
 	private:
+		Stack<ResourceID>				 m_freeCustomIDs;
 		Vector<ResourceManagerListener*> m_listeners;
 		ResourceID						 m_customResourceID = RESOURCE_ID_CUSTOM_SPACE;
 		Vector<SpacePair>				 m_resourceSpaces;

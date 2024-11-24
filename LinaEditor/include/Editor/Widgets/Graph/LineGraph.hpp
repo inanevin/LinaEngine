@@ -74,9 +74,10 @@ namespace Lina::Editor
 
 		struct Legend
 		{
-			String axis	 = "";
-			String text	 = "";
-			Color  color = Theme::GetDef().accentPrimary0;
+			String	  text	= "";
+			ColorGrad color = Theme::GetDef().accentPrimary0;
+
+			Vector2 _calculatedSize = Vector2::Zero;
 		};
 
 		LineGraph()			 = default;
@@ -84,7 +85,7 @@ namespace Lina::Editor
 
 		struct Properties
 		{
-			Color colorLegendText = Theme::GetDef().foreground0;
+			Color colorLegendText = Theme::GetDef().foreground1;
 
 			Vector<AxisPoint> mainAxisPoints;
 			Vector<AxisPoint> crossAxisPoints;
@@ -102,8 +103,8 @@ namespace Lina::Editor
 			ColorGrad colorBarCrossAxis = Theme::GetDef().silent0;
 			ColorGrad colorBarMainAxis	= Theme::GetDef().silent0;
 
-			bool	  drawBackground  = false;
-			ColorGrad colorBackground = Theme::GetDef().background1;
+			bool	  drawGridBackground = false;
+			ColorGrad colorBackground	 = Theme::GetDef().background1;
 
 			Vector2ui gridCells			  = Vector2ui::Zero;
 			ColorGrad colorGridVertical	  = Theme::GetDef().silent1;
@@ -121,7 +122,6 @@ namespace Lina::Editor
 			Color  colorTitle = Theme::GetDef().foreground0;
 		};
 
-		virtual void Construct() override;
 		virtual void Draw() override;
 
 		inline Properties& GetProps()

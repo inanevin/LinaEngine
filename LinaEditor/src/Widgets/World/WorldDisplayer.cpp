@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
+#include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Application.hpp"
 #include "Common/Math/Math.hpp"
 #include <LinaGX/Core/InputMappings.hpp>

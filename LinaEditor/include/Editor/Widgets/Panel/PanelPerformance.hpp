@@ -34,8 +34,10 @@ SOFTWARE.
 
 namespace Lina
 {
+	class Text;
 	class DirectionalLayout;
-}
+	class Circle;
+} // namespace Lina
 namespace Lina::Editor
 {
 	class Editor;
@@ -59,6 +61,7 @@ namespace Lina::Editor
 
 		virtual void Construct() override;
 		virtual void Destruct() override;
+		virtual void PreTick() override;
 		virtual void Tick(float delta) override;
 		virtual void OnResourceManagerPreDestroyHW(const HashSet<Resource*>& resources) override;
 		virtual void OnResourceManagerGeneratedHW(const HashSet<Resource*>& resources) override;
@@ -73,15 +76,45 @@ namespace Lina::Editor
 		void RefreshResourcesTable();
 
 	private:
-		Editor*			   m_editor				= nullptr;
-		uint8			   m_currentContent		= 0;
-		DirectionalLayout* m_layout				= nullptr;
-		IconTabs*		   m_iconTabs			= nullptr;
-		ResourcesSort	   m_resourcesSort		= ResourcesSort::Name;
-		Table*			   m_resourcesTable		= nullptr;
-		String			   m_resourcesSearchStr = "";
-		LineGraph*		   m_graphFrameTime		= nullptr;
-		Deque<float>	   m_profilingLastFrames;
+		struct ProfilingData
+		{
+			LineGraph*	 fpsGraph = nullptr;
+			Deque<float> fpsFrames;
+			Table*		 infoTable	   = nullptr;
+			Circle*		 cpuUtilCircle = nullptr;
+			Circle*		 memCircle	   = nullptr;
+			Circle*		 memPeakCircle = nullptr;
+			Text*		 cpuUtilText   = nullptr;
+			Text*		 memText	   = nullptr;
+			Text*		 memPeakText   = nullptr;
+			Text*		 tris		   = nullptr;
+			Text*		 vertices	   = nullptr;
+			Text*		 indices	   = nullptr;
+			Text*		 drawCalls	   = nullptr;
+			Text*		 dpi		   = nullptr;
+			Text*		 delta		   = nullptr;
+			Text*		 smoothedDelta = nullptr;
+
+			uint32 _tris	= 0;
+			uint32 _verts	= 0;
+			uint32 _indices = 0;
+			uint32 _dc		= 0;
+		};
+
+		struct ResourcesData
+		{
+			ResourcesSort sort		= ResourcesSort::Name;
+			Table*		  table		= nullptr;
+			String		  searchStr = "";
+		};
+
+	private:
+		Editor*			   m_editor			= nullptr;
+		uint8			   m_currentContent = 0;
+		DirectionalLayout* m_layout			= nullptr;
+		IconTabs*		   m_iconTabs		= nullptr;
+		ResourcesData	   m_resourcesData	= {};
+		ProfilingData	   m_profilingData	= {};
 	};
 
 	LINA_WIDGET_BEGIN(PanelPerformance, Hidden)

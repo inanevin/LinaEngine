@@ -94,6 +94,7 @@ namespace Lina::Editor
 		{LocaleStr::Selected, "Selected"},
 		{LocaleStr::NothingInDirectory, "Nothing to see here ¯\\(°_o)/¯"},
 		{LocaleStr::Memory, "Memory"},
+		{LocaleStr::PeakMemory, "Peak Memory"},
 		{LocaleStr::FrameTime, "Frame Time"},
 		{LocaleStr::DrawCalls, "Draw Calls"},
 		{LocaleStr::GeneratingThumbnails, "Generating thumbnails..."},
@@ -180,6 +181,13 @@ namespace Lina::Editor
 		{LocaleStr::Spaces, "Spaces"},
 		{LocaleStr::Meta, "Meta"},
 		{LocaleStr::SizeHW, "Size (HW)"},
+		{LocaleStr::CPUUtilization, "CPU Utilization"},
+		{LocaleStr::Vertices, "Vertices"},
+		{LocaleStr::Indices, "Indices"},
+		{LocaleStr::Delta, "Delta (s)"},
+		{LocaleStr::SmoothedDelta, "Smoothed Delta (s)"},
+		{LocaleStr::Tris, "Tris"},
+		{LocaleStr::DPIScale, "DPI Scale"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

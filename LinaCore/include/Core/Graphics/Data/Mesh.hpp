@@ -69,6 +69,11 @@ namespace Lina
 			return static_cast<uint32>(m_indices16.size());
 		}
 
+		inline uint32 GetVertexCount() const
+		{
+			return static_cast<uint32>(m_vertices.size());
+		}
+
 		inline const AABB& GetAABB() const
 		{
 			return m_localAABB;

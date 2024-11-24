@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifdef LINA_DEBUG
+#ifdef LINA_ENABLE_PROFILER
 
 #include "Common/Profiling/Profiler.hpp"
 #include "Common/Platform/PlatformTime.hpp"
@@ -39,7 +39,6 @@ SOFTWARE.
 
 namespace Lina
 {
-#define QUERY_CPU_INTERVAL_SECS 2
 
 	Profiler* Profiler::s_instance = nullptr;
 
@@ -52,80 +51,6 @@ namespace Lina
 	void Profiler::Shutdown()
 	{
 		delete s_instance;
-	}
-
-	DeviceCPUInfo& Profiler::QueryCPUInfo()
-	{
-#ifdef LINA_PLATFORM_WINDOWS
-		static bool			  inited		= false;
-		static int			  numProcessors = 0;
-		static HANDLE		  self;
-		static ULARGE_INTEGER lastCPU, lastSysCPU, lastUserCPU;
-
-		if (!inited)
-		{
-			// Querying CPU usage
-			SYSTEM_INFO sysInfo;
-			FILETIME	ftime, fsys, fuser;
-
-			GetSystemInfo(&sysInfo);
-			numProcessors = sysInfo.dwNumberOfProcessors;
-
-			GetSystemTimeAsFileTime(&ftime);
-			memcpy(&lastCPU, &ftime, sizeof(FILETIME));
-
-			self = GetCurrentProcess();
-			if (GetProcessTimes(self, &ftime, &ftime, &fsys, &fuser))
-			{
-				memcpy(&lastSysCPU, &fsys, sizeof(FILETIME));
-				memcpy(&lastUserCPU, &fuser, sizeof(FILETIME));
-			}
-			inited					= true;
-			m_cpuInfo.numberOfCores = std::thread::hardware_concurrency();
-		}
-
-		const double  time	  = PlatformTime::GetCPUSeconds();
-		static double percent = 0.0;
-
-		if (time - m_lastCPUQueryTime > QUERY_CPU_INTERVAL_SECS)
-		{
-			m_lastCPUQueryTime = time;
-
-			/* QUERYING CPU INFO */
-			FILETIME	   ftime, fsys, fuser;
-			ULARGE_INTEGER now, sys, user;
-
-			GetSystemTimeAsFileTime(&ftime);
-			memcpy(&now, &ftime, sizeof(FILETIME));
-
-			if (GetProcessTimes(self, &ftime, &ftime, &fsys, &fuser))
-			{
-				memcpy(&sys, &fsys, sizeof(FILETIME));
-				memcpy(&user, &fuser, sizeof(FILETIME));
-				percent = static_cast<double>((sys.QuadPart - lastSysCPU.QuadPart) + (user.QuadPart - lastUserCPU.QuadPart));
-
-				m_cpuInfo.processUtilization = (percent / 100000.0) / static_cast<double>(numProcessors);
-
-				auto diff = now.QuadPart - lastCPU.QuadPart;
-				if (diff != 0)
-					percent /= static_cast<double>(diff);
-
-				percent /= static_cast<double>(numProcessors);
-				lastCPU				 = now;
-				lastUserCPU			 = user;
-				lastSysCPU			 = sys;
-				m_cpuInfo.processUse = percent * 100.0f;
-			}
-		}
-
-		// info.processUse              = percent * 100.0;
-		// m_cpuInfo.averageFrameTimeNS = m_totalFrameTimeNS / (m_totalFrameQueueReached ? static_cast<double>(MAX_FRAME_BACKTRACE) : static_cast<double>(m_frames.size()));
-
-#else
-		LINA_NOTIMPLEMENTED;
-#endif
-
-		return m_cpuInfo;
 	}
 
 	void Profiler::StartFrame()
@@ -150,19 +75,28 @@ namespace Lina
 		m_frameQueue.push_back(frame);
 	}
 
-	void Profiler::AddDrawCall(uint32 tris, const String& category, uint32 meta)
+	void Profiler::ResetDrawInfo()
 	{
-		auto&	 frame = m_frameQueue.back();
-		StringID sid   = TO_SID(category);
+		m_drawInfo.drawCalls.store(0);
+		m_drawInfo.tris.store(0);
+		m_drawInfo.vertices.store(0);
+		m_drawInfo.indices.store(0);
+	}
 
-		DrawCall call = {};
-		call.category = category.c_str();
-		call.sid	  = sid;
-		call.tris	  = tris;
-		call.meta	  = meta;
+	void Profiler::AddDrawCall(uint32 count)
+	{
+		m_drawInfo.drawCalls.fetch_add(count);
+	}
 
-		frame.drawCalls.try_emplace_l(
-			sid, [&call](auto& pair) { pair.second.push_back(call); }, Vector<DrawCall>{call});
+	void Profiler::AddTris(uint32 tris)
+	{
+		m_drawInfo.tris.fetch_add(tris);
+	}
+
+	void Profiler::AddVerticesIndices(uint32 vertices, uint32 indices)
+	{
+		m_drawInfo.indices.fetch_add(indices);
+		m_drawInfo.vertices.fetch_add(vertices);
 	}
 
 	uint32 Profiler::StartBlock(const char* blockName, StringID thread)
