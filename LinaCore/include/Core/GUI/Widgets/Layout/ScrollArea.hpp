@@ -40,7 +40,7 @@ namespace Lina
 
 		struct Properties
 		{
-			DirectionOrientation direction			  = DirectionOrientation::Horizontal;
+			DirectionOrientation direction			  = DirectionOrientation::Vertical;
 			Color				 colorBarBackground	  = Theme::GetDef().background2;
 			ColorGrad			 colorBar			  = {Theme::GetDef().accentPrimary1, Theme::GetDef().accentPrimary0};
 			Color				 colorHovered		  = Theme::GetDef().accentPrimary2;

@@ -114,6 +114,7 @@ namespace Lina::Editor
 		void DropPayload(ResourceDirectory* target);
 		bool CheckIfContainsSearchStr(ResourceDirectory* dir);
 		bool CheckIfContainsEngineResource(const Vector<ResourceDirectory*>& dirs);
+		bool IsChildInFavs(ResourceDirectory* dir) const;
 
 	private:
 		Properties											 m_props;

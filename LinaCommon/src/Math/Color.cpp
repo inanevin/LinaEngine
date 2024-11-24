@@ -267,7 +267,7 @@ namespace Lina
 		return Vector4(x, y, z, w);
 	}
 
-	LinaVG::Vec4Grad ColorGrad::AsLVG()
+	LinaVG::Vec4Grad ColorGrad::AsLVG() const
 	{
 		LinaVG::Vec4Grad grad;
 		grad.start = start.AsLVG4();

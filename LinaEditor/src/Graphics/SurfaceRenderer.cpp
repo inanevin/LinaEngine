@@ -343,7 +343,7 @@ namespace Lina::Editor
 		m_frameVertexCounter		 = 0;
 		m_frameIndexCounter			 = 0;
 
-		m_widgetManager.Draw();
+		// m_widgetManager.Draw();
 		m_lvgDrawer.FlushBuffers();
 		m_lvgDrawer.ResetFrame();
 

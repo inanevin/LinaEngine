@@ -215,8 +215,8 @@ namespace Lina
 		if (!m_isHovered)
 			return Widget::OnMouseWheel(amt);
 
-		if (Widget::OnMouseWheel(amt))
-			return true;
+		if (Math::Equals(m_maxScroll, 0.0f, 0.1f))
+			return false;
 
 		m_scrollAmount -= amt * m_totalChildSize * m_props.mouseWheelMultiplier;
 

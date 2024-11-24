@@ -53,6 +53,7 @@ include/Editor/Widgets/CommonWidgets.hpp
 include/Editor/Widgets/Testbed.hpp
 include/Editor/Widgets/DockTestbed.hpp
 include/Editor/Widgets/EditorRoot.hpp
+include/Editor/Widgets/Graph/LineGraph.hpp
 include/Editor/Widgets/Compound/ColorWheelCompound.hpp
 include/Editor/Widgets/Compound/Tab.hpp
 include/Editor/Widgets/Compound/Table.hpp
@@ -136,6 +137,7 @@ src/Widgets/CommonWidgets.cpp
 src/Widgets/Testbed.cpp
 src/Widgets/DockTestbed.cpp
 src/Widgets/EditorRoot.cpp
+src/Widgets/Graph/LineGraph.cpp
 src/Widgets/Compound/ColorWheelCompound.cpp
 src/Widgets/Compound/TabRow.cpp
 src/Widgets/Compound/Tab.cpp

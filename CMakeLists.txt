@@ -17,8 +17,8 @@
 cmake_minimum_required (VERSION 3.8)
 project (Lina)
 
-set(CMAKE_CONFIGURATION_TYPES "Debug;Release;DebugFAST;DebugASAN;" CACHE STRING "" FORCE)
-set_property(GLOBAL PROPERTY DEBUG_CONFIGURATIONS "Debug;DebugFAST;DebugASAN")
+set(CMAKE_CONFIGURATION_TYPES "Debug;Release;DebugFAST;DebugASAN;DebugProfile;" CACHE STRING "" FORCE)
+set_property(GLOBAL PROPERTY DEBUG_CONFIGURATIONS "Debug;DebugFAST;DebugASAN;DebugProfile;")
 set(LINA_GAME_PLUGIN_NAME "GamePlugin")
 set(LINA_APP_NAME "LaunchGame")
 
@@ -45,6 +45,12 @@ add_compile_definitions($<$<CONFIG:DebugASAN>:_ITERATOR_DEBUG_LEVEL=2>)
 add_compile_definitions($<$<CONFIG:DebugASAN>:LINA_DEBUG=1>)
 add_compile_definitions($<$<CONFIG:DebugASAN>:_DEBUG=1>)
 add_compile_definitions($<$<CONFIG:DebugASAN>:NDEBUG=0>)
+
+add_compile_definitions($<$<CONFIG:DebugProfile>:_ITERATOR_DEBUG_LEVEL=1>)
+add_compile_definitions($<$<CONFIG:DebugProfile>:LINA_DEBUG=1>)
+add_compile_definitions($<$<CONFIG:DebugProfile>:_DEBUG=1>)
+add_compile_definitions($<$<CONFIG:DebugProfile>:NDEBUG=0>)
+add_compile_definitions($<$<CONFIG:DebugProfile>:LINA_MEMLEAK_CHECK=1>)
 
 if(MSVC)
   add_compile_options($<$<CONFIG:DebugFAST>:/O2>)

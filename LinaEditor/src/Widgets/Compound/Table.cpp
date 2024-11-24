@@ -39,7 +39,7 @@ namespace Lina::Editor
 {
 	void Table::Construct()
 	{
-		m_scroll = m_manager->Allocate<ScrollArea>("AQ");
+		m_scroll = m_manager->Allocate<ScrollArea>("TableScroll");
 		m_scroll->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		m_scroll->SetAlignedPos(Vector2::Zero);
 		m_scroll->SetAlignedSize(Vector2::One);

@@ -61,8 +61,6 @@ namespace Lina
 
 	MemoryAllocatorPool::~MemoryAllocatorPool()
 	{
-		MEMORY_TRACER_UNREGISTER_ALLOCATORPOOL(this);
-
 		for (uint32 i = 0; i < m_allocatorSize; i++)
 		{
 			Allocator* alloc = m_allocators[i];
@@ -79,7 +77,6 @@ namespace Lina
 		if (m_type == AllocatorType::StandardMallocFree)
 		{
 			void* res = malloc(sz);
-			MEMORY_TRACER_ONALLOC(res, sz);
 			return res;
 		}
 
@@ -113,11 +110,6 @@ namespace Lina
 			LINA_ASSERT(ptr != nullptr, "");
 		}
 
-		if (m_type == AllocatorType::FreeList)
-			MEMORY_TRACER_ONALLOC(ptr, sz + FREELIST_HEADER_SIZE);
-		else
-			MEMORY_TRACER_ONALLOC(ptr, sz);
-
 		return ptr;
 	}
 
@@ -125,7 +117,6 @@ namespace Lina
 	{
 		if (m_type == AllocatorType::StandardMallocFree)
 		{
-			MEMORY_TRACER_ONFREE(ptr);
 			free(ptr);
 			return;
 		}
@@ -143,7 +134,6 @@ namespace Lina
 			{
 				freed = true;
 				alloc->Free(ptr);
-				MEMORY_TRACER_ONFREE(ptr);
 				m_freeCounter++;
 			}
 		}

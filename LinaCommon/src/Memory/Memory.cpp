@@ -27,53 +27,73 @@ SOFTWARE.
 */
 
 #include "Common/Memory/Memory.hpp"
+
+#ifdef LINA_MEMLEAK_CHECK
 #include "Common/Profiling/MemoryTracer.hpp"
+#endif
 
 void* operator new(std::size_t size)
 {
 	void* ptr = malloc(size);
-	MEMORY_TRACER_ONALLOC(ptr, size);
+
+#ifdef LINA_MEMLEAK_CHECK
+	Lina::MemoryTracer::Get().OnAllocation(ptr, size);
+#endif
 	return ptr;
 }
 
 void* operator new[](size_t size)
 {
 	void* ptr = malloc(size);
-	MEMORY_TRACER_ONALLOC(ptr, size);
+#ifdef LINA_MEMLEAK_CHECK
+	Lina::MemoryTracer::Get().OnAllocation(ptr, size);
+#endif
 	return ptr;
 }
 
 void operator delete[](void* ptr)
 {
-	MEMORY_TRACER_ONFREE(ptr);
+#ifdef LINA_MEMLEAK_CHECK
+	Lina::MemoryTracer::Get().OnFree(ptr);
+#endif
 	free(ptr);
 }
 
 void operator delete(void* ptr)
 {
-	MEMORY_TRACER_ONFREE(ptr);
+#ifdef LINA_MEMLEAK_CHECK
+	Lina::MemoryTracer::Get().OnFree(ptr);
+#endif
 	free(ptr);
 }
 
 void operator delete(void* ptr, size_t sz)
 {
-	MEMORY_TRACER_ONFREE(ptr);
+#ifdef LINA_MEMLEAK_CHECK
+	Lina::MemoryTracer::Get().OnFree(ptr);
+#endif
 	free(ptr);
 }
 void operator delete[](void* ptr, std::size_t sz)
 {
-	MEMORY_TRACER_ONFREE(ptr);
+#ifdef LINA_MEMLEAK_CHECK
+	Lina::MemoryTracer::Get().OnFree(ptr);
+#endif
 	free(ptr);
 }
 
 void operator delete(void* ptr, const std::nothrow_t& tag)
 {
-	MEMORY_TRACER_ONFREE(ptr);
+#ifdef LINA_MEMLEAK_CHECK
+	Lina::MemoryTracer::Get().OnFree(ptr);
+#endif
 	free(ptr);
 }
 
 void operator delete[](void* ptr, const std::nothrow_t& tag)
 {
-	MEMORY_TRACER_ONFREE(ptr);
+#ifdef LINA_MEMLEAK_CHECK
+	Lina::MemoryTracer::Get().OnFree(ptr);
+#endif
 	free(ptr);
 }

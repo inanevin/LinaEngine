@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Editor/Widgets/Panel/Panel.hpp"
 #include "Core/Resources/ResourceManagerListener.hpp"
+#include "Common/Data/Deque.hpp"
 
 namespace Lina
 {
@@ -40,6 +41,7 @@ namespace Lina::Editor
 	class Editor;
 	class Table;
 	class IconTabs;
+	class LineGraph;
 
 	class PanelPerformance : public Panel, public ResourceManagerListener
 	{
@@ -57,6 +59,7 @@ namespace Lina::Editor
 
 		virtual void Construct() override;
 		virtual void Destruct() override;
+		virtual void Tick(float delta) override;
 		virtual void OnResourceManagerPreDestroyHW(const HashSet<Resource*>& resources) override;
 		virtual void OnResourceManagerGeneratedHW(const HashSet<Resource*>& resources) override;
 		virtual void SaveLayoutToStream(OStream& stream) override;
@@ -71,12 +74,14 @@ namespace Lina::Editor
 
 	private:
 		Editor*			   m_editor				= nullptr;
-		Widget*			   m_currentContent		= nullptr;
+		uint8			   m_currentContent		= 0;
 		DirectionalLayout* m_layout				= nullptr;
 		IconTabs*		   m_iconTabs			= nullptr;
 		ResourcesSort	   m_resourcesSort		= ResourcesSort::Name;
 		Table*			   m_resourcesTable		= nullptr;
 		String			   m_resourcesSearchStr = "";
+		LineGraph*		   m_graphFrameTime		= nullptr;
+		Deque<float>	   m_profilingLastFrames;
 	};
 
 	LINA_WIDGET_BEGIN(PanelPerformance, Hidden)

@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Common/Profiling/MemoryTracer.hpp"
 
-#if defined LINA_DEBUG && defined LINA_PLATFORM_WINDOWS
+#if defined LINA_MEMLEAK_CHECK
 
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Profiling/Profiler.hpp"

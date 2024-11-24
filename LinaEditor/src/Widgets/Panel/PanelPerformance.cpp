@@ -29,11 +29,14 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelPerformance.hpp"
 #include "Editor/Widgets/Compound/IconTabs.hpp"
 #include "Editor/Widgets/Compound/Table.hpp"
+#include "Editor/Widgets/CommonWidgets.hpp"
+#include "Editor/Widgets/Graph/LineGraph.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Editor.hpp"
 #include "Core/Application.hpp"
 #include "Core/Meta/ProjectData.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
+#include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
@@ -43,6 +46,7 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+#define RECORD_LAST_N_FRAMES 500
 
 	void PanelPerformance::Construct()
 	{
@@ -95,18 +99,27 @@ namespace Lina::Editor
 		m_iconTabs									  = iconTabs;
 		layout->AddChild(iconTabs);
 
-		DirectionalLayout* contents	   = m_manager->Allocate<DirectionalLayout>("Contents");
-		contents->GetProps().direction = DirectionOrientation::Vertical;
-		contents->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		contents->SetAlignedPosY(0.0f);
-		contents->SetAlignedSize(Vector2(0.0f, 1.0f));
-		contents->GetWidgetProps().borderThickness.left = Theme::GetDef().baseSeparatorThickness;
-		contents->GetWidgetProps().colorBorders			= Theme::GetDef().background0;
-		contents->GetWidgetProps().childMargins.top		= Theme::GetDef().baseIndent;
-		contents->GetWidgetProps().childMargins.bottom	= Theme::GetDef().baseIndent;
-		contents->GetWidgetProps().childPadding			= Theme::GetDef().baseIndent;
-		layout->AddChild(contents);
-		m_layout = contents;
+		ScrollArea* scroll = m_manager->Allocate<ScrollArea>("ANAN");
+		scroll->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		scroll->SetAlignedPosY(0.0f);
+		scroll->SetAlignedSize(Vector2(0.0f, 1.0f));
+		scroll->GetProps().direction = DirectionOrientation::Vertical;
+		layout->AddChild(scroll);
+
+		m_layout					   = m_manager->Allocate<DirectionalLayout>("Contents");
+		m_layout->GetProps().direction = DirectionOrientation::Vertical;
+		m_layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		m_layout->SetAlignedPos(Vector2::Zero);
+		m_layout->SetAlignedSize(Vector2::One);
+		m_layout->GetWidgetProps().clipChildren			= true;
+		m_layout->GetWidgetProps().borderThickness.left = Theme::GetDef().baseSeparatorThickness;
+		m_layout->GetWidgetProps().colorBorders			= Theme::GetDef().background0;
+		m_layout->GetWidgetProps().childMargins.top		= Theme::GetDef().baseIndent;
+		m_layout->GetWidgetProps().childMargins.bottom	= Theme::GetDef().baseIndent;
+		m_layout->GetWidgetProps().childPadding			= Theme::GetDef().baseIndent;
+		scroll->AddChild(m_layout);
+		scroll->SetTarget(m_layout);
+		scroll->SetDisplayTarget(m_layout);
 
 		SelectContent(selectedTab);
 
@@ -117,6 +130,39 @@ namespace Lina::Editor
 	{
 		m_editor->GetApp()->GetResourceManager().RemoveListener(this);
 		Panel::Destruct();
+	}
+
+	void PanelPerformance::Tick(float delta)
+	{
+		if (m_currentContent == 0)
+		{
+			LineGraph::PointGroup& group = m_graphFrameTime->GetProps().groups.back();
+			// group.points.resize(RECORD);
+
+			m_profilingLastFrames.push_back(delta);
+
+			if (m_profilingLastFrames.size() > RECORD_LAST_N_FRAMES)
+				m_profilingLastFrames.pop_front();
+
+			static float lastTime = 0.0f;
+
+			lastTime += delta;
+
+			if (lastTime > 0.01f && m_profilingLastFrames.size() == 500)
+			{
+				lastTime   = 0.0f;
+				uint32 idx = 0;
+
+				for (float f : m_profilingLastFrames)
+				{
+					group.points[idx] = {
+						.crossAxisValue = 1.0f / f,
+						.mainAxisValue	= static_cast<float>(idx),
+					};
+					idx++;
+				}
+			}
+		}
 	}
 
 	void PanelPerformance::OnResourceManagerPreDestroyHW(const HashSet<Resource*>& resources)
@@ -182,6 +228,9 @@ namespace Lina::Editor
 		m_layout->RemoveAllChildren();
 
 		m_resourcesTable = nullptr;
+		m_graphFrameTime = nullptr;
+
+		m_currentContent = idx;
 
 		if (idx == 0)
 			BuildContentsProfiling();
@@ -193,6 +242,7 @@ namespace Lina::Editor
 
 	void PanelPerformance::BuildContentsProfiling()
 	{
+
 		auto wrap = [&](Widget* child) -> DirectionalLayout* {
 			DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Wrap");
 			layout->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
@@ -228,11 +278,106 @@ namespace Lina::Editor
 		});
 		m_layout->AddChild(wrap(frameTime));
 
-		Table* table = m_manager->Allocate<Table>("Table");
-		table->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		table->SetAlignedPosX(0.0f);
-		table->SetAlignedSize(Vector2(1.0f, 0.0f));
-		m_layout->AddChild(table);
+		// Table* table = m_manager->Allocate<Table>("Table");
+		// table->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		// table->SetAlignedPosX(0.0f);
+		// table->SetAlignedSize(Vector2(1.0f, 0.0f));
+		// m_layout->AddChild(table);
+
+		m_graphFrameTime = m_manager->Allocate<LineGraph>("Graph");
+		m_graphFrameTime->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+		m_graphFrameTime->SetAlignedPosX(0.0f);
+		m_graphFrameTime->SetAlignedSizeX(1.0f);
+		m_graphFrameTime->SetFixedSizeY(Theme::GetDef().baseItemHeight * 15);
+
+		m_graphFrameTime->GetWidgetProps().drawBackground  = true;
+		m_graphFrameTime->GetWidgetProps().colorBackground = Theme::GetDef().background1;
+
+		m_graphFrameTime->GetProps().drawBackground	   = true;
+		m_graphFrameTime->GetProps().colorBackground   = Theme::GetDef().background0;
+		m_graphFrameTime->GetProps().colorBarMainAxis  = Theme::GetDef().silent1;
+		m_graphFrameTime->GetProps().colorBarCrossAxis = Theme::GetDef().silent1;
+
+		m_graphFrameTime->GetProps().gridCells.y				  = 5;
+		m_graphFrameTime->GetProps().colorGridHorizontal		  = Theme::GetDef().silent0;
+		m_graphFrameTime->GetProps().crossAxisDynamic			  = true;
+		m_graphFrameTime->GetProps().colorTextMainAxisInterpolate = true;
+		m_graphFrameTime->GetProps().colorTextMainAxis			  = ColorGrad(Theme::GetDef().accentPrimary0, Theme::GetDef().accentSecondary);
+		m_graphFrameTime->GetProps().title						  = "FPS/Frames";
+
+		m_graphFrameTime->GetProps().legends = {
+			{
+				.axis  = "X:",
+				.text  = "Last Frames",
+				.color = Theme::GetDef().accentSecondary,
+			},
+			{
+				.axis  = "Y:",
+				.text  = "FPS",
+				.color = Theme::GetDef().accentSecondary,
+			},
+		};
+
+		m_graphFrameTime->GetProps().groups = {
+			{
+				.colorLine = ColorGrad(Theme::GetDef().accentPrimary0, Theme::GetDef().accentSecondary),
+				.drawLine  = true,
+			},
+		};
+
+		m_graphFrameTime->GetProps().groups.back().points.resize(RECORD_LAST_N_FRAMES);
+
+		m_graphFrameTime->GetProps().crossAxisPoints = {
+			{
+				.value		 = 680,
+				.displayName = "680",
+			},
+			{
+				.value		 = 620.0f,
+				.displayName = "620",
+			},
+			{
+				.value		 = 120.0f,
+				.displayName = "120",
+			},
+			{
+				.value		 = 60.0f,
+				.displayName = "60",
+			},
+			{
+				.value		 = 30.0f,
+				.displayName = "30",
+			},
+			{
+				.value		 = 15.0f,
+				.displayName = "15",
+			},
+		};
+
+		m_graphFrameTime->GetProps().mainAxisPoints = {
+			{
+				.value		 = 0.0f,
+				.displayName = "",
+			},
+			{
+				.value		 = 25.0f,
+				.displayName = "Frame 25",
+			},
+			{
+				.value		 = 50.0f,
+				.displayName = "Frame 50",
+			},
+			{
+				.value		 = 75.0f,
+				.displayName = "Frame 75",
+			},
+			{
+				.value		 = 500.0f,
+				.displayName = "Frame 500",
+			},
+		};
+
+		m_layout->AddChild(m_graphFrameTime);
 	}
 
 	void PanelPerformance::BuildContentsMemory()
@@ -427,6 +572,8 @@ namespace Lina::Editor
 			txt->GetWidgetProps().drawBackground  = true;
 			txt->GetWidgetProps().colorBackground = Color::White;
 			txt->GetWidgetProps().textureAtlas	  = img;
+			txt->SetCustomTooltipUserData(txt);
+			txt->SetBuildCustomTooltip(BIND(&CommonWidgets::BuildThumbnailTooltip, std::placeholders::_1));
 			wrap->AddChild(txt);
 			return wrap;
 		};

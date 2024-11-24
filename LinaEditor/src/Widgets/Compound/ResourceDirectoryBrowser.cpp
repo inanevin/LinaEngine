@@ -347,14 +347,12 @@ namespace Lina::Editor
 					continue;
 			}
 
-			if (m_filter != Filter::None)
+			if (m_filter == Filter::Favourites)
 			{
-				if (m_filter == Filter::Favourites)
-				{
-					if (!child->userData.isInFavourites)
-						continue;
-				}
+				if (!child->userData.isInFavourites && !IsChildInFavs(child))
+					continue;
 			}
+
 			AddItem(parent, child, margin);
 		}
 	}
@@ -839,6 +837,19 @@ namespace Lina::Editor
 		for (ResourceDirectory* dir : dirs)
 		{
 			if (dir->userData.directoryType == static_cast<uint32>(ResourceDirectoryType::EngineResource))
+				return true;
+		}
+
+		return false;
+	}
+	bool ResourceDirectoryBrowser::IsChildInFavs(ResourceDirectory* dir) const
+	{
+		for (ResourceDirectory* c : dir->children)
+		{
+			if (c->userData.isInFavourites)
+				return true;
+
+			if (c->isFolder && IsChildInFavs(c))
 				return true;
 		}
 

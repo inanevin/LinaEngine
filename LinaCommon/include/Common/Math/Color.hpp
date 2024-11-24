@@ -153,7 +153,7 @@ namespace Lina
 			end	  = colEnd;
 		}
 
-		LinaVG::Vec4Grad AsLVG();
+		LinaVG::Vec4Grad AsLVG() const;
 
 		void SaveToStream(OStream& stream) const
 		{

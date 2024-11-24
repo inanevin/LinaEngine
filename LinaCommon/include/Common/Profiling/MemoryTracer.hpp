@@ -28,7 +28,7 @@ SOFTWARE.
 
 #pragma once
 
-#if defined LINA_DEBUG && defined LINA_PLATFORM_WINDOWS
+#if defined LINA_MEMLEAK_CHECK
 
 #include "Common/Data/Mutex.hpp"
 #include "Common/Data/SimpleArray.hpp"
@@ -88,24 +88,6 @@ namespace Lina
 		ParallelHashMapMutexMalloc<void*, MemoryTrack> m_allocationMap;
 	};
 
-#define MEMORY_TRACER_ONALLOC(PTR, SZ)				Lina::MemoryTracer::Get().OnAllocation(PTR, SZ)
-#define MEMORY_TRACER_ONFREE(PTR)					Lina::MemoryTracer::Get().OnFree(PTR)
-#define MEMORY_TRACER_SET_LEAK_FILE(STR)			Lina::MemoryTracer::Get().MemoryLeaksFile = STR
-#define MEMORY_TRACER_REGISTER_ALLOCATORPOOL(ALL)	Lina::MemoryTracer::Get().RegisterAllocator(ALL)
-#define MEMORY_TRACER_UNREGISTER_ALLOCATORPOOL(ALL) Lina::MemoryTracer::Get().UnregisterAllocator(ALL)
-} // namespace Lina
-
-#else
-
-namespace Lina
-{
-#define MEMORY_TRACER_ONALLOC(PTR, SZ)
-#define MEMORY_TRACER_ONFREE(PTR)
-#define MEMORY_TRACER_VRAM_ONALLOC(PTR, SZ)
-#define MEMORY_TRACER_VRAM_ONFREE(PTR)
-#define MEMORY_TRACER_SET_LEAK_FILE(STR)
-#define MEMORY_TRACER_REGISTER_ALLOCATORPOOL(ALL)
-#define MEMORY_TRACER_UNREGISTER_ALLOCATORPOOL(ALL)
 } // namespace Lina
 
 #endif

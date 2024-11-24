@@ -35,4 +35,5 @@ namespace Lina
 #define MEMSET(...)	 memset(__VA_ARGS__)
 #define MALLOC(...)	 malloc(__VA_ARGS__)
 #define FREE(...)	 free(__VA_ARGS__)
+
 } // namespace Lina

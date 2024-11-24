@@ -335,9 +335,10 @@ namespace Lina::Editor
 
 		if (!props.chevron.empty())
 		{
-			Icon* icon				 = wm->Allocate<Icon>("Chevron");
-			icon->GetProps().icon	 = props.chevron;
-			icon->GetProps().iconAlt = props.chevronAlt;
+			Icon* icon					= wm->Allocate<Icon>("Chevron");
+			icon->GetProps().icon		= props.chevron;
+			icon->GetProps().iconAlt	= props.chevronAlt;
+			icon->GetProps().useAltIcon = unfoldValue ? *unfoldValue : false;
 			icon->GetFlags().Set(WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
 			icon->SetAlignedPos(Vector2(0.5f, 0.5f));
 			icon->SetAnchorY(Anchor::Center);
