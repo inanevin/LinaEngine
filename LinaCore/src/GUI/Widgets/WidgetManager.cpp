@@ -75,6 +75,9 @@ namespace Lina
 
 		m_killList.clear();
 
+		m_cursorOverride = static_cast<uint8>(LinaGX::CursorType::Default);
+
+		/*
 		if (m_window->HasFocus())
 		{
 			if (m_foregroundRoot->GetChildren().empty())
@@ -82,9 +85,13 @@ namespace Lina
 			else
 				m_window->SetCursorType(FindCursorType(m_foregroundRoot));
 		}
+		*/
 
 		PassPreTick(m_foregroundRoot);
 		PassPreTick(m_rootWidget);
+
+		if (m_window->HasFocus())
+			m_window->SetCursorType(static_cast<LinaGX::CursorType>(m_cursorOverride));
 	}
 
 	void WidgetManager::Tick(float delta, const Vector2ui& size)
@@ -470,26 +477,6 @@ namespace Lina
 		if (it != m_killList.end())
 			return;
 		m_killList.push_back(w);
-	}
-
-	LinaGX::CursorType WidgetManager::FindCursorType(Widget* w)
-	{
-		const LinaGX::CursorType cursorType = w->GetCursorOverride();
-		if (cursorType != LinaGX::CursorType::Default)
-		{
-			return cursorType;
-		}
-
-		const Vector<Widget*> children = w->GetChildren();
-		for (Widget* c : children)
-		{
-			LinaGX::CursorType childCursorType = FindCursorType(c);
-			if (childCursorType != LinaGX::CursorType::Default)
-			{
-				return childCursorType;
-			}
-		}
-		return LinaGX::CursorType::Default;
 	}
 
 	namespace

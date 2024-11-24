@@ -51,6 +51,19 @@ namespace Lina
 
 	void DirectionalLayout::PreTick()
 	{
+		// Cursor
+		if (m_props.mode == Mode::Bordered)
+		{
+			Rect pressRect = {};
+
+			for (const Rect& rect : m_borderRects)
+			{
+				GetPressRect(rect, pressRect);
+				if (pressRect.IsPointInside(m_lgxWindow->GetMousePosition()))
+					m_manager->SetCursorOverride(m_props.direction == DirectionOrientation::Horizontal ? (uint8)LinaGX::CursorType::SizeHorizontal : (uint8)LinaGX::CursorType::SizeVertical);
+			}
+		}
+
 		if (GetIsHovered() && !m_lastHoverStatus)
 		{
 			if (m_props.onHoverBegin)
@@ -540,23 +553,6 @@ namespace Lina
 		stream >> borderThickness;
 		stream >> borderMinSize;
 		stream >> borderExpandForMouse;
-	}
-
-	LinaGX::CursorType DirectionalLayout::GetCursorOverride()
-	{
-		if (m_props.mode == Mode::Bordered)
-		{
-			Rect pressRect = {};
-
-			for (const Rect& rect : m_borderRects)
-			{
-				GetPressRect(rect, pressRect);
-
-				if (pressRect.IsPointInside(m_lgxWindow->GetMousePosition()))
-					return m_props.direction == DirectionOrientation::Horizontal ? LinaGX::CursorType::SizeHorizontal : LinaGX::CursorType::SizeVertical;
-			}
-		}
-		return LinaGX::CursorType::Default;
 	}
 
 } // namespace Lina

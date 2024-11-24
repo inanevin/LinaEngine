@@ -240,9 +240,9 @@ namespace Lina
 
 	String UtilStr::FloatToString(float val, uint32 decimals)
 	{
-		std::ostringstream out;
-		out << std::fixed << std::setprecision(decimals) << val;
-		return out.str();
+		char buffer[32]; // Adjust size if needed.
+		auto [ptr, ec] = std::to_chars(buffer, buffer + sizeof(buffer), val, std::chars_format::fixed, decimals);
+		return (ec == std::errc()) ? std::string(buffer, ptr) : ""; // Handle errors (optional).
 	}
 
 	String UtilStr::GetUntilFirstOf(const String& str)

@@ -42,26 +42,6 @@ namespace Lina
 
 #define CARET_ALPHA_SPEED 8.0f
 
-	LinaGX::CursorType InputField::GetCursorOverride()
-	{
-		if (GetFlags().IsSet(WF_DISABLED))
-			return LinaGX::CursorType::Default;
-
-		// Cursor status.
-		if (m_isHovered)
-		{
-			if (m_props.isNumberField && !m_props.disableNumberSlider)
-			{
-				if (m_isEditing)
-					return LinaGX::CursorType::Caret;
-			}
-			else
-				return LinaGX::CursorType::Caret;
-		}
-
-		return LinaGX::CursorType::Default;
-	}
-
 	void InputField::Construct()
 	{
 		GetWidgetProps().drawBackground			   = true;
@@ -113,6 +93,10 @@ namespace Lina
 
 	void InputField::PreTick()
 	{
+		// Cursor status.
+		if (m_isHovered && m_isEditing)
+			m_manager->SetCursorOverride(static_cast<uint8>(LinaGX::CursorType::Caret));
+
 		if (m_middlePressed && m_props.isNumberField && !m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_MIDDLE))
 		{
 			if (m_props.valuePtr && m_props.onEditEnd && !Math::Equals(m_valueOnMiddlePress, GetValue(), 0.001f))

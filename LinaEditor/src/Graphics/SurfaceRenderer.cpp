@@ -347,24 +347,24 @@ namespace Lina::Editor
 		m_lvgDrawer.FlushBuffers();
 		m_lvgDrawer.ResetFrame();
 
-		m_uploadQueue.AddBufferRequest(&currentFrame.guiIndexBuffer);
-		m_uploadQueue.AddBufferRequest(&currentFrame.guiVertexBuffer);
-		m_guiPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+		// m_uploadQueue.AddBufferRequest(&currentFrame.guiIndexBuffer);
+		// m_uploadQueue.AddBufferRequest(&currentFrame.guiVertexBuffer);
+		// m_guiPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
 
-		if (m_uploadQueue.FlushAll(currentFrame.copyStream))
-		{
-			currentFrame.copySemaphore.Increment();
-			m_lgx->CloseCommandStreams(&currentFrame.copyStream, 1);
-			m_lgx->SubmitCommandStreams({
-				.targetQueue	  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Transfer),
-				.streams		  = &currentFrame.copyStream,
-				.streamCount	  = 1,
-				.useSignal		  = true,
-				.signalCount	  = 1,
-				.signalSemaphores = currentFrame.copySemaphore.GetSemaphorePtr(),
-				.signalValues	  = currentFrame.copySemaphore.GetValuePtr(),
-			});
-		}
+		// if (m_uploadQueue.FlushAll(currentFrame.copyStream))
+		//{
+		//	currentFrame.copySemaphore.Increment();
+		//	m_lgx->CloseCommandStreams(&currentFrame.copyStream, 1);
+		//	m_lgx->SubmitCommandStreams({
+		//		.targetQueue	  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Transfer),
+		//		.streams		  = &currentFrame.copyStream,
+		//		.streamCount	  = 1,
+		//		.useSignal		  = true,
+		//		.signalCount	  = 1,
+		//		.signalSemaphores = currentFrame.copySemaphore.GetSemaphorePtr(),
+		//		.signalValues	  = currentFrame.copySemaphore.GetValuePtr(),
+		//	});
+		// }
 	}
 
 	LinaGX::CommandStream* SurfaceRenderer::Render(uint32 frameIndex)

@@ -298,7 +298,7 @@ namespace Lina::Editor
 
 	void WindowPanelManager::FillPanelLayout(Panel* panel)
 	{
-		const EditorLayout::PanelData& pd = m_editor->GetSettings().GetLayout().FindPanelData(panel->GetType());
+		EditorLayout::PanelData pd = m_editor->GetSettings().GetLayout().FindPanelData(panel->GetType());
 
 		if (!pd.layoutData.empty())
 		{

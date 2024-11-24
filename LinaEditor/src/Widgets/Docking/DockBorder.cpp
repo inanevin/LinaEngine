@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Common/Data/CommonData.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor
@@ -54,21 +55,14 @@ namespace Lina::Editor
 		}
 	}
 
-	LinaGX::CursorType DockBorder::GetCursorOverride()
-	{
-		const LinaGX::CursorType targetType = m_orientation == DirectionOrientation::Horizontal ? LinaGX::CursorType::SizeVertical : LinaGX::CursorType::SizeHorizontal;
-
-		if (m_isPressed)
-			return targetType;
-
-		if (m_isHovered && !m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_0))
-			return targetType;
-
-		return LinaGX::CursorType::Default;
-	}
-
 	void DockBorder::PreTick()
 	{
+		if (m_isPressed || (m_isHovered && !m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_0)))
+		{
+			const LinaGX::CursorType targetType = m_orientation == DirectionOrientation::Horizontal ? LinaGX::CursorType::SizeVertical : LinaGX::CursorType::SizeHorizontal;
+			m_manager->SetCursorOverride(static_cast<uint8>(targetType));
+		}
+
 		// Hax :)
 		if (m_tick < 2)
 			m_tick++;

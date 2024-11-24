@@ -41,11 +41,10 @@ namespace Lina::Editor
 		DockBorder()		  = default;
 		virtual ~DockBorder() = default;
 
-		virtual void			   Initialize() override;
-		virtual void			   PreTick() override;
-		virtual bool			   OnMouse(uint32 button, LinaGX::InputAction act) override;
-		virtual LinaGX::CursorType GetCursorOverride() override;
-		void					   FixChildMargins();
+		virtual void Initialize() override;
+		virtual void PreTick() override;
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
+		void		 FixChildMargins();
 
 		inline DirectionOrientation GetDirectionOrientation() const
 		{

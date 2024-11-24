@@ -150,6 +150,11 @@ namespace Lina
 			return m_clipOutsideWindow;
 		}
 
+		inline void SetCursorOverride(uint8 cursor)
+		{
+			m_cursorOverride = cursor;
+		}
+
 	protected:
 		virtual void OnWindowKey(LinaGX::Window* window, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction) override;
 		virtual void OnWindowMouse(LinaGX::Window* window, uint32 button, LinaGX::InputAction inputAction) override;
@@ -158,9 +163,6 @@ namespace Lina
 		virtual void OnWindowFocus(LinaGX::Window* window, bool gainedFocus) override;
 		virtual void OnWindowHoverBegin(LinaGX::Window* window) override;
 		virtual void OnWindowHoverEnd(LinaGX::Window* window) override;
-
-	private:
-		LinaGX::CursorType FindCursorType(Widget* start);
 
 		bool		PassMousePos(Widget* widget, const Vector2& pos);
 		void		PassCalculateSize(Widget* w, float delta);
@@ -210,6 +212,7 @@ namespace Lina
 		Widget*					m_foregroundLock		= nullptr;
 		bool					m_isMouseHoveringWindow = true;
 		bool					m_clipOutsideWindow		= true;
+		uint8					m_cursorOverride		= 0;
 	};
 
 } // namespace Lina

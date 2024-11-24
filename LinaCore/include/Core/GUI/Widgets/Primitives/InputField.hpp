@@ -97,18 +97,17 @@ namespace Lina
 			}
 		};
 
-		virtual void			   Construct() override;
-		virtual void			   Initialize() override;
-		virtual void			   PreTick() override;
-		virtual void			   Tick(float delta) override;
-		virtual void			   Draw() override;
-		virtual bool			   OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action) override;
-		virtual bool			   OnMouse(uint32 button, LinaGX::InputAction action) override;
-		virtual LinaGX::CursorType GetCursorOverride() override;
-		void					   SelectAll();
-		void					   StartEditing();
-		void					   UpdateTextFromValue();
-		virtual void			   OnGrabbedControls(bool fw, Widget* w) override
+		virtual void Construct() override;
+		virtual void Initialize() override;
+		virtual void PreTick() override;
+		virtual void Tick(float delta) override;
+		virtual void Draw() override;
+		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action) override;
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
+		void		 SelectAll();
+		void		 StartEditing();
+		void		 UpdateTextFromValue();
+		virtual void OnGrabbedControls(bool fw, Widget* w) override
 		{
 			StartEditing();
 			SelectAll();

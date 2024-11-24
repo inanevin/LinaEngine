@@ -130,7 +130,7 @@ namespace Lina
 		LinaGX::Config.mutexLockCreationDeletion	= true;
 
 		// Debugging
-#ifdef LINA_DEBUGS
+#ifdef LINA_DEBUG
 		LinaGX::Config.enableAPIDebugLayers			   = true;
 		LinaGX::Config.enableShaderDebugInformation	   = true;
 		LinaGX::Config.serializeShaderDebugInformation = true;
