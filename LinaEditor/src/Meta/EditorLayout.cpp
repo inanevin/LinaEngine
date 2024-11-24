@@ -144,7 +144,7 @@ namespace Lina::Editor
 		m_windows.push_back(wl);
 	}
 
-	const EditorLayout::PanelData& EditorLayout::FindPanelData(PanelType type)
+	EditorLayout::PanelData EditorLayout::FindPanelData(PanelType type)
 	{
 		for (const WindowLayout& wl : m_windows)
 		{

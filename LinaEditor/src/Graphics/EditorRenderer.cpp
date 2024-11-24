@@ -86,11 +86,8 @@ namespace Lina::Editor
 		{
 			if (rend->CheckVisibility())
 				m_validSurfaceRenderers.push_back(rend);
-
-			rend->PreTick();
 		}
 
-		/*
 		if (m_validSurfaceRenderers.size() == 1)
 		{
 			m_validSurfaceRenderers[0]->PreTick();
@@ -102,9 +99,8 @@ namespace Lina::Editor
 				SurfaceRenderer* rend = m_validSurfaceRenderers.at(i);
 				rend->PreTick();
 			});
-			m_editor->GetExecutor().RunAndWait(tf);
+			m_executor.RunAndWait(tf);
 		}
-		*/
 	}
 
 	void EditorRenderer::Tick(float delta)
