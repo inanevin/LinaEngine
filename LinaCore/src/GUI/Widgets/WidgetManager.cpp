@@ -836,6 +836,10 @@ namespace Lina
 		if (w->GetFlags().IsSet(WF_HIDE))
 			return;
 
+		if (w->GetWidgetProps().debugName.compare("aqbilader") == 0)
+		{
+			int a = 5;
+		}
 		w->DrawBackground();
 		w->DrawDropshadow();
 		w->Draw();

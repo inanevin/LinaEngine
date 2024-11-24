@@ -122,7 +122,6 @@ namespace Lina::Editor
 					m_subWindows.erase(it);
 				}
 
-				LINA_TRACE("CLOSING WINDOW THIS TICK");
 				LinaGX::Window* window = m_editor->GetApp()->GetApplicationWindow(sid);
 				DestroySurfaceRenderer(window);
 				m_editor->GetApp()->DestroyApplicationWindow(sid);
@@ -451,7 +450,6 @@ namespace Lina::Editor
 
 	void WindowPanelManager::CloseWindow(StringID sid)
 	{
-		LINA_TRACE("CLOSE REQUESTED");
 		m_windowCloseRequests.push_back(sid);
 	}
 

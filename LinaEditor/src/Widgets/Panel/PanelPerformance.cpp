@@ -352,7 +352,7 @@ namespace Lina::Editor
 		fpsGraphLayout->GetProps().direction			  = DirectionOrientation::Vertical;
 		fpsGraphLayout->GetWidgetProps().drawBackground	  = true;
 		fpsGraphLayout->GetWidgetProps().colorBackground  = Theme::GetDef().background1;
-		fpsGraphLayout->GetWidgetProps().rounding		  = 0.0f;
+		fpsGraphLayout->GetWidgetProps().rounding		  = 0.02f;
 		fpsGraphLayout->GetWidgetProps().outlineThickness = Theme::GetDef().baseOutlineThickness;
 		fpsGraphLayout->GetWidgetProps().colorOutline	  = Theme::GetDef().background0;
 		m_layout->AddChild(fpsGraphLayout);
@@ -436,7 +436,7 @@ namespace Lina::Editor
 			gauge->SetAlignedSizeY(1.0f);
 			gauge->SetFixedSizeX(Theme::GetDef().baseItemHeight * 10);
 			gauge->GetWidgetProps().childMargins	 = TBLR::Eq(Theme::GetDef().baseIndent);
-			gauge->GetWidgetProps().rounding		 = 0.0f;
+			gauge->GetWidgetProps().rounding		 = 0.05f;
 			gauge->GetWidgetProps().outlineThickness = Theme::GetDef().baseOutlineThickness;
 			gauge->GetWidgetProps().colorOutline	 = Theme::GetDef().background0;
 			gauge->GetWidgetProps().drawBackground	 = true;
@@ -513,7 +513,7 @@ namespace Lina::Editor
 		info->GetWidgetProps().drawBackground	= true;
 		info->GetWidgetProps().outlineThickness = 0.0f;
 		info->GetWidgetProps().colorBackground	= Theme::GetDef().background1;
-		info->GetWidgetProps().rounding			= 0.0f;
+		info->GetWidgetProps().rounding			= 0.05f;
 		info->GetWidgetProps().outlineThickness = Theme::GetDef().baseOutlineThickness;
 		info->GetWidgetProps().colorOutline		= Theme::GetDef().background0;
 		horizontal->AddChild(info);
@@ -723,7 +723,7 @@ namespace Lina::Editor
 		};
 
 		auto createVis = [&](TextureAtlasImage* img) -> Widget* {
-			Widget* txt = m_manager->Allocate<Widget>("Txt");
+			Widget* txt = m_manager->Allocate<Widget>("aqbilader");
 			txt->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y);
 			txt->SetAlignedPos(Vector2(0.0f, 0.5f));
 			txt->SetAnchorY(Anchor::Center);

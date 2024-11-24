@@ -459,7 +459,6 @@ namespace Lina::Editor
 						SelectItem(item, true, true);
 
 					m_contextMenu->CreateItems(0, m_lgxWindow->GetMousePosition(), nullptr);
-					LINA_TRACE("CREATE ITEMS_");
 					return true;
 				}
 			}

@@ -174,6 +174,8 @@ namespace Lina::Editor
 		for (size_t i = 0; i < sz; i++)
 		{
 			DirectionalLayout* vertical = m_columns[i].contents;
+			Widget*			   w		= columns[i];
+			w->GetWidgetProps().drawOrderIncrement++;
 
 			if (m_props.useRowWrapper)
 			{
@@ -182,17 +184,17 @@ namespace Lina::Editor
 				wrap->SetAlignedPosX(0.0f);
 				wrap->SetAlignedSizeX(1.0f);
 				wrap->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-				wrap->GetWidgetProps().childMargins.left = Theme::GetDef().baseIndent;
-				wrap->GetWidgetProps().drawBackground	 = true;
-				wrap->GetWidgetProps().outlineThickness	 = 0.0f;
-				// wrap->GetWidgetProps().clipChildren = true;
-				wrap->GetWidgetProps().rounding		   = 0.0f;
-				wrap->GetWidgetProps().colorBackground = vertical->GetChildren().size() % 2 == 0 ? m_props.colorRow : m_props.colorRowAlt;
-				wrap->AddChild(columns[i]);
+				wrap->GetWidgetProps().childMargins.left  = Theme::GetDef().baseIndent;
+				wrap->GetWidgetProps().drawBackground	  = true;
+				wrap->GetWidgetProps().outlineThickness	  = 0.0f;
+				wrap->GetWidgetProps().rounding			  = 0.0f;
+				wrap->GetWidgetProps().drawOrderIncrement = 1;
+				wrap->GetWidgetProps().colorBackground	  = vertical->GetChildren().size() % 2 == 0 ? m_props.colorRow : m_props.colorRowAlt;
+				wrap->AddChild(w);
 				vertical->AddChild(wrap);
 			}
 			else
-				vertical->AddChild(columns[i]);
+				vertical->AddChild(w);
 		}
 	}
 
