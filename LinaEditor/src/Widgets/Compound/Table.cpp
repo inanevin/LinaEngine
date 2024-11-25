@@ -140,7 +140,7 @@ namespace Lina::Editor
 			contents->SetAlignedPosX(0.0f);
 			contents->SetAlignedSize(Vector2(1.0f, 0.0f));
 			contents->GetProps().direction			= DirectionOrientation::Vertical;
-			contents->GetWidgetProps().clipChildren = true;
+			contents->GetWidgetProps().clipChildren = m_props.clipChildren;
 			vertical->AddChild(contents);
 
 			m_columns.push_back({

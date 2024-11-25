@@ -222,6 +222,12 @@ namespace Lina
 			if (shader == nullptr)
 				continue;
 
+			if (type == RenderPassType::Deferred && shader->GetShaderType() != ShaderType::OpaqueSurface)
+				continue;
+
+			if (type == RenderPassType::Forward && shader->GetShaderType() != ShaderType::TransparentSurface)
+				continue;
+
 			if (shader != lastBoundShader)
 			{
 				LinaGX::CMDBindPipeline* pipelineBind = stream->AddCommand<LinaGX::CMDBindPipeline>();
@@ -243,6 +249,14 @@ namespace Lina
 
 		m_cpuForwardDraws.resize(0);
 		m_cpuDeferredDraws.resize(0);
+	}
+
+	void ObjectRenderer::DropRenderFrame()
+	{
+		m_cpuForwardDraws	  = {};
+		m_cpuDeferredDraws	  = {};
+		m_renderForwardDraws  = {};
+		m_renderDeferredDraws = {};
 	}
 
 } // namespace Lina

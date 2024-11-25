@@ -292,6 +292,9 @@ namespace Lina::Editor
 		fold->SetIsUnfolded(unfoldValue != nullptr ? *unfoldValue : false);
 		fold->SetUserData(props.userData);
 		fold->GetProps().onFoldChanged = [fold, unfoldValue](bool unfolded) {
+			if (unfoldValue)
+				*unfoldValue = unfolded;
+
 			Icon* icon = fold->GetWidgetOfType<Icon>(fold);
 			if (icon)
 			{

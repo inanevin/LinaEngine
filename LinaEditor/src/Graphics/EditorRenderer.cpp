@@ -140,6 +140,15 @@ namespace Lina::Editor
 		}
 	}
 
+	void EditorRenderer::DropRenderFrame()
+	{
+		for (WorldRenderer* wr : m_worldRenderers)
+			wr->DropRenderFrame();
+
+		for (SurfaceRenderer* sr : m_surfaceRenderers)
+			sr->DropRenderFrame();
+	}
+
 	void EditorRenderer::SyncRender()
 	{
 		if (!m_worldRenderers.empty())

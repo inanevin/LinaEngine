@@ -67,6 +67,7 @@ namespace Lina
 		virtual void RenderDrawLighting(LinaGX::CommandStream* stream){};
 		virtual void RenderDrawLightingPost(LinaGX::CommandStream* stream){};
 
+		virtual void DropRenderFrame(){};
 		virtual void SyncRender(){};
 
 	protected:

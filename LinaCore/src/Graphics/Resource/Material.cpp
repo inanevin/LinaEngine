@@ -47,9 +47,7 @@ namespace Lina
 	void Material::DestroyProperties()
 	{
 		for (MaterialProperty* p : m_properties)
-		{
 			delete p;
-		}
 		m_properties.clear();
 	}
 

@@ -637,6 +637,7 @@ namespace Lina::Editor
 				}
 			}
 
+			m_editor->GetApp()->JoinRender();
 			m_editor->GetApp()->GetResourceManager().ReloadResourceHW(toReload);
 
 			// RefreshThumbnails();

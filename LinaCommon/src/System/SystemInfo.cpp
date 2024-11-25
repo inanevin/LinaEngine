@@ -50,6 +50,7 @@ namespace Lina
 	double SystemInfo::s_appTime						= 0.0;
 	double SystemInfo::s_deltaTimeSeconds				= 0.0;
 	double SystemInfo::s_timescale						= 1.0;
+	uint32 SystemInfo::s_rendererBehindFrames			= 0;
 
 	double SystemInfo::CalculateRunningAverageDT(int64 deltaMicroseconds)
 	{

@@ -403,10 +403,10 @@ namespace Lina::Editor
 			matViewer->SetupWorld();
 			panelResView->UpdateResourceProperties();
 			panelResView->RebuildContents();
-
 			matViewer->GetWorld()->LoadMissingResources(editor->GetApp()->GetResourceManager(), editor->GetProjectManager().GetProjectData(), {}, m_resourceSpace);
 		}
 
+		mat->SaveToFileAsBinary(editor->GetProjectManager().GetProjectData()->GetResourcePath(mat->GetID()));
 		editor->GetApp()->GetResourceManager().ReloadResourceHW({mat});
 	}
 

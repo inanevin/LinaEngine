@@ -186,6 +186,14 @@ namespace Lina::Editor
 		m_frameIndexCounter			 = 0;
 
 		m_widgetManager.Draw();
+
+		LinaVG::StyleOptions opts;
+		opts.isFilled  = false;
+		opts.thickness = Theme::GetDef().baseBorderThickness * 2;
+		opts.color	   = Theme::GetDef().background0.AsLVG4();
+
+		const Vector2 windowSize = m_window->GetSize() - Vector2(2, 2);
+		m_lvgDrawer.DrawRect(LinaVG::Vec2(2, 2), windowSize.AsLVG(), opts, 0.0f, FOREGROUND_DRAW_ORDER);
 		m_lvgDrawer.FlushBuffers();
 		m_lvgDrawer.ResetFrame();
 	}
@@ -457,6 +465,19 @@ namespace Lina::Editor
 		m_cpuDraw.vertexCounter			= 0;
 		m_cpuDraw.materialBufferCounter = 0;
 		m_cpuDraw.requests.resize(0);
+	}
+
+	void SurfaceRenderer::DropRenderFrame()
+	{
+		m_cpuDraw.indexCounter			= 0;
+		m_cpuDraw.vertexCounter			= 0;
+		m_cpuDraw.materialBufferCounter = 0;
+		m_cpuDraw.requests.resize(0);
+
+		m_renderDraw.indexCounter		   = 0;
+		m_renderDraw.vertexCounter		   = 0;
+		m_renderDraw.materialBufferCounter = 0;
+		m_renderDraw.requests.resize(0);
 	}
 
 	LinaGX::CommandStream* SurfaceRenderer::Render(uint32 frameIndex)

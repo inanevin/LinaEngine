@@ -234,6 +234,9 @@ namespace Lina::Editor
 			if (child->userData.directoryType != static_cast<uint32>(ResourceDirectoryType::EngineResource))
 				continue;
 
+			// if (m_props.itemTypeIDFilter != 0 && !child->isFolder && m_props.itemTypeIDFilter != child->resourceTID)
+			//	continue;
+
 			if (!m_searchStr.empty())
 			{
 				if (!CheckIfContainsSearchStr(child))

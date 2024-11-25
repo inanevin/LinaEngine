@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Application.hpp"
 #include "Common/Math/Math.hpp"
+#include "Common/System/SystemInfo.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor
@@ -46,7 +47,7 @@ namespace Lina::Editor
 	{
 		GetFlags().Set(WF_KEY_PASSTHRU | WF_MOUSE_PASSTHRU);
 		GetWidgetProps().outlineThickness = Theme::GetDef().baseOutlineThickness;
-		GetWidgetProps().rounding		  = 0.025f;
+		GetWidgetProps().rounding		  = 0.0f;
 
 		m_loading = CommonWidgets::BuildGenericPopupProgress(this, Locale::GetStr(LocaleStr::LoadingWorld), true);
 		AddChild(m_loading);
@@ -118,7 +119,7 @@ namespace Lina::Editor
 		}
 
 		const uint32 frameIndex		= Application::GetLGX()->GetCurrentFrameIndex();
-		Texture*	 target			= m_worldRenderer->GetLightingPassOutput((frameIndex + 1) % 2); // 1 frame behind renderer
+		Texture*	 target			= m_worldRenderer->GetLightingPassOutput((frameIndex + SystemInfo::GetRendererBehindFrames()) % 2); // 1 frame behind renderer
 		GetWidgetProps().rawTexture = target;
 	}
 

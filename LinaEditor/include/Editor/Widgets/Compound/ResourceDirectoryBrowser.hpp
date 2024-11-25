@@ -62,16 +62,6 @@ namespace Lina::Editor
 		struct Properties
 		{
 			TypeID itemTypeIDFilter = 0;
-
-			void SaveToStream(OStream& stream) const
-			{
-				stream << itemTypeIDFilter;
-			}
-
-			void LoadFromStream(IStream& stream)
-			{
-				stream >> itemTypeIDFilter;
-			}
 		};
 
 		virtual void  Construct() override;

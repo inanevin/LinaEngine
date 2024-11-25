@@ -180,26 +180,30 @@ namespace Lina::Editor
 			m_world->DestroyEntity(m_displayEntity);
 		m_displayEntity = nullptr;
 
-		Material* mat				= static_cast<Material*>(m_resource);
-		m_materialInWorld			= rm.GetResource<Material>(m_resource->GetID());
+		Material*		 mat		= static_cast<Material*>(m_resource);
 		const ShaderType shaderType = mat->GetShaderType();
 
 		if (shaderType == ShaderType::Sky)
 		{
 			m_world->GetGfxSettings().skyMaterial = mat->GetID();
 		}
+		else if (shaderType == ShaderType::Lighting)
+		{
+			m_world->GetGfxSettings().lightingMaterial = mat->GetID();
+		}
 		else
 		{
 			Material* defaultSky				  = rm.GetResource<Material>(EDITOR_MATERIAL_DEFAULT_SKY_ID);
 			m_world->GetGfxSettings().skyMaterial = defaultSky->GetID();
-
-			defaultSky->SetProperty("topColor"_hs, Vector4(0.125f, 0.17f, 1.0f, 1.0f));
-			defaultSky->SetProperty("horizonColor"_hs, Vector4(0.121f, 0.123f, 0.174f, 1.0f));
-			defaultSky->SetProperty("groundColor"_hs, Vector4(0.054f, 0.037f, 0.065f, 1.0f));
-			defaultSky->SetProperty("sunPosition"_hs, Vector3(10.0f, 3.0f, 10.0f));
-			defaultSky->SetProperty("sunColor"_hs, Vector4(1.0f, 1.0f, 1.0f, 1.0f));
-			defaultSky->SetProperty("sunSize"_hs, 0.7f);
-			defaultSky->SetProperty("horizonDiffusion"_hs, 45.0f);
+			defaultSky->SetProperty("skyColor"_hs, Vector3(0.622f, 0.622f, 0.622));
+			defaultSky->SetProperty("horizonColor"_hs, Vector3(0.711f, 0.711f, 0.711f));
+			defaultSky->SetProperty("groundColor"_hs, Vector3(0.79f, 0.79f, 0.79f));
+			defaultSky->SetProperty("sunPosition"_hs, Vector2(0.0f, 0.0f));
+			defaultSky->SetProperty("sunColor"_hs, Vector3(1.0f, 1.0f, 1.0f));
+			defaultSky->SetProperty("sunSize"_hs, 0.0f);
+			defaultSky->SetProperty("sunDiffusion"_hs, 5.0f);
+			defaultSky->SetProperty("horizonPosition"_hs, 0.0f);
+			defaultSky->SetProperty("horizonDiffusion"_hs, 0.023f);
 		}
 
 		const ResourceID displayMaterial = shaderType == ShaderType::Sky ? EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID : m_resource->GetID();

@@ -213,7 +213,6 @@ namespace Lina::Editor
 
 	void PanelLog::OnLog(LogLevel level, const char* msg)
 	{
-		return;
 		const Bitmask32 currentMask = m_editor->GetSettings().GetParams().GetParamUint32("logPanelLevelMask"_hs);
 
 		const size_t sz	 = m_logLevels.size();

@@ -102,8 +102,9 @@ namespace Lina
 		{
 			auto it = linatl::find_if(m_properties.begin(), m_properties.end(), [sid](MaterialProperty* p) -> bool { return p->propDef.sid == sid; });
 			LINA_ASSERT(it != m_properties.end(), "Property not found!");
-
 			MaterialProperty* prop = *it;
+			LINA_ASSERT(sizeof(T) <= prop->data.size(), "");
+
 			MEMCPY(prop->data.data(), &val, sizeof(T));
 		}
 

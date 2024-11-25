@@ -143,8 +143,8 @@ namespace Lina
 	void GfxHelpers::InitializeLinaVG()
 	{
 		LinaVG::Config.globalAAMultiplier = 1.0f;
-		LinaVG::Config.gcCollectInterval  = 4000;
-		LinaVG::Config.textCachingEnabled = false;
+		LinaVG::Config.gcCollectInterval  = 5000;
+		LinaVG::Config.textCachingEnabled = true;
 		LinaVG::Config.textCacheReserve	  = 10000;
 		LinaVG::Config.maxFontAtlasSize	  = 2048;
 		LinaVG::Config.errorCallback	  = [](const std::string& err) { LINA_ERR(err.c_str()); };

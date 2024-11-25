@@ -45,6 +45,9 @@ namespace Lina::Editor
 		PanelResourceViewer::Construct();
 		m_fontDisplay = m_manager->Allocate<Text>("Display");
 		m_fontDisplay->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+		m_fontDisplay->SetAlignedPos(Vector2(0.5f, 0.5f));
+		m_fontDisplay->SetAnchorX(Anchor::Center);
+		m_fontDisplay->SetAnchorY(Anchor::Center);
 		m_resourceBG->AddChild(m_fontDisplay);
 	}
 
@@ -55,8 +58,9 @@ namespace Lina::Editor
 		if (!m_resource)
 			return;
 
-		Font* font									  = static_cast<Font*>(m_resource);
-		m_fontDisplay->GetProps().font				  = font->GetID();
+		Font* font					   = static_cast<Font*>(m_resource);
+		m_fontDisplay->GetProps().font = font->GetID();
+		m_fontDisplay->UpdateTextAndCalcSize(m_displayString);
 		m_fontDisplay->GetProps().valuePtr			  = &m_displayString;
 		m_fontDisplay->GetProps().fetchWrapFromParent = true;
 		m_fontDisplay->GetProps().isDynamic			  = true;

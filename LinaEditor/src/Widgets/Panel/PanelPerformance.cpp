@@ -81,11 +81,6 @@ namespace Lina::Editor
 			},
 			{
 				.color	 = Theme::GetDef().foreground1,
-				.icon	 = ICON_MEMORY,
-				.tooltip = Locale::GetStr(LocaleStr::Memory),
-			},
-			{
-				.color	 = Theme::GetDef().foreground1,
 				.icon	 = ICON_CUBE,
 				.tooltip = Locale::GetStr(LocaleStr::Resources),
 			},
@@ -331,8 +326,6 @@ namespace Lina::Editor
 
 		if (idx == 0)
 			BuildContentsProfiling();
-		else if (idx == 1)
-			BuildContentsMemory();
 		else
 			BuildContentsResources();
 	}
@@ -523,6 +516,7 @@ namespace Lina::Editor
 		m_profilingData.infoTable->SetAlignedPos(Vector2::Zero);
 		m_profilingData.infoTable->SetAlignedSize(Vector2::One);
 		m_profilingData.infoTable->GetProps().displayHeaders = false;
+		m_profilingData.infoTable->GetProps().clipChildren	 = false;
 
 		m_profilingData.infoTable->BuildHeaders({
 			{
@@ -543,6 +537,7 @@ namespace Lina::Editor
 			text->SetAnchorY(Anchor::Center);
 			text->UpdateTextAndCalcSize(txt);
 			text->GetProps().fetchCustomClipFromParent = true;
+			text->GetProps().isDynamic				   = true;
 			return text;
 		};
 
@@ -564,10 +559,6 @@ namespace Lina::Editor
 		m_profilingData.infoTable->GetHorizontalLayout()->GetProps().onBordersChanged = [this]() { m_editor->SaveSettings(); };
 
 		info->AddChild(m_profilingData.infoTable);
-	}
-
-	void PanelPerformance::BuildContentsMemory()
-	{
 	}
 
 	void PanelPerformance::BuildContentsResources()
@@ -719,11 +710,12 @@ namespace Lina::Editor
 			txt->SetAnchorY(Anchor::Center);
 			txt->GetProps().color					  = textColor;
 			txt->GetProps().fetchCustomClipFromParent = true;
+			txt->GetProps().isDynamic				  = true;
 			return txt;
 		};
 
 		auto createVis = [&](TextureAtlasImage* img) -> Widget* {
-			Widget* txt = m_manager->Allocate<Widget>("aqbilader");
+			Widget* txt = m_manager->Allocate<Widget>("Txt");
 			txt->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y);
 			txt->SetAlignedPos(Vector2(0.0f, 0.5f));
 			txt->SetAnchorY(Anchor::Center);

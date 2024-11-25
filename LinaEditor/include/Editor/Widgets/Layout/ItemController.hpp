@@ -151,9 +151,11 @@ namespace Lina::Editor
 		Properties		m_props		   = {};
 		Vector<Widget*> m_allItems;
 		Vector<Widget*> m_selectedItems;
-		bool			m_isFocused		 = false;
-		bool			m_payloadActive	 = false;
-		bool			m_createdPayload = false;
+		bool			m_isFocused		  = false;
+		bool			m_payloadActive	  = false;
+		bool			m_createdPayload  = false;
+		float			m_pressedItemPosY = 0.0f;
+		Widget*			m_pressedItem	  = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(ItemController, Editor)

@@ -60,10 +60,14 @@ namespace Lina::Editor
 
 	void ItemController::PreTick()
 	{
-		if (m_isPressed && !m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_0))
+		if (m_isPressed)
 		{
-			m_isPressed		 = false;
-			m_createdPayload = false;
+			// Mouse up or item moved out of our control
+			if (!m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_0) || m_pressedItem->GetPosY() != m_pressedItemPosY)
+			{
+				m_isPressed		 = false;
+				m_createdPayload = false;
+			}
 		}
 
 		if (m_props.onCreatePayload && !m_createdPayload && m_isPressed && !m_selectedItems.empty())
@@ -374,11 +378,6 @@ namespace Lina::Editor
 
 		SetFocus(true);
 
-		if (button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Pressed)
-		{
-			m_isPressed = true;
-		}
-
 		// To allow payload drag and drop on multiple items.
 		if (button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Released && m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LCTRL))
 		{
@@ -429,7 +428,9 @@ namespace Lina::Editor
 					const bool wasSelected = IsItemSelected(item);
 					SelectItem(item, true, true);
 
-					m_isPressed = true;
+					m_isPressed		  = true;
+					m_pressedItemPosY = item->GetPosY();
+					m_pressedItem	  = item;
 
 					// interact
 					if (act == LinaGX::InputAction::Repeated && m_props.onInteract)

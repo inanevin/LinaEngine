@@ -61,6 +61,7 @@ namespace Lina::Editor
 
 		struct Properties
 		{
+			bool				   clipChildren	  = true;
 			bool				   displayHeaders = true;
 			bool				   useRowWrapper  = true;
 			Color				   colorRow		  = Theme::GetDef().background1;

@@ -45,6 +45,12 @@ namespace Lina
 		m_cpuDraw	 = {};
 	}
 
+	void LightingRenderer::DropRenderFrame()
+	{
+		m_cpuDraw	 = {};
+		m_renderDraw = {};
+	}
+
 	void LightingRenderer::RenderDrawLighting(LinaGX::CommandStream* stream)
 	{
 		Material* lightingMaterial = m_rm->GetIfExists<Material>(m_renderDraw.materialID);
@@ -53,6 +59,9 @@ namespace Lina
 
 		Shader* lightingShader = m_rm->GetIfExists<Shader>(lightingMaterial->GetShader());
 		if (lightingShader == nullptr)
+			return;
+
+		if (lightingShader->GetShaderType() != ShaderType::Lighting)
 			return;
 
 		LinaGX::CMDBindPipeline* bind = stream->AddCommand<LinaGX::CMDBindPipeline>();

@@ -311,6 +311,12 @@ namespace Lina
 			ft->SyncRender();
 	}
 
+	void WorldRenderer::DropRenderFrame()
+	{
+		for (FeatureRenderer* ft : m_featureRenderers)
+			ft->DropRenderFrame();
+	}
+
 	void WorldRenderer::UpdateBuffers(uint32 frameIndex)
 	{
 		auto& currentFrame = m_pfd[frameIndex];

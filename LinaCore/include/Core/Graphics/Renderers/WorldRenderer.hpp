@@ -102,6 +102,7 @@ namespace Lina
 		void Render(uint32 frameIndex);
 		void Resize(const Vector2ui& newSize);
 		void SyncRender();
+		void DropRenderFrame();
 
 		virtual void OnComponentAdded(Component* c) override;
 		virtual void OnComponentRemoved(Component* c) override;

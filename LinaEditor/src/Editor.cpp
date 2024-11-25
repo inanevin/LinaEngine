@@ -202,6 +202,11 @@ namespace Lina::Editor
 		m_editorRenderer.SyncRender();
 	}
 
+	void Editor::DropRenderFrame()
+	{
+		m_editorRenderer.DropRenderFrame();
+	}
+
 	void Editor::Render(uint32 frameIndex)
 	{
 		m_editorRenderer.Render(frameIndex);

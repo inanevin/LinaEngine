@@ -71,7 +71,6 @@ namespace Lina::Editor
 	private:
 		void SelectContent(uint8 idx);
 		void BuildContentsProfiling();
-		void BuildContentsMemory();
 		void BuildContentsResources();
 		void RefreshResourcesTable();
 

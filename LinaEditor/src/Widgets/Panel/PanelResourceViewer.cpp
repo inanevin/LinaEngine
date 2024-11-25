@@ -75,7 +75,7 @@ namespace Lina::Editor
 		resBG->SetAlignedSize(Vector2::One);
 		resBG->GetWidgetProps().childMargins	 = TBLR::Eq(Theme::GetDef().baseIndent);
 		resBG->GetWidgetProps().drawBackground	 = true;
-		resBG->GetWidgetProps().colorBackground	 = Theme::GetDef().background0;
+		resBG->GetWidgetProps().colorBackground	 = Theme::GetDef().background1;
 		resBG->GetWidgetProps().outlineThickness = 0.0f;
 		resBG->GetWidgetProps().rounding		 = 0.0f;
 		resBG->GetWidgetProps().childMargins	 = TBLR::Eq(Theme::GetDef().baseIndent);

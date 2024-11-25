@@ -46,6 +46,7 @@ namespace Lina
 		virtual void ProduceFrame(const Camera& mainCamera, float delta) override;
 		virtual void RenderDrawLighting(LinaGX::CommandStream* stream) override;
 		virtual void SyncRender() override;
+		virtual void DropRenderFrame() override;
 
 	private:
 		LightDraw m_cpuDraw	   = {};

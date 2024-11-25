@@ -28,9 +28,6 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef SystemInfo_HPP
-#define SystemInfo_HPP
-
 #include "Common/Common.hpp"
 #include <thread>
 
@@ -134,6 +131,11 @@ namespace Lina
 			return GetCurrentThreadID() == s_mainThreadID;
 		}
 
+		static inline bool GetRendererBehindFrames()
+		{
+			return s_rendererBehindFrames;
+		}
+
 	private:
 		friend class Application;
 		friend class Engine;
@@ -202,6 +204,11 @@ namespace Lina
 			s_mainThreadID = id;
 		}
 
+		static inline void SetRendererBehindFrames(uint32 frames)
+		{
+			s_rendererBehindFrames = frames;
+		}
+
 	private:
 		static double s_appTime;
 		static double s_deltaTimeSeconds;
@@ -218,7 +225,6 @@ namespace Lina
 		static uint64 s_frames;
 		static uint32 s_measuredFPS;
 		static size_t s_mainThreadID;
+		static uint32 s_rendererBehindFrames;
 	};
 } // namespace Lina
-
-#endif

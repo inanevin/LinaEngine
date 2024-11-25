@@ -46,6 +46,12 @@ namespace Lina
 		m_cpuDraw	 = {};
 	}
 
+	void SkyRenderer::DropRenderFrame()
+	{
+		m_cpuDraw	 = {};
+		m_renderDraw = {};
+	}
+
 	void SkyRenderer::RenderDrawLightingPost(LinaGX::CommandStream* stream)
 	{
 		Material* skyMaterial = m_rm->GetIfExists<Material>(m_renderDraw.skyMat);
@@ -54,8 +60,10 @@ namespace Lina
 			return;
 
 		Shader* skyShader = m_rm->GetIfExists<Shader>(skyMaterial->GetShader());
-
 		if (skyShader == nullptr)
+			return;
+
+		if (skyShader->GetShaderType() != ShaderType::Sky)
 			return;
 
 		Model* skyModel = m_rm->GetIfExists<Model>(m_renderDraw.skyModel);

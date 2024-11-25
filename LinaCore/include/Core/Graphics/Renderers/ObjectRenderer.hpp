@@ -69,6 +69,7 @@ namespace Lina
 		virtual void RenderDrawIndirect(LinaGX::CommandStream* stream, uint32 frameIndex, RenderPass& pass, RenderPassType type) override;
 
 		virtual void SyncRender() override;
+		virtual void DropRenderFrame() override;
 
 	private:
 		Vector<CompModel*> m_compModels;

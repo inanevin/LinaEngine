@@ -100,6 +100,7 @@ namespace Lina::Editor
 		void				   PreTick();
 		void				   Tick(float delta);
 		void				   SyncRender();
+		void				   DropRenderFrame();
 		LinaGX::CommandStream* Render(uint32 frameIndex);
 		void				   OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& newSize);
 		bool				   CheckVisibility();

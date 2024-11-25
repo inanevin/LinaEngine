@@ -125,6 +125,7 @@ namespace Lina
 		void CalculateTime();
 
 	private:
+		bool					 m_joinedRender		  = false;
 		bool					 m_renderJoinPossible = false;
 		static LinaGX::Instance* s_lgx;
 		ApplicationDelegate*	 m_appDelegate	 = nullptr;

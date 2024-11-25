@@ -117,16 +117,31 @@ namespace Lina
 
 		PROFILER_RESET_DRAWINFO();
 
+		/*
+			If we recently joined render thread, previous frames produced might be invalid due to resources changes.
+			Instead of dropping frames and flickering, we single thread for one frame.
+		*/
+		const bool singleThreadRenderer = m_joinedRender;
+		SystemInfo::SetRendererBehindFrames(singleThreadRenderer ? 0 : 1);
 		m_renderJoinPossible = false;
 		m_resourceManager.SetLocked(true);
+		m_joinedRender = false;
 
-		auto renderJob = m_executor.Async([this]() { Render(); });
-
-		m_worldProcessor.Tick(static_cast<float>(delta));
-		GetAppDelegate()->Tick(static_cast<float>(delta));
-
-		renderJob.get();
-		m_appDelegate->SyncRender();
+		if (singleThreadRenderer)
+		{
+			m_worldProcessor.Tick(static_cast<float>(delta));
+			GetAppDelegate()->Tick(static_cast<float>(delta));
+			m_appDelegate->SyncRender();
+			Render();
+		}
+		else
+		{
+			auto renderJob = m_executor.Async([this]() { Render(); });
+			m_worldProcessor.Tick(static_cast<float>(delta));
+			GetAppDelegate()->Tick(static_cast<float>(delta));
+			renderJob.get();
+			m_appDelegate->SyncRender();
+		}
 
 		m_renderJoinPossible = true;
 		m_resourceManager.SetLocked(false);
@@ -139,9 +154,13 @@ namespace Lina
 
 	void Application::JoinRender()
 	{
+		if (m_joinedRender)
+			return;
+
 		LINA_ASSERT(m_renderJoinPossible, "Can't join render inside render sync locks!");
 		s_lgx->Join();
 		m_gfxContext.MarkBindlessDirty();
+		m_joinedRender = true;
 	}
 
 	void Application::Shutdown()
