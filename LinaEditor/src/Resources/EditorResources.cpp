@@ -221,7 +221,7 @@ namespace Lina::Editor
 				.blendDstFactor		 = LinaGX::BlendFactor::OneMinusSrcAlpha,
 				.blendColorOp		 = LinaGX::BlendOp::Add,
 				.blendSrcAlphaFactor = LinaGX::BlendFactor::One,
-				.blendDstAlphaFactor = LinaGX::BlendFactor::Zero,
+				.blendDstAlphaFactor = LinaGX::BlendFactor::OneMinusSrcAlpha,
 				.blendAlphaOp		 = LinaGX::BlendOp::Add,
 				.depthTest			 = true,
 				.depthWrite			 = true,
