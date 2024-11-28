@@ -62,10 +62,19 @@ namespace Lina::Editor
 	private:
 		struct ReimportResult
 		{
-			ResourceID id		   = 0;
-			TypeID	   tid		   = 0;
-			bool	   success	   = false;
-			String	   displayName = "";
+			ResourceID id				= 0;
+			TypeID	   tid				= 0;
+			bool	   success			= false;
+			String	   displayName		= "";
+			bool	   isEditorResource = false;
+		};
+
+		struct EditorResourceReimportData
+		{
+			StringID   lastModifiedSID = 0;
+			ResourceID id			   = 0;
+			TypeID	   tid			   = 0;
+			String	   path			   = "";
 		};
 
 	public:
@@ -125,5 +134,7 @@ namespace Lina::Editor
 		Vector<ResourceDirectory*>				m_resourcesToReimport;
 		uint64									m_lastReimportCheckTicks = 0;
 		bool									m_checkReimport			 = false;
+		Vector<EditorResourceReimportData>		m_editorResourceReimports;
+		Vector<Resource*>						m_editorResourcesToReimport;
 	};
 } // namespace Lina::Editor

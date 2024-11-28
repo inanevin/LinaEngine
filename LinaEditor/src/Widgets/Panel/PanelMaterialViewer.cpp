@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Editor/Widgets/World/WorldDisplayer.hpp"
 #include "Editor/Widgets/Compound/ColorWheelCompound.hpp"
 #include "Editor/Actions/EditorActionResources.hpp"
+#include "Editor/Graphics/GridRenderer.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Serialization/Serialization.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
@@ -77,6 +78,9 @@ namespace Lina::Editor
 
 		m_world			= new EntityWorld(0, "");
 		m_worldRenderer = new WorldRenderer(&m_editor->GetApp()->GetGfxContext(), &m_editor->GetApp()->GetResourceManager(), m_world, Vector2ui(4, 4), "WorldRenderer: " + m_resource->GetName() + " :");
+		m_gridRenderer	= new GridRenderer(m_editor->GetApp()->GetLGX(), m_world, &m_editor->GetApp()->GetResourceManager());
+		m_gridRenderer->Initialize(m_editor);
+		m_worldRenderer->AddFeatureRenderer(m_gridRenderer);
 
 		m_editor->GetApp()->JoinRender();
 
@@ -122,6 +126,7 @@ namespace Lina::Editor
 			m_editor->GetApp()->JoinRender();
 			m_editor->GetApp()->GetWorldProcessor().RemoveWorld(m_world);
 			m_editor->GetEditorRenderer().RemoveWorldRenderer(m_worldRenderer);
+			delete m_gridRenderer;
 			delete m_worldRenderer;
 			delete m_world;
 			m_worldRenderer = nullptr;
@@ -382,22 +387,6 @@ namespace Lina::Editor
 
 			i++;
 		}
-
-		Widget* buttonLayout = CommonWidgets::BuildFieldLayout(this, 0, Locale::GetStr(LocaleStr::AutoReimport), false);
-
-		Button* button = BuildButton(Locale::GetStr(LocaleStr::ReimportShader), ICON_IMPORT);
-		button->GetFlags().Set(WF_SIZE_ALIGN_X);
-		button->SetAlignedSizeX(0.0f);
-
-		button->GetProps().onClicked = [this, mat]() {
-			ResourceDirectory* dir = m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResourceDirectory(mat->GetShader());
-			if (dir == nullptr)
-				return;
-			m_editor->GetProjectManager().ReimportChangedSources(dir, m_lgxWindow);
-		};
-
-		buttonLayout->AddChild(button);
-		m_inspector->AddChild(buttonLayout);
 
 		m_inspector->Initialize();
 

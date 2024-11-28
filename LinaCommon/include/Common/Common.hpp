@@ -53,7 +53,6 @@ namespace Lina
 		uint32				 windowHeight = 0;
 		WindowStyle			 windowStyle  = WindowStyle::WindowedApplication;
 		ApplicationDelegate* appDelegate  = nullptr;
-		Color				 clearColor	  = Color::Black;
 	};
 
 	enum class Direction

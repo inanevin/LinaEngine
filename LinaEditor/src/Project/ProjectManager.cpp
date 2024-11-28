@@ -61,6 +61,13 @@ namespace Lina::Editor
 
 		m_primaryWidgetManager = &editor->GetWindowPanelManager().GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
 
+		m_editorResourceReimports = {{
+			.lastModifiedSID = TO_SID(FileSystem::GetLastModifiedDate(EDITOR_SHADER_WORLD_GRID_PATH)),
+			.id				 = EDITOR_SHADER_WORLD_GRID_ID,
+			.tid			 = GetTypeID<Shader>(),
+			.path			 = EDITOR_SHADER_WORLD_GRID_PATH,
+		}};
+
 		const EditorSettings& settings = m_editor->GetSettings();
 
 		if (FileSystem::FileOrPathExists(settings.GetLastProjectPath()))
@@ -371,6 +378,7 @@ namespace Lina::Editor
 			ReimportChangedSources(&m_currentProject->GetResourceRoot(), m_editor->GetWindowPanelManager().GetMainWindow());
 			m_checkReimport = true;
 		};
+
 		m_editor->GetTaskManager().AddTask(task);
 	}
 
@@ -394,10 +402,7 @@ namespace Lina::Editor
 			const String	   resID	= fileName.substr(under + 1, fileName.length() - under);
 			const ResourceID   resIDInt = static_cast<ResourceID>(UtilStr::StringToBigInt(resID));
 			ResourceDirectory* found	= root->FindResourceDirectory(resIDInt);
-			if (resIDInt < 100)
-			{
-				int a = 5;
-			}
+
 			if (found == nullptr)
 				FileSystem::DeleteFileInPath(file);
 		}
@@ -534,10 +539,22 @@ namespace Lina::Editor
 
 		m_reimportResults.clear();
 		m_resourcesToReimport.clear();
+		m_editorResourcesToReimport.clear();
 
 		CollectReimportResourcesRecursively(root);
 
-		if (m_resourcesToReimport.empty())
+		for (EditorResourceReimportData& data : m_editorResourceReimports)
+		{
+			const String   lastModified	   = FileSystem::GetLastModifiedDate(data.path);
+			const StringID lastModifiedSID = TO_SID(lastModified);
+			if (lastModifiedSID == data.lastModifiedSID)
+				continue;
+			Resource* res = m_editor->GetApp()->GetResourceManager().GetIfExists(data.tid, data.id);
+			m_editorResourcesToReimport.push_back(res);
+			data.lastModifiedSID = lastModifiedSID;
+		}
+
+		if (m_resourcesToReimport.empty() && m_editorResourcesToReimport.empty())
 			return;
 
 		EditorTask* task = m_editor->GetTaskManager().CreateTask();
@@ -576,6 +593,19 @@ namespace Lina::Editor
 							.displayName = dir->name,
 				});
 			}
+
+			for (Resource* res : m_editorResourcesToReimport)
+			{
+				const bool success = res->LoadFromFile(res->GetPath());
+
+				m_reimportResults.push_back({
+							.id				  = res->GetID(),
+							.tid			  = res->GetTID(),
+							.success		  = success,
+							.displayName	  = res->GetName(),
+							.isEditorResource = true,
+				});
+			}
 		};
 
 		task->onComplete = [this]() {
@@ -586,24 +616,19 @@ namespace Lina::Editor
 
 			HashSet<Resource*> toReload;
 
+			auto notify = [&](bool success, const String& name) {
+				notificationDisplayer->AddNotification({
+					.icon				= success ? NotificationIcon::OK : NotificationIcon::Err,
+					.title				= (success ? Locale::GetStr(LocaleStr::ReimportedResource) : Locale::GetStr(LocaleStr::FailedReimportingResource)) + " : " + name,
+					.autoDestroySeconds = 5,
+				});
+			};
+
 			for (const ReimportResult& reimport : m_reimportResults)
 			{
-				if (reimport.success)
+				if (!reimport.success)
 				{
-					notificationDisplayer->AddNotification({
-						.icon				= NotificationIcon::OK,
-						.title				= Locale::GetStr(LocaleStr::ReimportedResource) + " : " + reimport.displayName,
-						.autoDestroySeconds = 5,
-					});
-				}
-				else
-				{
-					notificationDisplayer->AddNotification({
-						.icon				= NotificationIcon::Err,
-						.title				= Locale::GetStr(LocaleStr::FailedReimportingResource) + " : " + reimport.displayName,
-						.autoDestroySeconds = 5,
-					});
-
+					notify(false, reimport.displayName);
 					continue;
 				}
 
@@ -611,10 +636,20 @@ namespace Lina::Editor
 
 				if (res == nullptr)
 					continue;
-				IStream stream = Serialization::LoadFromFile(m_currentProject->GetResourcePath(res->GetID()).c_str());
 
-				if (stream.Empty())
+				if (reimport.isEditorResource)
+				{
+					toReload.insert(res);
+					notify(true, reimport.displayName);
 					continue;
+				}
+
+				IStream stream = Serialization::LoadFromFile(m_currentProject->GetResourcePath(res->GetID()).c_str());
+				if (stream.Empty())
+				{
+					notify(false, reimport.displayName);
+					continue;
+				}
 
 				res->LoadFromStream(stream);
 				toReload.insert(res);
@@ -635,6 +670,8 @@ namespace Lina::Editor
 					panel->UpdateResourceProperties();
 					panel->RebuildContents();
 				}
+
+				notify(true, reimport.displayName);
 			}
 
 			m_editor->GetApp()->JoinRender();

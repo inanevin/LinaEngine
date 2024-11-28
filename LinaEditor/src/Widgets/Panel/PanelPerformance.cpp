@@ -225,9 +225,9 @@ namespace Lina::Editor
 		}
 	}
 
-	void PanelPerformance::OnResourceManagerPreDestroyHW(const HashSet<Resource*>& resources)
+	void PanelPerformance::OnResourceManagerDestroyedResources(const HashSet<ResourceID>& resources)
 	{
-		if (m_iconTabs->GetSelected() != 2)
+		if (m_iconTabs->GetSelected() != 1)
 			return;
 
 		RefreshResourcesTable();
@@ -235,7 +235,7 @@ namespace Lina::Editor
 
 	void PanelPerformance::OnResourceManagerGeneratedHW(const HashSet<Resource*>& resources)
 	{
-		if (m_iconTabs->GetSelected() != 2)
+		if (m_iconTabs->GetSelected() != 1)
 			return;
 
 		RefreshResourcesTable();
@@ -319,8 +319,8 @@ namespace Lina::Editor
 		m_layout->DeallocAllChildren();
 		m_layout->RemoveAllChildren();
 
-		m_profilingData = {};
-		m_resourcesData = {};
+		m_profilingData		  = {};
+		m_resourcesData.table = nullptr;
 
 		m_currentContent = idx;
 

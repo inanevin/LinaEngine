@@ -97,6 +97,7 @@ namespace Lina::Editor
 		// Input setup
 		const bool worldHasFocus = m_manager->GetControlsOwner() == this && m_lgxWindow->HasFocus();
 		m_worldRenderer->GetWorld()->GetInput().SetIsActive(worldHasFocus);
+		m_worldRenderer->GetWorld()->GetInput().SetWheelActive(m_isHovered);
 
 		m_loading->GetFlags().Set(WF_HIDE, !m_worldRenderer->GetWorld()->GetFlags().IsSet(WORLD_FLAGS_LOADING));
 

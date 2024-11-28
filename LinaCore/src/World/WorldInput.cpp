@@ -131,7 +131,7 @@ namespace Lina
 
 	float WorldInput::GetMouseScroll()
 	{
-		if (!m_isActive)
+		if (!m_isActive || !m_isWheelActive)
 			return 0.0f;
 
 		return m_lgxInput->GetMouseScroll();

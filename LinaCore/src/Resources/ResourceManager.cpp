@@ -287,12 +287,17 @@ namespace Lina
 		for (ResourceManagerListener* l : m_listeners)
 			l->OnResourceManagerPreDestroyHW(toDestroy);
 
+		HashSet<ResourceID> destroyedList;
 		for (Resource* res : toDestroy)
 		{
+			destroyedList.insert(res->GetID());
 			res->DestroyHW();
 			ResourceCacheBase* cache = GetCache(res->GetTID());
 			cache->Destroy(res->GetID());
 		}
+
+		for (ResourceManagerListener* l : m_listeners)
+			l->OnResourceManagerDestroyedResources(destroyedList);
 	}
 
 	ResourceCacheBase* ResourceManagerV2::GetCache(TypeID tid)

@@ -46,6 +46,7 @@ namespace Lina
 		stream << blendDisable << depthTest << depthWrite << cullMode << frontFace << depthOp << depthBiasEnable << depthBiasClamp << depthBiasConstant << depthBiasSlope << depthFormat << topology;
 		stream << name;
 		stream << targets;
+		stream << blendSrcFactor << blendDstFactor << blendSrcAlphaFactor << blendDstAlphaFactor << blendColorOp << blendAlphaOp;
 
 		const uint32 size = static_cast<uint32>(_compileData.size());
 		stream << size;
@@ -67,6 +68,7 @@ namespace Lina
 		stream >> blendDisable >> depthTest >> depthWrite >> cullMode >> frontFace >> depthOp >> depthBiasEnable >> depthBiasClamp >> depthBiasConstant >> depthBiasSlope >> depthFormat >> topology;
 		stream >> name;
 		stream >> targets;
+		stream >> blendSrcFactor >> blendDstFactor >> blendSrcAlphaFactor >> blendDstAlphaFactor >> blendColorOp >> blendAlphaOp;
 
 		uint32 size = 0;
 		stream >> size;

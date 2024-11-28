@@ -51,8 +51,11 @@ namespace Lina
 		m_renderDraw = {};
 	}
 
-	void LightingRenderer::RenderDrawLighting(LinaGX::CommandStream* stream)
+	void LightingRenderer::RenderDrawPass(LinaGX::CommandStream* stream, uint32 frameIndex, RenderPass& pass, RenderPassType type)
 	{
+		if (type != RenderPassType::Lighting)
+			return;
+
 		Material* lightingMaterial = m_rm->GetIfExists<Material>(m_renderDraw.materialID);
 		if (lightingMaterial == nullptr)
 			return;
@@ -73,4 +76,5 @@ namespace Lina
 		lightingDraw->startVertexLocation	   = 0;
 		lightingDraw->vertexCountPerInstance   = 3;
 	}
+
 } // namespace Lina

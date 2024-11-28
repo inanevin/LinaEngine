@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Common/SizeDefinitions.hpp"
 #include "Common/Data/HashSet.hpp"
+#include "Core/Resources/CommonResources.hpp"
 
 namespace Lina
 {
@@ -39,6 +40,7 @@ namespace Lina
 	class ResourceManagerListener
 	{
 	public:
+		virtual void OnResourceManagerDestroyedResources(const HashSet<ResourceID>& ids){};
 		virtual void OnResourceManagerPreDestroyHW(const HashSet<Resource*>& resources){};
 		virtual void OnResourceManagerGeneratedHW(const HashSet<Resource*>& resources){};
 	};

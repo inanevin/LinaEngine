@@ -63,6 +63,11 @@ namespace Lina
 			m_isActive = isActive;
 		}
 
+		inline void SetWheelActive(bool isActive)
+		{
+			m_isWheelActive = isActive;
+		}
+
 		inline LinaGX::Input* GetRawLGXInput()
 		{
 			return m_lgxInput;
@@ -73,5 +78,6 @@ namespace Lina
 		LinaGX::Input* m_lgxInput		   = nullptr;
 		Screen*		   m_screen			   = nullptr;
 		bool		   m_isActive		   = true;
+		bool		   m_isWheelActive	   = true;
 	};
 } // namespace Lina

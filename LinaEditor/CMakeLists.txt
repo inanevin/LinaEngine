@@ -43,6 +43,7 @@ include/Editor/Graphics/WorldRendererExtEditor.hpp
 include/Editor/Graphics/EditorRenderer.hpp
 include/Editor/Graphics/SurfaceRenderer.hpp
 include/Editor/Graphics/EditorGfxHelpers.hpp
+include/Editor/Graphics/GridRenderer.hpp
 
 # IO
 include/Editor/IO/ThumbnailGenerator.hpp
@@ -127,6 +128,7 @@ src/Graphics/WorldRendererExtEditor.cpp
 src/Graphics/EditorRenderer.cpp
 src/Graphics/SurfaceRenderer.cpp
 src/Graphics/EditorGfxHelpers.cpp
+src/Graphics/GridRenderer.cpp
 
 
 # IO

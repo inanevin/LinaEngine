@@ -47,14 +47,20 @@ namespace Lina::Editor
 		ShaderVariant& variant = meta.variants.back();
 
 		variant = ShaderVariant{
-			.id			  = "Swapchain"_hs,
-			.blendDisable = false,
-			.depthTest	  = false,
-			.depthWrite	  = false,
-			.depthFormat  = LinaGX::Format::UNDEFINED,
-			.targets	  = {{.format = DEFAULT_SWAPCHAIN_FORMAT}},
-			.cullMode	  = LinaGX::CullMode::None,
-			.frontFace	  = LinaGX::FrontFace::CCW,
+			.id					 = "Swapchain"_hs,
+			.blendDisable		 = false,
+			.blendSrcFactor		 = LinaGX::BlendFactor::SrcAlpha,
+			.blendDstFactor		 = LinaGX::BlendFactor::OneMinusSrcAlpha,
+			.blendColorOp		 = LinaGX::BlendOp::Add,
+			.blendSrcAlphaFactor = LinaGX::BlendFactor::One,
+			.blendDstAlphaFactor = LinaGX::BlendFactor::Zero,
+			.blendAlphaOp		 = LinaGX::BlendOp::Add,
+			.depthTest			 = false,
+			.depthWrite			 = false,
+			.depthFormat		 = LinaGX::Format::UNDEFINED,
+			.targets			 = {{.format = DEFAULT_SWAPCHAIN_FORMAT}},
+			.cullMode			 = LinaGX::CullMode::None,
+			.frontFace			 = LinaGX::FrontFace::CCW,
 		};
 
 		Font::Metadata fontMeta1 = {
@@ -72,19 +78,13 @@ namespace Lina::Editor
 			.isSDF	= false,
 		};
 
-		Font::Metadata fontMeta4 = {
-			.points = {{.size = 32, .dpiLimit = 1.0f}, {.size = 36, .dpiLimit = 1.8f}, {.size = 38, .dpiLimit = 10.0f}},
-			.isSDF	= false,
-		};
-
 		OStream shaderStream;
 		meta.SaveToStream(shaderStream);
 
-		OStream fontStream1, fontStream2, fontStream3, fontStream4;
+		OStream fontStream1, fontStream2, fontStream3;
 		fontMeta1.SaveToStream(fontStream1);
 		fontMeta2.SaveToStream(fontStream2);
 		fontMeta3.SaveToStream(fontStream3);
-		fontMeta4.SaveToStream(fontStream4);
 
 		ResourceDefinitionList defs = {
 			{
@@ -161,12 +161,6 @@ namespace Lina::Editor
 				.tid		= GetTypeID<Font>(),
 				.customMeta = fontStream3,
 			},
-			{
-				.id			= EDITOR_FONT_PLAY_VERY_BIG_ID,
-				.name		= EDITOR_FONT_PLAY_VERY_BIG_PATH,
-				.tid		= GetTypeID<Font>(),
-				.customMeta = fontStream4,
-			},
 		};
 
 		manager.LoadResourcesFromFile(defs, NULL);
@@ -174,7 +168,6 @@ namespace Lina::Editor
 		fontStream1.Destroy();
 		fontStream2.Destroy();
 		fontStream3.Destroy();
-		fontStream4.Destroy();
 		shaderStream.Destroy();
 
 		for (const ResourceDef& def : defs)
@@ -190,19 +183,19 @@ namespace Lina::Editor
 
 	void EditorResources::StartLoadCoreResources(ResourceManagerV2& manager)
 	{
-		Texture* txtCheckered = manager.CreateResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID, "");
-		Texture* txtProtoDark = manager.CreateResource<Texture>(EDITOR_TEXTURE_PROTOTYPE_DARK_ID, "");
-		Font*	 fontPlay	  = manager.CreateResource<Font>(EDITOR_FONT_PLAY_ID, "");
-		Font*	 fontPlayBold = manager.CreateResource<Font>(EDITOR_FONT_PLAY_BOLD_ID, "");
+		Texture* txtCheckered	 = manager.CreateResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID, EDITOR_TEXTURE_CHECKERED_PATH);
+		Texture* txtProtoDark	 = manager.CreateResource<Texture>(EDITOR_TEXTURE_PROTOTYPE_DARK_ID, EDITOR_TEXTURE_PROTOTYPE_DARK_PATH);
+		Font*	 fontPlay		 = manager.CreateResource<Font>(EDITOR_FONT_PLAY_ID, EDITOR_FONT_PLAY_PATH);
+		Font*	 fontPlayBold	 = manager.CreateResource<Font>(EDITOR_FONT_PLAY_BOLD_ID, EDITOR_FONT_PLAY_BOLD_PATH);
+		Font*	 fontPlayVeryBig = manager.CreateResource<Font>(EDITOR_FONT_PLAY_VERY_BIG_ID, EDITOR_FONT_PLAY_VERY_BIG_PATH);
+		Shader*	 shaderWorldGrid = manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_GRID_ID, EDITOR_SHADER_WORLD_GRID_PATH);
+
 		m_createdResources.insert(txtCheckered);
 		m_createdResources.insert(txtProtoDark);
 		m_createdResources.insert(fontPlay);
 		m_createdResources.insert(fontPlayBold);
-
-		txtCheckered->SetPath(EDITOR_TEXTURE_CHECKERED_PATH);
-		txtProtoDark->SetPath(EDITOR_TEXTURE_PROTOTYPE_DARK_PATH);
-		fontPlay->SetPath(EDITOR_FONT_PLAY_PATH);
-		fontPlayBold->SetPath(EDITOR_FONT_PLAY_BOLD_PATH);
+		m_createdResources.insert(fontPlayVeryBig);
+		m_createdResources.insert(shaderWorldGrid);
 
 		fontPlay->GetMeta() = {
 			.points = {{.size = 14, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
@@ -214,8 +207,40 @@ namespace Lina::Editor
 			.isSDF	= false,
 		};
 
+		fontPlayVeryBig->GetMeta() = {
+			.points = {{.size = 32, .dpiLimit = 1.0f}, {.size = 36, .dpiLimit = 1.8f}, {.size = 38, .dpiLimit = 10.0f}},
+			.isSDF	= false,
+		};
+
+		shaderWorldGrid->GetMeta().variants.push_back({
+			ShaderVariant{
+				.id					 = "Default"_hs,
+				.name				 = "Default",
+				.blendDisable		 = false,
+				.blendSrcFactor		 = LinaGX::BlendFactor::SrcAlpha,
+				.blendDstFactor		 = LinaGX::BlendFactor::OneMinusSrcAlpha,
+				.blendColorOp		 = LinaGX::BlendOp::Add,
+				.blendSrcAlphaFactor = LinaGX::BlendFactor::One,
+				.blendDstAlphaFactor = LinaGX::BlendFactor::Zero,
+				.blendAlphaOp		 = LinaGX::BlendOp::Add,
+				.depthTest			 = true,
+				.depthWrite			 = true,
+				.depthFormat		 = LinaGX::Format::D32_SFLOAT,
+				.targets			 = {{DEFAULT_RT_FORMAT}},
+				.depthOp			 = LinaGX::CompareOp::Less,
+				.cullMode			 = LinaGX::CullMode::None,
+				.frontFace			 = LinaGX::FrontFace::CCW,
+				.topology			 = LinaGX::Topology::TriangleList,
+				.depthBiasEnable	 = false,
+				.depthBiasConstant	 = 0.0f,
+				.depthBiasClamp		 = 0.0f,
+				.depthBiasSlope		 = 0.0f,
+			},
+		} // namespace Lina::Editor
+		);
+
 		for (Resource* r : m_createdResources)
-			r->SetName(FileSystem::GetFilenameOnlyFromPath(r->GetPath()));
+			r->SetPath(r->GetName());
 	}
 
 	void EditorResources::LoadCoreResources()

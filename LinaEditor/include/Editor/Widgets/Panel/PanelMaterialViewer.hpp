@@ -45,6 +45,7 @@ namespace Lina::Editor
 {
 	class Editor;
 	class WorldDisplayer;
+	class GridRenderer;
 
 	enum class MaterialViewerDisplayType
 	{
@@ -92,6 +93,7 @@ namespace Lina::Editor
 		WorldDisplayer*			  m_worldDisplayer = nullptr;
 		EntityWorld*			  m_world		   = nullptr;
 		WorldRenderer*			  m_worldRenderer  = nullptr;
+		GridRenderer*			  m_gridRenderer   = nullptr;
 		ShaderType				  m_shaderType	   = ShaderType::OpaqueSurface;
 		String					  m_shaderTypeStr  = "";
 		Vector<uint32>			  m_propertyFoldValues;

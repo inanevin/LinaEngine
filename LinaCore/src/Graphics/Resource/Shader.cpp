@@ -207,13 +207,13 @@ namespace Lina
 								   .blendDstFactor		= LinaGX::BlendFactor::OneMinusSrcAlpha,
 								   .blendColorOp		= LinaGX::BlendOp::Add,
 								   .blendSrcAlphaFactor = LinaGX::BlendFactor::One,
-								   .blendDstAlphaFactor = LinaGX::BlendFactor::One,
+								   .blendDstAlphaFactor = LinaGX::BlendFactor::OneMinusSrcAlpha,
 								   .blendAlphaOp		= LinaGX::BlendOp::Add,
 								   .depthTest			= true,
 								   .depthWrite			= true,
 								   .targets				= {{.format = DEFAULT_RT_FORMAT}},
-								   .cullMode			= LinaGX::CullMode::None,
-								   .frontFace			= LinaGX::FrontFace::CCW,
+								   .cullMode			= LinaGX::CullMode::Back,
+								   .frontFace			= LinaGX::FrontFace::CW,
 				   };
 
 				String vertex	= vertexBlock;
@@ -251,8 +251,8 @@ namespace Lina
 								   .depthTest			= true,
 								   .depthWrite			= true,
 								   .targets				= {{.format = DEFAULT_RT_FORMAT}},
-								   .cullMode			= LinaGX::CullMode::None,
-								   .frontFace			= LinaGX::FrontFace::CCW,
+								   .cullMode			= LinaGX::CullMode::Back,
+								   .frontFace			= LinaGX::FrontFace::CW,
 				   };
 
 				String vertex	= vertexBlock;

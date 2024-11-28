@@ -154,7 +154,7 @@ namespace Lina
 		}
 	}
 
-	void ObjectRenderer::RenderRecordIndirect(uint32 frameIndex, RenderPass& pass, RenderPassType type)
+	void ObjectRenderer::RenderRecordPass(uint32 frameIndex, RenderPass& pass, RenderPassType type)
 	{
 		if (type != RenderPassType::Deferred && type != RenderPassType::Forward)
 			return;
@@ -203,7 +203,7 @@ namespace Lina
 		}
 	}
 
-	void ObjectRenderer::RenderDrawIndirect(LinaGX::CommandStream* stream, uint32 frameIndex, RenderPass& pass, RenderPassType type)
+	void ObjectRenderer::RenderDrawPass(LinaGX::CommandStream* stream, uint32 frameIndex, RenderPass& pass, RenderPassType type)
 	{
 		if (type != RenderPassType::Deferred && type != RenderPassType::Forward)
 			return;

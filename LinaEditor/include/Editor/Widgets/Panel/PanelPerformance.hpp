@@ -63,7 +63,7 @@ namespace Lina::Editor
 		virtual void Destruct() override;
 		virtual void PreTick() override;
 		virtual void Tick(float delta) override;
-		virtual void OnResourceManagerPreDestroyHW(const HashSet<Resource*>& resources) override;
+		virtual void OnResourceManagerDestroyedResources(const HashSet<ResourceID>& resources) override;
 		virtual void OnResourceManagerGeneratedHW(const HashSet<Resource*>& resources) override;
 		virtual void SaveLayoutToStream(OStream& stream) override;
 		virtual void LoadLayoutFromStream(IStream& stream) override;

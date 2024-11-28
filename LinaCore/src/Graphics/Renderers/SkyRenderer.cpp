@@ -52,8 +52,11 @@ namespace Lina
 		m_renderDraw = {};
 	}
 
-	void SkyRenderer::RenderDrawLightingPost(LinaGX::CommandStream* stream)
+	void SkyRenderer::RenderDrawPassPost(LinaGX::CommandStream* stream, uint32 frameIndex, RenderPass& pass, RenderPassType type)
 	{
+		if (type != RenderPassType::Lighting)
+			return;
+
 		Material* skyMaterial = m_rm->GetIfExists<Material>(m_renderDraw.skyMat);
 
 		if (skyMaterial == nullptr)
@@ -82,4 +85,5 @@ namespace Lina
 		skyDraw->startIndexLocation				 = mesh->GetIndexOffset();
 		skyDraw->startInstanceLocation			 = 0;
 	}
+
 } // namespace Lina

@@ -363,8 +363,8 @@ namespace Lina
 
 		for (FeatureRenderer* ft : m_featureRenderers)
 		{
-			ft->RenderRecordIndirect(frameIndex, m_deferredPass, RenderPassType::Deferred);
-			ft->RenderRecordIndirect(frameIndex, m_forwardPass, RenderPassType::Forward);
+			ft->RenderRecordPass(frameIndex, m_deferredPass, RenderPassType::Deferred);
+			ft->RenderRecordPass(frameIndex, m_forwardPass, RenderPassType::Forward);
 		}
 
 		m_deferredPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
@@ -431,8 +431,9 @@ namespace Lina
 		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Deferred Pass");
 
 		m_deferredPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).SetIndirectCount(0);
+
 		for (FeatureRenderer* ft : m_featureRenderers)
-			ft->RenderDrawIndirect(currentFrame.gfxStream, frameIndex, m_deferredPass, RenderPassType::Deferred);
+			ft->RenderDrawPass(currentFrame.gfxStream, frameIndex, m_deferredPass, RenderPassType::Deferred);
 
 		DEBUG_LABEL_END(currentFrame.gfxStream);
 
@@ -456,10 +457,10 @@ namespace Lina
 		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Lighting Pass");
 
 		for (FeatureRenderer* ft : m_featureRenderers)
-			ft->RenderDrawLighting(currentFrame.gfxStream);
+			ft->RenderDrawPass(currentFrame.gfxStream, frameIndex, m_lightingPass, RenderPassType::Lighting);
 
 		for (FeatureRenderer* ft : m_featureRenderers)
-			ft->RenderDrawLightingPost(currentFrame.gfxStream);
+			ft->RenderDrawPassPost(currentFrame.gfxStream, frameIndex, m_lightingPass, RenderPassType::Lighting);
 
 		DEBUG_LABEL_END(currentFrame.gfxStream);
 
@@ -468,11 +469,12 @@ namespace Lina
 		m_forwardPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
 		m_forwardPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxContext->GetPipelineLayoutPersistent(RenderPassType::Forward));
 
-		// DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Forward Pass");
-		// m_forwardPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).SetIndirectCount(0);
-		// for (FeatureRenderer* ft : m_featureRenderers)
-		// 	ft->RenderDrawIndirect(currentFrame.gfxStream, frameIndex, m_forwardPass, RenderPassType::Forward);
-		// DEBUG_LABEL_END(currentFrame.gfxStream);
+		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Forward Pass");
+		m_forwardPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).SetIndirectCount(0);
+
+		for (FeatureRenderer* ft : m_featureRenderers)
+			ft->RenderDrawPass(currentFrame.gfxStream, frameIndex, m_forwardPass, RenderPassType::Forward);
+		DEBUG_LABEL_END(currentFrame.gfxStream);
 
 		m_forwardPass.End(currentFrame.gfxStream);
 

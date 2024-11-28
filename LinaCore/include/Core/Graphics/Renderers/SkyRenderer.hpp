@@ -45,7 +45,7 @@ namespace Lina
 		virtual ~SkyRenderer() = default;
 
 		virtual void ProduceFrame(const Camera& mainCamera, float delta) override;
-		virtual void RenderDrawLightingPost(LinaGX::CommandStream* stream) override;
+		virtual void RenderDrawPassPost(LinaGX::CommandStream* stream, uint32 frameIndex, RenderPass& pass, RenderPassType type) override;
 		virtual void SyncRender() override;
 		virtual void DropRenderFrame() override;
 
