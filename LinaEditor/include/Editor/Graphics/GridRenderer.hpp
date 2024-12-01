@@ -50,7 +50,8 @@ namespace Lina::Editor
 		virtual void RenderDrawPass(LinaGX::CommandStream* stream, uint32 frameIndex, RenderPass& pass, RenderPassType type) override;
 
 	private:
-		Shader* m_gridShader = nullptr;
-		Editor* m_editor	 = nullptr;
+		Material* m_gridMaterial = nullptr;
+		Shader*	  m_gridShader	 = nullptr;
+		Editor*	  m_editor		 = nullptr;
 	};
 } // namespace Lina::Editor

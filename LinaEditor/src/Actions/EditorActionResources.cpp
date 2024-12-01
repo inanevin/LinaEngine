@@ -349,7 +349,7 @@ namespace Lina::Editor
 		editor->GetApp()->GetResourceManager().ReloadResourceHW({mat});
 	}
 
-	EditorActionResourceMaterialShader* EditorActionResourceMaterialShader::Create(Editor* editor, ResourceID resourceID, uint64 resourceSpace, ResourceID prevShader, ResourceID newShader)
+	EditorActionResourceMaterialShader* EditorActionResourceMaterialShader::Create(Editor* editor, ResourceID resourceID, uint64 resourceSpace, ResourceID prevShader, ResourceID newShader, const OStream& prevStream)
 	{
 		LINA_ASSERT(prevShader != newShader, "");
 		EditorActionResourceMaterialShader* action = new EditorActionResourceMaterialShader();
@@ -357,6 +357,7 @@ namespace Lina::Editor
 		action->m_resourceSpace					   = resourceSpace;
 		action->m_prevShader					   = prevShader;
 		action->m_newShader						   = newShader;
+		action->m_prevStream.WriteRaw(prevStream.GetDataRaw(), prevStream.GetCurrentSize());
 		editor->GetEditorActionManager().AddToStack(action);
 		return action;
 	}
@@ -392,9 +393,21 @@ namespace Lina::Editor
 			stream.Destroy();
 		}
 
-		const Vector<MaterialProperty*>& props = mat->GetProperties();
-		for (MaterialProperty* p : props)
-			ResourcePipeline::TrySetMaterialProperty(p);
+		if (type == ExecType::Undo)
+		{
+			Material prevMat(0, "");
+			IStream	 stream;
+			stream.Create(m_prevStream.GetDataRaw(), m_prevStream.GetCurrentSize());
+			prevMat.LoadFromStream(stream);
+			stream.Destroy();
+			mat->CopyPropertiesFrom(&prevMat);
+		}
+		else
+		{
+			const Vector<MaterialProperty*>& props = mat->GetProperties();
+			for (MaterialProperty* p : props)
+				ResourcePipeline::TrySetMaterialProperty(p);
+		}
 
 		if (panelResView)
 		{

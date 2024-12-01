@@ -144,15 +144,32 @@ namespace Lina::Editor
 	{
 		WorldInput& input = m_world->GetInput();
 
+		if (input.GetKeyDown(LINAGX_KEY_F))
+		{
+			m_orbitProps.targetPoint = Vector3::Zero;
+		}
+
 		if (input.GetMouseButton(LINAGX_MOUSE_MIDDLE))
 		{
 			const Vector2 mouseDelta = input.GetMouseDeltaRelative();
 
-			m_xAngle -= mouseDelta.x * 4.0f;
-			m_yAngle += mouseDelta.y * 4.0f;
-			m_yAngle = Math::Clamp(m_yAngle, -Math::ToRadians(89.0f), Math::ToRadians(89.0f));
+			if (input.GetKey(LINAGX_KEY_LSHIFT))
+			{
+				const float	  panSpeed	= 0.5f;
+				const float	  cosY		= Math::Cos(m_yAngle);
+				const Vector3 forward	= Vector3(cosY * Math::Cos(m_xAngle), Math::Sin(m_yAngle), cosY * Math::Sin(m_xAngle));
+				const Vector3 right		= forward.Cross(Vector3::Up).Normalized();
+				const Vector3 up		= right.Cross(forward).Normalized();
+				const Vector3 panOffset = (right * -mouseDelta.x + up * mouseDelta.y) * panSpeed * m_orbitProps.targetDistance;
 
-			// m_yAngle = Math::Clamp(m_yAngle + mouseDelta.y * delta * 600.0f, -Math::ToRadians(89.0f), Math::ToRadians(89.0f)); // Clamp to avoid flipping
+				m_orbitProps.targetPoint += panOffset;
+			}
+			else
+			{
+				m_xAngle -= mouseDelta.x * 4.0f;
+				m_yAngle += mouseDelta.y * 4.0f;
+				m_yAngle = Math::Clamp(m_yAngle, -Math::ToRadians(89.0f), Math::ToRadians(89.0f));
+			}
 		}
 
 		m_orbitProps.targetDistance -= input.GetMouseScroll() * delta * 120.0f;

@@ -45,20 +45,22 @@ namespace Lina::Editor
 		m_scroll->SetAlignedSize(Vector2::One);
 		m_scroll->GetProps().direction = DirectionOrientation::Vertical;
 		m_scroll->SetTarget(nullptr);
+		m_scroll->GetWidgetProps().drawOrderIncrement = 1;
 		AddChild(m_scroll);
 
 		m_layout = m_manager->Allocate<DirectionalLayout>("Layout");
 		m_layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		m_layout->SetAlignedPos(Vector2::Zero);
 		m_layout->SetAlignedSize(Vector2::One);
-		m_layout->GetProps().direction				= DirectionOrientation::Horizontal;
-		m_layout->GetProps().mode					= DirectionalLayout::Mode::Bordered;
-		m_layout->GetProps().colorBorder			= Theme::GetDef().background0;
-		m_layout->GetProps().colorBorderHovered		= Theme::GetDef().foreground1;
-		m_layout->GetWidgetProps().drawBackground	= true;
-		m_layout->GetWidgetProps().colorBackground	= Theme::GetDef().background1;
-		m_layout->GetProps().borderThickness		= Theme::GetDef().baseSeparatorThickness;
-		m_layout->GetProps().borderExpandForMouse	= 4;
+		m_layout->GetProps().direction				  = DirectionOrientation::Horizontal;
+		m_layout->GetProps().mode					  = DirectionalLayout::Mode::Bordered;
+		m_layout->GetProps().borderDrawOrderIncrement = 1;
+		m_layout->GetProps().colorBorder			  = Theme::GetDef().background0;
+		m_layout->GetProps().colorBorderHovered		  = Theme::GetDef().foreground1;
+		m_layout->GetWidgetProps().drawBackground	  = true;
+		m_layout->GetWidgetProps().colorBackground	  = Theme::GetDef().background1;
+		m_layout->GetProps().borderThickness		  = Theme::GetDef().baseSeparatorThickness;
+		m_layout->GetProps().borderExpandForMouse	  = 4;
 		m_layout->GetWidgetProps().outlineThickness = m_layout->GetWidgetProps().rounding = 0.0f;
 		AddChild(m_layout);
 	}
@@ -175,7 +177,7 @@ namespace Lina::Editor
 		{
 			DirectionalLayout* vertical = m_columns[i].contents;
 			Widget*			   w		= columns[i];
-			w->GetWidgetProps().drawOrderIncrement++;
+			// w->GetWidgetProps().drawOrderIncrement++;
 
 			if (m_props.useRowWrapper)
 			{

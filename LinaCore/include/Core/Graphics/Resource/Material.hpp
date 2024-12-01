@@ -97,6 +97,7 @@ namespace Lina
 		virtual void   DestroyHW() override;
 		void		   SetShader(Shader* shader);
 		size_t		   BufferDataInto(Buffer& buf, size_t padding, ResourceManagerV2* rm, GfxContext* context);
+		void		   CopyPropertiesFrom(Material* mat);
 
 		template <typename T> void SetProperty(StringID sid, T val)
 		{

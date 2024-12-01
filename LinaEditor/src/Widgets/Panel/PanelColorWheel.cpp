@@ -49,6 +49,8 @@ namespace Lina::Editor
 
 	void PanelColorWheel::Destruct()
 	{
+		Panel::Destruct();
+
 		if (m_listener)
 			m_listener->OnPanelColorWheelClosed();
 	}

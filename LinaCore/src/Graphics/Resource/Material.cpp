@@ -58,7 +58,7 @@ namespace Lina
 
 		const Vector<ShaderPropertyDefinition>& properties = shader->GetPropertyDefinitions();
 
-		DestroyProperties();
+		Vector<MaterialProperty*> props = {};
 
 		for (const ShaderPropertyDefinition& def : properties)
 		{
@@ -106,8 +106,11 @@ namespace Lina
 			else
 				MEMSET(prop->data.data(), 0, dataSize);
 
-			m_properties.push_back(prop);
+			props.push_back(prop);
 		}
+
+		DestroyProperties();
+		m_properties = props;
 	}
 
 	bool Material::LoadFromFile(const String& path)
@@ -199,6 +202,20 @@ namespace Lina
 		}
 
 		return totalSize;
+	}
+
+	void Material::CopyPropertiesFrom(Material* mat)
+	{
+		const Vector<MaterialProperty*> propsToCopy = mat->GetProperties();
+		DestroyProperties();
+		for (MaterialProperty* p : propsToCopy)
+		{
+			MaterialProperty* newProp = new MaterialProperty();
+			newProp->propDef		  = p->propDef;
+			newProp->data			  = {new uint8[p->data.size()], p->data.size()};
+			MEMCPY(newProp->data.data(), p->data.data(), p->data.size());
+			m_properties.push_back(newProp);
+		}
 	}
 
 } // namespace Lina

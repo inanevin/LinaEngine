@@ -176,7 +176,7 @@ namespace Lina
 			barOpts.color.gradientType = m_props.direction == DirectionOrientation::Horizontal ? LinaVG::GradientType::Horizontal : LinaVG::GradientType::Vertical;
 		}
 
-		m_lvg->DrawRect(m_barRect.pos.AsLVG(), m_barRect.GetEnd().AsLVG(), barOpts, 0.0f, m_drawOrder + 1);
+		m_lvg->DrawRect(m_barRect.pos.AsLVG(), m_barRect.GetEnd().AsLVG(), barOpts, 0.0f, m_drawOrder + 1 + m_widgetProps.drawOrderIncrement);
 	}
 
 	bool ScrollArea::IsBarHovered() const

@@ -30,14 +30,24 @@ SOFTWARE.
 #include "Editor/CommonEditor.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
+#include "Core/Graphics/Resource/Material.hpp"
 
 namespace Lina::Editor
 {
 
 	void GridRenderer::Initialize(Editor* editor)
 	{
-		m_editor	 = editor;
-		m_gridShader = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_GRID_ID);
+		m_editor	   = editor;
+		m_gridShader   = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_GRID_ID);
+		m_gridMaterial = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Grid Material");
+		// m_gridMaterial->SetShader(m_gridShader);
+		// m_gridMaterial->SetProperty("BigGridSize"_hs, 0.25f);
+		// m_gridMaterial->SetProperty("SmallGridSize"_hs, 1.0f);
+		// m_gridMaterial->SetProperty("Fading"_hs, 0.3f);
+		// m_gridMaterial->SetProperty("BigGridColor"_hs, Vector3(0.7f, 0.7f, 0.7f));
+		// m_gridMaterial->SetProperty("SmallGridColor"_hs, Vector3(0.2f, 0.2f, 0.2f));
+		// m_gridMaterial->SetProperty("XAxisColor"_hs, Vector3(1.0f, 0.0f, 0.0f));
+		// m_gridMaterial->SetProperty("ZAxisColor"_hs, Vector3(0.0f, 0.0f, 1.0f));
 	}
 
 	void GridRenderer::RenderDrawPass(LinaGX::CommandStream* stream, uint32 frameIndex, RenderPass& pass, RenderPassType type)
@@ -46,6 +56,12 @@ namespace Lina::Editor
 			return;
 
 		m_gridShader->Bind(stream, m_gridShader->GetGPUHandle());
+
+		// LinaGX::CMDBindConstants* constants = stream->AddCommand<LinaGX::CMDBindConstants>();
+		// constants->size						= sizeof(uint32);
+		// constants->stagesSize				= 1;
+		// constants->stages					= stream->EmplaceAuxMemory(LinaGX::ShaderStage::Fragment);
+		// constants->data						= stream->EmplaceAuxMemory(m_gridMaterial->GetBindlessIndex());
 
 		LinaGX::CMDDrawInstanced* draw = stream->AddCommand<LinaGX::CMDDrawInstanced>();
 		draw->instanceCount			   = 1;

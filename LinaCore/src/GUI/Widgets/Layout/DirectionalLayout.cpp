@@ -420,7 +420,7 @@ namespace Lina
 				opts.color = pressRect.IsPointInside(m_lgxWindow->GetMousePosition()) ? m_props.colorBorderHovered.AsLVG4() : m_props.colorBorder.AsLVG4();
 			}
 
-			m_lvg->DrawRect(r.pos.AsLVG(), r.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
+			m_lvg->DrawRect(r.pos.AsLVG(), r.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1 + m_props.borderDrawOrderIncrement);
 		}
 	}
 

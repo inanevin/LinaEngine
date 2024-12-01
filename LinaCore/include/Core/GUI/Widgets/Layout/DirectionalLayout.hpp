@@ -50,13 +50,14 @@ namespace Lina
 
 		struct Properties
 		{
-			DirectionOrientation direction			  = DirectionOrientation::Horizontal;
-			Mode				 mode				  = Mode::Default;
-			Color				 colorBorder		  = Theme::GetDef().background0;
-			Color				 colorBorderHovered	  = Theme::GetDef().background3;
-			float				 borderThickness	  = Theme::GetDef().baseBorderThickness;
-			float				 borderMinSize		  = 0.1f;
-			int32				 borderExpandForMouse = 0;
+			DirectionOrientation direction				  = DirectionOrientation::Horizontal;
+			Mode				 mode					  = Mode::Default;
+			Color				 colorBorder			  = Theme::GetDef().background0;
+			Color				 colorBorderHovered		  = Theme::GetDef().background3;
+			float				 borderThickness		  = Theme::GetDef().baseBorderThickness;
+			float				 borderMinSize			  = 0.1f;
+			int32				 borderExpandForMouse	  = 0;
+			uint32				 borderDrawOrderIncrement = 0;
 
 			Delegate<void()> onClicked;
 			Delegate<void()> onDoubleClicked;

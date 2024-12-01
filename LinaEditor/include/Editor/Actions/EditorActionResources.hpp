@@ -156,10 +156,13 @@ namespace Lina::Editor
 	class EditorActionResourceMaterialShader : public EditorAction
 	{
 	public:
-		EditorActionResourceMaterialShader()		  = default;
-		virtual ~EditorActionResourceMaterialShader() = default;
+		EditorActionResourceMaterialShader() = default;
+		virtual ~EditorActionResourceMaterialShader()
+		{
+			m_prevStream.Destroy();
+		}
 
-		static EditorActionResourceMaterialShader* Create(Editor* editor, ResourceID resourceID, uint64 resourceSpace, ResourceID prevShader, ResourceID newShader);
+		static EditorActionResourceMaterialShader* Create(Editor* editor, ResourceID resourceID, uint64 resourceSpace, ResourceID prevShader, ResourceID newShader, const OStream& prevStream);
 		virtual void							   Execute(Editor* editor, ExecType type) override;
 
 	private:
@@ -167,5 +170,6 @@ namespace Lina::Editor
 		ResourceID m_prevShader	   = 0;
 		ResourceID m_newShader	   = 0;
 		uint64	   m_resourceSpace = 0;
+		OStream	   m_prevStream	   = {};
 	};
 } // namespace Lina::Editor

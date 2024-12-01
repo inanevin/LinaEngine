@@ -113,7 +113,10 @@ namespace Lina
 		};
 
 		if (type != ShaderType::Custom)
+		{
 			clearVariants();
+			m_meta.variants.clear();
+		}
 
 		if (type == ShaderType::OpaqueSurface)
 		{
