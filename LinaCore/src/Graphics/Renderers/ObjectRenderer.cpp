@@ -164,6 +164,7 @@ namespace Lina
 
 		Buffer& indirectBuffer	  = pass.GetBuffer(frameIndex, "IndirectBuffer"_hs);
 		Buffer& indirectConstants = pass.GetBuffer(frameIndex, "IndirectConstants"_hs);
+		Buffer& entityBuffer	  = pass.GetBuffer(frameIndex, "EntityBuffer"_hs);
 
 		for (size_t i = 0; i < sz; i++)
 		{
@@ -191,8 +192,12 @@ namespace Lina
 					if (mat == nullptr)
 						continue;
 
+					const uint32 entityCount = entityBuffer.GetIndirectCount();
+					entityBuffer.BufferData(sizeof(GPUEntity) * entityCount, (uint8*)&instance.entity, sizeof(GPUEntity));
+					entityBuffer.SetIndirectCount(entityCount + 1);
+
 					GPUIndirectConstants0 constants = {
-						.entity			   = instance.entity,
+						.entityIndex	   = entityCount,
 						.materialByteIndex = mat->GetBindlessIndex() / static_cast<uint32>(sizeof(uint32)),
 					};
 
@@ -233,6 +238,17 @@ namespace Lina
 				LinaGX::CMDBindPipeline* pipelineBind = stream->AddCommand<LinaGX::CMDBindPipeline>();
 				pipelineBind->shader				  = shader->GetGPUHandle();
 				lastBoundShader						  = shader;
+
+				GPUPushConstantsForwardPass dummyConstants = {};
+
+				// if (type == RenderPassType::Forward)
+				// {
+				// 	LinaGX::CMDBindConstants* constants = stream->AddCommand<LinaGX::CMDBindConstants>();
+				// 	constants->data						= stream->EmplaceAuxMemory(dummyConstants);
+				// 	constants->size						= sizeof(GPUPushConstantsForwardPass);
+				// 	constants->stages					= stream->EmplaceAuxMemory(LinaGX::ShaderStage::Fragment);
+				// 	constants->stagesSize				= 1;
+				// }
 			}
 
 			LinaGX::CMDDrawIndexedIndirect* draw = stream->AddCommand<LinaGX::CMDDrawIndexedIndirect>();

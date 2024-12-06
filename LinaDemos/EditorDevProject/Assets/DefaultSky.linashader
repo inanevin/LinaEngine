@@ -43,7 +43,7 @@ struct LinaVertexInput
    vec3 pos;
    vec3 normal;
    vec2 uv;
-   uint materialID;
+   uint materialIndex;
 };
 
 // do not modify
@@ -54,7 +54,7 @@ struct LinaVertexOutput
 };
 
 
-void LINA_VERTEX_FUNC(in LinaVertexInput inVertex, out LinaVertexOutput outVertex)
+void LINA_VERTEX_MAIN(in LinaVertexInput inVertex, out LinaVertexOutput outVertex)
 {
    outVertex.pos = vec4(inVertex.pos, 1.0);
    outVertex.toFrag.uv = inVertex.uv;
@@ -76,7 +76,7 @@ struct LinaVertexToFrag
 // do not modify
 struct LinaFragInput
 {
-   uint materialID;
+   uint materialIndex;
    LinaVertexToFrag fromVertex;
 };
 
@@ -125,10 +125,10 @@ vec4 AddGrid(vec3 col, vec3 p, float size, float thickness)
 }
 
 /// --- Sky Shader --- ///
-void LINA_FRAG_FUNC(in LinaFragInput inFrag, out LinaFragOutput outFrag)
+void LINA_FRAG_MAIN(in LinaFragInput inFrag, out LinaFragOutput outFrag)
 {
 
-   LinaMaterial material = LINA_GET_MATERIAL(inFrag.materialID);
+   LinaMaterial material = LINA_GET_MATERIAL(inFrag.materialIndex);
 
    vec2 uv = inFrag.fromVertex.uv;
    vec3 worldPos = inFrag.fromVertex.worldPos;

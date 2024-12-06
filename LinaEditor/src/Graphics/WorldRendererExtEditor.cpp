@@ -31,34 +31,35 @@ SOFTWARE.
 
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
+
 namespace Lina::Editor
 {
-	WorldRendererExtEditor::WorldRendererExtEditor()
+	WorldRendererExtEditor::WorldRendererExtEditor(Editor* editor, WorldRenderer* renderer, ResourceManagerV2* rm)
 	{
+		m_worldRenderer = renderer;
+		m_rm			= rm;
+		m_editor		= editor;
+
 		// m_shaderLines = m_rm->GetResource<Shader>(EDITOR_LINES_SHADER_ID);
 
-		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-		{
-			auto&		 data = m_pfd[i];
-			const String istr = TO_STRING(i);
-			data.vertexBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, 300 * sizeof(LineVertex), "EditorExt: Vertex");
-			data.indexBuffer.Create(LinaGX::ResourceTypeHint::TH_IndexBuffer, 300 * sizeof(uint16), "EditorExt: Index");
-		}
+		// for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+		// {
+		// 	auto&		 data = m_pfd[i];
+		// 	const String istr = TO_STRING(i);
+		// 	data.vertexBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, 300 * sizeof(LineVertex), "EditorExt: Vertex");
+		// 	data.indexBuffer.Create(LinaGX::ResourceTypeHint::TH_IndexBuffer, 300 * sizeof(uint16), "EditorExt: Index");
+		// }
 	}
 
 	WorldRendererExtEditor::~WorldRendererExtEditor()
 	{
-		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-		{
-			auto&		 data = m_pfd[i];
-			const String istr = TO_STRING(i);
-			data.vertexBuffer.Destroy();
-			data.indexBuffer.Destroy();
-		}
-	}
-
-	void WorldRendererExtEditor::Tick(float delta)
-	{
+		// for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+		// {
+		// 	auto&		 data = m_pfd[i];
+		// 	const String istr = TO_STRING(i);
+		// 	data.vertexBuffer.Destroy();
+		// 	data.indexBuffer.Destroy();
+		// }
 	}
 
 	namespace
@@ -149,46 +150,50 @@ namespace Lina::Editor
 		}
 	} // namespace
 
-	void WorldRendererExtEditor::AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue)
-	{
-		auto&		  data		= m_pfd[frameIndex];
-		const Vector3 lineStart = Vector3(5, 0, -12);
-		const Vector3 lineEnd	= Vector3(15, 10, 0);
+	// void WorldRendererExtEditor::Render(uint32 frameIndex, LinaGX::CommandStream* stream)
+	// {
+	// }
 
-		BufferBatch b;
-		b.vtxBuffer = &data.vertexBuffer;
-		b.idxBuffer = &data.indexBuffer;
+	// void WorldRendererExtEditor::AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue)
+	//{
+	//	auto&		  data		= m_pfd[frameIndex];
+	//	const Vector3 lineStart = Vector3(5, 0, -12);
+	//	const Vector3 lineEnd	= Vector3(15, 10, 0);
+	//
+	//	BufferBatch b;
+	//	b.vtxBuffer = &data.vertexBuffer;
+	//	b.idxBuffer = &data.indexBuffer;
+	//
+	//	DrawLine(b, Vector3(-50, 5, 50), Vector3(50, 5, 50));
+	//	DrawLine(b, Vector3(-50, -5, 50), Vector3(50, -5, 50));
+	//	DrawLine(b, Vector3(-50, 5, 50), Vector3(-50, -5, 50));
+	//	DrawLine(b, Vector3(50, 5, 50), Vector3(50, -5, 50));
+	//
+	//	DrawLine(b, Vector3(-50, 5, -50), Vector3(50, 5, -50));
+	//	DrawLine(b, Vector3(-50, -5, -50), Vector3(50, -5, -50));
+	//	DrawLine(b, Vector3(-50, 5, -50), Vector3(-50, -5, -50));
+	//	DrawLine(b, Vector3(50, 5, -50), Vector3(50, -5, -50));
+	//
+	//	DrawLine(b, Vector3(-50, 5, 50), Vector3(-50, 5, -50));
+	//	DrawLine(b, Vector3(-50, -5, 50), Vector3(-50, -5, -50));
+	//	DrawLine(b, Vector3(50, 5, 50), Vector3(50, 5, -50));
+	//	DrawLine(b, Vector3(50, -5, 50), Vector3(50, -5, -50));
+	//
+	//	queue.AddBufferRequest(&data.vertexBuffer);
+	//	queue.AddBufferRequest(&data.indexBuffer);
+	// }
 
-		DrawLine(b, Vector3(-50, 5, 50), Vector3(50, 5, 50));
-		DrawLine(b, Vector3(-50, -5, 50), Vector3(50, -5, 50));
-		DrawLine(b, Vector3(-50, 5, 50), Vector3(-50, -5, 50));
-		DrawLine(b, Vector3(50, 5, 50), Vector3(50, -5, 50));
-
-		DrawLine(b, Vector3(-50, 5, -50), Vector3(50, 5, -50));
-		DrawLine(b, Vector3(-50, -5, -50), Vector3(50, -5, -50));
-		DrawLine(b, Vector3(-50, 5, -50), Vector3(-50, -5, -50));
-		DrawLine(b, Vector3(50, 5, -50), Vector3(50, -5, -50));
-
-		DrawLine(b, Vector3(-50, 5, 50), Vector3(-50, 5, -50));
-		DrawLine(b, Vector3(-50, -5, 50), Vector3(-50, -5, -50));
-		DrawLine(b, Vector3(50, 5, 50), Vector3(50, 5, -50));
-		DrawLine(b, Vector3(50, -5, 50), Vector3(50, -5, -50));
-
-		queue.AddBufferRequest(&data.vertexBuffer);
-		queue.AddBufferRequest(&data.indexBuffer);
-	}
-
-	void WorldRendererExtEditor::RenderForward(uint32 frameIndex, LinaGX::CommandStream* stream)
-	{
-		auto& data = m_pfd[frameIndex];
-
-		data.vertexBuffer.BindVertex(stream, sizeof(LineVertex));
-		data.indexBuffer.BindIndex(stream, LinaGX::IndexType::Uint16);
-
-		m_shaderLines->Bind(stream, m_shaderLines->GetGPUHandle());
-		LinaGX::CMDDrawIndexedInstanced* draw = stream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
-		draw->indexCountPerInstance			  = 216;
-		draw->instanceCount					  = 1;
-	}
+	// void WorldRendererExtEditor::RenderForward(uint32 frameIndex, LinaGX::CommandStream* stream)
+	//{
+	//	auto& data = m_pfd[frameIndex];
+	//
+	//	data.vertexBuffer.BindVertex(stream, sizeof(LineVertex));
+	//	data.indexBuffer.BindIndex(stream, LinaGX::IndexType::Uint16);
+	//
+	//	m_shaderLines->Bind(stream, m_shaderLines->GetGPUHandle());
+	//	LinaGX::CMDDrawIndexedInstanced* draw = stream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
+	//	draw->indexCountPerInstance			  = 216;
+	//	draw->instanceCount					  = 1;
+	// }
 
 } // namespace Lina::Editor

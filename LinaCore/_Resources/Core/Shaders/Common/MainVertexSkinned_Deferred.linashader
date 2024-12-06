@@ -30,8 +30,21 @@ layout (location = 0) in vec3 inPos;
 layout (location = 1) in vec3 inNormal;
 layout (location = 2) in vec2 inUV;
 
-layout (location = 0) flat out uint outMaterialIndex;
-layout (location = 1) out LinaVertexToFrag outVertexToFrag;
+struct LinaVertexInput
+{
+   vec3 pos;
+   vec3 normal;
+   vec2 uv;
+   uint materialIndex;
+   LinaEntity entity;
+};
+
+struct LinaVertexOutput
+{
+   vec4 pos;
+};
+
+//##user_shader_injected_here
 
 void main()
 {
@@ -48,15 +61,12 @@ void main()
     vertexInput.pos = inPos;
     vertexInput.normal = inNormal;
     vertexInput.uv =  vec2(inUV.x, 1.0 - inUV.y);
-    vertexInput.entity = argBuffer.entity;
-    vertexInput.materialID = argBuffer.materialID;
+    vertexInput.materialIndex = argBuffer.materialID;
+    vertexInput.entity = LINA_GET_ENTITY(argBuffer.entityIndex);
 
     LinaVertexOutput vertexOutput;
-    LINA_VERTEX_FUNC(vertexInput, vertexOutput);
+    LINA_VERTEX_MAIN(vertexInput, vertexOutput);
 
-    outVertexToFrag = vertexOutput.toFrag;
-    outMaterialIndex = argBuffer.materialID;
-
-    vec3 worldPos = vec3(argBuffer.entity.modelMatrix * vertexOutput.pos);
+    vec3 worldPos = vec3(vertexInput.entity.modelMatrix * vertexOutput.pos);
     gl_Position = LINA_VIEW.proj * LINA_VIEW.view *  vec4(worldPos, 1.0);
 }

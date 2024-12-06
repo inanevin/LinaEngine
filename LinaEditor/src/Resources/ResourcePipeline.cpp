@@ -253,6 +253,7 @@ namespace Lina::Editor
 			auto loadDefault = [&]() {
 				MetaType* meta = ReflectionSystem::Get().Resolve(resourceTID);
 				Resource* res  = static_cast<Resource*>(meta->GetFunction<void*()>("Allocate"_hs)());
+
 				if (res->LoadFromFile(def.path))
 				{
 					res->SetName(name);

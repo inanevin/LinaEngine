@@ -60,7 +60,7 @@ layout (location = 1) in vec2 inUV;
 layout (location = 0) out vec4 outFragColor;
 
 
-struct LinaMaterial
+struct LinaGUIMaterial
 {
    vec4 uvTilingAndOffset;
    uint hasTexture;
@@ -75,9 +75,9 @@ layout( push_constant ) uniform constants
 	uint materialIndex;
 } PushConstants;
 
-LinaMaterial GetMaterial(uint index)
+LinaGUIMaterial GetMaterial(uint index)
 {
-   LinaMaterial mat;
+   LinaGUIMaterial mat;
    mat.uvTilingAndOffset.x = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
    mat.uvTilingAndOffset.y = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
    mat.uvTilingAndOffset.z = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
@@ -95,7 +95,7 @@ LinaMaterial GetMaterial(uint index)
 
 void main()
 {
-   LinaMaterial material = GetMaterial(PushConstants.materialIndex);
+   LinaGUIMaterial material = GetMaterial(PushConstants.materialIndex);
 
    vec4 color = inCol;
 

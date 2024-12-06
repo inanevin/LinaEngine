@@ -118,12 +118,16 @@ namespace Lina::Editor
 			m_worldRenderer->Resize(displayerSize);
 			sc.SetRenderSize(displayerSize);
 		}
+	}
 
+	void WorldDisplayer::Tick(float dt)
+	{
+		if (m_worldRenderer == nullptr)
+			return;
 		const uint32 frameIndex		= Application::GetLGX()->GetCurrentFrameIndex();
 		Texture*	 target			= m_worldRenderer->GetLightingPassOutput((frameIndex + SystemInfo::GetRendererBehindFrames()) % 2); // 1 frame behind renderer
 		GetWidgetProps().rawTexture = target;
 	}
-
 	bool WorldDisplayer::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
 		if (m_isHovered && button == LINAGX_MOUSE_1 && (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated))

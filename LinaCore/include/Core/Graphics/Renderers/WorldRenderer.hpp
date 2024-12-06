@@ -67,7 +67,6 @@ namespace Lina
 
 		virtual void Tick(float delta){};
 		virtual void RenderForward(uint32 frameIndex, LinaGX::CommandStream* stream){};
-		virtual void Render(uint32 frameIndex, LinaGX::CommandStream* stream){};
 		virtual void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue){};
 
 		WorldRenderer* m_worldRenderer = nullptr;
@@ -162,6 +161,11 @@ namespace Lina
 			return m_name;
 		}
 
+		inline void SetExtension(WorldRendererExtension* ext)
+		{
+			m_extension = ext;
+		}
+
 	private:
 		void   CalculateViewProj(const Camera& camera, const Screen& screen, Matrix4& outView, Matrix4& outProj);
 		void   UpdateBuffers(uint32 frameIndex);
@@ -189,7 +193,8 @@ namespace Lina
 		SkyRenderer*			 m_skyRenderer		= nullptr;
 		LightingRenderer*		 m_lightingRenderer = nullptr;
 		GfxContext*				 m_gfxContext;
-		String					 m_name = "";
+		String					 m_name		 = "";
+		WorldRendererExtension*	 m_extension = nullptr;
 	};
 
 } // namespace Lina

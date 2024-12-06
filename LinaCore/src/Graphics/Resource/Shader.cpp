@@ -77,15 +77,12 @@ namespace Lina
 		if (!ShaderPreprocessor::ExtractVertexFrag(txt, vertexBlock, fragBlock))
 			return false;
 
-		ShaderPreprocessor::InjectVersionAndExtensions(vertexBlock);
-		ShaderPreprocessor::InjectVersionAndExtensions(fragBlock);
-
-		auto injectMaterials = [&]() -> bool {
+		auto injectMaterials = [this](String& vertex, String& pixel) -> bool {
 			Vector<ShaderPropertyDefinition> vertexProperties = {}, fragProperties = {};
-			if (!ShaderPreprocessor::InjectMaterialIfRequired(vertexBlock, vertexProperties))
+			if (!ShaderPreprocessor::InjectMaterialIfRequired(vertex, vertexProperties))
 				return false;
 
-			if (!ShaderPreprocessor::InjectMaterialIfRequired(fragBlock, fragProperties))
+			if (!ShaderPreprocessor::InjectMaterialIfRequired(pixel, fragProperties))
 				return false;
 
 			if (!ShaderPropertyDefinition::VerifySimilarity(vertexProperties, fragProperties))
@@ -96,6 +93,8 @@ namespace Lina
 			m_propertyDefinitions = fragProperties.empty() ? vertexProperties : fragProperties;
 			return true;
 		};
+
+		injectMaterials(vertexBlock, fragBlock);
 
 		const ShaderType type	 = m_shaderType;
 		bool			 success = true;
@@ -118,16 +117,19 @@ namespace Lina
 			m_meta.variants.clear();
 		}
 
+		String vertexBase = "", pixelBase = "";
+		ShaderPreprocessor::InjectVersionAndExtensions(vertexBase);
+		ShaderPreprocessor::InjectVersionAndExtensions(pixelBase);
+
 		if (type == ShaderType::OpaqueSurface)
 		{
-			if (!injectMaterials())
-				return false;
-
-			ShaderPreprocessor::InjectRenderPassInputs(vertexBlock, RenderPassType::Deferred);
-			ShaderPreprocessor::InjectRenderPassInputs(fragBlock, RenderPassType::Deferred);
+			ShaderPreprocessor::InjectRenderPassInputs(vertexBase, RenderPassType::Deferred);
+			ShaderPreprocessor::InjectRenderPassInputs(pixelBase, RenderPassType::Deferred);
 
 			// Deferred default
 			{
+				String vtxShader = vertexBase, pixelShader = pixelBase;
+
 				m_meta.variants.push_back({});
 				ShaderVariant& variant = m_meta.variants.back();
 				variant				   = ShaderVariant{
@@ -140,27 +142,28 @@ namespace Lina
 								   .frontFace	 = LinaGX::FrontFace::CW,
 				   };
 
-				String vertex	= vertexBlock;
-				String fragment = fragBlock;
-
-				ShaderPreprocessor::InjectVertexMain(vertex, ShaderType::OpaqueSurface);
-				ShaderPreprocessor::InjectFragMain(fragment, ShaderType::OpaqueSurface);
+				ShaderPreprocessor::InjectVertexMain(vtxShader, ShaderType::OpaqueSurface);
+				ShaderPreprocessor::InjectFragMain(pixelShader, ShaderType::OpaqueSurface);
+				ShaderPreprocessor::InjectUserShader(vtxShader, vertexBlock);
+				ShaderPreprocessor::InjectUserShader(pixelShader, fragBlock);
 
 				variant._compileData.push_back({
 					.stage		 = LinaGX::ShaderStage::Vertex,
-					.text		 = vertex,
+					.text		 = vtxShader,
 					.includePath = includePath.c_str(),
 				});
 
 				variant._compileData.push_back({
 					.stage		 = LinaGX::ShaderStage::Fragment,
-					.text		 = fragment,
+					.text		 = pixelShader,
 					.includePath = includePath.c_str(),
 				});
 			}
 
 			// Deferred skinned
 			{
+				String vtxShader = vertexBase, pixelShader = pixelBase;
+
 				m_meta.variants.push_back({});
 				ShaderVariant& variant = m_meta.variants.back();
 				variant				   = ShaderVariant{
@@ -173,34 +176,33 @@ namespace Lina
 								   .frontFace	 = LinaGX::FrontFace::CW,
 				   };
 
-				String vertex	= vertexBlock;
-				String fragment = fragBlock;
-
-				ShaderPreprocessor::InjectSkinnedVertexMain(vertex, ShaderType::OpaqueSurface);
-				ShaderPreprocessor::InjectFragMain(fragment, ShaderType::OpaqueSurface);
+				ShaderPreprocessor::InjectSkinnedVertexMain(vtxShader, ShaderType::OpaqueSurface);
+				ShaderPreprocessor::InjectFragMain(pixelShader, ShaderType::OpaqueSurface);
+				ShaderPreprocessor::InjectUserShader(vtxShader, vertexBlock);
+				ShaderPreprocessor::InjectUserShader(pixelShader, fragBlock);
 
 				variant._compileData.push_back({
 					.stage		 = LinaGX::ShaderStage::Vertex,
-					.text		 = vertex,
+					.text		 = vtxShader,
 					.includePath = includePath.c_str(),
 				});
 
 				variant._compileData.push_back({
 					.stage		 = LinaGX::ShaderStage::Fragment,
-					.text		 = fragment,
+					.text		 = pixelShader,
 					.includePath = includePath.c_str(),
 				});
 			}
 		}
 		else if (type == ShaderType::TransparentSurface)
 		{
-			if (!injectMaterials())
-				return false;
+			ShaderPreprocessor::InjectRenderPassInputs(vertexBase, RenderPassType::Forward);
+			ShaderPreprocessor::InjectRenderPassInputs(pixelBase, RenderPassType::Forward);
 
-			ShaderPreprocessor::InjectRenderPassInputs(vertexBlock, RenderPassType::Forward);
-			ShaderPreprocessor::InjectRenderPassInputs(fragBlock, RenderPassType::Forward);
 			// Forward default
 			{
+				String vtxShader = vertexBase, pixelShader = pixelBase;
+
 				m_meta.variants.push_back({});
 				ShaderVariant& variant = m_meta.variants.back();
 				variant				   = ShaderVariant{
@@ -219,27 +221,28 @@ namespace Lina
 								   .frontFace			= LinaGX::FrontFace::CW,
 				   };
 
-				String vertex	= vertexBlock;
-				String fragment = fragBlock;
-
-				ShaderPreprocessor::InjectVertexMain(vertex, ShaderType::TransparentSurface);
-				ShaderPreprocessor::InjectFragMain(fragment, ShaderType::TransparentSurface);
+				ShaderPreprocessor::InjectVertexMain(vtxShader, ShaderType::TransparentSurface);
+				ShaderPreprocessor::InjectFragMain(pixelShader, ShaderType::TransparentSurface);
+				ShaderPreprocessor::InjectUserShader(vtxShader, vertexBlock);
+				ShaderPreprocessor::InjectUserShader(pixelShader, fragBlock);
 
 				variant._compileData.push_back({
 					.stage		 = LinaGX::ShaderStage::Vertex,
-					.text		 = vertex,
+					.text		 = vtxShader,
 					.includePath = includePath.c_str(),
 				});
 
 				variant._compileData.push_back({
 					.stage		 = LinaGX::ShaderStage::Fragment,
-					.text		 = fragment,
+					.text		 = pixelShader,
 					.includePath = includePath.c_str(),
 				});
 			}
 
 			// Forward default
 			{
+				String vtxShader = vertexBase, pixelShader = pixelBase;
+
 				m_meta.variants.push_back({});
 				ShaderVariant& variant = m_meta.variants.back();
 				variant				   = ShaderVariant{
@@ -258,29 +261,31 @@ namespace Lina
 								   .frontFace			= LinaGX::FrontFace::CW,
 				   };
 
-				String vertex	= vertexBlock;
-				String fragment = fragBlock;
-
-				ShaderPreprocessor::InjectSkinnedVertexMain(vertex, ShaderType::TransparentSurface);
-				ShaderPreprocessor::InjectFragMain(fragment, ShaderType::TransparentSurface);
+				ShaderPreprocessor::InjectSkinnedVertexMain(vtxShader, ShaderType::TransparentSurface);
+				ShaderPreprocessor::InjectFragMain(pixelShader, ShaderType::TransparentSurface);
+				ShaderPreprocessor::InjectUserShader(vtxShader, vertexBlock);
+				ShaderPreprocessor::InjectUserShader(pixelShader, fragBlock);
 
 				variant._compileData.push_back({
 					.stage		 = LinaGX::ShaderStage::Vertex,
-					.text		 = vertex,
+					.text		 = vtxShader,
 					.includePath = includePath.c_str(),
 				});
 
 				variant._compileData.push_back({
 					.stage		 = LinaGX::ShaderStage::Fragment,
-					.text		 = fragment,
+					.text		 = pixelShader,
 					.includePath = includePath.c_str(),
 				});
 			}
 		}
 		else if (type == ShaderType::Lighting)
 		{
-			if (!injectMaterials())
-				return false;
+			// TODO: convert default lighting shader to standard
+			// ShaderPreprocessor::InjectRenderPassInputs(vertexBase, RenderPassType::Forward);
+			// ShaderPreprocessor::InjectRenderPassInputs(pixelBase, RenderPassType::Forward);
+
+			// String vtxShader = vertexBase, pixelShader = pixelBase;
 
 			m_meta.variants.push_back({});
 			ShaderVariant& variant = m_meta.variants.back();
@@ -294,30 +299,31 @@ namespace Lina
 							   .frontFace	 = LinaGX::FrontFace::CW,
 			   };
 
+			vertexBase.insert(vertexBase.length(), vertexBlock);
+			pixelBase.insert(pixelBase.length(), fragBlock);
+
 			variant._compileData.push_back({
 				.stage		 = LinaGX::ShaderStage::Vertex,
-				.text		 = vertexBlock,
+				.text		 = vertexBase,
 				.includePath = includePath.c_str(),
 			});
 
 			variant._compileData.push_back({
 				.stage		 = LinaGX::ShaderStage::Fragment,
-				.text		 = fragBlock,
+				.text		 = pixelBase,
 				.includePath = includePath.c_str(),
 			});
 		}
 		else if (type == ShaderType::PostProcess)
 		{
-			if (!injectMaterials())
-				return false;
+			LINA_ASSERT(false, "");
 		}
 		else if (type == ShaderType::Sky)
 		{
-			if (!injectMaterials())
-				return false;
+			ShaderPreprocessor::InjectRenderPassInputs(vertexBase, RenderPassType::Lighting);
+			ShaderPreprocessor::InjectRenderPassInputs(pixelBase, RenderPassType::Lighting);
 
-			ShaderPreprocessor::InjectRenderPassInputs(vertexBlock, RenderPassType::Lighting);
-			ShaderPreprocessor::InjectRenderPassInputs(fragBlock, RenderPassType::Lighting);
+			String vtxShader = vertexBase, pixelShader = pixelBase;
 
 			m_meta.variants.push_back({});
 			ShaderVariant& variant = m_meta.variants.back();
@@ -335,37 +341,39 @@ namespace Lina
 				.depthBiasConstant = 5.0f,
 			};
 
-			String vertex	= vertexBlock;
-			String fragment = fragBlock;
-
-			ShaderPreprocessor::InjectVertexMain(vertex, ShaderType::Sky);
-			ShaderPreprocessor::InjectFragMain(fragment, ShaderType::Sky);
+			ShaderPreprocessor::InjectVertexMain(vtxShader, ShaderType::Sky);
+			ShaderPreprocessor::InjectFragMain(pixelShader, ShaderType::Sky);
+			ShaderPreprocessor::InjectUserShader(vtxShader, vertexBlock);
+			ShaderPreprocessor::InjectUserShader(pixelShader, fragBlock);
 
 			variant._compileData.push_back({
 				.stage		 = LinaGX::ShaderStage::Vertex,
-				.text		 = vertex,
+				.text		 = vtxShader,
 				.includePath = includePath.c_str(),
 			});
 
 			variant._compileData.push_back({
 				.stage		 = LinaGX::ShaderStage::Fragment,
-				.text		 = fragment,
+				.text		 = pixelShader,
 				.includePath = includePath.c_str(),
 			});
 		}
 		else if (type == ShaderType::Custom)
 		{
+			vertexBase.insert(vertexBase.length(), vertexBlock);
+			pixelBase.insert(pixelBase.length(), fragBlock);
+
 			for (ShaderVariant& variant : m_meta.variants)
 			{
 				variant._compileData.push_back({
 					.stage		 = LinaGX::ShaderStage::Vertex,
-					.text		 = vertexBlock,
+					.text		 = vertexBase,
 					.includePath = includePath.c_str(),
 				});
 
 				variant._compileData.push_back({
 					.stage		 = LinaGX::ShaderStage::Fragment,
-					.text		 = fragBlock,
+					.text		 = pixelBase,
 					.includePath = includePath.c_str(),
 				});
 			}
@@ -473,7 +481,6 @@ namespace Lina
 			});
 
 			m_gpuHandles.push_back({variant.id, handle});
-
 			for (LinaGX::ShaderCompileData& data : variant._compileData)
 				delete[] data.outBlob.ptr;
 

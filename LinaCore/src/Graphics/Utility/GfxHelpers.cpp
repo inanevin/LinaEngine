@@ -116,7 +116,7 @@ namespace Lina
 		LinaGX::Config.logLevel		 = LinaGX::LogLevel::Verbose;
 		LinaGX::Config.errorCallback = LinaGX_ErrorCallback;
 		LinaGX::Config.infoCallback	 = LinaGX_LogCallback;
-		LinaGX::BackendAPI api		 = LinaGX::BackendAPI::Vulkan;
+		LinaGX::BackendAPI api		 = LinaGX::BackendAPI::DX12;
 
 #ifdef LINA_PLATFORM_APPLE
 		api = LinaGX::BackendAPI::Metal;
@@ -202,7 +202,12 @@ namespace Lina
 				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 			};
 
-			return {.bindings = {binding0, binding1}};
+			LinaGX::DescriptorBinding binding2 = {
+				.type	= LinaGX::DescriptorType::SSBO,
+				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+			};
+
+			return {.bindings = {binding0, binding1, binding2}};
 		}
 		else if (type == RenderPassType::Forward)
 		{
@@ -216,7 +221,12 @@ namespace Lina
 				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 			};
 
-			return {.bindings = {binding0, binding1}};
+			LinaGX::DescriptorBinding binding2 = {
+				.type	= LinaGX::DescriptorType::SSBO,
+				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+			};
+
+			return {.bindings = {binding0, binding1, binding2}};
 		}
 		else if (type == RenderPassType::Lighting)
 		{
@@ -335,8 +345,9 @@ namespace Lina
 		LinaGX::PipelineLayoutDesc desc;
 		desc.descriptorSetDescriptions = {GetSetDescPersistentGlobal(), GetSetDescPersistentRenderPass(renderPassType)};
 		desc.debugName				   = "Persistent RenderPass Layout";
-		// if (renderPassType == RenderPassType::Main)
-		//	desc.constantRanges.push_back(LinaGX::PipelineLayoutPushConstantRange{.stages = {LinaGX::ShaderStage::Vertex}, .size = sizeof(GPUPushConstantRPMain)});
+
+		// if (renderPassType == RenderPassType::Forward)
+		//	desc.constantRanges.push_back(LinaGX::PipelineLayoutPushConstantRange{.stages = {LinaGX::ShaderStage::Fragment}, .size = sizeof(GPUPushConstantsForwardPass)});
 
 		return desc;
 	}
@@ -374,30 +385,41 @@ namespace Lina
 		if (type == RenderPassType::Deferred)
 		{
 			return {
-				.buffers		= {{
-									   .bufferType	 = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
-									   .debugName	 = "RP: Main - ViewData",
-									   .size		 = sizeof(GPUDataView),
-									   .stagingOnly	 = true,
-									   .bindingIndex = 0,
-									   .ident		 = "ViewData"_hs,
-							   },
-								   {
-									   .bufferType	 = LinaGX::ResourceTypeHint::TH_IndirectBuffer,
-									   .debugName	 = "RP: Main - IndirectBuffer",
-									   .size		 = lgx->GetIndexedIndirectCommandSize() * static_cast<size_t>(250),
-									   .stagingOnly	 = false,
-									   .bindingIndex = -1,
-									   .ident		 = "IndirectBuffer"_hs,
-							   },
-								   {
-									   .bufferType	 = LinaGX::ResourceTypeHint::TH_StorageBuffer,
-									   .debugName	 = "RP: Main - IndirectConstants",
-									   .size		 = sizeof(GPUIndirectConstants0) * 2500,
-									   .stagingOnly	 = false,
-									   .bindingIndex = 1,
-									   .ident		 = "IndirectConstants"_hs,
-							   }},
+				.buffers =
+					{
+						{
+							.bufferType	  = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
+							.debugName	  = "RP: Main - ViewData",
+							.size		  = sizeof(GPUDataView),
+							.stagingOnly  = true,
+							.bindingIndex = 0,
+							.ident		  = "ViewData"_hs,
+						},
+						{
+							.bufferType	  = LinaGX::ResourceTypeHint::TH_IndirectBuffer,
+							.debugName	  = "RP: Main - IndirectBuffer",
+							.size		  = lgx->GetIndexedIndirectCommandSize() * static_cast<size_t>(250),
+							.stagingOnly  = false,
+							.bindingIndex = -1,
+							.ident		  = "IndirectBuffer"_hs,
+						},
+						{
+							.bufferType	  = LinaGX::ResourceTypeHint::TH_StorageBuffer,
+							.debugName	  = "RP: Main - IndirectConstants",
+							.size		  = sizeof(GPUIndirectConstants0) * 2500,
+							.stagingOnly  = false,
+							.bindingIndex = 1,
+							.ident		  = "IndirectConstants"_hs,
+						},
+						{
+							.bufferType	  = LinaGX::ResourceTypeHint::TH_StorageBuffer,
+							.debugName	  = "RP: Main - EntityBuffer",
+							.size		  = sizeof(GPUEntity) * 2500,
+							.stagingOnly  = false,
+							.bindingIndex = 2,
+							.ident		  = "EntityBuffer"_hs,
+						},
+					},
 				.setDescription = setDesc,
 			};
 		}
@@ -405,26 +427,22 @@ namespace Lina
 		if (type == RenderPassType::Lighting)
 		{
 			return {
-				.buffers =
-					{
-						{
-							.bufferType	  = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
-							.debugName	  = "RP: Lighting - ViewData",
-							.size		  = sizeof(GPUDataView),
-							.stagingOnly  = true,
-							.bindingIndex = 0,
-							.ident		  = "ViewData"_hs,
-						},
-						{
-							.bufferType	  = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
-							.debugName	  = "RP: Lighting - PassData",
-							.size		  = sizeof(GPUDataLightingPass),
-							.stagingOnly  = true,
-							.bindingIndex = 1,
-							.ident		  = "PassData"_hs,
-						},
-
-					},
+				.buffers		= {{
+									   .bufferType	 = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
+									   .debugName	 = "RP: Lighting - ViewData",
+									   .size		 = sizeof(GPUDataView),
+									   .stagingOnly	 = true,
+									   .bindingIndex = 0,
+									   .ident		 = "ViewData"_hs,
+							   },
+								   {
+									   .bufferType	 = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
+									   .debugName	 = "RP: Lighting - PassData",
+									   .size		 = sizeof(GPUDataLightingPass),
+									   .stagingOnly	 = true,
+									   .bindingIndex = 1,
+									   .ident		 = "PassData"_hs,
+							   }},
 				.setDescription = setDesc,
 			};
 		}
@@ -432,30 +450,41 @@ namespace Lina
 		if (type == RenderPassType::Forward)
 		{
 			return {
-				.buffers		= {{
-									   .bufferType	 = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
-									   .debugName	 = "RP: FWTransparency - ViewData",
-									   .size		 = sizeof(GPUDataView),
-									   .stagingOnly	 = true,
-									   .bindingIndex = 0,
-									   .ident		 = "ViewData"_hs,
-							   },
-								   {
-									   .bufferType	 = LinaGX::ResourceTypeHint::TH_IndirectBuffer,
-									   .debugName	 = "RP: FWTransparency - IndirectBuffer",
-									   .size		 = lgx->GetIndexedIndirectCommandSize() * static_cast<size_t>(250),
-									   .stagingOnly	 = false,
-									   .bindingIndex = -1,
-									   .ident		 = "IndirectBuffer"_hs,
-							   },
-								   {
-									   .bufferType	 = LinaGX::ResourceTypeHint::TH_StorageBuffer,
-									   .debugName	 = "RP: FWTransparency - IndirectConstants",
-									   .size		 = sizeof(GPUIndirectConstants0) * 2500,
-									   .stagingOnly	 = false,
-									   .bindingIndex = 1,
-									   .ident		 = "IndirectConstants"_hs,
-							   }},
+				.buffers =
+					{
+						{
+							.bufferType	  = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
+							.debugName	  = "RP: FWTransparency - ViewData",
+							.size		  = sizeof(GPUDataView),
+							.stagingOnly  = true,
+							.bindingIndex = 0,
+							.ident		  = "ViewData"_hs,
+						},
+						{
+							.bufferType	  = LinaGX::ResourceTypeHint::TH_IndirectBuffer,
+							.debugName	  = "RP: FWTransparency - IndirectBuffer",
+							.size		  = lgx->GetIndexedIndirectCommandSize() * static_cast<size_t>(250),
+							.stagingOnly  = false,
+							.bindingIndex = -1,
+							.ident		  = "IndirectBuffer"_hs,
+						},
+						{
+							.bufferType	  = LinaGX::ResourceTypeHint::TH_StorageBuffer,
+							.debugName	  = "RP: FWTransparency - IndirectConstants",
+							.size		  = sizeof(GPUIndirectConstants0) * 2500,
+							.stagingOnly  = false,
+							.bindingIndex = 1,
+							.ident		  = "IndirectConstants"_hs,
+						},
+						{
+							.bufferType	  = LinaGX::ResourceTypeHint::TH_StorageBuffer,
+							.debugName	  = "RP: Main - EntityBuffer",
+							.size		  = sizeof(GPUEntity) * 2500,
+							.stagingOnly  = false,
+							.bindingIndex = 2,
+							.ident		  = "EntityBuffer"_hs,
+						},
+					},
 				.setDescription = setDesc,
 			};
 		}

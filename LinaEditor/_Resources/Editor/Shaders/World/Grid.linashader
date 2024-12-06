@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#LINA_SHADER_CUSTOM
+#lina_shader_custom
 
 #lina_vs
 
@@ -50,6 +50,7 @@ vec3 UnprojectPoint(float x, float y, float z, mat4 view, mat4 projection) {
 
 void main()
 {
+
     vec3 p = gridPlane[gl_VertexIndex].xyz;
     outNearPoint = UnprojectPoint(p.x, p.y, 0.0, LINA_VIEW.view, LINA_VIEW.proj).xyz; // unprojecting on the near plane
     outFarPoint = UnprojectPoint(p.x, p.y, 1.0, LINA_VIEW.view, LINA_VIEW.proj).xyz; // unprojecting on the far plane
@@ -68,14 +69,14 @@ layout(location = 1) in vec3 farPoint;
 
 layout(location = 0) out vec4 outColor;
 
-vec4 grid(vec3 fragPos3D, float scale, vec3 col) {
+float grid(vec3 fragPos3D, float scale) {
     vec2 coord = fragPos3D.xz * scale;
     vec2 derivative = fwidth(coord);
     vec2 grid = abs(fract(coord - 0.5) - 0.5) / derivative;
     float line = min(grid.x, grid.y);
     float minimumz = min(derivative.y, 1);
     float minimumx = min(derivative.x, 1);
-    return vec4(col.xyz, 1.0 - min(line, 1.0));
+    return 1.0f - min(line, 1.0);
 }
 
 float computeDepth(vec3 pos) {
@@ -92,30 +93,69 @@ float computeLinearDepth(vec3 pos) {
     return linearDepth / far; // normalize
 }
 
+struct LinaMaterial
+{
+   float sizeLOD2;
+   float sizeLOD1;
+   float sizeLOD0;
+   float distLOD0;
+   float distLOD1;
+   float fading;
+   vec3 colorLOD2;
+   vec3 colorLOD1;
+   vec3 colorLOD0;
+   vec3 xAxisColor;
+   vec3 zAxisColor;
+};
+
+layout(set = 2, binding = 0) uniform DrawData
+{
+	uint materialIndex;
+	uint padding0;
+	uint padding1;
+	uint padding2;
+} draw;
+
 void main() {
+    
+    LinaMaterial material = LINA_GET_MATERIAL(draw.materialIndex);
+    vec3 camPos = LINA_VIEW.cameraPositionAndNear.xyz;
+   
     float t = -nearPoint.y / (farPoint.y - nearPoint.y);
     vec3 fragPos3D = nearPoint + t * (farPoint - nearPoint);
     gl_FragDepth = computeDepth(fragPos3D);
 
     float linearDepth = computeLinearDepth(fragPos3D);
-    float fading = max(0, (0.3 - linearDepth));
+    float fading = max(0, (material.fading - linearDepth));
 
-    vec4 gridBig = grid(fragPos3D, .25, vec3(0.7, 0.7, 0.7)) * float(t > 0.0);
-    vec4 gridSmall = grid(fragPos3D, 1.0, vec3(0.2, 0.2, 0.2))* float(t > 0.0);
+    float dist = distance(fragPos3D, camPos);
 
-    if(gridBig.a > 0.0)
-        outColor = gridBig;
-    else
-        outColor = gridSmall;
+    float gridLOD0 = grid(fragPos3D, 1.0f) * (1.0f - clamp(dist, 0.0, material.distLOD0) / material.distLOD0);
+    float gridLOD1 = grid(fragPos3D, 0.25f) * (1.0f - clamp(dist, 0.0, material.distLOD1) / material.distLOD1);
+    float gridLOD2 = grid(fragPos3D, 0.0625f);
 
     if(fragPos3D.x > -0.02 && fragPos3D.x < 0.02)
-        outColor = vec4(1,0,0, outColor.a);
-
-    if(fragPos3D.z > -0.02 && fragPos3D.z < 0.02)
-        outColor = vec4(0,0,1, outColor.a);
+    {
+        outColor = vec4(material.xAxisColor, 1);
+    }
+    else if(fragPos3D.z > -0.02 && fragPos3D.z < 0.02)
+    {
+        outColor = vec4(material.zAxisColor, 1);
+    }
+    else if(gridLOD2 > 0.0)
+    {
+        outColor = vec4(gridLOD2 * material.colorLOD2, gridLOD2);
+    }
+    else if(gridLOD1 > 0.0)
+    {
+        outColor = vec4(gridLOD1 * material.colorLOD1, gridLOD1);
+    }
+    else
+    {
+        outColor = vec4(gridLOD0 * material.colorLOD0, gridLOD0);
+    }
 
     outColor.a *= fading;
-
 }
 
 #lina_end

@@ -47,7 +47,7 @@ struct LinaVertexOutput
    vec2 uv;
 };
 
-void LINA_VERTEX_FUNC(in LinaVertexInput inVertex, out LinaVertexOutput outVertex)
+void LINA_VERTEX_MAIN(in LinaVertexInput inVertex, out LinaVertexOutput outVertex)
 {
    outVertex.pos = vec4(inVertex.pos, 1.0);
    outVertex.normal = inVertex.normal;
@@ -79,7 +79,7 @@ struct LinaMaterial
    float horizonDiffusion;
 };
 
-void LINA_FRAG_FUNC(in LinaFragInput inFrag, out LinaFragOutput outFrag)
+void LINA_FRAG_MAIN(out LinaFragOutput outFrag)
 {
    LinaMaterial material = LINA_GET_MATERIAL(inFrag.materialID);
    vec3 skyColor = vec3(0.0);

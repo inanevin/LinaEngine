@@ -50,6 +50,7 @@ namespace Lina::Editor
 		virtual void Construct() override;
 		virtual void Destruct() override;
 		virtual void PreTick() override;
+		virtual void Tick(float dt) override;
 
 		void		 DisplayWorld(WorldRenderer* renderer);
 		bool		 OnMouse(uint32 button, LinaGX::InputAction act) override;

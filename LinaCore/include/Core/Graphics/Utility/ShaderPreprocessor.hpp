@@ -46,5 +46,6 @@ namespace Lina
 		static void		  InjectSkinnedVertexMain(String& input, ShaderType type);
 		static void		  InjectVertexMain(String& input, ShaderType type);
 		static void		  InjectFragMain(String& input, ShaderType type);
+		static void		  InjectUserShader(String& input, const String& shader);
 	};
 } // namespace Lina

@@ -60,7 +60,7 @@ layout (location = 1) in vec2 inUV;
 layout (location = 0) out vec4 outFragColor;
 
 
-struct LinaMaterial
+struct LinaGUIMaterial
 {
    LinaTexture2D diffuse;
    vec4 outlineColor;
@@ -75,9 +75,9 @@ layout( push_constant ) uniform constants
 	uint materialIndex;
 } PushConstants;
 
-LinaMaterial GetMaterial(uint index)
+LinaGUIMaterial GetMaterial(uint index)
 {
-   LinaMaterial mat;
+   LinaGUIMaterial mat;
    mat.diffuse.txt = LINA_EDITOR_MATERIALS.data[index++];
    mat.diffuse.smp = LINA_EDITOR_MATERIALS.data[index++];
 
@@ -96,7 +96,7 @@ LinaMaterial GetMaterial(uint index)
 
 void main()
 {
-   LinaMaterial material = GetMaterial(PushConstants.materialIndex);
+   LinaGUIMaterial material = GetMaterial(PushConstants.materialIndex);
 
    float a = texture(sampler2D(LINA_TEXTURES[material.diffuse.txt], LINA_SAMPLERS[material.diffuse.smp]), inUV).r;
    float outline = smoothstep(material.outlineThickness - material.outlineSoftness, material.outlineThickness + material.outlineSoftness, a);

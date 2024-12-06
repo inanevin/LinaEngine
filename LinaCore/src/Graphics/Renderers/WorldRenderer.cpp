@@ -259,7 +259,6 @@ namespace Lina
 			m_resourceManagerV2->DestroyResource(data.gBufDepth);
 			m_resourceManagerV2->DestroyResource(data.lightingPassOutput);
 		}
-
 		m_gfxContext->MarkBindlessDirty();
 	}
 
@@ -365,6 +364,7 @@ namespace Lina
 		{
 			ft->RenderRecordPass(frameIndex, m_deferredPass, RenderPassType::Deferred);
 			ft->RenderRecordPass(frameIndex, m_forwardPass, RenderPassType::Forward);
+			ft->AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
 		}
 
 		m_deferredPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
@@ -431,6 +431,7 @@ namespace Lina
 		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Deferred Pass");
 
 		m_deferredPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).SetIndirectCount(0);
+		m_deferredPass.GetBuffer(frameIndex, "EntityBuffer"_hs).SetIndirectCount(0);
 
 		for (FeatureRenderer* ft : m_featureRenderers)
 			ft->RenderDrawPass(currentFrame.gfxStream, frameIndex, m_deferredPass, RenderPassType::Deferred);
@@ -470,7 +471,9 @@ namespace Lina
 		m_forwardPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxContext->GetPipelineLayoutPersistent(RenderPassType::Forward));
 
 		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Forward Pass");
+
 		m_forwardPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).SetIndirectCount(0);
+		m_forwardPass.GetBuffer(frameIndex, "EntityBuffer"_hs).SetIndirectCount(0);
 
 		for (FeatureRenderer* ft : m_featureRenderers)
 			ft->RenderDrawPass(currentFrame.gfxStream, frameIndex, m_forwardPass, RenderPassType::Forward);

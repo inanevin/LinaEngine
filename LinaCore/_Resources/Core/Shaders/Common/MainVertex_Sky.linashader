@@ -30,8 +30,20 @@ layout (location = 0) in vec3 inPos;
 layout (location = 1) in vec3 inNormal;
 layout (location = 2) in vec2 inUV;
 
-layout (location = 0) flat out uint outMaterialIndex;
-layout (location = 1) out LinaVertexToFrag outVertexToFrag;
+struct LinaVertexInput
+{
+   vec3 pos;
+   vec3 normal;
+   vec2 uv;
+   uint materialIndex;
+};
+
+struct LinaVertexOutput
+{
+   vec4 pos;
+};
+
+//##user_shader_injected_here
 
 void main()
 {
@@ -39,13 +51,10 @@ void main()
    vertexInput.pos = inPos;
    vertexInput.normal = inNormal;
    vertexInput.uv = vec2(inUV.x, 1.0 - inUV.y);
-   vertexInput.materialID = LINA_LIGHT_PASS.skyMaterialByteIndex;
+   vertexInput.materialIndex = LINA_LIGHT_PASS.skyMaterialByteIndex;
 
    LinaVertexOutput vertexOutput;
-   LINA_VERTEX_FUNC(vertexInput, vertexOutput);
-
-   outMaterialIndex = LINA_LIGHT_PASS.skyMaterialByteIndex;
-   outVertexToFrag = vertexOutput.toFrag;
+   LINA_VERTEX_MAIN(vertexInput, vertexOutput);
 
    mat4 rotView = mat4(mat3(LINA_VIEW.view));
    vec4 clipPos = LINA_VIEW.proj * rotView * vertexOutput.pos;

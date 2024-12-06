@@ -26,19 +26,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-layout (location = 0) flat in uint inMaterialIndex;
-layout (location = 1) in LinaVertexToFrag inVertexToFrag;
 
 layout (location = 0) out vec4 outFragColor;
 
+struct LinaFragOutput
+{
+   vec4 color;
+};
+
+//##user_shader_injected_here
+
 void main()
 {
-   LinaFragInput fragInput;
-   fragInput.materialID = inMaterialIndex;
-   fragInput.fromVertex = inVertexToFrag;
-   
    LinaFragOutput fragOutput;
-   LINA_FRAG_FUNC(fragInput, fragOutput);
-
+   LINA_FRAG_MAIN(fragOutput);
    outFragColor = fragOutput.color;
 }

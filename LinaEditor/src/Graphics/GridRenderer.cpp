@@ -28,26 +28,81 @@ SOFTWARE.
 
 #include "Editor/Graphics/GridRenderer.hpp"
 #include "Editor/CommonEditor.hpp"
+#include "Editor/Editor.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
+#include "Core/Application.hpp"
+#include "Core/Graphics/Pipeline/RenderPass.hpp"
 
 namespace Lina::Editor
 {
 
-	void GridRenderer::Initialize(Editor* editor)
+	GridRenderer::GridRenderer(Editor* editor, LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm) : FeatureRenderer(lgx, world, rm)
 	{
 		m_editor	   = editor;
 		m_gridShader   = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_GRID_ID);
 		m_gridMaterial = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Grid Material");
-		// m_gridMaterial->SetShader(m_gridShader);
-		// m_gridMaterial->SetProperty("BigGridSize"_hs, 0.25f);
-		// m_gridMaterial->SetProperty("SmallGridSize"_hs, 1.0f);
-		// m_gridMaterial->SetProperty("Fading"_hs, 0.3f);
-		// m_gridMaterial->SetProperty("BigGridColor"_hs, Vector3(0.7f, 0.7f, 0.7f));
-		// m_gridMaterial->SetProperty("SmallGridColor"_hs, Vector3(0.2f, 0.2f, 0.2f));
-		// m_gridMaterial->SetProperty("XAxisColor"_hs, Vector3(1.0f, 0.0f, 0.0f));
-		// m_gridMaterial->SetProperty("ZAxisColor"_hs, Vector3(0.0f, 0.0f, 1.0f));
+		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
+
+		m_gridMaterial->SetShader(m_gridShader);
+		m_gridMaterial->SetProperty("sizeLOD2"_hs, 0.1f);
+		m_gridMaterial->SetProperty("sizeLOD1"_hs, 0.25f);
+		m_gridMaterial->SetProperty("sizeLOD0"_hs, 1.0f);
+		m_gridMaterial->SetProperty("fading"_hs, 0.3f);
+		m_gridMaterial->SetProperty("colorLOD2"_hs, Vector3(0.95f, 0.95f, 0.95f));
+		m_gridMaterial->SetProperty("colorLOD1"_hs, Vector3(0.7f, 0.7f, 0.7f));
+		m_gridMaterial->SetProperty("colorLOD0"_hs, Vector3(0.2f, 0.2f, 0.2f));
+		m_gridMaterial->SetProperty("xAxisColor"_hs, Vector3(1.0f, 0.0f, 0.0f));
+		m_gridMaterial->SetProperty("zAxisColor"_hs, Vector3(0.0f, 0.0f, 1.0f));
+		m_gridMaterial->SetProperty("distLOD0"_hs, 60.0f);
+		m_gridMaterial->SetProperty("distLOD1"_hs, 90.0f);
+
+		const LinaGX::DescriptorSetDesc desc = {
+			.bindings =
+				{
+					{
+						.descriptorCount = 1,
+						.type			 = LinaGX::DescriptorType::UBO,
+						.stages			 = {LinaGX::ShaderStage::Fragment},
+					},
+				},
+			.allocationCount = 1,
+		};
+
+		for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+		{
+			PerFrameData& data = m_pfd[i];
+			data.gridSet	   = m_lgx->CreateDescriptorSet(desc);
+			data.gridUBO.Create(LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GridUBO), "GridRenderer: UBO");
+
+			const LinaGX::DescriptorUpdateBufferDesc update = {
+				.setHandle = data.gridSet,
+				.binding   = 0,
+				.buffers   = {data.gridUBO.GetGPUResource()},
+			};
+
+			m_lgx->DescriptorUpdateBuffer(update);
+		}
+	} // namespace Lina::Editor
+
+	GridRenderer::~GridRenderer()
+	{
+		for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+		{
+			PerFrameData& data = m_pfd[i];
+			m_lgx->DestroyDescriptorSet(data.gridSet);
+			data.gridUBO.Destroy();
+		}
+	}
+
+	void GridRenderer::AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue)
+	{
+		PerFrameData& pfd  = m_pfd[frameIndex];
+		const GridUBO data = {.materialIndex = m_gridMaterial->GetBindlessIndex() / static_cast<uint32>(sizeof(uint32))};
+		pfd.gridUBO.BufferData(0, (uint8*)&data, sizeof(GridUBO));
+
+		queue.AddBufferRequest(&m_pfd[frameIndex].gridUBO);
 	}
 
 	void GridRenderer::RenderDrawPass(LinaGX::CommandStream* stream, uint32 frameIndex, RenderPass& pass, RenderPassType type)
@@ -57,11 +112,11 @@ namespace Lina::Editor
 
 		m_gridShader->Bind(stream, m_gridShader->GetGPUHandle());
 
-		// LinaGX::CMDBindConstants* constants = stream->AddCommand<LinaGX::CMDBindConstants>();
-		// constants->size						= sizeof(uint32);
-		// constants->stagesSize				= 1;
-		// constants->stages					= stream->EmplaceAuxMemory(LinaGX::ShaderStage::Fragment);
-		// constants->data						= stream->EmplaceAuxMemory(m_gridMaterial->GetBindlessIndex());
+		LinaGX::CMDBindDescriptorSets* set = stream->AddCommand<LinaGX::CMDBindDescriptorSets>();
+		set->setCount					   = 1;
+		set->firstSet					   = 2;
+		set->descriptorSetHandles		   = stream->EmplaceAuxMemory<uint16>(m_pfd[frameIndex].gridSet);
+		set->layoutSource				   = LinaGX::DescriptorSetsLayoutSource::LastBoundShader;
 
 		LinaGX::CMDDrawInstanced* draw = stream->AddCommand<LinaGX::CMDDrawInstanced>();
 		draw->instanceCount			   = 1;

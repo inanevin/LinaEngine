@@ -47,6 +47,7 @@ namespace Lina
 	class ResourceManagerV2;
 	class Buffer;
 	class RenderPass;
+	class ResourceUploadQueue;
 
 	class FeatureRenderer
 	{
@@ -59,6 +60,7 @@ namespace Lina
 		virtual void OnComponentRemoved(Component* comp){};
 		virtual void FetchRenderables(){};
 
+		virtual void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue){};
 		virtual void ProduceFrame(const Camera& mainCamera, float delta){};
 		virtual void RenderRecordPass(uint32 frameIndex, RenderPass& pass, RenderPassType type){};
 

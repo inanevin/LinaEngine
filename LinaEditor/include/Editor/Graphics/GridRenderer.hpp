@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Core/Graphics/Renderers/FeatureRenderer.hpp"
+#include "Core/Graphics/Pipeline/Buffer.hpp"
 
 namespace Lina
 {
@@ -41,17 +42,32 @@ namespace Lina::Editor
 
 	class GridRenderer : public FeatureRenderer
 	{
+	private:
+		struct GridUBO
+		{
+			uint32 materialIndex;
+			uint32 padding0;
+			uint32 padding1;
+			uint32 padding2;
+		};
+
 	public:
-		GridRenderer(LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm) : FeatureRenderer(lgx, world, rm){};
-		virtual ~GridRenderer() = default;
+		struct PerFrameData
+		{
+			uint16 gridSet;
+			Buffer gridUBO;
+		};
 
-		void Initialize(Editor* editor);
+		GridRenderer(Editor* editor, LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm);
+		virtual ~GridRenderer();
 
+		virtual void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue) override;
 		virtual void RenderDrawPass(LinaGX::CommandStream* stream, uint32 frameIndex, RenderPass& pass, RenderPassType type) override;
 
 	private:
-		Material* m_gridMaterial = nullptr;
-		Shader*	  m_gridShader	 = nullptr;
-		Editor*	  m_editor		 = nullptr;
+		Material*	 m_gridMaterial = nullptr;
+		Shader*		 m_gridShader	= nullptr;
+		Editor*		 m_editor		= nullptr;
+		PerFrameData m_pfd[FRAMES_IN_FLIGHT];
 	};
 } // namespace Lina::Editor

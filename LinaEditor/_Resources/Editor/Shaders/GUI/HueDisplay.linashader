@@ -59,7 +59,7 @@ layout (location = 1) in vec2 inUV;
 
 layout (location = 0) out vec4 outFragColor;
 
-struct LinaMaterial
+struct LinaGUIMaterial
 {
    vec2 uvContribution;
 };
@@ -69,9 +69,9 @@ layout( push_constant ) uniform constants
 	uint materialIndex;
 } PushConstants;
 
-LinaMaterial GetMaterial(uint index)
+LinaGUIMaterial GetMaterial(uint index)
 {
-   LinaMaterial mat;
+   LinaGUIMaterial mat;
    mat.uvContribution.x = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
    mat.uvContribution.y = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
 
@@ -80,7 +80,7 @@ LinaMaterial GetMaterial(uint index)
 
 void main()
 {
-   LinaMaterial material = GetMaterial(PushConstants.materialIndex);
+   LinaGUIMaterial material = GetMaterial(PushConstants.materialIndex);
 
 
    float hue = inUV.x * material.uvContribution.x + (1.0f - inUV.y) * material.uvContribution.y;

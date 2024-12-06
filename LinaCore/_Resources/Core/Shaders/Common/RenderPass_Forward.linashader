@@ -26,7 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 struct LinaEntity
 {
     mat4 modelMatrix;
@@ -34,13 +33,11 @@ struct LinaEntity
 
 struct IndirectArguments
 {
-	LinaEntity entity;
+	uint entityIndex;
 	uint materialID;
 	uint padding0;
 	uint padding1;
-	uint padding2;
 };
-
 
 layout(set = 1, binding = 0) uniform ViewData
 {
@@ -58,3 +55,13 @@ layout(set = 1, binding = 1) readonly buffer IndirectArgumentsBuffer
 {
     IndirectArguments data[];
 } LINA_INDIRECT_ARGUMENTS;
+
+layout(set = 1, binding = 2) readonly buffer EntityBuffer
+{
+    LinaEntity data[];
+} LINA_ENTITIES;
+
+LinaEntity LINA_GET_ENTITY(uint index)
+{
+	return LINA_ENTITIES.data[index];
+}

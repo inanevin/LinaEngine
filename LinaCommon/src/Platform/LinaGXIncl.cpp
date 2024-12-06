@@ -144,10 +144,11 @@ namespace Lina
 
 		for (int32 i = 0; i < sz; i++)
 		{
-			uint8 stg = 0;
-			auto  it  = linatl::find_if(block.isActive.begin(), block.isActive.end(), [stg](const auto& pair) -> bool { return pair.first == static_cast<LinaGX::ShaderStage>(stg); });
+			uint8 stg	 = 0;
+			bool  active = false;
 			stream >> stg;
-			stream >> it->second;
+			stream >> active;
+			block.isActive.push_back(linatl::make_pair(static_cast<LinaGX::ShaderStage>(stg), false));
 		}
 	}
 

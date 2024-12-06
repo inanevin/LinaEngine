@@ -68,7 +68,7 @@ vec3 hueSaturationToRGB(float hue, float saturation) {
     return mix(vec3(1.0), rgb, saturation); // Mix the RGB color with white based on saturation
 }
 
-struct LinaMaterial
+struct LinaGUIMaterial
 {
    float wheelRadius;
    float edgeSmoothness;
@@ -79,9 +79,18 @@ layout( push_constant ) uniform constants
 	uint materialIndex;
 } PushConstants;
 
+LinaGUIMaterial GetMaterial(uint index)
+{
+   LinaGUIMaterial mat;
+   mat.wheelRadius = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
+   mat.edgeSmoothness = uintBitsToFloat(LINA_EDITOR_MATERIALS.data[index++]);
+
+   return mat;
+}
+
 void main()
 {
-   LinaMaterial material = GetMaterial(PushConstants.materialIndex);
+   LinaGUIMaterial material = GetMaterial(PushConstants.materialIndex);
 
     vec2 position = inUV - vec2(0.5, 0.5);
     float d = length(position);

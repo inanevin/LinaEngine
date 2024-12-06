@@ -94,11 +94,10 @@ namespace Lina
 
 	struct GPUIndirectConstants0
 	{
-		GPUEntity entity;
-		uint32	  materialByteIndex;
-		uint32	  padding0;
-		uint32	  padding1;
-		uint32	  padding2;
+		uint32 entityIndex;
+		uint32 materialByteIndex;
+		uint32 padding0;
+		uint32 padding1;
 	};
 
 	struct GPUDataLightingPass
@@ -113,4 +112,8 @@ namespace Lina
 		uint32 pad4						 = 0;
 	};
 
+	struct GPUPushConstantsForwardPass
+	{
+		uint32 reserved0;
+	};
 } // namespace Lina

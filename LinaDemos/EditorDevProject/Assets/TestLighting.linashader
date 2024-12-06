@@ -115,7 +115,7 @@ float LinearizeDepth(float depth, float near, float far)
 
 void main()
 {
-   vec4 albedo = texture(sampler2D(LINA_TEXTURES[LINA_LIGHT_PASS.gBufColorMaterialID], LINA_SAMPLERS[LINA_LIGHT_PASS.gBufSampler]), inUV);
+   vec4 albedo = texture(sampler2D(LINA_TEXTURES[LINA_LIGHT_PASS.gBufColormaterialIndex], LINA_SAMPLERS[LINA_LIGHT_PASS.gBufSampler]), inUV);
    vec4 normals = texture(sampler2D(LINA_TEXTURES[LINA_LIGHT_PASS.gBufNormal], LINA_SAMPLERS[LINA_LIGHT_PASS.gBufSampler]), inUV);
    vec4 worldPos = texture(sampler2D(LINA_TEXTURES[LINA_LIGHT_PASS.gBufPosition], LINA_SAMPLERS[LINA_LIGHT_PASS.gBufSampler]), inUV);
    vec3 finalColor = albedo.xyz;

@@ -26,65 +26,57 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#LINA_SHADER_SKY
+/*
 
-#lina_vs
-
-struct LinaVertexToFrag
-{
-   vec2 uv;
-   vec3 worldPos;
-   vec3 vNormal;
-};
-
-// do not modify
+// Vertex input definition
 struct LinaVertexInput
 {
    vec3 pos;
    vec3 normal;
    vec2 uv;
-   uint materialID;
+   uint materialIndex;
 };
 
-// do not modify
+// Vertex output definition
 struct LinaVertexOutput
 {
    vec4 pos;
-   LinaVertexToFrag toFrag;
 };
 
+// Fragment output definition
+struct LinaFragOutput
+{
+   vec4 color;
+};
 
-void LINA_VERTEX_FUNC(in LinaVertexInput inVertex, out LinaVertexOutput outVertex)
+*/
+
+#lina_shader_sky
+
+#lina_vs
+
+layout (location = 0) out vec2 outUV;
+layout (location = 1) out vec3 outNormal;
+layout (location = 2) out vec3 outWorldPos;
+layout (location = 3) out flat uint outMaterialIndex;
+
+void LINA_VERTEX_MAIN(in LinaVertexInput inVertex, out LinaVertexOutput outVertex)
 {
    outVertex.pos = vec4(inVertex.pos, 1.0);
-   outVertex.toFrag.uv = inVertex.uv;
-   outVertex.toFrag.vNormal = inVertex.normal;
-   outVertex.toFrag.worldPos = inVertex.pos;
+   outUV = inVertex.uv;
+   outNormal = inVertex.normal;
+   outWorldPos = inVertex.pos;
+   outMaterialIndex = inVertex.materialIndex;
 }
 
 #lina_end
 
 #lina_fs
 
-struct LinaVertexToFrag
-{
-   vec2 uv;
-   vec3 worldPos;
-   vec3 vNormal;
-};
-
-// do not modify
-struct LinaFragInput
-{
-   uint materialID;
-   LinaVertexToFrag fromVertex;
-};
-
-// do not modify
-struct LinaFragOutput
-{
-   vec4 color;
-};
+layout (location = 0) in vec2 inUV;
+layout (location = 1) in vec3 inNormal;
+layout (location = 2) in vec3 inWorldPos;
+layout (location = 3) in flat uint inMaterialIndex;
 
 struct LinaMaterial
 {
@@ -102,7 +94,6 @@ struct LinaMaterial
 #define DEBUG bool(0)
 
 #define GRID_COLOR vec4(1.0,1.0,1.0,0.25)
-
 
 vec4 AddGrid(vec3 col, vec3 p, float size, float thickness)
 {
@@ -125,14 +116,13 @@ vec4 AddGrid(vec3 col, vec3 p, float size, float thickness)
 }
 
 /// --- Sky Shader --- ///
-void LINA_FRAG_FUNC(in LinaFragInput inFrag, out LinaFragOutput outFrag)
+void LINA_FRAG_MAIN(out LinaFragOutput outFrag)
 {
+   LinaMaterial material = LINA_GET_MATERIAL(inMaterialIndex);
 
-   LinaMaterial material = LINA_GET_MATERIAL(inFrag.materialID);
-
-   vec2 uv = inFrag.fromVertex.uv;
-   vec3 worldPos = inFrag.fromVertex.worldPos;
-   vec3 vNormal = normalize(inFrag.fromVertex.vNormal);
+   vec2 uv = inUV;
+   vec3 worldPos = inWorldPos;
+   vec3 vNormal = normalize(inNormal);
 
    /// --- CLAMP PARAMETERS --- ///
    vec3 groundColor = clamp(material.groundColor, 0.0, 1.0);

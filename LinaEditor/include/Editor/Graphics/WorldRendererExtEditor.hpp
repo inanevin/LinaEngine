@@ -45,6 +45,7 @@ namespace LinaGX
 
 namespace Lina::Editor
 {
+	class Editor;
 
 	struct BufferBatch
 	{
@@ -71,17 +72,20 @@ namespace Lina::Editor
 			Buffer indexBuffer;
 		};
 
-		WorldRendererExtEditor();
+		WorldRendererExtEditor(Editor* editor, WorldRenderer* renderer, ResourceManagerV2* rm);
 		virtual ~WorldRendererExtEditor();
 
-		virtual void Tick(float delta) override;
-		virtual void RenderForward(uint32 frameIndex, LinaGX::CommandStream* stream) override;
-		virtual void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue) override;
+		// virtual void RenderForward(uint32 frameIndex, LinaGX::CommandStream* stream) override;
+		// virtual void Render(uint32 frameIndex, LinaGX::CommandStream* stream) override;
+		// virtual void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue) override;
 
 	private:
-		RenderPass	 m_pass;
-		Shader*		 m_shaderLines = nullptr;
-		PerFrameData m_pfd[FRAMES_IN_FLIGHT];
+		Editor*			   m_editor		   = nullptr;
+		WorldRenderer*	   m_worldRenderer = nullptr;
+		ResourceManagerV2* m_rm			   = nullptr;
+		RenderPass		   m_pass;
+		Shader*			   m_shaderLines = nullptr;
+		PerFrameData	   m_pfd[FRAMES_IN_FLIGHT];
 	};
 
 } // namespace Lina::Editor
