@@ -167,7 +167,6 @@ namespace Lina
 		}
 
 	private:
-		void   CalculateViewProj(const Camera& camera, const Screen& screen, Matrix4& outView, Matrix4& outProj);
 		void   UpdateBuffers(uint32 frameIndex);
 		void   CreateSizeRelativeResources();
 		void   DestroySizeRelativeResources();

@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
+#include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Application.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/System/SystemInfo.hpp"
@@ -51,6 +52,8 @@ namespace Lina::Editor
 
 		m_loading = CommonWidgets::BuildGenericPopupProgress(this, Locale::GetStr(LocaleStr::LoadingWorld), true);
 		AddChild(m_loading);
+
+		m_gizmoFont = Editor::Get()->GetApp()->GetResourceManager().GetResource<Font>(EDITOR_FONT_PLAY_ID);
 	}
 
 	void WorldDisplayer::Destruct()
@@ -128,6 +131,17 @@ namespace Lina::Editor
 		Texture*	 target			= m_worldRenderer->GetLightingPassOutput((frameIndex + SystemInfo::GetRendererBehindFrames()) % 2); // 1 frame behind renderer
 		GetWidgetProps().rawTexture = target;
 	}
+
+	void WorldDisplayer::Draw()
+	{
+		if (m_worldRenderer == nullptr)
+			return;
+
+		DrawAxis(Vector3::Forward, Theme::GetDef().accentSecondary, "Z");
+		DrawAxis(Vector3::Up, Theme::GetDef().accentSuccess, "Y");
+		DrawAxis(Vector3::Right, Theme::GetDef().accentError, "X");
+	}
+
 	bool WorldDisplayer::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
 		if (m_isHovered && button == LINAGX_MOUSE_1 && (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated))
@@ -174,6 +188,60 @@ namespace Lina::Editor
 	{
 		if (m_camera)
 			m_camera->Tick(delta);
+	}
+
+	void WorldDisplayer::DrawAxis(const Vector3& targetAxis, const Color& baseColor, const String& axis)
+	{
+		EntityWorld*  world	   = m_worldRenderer->GetWorld();
+		const Camera& worldCam = world->GetWorldCamera();
+
+		const float length		 = 40;
+		const float circleRadius = 10.0f;
+		const int	lineDO		 = m_drawOrder + 1;
+		const int	circleDO	 = lineDO + 1;
+		const int	textDO		 = circleDO + 1;
+
+		const Vector2 displaySize	 = world->GetScreen().GetDisplaySize();
+		const Vector2 axesGizmoStart = Vector2(m_rect.pos.x + Theme::GetDef().baseIndent * 6, m_rect.GetEnd().y - Theme::GetDef().baseIndent * 6);
+		const Vector3 front			 = worldCam.GetPosition() + worldCam.GetRotation().GetForward() * 1.0f;
+
+		const Vector3 target   = targetAxis * worldCam.GetZFar();
+		const float	  dot	   = Math::Abs(worldCam.GetRotation().GetForward().Dot(targetAxis));
+		const Vector2 screen0  = worldCam.WorldToScreen(front, displaySize).XY();
+		const Vector2 screen1  = worldCam.WorldToScreen(target, displaySize).XY();
+		const Vector2 dir	   = (screen1 - screen0).Normalized();
+		const Vector2 line0	   = axesGizmoStart;
+		const Vector2 line1	   = line0 + dir * (1.0f - dot) * length;
+		const Vector2 line1Neg = line0 - dir * (1.0f - dot) * length;
+
+		const float overallAlpha = Math::Remap((line1 - line0).Magnitude(), 0.0f, length, 0.1f, 1.0f);
+
+		LinaVG::StyleOptions lineStyle;
+		lineStyle.thickness = Theme::GetDef().baseOutlineThickness;
+		lineStyle.aaEnabled = true;
+		lineStyle.color		= baseColor.AsLVG4();
+
+		LinaVG::StyleOptions circleStyle;
+		circleStyle.thickness					 = Theme::GetDef().baseOutlineThickness;
+		circleStyle.outlineOptions.thickness	 = Theme::GetDef().baseOutlineThickness;
+		circleStyle.outlineOptions.drawDirection = LinaVG::OutlineDrawDirection::Inwards;
+		circleStyle.outlineOptions.color		 = baseColor.AsLVG4();
+		circleStyle.color						 = baseColor.AsLVG4();
+		circleStyle.color.start.w = circleStyle.color.end.w = 0.5f * overallAlpha;
+		circleStyle.outlineOptions.color.start.w = circleStyle.outlineOptions.color.end.w = overallAlpha;
+
+		LinaVG::TextOptions gizmoText;
+		gizmoText.font			= m_gizmoFont->GetFont(m_lgxWindow->GetDPIScale());
+		gizmoText.color			= Theme::GetDef().foreground0.AsLVG4();
+		gizmoText.color.start.w = gizmoText.color.end.w = overallAlpha;
+
+		m_lvg->DrawLine(line0.AsLVG(), line1.AsLVG(), lineStyle, LinaVG::LineCapDirection::None, 0.0f, lineDO);
+		m_lvg->DrawCircle(line1.AsLVG(), circleRadius, circleStyle, 36, 0.0f, 0.0f, 360.0f, circleDO);
+
+		m_lvg->DrawCircle(line1Neg.AsLVG(), circleRadius, circleStyle, 36, 0.0f, 0.0f, 360.0f, circleDO);
+
+		const Vector2 sz = m_lvg->CalculateTextSize(axis.c_str(), gizmoText);
+		m_lvg->DrawTextDefault(axis.c_str(), (line1 + Vector2(-sz.x * 0.5f, sz.y * 0.4f)).AsLVG(), gizmoText, 0.0f, textDO, false);
 	}
 
 } // namespace Lina::Editor

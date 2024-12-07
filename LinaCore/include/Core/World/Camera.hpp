@@ -33,12 +33,86 @@ SOFTWARE.
 
 namespace Lina
 {
-	struct Camera
+	class Camera
 	{
-		Vector3	   worldPosition = Vector3::Zero;
-		Quaternion worldRotation = Quaternion::Identity();
-		float	   zNear		 = 0.1f;
-		float	   zFar			 = 500.0f;
-		float	   fovDegrees	 = 90.0f;
+	public:
+		Vector3 WorldToScreen(const Vector3& point, const Vector2& screenSize) const;
+
+		void Calculate(const Vector2& renderSize);
+
+		inline void SetPosition(const Vector3& pos)
+		{
+			m_worldPosition = pos;
+		}
+
+		inline void SetRotation(const Quaternion& rot)
+		{
+			m_worldRotation = rot;
+		}
+
+		inline void SetNear(float zNear)
+		{
+			m_zNear = zNear;
+		}
+
+		inline void SetFar(float zFar)
+		{
+			m_zFar = zFar;
+		}
+
+		inline void SetFOV(float fovDegrees)
+		{
+			m_fovDegrees = fovDegrees;
+		}
+
+		inline const Vector3& GetPosition() const
+		{
+			return m_worldPosition;
+		}
+
+		inline const Quaternion& GetRotation() const
+		{
+			return m_worldRotation;
+		}
+
+		inline float GetZNear() const
+		{
+			return m_zNear;
+		}
+
+		inline float GetZFar() const
+		{
+			return m_zFar;
+		}
+
+		inline float GetFOVDegrees() const
+		{
+			return m_fovDegrees;
+		}
+
+		inline const Matrix4& GetView() const
+		{
+			return m_view;
+		}
+
+		inline const Matrix4& GetProjection() const
+		{
+			return m_projection;
+		}
+
+		inline const Matrix4& GetViewProj() const
+		{
+			return m_viewProj;
+		}
+
+	private:
+		Vector3	   m_worldPosition = Vector3::Zero;
+		Quaternion m_worldRotation = Quaternion::Identity();
+		float	   m_zNear		   = 0.1f;
+		float	   m_zFar		   = 500.0f;
+		float	   m_fovDegrees	   = 90.0f;
+		Matrix4	   m_projection	   = Matrix4::Identity();
+		Matrix4	   m_view		   = Matrix4::Identity();
+		Matrix4	   m_viewProj	   = Matrix4::Identity();
 	};
 } // namespace Lina

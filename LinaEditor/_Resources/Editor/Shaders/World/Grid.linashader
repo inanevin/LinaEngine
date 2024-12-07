@@ -136,11 +136,11 @@ void main() {
 
     if(fragPos3D.x > -0.02 && fragPos3D.x < 0.02)
     {
-        outColor = vec4(material.xAxisColor, 1);
+        outColor = vec4(material.zAxisColor, 1);
     }
     else if(fragPos3D.z > -0.02 && fragPos3D.z < 0.02)
     {
-        outColor = vec4(material.zAxisColor, 1);
+        outColor = vec4(material.xAxisColor, 1);
     }
     else if(gridLOD2 > 0.0)
     {

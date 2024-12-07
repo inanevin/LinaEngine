@@ -323,13 +323,16 @@ namespace Lina
 		// View data.
 		{
 			Camera&		worldCam = m_world->GetWorldCamera();
-			GPUDataView view	 = {};
-			CalculateViewProj(worldCam, m_world->GetScreen(), view.view, view.proj);
-			const Vector3& camPos	   = worldCam.worldPosition;
-			const Vector3& camDir	   = worldCam.worldRotation.GetForward();
+			GPUDataView view	 = {
+					.view = worldCam.GetView(),
+					.proj = worldCam.GetProjection(),
+			};
+
+			const Vector3& camPos	   = worldCam.GetPosition();
+			const Vector3& camDir	   = worldCam.GetRotation().GetForward();
 			view.viewProj			   = view.proj * view.view;
-			view.cameraPositionAndNear = Vector4(camPos.x, camPos.y, camPos.z, worldCam.zNear);
-			view.cameraDirectionAndFar = Vector4(camDir.x, camDir.y, camDir.z, worldCam.zFar);
+			view.cameraPositionAndNear = Vector4(camPos.x, camPos.y, camPos.z, worldCam.GetZNear());
+			view.cameraDirectionAndFar = Vector4(camDir.x, camDir.y, camDir.z, worldCam.GetZFar());
 			view.size				   = Vector2(static_cast<float>(m_size.x), static_cast<float>(m_size.y));
 			m_lightingPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
 			m_deferredPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
@@ -581,18 +584,6 @@ namespace Lina
 			.standaloneSubmission = m_standaloneSubmit,
 		});
 		return currentFrame.copySemaphore.GetValue();
-	}
-
-	void WorldRenderer::CalculateViewProj(const Camera& worldCamera, const Screen& screen, Matrix4& outView, Matrix4& outProj)
-	{
-		const Vector2ui& sz = m_world->GetScreen().GetRenderSize();
-		if (sz.x == 0 || sz.y == 0)
-			return;
-
-		Matrix4 rotMat			  = Matrix4(worldCamera.worldRotation.Inverse());
-		Matrix4 translationMatrix = Matrix4::Translate(-worldCamera.worldPosition);
-		outView					  = rotMat * translationMatrix;
-		outProj					  = Matrix4::Perspective(worldCamera.fovDegrees / 2, static_cast<float>(sz.x) / static_cast<float>(sz.y), worldCamera.zNear, worldCamera.zFar);
 	}
 
 } // namespace Lina

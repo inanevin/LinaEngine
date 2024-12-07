@@ -39,14 +39,21 @@ namespace Lina::Editor
 		if (!m_world)
 			return;
 
+		const Vector2ui sz = m_world->GetScreen().GetRenderSize();
+
+		if (sz.x == 0 || sz.y == 0)
+			return;
+
 		Camera& worldCamera = m_world->GetWorldCamera();
 		OnHandleCamera(delta);
 
-		worldCamera.fovDegrees	  = m_props.fov;
-		worldCamera.zNear		  = m_props.zNear;
-		worldCamera.zFar		  = m_props.zFar;
-		worldCamera.worldPosition = m_absPosition;
-		worldCamera.worldRotation = m_absRotation;
+		worldCamera.SetFOV(m_props.fov);
+		worldCamera.SetNear(m_props.zNear);
+		worldCamera.SetFar(m_props.zFar);
+		worldCamera.SetPosition(m_absPosition);
+		worldCamera.SetRotation(m_absRotation);
+
+		worldCamera.Calculate(sz);
 	}
 	/*
 	void EditorCamera::HandleFreeMovement(float delta)
@@ -177,7 +184,8 @@ namespace Lina::Editor
 
 		const float	  cosY	 = Math::Cos(m_yAngle);
 		const Vector3 offset = Vector3(cosY * Math::Cos(m_xAngle), Math::Sin(m_yAngle), cosY * Math::Sin(m_xAngle)) * m_orbitProps.targetDistance;
-		m_absPosition		 = m_orbitProps.targetPoint + offset;
-		m_absRotation		 = Quaternion::LookAt(m_absPosition, m_orbitProps.targetPoint, Vector3::Up);
+
+		m_absPosition = m_orbitProps.targetPoint + offset;
+		m_absRotation = Quaternion::LookAt(m_absPosition, m_orbitProps.targetPoint, Vector3::Up);
 	}
 } // namespace Lina::Editor

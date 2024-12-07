@@ -27,8 +27,25 @@ SOFTWARE.
 */
 
 #include "Core/World/Camera.hpp"
+#include "Common/Math/Math.hpp"
 
 namespace Lina
 {
+	Vector3 Camera::WorldToScreen(const Vector3& point, const Vector2& screenSize) const
+	{
+		Vector4 clipSpace		  = m_viewProj * Vector4(point.x, point.y, point.z, 1.0f);
+		clipSpace.w				  = Math::Abs(clipSpace.w);
+		const Vector3 ndc		  = Vector3(clipSpace.x / clipSpace.w, clipSpace.y / clipSpace.w, clipSpace.z / clipSpace.w);
+		const Vector3 screenSpace = ndc * 0.5f + Vector3(0.5f);
+		return Vector3(screenSpace.x * screenSize.x, (1.0f - screenSpace.y) * screenSize.y, screenSpace.z);
+	}
 
+	void Camera::Calculate(const Vector2& sz)
+	{
+		const Matrix4 rot		  = m_worldRotation.Inverse();
+		const Matrix4 translation = Matrix4::Translate(-m_worldPosition);
+		m_view					  = rot * translation;
+		m_projection			  = Matrix4::Perspective(m_fovDegrees / 2, static_cast<float>(sz.x) / static_cast<float>(sz.y), m_zNear, m_zFar);
+		m_viewProj				  = m_projection * m_view;
+	}
 } // namespace Lina
