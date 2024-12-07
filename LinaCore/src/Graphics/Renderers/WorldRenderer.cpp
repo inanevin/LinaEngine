@@ -360,8 +360,10 @@ namespace Lina
 
 		m_deferredPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).SetIndirectCount(0);
 		m_deferredPass.GetBuffer(frameIndex, "IndirectConstants"_hs).SetIndirectCount(0);
+		m_deferredPass.GetBuffer(frameIndex, "EntityBuffer"_hs).SetIndirectCount(0);
 		m_forwardPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).SetIndirectCount(0);
 		m_forwardPass.GetBuffer(frameIndex, "IndirectConstants"_hs).SetIndirectCount(0);
+		m_forwardPass.GetBuffer(frameIndex, "EntityBuffer"_hs).SetIndirectCount(0);
 
 		for (FeatureRenderer* ft : m_featureRenderers)
 		{

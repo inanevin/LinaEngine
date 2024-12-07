@@ -89,7 +89,7 @@ namespace Lina
 
 		inline void SetIndirectCount(uint32 count)
 		{
-			m_indirectCount = 0;
+			m_indirectCount = count;
 		}
 
 	private:

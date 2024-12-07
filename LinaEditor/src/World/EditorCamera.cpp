@@ -147,8 +147,24 @@ namespace Lina::Editor
 	}
 	*/
 
+	OrbitCamera::OrbitCamera()
+	{
+		m_initialTransition = Tween(0.0f, 1.0f, 0.5f, TweenType::Linear);
+		m_xAngle			= Math::ToRadians(90.0f);
+	}
+
 	void OrbitCamera::OnHandleCamera(float delta)
 	{
+		if (!m_initialTransition.GetIsCompleted())
+		{
+			m_initialTransition.Tick(delta);
+			const float val = m_initialTransition.GetValue();
+
+			const float startOut = Math::Lerp(m_orbitProps.startDistance, m_orbitProps.maxDistance, 0.1f);
+			m_targetDistance	 = Math::Lerp(startOut, m_orbitProps.startDistance, val);
+			m_yAngle			 = Math::ToRadians(Math::Lerp(20.0f, 15.0f, val));
+		}
+
 		WorldInput& input = m_world->GetInput();
 
 		if (input.GetKeyDown(LINAGX_KEY_F))
@@ -167,7 +183,7 @@ namespace Lina::Editor
 				const Vector3 forward	= Vector3(cosY * Math::Cos(m_xAngle), Math::Sin(m_yAngle), cosY * Math::Sin(m_xAngle));
 				const Vector3 right		= forward.Cross(Vector3::Up).Normalized();
 				const Vector3 up		= right.Cross(forward).Normalized();
-				const Vector3 panOffset = (right * -mouseDelta.x + up * mouseDelta.y) * panSpeed * m_orbitProps.targetDistance;
+				const Vector3 panOffset = (right * -mouseDelta.x + up * mouseDelta.y) * panSpeed * m_targetDistance;
 
 				m_orbitProps.targetPoint += panOffset;
 			}
@@ -179,11 +195,11 @@ namespace Lina::Editor
 			}
 		}
 
-		m_orbitProps.targetDistance -= input.GetMouseScroll() * delta * 120.0f;
-		m_orbitProps.targetDistance = Math::Clamp(m_orbitProps.targetDistance, m_orbitProps.minDistance, m_orbitProps.maxDistance);
+		m_targetDistance -= input.GetMouseScroll() * delta * 120.0f;
+		m_targetDistance = Math::Clamp(m_targetDistance, m_orbitProps.minDistance, m_orbitProps.maxDistance);
 
 		const float	  cosY	 = Math::Cos(m_yAngle);
-		const Vector3 offset = Vector3(cosY * Math::Cos(m_xAngle), Math::Sin(m_yAngle), cosY * Math::Sin(m_xAngle)) * m_orbitProps.targetDistance;
+		const Vector3 offset = Vector3(cosY * Math::Cos(m_xAngle), Math::Sin(m_yAngle), cosY * Math::Sin(m_xAngle)) * m_targetDistance;
 
 		m_absPosition = m_orbitProps.targetPoint + offset;
 		m_absRotation = Quaternion::LookAt(m_absPosition, m_orbitProps.targetPoint, Vector3::Up);

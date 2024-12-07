@@ -119,6 +119,9 @@ namespace Lina
 		}
 
 	private:
+		void AddMeshesRecursively(ModelNode* node);
+
+	private:
 		void	   ProcessNode(LinaGX::ModelNode* lgxNode, ModelNode* parent);
 		void	   UploadNode(MeshManager* mm, ModelNode* node, bool remove);
 		ModelNode* GetNodeWithMesh(ModelNode* root);

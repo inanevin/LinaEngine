@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Common/StringID.hpp"
 #include "Common/Math/Vector.hpp"
 #include "Common/Math/Quaternion.hpp"
+#include "Common/Tween/Tween.hpp"
 
 namespace Lina
 {
@@ -79,13 +80,13 @@ namespace Lina::Editor
 	public:
 		struct OrbitProperties
 		{
-			Vector3 targetPoint	   = Vector3::Zero;
-			float	targetDistance = 5.0f;
-			float	minDistance	   = 1.0f;
-			float	maxDistance	   = 24.0f;
+			Vector3 targetPoint	  = Vector3::Zero;
+			float	startDistance = 5.0f;
+			float	minDistance	  = 1.0f;
+			float	maxDistance	  = 24.0f;
 		};
 
-		OrbitCamera()		   = default;
+		OrbitCamera();
 		virtual ~OrbitCamera() = default;
 
 		virtual void OnHandleCamera(float delta) override;
@@ -96,8 +97,10 @@ namespace Lina::Editor
 		}
 
 	private:
-		OrbitProperties m_orbitProps = {};
-		float			m_xAngle	 = 0.0f;
-		float			m_yAngle	 = 0.0f;
+		Tween			m_initialTransition;
+		OrbitProperties m_orbitProps	 = {};
+		float			m_xAngle		 = 0.0f;
+		float			m_yAngle		 = 0.0f;
+		float			m_targetDistance = 0.0f;
 	};
 } // namespace Lina::Editor

@@ -35,23 +35,24 @@ namespace Lina
 	class CompModel;
 	class Shader;
 
-	struct PerMeshInstanceData
+	struct InstanceData
 	{
 		ResourceID materialID = 0;
 		GPUEntity  entity	  = {};
 	};
 
-	struct PerMeshDraw
+	struct PrimitiveDraw
 	{
-		ResourceID					modelID	  = 0;
-		uint32						meshIndex = 0;
-		Vector<PerMeshInstanceData> instances;
+		ResourceID			 modelID		= 0;
+		uint32				 meshIndex		= 0;
+		uint32				 primitiveIndex = 0;
+		Vector<InstanceData> instances;
 	};
 
 	struct PerShaderDraw
 	{
-		ResourceID			shader = 0;
-		Vector<PerMeshDraw> meshes;
+		ResourceID			  shader = 0;
+		Vector<PrimitiveDraw> primitives;
 	};
 
 	class ObjectRenderer : public FeatureRenderer

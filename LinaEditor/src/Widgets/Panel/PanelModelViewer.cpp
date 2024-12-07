@@ -27,430 +27,138 @@ SOFTWARE.
 */
 
 #include "Editor/Widgets/Panel/PanelModelViewer.hpp"
-#include "Editor/Editor.hpp"
-#include "Editor/EditorLocale.hpp"
-#include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
-#include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
 #include "Editor/Widgets/World/WorldDisplayer.hpp"
-
-#include "Common/Math/Math.hpp"
-#include "Core/Meta/ProjectData.hpp"
-#include "Core/Platform/PlatformProcess.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
-#include "Core/GUI/Widgets/WidgetUtility.hpp"
-#include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
-#include "Core/GUI/Widgets/Layout/Popup.hpp"
-#include "Core/GUI/Widgets/Primitives/InputField.hpp"
-#include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
-#include "Core/GUI/Widgets/Primitives/Button.hpp"
-#include "Core/GUI/Widgets/Primitives/Text.hpp"
-#include "Editor/Widgets/CommonWidgets.hpp"
-#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
-#include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
-
-#include "Common/FileSystem/FileSystem.hpp"
-#include "Core/Graphics/Resource/Model.hpp"
-#include "Core/Graphics/Resource/Texture.hpp"
-#include "Core/Graphics/Resource/TextureSampler.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
-#include "Core/World/EntityWorld.hpp"
+#include "Editor/Graphics/GridRenderer.hpp"
+#include "Editor/Editor.hpp"
 #include "Core/Application.hpp"
+#include "Editor/Widgets/CommonWidgets.hpp"
 
 namespace Lina::Editor
 {
 	void PanelModelViewer::Construct()
 	{
-		m_editor = Editor::Get();
+		PanelResourceViewer::Construct();
 
-		DirectionalLayout* horizontal = m_manager->Allocate<DirectionalLayout>("Horizontal");
-		horizontal->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		horizontal->SetAlignedPos(Vector2::Zero);
-		horizontal->SetAlignedSize(Vector2::One);
-		horizontal->GetProps().direction = DirectionOrientation::Horizontal;
-		horizontal->GetProps().mode		 = DirectionalLayout::Mode::Bordered;
-		AddChild(horizontal);
+		m_worldDisplayer = m_manager->Allocate<WorldDisplayer>("WorldDisplayer");
+		m_worldDisplayer->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		m_worldDisplayer->SetAlignedPos(Vector2::Zero);
+		m_worldDisplayer->SetAlignedSize(Vector2::One);
 
-		Widget* worldBG = m_manager->Allocate<Widget>("ModelBG");
-		worldBG->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		worldBG->SetAlignedPos(Vector2(0.0f, 0.0f));
-		worldBG->SetAlignedSize(Vector2(0.75f, 1.0f));
-		worldBG->GetWidgetProps().childMargins	  = TBLR::Eq(Theme::GetDef().baseIndent);
-		worldBG->GetWidgetProps().drawBackground  = true;
-		worldBG->GetWidgetProps().colorBackground = Theme::GetDef().background0;
-		worldBG->GetWidgetProps().childMargins	  = TBLR::Eq(Theme::GetDef().baseIndent);
-		horizontal->AddChild(worldBG);
-
-		WorldDisplayer* displayer = m_manager->Allocate<WorldDisplayer>("WorldDisplayer");
-		displayer->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		displayer->SetAlignedPos(Vector2::Zero);
-		displayer->SetAlignedSize(Vector2::One);
-		worldBG->AddChild(displayer);
-
-		DirectionalLayout* right = m_manager->Allocate<DirectionalLayout>("RightSide");
-		right->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		right->SetAlignedPos(Vector2(0.75f, 0.0f));
-		right->SetAlignedSize(Vector2(0.25f, 1.0f));
-		right->GetProps().direction = DirectionOrientation::Vertical;
-		right->GetProps().mode		= DirectionalLayout::Mode::Bordered;
-		horizontal->AddChild(right);
-
-		Widget* inspectorParent = m_manager->Allocate<Widget>("InspectorParent");
-		inspectorParent->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		inspectorParent->SetAlignedPos(Vector2(0.0f, 0.0f));
-		inspectorParent->SetAlignedSize(Vector2(1.0f, 0.5f));
-		right->AddChild(inspectorParent);
-
-		Widget* hierarchyParent = m_manager->Allocate<Widget>("HierarchyParent");
-		hierarchyParent->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		hierarchyParent->SetAlignedPos(Vector2(0.0f, 0.5f));
-		hierarchyParent->SetAlignedSize(Vector2(1.0f, 0.5f));
-		right->AddChild(hierarchyParent);
-
-		// TODO: Add hierarchy browser here.
-
-		ScrollArea* scrollInspector = m_manager->Allocate<ScrollArea>("Scroll");
-		scrollInspector->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		scrollInspector->SetAlignedPos(Vector2::Zero);
-		scrollInspector->SetAlignedSize(Vector2::One);
-		scrollInspector->GetProps().direction = DirectionOrientation::Vertical;
-		inspectorParent->AddChild(scrollInspector);
-
-		DirectionalLayout* inspector = m_manager->Allocate<DirectionalLayout>("Inspector");
-		inspector->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		inspector->SetAlignedPos(Vector2::Zero);
-		inspector->SetAlignedSize(Vector2::One);
-		inspector->GetProps().direction				  = DirectionOrientation::Vertical;
-		inspector->GetWidgetProps().childPadding	  = Theme::GetDef().baseIndentInner;
-		inspector->GetWidgetProps().clipChildren	  = true;
-		inspector->GetWidgetProps().childMargins.left = Theme::GetDef().baseBorderThickness;
-		inspector->GetWidgetProps().childMargins.top  = Theme::GetDef().baseIndent;
-		scrollInspector->AddChild(inspector);
-
-		m_worldDisplayer = displayer;
-		m_inspector		 = inspector;
+		m_resourceBG->AddChild(m_worldDisplayer);
 	}
 
 	void PanelModelViewer::Initialize()
 	{
-		/*
-		if (m_model != nullptr)
+		PanelResourceViewer::Initialize();
+
+		if (!m_resource)
 			return;
 
-		if (m_editor->GetProjectManager().GetProjectData() == nullptr)
+		if (m_world)
 			return;
 
-		if (!m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResourceDirectory(m_subData))
-		{
-			Text* text = m_manager->Allocate<Text>("Info");
-			text->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
-			text->SetAlignedPos(Vector2(0.5f, 0.5f));
-			text->SetAnchorX(Anchor::Center);
-			text->SetAnchorY(Anchor::Center);
-			text->GetProps().text = Locale::GetStr(LocaleStr::ThisResourceNoLongerExists);
-			m_worldDisplayer->AddChild(text);
-			m_worldDisplayer->DisplayWorld(nullptr);
-			return;
-		}
+		m_world			= new EntityWorld(0, "");
+		m_worldRenderer = new WorldRenderer(&m_editor->GetApp()->GetGfxContext(), &m_editor->GetApp()->GetResourceManager(), m_world, Vector2ui(4, 4), "WorldRenderer: " + m_resource->GetName() + " :");
+		m_gridRenderer	= new GridRenderer(m_editor, m_editor->GetApp()->GetLGX(), m_world, &m_editor->GetApp()->GetResourceManager());
+		m_worldRenderer->AddFeatureRenderer(m_gridRenderer);
 
-		m_editor->GetApp()->GetResourceManager().LoadResourcesFromProject(m_editor->GetProjectManager().GetProjectData(), {m_subData}, NULL);
-		m_model					   = m_editor->GetApp()->GetResourceManager().GetResource<Model>(m_subData);
-		m_modelName				   = m_model->GetName();
-		GetWidgetProps().debugName = "Model: " + m_model->GetName();
-
-		FoldLayout* foldGeneral = CommonWidgets::BuildFoldTitle(this, Locale::GetStr(LocaleStr::General), &m_generalFold);
-		FoldLayout* foldModel	= CommonWidgets::BuildFoldTitle(this, "Model", &m_modelFold);
-		m_inspector->AddChild(foldGeneral);
-		m_inspector->AddChild(foldModel);
-
-		CommonWidgets::BuildClassReflection(foldGeneral, this, ReflectionSystem::Get().Resolve<PanelModelViewer>(), [this](MetaType* meta, FieldBase* field) {
-
-		});
-
-		CommonWidgets::BuildClassReflection(foldModel, &m_model->GetMeta(), ReflectionSystem::Get().Resolve<Model::Metadata>(), [this](MetaType* meta, FieldBase* field) {
-			SetRuntimeDirty(true);
-			// RegenModel("");
-		});
-
-		auto buildButtonLayout = [this]() -> Widget* {
-			DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>();
-			layout->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-			layout->SetAlignedPosX(0.0f);
-			layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-			layout->SetAlignedSizeX(1.0f);
-			layout->GetProps().mode						= DirectionalLayout::Mode::EqualSizes;
-			layout->GetProps().direction				= DirectionOrientation::Horizontal;
-			layout->GetWidgetProps().childMargins.left	= Theme::GetDef().baseIndent;
-			layout->GetWidgetProps().childMargins.right = Theme::GetDef().baseIndent;
-			layout->GetWidgetProps().childPadding		= Theme::GetDef().baseIndent;
-			return layout;
-		};
-
-		Widget* buttonLayout1 = buildButtonLayout();
-		Widget* buttonLayout2 = buildButtonLayout();
-		foldGeneral->AddChild(buttonLayout1);
-		foldGeneral->AddChild(buttonLayout2);
-		static_cast<DirectionalLayout*>(buttonLayout1)->GetProps().mode = DirectionalLayout::Mode::EqualSizes;
-		static_cast<DirectionalLayout*>(buttonLayout2)->GetProps().mode = DirectionalLayout::Mode::EqualSizes;
-
-		Button* importButton = WidgetUtility::BuildIconTextButton(this, ICON_IMPORT, Locale::GetStr(LocaleStr::Import));
-		importButton->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
-		importButton->SetAlignedPosY(0.0f);
-		importButton->SetAlignedSizeY(1.0f);
-		importButton->SetFixedSizeX(Theme::GetDef().baseItemHeight * 4);
-		importButton->GetProps().onClicked = [this]() {
-			const Vector<String> paths = PlatformProcess::OpenDialog({
-				.title				   = Locale::GetStr(LocaleStr::Import),
-				.primaryButton		   = Locale::GetStr(LocaleStr::Import),
-				.extensionsDescription = "",
-				.extensions			   = {"ttf", "otf"},
-				.mode				   = PlatformProcess::DialogMode::SelectFile,
-			});
-			if (paths.empty())
-				return;
-
-			RegenModel(paths.front());
-			SetRuntimeDirty(true);
-		};
-		buttonLayout1->AddChild(importButton);
-
-		Button* reimportButton = WidgetUtility::BuildIconTextButton(this, ICON_ROTATE, Locale::GetStr(LocaleStr::ReImport));
-		reimportButton->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
-		reimportButton->SetAlignedPosY(0.0f);
-		reimportButton->SetAlignedSizeY(1.0f);
-		reimportButton->SetFixedSizeX(Theme::GetDef().baseItemHeight * 4);
-		reimportButton->GetProps().onClicked = [this, reimportButton]() {
-			const String path = m_model->GetPath();
-			if (!FileSystem::FileOrPathExists(path))
-			{
-				CommonWidgets::ThrowInfoTooltip(Locale::GetStr(LocaleStr::FileNotFound), LogLevel::LOG_LEVEL_ERROR, 3.0f, reimportButton);
-				return;
-			}
-
-			RegenModel(path);
-			SetRuntimeDirty(true);
-		};
-
-		buttonLayout1->AddChild(reimportButton);
-
-		Button* save = WidgetUtility::BuildIconTextButton(this, ICON_SAVE, Locale::GetStr(LocaleStr::Save));
-		save->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
-		save->SetAlignedPosY(0.0f);
-		save->SetAlignedSizeY(1.0f);
-		save->SetFixedSizeX(Theme::GetDef().baseItemHeight * 4);
-		save->GetProps().onClicked = [this]() {
-			if (m_containsRuntimeChanges)
-			{
-				m_model->SaveToFileAsBinary(m_editor->GetProjectManager().GetProjectData()->GetResourcePath(m_model->GetID()));
-				// m_editor->GetResourcePipeline().GenerateThumbnailForResource(m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResourceDirectory(m_model->GetID()), m_model, true);
-				Panel* p = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::ResourceBrowser, 0);
-				if (p)
-					static_cast<PanelResourceBrowser*>(p)->GetBrowser()->RefreshDirectory();
-				SetRuntimeDirty(false);
-			}
-		};
-
-		m_saveButton = save;
-		buttonLayout2->AddChild(save);
-
-		SetupScene();
-
-		// Add rendering
+		m_editor->GetApp()->JoinRender();
+		m_editor->GetApp()->GetWorldProcessor().AddWorld(m_world);
 		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer);
 
 		m_worldDisplayer->DisplayWorld(m_worldRenderer);
-		Panel::Initialize();
-		*/
-	}
+		m_worldDisplayer->CreateOrbitCamera();
 
-	void PanelModelViewer::SetupScene()
-	{
-		// Setup world
-		m_world			= new EntityWorld(0, "");
-		m_lastWorldSize = Vector2ui(4, 4);
-		// m_worldRenderer = new WorldRenderer(m_world, m_lastWorldSize);
+		m_world->GetGfxSettings().lightingMaterial = EDITOR_MATERIAL_DEFAULT_LIGHTING_ID;
+		m_world->GetGfxSettings().skyModel		   = EDITOR_MODEL_SKYSPHERE_ID;
+		m_world->GetGfxSettings().skyMaterial	   = EDITOR_MATERIAL_DEFAULT_SKY_ID;
 
-		/*
-		Vector<ResourceDef> neededResources = {
-			{
-				.id      = DEFAULT_SHADER_LIGHTING_ID,
-				.name = DEFAULT_SHADER_LIGHTING_PATH,
-				.tid  = GetTypeID<Shader>(),
-			},
-			{
-				.id      = DEFAULT_SHADER_SKY_ID,
-				.name = DEFAULT_SHADER_SKY_PATH,
-				.tid  = GetTypeID<Shader>(),
-			},
-			{
-				.id      = DEFAULT_SKY_CUBE_ID,
-				.name = DEFAULT_SKY_CUBE_PATH,
-				.tid  = GetTypeID<Model>(),
-			},
-			{
-				.id      = DEFAULT_SHADER_OBJECT_ID,
-				.name = DEFAULT_SHADER_OBJECT_PATH,
-				.tid  = GetTypeID<Shader>(),
-			},
+		HashSet<ResourceID> initialResources = {
+			EDITOR_MODEL_CUBE_ID,
+			EDITOR_MODEL_SPHERE_ID,
+			EDITOR_MODEL_PLANE_ID,
+			EDITOR_MODEL_CYLINDER_ID,
+			EDITOR_MODEL_CAPSULE_ID,
+			EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID,
+			m_resource->GetID(),
 		};
 
-		m_world->GetResourceManagerV2().LoadResourcesFromFile(m_editor, neededResources, -1);
+		Model* model = static_cast<Model*>(m_resource);
+		for (ResourceID id : model->GetMeta().materials)
+			initialResources.insert(id);
 
-		neededResources.clear();
+		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), initialResources, m_resourceSpace);
+		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 
-		for (ResourceID id : m_model->GetMeta().materials)
-		{
-			neededResources.push_back({
-				.id     = id,
-				.tid = GetTypeID<Material>(),
-			});
-		}
+		SetupWorld();
 
-		neededResources.push_back({.id = m_model->GetID(), .name = m_model->GetName(), .tid = GetTypeID<Model>()});
-
-		m_world->GetResourceManagerV2().LoadResourcesFromProject(m_editor, m_editor->GetProjectManager().GetProjectData(), neededResources, -1);
-		m_world->GetResourceManagerV2().WaitForAll();
-
-		neededResources.clear();
-
-		for (ResourceID id : m_model->GetMeta().materials)
-		{
-			Material* mat = m_world->GetResourceManagerV2().GetResource<Material>(id);
-
-			const Vector<ShaderProperty*>& props = mat->GetProperties();
-
-			for (ShaderProperty* prop : props)
-			{
-				if (prop->type != ShaderPropertyType::Texture2D)
-					continue;
-
-				LinaTexture2D* txt = reinterpret_cast<LinaTexture2D*>(prop->data.data());
-
-				if (txt->texture != 0)
-				{
-					neededResources.push_back({
-						.id     = txt->texture,
-						.tid = GetTypeID<Texture>(),
-					});
-				}
-
-				if (txt->sampler != 0)
-				{
-					neededResources.push_back({
-						.id     = txt->sampler,
-						.tid = GetTypeID<TextureSampler>(),
-					});
-				}
-			}
-		}
-
-		m_world->GetResourceManagerV2().LoadResourcesFromProject(m_editor, m_editor->GetProjectManager().GetProjectData(), neededResources, -1);
-		m_world->GetResourceManagerV2().WaitForAll();
-
-
-		Material* skyMaterial	   = m_world->GetResourceManagerV2().CreateResource<Material>(m_world->GetResourceManagerV2().ConsumeResourceID(), "Model Viewer Sky Material");
-		Material* lightingMaterial = m_world->GetResourceManagerV2().CreateResource<Material>(m_world->GetResourceManagerV2().ConsumeResourceID(), "Model Viewer Lighting Material");
-		Shader*	  lightingShader   = m_world->GetResourceManagerV2().GetResource<Shader>(DEFAULT_SHADER_LIGHTING_ID);
-		Shader*	  skyShader		   = m_world->GetResourceManagerV2().GetResource<Shader>(DEFAULT_SHADER_SKY_ID);
-		lightingMaterial->SetShader(lightingShader);
-		skyMaterial->SetShader(skyShader);
-		skyMaterial->SetProperty("topColor"_hs, Color(0.8f, 0.8f, 0.8f, 1.0f));
-		skyMaterial->SetProperty("groundColor"_hs, Color(0.1f, 0.1f, 0.1f, 1.0f));
-		m_world->GetGfxSettings().SetSkyMaterial(skyMaterial);
-		m_world->GetGfxSettings().SetLightingMaterial(lightingMaterial);
-
-		// Add model to world.
-		Vector<Material*> materials;
-		materials.reserve(m_model->GetMeta().materials.size());
-		for (ResourceID id : m_model->GetMeta().materials)
-			materials.push_back(m_world->GetResourceManagerV2().GetResource<Material>(id));
-		Entity* entityModel = m_world->AddModelToWorld(m_world->GetResourceManagerV2().GetResource<Model>(m_model->GetID()), materials);
-
-
-		const Vector3 aabbHalf = m_model->GetAABB().boundsHalfExtents;
-		const float maxAABBHalf = Math::Max(aabbHalf.x, Math::Max(aabbHalf.y, aabbHalf.z));
-		const float movePower = 0.25f * maxAABBHalf;
-
-
-		Entity* camera = m_world->CreateEntity("Camera");
-		CameraComponent*   cameraComp = m_world->AddComponent<CameraComponent>(camera);
-		FlyCameraMovement* flight      = m_world->AddComponent<FlyCameraMovement>(camera);
-
-		const float cameraDistance = aabbHalf.z * (DEFAULT_FOV / cameraComp->GetFOV()) * 10.0f;
-		const Vector3 cameraPosition = Vector3(0, entityModel->GetPosition().y + cameraDistance * 0.5f, entityModel->GetPosition().z + cameraDistance);
-		camera->SetPosition(cameraPosition);
-		camera->SetRotation(Quaternion::LookAt(cameraPosition, Vector3(0, aabbHalf.y, 0), Vector3::Up));
-
-		flight->SetMovementPower(movePower);
-		flight->SetMovementSpeed(40.0f);
-		flight->GetFlags()              = CF_RECEIVE_EDITOR_TICK;
-		m_world->SetActiveCamera(cameraComp);
-		 */
+		UpdateResourceProperties();
+		RebuildContents();
 	}
 
 	void PanelModelViewer::Destruct()
 	{
-		Panel::Destruct();
-		if (m_model == nullptr)
-			return;
+		PanelResourceViewer::Destruct();
 
-		// m_editor->GetApp()->GetResourceManager().UnloadResources({m_model});
-		m_editor->GetEditorRenderer().RemoveWorldRenderer(m_worldRenderer);
-		delete m_worldRenderer;
-		delete m_world;
-	}
-
-	void PanelModelViewer::PreTick()
-	{
-		if (m_world == nullptr)
-			return;
-
-		const Vector2ui sz = m_worldDisplayer->GetSize();
-
-		if (sz.x != 0 && sz.y != 0 && !sz.Equals(m_lastWorldSize))
+		if (m_world)
 		{
-			m_lastWorldSize = sz;
-			m_worldRenderer->Resize(m_lastWorldSize);
-			// m_editor->GetEditorRenderer().RefreshDynamicTextures();
+			m_editor->GetApp()->JoinRender();
+			m_editor->GetApp()->GetWorldProcessor().RemoveWorld(m_world);
+			m_editor->GetEditorRenderer().RemoveWorldRenderer(m_worldRenderer);
+			delete m_gridRenderer;
+			delete m_worldRenderer;
+			delete m_world;
+			m_worldRenderer = nullptr;
+			m_world			= nullptr;
 		}
 	}
 
-	void PanelModelViewer::Tick(float delta)
+	void PanelModelViewer::StoreEditorActionBuffer()
 	{
-		if (m_world == nullptr)
+	}
+
+	void PanelModelViewer::UpdateResourceProperties()
+	{
+		Model* model   = static_cast<Model*>(m_resource);
+		m_modelName	   = model->GetName();
+		m_animations   = "0";
+		m_materialDefs = TO_STRING(model->GetMaterialDefs().size());
+		m_meshes	   = TO_STRING(model->GetMeshes().size());
+	}
+
+	void PanelModelViewer::RebuildContents()
+	{
+		m_inspector->DeallocAllChildren();
+		m_inspector->RemoveAllChildren();
+		CommonWidgets::BuildClassReflection(m_inspector, this, ReflectionSystem::Get().Resolve<PanelModelViewer>(), [this](MetaType* meta, FieldBase* field) {
+			// SetupWorld();
+		});
+
+		m_inspector->Initialize();
+
+		if (m_previewOnly)
+			DisableRecursively(m_inspector);
+	}
+
+	void PanelModelViewer::SetupWorld()
+	{
+		ResourceManagerV2& rm = m_editor->GetApp()->GetResourceManager();
+
+		Resource* res = rm.GetIfExists(m_resource->GetTID(), m_resource->GetID());
+
+		if (res == nullptr)
 			return;
+
+		if (m_displayEntity != nullptr)
+			m_world->DestroyEntity(m_displayEntity);
+
+		Material* defaultSky = rm.GetResource<Material>(EDITOR_MATERIAL_DEFAULT_SKY_ID);
+		SetupDefaultSkyMaterial(defaultSky);
+
+		Model* model	= static_cast<Model*>(m_resource);
+		m_displayEntity = m_world->AddModelToWorld(model, model->GetMeta().materials);
 	}
 
-	void PanelModelViewer::SetRuntimeDirty(bool isDirty)
-	{
-		m_containsRuntimeChanges = isDirty;
-		Text* txt				 = GetWidgetOfType<Text>(m_saveButton);
-		if (isDirty)
-			txt->GetProps().text = Locale::GetStr(LocaleStr::Save) + " *";
-		else
-			txt->GetProps().text = Locale::GetStr(LocaleStr::Save);
-		txt->CalculateTextSize();
-	}
-
-	void PanelModelViewer::RegenModel(const String& path)
-	{
-		/*
-		Application::GetLGX()->Join();
-		m_font->DestroyHW();
-
-		if (!path.empty())
-			m_font->LoadFromFile(path);
-
-		m_font->GenerateHW(m_editor->GetEditorRenderer().GetGUIBackend().GetLVGText());
-		m_editor->GetEditorRenderer().MarkBindlessDirty();
-		m_fontDisplay->GetProps().font = m_font->GetID();
-		m_fontDisplay->CalculateTextSize();*/
-	}
-
-	void PanelModelViewer::SaveLayoutToStream(OStream& stream)
-	{
-	}
-
-	void PanelModelViewer::LoadLayoutFromStream(IStream& stream)
-	{
-	}
 } // namespace Lina::Editor

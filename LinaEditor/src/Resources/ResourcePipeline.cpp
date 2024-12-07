@@ -293,10 +293,11 @@ namespace Lina::Editor
 
 					ResourceDirectory* child = projectData->CreateResourceDirectory(dir->parent,
 																					{
-																						.name		 = def.name,
-																						.isFolder	 = false,
-																						.resourceID	 = newID,
-																						.resourceTID = GetTypeID<Texture>(),
+																						.name		  = def.name,
+																						.isFolder	  = false,
+																						.resourceID	  = newID,
+																						.resourceTID  = GetTypeID<Texture>(),
+																						.resourceType = ResourceType::EngineCreated,
 																					});
 
 					const String lowerName = UtilStr::ToLower(def.name);
@@ -323,10 +324,11 @@ namespace Lina::Editor
 
 					ResourceDirectory* child = projectData->CreateResourceDirectory(dir->parent,
 																					{
-																						.name		 = def.name,
-																						.isFolder	 = false,
-																						.resourceID	 = newID,
-																						.resourceTID = GetTypeID<Material>(),
+																						.name		  = def.name,
+																						.isFolder	  = false,
+																						.resourceID	  = newID,
+																						.resourceTID  = GetTypeID<Material>(),
+																						.resourceType = ResourceType::EngineCreated,
 																					});
 
 					meta.materials[matIdx] = newID;
@@ -392,6 +394,7 @@ namespace Lina::Editor
 					Material mat(newID, def.name);
 					mat.SetShader(defaultShader);
 					mat.SetProperty("color"_hs, def.albedo);
+					mat.SetProperty("tilingAndOffset"_hs, Vector4(1, 1, 0, 0));
 					mat.SetProperty("txtAlbedo"_hs, albedo);
 					mat.SetProperty("txtNormal"_hs, normal);
 					mat.SaveToFileAsBinary(projectData->GetResourcePath(newID));

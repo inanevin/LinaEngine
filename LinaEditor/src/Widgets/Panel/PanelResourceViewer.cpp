@@ -40,6 +40,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/Resources/Resource.hpp"
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
+#include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Application.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 
@@ -191,6 +192,19 @@ namespace Lina::Editor
 			c->GetFlags().Set(WF_DISABLED);
 			DisableRecursively(c);
 		}
+	}
+
+	void PanelResourceViewer::SetupDefaultSkyMaterial(Material* defaultSky)
+	{
+		defaultSky->SetProperty("skyColor"_hs, Vector3(0.38f, 0.521f, 0.807f));
+		defaultSky->SetProperty("horizonColor"_hs, Vector3(0.386f, 0.521f, 0.807f));
+		defaultSky->SetProperty("groundColor"_hs, Vector3(0.011f, 0.021f, 0.05f));
+		defaultSky->SetProperty("sunPosition"_hs, Vector2(0.0f, 0.0f));
+		defaultSky->SetProperty("sunColor"_hs, Vector3(1.0f, 1.0f, 1.0f));
+		defaultSky->SetProperty("sunSize"_hs, 0.0f);
+		defaultSky->SetProperty("sunDiffusion"_hs, 5.0f);
+		defaultSky->SetProperty("horizonPosition"_hs, 0.0f);
+		defaultSky->SetProperty("horizonDiffusion"_hs, 0.15f);
 	}
 
 } // namespace Lina::Editor

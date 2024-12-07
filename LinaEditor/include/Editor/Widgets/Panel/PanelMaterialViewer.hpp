@@ -65,12 +65,12 @@ namespace Lina::Editor
 		virtual void Construct() override;
 		virtual void Destruct() override;
 		virtual void Initialize() override;
-
-		void		 StoreShaderID();
 		virtual void StoreEditorActionBuffer() override;
 		virtual void UpdateResourceProperties() override;
 		virtual void RebuildContents() override;
-		void		 SetupWorld();
+
+		void StoreShaderID();
+		void SetupWorld();
 
 		inline EntityWorld* GetWorld() const
 		{

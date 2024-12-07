@@ -112,10 +112,6 @@ namespace Lina
 		uint32					 m_vertexOffset = 0;
 		uint32					 m_indexOffset	= 0;
 		AABB					 m_localAABB;
-
-		Buffer m_vertexBuffer;
-		Buffer m_indexBuffer;
-		bool   m_ownsBuffers = false;
 	};
 
 } // namespace Lina

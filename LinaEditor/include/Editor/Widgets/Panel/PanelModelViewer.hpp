@@ -28,8 +28,8 @@ SOFTWARE.
 
 #pragma once
 
-#include "Editor/Widgets/Panel/Panel.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
+#include "Editor/Widgets/Panel/PanelResourceViewer.hpp"
 
 namespace Lina
 {
@@ -39,51 +39,50 @@ namespace Lina
 	class Button;
 	class EntityWorld;
 	class WorldRenderer;
+	class Entity;
 } // namespace Lina
 
 namespace Lina::Editor
 {
 	class Editor;
 	class WorldDisplayer;
+	class GridRenderer;
 
-	class PanelModelViewer : public Panel
+	class PanelModelViewer : public PanelResourceViewer
 	{
 	public:
-		PanelModelViewer() : Panel(PanelType::ModelViewer){};
+		PanelModelViewer() : PanelResourceViewer(PanelType::ModelViewer, GetTypeID<Model>(), GetTypeID<PanelModelViewer>()){};
 		virtual ~PanelModelViewer() = default;
 
 		virtual void Construct() override;
 		virtual void Initialize() override;
 		virtual void Destruct() override;
-		virtual void PreTick() override;
-		virtual void Tick(float delta) override;
-		virtual void SaveLayoutToStream(OStream& stream) override;
-		virtual void LoadLayoutFromStream(IStream& stream) override;
+		virtual void StoreEditorActionBuffer() override;
+		virtual void UpdateResourceProperties() override;
+		virtual void RebuildContents() override;
 
 	private:
-		void SetRuntimeDirty(bool isDirty);
-		void RegenModel(const String& path);
-		void SetupScene();
+		void SetupWorld();
 
 	private:
 		LINA_REFLECTION_ACCESS(PanelModelViewer);
 
-		String			m_modelName				 = "";
-		bool			m_generalFold			 = true;
-		bool			m_modelFold				 = true;
-		Editor*			m_editor				 = nullptr;
-		Model*			m_model					 = nullptr;
-		bool			m_containsRuntimeChanges = false;
-		Widget*			m_inspector				 = nullptr;
-		Widget*			m_saveButton			 = nullptr;
-		EntityWorld*	m_world					 = nullptr;
-		WorldRenderer*	m_worldRenderer			 = nullptr;
-		Vector2ui		m_lastWorldSize			 = Vector2ui::Zero;
-		WorldDisplayer* m_worldDisplayer		 = nullptr;
+		String			m_modelName		 = "";
+		String			m_materialDefs	 = "";
+		String			m_animations	 = "";
+		String			m_meshes		 = "";
+		WorldDisplayer* m_worldDisplayer = nullptr;
+		EntityWorld*	m_world			 = nullptr;
+		WorldRenderer*	m_worldRenderer	 = nullptr;
+		GridRenderer*	m_gridRenderer	 = nullptr;
+		Entity*			m_displayEntity	 = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(PanelModelViewer, Hidden)
 	LINA_FIELD(PanelModelViewer, m_modelName, "Model Name", FieldType::StringFixed, 0)
+	LINA_FIELD(PanelModelViewer, m_animations, "Animation Count", FieldType::StringFixed, 0)
+	LINA_FIELD(PanelModelViewer, m_materialDefs, "Material Def Count", FieldType::StringFixed, 0)
+	LINA_FIELD(PanelModelViewer, m_meshes, "Mesh Count", FieldType::StringFixed, 0)
 	LINA_CLASS_END(PanelModelViewer)
 
 } // namespace Lina::Editor

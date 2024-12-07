@@ -70,6 +70,15 @@ namespace Lina
 		}
 	}
 
+	void Model::AddMeshesRecursively(ModelNode* node)
+	{
+		if (node->m_mesh != nullptr)
+			m_meshes.push_back(node->m_mesh);
+
+		for (ModelNode* c : node->m_children)
+			AddMeshesRecursively(c);
+	}
+
 	void Model::ProcessNode(LinaGX::ModelNode* lgxNode, ModelNode* parent)
 	{
 		ModelNode* node = new ModelNode();
@@ -112,6 +121,7 @@ namespace Lina
 				meshPrim.m_materialIndex = lgxPrim->material ? lgxPrim->material->index : 0;
 				meshPrim.m_startVertex	 = static_cast<uint32>(m->m_vertices.size());
 				meshPrim.m_startIndex	 = static_cast<uint32>(m->m_indices16.size());
+				meshPrim.m_vertexCount	 = lgxPrim->vertexCount;
 
 				for (uint32 i = 0; i < lgxPrim->vertexCount; i++)
 				{
@@ -126,6 +136,7 @@ namespace Lina
 				uint16* indices		= reinterpret_cast<uint16*>(lgxPrim->indices.data());
 				size_t	indicesSize = lgxPrim->indices.size() / 2;
 				m->m_indices16.insert(m->m_indices16.end(), indices, indices + indicesSize);
+				meshPrim.m_indexCount = static_cast<uint32>(indicesSize);
 			}
 
 			m->m_localAABB		  = AABB(min, max);
@@ -192,6 +203,14 @@ namespace Lina
 			m_textureDefs.push_back(txt);
 		}
 
+		for (auto* lgxAnim : modelData.allAnims)
+		{
+			for (auto& channel : lgxAnim->channels)
+			{
+				LinaGX::ModelMesh m;
+			}
+		}
+
 		for (auto* lgxNode : modelData.rootNodes)
 			ProcessNode(lgxNode, nullptr);
 
@@ -220,10 +239,10 @@ namespace Lina
 			node->LoadFromStream(stream);
 			node->m_owner  = this;
 			m_rootNodes[i] = node;
-
-			if (node->m_mesh != nullptr)
-				m_meshes.push_back(node->m_mesh);
 		}
+
+		for (ModelNode* node : m_rootNodes)
+			AddMeshesRecursively(node);
 	}
 
 	size_t Model::GetSize() const

@@ -62,12 +62,24 @@ namespace Lina
 			return m_materialIndex;
 		}
 
+		inline uint32 GetVertexCount() const
+		{
+			return m_vertexCount;
+		}
+
+		inline uint32 GetIndexCount() const
+		{
+			return m_indexCount;
+		}
+
 	private:
 		friend class Model;
 
 		uint32 m_materialIndex = 0;
 		uint32 m_startIndex	   = 0;
 		uint32 m_startVertex   = 0;
+		uint32 m_vertexCount   = 0;
+		uint32 m_indexCount	   = 0;
 	};
 
 } // namespace Lina
