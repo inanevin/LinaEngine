@@ -39,6 +39,8 @@ src/Graphics/Utility/ShaderPreprocessor.cpp
 src/Graphics/Utility/GfxHelpers.cpp
 src/Graphics/Utility/TextureAtlas.cpp
 src/Graphics/Data/Vertex.cpp
+src/Graphics/Data/ModelAnimation.cpp
+src/Graphics/Data/ModelSkin.cpp
 src/Graphics/Data/RenderData.cpp
 src/Graphics/Data/Mesh.cpp
 src/Graphics/Data/Primitive.cpp
@@ -60,6 +62,7 @@ src/Graphics/Renderers/FeatureRenderer.cpp
 src/Graphics/Pipeline/Buffer.cpp
 src/Graphics/Pipeline/RenderPass.cpp
 src/Graphics/Pipeline/DescriptorSet.cpp
+src/Graphics/Pipeline/View.cpp
 src/Graphics/CommonGraphics.cpp
 
 # Meta
@@ -86,6 +89,7 @@ src/World/Camera.cpp
 src/World/Components/CompRenderable.cpp
 src/World/Components/CompCamera.cpp
 src/World/Components/CompModel.cpp
+src/World/Animation/AnimationController.cpp
 
 # Physics
 src/Physics/PhysicsWorld.cpp
@@ -165,6 +169,8 @@ include/Core/Graphics/Utility/GfxHelpers.hpp
 include/Core/Graphics/Utility/TextureAtlas.hpp
 include/Core/Graphics/Data/RenderData.hpp
 include/Core/Graphics/Data/Vertex.hpp
+include/Core/Graphics/Data/ModelAnimation.hpp
+include/Core/Graphics/Data/ModelSkin.hpp
 include/Core/Graphics/Data/Mesh.hpp
 include/Core/Graphics/Data/Primitive.hpp
 include/Core/Graphics/Data/ModelNode.hpp
@@ -186,6 +192,7 @@ include/Core/Graphics/Renderers/LightingRenderer.hpp
 include/Core/Graphics/Pipeline/Buffer.hpp
 include/Core/Graphics/Pipeline/RenderPass.hpp
 include/Core/Graphics/Pipeline/DescriptorSet.hpp
+include/Core/Graphics/Pipeline/View.hpp
 
 #Meta
 include/Core/Meta/ProjectData.hpp
@@ -203,6 +210,7 @@ include/Core/World/Camera.hpp
 include/Core/World/Components/CompCamera.hpp
 include/Core/World/Components/CompRenderable.hpp
 include/Core/World/Components/CompModel.hpp
+include/Core/World/Animation/AnimationController.hpp
 
 # Physics
 include/Core/Physics/PhysicsWorld.hpp

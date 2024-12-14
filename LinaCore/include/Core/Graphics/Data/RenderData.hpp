@@ -36,7 +36,6 @@ SOFTWARE.
 namespace Lina
 {
 	class Material;
-	class MeshDefault;
 
 	struct MaterialComparator
 	{
@@ -96,7 +95,7 @@ namespace Lina
 	{
 		uint32 entityIndex;
 		uint32 materialByteIndex;
-		uint32 padding0;
+		uint32 boneIndex;
 		uint32 padding1;
 	};
 

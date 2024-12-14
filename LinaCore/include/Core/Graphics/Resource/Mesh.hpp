@@ -28,17 +28,7 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Mesh_HPP
-#define Mesh_HPP
-
 namespace Lina
 {
-	class Mesh
-	{
-	public:
-	private:
-	};
 
 } // namespace Lina
-
-#endif

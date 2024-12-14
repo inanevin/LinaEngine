@@ -28,28 +28,42 @@ SOFTWARE.
 
 #pragma once
 
-#include "FeatureRenderer.hpp"
+#include "Core/Resources/CommonResources.hpp"
+
+namespace LinaGX
+{
+	class Instance;
+	class CommandStream;
+} // namespace LinaGX
 
 namespace Lina
 {
+	class EntityWorld;
+	class ResourceManagerV2;
+
 	struct LightDraw
 	{
 		ResourceID materialID = 0;
 	};
 
-	class LightingRenderer : public FeatureRenderer
+	class LightingRenderer
 	{
 	public:
-		LightingRenderer(LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm) : FeatureRenderer(lgx, world, rm){};
+		LightingRenderer(){};
 		virtual ~LightingRenderer() = default;
 
-		virtual void ProduceFrame(const Camera& mainCamera, float delta) override;
-		virtual void RenderDrawPass(LinaGX::CommandStream* stream, uint32 frameIndex, RenderPass& pass, RenderPassType type) override;
-		virtual void SyncRender() override;
-		virtual void DropRenderFrame() override;
+		void Initialize(LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm);
+		void Shutdown();
+
+		void ProduceFrame();
+		void RenderLightingQuad(LinaGX::CommandStream* stream);
+		void SyncRender();
 
 	private:
-		LightDraw m_cpuDraw	   = {};
-		LightDraw m_renderDraw = {};
+		LinaGX::Instance*  m_lgx		= nullptr;
+		ResourceManagerV2* m_rm			= nullptr;
+		EntityWorld*	   m_world		= nullptr;
+		LightDraw		   m_cpuDraw	= {};
+		LightDraw		   m_renderDraw = {};
 	};
 } // namespace Lina

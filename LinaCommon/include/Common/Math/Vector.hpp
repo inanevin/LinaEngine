@@ -834,6 +834,9 @@ namespace Lina
 		{
 			return LinaGX::LGXVector4ui16{x, y, z, w};
 		}
+
+		void SaveToStream(OStream& stream) const;
+		void LoadFromStream(IStream& stream);
 	};
 
 	inline Vector4ui16 operator-(Vector4ui16 const& v, Vector4ui16 const& v2)

@@ -43,70 +43,109 @@ namespace Lina
 
 	void MeshManager::Initialize()
 	{
-		for (size_t i = 0; i < MESH_BUF_SIZE; i++)
-		{
-			auto& buf = m_meshBuffers[i];
-			buf.vertexBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, MAX_VERTICES * sizeof(VertexDefault), "MeshManager Big VertexBuffer");
-			buf.indexBuffer.Create(LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_INDICES * sizeof(uint16), "MeshManager Big IndexBuffer");
-		}
+		CreateBuffer(m_bufferStatic, MAX_VERTICES * sizeof(VertexStatic), MAX_INDICES * sizeof(uint16));
+		CreateBuffer(m_bufferSkinned, MAX_VERTICES * sizeof(VertexSkinned), MAX_INDICES * sizeof(uint16));
 	}
 
 	void MeshManager::Shutdown()
 	{
-		for (size_t i = 0; i < MESH_BUF_SIZE; i++)
+		DestroyBuffer(m_bufferSkinned);
+		DestroyBuffer(m_bufferStatic);
+	}
+
+	void MeshManager::AddMesh(Mesh* mesh)
+	{
+		if (mesh->primitivesSkinned.empty())
 		{
-			auto& buf = m_meshBuffers[i];
-			buf.vertexBuffer.Destroy();
-			buf.indexBuffer.Destroy();
+			m_bufferStatic.meshes.push_back(mesh);
+			mesh->_vertexOffset = static_cast<uint32>(m_bufferStatic.startVertex);
+			mesh->_indexOffset	= static_cast<uint32>(m_bufferStatic.startIndex);
+
+			for (PrimitiveStatic& prim : mesh->primitivesStatic)
+			{
+				prim._vertexOffset = static_cast<uint32>(m_bufferStatic.startVertex);
+				prim._indexOffset  = static_cast<uint32>(m_bufferStatic.startIndex);
+
+				m_bufferStatic.vertexBuffer.BufferData(m_bufferStatic.startVertex * sizeof(VertexStatic), (uint8*)prim.vertices.data(), sizeof(VertexStatic) * prim.vertices.size());
+				m_bufferStatic.startVertex += static_cast<uint32>(prim.vertices.size());
+
+				m_bufferStatic.indexBuffer.BufferData(m_bufferStatic.startIndex * sizeof(uint16), (uint8*)prim.indices.data(), sizeof(uint16) * prim.indices.size());
+				m_bufferStatic.startIndex += static_cast<uint32>(prim.indices.size());
+			}
 		}
-	}
+		else
+		{
+			m_bufferSkinned.meshes.push_back(mesh);
+			mesh->_vertexOffset = static_cast<uint32>(m_bufferSkinned.startVertex);
+			mesh->_indexOffset	= static_cast<uint32>(m_bufferSkinned.startIndex);
 
-	void MeshManager::BindBuffers(LinaGX::CommandStream* stream, uint32 bufferIndex)
-	{
-		auto& buf = m_meshBuffers[bufferIndex];
-		buf.indexBuffer.BindIndex(stream, LinaGX::IndexType::Uint16);
-		buf.vertexBuffer.BindVertex(stream, sizeof(VertexDefault));
-	}
+			for (PrimitiveSkinned& prim : mesh->primitivesSkinned)
+			{
+				prim._vertexOffset = static_cast<uint32>(m_bufferSkinned.startVertex);
+				prim._indexOffset  = static_cast<uint32>(m_bufferSkinned.startIndex);
 
-	void MeshManager::AddMesh(MeshDefault* mesh)
-	{
-		auto& buf = m_meshBuffers[0];
+				m_bufferSkinned.vertexBuffer.BufferData(m_bufferSkinned.startVertex * sizeof(VertexSkinned), (uint8*)prim.vertices.data(), sizeof(VertexSkinned) * prim.vertices.size());
+				m_bufferSkinned.startVertex += static_cast<uint32>(prim.vertices.size());
 
-		buf.meshes.push_back(mesh);
-
-		mesh->m_vertexOffset = static_cast<uint32>(buf.startVertex);
-		mesh->m_indexOffset	 = static_cast<uint32>(buf.startIndex);
-
-		const size_t vtxSize = sizeof(VertexDefault) * mesh->m_vertices.size();
-		buf.vertexBuffer.BufferData(buf.startVertex * sizeof(VertexDefault), (uint8*)(mesh->m_vertices.data()), vtxSize);
-		buf.startVertex += static_cast<uint32>(mesh->m_vertices.size());
-
-		const size_t indexSize = sizeof(uint16) * mesh->m_indices16.size();
-		buf.indexBuffer.BufferData(buf.startIndex * sizeof(uint16), (uint8*)(mesh->m_indices16.data()), indexSize);
-		buf.startIndex += static_cast<uint32>(mesh->m_indices16.size());
+				m_bufferSkinned.indexBuffer.BufferData(m_bufferSkinned.startIndex * sizeof(uint16), (uint8*)prim.indices.data(), sizeof(uint16) * prim.indices.size());
+				m_bufferSkinned.startIndex += static_cast<uint32>(prim.indices.size());
+			}
+		}
 	}
 
 	void MeshManager::AddToUploadQueue(ResourceUploadQueue& queue)
 	{
-		auto& buf = m_meshBuffers[0];
-		queue.AddBufferRequest(&buf.vertexBuffer);
-		queue.AddBufferRequest(&buf.indexBuffer);
+		queue.AddBufferRequest(&m_bufferStatic.vertexBuffer);
+		queue.AddBufferRequest(&m_bufferStatic.indexBuffer);
+		queue.AddBufferRequest(&m_bufferSkinned.vertexBuffer);
+		queue.AddBufferRequest(&m_bufferSkinned.indexBuffer);
 	}
 
-	void MeshManager::RemoveMesh(MeshDefault* mesh)
+	void MeshManager::BindStatic(LinaGX::CommandStream* stream)
 	{
-		auto& buf = m_meshBuffers[0];
-		buf.meshes.erase(linatl::find_if(buf.meshes.begin(), buf.meshes.end(), [mesh](MeshDefault* m) -> bool { return m == mesh; }));
+		m_bufferStatic.indexBuffer.BindIndex(stream, LinaGX::IndexType::Uint16);
+		m_bufferStatic.vertexBuffer.BindVertex(stream, sizeof(VertexStatic));
+	}
+
+	void MeshManager::BindSkinned(LinaGX::CommandStream* stream)
+	{
+		m_bufferSkinned.indexBuffer.BindIndex(stream, LinaGX::IndexType::Uint16);
+		m_bufferSkinned.vertexBuffer.BindVertex(stream, sizeof(VertexSkinned));
+	}
+
+	void MeshManager::RemoveMesh(Mesh* mesh)
+	{
+		auto& buf = mesh->primitivesSkinned.empty() ? m_bufferStatic : m_bufferSkinned;
+		buf.meshes.erase(linatl::find_if(buf.meshes.begin(), buf.meshes.end(), [mesh](Mesh* m) -> bool { return m == mesh; }));
 	}
 
 	void MeshManager::Refresh()
 	{
-		auto& buf		= m_meshBuffers[0];
-		buf.startIndex	= 0;
-		buf.startVertex = 0;
+		m_bufferStatic.startIndex = m_bufferStatic.startVertex = 0;
+		m_bufferSkinned.startIndex = m_bufferSkinned.startVertex = 0;
 
-		for (MeshDefault* m : buf.meshes)
+		Vector<Mesh*> meshesStatic	= m_bufferStatic.meshes;
+		Vector<Mesh*> meshesSkinned = m_bufferSkinned.meshes;
+		m_bufferStatic.meshes.clear();
+		m_bufferSkinned.meshes.clear();
+
+		for (Mesh* m : meshesStatic)
 			AddMesh(m);
+
+		for (Mesh* m : meshesSkinned)
+			AddMesh(m);
+	}
+
+	void MeshManager::CreateBuffer(MeshBuffer& buf, size_t vtxSz, size_t idxSz)
+	{
+		buf.vertexBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, vtxSz, "MeshManager Big VertexBuffer");
+		buf.indexBuffer.Create(LinaGX::ResourceTypeHint::TH_IndexBuffer, idxSz, "MeshManager Big IndexBuffer");
+	}
+
+	void MeshManager::DestroyBuffer(MeshBuffer& buf)
+	{
+		buf.vertexBuffer.Destroy();
+		buf.indexBuffer.Destroy();
 	}
 
 } // namespace Lina

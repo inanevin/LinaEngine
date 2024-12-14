@@ -87,6 +87,22 @@ namespace Lina
 		m_playMode = playmode;
 	}
 
+	void EntityWorld::Start()
+	{
+		for (const ComponentCachePair& pair : m_componentCaches)
+		{
+			pair.cache->ForEach([](Component* c) { c->OnStart(); });
+		}
+	}
+
+	void EntityWorld::End()
+	{
+		for (const ComponentCachePair& pair : m_componentCaches)
+		{
+			pair.cache->ForEach([](Component* c) { c->OnEnd(); });
+		}
+	}
+
 	void EntityWorld::BeginPlay()
 	{
 		for (const ComponentCachePair& pair : m_componentCaches)
@@ -267,8 +283,9 @@ namespace Lina
 
 	void EntityWorld::OnCreateComponent(Component* c, Entity* e)
 	{
-		c->m_world	= this;
-		c->m_entity = e;
+		c->m_world			 = this;
+		c->m_entity			 = e;
+		c->m_resourceManager = m_rm;
 		c->OnCreate();
 		for (auto* l : m_listeners)
 			l->OnComponentAdded(c);
@@ -288,7 +305,6 @@ namespace Lina
 		Entity* base = CreateEntity(model->GetName());
 
 		CompModel* modelComp = AddComponent<CompModel>(base);
-		modelComp->SetModel(model->GetID());
 
 		uint32 idx = 0;
 
@@ -303,6 +319,8 @@ namespace Lina
 			for (uint32 i = 0; i < modelMatsSize - idx; i++)
 				modelComp->SetMaterial(materials.at(0), idx + i);
 		}
+
+		modelComp->SetModel(model);
 
 		return base;
 	}

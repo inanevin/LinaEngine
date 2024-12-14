@@ -61,7 +61,8 @@ namespace Lina
 
 		static Transformation Interpolate(const Transformation& from, const Transformation& to, float t);
 
-		void SetMatrix(Matrix4& mat);
+		void SetLocalMatrix(const Matrix4& mat);
+		void SetGlobalMatrix(const Matrix4& mat);
 		void UpdateLocalMatrix();
 		void UpdateGlobalMatrix();
 		void SaveToStream(OStream& stream) const;

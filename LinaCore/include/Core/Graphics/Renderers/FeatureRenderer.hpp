@@ -61,13 +61,7 @@ namespace Lina
 		virtual void FetchRenderables(){};
 
 		virtual void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue){};
-		virtual void ProduceFrame(const Camera& mainCamera, float delta){};
-		virtual void RenderRecordPass(uint32 frameIndex, RenderPass& pass, RenderPassType type){};
-
 		virtual void RenderDrawPass(LinaGX::CommandStream* stream, uint32 frameIndex, RenderPass& pass, RenderPassType type){};
-		virtual void RenderDrawPassPost(LinaGX::CommandStream* stream, uint32 frameIndex, RenderPass& pass, RenderPassType type){};
-
-		virtual void DropRenderFrame(){};
 		virtual void SyncRender(){};
 
 	protected:

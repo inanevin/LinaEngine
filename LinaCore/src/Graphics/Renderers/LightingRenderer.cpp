@@ -29,33 +29,28 @@ SOFTWARE.
 #include "Core/Graphics/Renderers/LightingRenderer.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Resources/ResourceManager.hpp"
-#include "Core/Graphics/Data/Mesh.hpp"
 
 namespace Lina
 {
 
-	void LightingRenderer::ProduceFrame(const Camera& mainCamera, float delta)
+	void LightingRenderer::Initialize(LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm)
+	{
+		m_lgx	= lgx;
+		m_world = world;
+		m_rm	= rm;
+	}
+
+	void LightingRenderer::Shutdown()
+	{
+	}
+
+	void LightingRenderer::ProduceFrame()
 	{
 		m_cpuDraw.materialID = m_world->GetGfxSettings().lightingMaterial;
 	}
 
-	void LightingRenderer::SyncRender()
+	void LightingRenderer::RenderLightingQuad(LinaGX::CommandStream* stream)
 	{
-		m_renderDraw = m_cpuDraw;
-		m_cpuDraw	 = {};
-	}
-
-	void LightingRenderer::DropRenderFrame()
-	{
-		m_cpuDraw	 = {};
-		m_renderDraw = {};
-	}
-
-	void LightingRenderer::RenderDrawPass(LinaGX::CommandStream* stream, uint32 frameIndex, RenderPass& pass, RenderPassType type)
-	{
-		if (type != RenderPassType::Lighting)
-			return;
-
 		Material* lightingMaterial = m_rm->GetIfExists<Material>(m_renderDraw.materialID);
 		if (lightingMaterial == nullptr)
 			return;
@@ -75,6 +70,12 @@ namespace Lina
 		lightingDraw->startInstanceLocation	   = 0;
 		lightingDraw->startVertexLocation	   = 0;
 		lightingDraw->vertexCountPerInstance   = 3;
+	}
+
+	void LightingRenderer::SyncRender()
+	{
+		m_renderDraw = m_cpuDraw;
+		m_cpuDraw	 = {};
 	}
 
 } // namespace Lina

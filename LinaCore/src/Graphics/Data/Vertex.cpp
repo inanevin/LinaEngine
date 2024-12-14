@@ -31,13 +31,5 @@ SOFTWARE.
 
 namespace Lina
 {
-	void VertexDefault::SaveToStream(OStream& stream) const
-	{
-		stream << pos << normal << uv;
-	}
 
-	void VertexDefault::LoadFromStream(IStream& stream)
-	{
-		stream >> pos >> normal >> uv;
-	}
 } // namespace Lina

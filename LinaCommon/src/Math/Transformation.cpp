@@ -36,9 +36,16 @@ namespace Lina
 		return Transformation(Vector3::Lerp(from.m_position, to.m_position, t), Quaternion::Slerp(from.m_rotation, to.m_rotation, t), Vector3::Lerp(from.m_scale, to.m_scale, t));
 	}
 
-	void Transformation::SetMatrix(Matrix4& mat)
+	void Transformation::SetLocalMatrix(const Matrix4& mat)
+	{
+		mat.Decompose(m_localPosition, m_localRotation, m_localScale);
+		m_localMatrix = mat;
+	}
+
+	void Transformation::SetGlobalMatrix(const Matrix4& mat)
 	{
 		mat.Decompose(m_position, m_rotation, m_scale);
+		m_matrix = mat;
 	}
 
 	void Transformation::UpdateGlobalMatrix()

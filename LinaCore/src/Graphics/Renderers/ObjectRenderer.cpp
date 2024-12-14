@@ -38,6 +38,19 @@ SOFTWARE.
 
 namespace Lina
 {
+	void ObjectRenderer::Initialize(LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm)
+	{
+		m_lgx	= lgx;
+		m_world = world;
+		m_world->AddListener(this);
+		m_rm = rm;
+		FetchRenderables();
+	}
+
+	void ObjectRenderer::Shutdown()
+	{
+		m_world->RemoveListener(this);
+	}
 
 	void ObjectRenderer::OnComponentAdded(Component* comp)
 	{
@@ -61,20 +74,75 @@ namespace Lina
 		});
 	}
 
-	void ObjectRenderer::ProduceFrame(const Camera& mainCamera, float delta)
+	void ObjectRenderer::ProduceFrame(const View& view, Shader* shaderOverride, ShaderType type)
 	{
+		auto add = [&](Vector<PerShaderDraw>* perShaderDraws, Material* targetMaterial, const Matrix4& modelMatrix, Model* model, uint32 meshIndex, uint32 primitiveIndex) {
+			Shader* shader = shaderOverride ? shaderOverride : m_rm->GetIfExists<Shader>(targetMaterial->GetShader());
+			LINA_ASSERT(shader, "");
+
+			if (type != shader->GetShaderType())
+				return;
+
+			const ResourceID   shaderID		= shader->GetID();
+			const InstanceData instanceData = {
+				.entity =
+					{
+						.model = modelMatrix,
+					},
+				.materialID = targetMaterial->GetID(),
+				.boneIndex	= 0,
+			};
+
+			auto foundPerShader = linatl::find_if(perShaderDraws->begin(), perShaderDraws->end(), [shaderID](const PerShaderDraw& draw) -> bool { return draw.shader == shaderID; });
+
+			if (foundPerShader == perShaderDraws->end())
+			{
+				PerShaderDraw draw = {
+					.shader = shaderID,
+					.primitives =
+						{
+							{
+								.modelID		= model->GetID(),
+								.meshIndex		= meshIndex,
+								.primitiveIndex = primitiveIndex,
+								.instances		= {instanceData},
+							},
+						},
+				};
+
+				perShaderDraws->push_back(draw);
+			}
+			else
+			{
+				Vector<PrimitiveDraw>& primitives = foundPerShader->primitives;
+				auto				   foundPrimitive =
+					linatl::find_if(primitives.begin(), primitives.end(), [model, meshIndex, primitiveIndex](const PrimitiveDraw& draw) -> bool { return draw.modelID == model->GetID() && draw.meshIndex == meshIndex && draw.primitiveIndex == primitiveIndex; });
+
+				if (foundPrimitive == primitives.end())
+				{
+					primitives.push_back({
+						.modelID   = model->GetID(),
+						.meshIndex = meshIndex,
+						.instances = {instanceData},
+					});
+				}
+				else
+					foundPrimitive->instances.push_back(instanceData);
+			}
+		};
+
 		for (CompModel* comp : m_compModels)
 		{
 			if (!comp->GetEntity()->GetVisible())
 				continue;
 
-			Entity* entity = comp->GetEntity();
+			const Vector<CompModelNode>& nodes = comp->GetNodes();
 
-			// TODO: frustum cull :)
+			Entity* entity = comp->GetEntity();
+			// TODO: view visibility check.
 
 			Model* model = m_rm->GetIfExists<Model>(comp->GetModel());
-			if (model == nullptr)
-				continue;
+			LINA_ASSERT(model, "");
 
 			Vector<Material*>		  materials;
 			const Vector<ResourceID>& materialIDs = comp->GetMaterials();
@@ -84,173 +152,155 @@ namespace Lina
 			for (size_t i = 0; i < materialsSz; i++)
 				materials[i] = m_rm->GetIfExists<Material>(materialIDs[i]);
 
-			const Vector<MeshDefault*>& meshes	 = model->GetMeshes();
-			const size_t				meshesSz = meshes.size();
+			const Vector<Mesh>& meshes	 = model->GetAllMeshes();
+			const size_t		meshesSz = meshes.size();
 			for (size_t i = 0; i < meshesSz; i++)
 			{
-				MeshDefault* mesh	   = meshes[i];
+				const Mesh&	 mesh	   = meshes[i];
 				const uint32 meshIndex = static_cast<uint32>(i);
 
-				const Vector<PrimitiveDefault>& prims	= mesh->GetPrimitives();
-				const size_t					primsSz = prims.size();
-				for (size_t j = 0; j < primsSz; j++)
+				const Vector<PrimitiveStatic>& primsStatic	 = mesh.primitivesStatic;
+				const size_t				   primsStaticSz = primsStatic.size();
+				for (size_t j = 0; j < primsStaticSz; j++)
 				{
+					const PrimitiveStatic& prim			  = primsStatic.at(j);
+					const uint32		   primitiveIndex = static_cast<uint32>(j);
 
-					const PrimitiveDefault& prim		   = prims[j];
+					Material* targetMaterial = prim.materialIndex >= materials.size() ? nullptr : materials[prim.materialIndex];
+					LINA_ASSERT(targetMaterial, "");
+
+					// PROFILER_ADD_VERTICESINDICES(prim.vertices.size(), prim.indices.size());
+					// PROFILER_ADD_TRIS(prim.indices.size() / 3);
+					// PROFILER_ADD_DRAWCALL(1);
+
+					const Matrix4 modelMat = entity->GetTransform().GetMatrix() * nodes.at(mesh.nodeIndex).transform.GetLocalMatrix();
+					add(&m_cpuDrawData.staticDraws, targetMaterial, modelMat, model, meshIndex, primitiveIndex);
+				}
+
+				const Vector<PrimitiveSkinned>& primsSkinned   = mesh.primitivesSkinned;
+				const size_t					primsSkinnedSz = primsSkinned.size();
+				for (size_t j = 0; j < primsSkinnedSz; j++)
+				{
+					const PrimitiveSkinned& prim		   = primsSkinned.at(j);
 					const uint32			primitiveIndex = static_cast<uint32>(j);
 
-					Material* targetMaterial = prim.GetMaterialIndex() >= materials.size() ? nullptr : materials[prim.GetMaterialIndex()];
-					if (targetMaterial == nullptr)
-						continue;
+					Material* targetMaterial = prim.materialIndex >= materials.size() ? nullptr : materials[prim.materialIndex];
+					LINA_ASSERT(targetMaterial, "");
 
-					if (targetMaterial->GetShaderType() != ShaderType::OpaqueSurface && targetMaterial->GetShaderType() != ShaderType::TransparentSurface)
-						continue;
-
-					Shader* shader = m_rm->GetIfExists<Shader>(targetMaterial->GetShader());
-					if (shader == nullptr)
-						continue;
-					const ResourceID shaderID = shader->GetID();
-
-					const InstanceData instanceData = {
-						.materialID = targetMaterial->GetID(),
-						.entity =
-							{
-								.model = entity->GetTransform().GetMatrix() * mesh->GetNode()->GetLocalMatrix(),
-							},
-					};
-
-					Vector<PerShaderDraw>* perShaderDraws = targetMaterial->GetShaderType() == ShaderType::OpaqueSurface ? &m_cpuDeferredDraws : &m_cpuForwardDraws;
-
-					PROFILER_ADD_VERTICESINDICES(prim.GetVertexCount(), prim.GetIndexCount());
-					PROFILER_ADD_TRIS(prim.GetIndexCount() / 3);
-					PROFILER_ADD_DRAWCALL(1);
-
-					auto foundPerShader = linatl::find_if(perShaderDraws->begin(), perShaderDraws->end(), [shaderID](const PerShaderDraw& draw) -> bool { return draw.shader == shaderID; });
-
-					if (foundPerShader == perShaderDraws->end())
-					{
-						PerShaderDraw draw = {
-							.shader = shaderID,
-							.primitives =
-								{
-									{
-										.modelID		= model->GetID(),
-										.meshIndex		= meshIndex,
-										.primitiveIndex = primitiveIndex,
-										.instances		= {instanceData},
-									},
-								},
-						};
-
-						perShaderDraws->push_back(draw);
-					}
-					else
-					{
-						Vector<PrimitiveDraw>& primitives	  = foundPerShader->primitives;
-						auto				   foundPrimitive = linatl::find_if(
-							  primitives.begin(), primitives.end(), [model, meshIndex, primitiveIndex](const PrimitiveDraw& draw) -> bool { return draw.modelID == model->GetID() && draw.meshIndex == meshIndex && draw.primitiveIndex == primitiveIndex; });
-
-						if (foundPrimitive == primitives.end())
-						{
-							primitives.push_back({
-								.modelID   = model->GetID(),
-								.meshIndex = static_cast<uint32>(i),
-								.instances = {instanceData},
-							});
-						}
-						else
-							foundPrimitive->instances.push_back(instanceData);
-					}
+					const Matrix4 modelMat = entity->GetTransform().GetMatrix() * nodes.at(mesh.nodeIndex).transform.GetLocalMatrix();
+					add(&m_cpuDrawData.skinnedDraws, targetMaterial, modelMat, model, meshIndex, primitiveIndex);
 				}
 			}
 		}
 	}
 
-	void ObjectRenderer::RenderRecordPass(uint32 frameIndex, RenderPass& pass, RenderPassType type)
+	void ObjectRenderer::RecordFrame(uint32 frameIndex, LinaGX::CommandStream* stream, RenderPass& pass)
 	{
-		if (type != RenderPassType::Deferred && type != RenderPassType::Forward)
-			return;
-
-		Vector<PerShaderDraw>* data = type == RenderPassType::Deferred ? &m_renderDeferredDraws : &m_renderForwardDraws;
-		const size_t		   sz	= data->size();
-
 		Buffer& indirectBuffer	  = pass.GetBuffer(frameIndex, "IndirectBuffer"_hs);
 		Buffer& indirectConstants = pass.GetBuffer(frameIndex, "IndirectConstants"_hs);
 		Buffer& entityBuffer	  = pass.GetBuffer(frameIndex, "EntityBuffer"_hs);
 
-		for (size_t i = 0; i < sz; i++)
-		{
-			PerShaderDraw& perShader = data->at(i);
+		auto record = [&](uint32 indexCount, uint32 instanceCount, uint32 indexOffset, uint32 vertexOffset, const Vector<InstanceData>& instances) {
+			const uint32 indirectCount = indirectBuffer.GetIndirectCount();
+			const uint32 drawCount	   = indirectConstants.GetIndirectCount();
 
-			for (const PrimitiveDraw& primitiveDraw : perShader.primitives)
+			m_lgx->BufferIndexedIndirectCommandData(indirectBuffer.GetMapped(), indirectCount * m_lgx->GetIndexedIndirectCommandSize(), drawCount, indexCount, instanceCount, indexOffset, vertexOffset, drawCount);
+
+			indirectBuffer.SetIndirectCount(indirectCount + 1);
+
+			for (const InstanceData& instance : instances)
 			{
-				const uint32 indirectCount = indirectBuffer.GetIndirectCount();
-				const uint32 drawCount	   = indirectConstants.GetIndirectCount();
+				Material* mat = m_rm->GetIfExists<Material>(instance.materialID);
+				LINA_ASSERT(mat, "");
 
+				const uint32 entityCount = entityBuffer.GetIndirectCount();
+				entityBuffer.BufferData(sizeof(GPUEntity) * entityCount, (uint8*)&instance.entity, sizeof(GPUEntity));
+				entityBuffer.SetIndirectCount(entityCount + 1);
+
+				GPUIndirectConstants0 constants = {
+					.entityIndex	   = entityCount,
+					.materialByteIndex = mat->GetBindlessIndex() / static_cast<uint32>(sizeof(uint32)),
+					.boneIndex		   = instance.boneIndex,
+				};
+
+				indirectConstants.BufferData(drawCount * sizeof(GPUIndirectConstants0), (uint8*)&constants, sizeof(GPUIndirectConstants0));
+				indirectConstants.SetIndirectCount(drawCount + 1);
+			}
+		};
+
+		const size_t staticDrawsSz = m_gpuDrawData.staticDraws.size();
+
+		for (size_t i = 0; i < staticDrawsSz; i++)
+		{
+			const PerShaderDraw& draw = m_gpuDrawData.staticDraws.at(i);
+
+			for (const PrimitiveDraw& primitiveDraw : draw.primitives)
+			{
 				Model* model = m_rm->GetIfExists<Model>(primitiveDraw.modelID);
-				if (model == nullptr)
-					continue;
+				LINA_ASSERT(model, "");
 
-				MeshDefault*			mesh	  = model->GetMesh(primitiveDraw.meshIndex);
-				const PrimitiveDefault& primitive = mesh->GetPrimitives().at(primitiveDraw.primitiveIndex);
+				const Mesh&			   mesh				= model->GetAllMeshes().at(primitiveDraw.meshIndex);
+				const PrimitiveStatic& primitiveSkinned = mesh.primitivesStatic.at(primitiveDraw.primitiveIndex);
+				record(static_cast<uint32>(primitiveSkinned.indices.size()), static_cast<uint32>(primitiveDraw.instances.size()), primitiveSkinned._indexOffset, primitiveSkinned._vertexOffset, primitiveDraw.instances);
+			}
+		}
 
-				m_lgx->BufferIndexedIndirectCommandData(indirectBuffer.GetMapped(),
-														indirectCount * m_lgx->GetIndexedIndirectCommandSize(),
-														drawCount,
-														primitive.GetIndexCount(),
-														static_cast<uint32>(primitiveDraw.instances.size()),
-														mesh->GetIndexOffset() + primitive.GetStartIndex(),
-														mesh->GetVertexOffset() + primitive.GetStartVertex(),
-														drawCount);
+		const size_t skinnedDrawsSz = m_gpuDrawData.skinnedDraws.size();
+		for (size_t i = 0; i < skinnedDrawsSz; i++)
+		{
+			const PerShaderDraw& draw = m_gpuDrawData.skinnedDraws.at(i);
 
-				indirectBuffer.SetIndirectCount(indirectCount + 1);
+			for (const PrimitiveDraw& primitiveDraw : draw.primitives)
+			{
+				Model* model = m_rm->GetIfExists<Model>(primitiveDraw.modelID);
+				LINA_ASSERT(model, "");
 
-				for (const InstanceData& instance : primitiveDraw.instances)
-				{
-					Material* mat = m_rm->GetIfExists<Material>(instance.materialID);
-					if (mat == nullptr)
-						continue;
-
-					const uint32 entityCount = entityBuffer.GetIndirectCount();
-					entityBuffer.BufferData(sizeof(GPUEntity) * entityCount, (uint8*)&instance.entity, sizeof(GPUEntity));
-					entityBuffer.SetIndirectCount(entityCount + 1);
-
-					GPUIndirectConstants0 constants = {
-						.entityIndex	   = entityCount,
-						.materialByteIndex = mat->GetBindlessIndex() / static_cast<uint32>(sizeof(uint32)),
-					};
-
-					indirectConstants.BufferData(drawCount * sizeof(GPUIndirectConstants0), (uint8*)&constants, sizeof(GPUIndirectConstants0));
-					indirectConstants.SetIndirectCount(drawCount + 1);
-				}
+				const Mesh&				mesh			 = model->GetAllMeshes().at(primitiveDraw.meshIndex);
+				const PrimitiveSkinned& primitiveSkinned = mesh.primitivesSkinned.at(primitiveDraw.primitiveIndex);
+				record(static_cast<uint32>(primitiveSkinned.indices.size()), static_cast<uint32>(primitiveDraw.instances.size()), primitiveSkinned._indexOffset, primitiveSkinned._vertexOffset, primitiveDraw.instances);
 			}
 		}
 	}
 
-	void ObjectRenderer::RenderDrawPass(LinaGX::CommandStream* stream, uint32 frameIndex, RenderPass& pass, RenderPassType type)
+	void ObjectRenderer::RenderStatic(uint32 frameIndex, LinaGX::CommandStream* stream, RenderPass& pass)
 	{
-		if (type != RenderPassType::Deferred && type != RenderPassType::Forward)
-			return;
-
 		Buffer& indirectBuffer = pass.GetBuffer(frameIndex, "IndirectBuffer"_hs);
 
-		Vector<PerShaderDraw>* data = type == RenderPassType::Deferred ? &m_renderDeferredDraws : &m_renderForwardDraws;
-
-		const size_t sz				 = data->size();
+		const size_t sz				 = m_gpuDrawData.staticDraws.size();
 		Shader*		 lastBoundShader = nullptr;
 
 		for (size_t i = 0; i < sz; i++)
 		{
-			PerShaderDraw& perShader = data->at(i);
-			Shader*		   shader	 = m_rm->GetIfExists<Shader>(perShader.shader);
-			if (shader == nullptr)
-				continue;
+			const PerShaderDraw& perShader = m_gpuDrawData.staticDraws.at(i);
+			Shader*				 shader	   = m_rm->GetIfExists<Shader>(perShader.shader);
+			LINA_ASSERT(shader, "");
 
-			if (type == RenderPassType::Deferred && shader->GetShaderType() != ShaderType::OpaqueSurface)
-				continue;
+			if (shader != lastBoundShader)
+			{
+				LinaGX::CMDBindPipeline* pipelineBind = stream->AddCommand<LinaGX::CMDBindPipeline>();
+				pipelineBind->shader				  = shader->GetGPUHandle();
+				lastBoundShader						  = shader;
+			}
 
-			if (type == RenderPassType::Forward && shader->GetShaderType() != ShaderType::TransparentSurface)
-				continue;
+			LinaGX::CMDDrawIndexedIndirect* draw = stream->AddCommand<LinaGX::CMDDrawIndexedIndirect>();
+			draw->count							 = static_cast<uint32>(perShader.primitives.size());
+			draw->indirectBuffer				 = indirectBuffer.GetGPUResource();
+			draw->indirectBufferOffset			 = indirectBuffer.GetIndirectCount() * static_cast<uint32>(m_lgx->GetIndexedIndirectCommandSize());
+		}
+	}
+
+	void ObjectRenderer::RenderSkinned(uint32 frameIndex, LinaGX::CommandStream* stream, RenderPass& pass)
+	{
+		Buffer& indirectBuffer = pass.GetBuffer(frameIndex, "IndirectBuffer"_hs);
+
+		const size_t sz				 = m_gpuDrawData.skinnedDraws.size();
+		Shader*		 lastBoundShader = nullptr;
+
+		for (size_t i = 0; i < sz; i++)
+		{
+			const PerShaderDraw& perShader = m_gpuDrawData.skinnedDraws.at(i);
+			Shader*				 shader	   = m_rm->GetIfExists<Shader>(perShader.shader);
+			LINA_ASSERT(shader, "");
 
 			if (shader != lastBoundShader)
 			{
@@ -268,19 +318,8 @@ namespace Lina
 
 	void ObjectRenderer::SyncRender()
 	{
-		m_renderForwardDraws  = m_cpuForwardDraws;
-		m_renderDeferredDraws = m_cpuDeferredDraws;
-
-		m_cpuForwardDraws.resize(0);
-		m_cpuDeferredDraws.resize(0);
-	}
-
-	void ObjectRenderer::DropRenderFrame()
-	{
-		m_cpuForwardDraws	  = {};
-		m_cpuDeferredDraws	  = {};
-		m_renderForwardDraws  = {};
-		m_renderDeferredDraws = {};
+		m_gpuDrawData = m_cpuDrawData;
+		m_cpuDrawData = {};
 	}
 
 } // namespace Lina

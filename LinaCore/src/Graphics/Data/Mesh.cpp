@@ -27,61 +27,8 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/Data/Mesh.hpp"
-#include "Common/Data/Streams.hpp"
-
-#include "Common/Platform/LinaGXIncl.hpp"
 
 namespace Lina
 {
-	void MeshDefault::SaveToStream(OStream& stream) const
-	{
-		stream << m_name;
-		stream << m_indices16;
-		stream << m_vertices;
-		stream << m_primitives;
-	}
-
-	void MeshDefault::LoadFromStream(IStream& stream)
-	{
-		stream >> m_name;
-		stream >> m_indices16;
-		stream >> m_vertices;
-		stream >> m_primitives;
-	}
-
-	MeshDefault::~MeshDefault()
-	{
-		if (!m_ownsBuffers)
-			return;
-
-		m_vertexBuffer.Destroy();
-		m_indexBuffer.Destroy();
-	}
-
-	void MeshDefault::Draw(LinaGX::CommandStream* stream, uint32 instances)
-	{
-		for (const auto& prim : m_primitives)
-		{
-			LinaGX::CMDDrawIndexedInstanced* draw = stream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
-			draw->indexCountPerInstance			  = static_cast<uint32>(m_indices16.size());
-			draw->instanceCount					  = instances;
-			draw->startInstanceLocation			  = 0;
-			draw->startIndexLocation			  = prim.GetStartIndex();
-			draw->baseVertexLocation			  = prim.GetStartVertex();
-		}
-	}
-
-	void MeshDefault::Bind(LinaGX::CommandStream* stream)
-	{
-		LinaGX::CMDBindVertexBuffers* vtx = stream->AddCommand<LinaGX::CMDBindVertexBuffers>();
-		vtx->offset						  = 0;
-		vtx->resource					  = m_vertexBuffer.GetGPUResource();
-		vtx->vertexSize					  = static_cast<uint32>(sizeof(VertexDefault));
-
-		LinaGX::CMDBindIndexBuffers* index = stream->AddCommand<LinaGX::CMDBindIndexBuffers>();
-		index->offset					   = 0;
-		index->resource					   = m_indexBuffer.GetGPUResource();
-		index->indexType				   = LinaGX::IndexType::Uint16;
-	}
 
 } // namespace Lina

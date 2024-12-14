@@ -28,19 +28,26 @@ SOFTWARE.
 
 #pragma once
 
+#include "Common/Math/Transformation.hpp"
 #include "Core/World/Component.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Common/Math/AABB.hpp"
+#include "Core/World/Animation/AnimationController.hpp"
 
 namespace Lina
 {
-	class MeshDefault;
+	struct CompModelNode
+	{
+		Transformation transform;
+	};
 
 	class CompModel : public Component
 	{
 	public:
 		CompModel() : Component(GetTypeID<CompModel>(), CF_RENDERABLE){};
+
+		void SetModel(Model* model);
 
 		virtual void CollectReferences(HashSet<ResourceID>& refs) override
 		{
@@ -58,11 +65,6 @@ namespace Lina
 		virtual void LoadFromStream(IStream& stream) override
 		{
 			stream >> m_model >> m_materials;
-		}
-
-		inline void SetModel(ResourceID model)
-		{
-			m_model = model;
 		}
 
 		inline void SetMaterial(ResourceID material, uint32 index)
@@ -88,9 +90,16 @@ namespace Lina
 			return m_materials;
 		}
 
+		inline const Vector<CompModelNode>& GetNodes() const
+		{
+			return m_nodes;
+		}
+
 	private:
-		ResourceID		   m_model;
-		Vector<ResourceID> m_materials;
+		AnimationController	  m_animationController;
+		Vector<CompModelNode> m_nodes;
+		ResourceID			  m_model;
+		Vector<ResourceID>	  m_materials;
 	};
 
 } // namespace Lina

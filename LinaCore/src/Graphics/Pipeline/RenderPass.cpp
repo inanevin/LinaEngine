@@ -35,6 +35,7 @@ namespace Lina
 {
 	void RenderPass::Create(const RenderPassDescription& desc)
 	{
+
 		for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data		   = m_pfd[i];

@@ -47,6 +47,7 @@ namespace Lina
 	class Entity;
 	class Component;
 	class ProjectData;
+	class ResourceManagerV2;
 
 	enum class PlayMode
 	{
@@ -107,6 +108,8 @@ namespace Lina
 
 		void Tick(float delta);
 		void SetPlayMode(PlayMode playmode);
+		void Start();
+		void End();
 
 		template <typename T> T* GetComponent(Entity* e)
 		{
@@ -226,7 +229,6 @@ namespace Lina
 		void DestroyEntityData(Entity* e);
 		void OnCreateComponent(Component* c, Entity* e);
 		void OnDestroyComponent(Component* c, Entity* e);
-
 		void DestroyComponentCaches();
 
 	private:
@@ -250,6 +252,7 @@ namespace Lina
 		WorldInput					  m_worldInput;
 		Camera						  m_camera			   = {};
 		SimulationSettings			  m_simulationSettings = {};
+		ResourceManagerV2*			  m_rm				   = nullptr;
 
 		float	 m_elapsedTime		  = 0.0f;
 		float	 m_interpolationAlpha = 0.0f;

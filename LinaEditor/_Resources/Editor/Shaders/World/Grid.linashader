@@ -134,11 +134,11 @@ void main() {
     float gridLOD1 = grid(fragPos3D, 0.25f) * (1.0f - clamp(dist, 0.0, material.distLOD1) / material.distLOD1);
     float gridLOD2 = grid(fragPos3D, 0.0625f);
 
-    if(fragPos3D.x > -0.02 && fragPos3D.x < 0.02)
+    if(fragPos3D.x > -0.01 && fragPos3D.x < 0.01)
     {
         outColor = vec4(material.zAxisColor, 1);
     }
-    else if(fragPos3D.z > -0.02 && fragPos3D.z < 0.02)
+    else if(fragPos3D.z > -0.01 && fragPos3D.z < 0.01)
     {
         outColor = vec4(material.xAxisColor, 1);
     }

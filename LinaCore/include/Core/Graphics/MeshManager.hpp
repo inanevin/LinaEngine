@@ -37,16 +37,16 @@ namespace LinaGX
 namespace Lina
 {
 	class Model;
-	class MeshDefault;
+	struct Mesh;
 	class ResourceUploadQueue;
 
 	struct MeshBuffer
 	{
-		Buffer				 vertexBuffer;
-		Buffer				 indexBuffer;
-		size_t				 startVertex = 0;
-		size_t				 startIndex	 = 0;
-		Vector<MeshDefault*> meshes;
+		Buffer		  vertexBuffer;
+		Buffer		  indexBuffer;
+		size_t		  startVertex = 0;
+		size_t		  startIndex  = 0;
+		Vector<Mesh*> meshes;
 	};
 
 	class MeshManager
@@ -59,15 +59,20 @@ namespace Lina
 		void Shutdown();
 
 		void AddToUploadQueue(ResourceUploadQueue& queue);
-		void BindBuffers(LinaGX::CommandStream* stream, uint32 bufferIndex);
-		void AddMesh(MeshDefault* mesh);
-		void RemoveMesh(MeshDefault* mesh);
+		void BindStatic(LinaGX::CommandStream* stream);
+		void BindSkinned(LinaGX::CommandStream* stream);
+
+		void AddMesh(Mesh* mesh);
+		void RemoveMesh(Mesh* mesh);
 
 		void Refresh();
 
 	private:
-		static constexpr size_t MESH_BUF_SIZE = 1;
+		void CreateBuffer(MeshBuffer& buf, size_t vtxSz, size_t idxSz);
+		void DestroyBuffer(MeshBuffer& buf);
 
-		MeshBuffer m_meshBuffers[MESH_BUF_SIZE];
+	private:
+		MeshBuffer m_bufferSkinned;
+		MeshBuffer m_bufferStatic;
 	};
 } // namespace Lina

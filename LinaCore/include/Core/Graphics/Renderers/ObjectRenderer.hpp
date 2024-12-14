@@ -28,17 +28,27 @@ SOFTWARE.
 
 #pragma once
 
-#include "FeatureRenderer.hpp"
+#include "Core/Graphics/Data/RenderData.hpp"
+#include "Core/World/EntityWorld.hpp"
+
+namespace LinaGX
+{
+	class CommandStream;
+}
 
 namespace Lina
 {
 	class CompModel;
 	class Shader;
+	class EntityWorld;
+	class View;
+	class RenderPass;
 
 	struct InstanceData
 	{
-		ResourceID materialID = 0;
 		GPUEntity  entity	  = {};
+		ResourceID materialID = 0;
+		uint32	   boneIndex  = 0;
 	};
 
 	struct PrimitiveDraw
@@ -55,29 +65,39 @@ namespace Lina
 		Vector<PrimitiveDraw> primitives;
 	};
 
-	class ObjectRenderer : public FeatureRenderer
+	struct DrawData
+	{
+		Vector<PerShaderDraw> staticDraws;
+		Vector<PerShaderDraw> skinnedDraws;
+	};
+
+	class ObjectRenderer : public EntityWorldListener
 	{
 	public:
-		ObjectRenderer(LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm) : FeatureRenderer(lgx, world, rm){};
+		ObjectRenderer(){};
 		virtual ~ObjectRenderer() = default;
+
+		void Initialize(LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm);
+		void Shutdown();
 
 		virtual void OnComponentAdded(Component* comp) override;
 		virtual void OnComponentRemoved(Component* comp) override;
-		virtual void FetchRenderables() override;
-		virtual void ProduceFrame(const Camera& mainCamera, float delta) override;
+		void		 FetchRenderables();
+		void		 RenderStatic(uint32 frameIndex, LinaGX::CommandStream* stream, RenderPass& pass);
+		void		 RenderSkinned(uint32 frameIndex, LinaGX::CommandStream* stream, RenderPass& pass);
+		void		 ProduceFrame(const View& mainCamera, Shader* shaderOverride, ShaderType shaderType);
+		void		 RecordFrame(uint32 frameIndex, LinaGX::CommandStream* stream, RenderPass& pass);
 
-		virtual void RenderRecordPass(uint32 frameIndex, RenderPass& pass, RenderPassType type) override;
-		virtual void RenderDrawPass(LinaGX::CommandStream* stream, uint32 frameIndex, RenderPass& pass, RenderPassType type) override;
-
-		virtual void SyncRender() override;
-		virtual void DropRenderFrame() override;
+		void SyncRender();
 
 	private:
-		Vector<CompModel*> m_compModels;
+		ResourceManagerV2* m_rm	   = nullptr;
+		LinaGX::Instance*  m_lgx   = nullptr;
+		EntityWorld*	   m_world = nullptr;
 
-		Vector<PerShaderDraw> m_cpuDeferredDraws;
-		Vector<PerShaderDraw> m_cpuForwardDraws;
-		Vector<PerShaderDraw> m_renderDeferredDraws;
-		Vector<PerShaderDraw> m_renderForwardDraws;
+		DrawData m_cpuDrawData = {};
+		DrawData m_gpuDrawData = {};
+
+		Vector<CompModel*> m_compModels;
 	};
 } // namespace Lina

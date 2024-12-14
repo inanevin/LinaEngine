@@ -46,6 +46,8 @@ namespace Lina
 	class Component
 	{
 	public:
+		virtual void OnStart(){};
+		virtual void OnEnd(){};
 		virtual void OnBeginPlay(){};
 		virtual void OnEndPlay(){};
 		virtual void OnCreate(){};
@@ -82,10 +84,11 @@ namespace Lina
 		virtual ~Component() = default;
 
 		ALLOCATOR_BUCKET_MEM;
-		Entity*		 m_entity = nullptr;
-		EntityWorld* m_world  = nullptr;
-		Bitmask32	 m_flags  = 0;
-		TypeID		 m_tid	  = 0;
+		Entity*			   m_entity			 = nullptr;
+		EntityWorld*	   m_world			 = nullptr;
+		Bitmask32		   m_flags			 = 0;
+		TypeID			   m_tid			 = 0;
+		ResourceManagerV2* m_resourceManager = nullptr;
 	};
 
 } // namespace Lina

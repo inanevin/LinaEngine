@@ -31,14 +31,5 @@ SOFTWARE.
 
 namespace Lina
 {
-	void PrimitiveDefault::SaveToStream(OStream& stream) const
-	{
-		stream << m_materialIndex << m_startIndex << m_startVertex << m_vertexCount << m_indexCount;
-	}
-
-	void PrimitiveDefault::LoadFromStream(IStream& stream)
-	{
-		stream >> m_materialIndex >> m_startIndex >> m_startVertex >> m_vertexCount >> m_indexCount;
-	}
 
 } // namespace Lina

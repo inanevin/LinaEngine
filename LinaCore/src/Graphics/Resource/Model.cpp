@@ -34,6 +34,7 @@ SOFTWARE.
 
 #include "Common/FileSystem/FileSystem.hpp"
 #include <LinaGX/Utility/ModelUtility.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace Lina
 {
@@ -51,11 +52,6 @@ namespace Lina
 	Model::~Model()
 	{
 		DestroyTextureDefs();
-
-		for (auto* n : m_rootNodes)
-			delete n;
-
-		m_rootNodes.clear();
 	}
 
 	void Model::DestroyTextureDefs()
@@ -70,84 +66,20 @@ namespace Lina
 		}
 	}
 
-	void Model::AddMeshesRecursively(ModelNode* node)
+	namespace
 	{
-		if (node->m_mesh != nullptr)
-			m_meshes.push_back(node->m_mesh);
-
-		for (ModelNode* c : node->m_children)
-			AddMeshesRecursively(c);
-	}
-
-	void Model::ProcessNode(LinaGX::ModelNode* lgxNode, ModelNode* parent)
-	{
-		ModelNode* node = new ModelNode();
-		node->m_parent	= parent;
-
-		if (parent == nullptr)
-			m_rootNodes.push_back(node);
-		else
-			parent->m_children.push_back(node);
-
-		if (lgxNode->localMatrix.empty())
-			node->m_localMatrix = Matrix4::TransformMatrix(lgxNode->position, Quaternion(lgxNode->quatRot.x, lgxNode->quatRot.y, lgxNode->quatRot.z, lgxNode->quatRot.w), lgxNode->scale);
-		else
-			node->m_localMatrix = Matrix4(lgxNode->localMatrix.data());
-
-		node->m_name = lgxNode->name;
-
-		if (lgxNode->mesh != nullptr)
+		Matrix4 TranslateRotateScale(const LinaGX::LGXVector3& pos, const LinaGX::LGXVector4& rot, const LinaGX::LGXVector3& scale)
 		{
-			LinaGX::ModelMesh* lgxMesh = lgxNode->mesh;
-			MeshDefault*	   m	   = new MeshDefault();
-			node->m_mesh			   = m;
-			node->m_meshIndex		   = static_cast<uint32>(m_meshes.size());
-			m_meshes.push_back(m);
-			m->m_name = lgxMesh->name;
-			m->m_node = node;
-			m->m_primitives.resize(lgxMesh->primitives.size());
-
-			Vector3 min = Vector3::Zero;
-			Vector3 max = Vector3::Zero;
-
-			for (size_t i = 0; i < lgxMesh->primitives.size(); i++)
-			{
-				auto* lgxPrim  = lgxMesh->primitives[i];
-				auto& meshPrim = m->m_primitives[i];
-
-				min = min.Min(Vector3(lgxPrim->minPosition.x, lgxPrim->minPosition.y, lgxPrim->minPosition.z));
-				max = max.Max(Vector3(lgxPrim->maxPosition.x, lgxPrim->maxPosition.y, lgxPrim->maxPosition.z));
-
-				meshPrim.m_materialIndex = lgxPrim->material ? lgxPrim->material->index : 0;
-				meshPrim.m_startVertex	 = static_cast<uint32>(m->m_vertices.size());
-				meshPrim.m_startIndex	 = static_cast<uint32>(m->m_indices16.size());
-				meshPrim.m_vertexCount	 = lgxPrim->vertexCount;
-
-				for (uint32 i = 0; i < lgxPrim->vertexCount; i++)
-				{
-					VertexDefault vtx = {};
-					vtx.pos			  = lgxPrim->positions[i];
-					vtx.normal		  = lgxPrim->normals.empty() ? Vector3::Zero : lgxPrim->normals[i];
-					vtx.uv			  = lgxPrim->texCoords.empty() ? Vector2::Zero : lgxPrim->texCoords[i];
-					m->m_vertices.push_back(vtx);
-				}
-
-				LINA_ASSERT(lgxPrim->indexType == LinaGX::IndexType::Uint16, "");
-				uint16* indices		= reinterpret_cast<uint16*>(lgxPrim->indices.data());
-				size_t	indicesSize = lgxPrim->indices.size() / 2;
-				m->m_indices16.insert(m->m_indices16.end(), indices, indices + indicesSize);
-				meshPrim.m_indexCount = static_cast<uint32>(indicesSize);
-			}
-
-			m->m_localAABB		  = AABB(min, max);
-			m_totalAABB.boundsMin = m_totalAABB.boundsMin.Min(min);
-			m_totalAABB.boundsMax = m_totalAABB.boundsMax.Max(max);
-			m_totalAABB.UpdateHalfExtents();
+			glm::vec3 p		= glm::vec3(pos.x, pos.y, pos.z);
+			glm::vec3 s		= glm::vec3(scale.x, scale.y, scale.z);
+			glm::quat r		= glm::quat(rot.w, rot.x, rot.y, rot.z);
+			glm::mat4 model = glm::mat4(1.0f);
+			model			= glm::translate(model, p);
+			model *= glm::mat4_cast(r);
+			model = glm::scale(model, s);
+			return model;
 		}
-
-		for (auto* lgxChild : lgxNode->children)
-			ProcessNode(lgxChild, node);
-	}
+	} // namespace
 
 	bool Model::LoadFromFile(const String& path)
 	{
@@ -203,16 +135,191 @@ namespace Lina
 			m_textureDefs.push_back(txt);
 		}
 
-		for (auto* lgxAnim : modelData.allAnims)
+		const size_t allNodesSz = modelData.allNodes.size();
+		m_allNodes.resize(allNodesSz);
+
+		for (size_t i = 0; i < allNodesSz; i++)
 		{
-			for (auto& channel : lgxAnim->channels)
+			LinaGX::ModelNode* lgxNode = modelData.allNodes.at(i);
+
+			m_allNodes[i] = {
+				.name			   = lgxNode->name,
+				.meshIndex		   = lgxNode->meshIndex,
+				.localMatrix	   = lgxNode->localMatrix.empty() ? TranslateRotateScale(lgxNode->position, lgxNode->quatRot, lgxNode->scale) : glm::make_mat4(lgxNode->localMatrix.data()),
+				.inverseBindMatrix = lgxNode->inverseBindMatrix.empty() ? Matrix4::Identity() : glm::make_mat4(lgxNode->inverseBindMatrix.data()),
+			};
+		}
+
+		const size_t meshesSz = modelData.allMeshes.size();
+		m_allMeshes.resize(meshesSz);
+
+		for (size_t i = 0; i < meshesSz; i++)
+		{
+			LinaGX::ModelMesh* lgxMesh = modelData.allMeshes.at(i);
+
+			Mesh& mesh = m_allMeshes[i];
+
+			mesh.name	   = lgxMesh->name;
+			mesh.nodeIndex = lgxMesh->nodeIndex;
+			mesh.primitivesSkinned.clear();
+			mesh.primitivesStatic.clear();
+
+			for (LinaGX::ModelMeshPrimitive* prim : lgxMesh->primitives)
 			{
-				LinaGX::ModelMesh m;
+				const size_t vtxCount = prim->vertexCount;
+				LINA_ASSERT(prim->indexType == LinaGX::IndexType::Uint16, "");
+				uint16*		 indices	 = reinterpret_cast<uint16*>(prim->indices.data());
+				const size_t indicesSize = prim->indices.size() / 2;
+
+				if (!prim->weights.empty())
+				{
+					PrimitiveSkinned primitive = {};
+					primitive.materialIndex	   = prim->materialIndex == -1 ? 0 : static_cast<uint32>(prim->materialIndex);
+					primitive.vertices.resize(vtxCount);
+					primitive.indices.insert(primitive.indices.end(), indices, indices + indicesSize);
+
+					const bool boneIndices16 = !prim->jointsui16.empty();
+
+					for (size_t j = 0; j < vtxCount; j++)
+					{
+						VertexSkinned& vtx = primitive.vertices[j];
+						vtx.pos.x		   = prim->positions[j].x;
+						vtx.pos.y		   = prim->positions[j].y;
+						vtx.pos.z		   = prim->positions[j].z;
+
+						vtx.uv.x = prim->texCoords[j].x;
+						vtx.uv.y = prim->texCoords[j].y;
+
+						vtx.normal.x = prim->normals[j].x;
+						vtx.normal.y = prim->normals[j].y;
+						vtx.normal.z = prim->normals[j].z;
+
+						vtx.boneWeights.x = prim->weights[j].x;
+						vtx.boneWeights.y = prim->weights[j].y;
+						vtx.boneWeights.z = prim->weights[j].z;
+						vtx.boneWeights.w = prim->weights[j].w;
+
+						if (boneIndices16)
+						{
+							vtx.boneIndices.x = prim->jointsui16[j].x;
+							vtx.boneIndices.y = prim->jointsui16[j].y;
+							vtx.boneIndices.z = prim->jointsui16[j].z;
+							vtx.boneIndices.w = prim->jointsui16[j].w;
+						}
+						else
+						{
+							vtx.boneIndices.x = static_cast<uint16>(prim->jointsui8[j].x);
+							vtx.boneIndices.y = static_cast<uint16>(prim->jointsui8[j].y);
+							vtx.boneIndices.z = static_cast<uint16>(prim->jointsui8[j].z);
+							vtx.boneIndices.w = static_cast<uint16>(prim->jointsui8[j].w);
+						}
+					}
+
+					mesh.primitivesSkinned.push_back(primitive);
+				}
+				else
+				{
+					PrimitiveStatic primitive = {};
+					primitive.materialIndex	  = prim->materialIndex == -1 ? 0 : static_cast<uint32>(prim->materialIndex);
+					primitive.vertices.resize(vtxCount);
+					primitive.indices.insert(primitive.indices.end(), indices, indices + indicesSize);
+
+					for (size_t j = 0; j < vtxCount; j++)
+					{
+						VertexStatic& vtx = primitive.vertices[j];
+						vtx.pos.x		  = prim->positions[j].x;
+						vtx.pos.y		  = prim->positions[j].y;
+						vtx.pos.z		  = prim->positions[j].z;
+
+						vtx.uv.x = prim->texCoords[j].x;
+						vtx.uv.y = prim->texCoords[j].y;
+
+						vtx.normal.x = prim->normals[j].x;
+						vtx.normal.y = prim->normals[j].y;
+						vtx.normal.z = prim->normals[j].z;
+					}
+
+					mesh.primitivesStatic.push_back(primitive);
+				}
 			}
 		}
 
-		for (auto* lgxNode : modelData.rootNodes)
-			ProcessNode(lgxNode, nullptr);
+		const size_t skinsSz = modelData.allSkins.size();
+		m_allSkins.resize(skinsSz);
+
+		for (size_t i = 0; i < skinsSz; i++)
+		{
+			LinaGX::ModelSkin* lgxSkin = modelData.allSkins.at(i);
+			ModelSkin&		   skin	   = m_allSkins[i];
+			skin.rootJointIndex		   = lgxSkin->rootJoint == nullptr ? -1 : lgxSkin->rootJoint->index;
+
+			for (LinaGX::ModelNode* node : lgxSkin->joints)
+				skin.jointIndices.push_back(node->index);
+		}
+
+		const size_t animsSz = modelData.allAnims.size();
+		m_allAnimations.resize(animsSz);
+
+		for (size_t i = 0; i < animsSz; i++)
+		{
+			LinaGX::ModelAnimation* lgxAnim = modelData.allAnims.at(i);
+			ModelAnimation&			anim	= m_allAnimations[i];
+			anim.duration					= lgxAnim->duration;
+			anim.name						= lgxAnim->name;
+
+			const size_t channelsSz = lgxAnim->channels.size();
+
+			for (size_t j = 0; j < channelsSz; j++)
+			{
+				const LinaGX::ModelAnimationChannel& lgxChannel = lgxAnim->channels.at(j);
+
+				if (lgxChannel.targetProperty == LinaGX::GLTFAnimationProperty::Position)
+				{
+					anim.positionChannels.push_back({});
+					ModelAnimationChannelV3& posChannel = anim.positionChannels.back();
+
+					posChannel.interpolation = static_cast<ModelAnimationInterpolation>((uint32)lgxChannel.interpolation);
+					posChannel.nodeIndex	 = lgxChannel.targetNode->index;
+
+					for (size_t k = 0; k < lgxChannel.keyframeTimes.size(); k++)
+					{
+						const float	  kf  = lgxChannel.keyframeTimes[k];
+						const Vector3 vec = Vector3(lgxChannel.values[k * 3], lgxChannel.values[k * 3 + 1], lgxChannel.values[k * 3 + 2]);
+						posChannel.keyframes.push_back(linatl::make_pair(kf, vec));
+					}
+				}
+				else if (lgxChannel.targetProperty == LinaGX::GLTFAnimationProperty::Scale)
+				{
+					anim.scaleChannels.push_back({});
+					ModelAnimationChannelV3& channel = anim.scaleChannels.back();
+
+					channel.interpolation = static_cast<ModelAnimationInterpolation>((uint32)lgxChannel.interpolation);
+					channel.nodeIndex	  = lgxChannel.targetNode->index;
+
+					for (size_t k = 0; k < lgxChannel.keyframeTimes.size(); k++)
+					{
+						const float	  kf  = lgxChannel.keyframeTimes[k];
+						const Vector3 vec = Vector3(lgxChannel.values[k * 3], lgxChannel.values[k * 3 + 1], lgxChannel.values[k * 3 + 2]);
+						channel.keyframes.push_back(linatl::make_pair(kf, vec));
+					}
+				}
+				else if (lgxChannel.targetProperty == LinaGX::GLTFAnimationProperty::Rotation)
+				{
+					anim.rotationChannels.push_back({});
+					ModelAnimationChannelV4& channel = anim.rotationChannels.back();
+
+					channel.interpolation = static_cast<ModelAnimationInterpolation>((uint32)lgxChannel.interpolation);
+					channel.nodeIndex	  = lgxChannel.targetNode->index;
+
+					for (size_t k = 0; k < lgxChannel.keyframeTimes.size(); k++)
+					{
+						const float	  kf  = lgxChannel.keyframeTimes[k];
+						const Vector4 vec = Vector4(lgxChannel.values[k * 4], lgxChannel.values[k * 4 + 1], lgxChannel.values[k * 4 + 2], lgxChannel.values[k * 4 + 3]);
+						channel.keyframes.push_back(linatl::make_pair(kf, vec));
+					}
+				}
+			}
+		}
 
 		return true;
 	}
@@ -226,31 +333,35 @@ namespace Lina
 		stream >> m_materialDefs;
 		stream >> m_meta;
 		stream >> m_totalAABB;
-
-		uint32 sz = 0;
-		stream >> sz;
-
-		m_meshes.clear();
-		m_rootNodes.resize(static_cast<size_t>(sz));
-
-		for (size_t i = 0; i < static_cast<size_t>(sz); i++)
-		{
-			ModelNode* node = new ModelNode();
-			node->LoadFromStream(stream);
-			node->m_owner  = this;
-			m_rootNodes[i] = node;
-		}
-
-		for (ModelNode* node : m_rootNodes)
-			AddMeshesRecursively(node);
+		stream >> m_allNodes;
+		stream >> m_allMeshes;
+		stream >> m_allSkins;
+		stream >> m_allAnimations;
 	}
 
 	size_t Model::GetSize() const
 	{
 		size_t total = sizeof(ModelMaterial) * m_materialDefs.size() + sizeof(ModelTexture) * m_textureDefs.size() + sizeof(Model);
 		total += sizeof(Metadata);
-		for (MeshDefault* m : m_meshes)
-			total += m->GetSize();
+
+		for (const Mesh& mesh : m_allMeshes)
+		{
+			total += sizeof(Mesh);
+			total += sizeof(PrimitiveSkinned) * mesh.primitivesSkinned.size();
+			total += sizeof(PrimitiveStatic) * mesh.primitivesStatic.size();
+
+			for (const PrimitiveSkinned& prim : mesh.primitivesSkinned)
+			{
+				total += prim.vertices.size() * sizeof(VertexSkinned);
+				total += prim.indices.size() * sizeof(uint16);
+			}
+
+			for (const PrimitiveStatic& prim : mesh.primitivesStatic)
+			{
+				total += prim.vertices.size() * sizeof(VertexStatic);
+				total += prim.indices.size() * sizeof(uint16);
+			}
+		}
 		return total;
 	}
 
@@ -262,10 +373,10 @@ namespace Lina
 		stream << m_materialDefs;
 		stream << m_meta;
 		stream << m_totalAABB;
-
-		stream << static_cast<uint32>(m_rootNodes.size());
-		for (auto* node : m_rootNodes)
-			node->SaveToStream(stream);
+		stream << m_allNodes;
+		stream << m_allMeshes;
+		stream << m_allSkins;
+		stream << m_allAnimations;
 	}
 
 	void Model::GenerateHW()
@@ -276,15 +387,16 @@ namespace Lina
 
 	void Model::Upload(MeshManager* mm)
 	{
-		for (ModelNode* node : m_rootNodes)
-			UploadNode(mm, node, false);
+		for (Mesh& mesh : m_allMeshes)
+			mm->AddMesh(&mesh);
+
 		m_hwUploadValid = true;
 	}
 
 	void Model::RemoveUpload(MeshManager* mm)
 	{
-		for (ModelNode* node : m_rootNodes)
-			UploadNode(mm, node, true);
+		for (Mesh& mesh : m_allMeshes)
+			mm->RemoveMesh(&mesh);
 		m_hwUploadValid = true;
 	}
 
@@ -293,48 +405,6 @@ namespace Lina
 		LINA_ASSERT(m_hwValid, "");
 		m_hwValid		= false;
 		m_hwUploadValid = false;
-	}
-
-	void Model::UploadNode(MeshManager* mm, ModelNode* node, bool remove)
-	{
-		MeshDefault* mesh = node->GetMesh();
-		if (mesh)
-		{
-			if (remove)
-				mm->RemoveMesh(mesh);
-			else
-				mm->AddMesh(mesh);
-		}
-
-		for (auto* c : node->m_children)
-			UploadNode(mm, c, remove);
-	}
-
-	ModelNode* Model::GetFirstNodeWMesh()
-	{
-		for (auto* n : m_rootNodes)
-		{
-			ModelNode* node = GetNodeWithMesh(n);
-			if (node)
-				return node;
-		}
-
-		return nullptr;
-	}
-
-	ModelNode* Model::GetNodeWithMesh(ModelNode* root)
-	{
-		if (root->GetMesh() != nullptr)
-			return root;
-
-		for (auto* c : root->m_children)
-		{
-			ModelNode* node = GetNodeWithMesh(c);
-			if (node)
-				return node;
-		}
-
-		return nullptr;
 	}
 
 } // namespace Lina

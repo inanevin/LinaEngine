@@ -27,9 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
-#include "Core/Graphics/Renderers/ObjectRenderer.hpp"
-#include "Core/Graphics/Renderers/SkyRenderer.hpp"
-#include "Core/Graphics/Renderers/LightingRenderer.hpp"
+#include "Core/Graphics/Renderers/FeatureRenderer.hpp"
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
@@ -39,6 +37,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Data/ModelNode.hpp"
 #include "Core/Graphics/Data/Mesh.hpp"
+#include "Core/Graphics/Pipeline/View.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/World/Components/CompModel.hpp"
 #include "Core/Resources/ResourceManager.hpp"
@@ -118,25 +117,20 @@ namespace Lina
 			auto& data = m_pfd[i];
 		}
 
-		m_objectRenderer   = new ObjectRenderer(m_lgx, m_world, m_resourceManagerV2);
-		m_skyRenderer	   = new SkyRenderer(m_lgx, m_world, m_resourceManagerV2);
-		m_lightingRenderer = new LightingRenderer(m_lgx, m_world, m_resourceManagerV2);
-		AddFeatureRenderer(m_objectRenderer);
-		AddFeatureRenderer(m_skyRenderer);
-		AddFeatureRenderer(m_lightingRenderer);
-
+		m_lightingRenderer.Initialize(m_lgx, m_world, m_resourceManagerV2);
+		m_skyRenderer.Initialize(m_lgx, m_world, m_resourceManagerV2);
+		m_objRendererDeferred.Initialize(m_lgx, m_world, m_resourceManagerV2);
+		m_objRendererForward.Initialize(m_lgx, m_world, m_resourceManagerV2);
 		m_guiBackend.Initialize(m_resourceManagerV2);
 		CreateSizeRelativeResources();
 	}
 
 	WorldRenderer::~WorldRenderer()
 	{
-		RemoveFeatureRenderer(m_objectRenderer);
-		RemoveFeatureRenderer(m_skyRenderer);
-		RemoveFeatureRenderer(m_lightingRenderer);
-		delete m_objectRenderer;
-		delete m_skyRenderer;
-		delete m_lightingRenderer;
+		m_objRendererDeferred.Shutdown();
+		m_objRendererForward.Shutdown();
+		m_skyRenderer.Shutdown();
+		m_lightingRenderer.Shutdown();
 
 		m_gBufSampler->DestroyHW();
 		m_resourceManagerV2->DestroyResource(m_gBufSampler);
@@ -286,14 +280,6 @@ namespace Lina
 		m_featureRenderers.erase(it);
 	}
 
-	void WorldRenderer::Tick(float delta)
-	{
-		const Camera& camera = m_world->GetWorldCamera();
-
-		for (FeatureRenderer* rend : m_featureRenderers)
-			rend->ProduceFrame(camera, delta);
-	}
-
 	void WorldRenderer::Resize(const Vector2ui& newSize)
 	{
 		if (m_size.Equals(newSize))
@@ -304,16 +290,41 @@ namespace Lina
 		CreateSizeRelativeResources();
 	}
 
+	void WorldRenderer::Tick(float delta)
+	{
+		// We populate views here.
+		// 1 View for main world camera.
+		// Then a view per light.
+
+		// Then calculate visibility for each view.
+		// For each renderable component, we pass it to a particular view to calculate it's visibility for that view.
+
+		m_lightingRenderer.ProduceFrame();
+		m_skyRenderer.ProduceFrame();
+
+		const Camera& camera = m_world->GetWorldCamera();
+
+		View cameraView;
+		cameraView.SetView(camera.GetView());
+		cameraView.CalculateVisibility();
+
+		m_objRendererDeferred.ProduceFrame(cameraView, nullptr, ShaderType::OpaqueSurface);
+		m_objRendererForward.ProduceFrame(cameraView, nullptr, ShaderType::TransparentSurface);
+	}
+
 	void WorldRenderer::SyncRender()
 	{
+		m_lightingRenderer.SyncRender();
+		m_skyRenderer.SyncRender();
+		m_objRendererDeferred.SyncRender();
+		m_objRendererForward.SyncRender();
+
 		for (FeatureRenderer* ft : m_featureRenderers)
 			ft->SyncRender();
 	}
 
 	void WorldRenderer::DropRenderFrame()
 	{
-		for (FeatureRenderer* ft : m_featureRenderers)
-			ft->DropRenderFrame();
 	}
 
 	void WorldRenderer::UpdateBuffers(uint32 frameIndex)
@@ -361,16 +372,17 @@ namespace Lina
 		m_deferredPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).SetIndirectCount(0);
 		m_deferredPass.GetBuffer(frameIndex, "IndirectConstants"_hs).SetIndirectCount(0);
 		m_deferredPass.GetBuffer(frameIndex, "EntityBuffer"_hs).SetIndirectCount(0);
+
+		m_objRendererDeferred.RecordFrame(frameIndex, currentFrame.gfxStream, m_deferredPass);
+
 		m_forwardPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).SetIndirectCount(0);
 		m_forwardPass.GetBuffer(frameIndex, "IndirectConstants"_hs).SetIndirectCount(0);
 		m_forwardPass.GetBuffer(frameIndex, "EntityBuffer"_hs).SetIndirectCount(0);
 
+		m_objRendererForward.RecordFrame(frameIndex, currentFrame.gfxStream, m_forwardPass);
+
 		for (FeatureRenderer* ft : m_featureRenderers)
-		{
-			ft->RenderRecordPass(frameIndex, m_deferredPass, RenderPassType::Deferred);
-			ft->RenderRecordPass(frameIndex, m_forwardPass, RenderPassType::Forward);
 			ft->AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
-		}
 
 		m_deferredPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
 		m_forwardPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
@@ -431,15 +443,16 @@ namespace Lina
 		m_deferredPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
 		m_deferredPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxContext->GetPipelineLayoutPersistent(RenderPassType::Deferred));
 
-		m_gfxContext->GetMeshManagerDefault().BindBuffers(currentFrame.gfxStream, 0);
-
 		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Deferred Pass");
 
 		m_deferredPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).SetIndirectCount(0);
 		m_deferredPass.GetBuffer(frameIndex, "EntityBuffer"_hs).SetIndirectCount(0);
 
-		for (FeatureRenderer* ft : m_featureRenderers)
-			ft->RenderDrawPass(currentFrame.gfxStream, frameIndex, m_deferredPass, RenderPassType::Deferred);
+		m_gfxContext->GetMeshManagerDefault().BindStatic(currentFrame.gfxStream);
+		m_objRendererDeferred.RenderStatic(frameIndex, currentFrame.gfxStream, m_deferredPass);
+
+		m_gfxContext->GetMeshManagerDefault().BindSkinned(currentFrame.gfxStream);
+		m_objRendererDeferred.RenderSkinned(frameIndex, currentFrame.gfxStream, m_deferredPass);
 
 		DEBUG_LABEL_END(currentFrame.gfxStream);
 
@@ -460,13 +473,14 @@ namespace Lina
 		m_lightingPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
 		m_lightingPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxContext->GetPipelineLayoutPersistent(RenderPassType::Lighting));
 
+		m_gfxContext->GetMeshManagerDefault().BindStatic(currentFrame.gfxStream);
+
 		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Lighting Pass");
 
-		for (FeatureRenderer* ft : m_featureRenderers)
-			ft->RenderDrawPass(currentFrame.gfxStream, frameIndex, m_lightingPass, RenderPassType::Lighting);
+		// Render lighting quad.
 
-		for (FeatureRenderer* ft : m_featureRenderers)
-			ft->RenderDrawPassPost(currentFrame.gfxStream, frameIndex, m_lightingPass, RenderPassType::Lighting);
+		m_lightingRenderer.RenderLightingQuad(currentFrame.gfxStream);
+		m_skyRenderer.RenderSky(currentFrame.gfxStream);
 
 		DEBUG_LABEL_END(currentFrame.gfxStream);
 
@@ -480,8 +494,15 @@ namespace Lina
 		m_forwardPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).SetIndirectCount(0);
 		m_forwardPass.GetBuffer(frameIndex, "EntityBuffer"_hs).SetIndirectCount(0);
 
+		m_gfxContext->GetMeshManagerDefault().BindStatic(currentFrame.gfxStream);
+		m_objRendererForward.RenderStatic(frameIndex, currentFrame.gfxStream, m_forwardPass);
+
+		m_gfxContext->GetMeshManagerDefault().BindSkinned(currentFrame.gfxStream);
+		m_objRendererForward.RenderSkinned(frameIndex, currentFrame.gfxStream, m_forwardPass);
+
 		for (FeatureRenderer* ft : m_featureRenderers)
 			ft->RenderDrawPass(currentFrame.gfxStream, frameIndex, m_forwardPass, RenderPassType::Forward);
+
 		DEBUG_LABEL_END(currentFrame.gfxStream);
 
 		m_forwardPass.End(currentFrame.gfxStream);

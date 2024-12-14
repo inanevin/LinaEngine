@@ -33,18 +33,40 @@ SOFTWARE.
 
 namespace Lina
 {
-	class VertexDefault
+	struct VertexStatic
 	{
-	public:
-		VertexDefault()	 = default;
-		~VertexDefault() = default;
-
 		Vector3 pos	   = Vector3::Zero;
 		Vector3 normal = Vector3::Zero;
 		Vector2 uv	   = Vector2::Zero;
 
-		void SaveToStream(OStream& stream) const;
-		void LoadFromStream(IStream& stream);
+		void SaveToStream(OStream& stream) const
+		{
+			stream << pos << normal << uv;
+		}
+
+		void LoadFromStream(IStream& stream)
+		{
+			stream >> pos >> normal >> uv;
+		}
+	};
+
+	struct VertexSkinned
+	{
+		Vector3		pos			= Vector3::Zero;
+		Vector3		normal		= Vector3::Zero;
+		Vector2		uv			= Vector2::Zero;
+		Vector4ui16 boneIndices = Vector4ui16();
+		Vector4		boneWeights = Vector4::Zero;
+
+		void SaveToStream(OStream& stream) const
+		{
+			stream << pos << normal << uv << boneIndices << boneWeights;
+		}
+
+		void LoadFromStream(IStream& stream)
+		{
+			stream >> pos >> normal >> uv >> boneIndices >> boneWeights;
+		}
 	};
 
 } // namespace Lina

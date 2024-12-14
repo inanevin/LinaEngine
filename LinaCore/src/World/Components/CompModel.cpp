@@ -27,8 +27,27 @@ SOFTWARE.
 */
 
 #include "Core/World/Components/CompModel.hpp"
+#include "Core/Graphics/Data/ModelNode.hpp"
 
 namespace Lina
 {
+	void CompModel::SetModel(Model* model)
+	{
+		m_model = model->GetID();
+		m_nodes.clear();
 
+		const Vector<ModelNode>& nodes = model->GetAllNodes();
+
+		const size_t nodesSz = nodes.size();
+		m_nodes.resize(nodesSz);
+
+		for (size_t i = 0; i < nodesSz; i++)
+		{
+			const ModelNode& modelNode = nodes.at(i);
+			CompModelNode&	 compNode  = m_nodes[i];
+			compNode.transform.SetLocalMatrix(modelNode.localMatrix);
+		}
+
+		const Vector<ModelAnimation>& animations = model->GetAllAnimations();
+	}
 } // namespace Lina

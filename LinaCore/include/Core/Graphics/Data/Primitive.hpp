@@ -29,57 +29,53 @@ SOFTWARE.
 #pragma once
 
 #include "Common/Data/Vector.hpp"
-#include "Common/Data/String.hpp"
 #include "Vertex.hpp"
-
-namespace LinaGX
-{
-	class CommandStream;
-}
 
 namespace Lina
 {
-	class ModelNode;
-
-	class PrimitiveDefault
+	struct PrimitiveStatic
 	{
-	public:
-		void SaveToStream(OStream& stream) const;
-		void LoadFromStream(IStream& stream);
+		uint32				 materialIndex = 0;
+		uint32				 _vertexOffset = 0;
+		uint32				 _indexOffset  = 0;
+		Vector<uint16>		 indices;
+		Vector<VertexStatic> vertices;
 
-		inline uint32 GetStartIndex() const
+		void SaveToStream(OStream& stream) const
 		{
-			return m_startIndex;
+			stream << materialIndex;
+			stream << indices;
+			stream << vertices;
+		}
+		void LoadFromStream(IStream& stream)
+		{
+			stream >> materialIndex;
+			stream >> indices;
+			stream >> vertices;
+		}
+	};
+
+	struct PrimitiveSkinned
+	{
+		uint32				  materialIndex = 0;
+		uint32				  _vertexOffset = 0;
+		uint32				  _indexOffset	= 0;
+		Vector<uint16>		  indices;
+		Vector<VertexSkinned> vertices;
+
+		void SaveToStream(OStream& stream) const
+		{
+			stream << materialIndex;
+			stream << indices;
+			stream << vertices;
 		}
 
-		inline uint32 GetStartVertex() const
+		void LoadFromStream(IStream& stream)
 		{
-			return m_startVertex;
+			stream >> materialIndex;
+			stream >> indices;
+			stream >> vertices;
 		}
-
-		inline uint32 GetMaterialIndex() const
-		{
-			return m_materialIndex;
-		}
-
-		inline uint32 GetVertexCount() const
-		{
-			return m_vertexCount;
-		}
-
-		inline uint32 GetIndexCount() const
-		{
-			return m_indexCount;
-		}
-
-	private:
-		friend class Model;
-
-		uint32 m_materialIndex = 0;
-		uint32 m_startIndex	   = 0;
-		uint32 m_startVertex   = 0;
-		uint32 m_vertexCount   = 0;
-		uint32 m_indexCount	   = 0;
 	};
 
 } // namespace Lina

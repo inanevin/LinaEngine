@@ -523,4 +523,12 @@ namespace Lina
 	{
 		stream >> x >> y >> z;
 	}
+	void Vector4ui16::SaveToStream(OStream& stream) const
+	{
+		stream << x << y << z << w;
+	}
+	void Vector4ui16::LoadFromStream(IStream& stream)
+	{
+		stream >> x >> y >> z >> w;
+	}
 } // namespace Lina

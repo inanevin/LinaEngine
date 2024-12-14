@@ -31,7 +31,11 @@ SOFTWARE.
 #include "Core/Resources/Resource.hpp"
 #include "Common/Data/Vector.hpp"
 #include "Common/Math/AABB.hpp"
+#include "Core/Graphics/Data/Mesh.hpp"
+#include "Core/Graphics/Data/ModelNode.hpp"
 #include "Core/Graphics/Data/ModelMaterial.hpp"
+#include "Core/Graphics/Data/ModelSkin.hpp"
+#include "Core/Graphics/Data/ModelAnimation.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include <LinaGX/Common/Defines/DataBuffers.hpp>
 
@@ -42,8 +46,6 @@ namespace LinaGX
 
 namespace Lina
 {
-	class ModelNode;
-	class MeshDefault;
 	class MeshManager;
 
 	class Model : public Resource
@@ -76,22 +78,6 @@ namespace Lina
 		void		   DestroyTextureDefs();
 		void		   Upload(MeshManager* mm);
 		void		   RemoveUpload(MeshManager* mm);
-		ModelNode*	   GetFirstNodeWMesh();
-
-		inline const Vector<ModelNode*>& GetRootNodes() const
-		{
-			return m_rootNodes;
-		}
-
-		inline MeshDefault* GetMesh(uint32 index) const
-		{
-			return m_meshes.at(index);
-		}
-
-		inline const Vector<MeshDefault*>& GetMeshes() const
-		{
-			return m_meshes;
-		}
 
 		inline const AABB& GetAABB() const
 		{
@@ -118,22 +104,36 @@ namespace Lina
 			return m_meta;
 		}
 
-	private:
-		void AddMeshesRecursively(ModelNode* node);
+		inline const Vector<ModelNode>& GetAllNodes() const
+		{
+			return m_allNodes;
+		}
 
-	private:
-		void	   ProcessNode(LinaGX::ModelNode* lgxNode, ModelNode* parent);
-		void	   UploadNode(MeshManager* mm, ModelNode* node, bool remove);
-		ModelNode* GetNodeWithMesh(ModelNode* root);
+		inline const Vector<Mesh>& GetAllMeshes() const
+		{
+			return m_allMeshes;
+		}
+
+		inline const Vector<ModelSkin>& GetAllSkins() const
+		{
+			return m_allSkins;
+		}
+
+		inline const Vector<ModelAnimation>& GetAllAnimations() const
+		{
+			return m_allAnimations;
+		}
 
 	private:
 		ALLOCATOR_BUCKET_MEM;
-		Metadata			  m_meta;
-		Vector<MeshDefault*>  m_meshes;
-		Vector<ModelNode*>	  m_rootNodes;
-		Vector<ModelMaterial> m_materialDefs;
-		Vector<ModelTexture>  m_textureDefs;
-		AABB				  m_totalAABB;
+		Metadata			   m_meta;
+		Vector<Mesh>		   m_allMeshes;
+		Vector<ModelNode>	   m_allNodes;
+		Vector<ModelMaterial>  m_materialDefs;
+		Vector<ModelTexture>   m_textureDefs;
+		Vector<ModelSkin>	   m_allSkins;
+		Vector<ModelAnimation> m_allAnimations;
+		AABB				   m_totalAABB;
 	};
 	LINA_RESOURCE_BEGIN(Model);
 	LINA_CLASS_END(Model);

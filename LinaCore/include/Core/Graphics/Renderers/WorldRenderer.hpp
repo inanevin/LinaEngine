@@ -36,6 +36,9 @@ SOFTWARE.
 #include "Core/Graphics/MeshManager.hpp"
 #include "Core/Graphics/GUI/GUIBackend.hpp"
 #include "Core/Graphics/GfxContext.hpp"
+#include "Core/Graphics/Renderers/ObjectRenderer.hpp"
+#include "Core/Graphics/Renderers/SkyRenderer.hpp"
+#include "Core/Graphics/Renderers/LightingRenderer.hpp"
 
 namespace LinaGX
 {
@@ -53,9 +56,6 @@ namespace Lina
 	class ResourceManagerV2;
 	class WorldRenderer;
 	class FeatureRenderer;
-	class ObjectRenderer;
-	class SkyRenderer;
-	class LightingRenderer;
 
 	class WorldRendererExtension
 	{
@@ -188,12 +188,13 @@ namespace Lina
 		Buffer*					 m_snapshotBuffer		  = nullptr;
 		bool					 m_standaloneSubmit		  = false;
 		Vector<FeatureRenderer*> m_featureRenderers;
-		ObjectRenderer*			 m_objectRenderer	= nullptr;
-		SkyRenderer*			 m_skyRenderer		= nullptr;
-		LightingRenderer*		 m_lightingRenderer = nullptr;
 		GfxContext*				 m_gfxContext;
 		String					 m_name		 = "";
 		WorldRendererExtension*	 m_extension = nullptr;
+		ObjectRenderer			 m_objRendererDeferred;
+		ObjectRenderer			 m_objRendererForward;
+		SkyRenderer				 m_skyRenderer;
+		LightingRenderer		 m_lightingRenderer;
 	};
 
 } // namespace Lina

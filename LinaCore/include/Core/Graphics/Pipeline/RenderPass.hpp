@@ -92,7 +92,6 @@ namespace Lina
 		}
 
 	private:
-	private:
 		PerFrameData			  m_pfd[FRAMES_IN_FLIGHT];
 		HashMap<StringID, uint32> m_bufferIndices;
 	};

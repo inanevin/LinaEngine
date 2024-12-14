@@ -33,32 +33,26 @@ SOFTWARE.
 
 namespace Lina
 {
+	void SkyRenderer::Initialize(LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm)
+	{
+		m_lgx	= lgx;
+		m_world = world;
+		m_rm	= rm;
+	}
 
-	void SkyRenderer::ProduceFrame(const Camera& mainCamera, float delta)
+	void SkyRenderer::Shutdown()
+	{
+	}
+
+	void SkyRenderer::ProduceFrame()
 	{
 		m_cpuDraw.skyModel = m_world->GetGfxSettings().skyModel;
 		m_cpuDraw.skyMat   = m_world->GetGfxSettings().skyMaterial;
 	}
 
-	void SkyRenderer::SyncRender()
+	void SkyRenderer::RenderSky(LinaGX::CommandStream* stream)
 	{
-		m_renderDraw = m_cpuDraw;
-		m_cpuDraw	 = {};
-	}
-
-	void SkyRenderer::DropRenderFrame()
-	{
-		m_cpuDraw	 = {};
-		m_renderDraw = {};
-	}
-
-	void SkyRenderer::RenderDrawPassPost(LinaGX::CommandStream* stream, uint32 frameIndex, RenderPass& pass, RenderPassType type)
-	{
-		if (type != RenderPassType::Lighting)
-			return;
-
 		Material* skyMaterial = m_rm->GetIfExists<Material>(m_renderDraw.skyMat);
-
 		if (skyMaterial == nullptr)
 			return;
 
@@ -73,17 +67,23 @@ namespace Lina
 		if (skyModel == nullptr)
 			return;
 
-		MeshDefault* mesh = skyModel->GetMesh(0);
+		const Mesh& mesh = skyModel->GetAllMeshes().at(0);
 
 		LinaGX::CMDBindPipeline* bind = stream->AddCommand<LinaGX::CMDBindPipeline>();
 		bind->shader				  = skyShader->GetGPUHandle();
 
 		LinaGX::CMDDrawIndexedInstanced* skyDraw = stream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
-		skyDraw->baseVertexLocation				 = mesh->GetVertexOffset();
-		skyDraw->indexCountPerInstance			 = mesh->GetIndexCount();
+		skyDraw->baseVertexLocation				 = mesh.primitivesStatic.at(0)._vertexOffset;
+		skyDraw->indexCountPerInstance			 = static_cast<uint32>(mesh.primitivesStatic.at(0).indices.size());
 		skyDraw->instanceCount					 = 1;
-		skyDraw->startIndexLocation				 = mesh->GetIndexOffset();
+		skyDraw->startIndexLocation				 = mesh.primitivesStatic.at(0)._indexOffset;
 		skyDraw->startInstanceLocation			 = 0;
+	}
+
+	void SkyRenderer::SyncRender()
+	{
+		m_renderDraw = m_cpuDraw;
+		m_cpuDraw	 = {};
 	}
 
 } // namespace Lina

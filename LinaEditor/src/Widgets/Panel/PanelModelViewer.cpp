@@ -125,7 +125,7 @@ namespace Lina::Editor
 		m_modelName	   = model->GetName();
 		m_animations   = "0";
 		m_materialDefs = TO_STRING(model->GetMaterialDefs().size());
-		m_meshes	   = TO_STRING(model->GetMeshes().size());
+		m_meshes	   = TO_STRING(model->GetAllMeshes().size());
 	}
 
 	void PanelModelViewer::RebuildContents()

@@ -28,29 +28,43 @@ SOFTWARE.
 
 #pragma once
 
-#include "FeatureRenderer.hpp"
+#include "Core/Resources/CommonResources.hpp"
+
+namespace LinaGX
+{
+	class Instance;
+	class CommandStream;
+} // namespace LinaGX
 
 namespace Lina
 {
+	class EntityWorld;
+	class ResourceManagerV2;
+
 	struct SkyDraw
 	{
 		ResourceID skyMat	= 0;
 		ResourceID skyModel = 0;
 	};
 
-	class SkyRenderer : public FeatureRenderer
+	class SkyRenderer
 	{
 	public:
-		SkyRenderer(LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm) : FeatureRenderer(lgx, world, rm){};
+		SkyRenderer(){};
 		virtual ~SkyRenderer() = default;
 
-		virtual void ProduceFrame(const Camera& mainCamera, float delta) override;
-		virtual void RenderDrawPassPost(LinaGX::CommandStream* stream, uint32 frameIndex, RenderPass& pass, RenderPassType type) override;
-		virtual void SyncRender() override;
-		virtual void DropRenderFrame() override;
+		void Initialize(LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm);
+		void Shutdown();
+
+		void ProduceFrame();
+		void RenderSky(LinaGX::CommandStream* stream);
+		void SyncRender();
 
 	private:
-		SkyDraw m_cpuDraw	 = {};
-		SkyDraw m_renderDraw = {};
+		LinaGX::Instance*  m_lgx		= nullptr;
+		ResourceManagerV2* m_rm			= nullptr;
+		EntityWorld*	   m_world		= nullptr;
+		SkyDraw			   m_cpuDraw	= {};
+		SkyDraw			   m_renderDraw = {};
 	};
 } // namespace Lina

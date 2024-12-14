@@ -30,9 +30,6 @@ SOFTWARE.
 
 #include "Common/Data/Vector.hpp"
 #include "Common/Data/String.hpp"
-#include "Core/Graphics/Pipeline/Buffer.hpp"
-#include "Common/Math/AABB.hpp"
-#include "Vertex.hpp"
 #include "Primitive.hpp"
 
 namespace LinaGX
@@ -41,77 +38,29 @@ namespace LinaGX
 }
 namespace Lina
 {
-	class ModelNode;
-
-	class MeshDefault
+	struct Mesh
 	{
-	public:
-		~MeshDefault();
+		String					 name		   = "";
+		int32					 nodeIndex	   = -1;
+		uint32					 _vertexOffset = 0;
+		uint32					 _indexOffset  = 0;
+		Vector<PrimitiveSkinned> primitivesSkinned;
+		Vector<PrimitiveStatic>	 primitivesStatic;
 
-		void SaveToStream(OStream& stream) const;
-		void LoadFromStream(IStream& stream);
-
-		void Draw(LinaGX::CommandStream* stream, uint32 instances);
-		void Bind(LinaGX::CommandStream* stream);
-
-		inline uint32 GetVertexOffset() const
+		void SaveToStream(OStream& stream) const
 		{
-			return m_vertexOffset;
+			stream << name;
+			stream << nodeIndex;
+			stream << primitivesSkinned;
+			stream << primitivesStatic;
 		}
-
-		inline uint32 GetIndexOffset() const
+		void LoadFromStream(IStream& stream)
 		{
-			return m_indexOffset;
+			stream >> name;
+			stream >> nodeIndex;
+			stream >> primitivesSkinned;
+			stream >> primitivesStatic;
 		}
-
-		inline uint32 GetIndexCount() const
-		{
-			return static_cast<uint32>(m_indices16.size());
-		}
-
-		inline uint32 GetVertexCount() const
-		{
-			return static_cast<uint32>(m_vertices.size());
-		}
-
-		inline const AABB& GetAABB() const
-		{
-			return m_localAABB;
-		}
-
-		inline const String& GetName() const
-		{
-			return m_name;
-		}
-
-		inline const Vector<PrimitiveDefault>& GetPrimitives() const
-		{
-			return m_primitives;
-		}
-
-		inline ModelNode* GetNode()
-		{
-			return m_node;
-		}
-		inline size_t GetSize() const
-		{
-			return sizeof(MeshDefault) + sizeof(PrimitiveDefault) * m_primitives.size() + sizeof(VertexDefault) * m_vertices.size() + sizeof(uint16) * m_indices16.size();
-		}
-
-	private:
-		friend class Model;
-		friend class ModelNode;
-		friend class MeshManager;
-
-	private:
-		Vector<PrimitiveDefault> m_primitives;
-		Vector<VertexDefault>	 m_vertices;
-		Vector<uint16>			 m_indices16;
-		ModelNode*				 m_node			= nullptr;
-		String					 m_name			= "";
-		uint32					 m_vertexOffset = 0;
-		uint32					 m_indexOffset	= 0;
-		AABB					 m_localAABB;
 	};
 
 } // namespace Lina
