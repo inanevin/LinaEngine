@@ -42,6 +42,7 @@ namespace Lina
 {
 	class Entity;
 	class EntityWorld;
+	class ResourceManagerV2;
 
 	class Component
 	{

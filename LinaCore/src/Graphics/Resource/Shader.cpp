@@ -167,7 +167,7 @@ namespace Lina
 				m_meta.variants.push_back({});
 				ShaderVariant& variant = m_meta.variants.back();
 				variant				   = ShaderVariant{
-								   .id			 = "DeferredSkinned"_hs,
+								   .id			 = "Skinned"_hs,
 								   .blendDisable = true,
 								   .depthTest	 = true,
 								   .depthWrite	 = true,
@@ -246,7 +246,7 @@ namespace Lina
 				m_meta.variants.push_back({});
 				ShaderVariant& variant = m_meta.variants.back();
 				variant				   = ShaderVariant{
-								   .id					= "ForwardSkinned"_hs,
+								   .id					= "Skinned"_hs,
 								   .blendDisable		= false,
 								   .blendSrcFactor		= LinaGX::BlendFactor::SrcAlpha,
 								   .blendDstFactor		= LinaGX::BlendFactor::OneMinusSrcAlpha,

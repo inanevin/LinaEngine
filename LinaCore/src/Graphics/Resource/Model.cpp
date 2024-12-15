@@ -100,7 +100,6 @@ namespace Lina
 			LINA_ERR("Failed loading model! {0}", path);
 			return false;
 		}
-
 		m_materialDefs.resize(modelData.allMaterials.size());
 		m_meta.materials.resize(m_materialDefs.size());
 
@@ -144,6 +143,7 @@ namespace Lina
 
 			m_allNodes[i] = {
 				.name			   = lgxNode->name,
+				.parentIndex	   = lgxNode->parent != nullptr ? static_cast<int32>(lgxNode->parent->index) : -1,
 				.meshIndex		   = lgxNode->meshIndex,
 				.localMatrix	   = lgxNode->localMatrix.empty() ? TranslateRotateScale(lgxNode->position, lgxNode->quatRot, lgxNode->scale) : glm::make_mat4(lgxNode->localMatrix.data()),
 				.inverseBindMatrix = lgxNode->inverseBindMatrix.empty() ? Matrix4::Identity() : glm::make_mat4(lgxNode->inverseBindMatrix.data()),
@@ -208,10 +208,10 @@ namespace Lina
 						}
 						else
 						{
-							vtx.boneIndices.x = static_cast<uint16>(prim->jointsui8[j].x);
-							vtx.boneIndices.y = static_cast<uint16>(prim->jointsui8[j].y);
-							vtx.boneIndices.z = static_cast<uint16>(prim->jointsui8[j].z);
-							vtx.boneIndices.w = static_cast<uint16>(prim->jointsui8[j].w);
+							vtx.boneIndices.x = static_cast<int32>(prim->jointsui8[j].x);
+							vtx.boneIndices.y = static_cast<int32>(prim->jointsui8[j].y);
+							vtx.boneIndices.z = static_cast<int32>(prim->jointsui8[j].z);
+							vtx.boneIndices.w = static_cast<int32>(prim->jointsui8[j].w);
 						}
 					}
 

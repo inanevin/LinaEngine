@@ -43,6 +43,7 @@ namespace Lina
 	class EntityWorld;
 	class View;
 	class RenderPass;
+	class SkinningManager;
 
 	struct InstanceData
 	{
@@ -77,7 +78,7 @@ namespace Lina
 		ObjectRenderer(){};
 		virtual ~ObjectRenderer() = default;
 
-		void Initialize(LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm);
+		void Initialize(LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm, SkinningManager* skinningManager);
 		void Shutdown();
 
 		virtual void OnComponentAdded(Component* comp) override;
@@ -91,9 +92,10 @@ namespace Lina
 		void SyncRender();
 
 	private:
-		ResourceManagerV2* m_rm	   = nullptr;
-		LinaGX::Instance*  m_lgx   = nullptr;
-		EntityWorld*	   m_world = nullptr;
+		ResourceManagerV2* m_rm				 = nullptr;
+		LinaGX::Instance*  m_lgx			 = nullptr;
+		EntityWorld*	   m_world			 = nullptr;
+		SkinningManager*   m_skinningManager = nullptr;
 
 		DrawData m_cpuDrawData = {};
 		DrawData m_gpuDrawData = {};

@@ -95,6 +95,7 @@ namespace Lina
 		EntityWorld(ResourceID id, const String& name);
 		~EntityWorld();
 
+		void			   Initialize(ResourceManagerV2* rm);
 		Entity*			   CreateEntity(const String& name);
 		void			   DestroyEntity(Entity* e);
 		virtual void	   SaveToStream(OStream& stream) const override;
@@ -108,8 +109,6 @@ namespace Lina
 
 		void Tick(float delta);
 		void SetPlayMode(PlayMode playmode);
-		void Start();
-		void End();
 
 		template <typename T> T* GetComponent(Entity* e)
 		{
@@ -253,6 +252,7 @@ namespace Lina
 		Camera						  m_camera			   = {};
 		SimulationSettings			  m_simulationSettings = {};
 		ResourceManagerV2*			  m_rm				   = nullptr;
+		JobExecutor					  m_executor;
 
 		float	 m_elapsedTime		  = 0.0f;
 		float	 m_interpolationAlpha = 0.0f;

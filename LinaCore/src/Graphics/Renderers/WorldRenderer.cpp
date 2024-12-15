@@ -119,8 +119,8 @@ namespace Lina
 
 		m_lightingRenderer.Initialize(m_lgx, m_world, m_resourceManagerV2);
 		m_skyRenderer.Initialize(m_lgx, m_world, m_resourceManagerV2);
-		m_objRendererDeferred.Initialize(m_lgx, m_world, m_resourceManagerV2);
-		m_objRendererForward.Initialize(m_lgx, m_world, m_resourceManagerV2);
+		m_objRendererDeferred.Initialize(m_lgx, m_world, m_resourceManagerV2, &m_skinningManager);
+		m_objRendererForward.Initialize(m_lgx, m_world, m_resourceManagerV2, &m_skinningManager);
 		m_guiBackend.Initialize(m_resourceManagerV2);
 		CreateSizeRelativeResources();
 	}
@@ -258,14 +258,18 @@ namespace Lina
 
 	void WorldRenderer::OnComponentAdded(Component* c)
 	{
+		m_skinningManager.OnComponentAdded(c);
+
 		for (FeatureRenderer* ft : m_featureRenderers)
 			ft->OnComponentAdded(c);
 	}
 
-	void WorldRenderer::OnComponentRemoved(Component* c)
+	void WorldRenderer::OnComponentRemoved(Component* comp)
 	{
+		m_skinningManager.OnComponentsRemoved(comp);
+
 		for (FeatureRenderer* ft : m_featureRenderers)
-			ft->OnComponentRemoved(c);
+			ft->OnComponentRemoved(comp);
 	}
 
 	void WorldRenderer::AddFeatureRenderer(FeatureRenderer* ft)
@@ -299,6 +303,8 @@ namespace Lina
 		// Then calculate visibility for each view.
 		// For each renderable component, we pass it to a particular view to calculate it's visibility for that view.
 
+		m_skinningManager.CalculateSkinningMatrices(m_executor);
+
 		m_lightingRenderer.ProduceFrame();
 		m_skyRenderer.ProduceFrame();
 
@@ -314,6 +320,7 @@ namespace Lina
 
 	void WorldRenderer::SyncRender()
 	{
+		m_skinningManager.SyncRender();
 		m_lightingRenderer.SyncRender();
 		m_skyRenderer.SyncRender();
 		m_objRendererDeferred.SyncRender();
@@ -367,6 +374,21 @@ namespace Lina
 			};
 
 			m_lightingPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&renderPassData, sizeof(GPUDataLightingPass));
+		}
+
+		// Copy skinning information.
+		Buffer&						 boneBufferDeferred = m_deferredPass.GetBuffer(frameIndex, "BoneBuffer"_hs);
+		Buffer&						 boneBufferForward	= m_forwardPass.GetBuffer(frameIndex, "BoneBuffer"_hs);
+		const Vector<BoneContainer>& bones				= m_skinningManager.GetBoneContainers();
+		size_t						 boneIndex			= 0;
+		for (const BoneContainer& cont : bones)
+		{
+			for (const SkinData& skinData : cont.skins)
+			{
+				boneBufferDeferred.BufferData(boneIndex * sizeof(Matrix4), (uint8*)skinData.matrices.data(), sizeof(Matrix4) * skinData.matrices.size());
+				boneBufferForward.BufferData(boneIndex * sizeof(Matrix4), (uint8*)skinData.matrices.data(), sizeof(Matrix4) * skinData.matrices.size());
+				boneIndex += skinData.matrices.size();
+			}
 		}
 
 		m_deferredPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).SetIndirectCount(0);

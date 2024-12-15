@@ -52,11 +52,11 @@ namespace Lina
 
 	struct VertexSkinned
 	{
-		Vector3		pos			= Vector3::Zero;
-		Vector3		normal		= Vector3::Zero;
-		Vector2		uv			= Vector2::Zero;
-		Vector4ui16 boneIndices = Vector4ui16();
-		Vector4		boneWeights = Vector4::Zero;
+		Vector3	 pos		 = Vector3::Zero;
+		Vector3	 normal		 = Vector3::Zero;
+		Vector2	 uv			 = Vector2::Zero;
+		Vector4i boneIndices = Vector4i();
+		Vector4	 boneWeights = Vector4::Zero;
 
 		void SaveToStream(OStream& stream) const
 		{

@@ -63,6 +63,11 @@ namespace Lina
 		DestroyComponentCaches();
 	}
 
+	void EntityWorld::Initialize(ResourceManagerV2* rm)
+	{
+		m_rm = rm;
+	}
+
 	void EntityWorld::DestroyComponentCaches()
 	{
 		for (const ComponentCachePair& pair : m_componentCaches)
@@ -74,6 +79,9 @@ namespace Lina
 	{
 		for (EntityWorldListener* l : m_listeners)
 			l->OnWorldTick(delta, m_playMode);
+
+		if (m_playMode != PlayMode::None)
+			TickPlay(delta);
 	}
 
 	void EntityWorld::SetPlayMode(PlayMode playmode)
@@ -85,22 +93,6 @@ namespace Lina
 			EndPlay();
 
 		m_playMode = playmode;
-	}
-
-	void EntityWorld::Start()
-	{
-		for (const ComponentCachePair& pair : m_componentCaches)
-		{
-			pair.cache->ForEach([](Component* c) { c->OnStart(); });
-		}
-	}
-
-	void EntityWorld::End()
-	{
-		for (const ComponentCachePair& pair : m_componentCaches)
-		{
-			pair.cache->ForEach([](Component* c) { c->OnEnd(); });
-		}
 	}
 
 	void EntityWorld::BeginPlay()

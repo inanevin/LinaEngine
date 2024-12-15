@@ -36,19 +36,20 @@ namespace Lina
 {
 	struct ModelNode
 	{
-		String	name	  = "";
-		int32	meshIndex = -1;
+		String	name		= "";
+		int32	parentIndex = -1;
+		int32	meshIndex	= -1;
 		Matrix4 localMatrix;
 		Matrix4 inverseBindMatrix;
 
 		void SaveToStream(OStream& stream) const
 		{
-			stream << name << meshIndex << localMatrix << inverseBindMatrix;
+			stream << name << meshIndex << parentIndex << localMatrix << inverseBindMatrix;
 		}
 
 		void LoadFromStream(IStream& stream)
 		{
-			stream >> name >> meshIndex >> localMatrix >> inverseBindMatrix;
+			stream >> name >> meshIndex >> parentIndex >> localMatrix >> inverseBindMatrix;
 		}
 	};
 

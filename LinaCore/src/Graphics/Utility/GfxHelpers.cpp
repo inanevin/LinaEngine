@@ -116,7 +116,7 @@ namespace Lina
 		LinaGX::Config.logLevel		 = LinaGX::LogLevel::Verbose;
 		LinaGX::Config.errorCallback = LinaGX_ErrorCallback;
 		LinaGX::Config.infoCallback	 = LinaGX_LogCallback;
-		LinaGX::BackendAPI api		 = LinaGX::BackendAPI::DX12;
+		LinaGX::BackendAPI api		 = LinaGX::BackendAPI::Vulkan;
 
 #ifdef LINA_PLATFORM_APPLE
 		api = LinaGX::BackendAPI::Metal;
@@ -207,7 +207,12 @@ namespace Lina
 				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 			};
 
-			return {.bindings = {binding0, binding1, binding2}};
+			LinaGX::DescriptorBinding binding3 = {
+				.type	= LinaGX::DescriptorType::SSBO,
+				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+			};
+
+			return {.bindings = {binding0, binding1, binding2, binding3}};
 		}
 		else if (type == RenderPassType::Forward)
 		{
@@ -226,7 +231,12 @@ namespace Lina
 				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 			};
 
-			return {.bindings = {binding0, binding1, binding2}};
+			LinaGX::DescriptorBinding binding3 = {
+				.type	= LinaGX::DescriptorType::SSBO,
+				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+			};
+
+			return {.bindings = {binding0, binding1, binding2, binding3}};
 		}
 		else if (type == RenderPassType::Lighting)
 		{
@@ -419,6 +429,14 @@ namespace Lina
 							.bindingIndex = 2,
 							.ident		  = "EntityBuffer"_hs,
 						},
+						{
+							.bufferType	  = LinaGX::ResourceTypeHint::TH_StorageBuffer,
+							.debugName	  = "RP: Main - BoneBuffer",
+							.size		  = sizeof(Matrix4) * 1000,
+							.stagingOnly  = false,
+							.bindingIndex = 3,
+							.ident		  = "BoneBuffer"_hs,
+						},
 					},
 				.setDescription = setDesc,
 			};
@@ -483,6 +501,14 @@ namespace Lina
 							.stagingOnly  = false,
 							.bindingIndex = 2,
 							.ident		  = "EntityBuffer"_hs,
+						},
+						{
+							.bufferType	  = LinaGX::ResourceTypeHint::TH_StorageBuffer,
+							.debugName	  = "RP: Main - BoneBuffer",
+							.size		  = sizeof(Matrix4) * 1000,
+							.stagingOnly  = false,
+							.bindingIndex = 3,
+							.ident		  = "BoneBuffer"_hs,
 						},
 					},
 				.setDescription = setDesc,

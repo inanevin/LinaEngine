@@ -46,8 +46,20 @@ namespace Lina
 			const ModelNode& modelNode = nodes.at(i);
 			CompModelNode&	 compNode  = m_nodes[i];
 			compNode.transform.SetLocalMatrix(modelNode.localMatrix);
+			compNode.inverseBindTransform = modelNode.inverseBindMatrix;
 		}
 
+		const Vector<ModelSkin>& skins = model->GetAllSkins();
+		m_skins						   = skins;
+
 		const Vector<ModelAnimation>& animations = model->GetAllAnimations();
+	}
+
+	Matrix4 CompModel::CalculateGlobalMatrix(int32 nodeIndex)
+	{
+		const CompModelNode& node = m_nodes.at(nodeIndex);
+		if (node.parentIndex != -1)
+			return CalculateGlobalMatrix(node.parentIndex) * node.transform.GetLocalMatrix();
+		return node.transform.GetLocalMatrix();
 	}
 } // namespace Lina

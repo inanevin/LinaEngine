@@ -29,6 +29,8 @@ SOFTWARE.
 layout (location = 0) in vec3 inPos;
 layout (location = 1) in vec3 inNormal;
 layout (location = 2) in vec2 inUV;
+layout (location = 3) in vec4 inBoneWeights;
+layout (location = 4) in ivec4 inBoneIndices;
 
 struct LinaVertexInput
 {
@@ -55,18 +57,27 @@ void main()
    int argBufferIndex = gl_InstanceIndex;
 #endif  
 
-    IndirectArguments argBuffer = LINA_INDIRECT_ARGUMENTS.data[argBufferIndex];
+   IndirectArguments argBuffer = LINA_INDIRECT_ARGUMENTS.data[argBufferIndex];
 
-    LinaVertexInput vertexInput;
-    vertexInput.pos = inPos;
-    vertexInput.normal = inNormal;
-    vertexInput.uv =  vec2(inUV.x, 1.0 - inUV.y);
-    vertexInput.materialIndex = argBuffer.materialID;
-    vertexInput.entity = LINA_GET_ENTITY(argBuffer.entityIndex);
+   LinaVertexInput vertexInput;
+   vertexInput.pos = inPos;
+   vertexInput.normal = inNormal;
+   vertexInput.uv =  vec2(inUV.x, 1.0 - inUV.y);
+   vertexInput.materialIndex = argBuffer.materialID;
+   vertexInput.entity = LINA_GET_ENTITY(argBuffer.entityIndex);
 
-    LinaVertexOutput vertexOutput;
-    LINA_VERTEX_MAIN(vertexInput, vertexOutput);
+   LinaVertexOutput vertexOutput;
+   LINA_VERTEX_MAIN(vertexInput, vertexOutput);
 
-    vec3 worldPos = vec3(vertexInput.entity.modelMatrix * vertexOutput.pos);
-    gl_Position = LINA_VIEW.proj * LINA_VIEW.view *  vec4(worldPos, 1.0);
+   vec4 skinnedPosition = vertexOutput.pos;
+   for(int i = 0; i < 4; ++i)
+   {
+       int boneIndex = int(inBoneIndices[i]);
+       float boneWeight = inBoneWeights[i];
+       mat4 boneMatrix = LINA_BONES.data[argBuffer.boneIndex + boneIndex];
+       skinnedPosition += boneMatrix * vertexOutput.pos * boneWeight;
+   }
+
+   vec3 worldPos = vec3(vertexInput.entity.modelMatrix * skinnedPosition);
+   gl_Position = LINA_VIEW.proj * LINA_VIEW.view *  vec4(worldPos, 1.0);
 }

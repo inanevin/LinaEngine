@@ -40,6 +40,8 @@ namespace Lina
 	struct CompModelNode
 	{
 		Transformation transform;
+		Matrix4		   inverseBindTransform;
+		int32		   parentIndex = -1;
 	};
 
 	class CompModel : public Component
@@ -48,6 +50,8 @@ namespace Lina
 		CompModel() : Component(GetTypeID<CompModel>(), CF_RENDERABLE){};
 
 		void SetModel(Model* model);
+
+		Matrix4 CalculateGlobalMatrix(int32 nodeIndex);
 
 		virtual void CollectReferences(HashSet<ResourceID>& refs) override
 		{
@@ -95,11 +99,27 @@ namespace Lina
 			return m_nodes;
 		}
 
+		inline Vector<CompModelNode>& GetNodes()
+		{
+			return m_nodes;
+		}
+
+		inline AnimationController& GetAnimationController()
+		{
+			return m_animationController;
+		}
+
+		inline const Vector<ModelSkin>& GetSkins() const
+		{
+			return m_skins;
+		}
+
 	private:
 		AnimationController	  m_animationController;
 		Vector<CompModelNode> m_nodes;
 		ResourceID			  m_model;
 		Vector<ResourceID>	  m_materials;
+		Vector<ModelSkin>	  m_skins;
 	};
 
 } // namespace Lina

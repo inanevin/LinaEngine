@@ -35,7 +35,7 @@ SOFTWARE.
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Graphics/MeshManager.hpp"
 #include "Core/Graphics/GUI/GUIBackend.hpp"
-#include "Core/Graphics/GfxContext.hpp"
+#include "Core/Graphics/Renderers/SkinningManager.hpp"
 #include "Core/Graphics/Renderers/ObjectRenderer.hpp"
 #include "Core/Graphics/Renderers/SkyRenderer.hpp"
 #include "Core/Graphics/Renderers/LightingRenderer.hpp"
@@ -72,7 +72,7 @@ namespace Lina
 		WorldRenderer* m_worldRenderer = nullptr;
 	};
 
-	class WorldRenderer : public EntityWorldListener, public GfxContext
+	class WorldRenderer : public EntityWorldListener
 	{
 	private:
 		struct PerFrameData
@@ -195,6 +195,8 @@ namespace Lina
 		ObjectRenderer			 m_objRendererForward;
 		SkyRenderer				 m_skyRenderer;
 		LightingRenderer		 m_lightingRenderer;
+		JobExecutor				 m_executor;
+		SkinningManager			 m_skinningManager;
 	};
 
 } // namespace Lina

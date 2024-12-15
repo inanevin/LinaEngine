@@ -32,8 +32,10 @@ namespace Lina
 {
 	void ModelSkin::SaveToStream(OStream& stream) const
 	{
+		stream << jointIndices << rootJointIndex;
 	}
 	void ModelSkin::LoadFromStream(IStream& stream)
 	{
+		stream >> jointIndices >> rootJointIndex;
 	}
 } // namespace Lina

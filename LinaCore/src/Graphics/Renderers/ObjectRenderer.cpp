@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/Renderers/ObjectRenderer.hpp"
+#include "Core/Graphics/Renderers/SkinningManager.hpp"
 #include "Core/World/Components/CompModel.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Resources/ResourceManager.hpp"
@@ -38,12 +39,13 @@ SOFTWARE.
 
 namespace Lina
 {
-	void ObjectRenderer::Initialize(LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm)
+	void ObjectRenderer::Initialize(LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm, SkinningManager* skinningManager)
 	{
 		m_lgx	= lgx;
 		m_world = world;
 		m_world->AddListener(this);
-		m_rm = rm;
+		m_rm			  = rm;
+		m_skinningManager = skinningManager;
 		FetchRenderables();
 	}
 
@@ -76,7 +78,7 @@ namespace Lina
 
 	void ObjectRenderer::ProduceFrame(const View& view, Shader* shaderOverride, ShaderType type)
 	{
-		auto add = [&](Vector<PerShaderDraw>* perShaderDraws, Material* targetMaterial, const Matrix4& modelMatrix, Model* model, uint32 meshIndex, uint32 primitiveIndex) {
+		auto add = [&](Vector<PerShaderDraw>* perShaderDraws, Material* targetMaterial, const Matrix4& modelMatrix, Model* model, uint32 meshIndex, uint32 primitiveIndex, uint32 boneIndex) {
 			Shader* shader = shaderOverride ? shaderOverride : m_rm->GetIfExists<Shader>(targetMaterial->GetShader());
 			LINA_ASSERT(shader, "");
 
@@ -90,7 +92,7 @@ namespace Lina
 						.model = modelMatrix,
 					},
 				.materialID = targetMaterial->GetID(),
-				.boneIndex	= 0,
+				.boneIndex	= boneIndex,
 			};
 
 			auto foundPerShader = linatl::find_if(perShaderDraws->begin(), perShaderDraws->end(), [shaderID](const PerShaderDraw& draw) -> bool { return draw.shader == shaderID; });
@@ -174,7 +176,7 @@ namespace Lina
 					// PROFILER_ADD_DRAWCALL(1);
 
 					const Matrix4 modelMat = entity->GetTransform().GetMatrix() * nodes.at(mesh.nodeIndex).transform.GetLocalMatrix();
-					add(&m_cpuDrawData.staticDraws, targetMaterial, modelMat, model, meshIndex, primitiveIndex);
+					add(&m_cpuDrawData.staticDraws, targetMaterial, modelMat, model, meshIndex, primitiveIndex, 0);
 				}
 
 				const Vector<PrimitiveSkinned>& primsSkinned   = mesh.primitivesSkinned;
@@ -187,8 +189,9 @@ namespace Lina
 					Material* targetMaterial = prim.materialIndex >= materials.size() ? nullptr : materials[prim.materialIndex];
 					LINA_ASSERT(targetMaterial, "");
 
+					// const uint32  boneIndex = m_skinningManager->GetBoneIndex(comp, mesh.nodeIndex);
 					const Matrix4 modelMat = entity->GetTransform().GetMatrix() * nodes.at(mesh.nodeIndex).transform.GetLocalMatrix();
-					add(&m_cpuDrawData.skinnedDraws, targetMaterial, modelMat, model, meshIndex, primitiveIndex);
+					add(&m_cpuDrawData.skinnedDraws, targetMaterial, modelMat, model, meshIndex, primitiveIndex, 0);
 				}
 			}
 		}
@@ -223,8 +226,9 @@ namespace Lina
 					.boneIndex		   = instance.boneIndex,
 				};
 
-				indirectConstants.BufferData(drawCount * sizeof(GPUIndirectConstants0), (uint8*)&constants, sizeof(GPUIndirectConstants0));
-				indirectConstants.SetIndirectCount(drawCount + 1);
+				const uint32 constantsCount = indirectConstants.GetIndirectCount();
+				indirectConstants.BufferData(constantsCount * sizeof(GPUIndirectConstants0), (uint8*)&constants, sizeof(GPUIndirectConstants0));
+				indirectConstants.SetIndirectCount(constantsCount + 1);
 			}
 		};
 
@@ -305,7 +309,7 @@ namespace Lina
 			if (shader != lastBoundShader)
 			{
 				LinaGX::CMDBindPipeline* pipelineBind = stream->AddCommand<LinaGX::CMDBindPipeline>();
-				pipelineBind->shader				  = shader->GetGPUHandle();
+				pipelineBind->shader				  = shader->GetGPUHandle("Skinned"_hs);
 				lastBoundShader						  = shader;
 			}
 

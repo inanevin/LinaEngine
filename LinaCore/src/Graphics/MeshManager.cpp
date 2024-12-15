@@ -138,8 +138,8 @@ namespace Lina
 
 	void MeshManager::CreateBuffer(MeshBuffer& buf, size_t vtxSz, size_t idxSz)
 	{
-		buf.vertexBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, vtxSz, "MeshManager Big VertexBuffer");
-		buf.indexBuffer.Create(LinaGX::ResourceTypeHint::TH_IndexBuffer, idxSz, "MeshManager Big IndexBuffer");
+		buf.vertexBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, static_cast<uint32>(vtxSz), "MeshManager Big VertexBuffer");
+		buf.indexBuffer.Create(LinaGX::ResourceTypeHint::TH_IndexBuffer, static_cast<uint32>(idxSz), "MeshManager Big IndexBuffer");
 	}
 
 	void MeshManager::DestroyBuffer(MeshBuffer& buf)
