@@ -59,7 +59,7 @@ void main()
    vertexInput.pos = inPos;
    vertexInput.normal = inNormal;
    vertexInput.uv =  vec2(inUV.x, inUV.y);
-   vertexInput.materialIndex = argBuffer.materialID;
+   vertexInput.materialIndex = argBuffer.materialIndex;
    vertexInput.entity = LINA_GET_ENTITY(argBuffer.entityIndex);
 
    LinaVertexOutput vertexOutput;

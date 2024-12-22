@@ -48,6 +48,7 @@ namespace Lina
 	class Buffer;
 	class RenderPass;
 	class ResourceUploadQueue;
+	class DrawCollector;
 
 	class FeatureRenderer
 	{
@@ -60,6 +61,7 @@ namespace Lina
 		virtual void OnComponentRemoved(Component* comp){};
 		virtual void FetchRenderables(){};
 
+		virtual void ProduceFrame(DrawCollector& drawCollector){};
 		virtual void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue){};
 		virtual void RenderDrawPass(LinaGX::CommandStream* stream, uint32 frameIndex, RenderPass& pass, RenderPassType type){};
 		virtual void SyncRender(){};

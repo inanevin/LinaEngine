@@ -407,6 +407,11 @@ namespace Lina
 						m_renderingData.entities.push_back({inst.entity});
 					}
 
+					if (inst.useMaterialIDAsSecondArgument)
+					{
+						args.constant1 = m_rm->GetResource<Material>(inst.materialID)->GetBindlessIndex() / static_cast<uint32>(sizeof(uint32));
+					}
+
 					m_renderingData.instanceData.push_back(args);
 				}
 
@@ -438,6 +443,11 @@ namespace Lina
 					{
 						args.constant0 = static_cast<uint32>(m_renderingData.entities.size());
 						m_renderingData.entities.push_back({inst.entity});
+					}
+
+					if (inst.useMaterialIDAsSecondArgument)
+					{
+						args.constant1 = m_rm->GetResource<Material>(inst.materialID)->GetBindlessIndex() / static_cast<uint32>(sizeof(uint32));
 					}
 
 					m_renderingData.instanceData.push_back(args);

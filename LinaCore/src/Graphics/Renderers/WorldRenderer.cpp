@@ -350,12 +350,14 @@ namespace Lina
 
 		m_lightingRenderer.ProduceFrame();
 		m_skyRenderer.ProduceFrame();
+
+		for (FeatureRenderer* ft : m_featureRenderers)
+			ft->ProduceFrame(m_drawCollector);
 	}
 
 	void WorldRenderer::SyncRender()
 	{
 		m_drawCollector.SyncRender();
-
 		m_lightingRenderer.SyncRender();
 		m_skyRenderer.SyncRender();
 
@@ -408,8 +410,8 @@ namespace Lina
 			m_forwardPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&renderPassData, sizeof(GPUForwardPassData));
 		}
 
-		// for (FeatureRenderer* ft : m_featureRenderers)
-		//	ft->AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+		for (FeatureRenderer* ft : m_featureRenderers)
+			ft->AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
 
 		m_drawCollector.PrepareGPUData(m_executor);
 
@@ -516,10 +518,8 @@ namespace Lina
 			m_gfxContext->GetMeshManagerDefault().BindStatic(currentFrame.gfxStream);
 			m_lightingRenderer.RenderLightingQuad(currentFrame.gfxStream);
 			m_skyRenderer.RenderSky(currentFrame.gfxStream);
+			m_drawCollector.RenderGroup("Forward"_hs, currentFrame.gfxStream);
 
-			// bindGlobal();
-			//
-			//  m_drawCollector.RenderGroup("Forward"_hs, currentFrame.gfxStream);
 			m_forwardPass.End(currentFrame.gfxStream);
 
 			DEBUG_LABEL_END(currentFrame.gfxStream);

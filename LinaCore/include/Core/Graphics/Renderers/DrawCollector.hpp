@@ -99,8 +99,10 @@ namespace Lina
 		struct CustomDrawInstance
 		{
 			GPUDrawArguments args;
+			ResourceID		 materialID = 0;
 			GPUEntity		 entity;
-			bool			 useEntityAsFirstArgument = true;
+			bool			 useEntityAsFirstArgument	   = true;
+			bool			 useMaterialIDAsSecondArgument = true;
 		};
 
 		struct CustomDraw

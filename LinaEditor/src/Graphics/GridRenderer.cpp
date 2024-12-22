@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Application.hpp"
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
+#include "Core/Graphics/Renderers/DrawCollector.hpp"
 
 namespace Lina::Editor
 {
@@ -81,7 +82,6 @@ namespace Lina::Editor
 				.binding   = 0,
 				.buffers   = {data.gridUBO.GetGPUResource()},
 			};
-
 			m_lgx->DescriptorUpdateBuffer(update);
 		}
 	} // namespace Lina::Editor
@@ -96,32 +96,15 @@ namespace Lina::Editor
 		}
 	}
 
-	void GridRenderer::AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue)
+	void GridRenderer::ProduceFrame(DrawCollector& collector)
 	{
-		PerFrameData& pfd  = m_pfd[frameIndex];
-		const GridUBO data = {.materialIndex = m_gridMaterial->GetBindlessIndex() / static_cast<uint32>(sizeof(uint32))};
-		pfd.gridUBO.BufferData(0, (uint8*)&data, sizeof(GridUBO));
+		const DrawCollector::CustomDrawInstance inst = {
+			.materialID					   = m_gridMaterial->GetID(),
+			.useEntityAsFirstArgument	   = false,
+			.useMaterialIDAsSecondArgument = true,
+		};
 
-		queue.AddBufferRequest(&m_pfd[frameIndex].gridUBO);
+		collector.AddCustomDrawRaw(collector.GetGroup("Forward"_hs), inst, m_gridShader->GetGPUHandle(), 0, 6);
 	}
 
-	void GridRenderer::RenderDrawPass(LinaGX::CommandStream* stream, uint32 frameIndex, RenderPass& pass, RenderPassType type)
-	{
-		if (type != RenderPassType::RENDER_PASS_FORWARD)
-			return;
-
-		m_gridShader->Bind(stream, m_gridShader->GetGPUHandle());
-
-		LinaGX::CMDBindDescriptorSets* set = stream->AddCommand<LinaGX::CMDBindDescriptorSets>();
-		set->setCount					   = 1;
-		set->firstSet					   = 2;
-		set->descriptorSetHandles		   = stream->EmplaceAuxMemory<uint16>(m_pfd[frameIndex].gridSet);
-		set->layoutSource				   = LinaGX::DescriptorSetsLayoutSource::LastBoundShader;
-
-		LinaGX::CMDDrawInstanced* draw = stream->AddCommand<LinaGX::CMDDrawInstanced>();
-		draw->instanceCount			   = 1;
-		draw->startInstanceLocation	   = 0;
-		draw->startVertexLocation	   = 0;
-		draw->vertexCountPerInstance   = 6;
-	}
 } // namespace Lina::Editor

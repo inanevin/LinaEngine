@@ -61,8 +61,7 @@ namespace Lina::Editor
 		GridRenderer(Editor* editor, LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm);
 		virtual ~GridRenderer();
 
-		virtual void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue) override;
-		virtual void RenderDrawPass(LinaGX::CommandStream* stream, uint32 frameIndex, RenderPass& pass, RenderPassType type) override;
+		virtual void ProduceFrame(DrawCollector& collector) override;
 
 	private:
 		Material*	 m_gridMaterial = nullptr;

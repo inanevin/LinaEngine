@@ -29,7 +29,7 @@ SOFTWARE.
 struct DrawArguments
 {
 	uint entityIndex;
-	uint materialID;
+	uint materialIndex;
 	uint boneIndex;
 	uint padding1;
 };
