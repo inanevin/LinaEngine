@@ -63,7 +63,6 @@ namespace Lina::Editor
 		void	SetRuntimeDirty(bool runtimeDirty);
 		Button* BuildButton(const String& title, const String& icon);
 		void	DisableRecursively(Widget* parent);
-		void	SetupDefaultSkyMaterial(Material* mat);
 
 	protected:
 		Resource* m_resource	   = nullptr;

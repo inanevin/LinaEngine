@@ -92,17 +92,24 @@ namespace Lina
 			return static_cast<T*>(GetCache<T>()->GetIfExists(id));
 		}
 
-		template <typename T> T* CreateResource(ResourceID id, const String& name = "")
+		template <typename T> T* CreateResource(ResourceID id, const String& name = "", uint64 space = 0)
 		{
 			CheckLock();
 			T* res = static_cast<T*>(GetCache<T>()->Create(id, name));
+
+			if (space != 0)
+				GetSpace(space).insert(res);
 			return res;
 		}
 
-		Resource* CreateResource(ResourceID id, TypeID tid, const String& name = "")
+		Resource* CreateResource(ResourceID id, TypeID tid, const String& name = "", uint64 space = 0)
 		{
 			CheckLock();
 			Resource* res = GetCache(tid)->Create(id, name);
+
+			if (space != 0)
+				GetSpace(space).insert(res);
+
 			return res;
 		}
 

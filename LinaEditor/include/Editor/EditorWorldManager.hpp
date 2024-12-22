@@ -32,6 +32,7 @@ SOFTWARE.
 namespace Lina
 {
 	class EntityWorld;
+	class WorldRenderer;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -47,8 +48,9 @@ namespace Lina::Editor
 		void CloseWorld();
 
 	private:
-		EntityWorld* m_world  = nullptr;
-		Editor*		 m_editor = nullptr;
+		EntityWorld*   m_world		   = nullptr;
+		WorldRenderer* m_worldRenderer = nullptr;
+		Editor*		   m_editor		   = nullptr;
 	};
 
 } // namespace Lina::Editor

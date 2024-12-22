@@ -48,6 +48,7 @@ SOFTWARE.
 #include "Core/Physics/PhysicsMaterial.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Editor/Widgets/Popups/NotificationDisplayer.hpp"
+#include "Editor/World/WorldUtility.hpp"
 
 #include <LinaGX/Utility/ImageUtility.hpp>
 #include <LinaGX/Utility/ModelUtility.hpp>
@@ -186,6 +187,9 @@ namespace Lina::Editor
 			// Try set defaults
 			for (MaterialProperty* prop : mat.GetProperties())
 				TrySetMaterialProperty(prop);
+
+			if (mat.GetID() == EDITOR_MATERIAL_DEFAULT_SKY_ID)
+				WorldUtility::SetupDefaultSkyMaterial(&mat, nullptr);
 
 			mat.SaveToFileAsBinary(path);
 			shaderStream.Destroy();

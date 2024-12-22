@@ -103,6 +103,7 @@ namespace Lina::Editor
 		uint8*					  m_latestColorWheelData  = nullptr;
 		uint32					  m_latestColorWheelComps = 0;
 		PanelColorWheel*		  m_colorWheel			  = nullptr;
+		Material*				  m_defaultSky			  = nullptr;
 	};
 
 	LINA_CLASS_BEGIN(MaterialViewerDisplayType)

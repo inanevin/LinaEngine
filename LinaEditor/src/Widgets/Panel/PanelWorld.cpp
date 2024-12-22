@@ -59,7 +59,7 @@ namespace Lina::Editor
 
 	void PanelWorld::Destruct()
 	{
-		DestroyWorldRenderer();
+		m_editor->GetWorldManager().CloseWorld();
 	}
 
 	void PanelWorld::Tick(float delta)
@@ -75,34 +75,11 @@ namespace Lina::Editor
 		// m_worldRenderer->Resize(size);
 	}
 
-	void PanelWorld::SetWorld(EntityWorld* world)
+	void PanelWorld::SetWorld(EntityWorld* world, WorldRenderer* worldRenderer)
 	{
-		m_world = world;
-		CreateWorldRenderer();
-	}
-
-	void PanelWorld::DestroyWorldRenderer()
-	{
-		if (m_worldRenderer == nullptr)
-			return;
-
-		m_editor->GetEditorRenderer().RemoveWorldRenderer(m_worldRenderer);
-		delete m_worldRenderer;
-		m_worldRenderer = nullptr;
-	}
-
-	void PanelWorld::CreateWorldRenderer()
-	{
-		if (m_world == nullptr)
-		{
-			m_worldDisplayer->DisplayWorld(nullptr, WorldDisplayer::WorldCameraType::Orbit);
-			return;
-		}
-
-		DestroyWorldRenderer();
-		m_worldRenderer = new WorldRenderer(&m_editor->GetApp()->GetGfxContext(), &m_editor->GetApp()->GetResourceManager(), m_world, Vector2ui(4, 4), "WorldManagerRenderer");
-		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer);
-		m_worldDisplayer->DisplayWorld(m_worldRenderer, WorldDisplayer::WorldCameraType::FreeMove);
+		m_world			= world;
+		m_worldRenderer = worldRenderer;
+		m_worldDisplayer->DisplayWorld(m_worldRenderer, WorldDisplayer::WorldCameraType::Orbit);
 	}
 
 } // namespace Lina::Editor

@@ -26,41 +26,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#include "Editor/Widgets/Panel/Panel.hpp"
-
-namespace Lina
-{
-	class EntityWorld;
-	class WorldRenderer;
-} // namespace Lina
+#include "Editor/World/WorldUtility.hpp"
+#include "Core/Graphics/Resource/Material.hpp"
+#include "Editor/CommonEditor.hpp"
+#include "Core/Resources/ResourceManager.hpp"
 
 namespace Lina::Editor
 {
-	class Editor;
-	class WorldDisplayer;
-
-	class PanelWorld : public Panel
+	void WorldUtility::SetupDefaultSkyMaterial(Material* mat, ResourceManagerV2* rm)
 	{
-	public:
-		PanelWorld() : Panel(PanelType::World){};
-		virtual ~PanelWorld() = default;
-
-		virtual void Construct() override;
-		virtual void Destruct() override;
-		virtual void Tick(float delta) override;
-
-		void SetWorld(EntityWorld* world, WorldRenderer* worldRenderer);
-
-	private:
-		Editor*			m_editor		 = nullptr;
-		EntityWorld*	m_world			 = nullptr;
-		WorldRenderer*	m_worldRenderer	 = nullptr;
-		WorldDisplayer* m_worldDisplayer = nullptr;
-	};
-
-	LINA_WIDGET_BEGIN(PanelWorld, Hidden)
-	LINA_CLASS_END(PanelWorld)
-
+		if (rm)
+			mat->SetShader(rm->GetResource<Shader>(EDITOR_SHADER_DEFAULT_SKY_ID));
+		mat->SetProperty("skyColor"_hs, Vector3(0.38f, 0.521f, 0.807f));
+		mat->SetProperty("horizonColor"_hs, Vector3(0.386f, 0.521f, 0.807f));
+		mat->SetProperty("groundColor"_hs, Vector3(0.011f, 0.021f, 0.05f));
+		mat->SetProperty("sunPosition"_hs, Vector2(0.0f, 0.0f));
+		mat->SetProperty("sunColor"_hs, Vector3(1.0f, 1.0f, 1.0f));
+		mat->SetProperty("sunSize"_hs, 0.0f);
+		mat->SetProperty("sunDiffusion"_hs, 5.0f);
+		mat->SetProperty("horizonPosition"_hs, 0.0f);
+		mat->SetProperty("horizonDiffusion"_hs, 0.15f);
+	}
 } // namespace Lina::Editor

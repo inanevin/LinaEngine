@@ -97,6 +97,7 @@ include/Editor/Widgets/World/WorldDisplayer.hpp
 
 # World
 include/Editor/World/EditorCamera.hpp
+include/Editor/World/WorldUtility.hpp
 
 # Meta
 include/Editor/Meta/EditorSettings.hpp
@@ -184,6 +185,7 @@ src/Widgets/World/WorldDisplayer.cpp
 
 # World
 src/World/EditorCamera.cpp
+src/World/WorldUtility.cpp
 
 # Meta
 src/Meta/EditorSettings.cpp

@@ -50,6 +50,7 @@ SOFTWARE.
 #include "Core/Application.hpp"
 #include "Core/Meta/ProjectData.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
+#include "Editor/World/WorldUtility.hpp"
 
 namespace Lina::Editor
 {
@@ -103,11 +104,18 @@ namespace Lina::Editor
 			EDITOR_MODEL_CYLINDER_ID,
 			EDITOR_MODEL_CAPSULE_ID,
 			EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID,
+			EDITOR_SHADER_DEFAULT_SKY_ID,
 			m_resource->GetID(),
 		};
 
 		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), initialResources, m_resourceSpace);
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
+
+		if (!m_defaultSky)
+		{
+			m_defaultSky = m_resourceManager->CreateResource<Material>(m_resourceManager->ConsumeResourceID(), "MaterialViewerSkyMaterial", m_resourceSpace);
+			WorldUtility::SetupDefaultSkyMaterial(m_defaultSky, m_resourceManager);
+		}
 
 		m_world->Initialize(m_resourceManager);
 		SetupWorld();
@@ -197,9 +205,7 @@ namespace Lina::Editor
 		}
 		else
 		{
-			Material* defaultSky				  = rm.GetResource<Material>(EDITOR_MATERIAL_DEFAULT_SKY_ID);
-			m_world->GetGfxSettings().skyMaterial = defaultSky->GetID();
-			SetupDefaultSkyMaterial(defaultSky);
+			m_world->GetGfxSettings().skyMaterial = m_defaultSky->GetID();
 		}
 
 		const ResourceID displayMaterial = shaderType == ShaderType::Sky ? EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID : m_resource->GetID();

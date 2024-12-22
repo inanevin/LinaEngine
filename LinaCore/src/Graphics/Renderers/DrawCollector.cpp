@@ -380,7 +380,7 @@ namespace Lina
 						.shaderHandle		   = modelDraw.shaderHandle,
 						.vertexBuffer		   = &m_gfxContext->GetMeshManagerDefault().GetVtxBufferSkinned(),
 						.indexBuffer		   = &m_gfxContext->GetMeshManagerDefault().GetIdxBufferSkinned(),
-						.vertexSize			   = sizeof(VertexStatic),
+						.vertexSize			   = sizeof(VertexSkinned),
 						.pushConstant		   = instanceDataStart,
 						.baseVertexLocation	   = prim._vertexOffset,
 						.indexCountPerInstance = static_cast<uint32>(prim.indices.size()),

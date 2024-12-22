@@ -158,15 +158,10 @@ namespace Lina
 
 	void Material::GenerateHW()
 	{
-		LINA_ASSERT(m_hwValid == false, "");
-		m_hwValid = true;
 	}
 
 	void Material::DestroyHW()
 	{
-		LINA_ASSERT(m_hwValid, "");
-		m_hwValid		= false;
-		m_hwUploadValid = false;
 	}
 
 	size_t Material::BufferDataInto(Buffer& buf, size_t padding, ResourceManagerV2* rm, GfxContext* context)

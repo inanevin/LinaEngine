@@ -151,7 +151,6 @@ void LINA_FRAG_MAIN(out LinaFragOutput outFrag)
 
    /// --- Debug Grid -- ///
    outFrag.color = DEBUG ? AddGrid(outFrag.color.rgb, vNormal.xyz, 16.0, 0.1) : outFrag.color.rgba;
-
 }
 
 #lina_end

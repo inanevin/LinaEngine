@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Editor/Resources/ResourcePipeline.hpp"
 #include "Editor/IO/ThumbnailGenerator.hpp"
 #include "Editor/Widgets/Panel/PanelMaterialViewer.hpp"
+#include "Editor/World/WorldUtility.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Serialization/Serialization.hpp"
 #include "Core/Meta/ProjectData.hpp"

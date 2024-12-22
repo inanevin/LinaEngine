@@ -42,31 +42,15 @@ namespace Lina::Editor
 
 	class GridRenderer : public FeatureRenderer
 	{
-	private:
-		struct GridUBO
-		{
-			uint32 materialIndex;
-			uint32 padding0;
-			uint32 padding1;
-			uint32 padding2;
-		};
-
 	public:
-		struct PerFrameData
-		{
-			uint16 gridSet;
-			Buffer gridUBO;
-		};
-
 		GridRenderer(Editor* editor, LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm);
 		virtual ~GridRenderer();
 
 		virtual void ProduceFrame(DrawCollector& collector) override;
 
 	private:
-		Material*	 m_gridMaterial = nullptr;
-		Shader*		 m_gridShader	= nullptr;
-		Editor*		 m_editor		= nullptr;
-		PerFrameData m_pfd[FRAMES_IN_FLIGHT];
+		Material* m_gridMaterial = nullptr;
+		Shader*	  m_gridShader	 = nullptr;
+		Editor*	  m_editor		 = nullptr;
 	};
 } // namespace Lina::Editor

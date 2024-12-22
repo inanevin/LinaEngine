@@ -28,39 +28,18 @@ SOFTWARE.
 
 #pragma once
 
-#include "Editor/Widgets/Panel/Panel.hpp"
-
 namespace Lina
 {
-	class EntityWorld;
-	class WorldRenderer;
+	class Material;
+	class ResourceManagerV2;
 } // namespace Lina
 
 namespace Lina::Editor
 {
-	class Editor;
-	class WorldDisplayer;
 
-	class PanelWorld : public Panel
+	class WorldUtility
 	{
 	public:
-		PanelWorld() : Panel(PanelType::World){};
-		virtual ~PanelWorld() = default;
-
-		virtual void Construct() override;
-		virtual void Destruct() override;
-		virtual void Tick(float delta) override;
-
-		void SetWorld(EntityWorld* world, WorldRenderer* worldRenderer);
-
-	private:
-		Editor*			m_editor		 = nullptr;
-		EntityWorld*	m_world			 = nullptr;
-		WorldRenderer*	m_worldRenderer	 = nullptr;
-		WorldDisplayer* m_worldDisplayer = nullptr;
+		static void SetupDefaultSkyMaterial(Material* mat, ResourceManagerV2* rm);
 	};
-
-	LINA_WIDGET_BEGIN(PanelWorld, Hidden)
-	LINA_CLASS_END(PanelWorld)
-
 } // namespace Lina::Editor

@@ -59,41 +59,12 @@ namespace Lina::Editor
 		m_gridMaterial->SetProperty("distLOD0"_hs, 60.0f);
 		m_gridMaterial->SetProperty("distLOD1"_hs, 90.0f);
 
-		const LinaGX::DescriptorSetDesc desc = {
-			.bindings =
-				{
-					{
-						.descriptorCount = 1,
-						.type			 = LinaGX::DescriptorType::UBO,
-						.stages			 = {LinaGX::ShaderStage::Fragment},
-					},
-				},
-			.allocationCount = 1,
-		};
-
-		for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-		{
-			PerFrameData& data = m_pfd[i];
-			data.gridSet	   = m_lgx->CreateDescriptorSet(desc);
-			data.gridUBO.Create(LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GridUBO), "GridRenderer: UBO");
-
-			const LinaGX::DescriptorUpdateBufferDesc update = {
-				.setHandle = data.gridSet,
-				.binding   = 0,
-				.buffers   = {data.gridUBO.GetGPUResource()},
-			};
-			m_lgx->DescriptorUpdateBuffer(update);
-		}
 	} // namespace Lina::Editor
 
 	GridRenderer::~GridRenderer()
 	{
-		for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-		{
-			PerFrameData& data = m_pfd[i];
-			m_lgx->DestroyDescriptorSet(data.gridSet);
-			data.gridUBO.Destroy();
-		}
+		m_rm->DestroyResource(m_gridMaterial);
+		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 	}
 
 	void GridRenderer::ProduceFrame(DrawCollector& collector)

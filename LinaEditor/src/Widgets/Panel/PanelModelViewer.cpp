@@ -42,6 +42,7 @@ SOFTWARE.
 #include "Editor/EditorLocale.hpp"
 #include "Core/Application.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
+#include "Editor/World/WorldUtility.hpp"
 
 namespace Lina::Editor
 {
@@ -84,7 +85,6 @@ namespace Lina::Editor
 
 		m_world->GetGfxSettings().lightingMaterial = EDITOR_MATERIAL_DEFAULT_LIGHTING_ID;
 		m_world->GetGfxSettings().skyModel		   = EDITOR_MODEL_SKYSPHERE_ID;
-		m_world->GetGfxSettings().skyMaterial	   = EDITOR_MATERIAL_DEFAULT_SKY_ID;
 
 		HashSet<ResourceID> initialResources = {
 			EDITOR_MODEL_CUBE_ID,
@@ -93,6 +93,7 @@ namespace Lina::Editor
 			EDITOR_MODEL_CYLINDER_ID,
 			EDITOR_MODEL_CAPSULE_ID,
 			EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID,
+			EDITOR_SHADER_DEFAULT_SKY_ID,
 			m_resource->GetID(),
 		};
 
@@ -109,8 +110,13 @@ namespace Lina::Editor
 
 		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), initialResources, m_resourceSpace);
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
-
 		m_world->Initialize(m_resourceManager);
+
+		Material* sky = m_resourceManager->CreateResource<Material>(m_resourceManager->ConsumeResourceID(), "ModelViewerSkyMaterial", m_resourceSpace);
+		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
+		WorldUtility::SetupDefaultSkyMaterial(sky, m_resourceManager);
+		m_world->GetGfxSettings().skyMaterial = sky->GetID();
+
 		SetupWorld();
 
 		UpdateResourceProperties();
@@ -241,9 +247,6 @@ namespace Lina::Editor
 		if (m_displayEntity != nullptr)
 			m_world->DestroyEntity(m_displayEntity);
 
-		Material* defaultSky = rm.GetResource<Material>(EDITOR_MATERIAL_DEFAULT_SKY_ID);
-		SetupDefaultSkyMaterial(defaultSky);
-
 		Model* model	= static_cast<Model*>(m_resource);
 		m_displayEntity = m_world->AddModelToWorld(model, model->GetMeta().materials);
 		m_compModel		= m_world->GetComponent<CompModel>(m_displayEntity);
@@ -251,19 +254,19 @@ namespace Lina::Editor
 		// m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {}, m_resourceSpace);
 		// m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 
-		Entity* caps  = m_world->AddModelToWorld(rm.GetIfExists<Model>(EDITOR_MODEL_CAPSULE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
-		Entity* caps2 = m_world->AddModelToWorld(rm.GetIfExists<Model>(EDITOR_MODEL_CAPSULE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
-		Entity* caps3 = m_world->AddModelToWorld(rm.GetIfExists<Model>(EDITOR_MODEL_CAPSULE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
-		Entity* sph	  = m_world->AddModelToWorld(rm.GetIfExists<Model>(EDITOR_MODEL_SPHERE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
-		Entity* sph2  = m_world->AddModelToWorld(rm.GetIfExists<Model>(EDITOR_MODEL_SPHERE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
-		Entity* aq	  = m_world->AddModelToWorld(model, model->GetMeta().materials);
-
-		caps->SetPosition(Vector3(1, 0, 0));
-		caps2->SetPosition(Vector3(2, 0, 0));
-		caps3->SetPosition(Vector3(4, 0, 0));
-		sph->SetPosition(Vector3(-1, 0, 0));
-		sph2->SetPosition(Vector3(-3, 0, 0));
-		aq->SetPosition(Vector3(0, -1, 0));
+		// Entity* caps  = m_world->AddModelToWorld(rm.GetIfExists<Model>(EDITOR_MODEL_CAPSULE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
+		// Entity* caps2 = m_world->AddModelToWorld(rm.GetIfExists<Model>(EDITOR_MODEL_CAPSULE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
+		// Entity* caps3 = m_world->AddModelToWorld(rm.GetIfExists<Model>(EDITOR_MODEL_CAPSULE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
+		// Entity* sph	  = m_world->AddModelToWorld(rm.GetIfExists<Model>(EDITOR_MODEL_SPHERE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
+		// Entity* sph2  = m_world->AddModelToWorld(rm.GetIfExists<Model>(EDITOR_MODEL_SPHERE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
+		// Entity* aq	  = m_world->AddModelToWorld(model, model->GetMeta().materials);
+		//
+		// caps->SetPosition(Vector3(1, 0, 0));
+		// caps2->SetPosition(Vector3(2, 0, 0));
+		// caps3->SetPosition(Vector3(4, 0, 0));
+		// sph->SetPosition(Vector3(-1, 0, 0));
+		// sph2->SetPosition(Vector3(-3, 0, 0));
+		// aq->SetPosition(Vector3(0, -1, 0));
 	}
 
 } // namespace Lina::Editor
