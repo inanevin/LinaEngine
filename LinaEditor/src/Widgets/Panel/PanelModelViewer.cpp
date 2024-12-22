@@ -109,13 +109,15 @@ namespace Lina::Editor
 		}
 
 		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), initialResources, m_resourceSpace);
-		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 		m_world->Initialize(m_resourceManager);
 
-		Material* sky = m_resourceManager->CreateResource<Material>(m_resourceManager->ConsumeResourceID(), "ModelViewerSkyMaterial", m_resourceSpace);
-		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
-		WorldUtility::SetupDefaultSkyMaterial(sky, m_resourceManager);
-		m_world->GetGfxSettings().skyMaterial = sky->GetID();
+		if (!m_skyMaterial)
+		{
+			m_skyMaterial = m_resourceManager->CreateResource<Material>(m_resourceManager->ConsumeResourceID(), "ModelViewerSkyMaterial", m_resourceSpace);
+			WorldUtility::SetupDefaultSkyMaterial(m_skyMaterial, m_resourceManager);
+			m_world->GetGfxSettings().skyMaterial = m_skyMaterial->GetID();
+			m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
+		}
 
 		SetupWorld();
 
@@ -248,18 +250,17 @@ namespace Lina::Editor
 			m_world->DestroyEntity(m_displayEntity);
 
 		Model* model	= static_cast<Model*>(m_resource);
-		m_displayEntity = m_world->AddModelToWorld(model, model->GetMeta().materials);
+		m_displayEntity = WorldUtility::AddModelToWorld(m_world, model, model->GetMeta().materials);
 		m_compModel		= m_world->GetComponent<CompModel>(m_displayEntity);
 		m_compModel->GetAnimationController().SelectAnimation(m_displayAnimation);
-		// m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {}, m_resourceSpace);
-		// m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
+		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {}, m_resourceSpace);
 
-		// Entity* caps  = m_world->AddModelToWorld(rm.GetIfExists<Model>(EDITOR_MODEL_CAPSULE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
-		// Entity* caps2 = m_world->AddModelToWorld(rm.GetIfExists<Model>(EDITOR_MODEL_CAPSULE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
-		// Entity* caps3 = m_world->AddModelToWorld(rm.GetIfExists<Model>(EDITOR_MODEL_CAPSULE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
-		// Entity* sph	  = m_world->AddModelToWorld(rm.GetIfExists<Model>(EDITOR_MODEL_SPHERE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
-		// Entity* sph2  = m_world->AddModelToWorld(rm.GetIfExists<Model>(EDITOR_MODEL_SPHERE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
-		// Entity* aq	  = m_world->AddModelToWorld(model, model->GetMeta().materials);
+		// Entity* caps  = WorldUtility::AddModelToWorld(m_world,rm.GetIfExists<Model>(EDITOR_MODEL_CAPSULE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
+		// Entity* caps2 = WorldUtility::AddModelToWorld(m_world,rm.GetIfExists<Model>(EDITOR_MODEL_CAPSULE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
+		// Entity* caps3 = WorldUtility::AddModelToWorld(m_world,rm.GetIfExists<Model>(EDITOR_MODEL_CAPSULE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
+		// Entity* sph	  = WorldUtility::AddModelToWorld(m_world,rm.GetIfExists<Model>(EDITOR_MODEL_SPHERE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
+		// Entity* sph2  = WorldUtility::AddModelToWorld(m_world,rm.GetIfExists<Model>(EDITOR_MODEL_SPHERE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
+		// Entity* aq	  = WorldUtility::AddModelToWorld(m_world,model, model->GetMeta().materials);
 		//
 		// caps->SetPosition(Vector3(1, 0, 0));
 		// caps2->SetPosition(Vector3(2, 0, 0));

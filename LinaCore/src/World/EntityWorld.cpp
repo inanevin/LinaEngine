@@ -295,33 +295,6 @@ namespace Lina
 			l->OnComponentRemoved(c);
 	}
 
-	Entity* EntityWorld::AddModelToWorld(Model* model, const Vector<ResourceID>& materials)
-	{
-		LINA_ASSERT(materials.size() >= model->GetMeta().materials.size(), "");
-
-		Entity* base = CreateEntity(model->GetName());
-
-		CompModel* modelComp = AddComponent<CompModel>(base);
-
-		uint32 idx = 0;
-
-		for (ResourceID material : materials)
-		{
-			modelComp->SetMaterial(material, idx++);
-		}
-
-		const uint32 modelMatsSize = static_cast<uint32>(model->GetMeta().materials.size());
-		if (idx < modelMatsSize)
-		{
-			for (uint32 i = 0; i < modelMatsSize - idx; i++)
-				modelComp->SetMaterial(materials.at(0), idx + i);
-		}
-
-		modelComp->SetModel(model);
-
-		return base;
-	}
-
 	void EntityWorld::CollectResourceNeeds(HashSet<ResourceID>& outResources)
 	{
 		for (const ComponentCachePair& pair : m_componentCaches)

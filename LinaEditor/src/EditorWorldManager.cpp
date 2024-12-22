@@ -36,7 +36,6 @@ SOFTWARE.
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/Meta/ProjectData.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
-#include "Common/Serialization/Serialization.hpp"
 
 namespace Lina::Editor
 {
@@ -47,7 +46,6 @@ namespace Lina::Editor
 
 	void EditorWorldManager::Shutdown()
 	{
-		CloseWorld();
 	}
 
 	void EditorWorldManager::OpenWorld(ResourceID id)
@@ -61,21 +59,8 @@ namespace Lina::Editor
 		}
 
 		PanelWorld* panel = static_cast<PanelWorld*>(m_editor->GetWindowPanelManager().OpenPanel(PanelType::World, 0, nullptr));
-
-		CloseWorld();
-		m_world = new EntityWorld(0, "");
-		m_editor->GetApp()->GetWorldProcessor().AddWorld(m_world);
-
-		IStream stream = Serialization::LoadFromFile(resourcePath.c_str());
-		m_world->LoadFromStream(stream);
-		stream.Destroy();
-
-		m_worldRenderer = new WorldRenderer(&m_editor->GetApp()->GetGfxContext(), &m_editor->GetApp()->GetResourceManager(), m_world, Vector2ui(4, 4), "WorldRenderer: " + m_world->GetName() + " :");
-		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer);
-
-		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {}, id);
-		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
-		panel->SetWorld(m_world, m_worldRenderer);
+		panel->DestroyWorld();
+		panel->CreateWorld(resourcePath);
 
 		/*
 		Widget* lockRoot = m_editor->GetWindowPanelManager().LockAllForegrounds(panel->GetWindow(), [](Widget* owner) -> Widget* { return CommonWidgets::BuildSimpleForegroundLockText(owner, Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow)); });
@@ -96,18 +81,4 @@ namespace Lina::Editor
 		*/
 	}
 
-	void EditorWorldManager::CloseWorld()
-	{
-		if (m_world == nullptr)
-			return;
-
-		PanelWorld* panel = static_cast<PanelWorld*>(m_editor->GetWindowPanelManager().OpenPanel(PanelType::World, 0, nullptr));
-		panel->SetWorld(nullptr, nullptr);
-
-		m_editor->GetEditorRenderer().RemoveWorldRenderer(m_worldRenderer);
-		m_editor->GetApp()->GetWorldProcessor().RemoveWorld(m_world);
-		delete m_worldRenderer;
-		delete m_world;
-		m_world = nullptr;
-	}
 } // namespace Lina::Editor

@@ -27,9 +27,16 @@ SOFTWARE.
 */
 
 #include "Editor/World/WorldUtility.hpp"
-#include "Core/Graphics/Resource/Material.hpp"
 #include "Editor/CommonEditor.hpp"
+#include "Editor/Editor.hpp"
+#include "Core/Meta/ProjectData.hpp"
+#include "Core/Application.hpp"
+#include "Core/Graphics/Resource/Material.hpp"
+#include "Core/Graphics/Resource/Model.hpp"
+#include "Core/World/Components/CompModel.hpp"
+#include "Core/World/EntityWorld.hpp"
 #include "Core/Resources/ResourceManager.hpp"
+#include "Common/Serialization/Serialization.hpp"
 
 namespace Lina::Editor
 {
@@ -46,5 +53,50 @@ namespace Lina::Editor
 		mat->SetProperty("sunDiffusion"_hs, 5.0f);
 		mat->SetProperty("horizonPosition"_hs, 0.0f);
 		mat->SetProperty("horizonDiffusion"_hs, 0.15f);
+	}
+
+	Entity* WorldUtility::AddModelToWorld(EntityWorld* world, Model* model, const Vector<ResourceID>& materials)
+	{
+		LINA_ASSERT(materials.size() >= model->GetMeta().materials.size(), "");
+
+		Entity* base = world->CreateEntity(model->GetName());
+
+		CompModel* modelComp = world->AddComponent<CompModel>(base);
+
+		uint32 idx = 0;
+
+		for (ResourceID material : materials)
+		{
+			modelComp->SetMaterial(material, idx++);
+		}
+
+		const uint32 modelMatsSize = static_cast<uint32>(model->GetMeta().materials.size());
+		if (idx < modelMatsSize)
+		{
+			for (uint32 i = 0; i < modelMatsSize - idx; i++)
+				modelComp->SetMaterial(materials.at(0), idx + i);
+		}
+
+		modelComp->SetModel(model);
+
+		return base;
+	}
+
+	void WorldUtility::LoadModelAndMaterials(Editor* editor, ResourceID model, ResourceID resourceSpace)
+	{
+		const String& modelPath = editor->GetProjectManager().GetProjectData()->GetResourcePath(model);
+
+		IStream stream = Serialization::LoadFromFile(modelPath.c_str());
+		Model	mdl(0, "");
+		mdl.LoadFromStream(stream);
+		stream.Destroy();
+
+		HashSet<ResourceID> resources;
+		resources.insert(model);
+
+		for (ResourceID mat : mdl.GetMeta().materials)
+			resources.insert(mat);
+
+		editor->GetApp()->GetResourceManager().LoadResourcesFromProject(editor->GetProjectManager().GetProjectData(), resources, {}, resourceSpace);
 	}
 } // namespace Lina::Editor

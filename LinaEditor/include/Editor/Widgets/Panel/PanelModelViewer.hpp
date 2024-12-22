@@ -84,6 +84,7 @@ namespace Lina::Editor
 		int32			m_displayAnimation		= -1;
 		CompModel*		m_compModel				= nullptr;
 		OStream			m_previousStream;
+		Material*		m_skyMaterial = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(PanelModelViewer, Hidden)

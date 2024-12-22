@@ -29,11 +29,15 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelWorld.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/EditorLocale.hpp"
-#include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Editor/Widgets/World/WorldDisplayer.hpp"
+#include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
+#include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
+#include "Editor/Graphics/GridRenderer.hpp"
+#include "Editor/World/WorldUtility.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
-
 #include "Common/Math/Math.hpp"
+#include "Common/Serialization/Serialization.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
@@ -54,12 +58,14 @@ namespace Lina::Editor
 		m_worldDisplayer->SetAlignedSize(Vector2::One);
 		m_worldDisplayer->GetProps().noWorldText = Locale::GetStr(LocaleStr::NoWorldInstalled);
 
+		m_editor->GetWindowPanelManager().AddPayloadListener(this);
 		AddChild(m_worldDisplayer);
 	}
 
 	void PanelWorld::Destruct()
 	{
-		m_editor->GetWorldManager().CloseWorld();
+		m_editor->GetWindowPanelManager().RemovePayloadListener(this);
+		DestroyWorld();
 	}
 
 	void PanelWorld::Tick(float delta)
@@ -75,11 +81,102 @@ namespace Lina::Editor
 		// m_worldRenderer->Resize(size);
 	}
 
-	void PanelWorld::SetWorld(EntityWorld* world, WorldRenderer* worldRenderer)
+	void PanelWorld::CreateWorld(const String& resourcePath)
 	{
-		m_world			= world;
-		m_worldRenderer = worldRenderer;
+		LINA_ASSERT(m_world == nullptr, "");
+
+		m_world = new EntityWorld(0, "");
+		m_editor->GetApp()->GetWorldProcessor().AddWorld(m_world);
+		m_worldRenderer = new WorldRenderer(&m_editor->GetApp()->GetGfxContext(), &m_editor->GetApp()->GetResourceManager(), m_world, Vector2ui(4, 4), "WorldRenderer: " + m_world->GetName() + " :");
+		m_gridRenderer	= new GridRenderer(m_editor, m_editor->GetApp()->GetLGX(), m_world, m_resourceManager);
+		m_worldRenderer->AddFeatureRenderer(m_gridRenderer);
+
+		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer);
+
+		IStream stream = Serialization::LoadFromFile(resourcePath.c_str());
+		m_world->LoadFromStream(stream);
+		stream.Destroy();
+
+		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {}, m_world->GetID());
+
 		m_worldDisplayer->DisplayWorld(m_worldRenderer, WorldDisplayer::WorldCameraType::Orbit);
+	}
+
+	void PanelWorld::DestroyWorld()
+	{
+		if (m_world == nullptr)
+			return;
+
+		const ResourceID space = m_world->GetID();
+		m_worldRenderer->RemoveFeatureRenderer(m_gridRenderer);
+		delete m_gridRenderer;
+
+		m_editor->GetEditorRenderer().RemoveWorldRenderer(m_worldRenderer);
+		m_editor->GetApp()->GetWorldProcessor().RemoveWorld(m_world);
+		delete m_worldRenderer;
+		delete m_world;
+		m_world			= nullptr;
+		m_worldRenderer = nullptr;
+		m_worldDisplayer->DisplayWorld(nullptr, WorldDisplayer::WorldCameraType::FreeMove);
+
+		m_editor->GetApp()->GetResourceManager().UnloadResourceSpace(space);
+	}
+
+	void PanelWorld::OnPayloadStarted(PayloadType type, Widget* payload)
+	{
+		if (type != PayloadType::Resource)
+			return;
+
+		if (m_world == nullptr)
+			return;
+
+		m_worldDisplayer->GetWidgetProps().colorOutline = Theme::GetDef().accentPrimary0;
+	}
+
+	void PanelWorld::OnPayloadEnded(PayloadType type, Widget* payload)
+	{
+		if (type != PayloadType::Resource)
+			return;
+
+		if (m_world == nullptr)
+			return;
+
+		m_worldDisplayer->GetWidgetProps().colorOutline = Theme::GetDef().outlineColorBase;
+	}
+
+	bool PanelWorld::OnPayloadDropped(PayloadType type, Widget* payload)
+	{
+		if (type != PayloadType::Resource)
+			return false;
+
+		if (m_world == nullptr)
+			return false;
+
+		if (!GetIsHovered())
+			return false;
+
+		Panel* panel = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::ResourceBrowser, 0);
+
+		if (panel == nullptr)
+			return false;
+
+		const Vector<ResourceDirectory*>& payloadItems = static_cast<PanelResourceBrowser*>(panel)->GetBrowser()->GetPayloadItems();
+
+		HashSet<ResourceID> resources;
+
+		for (ResourceDirectory* dir : payloadItems)
+		{
+			if (dir->resourceTID == GetTypeID<Model>())
+			{
+				WorldUtility::LoadModelAndMaterials(m_editor, dir->resourceID, m_world->GetID());
+
+				Model*	model  = m_resourceManager->GetResource<Model>(dir->resourceID);
+				Entity* entity = WorldUtility::AddModelToWorld(m_world, model, model->GetMeta().materials);
+				m_world->LoadMissingResources(*m_resourceManager, m_editor->GetProjectManager().GetProjectData(), {}, m_world->GetID());
+			}
+		}
+
+		return true;
 	}
 
 } // namespace Lina::Editor

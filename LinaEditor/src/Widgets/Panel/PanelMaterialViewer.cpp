@@ -109,12 +109,12 @@ namespace Lina::Editor
 		};
 
 		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), initialResources, m_resourceSpace);
-		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 
 		if (!m_defaultSky)
 		{
 			m_defaultSky = m_resourceManager->CreateResource<Material>(m_resourceManager->ConsumeResourceID(), "MaterialViewerSkyMaterial", m_resourceSpace);
 			WorldUtility::SetupDefaultSkyMaterial(m_defaultSky, m_resourceManager);
+			m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 		}
 
 		m_world->Initialize(m_resourceManager);
@@ -211,15 +211,15 @@ namespace Lina::Editor
 		const ResourceID displayMaterial = shaderType == ShaderType::Sky ? EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID : m_resource->GetID();
 
 		if (m_displayType == MaterialViewerDisplayType::Cube)
-			m_displayEntity = m_world->AddModelToWorld(rm.GetResource<Model>(EDITOR_MODEL_CUBE_ID), {displayMaterial});
+			m_displayEntity = WorldUtility::AddModelToWorld(m_world, rm.GetResource<Model>(EDITOR_MODEL_CUBE_ID), {displayMaterial});
 		else if (m_displayType == MaterialViewerDisplayType::Sphere)
-			m_displayEntity = m_world->AddModelToWorld(rm.GetResource<Model>(EDITOR_MODEL_SPHERE_ID), {displayMaterial});
+			m_displayEntity = WorldUtility::AddModelToWorld(m_world, rm.GetResource<Model>(EDITOR_MODEL_SPHERE_ID), {displayMaterial});
 		if (m_displayType == MaterialViewerDisplayType::Cylinder)
-			m_displayEntity = m_world->AddModelToWorld(rm.GetResource<Model>(EDITOR_MODEL_CYLINDER_ID), {displayMaterial});
+			m_displayEntity = WorldUtility::AddModelToWorld(m_world, rm.GetResource<Model>(EDITOR_MODEL_CYLINDER_ID), {displayMaterial});
 		if (m_displayType == MaterialViewerDisplayType::Capsule)
-			m_displayEntity = m_world->AddModelToWorld(rm.GetResource<Model>(EDITOR_MODEL_CAPSULE_ID), {displayMaterial});
+			m_displayEntity = WorldUtility::AddModelToWorld(m_world, rm.GetResource<Model>(EDITOR_MODEL_CAPSULE_ID), {displayMaterial});
 		if (m_displayType == MaterialViewerDisplayType::Plane)
-			m_displayEntity = m_world->AddModelToWorld(rm.GetResource<Model>(EDITOR_MODEL_PLANE_ID), {displayMaterial});
+			m_displayEntity = WorldUtility::AddModelToWorld(m_world, rm.GetResource<Model>(EDITOR_MODEL_PLANE_ID), {displayMaterial});
 	}
 
 	void PanelMaterialViewer::RebuildContents()

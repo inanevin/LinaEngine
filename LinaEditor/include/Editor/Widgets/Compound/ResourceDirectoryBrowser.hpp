@@ -82,6 +82,11 @@ namespace Lina::Editor
 			return m_controller;
 		}
 
+		inline const Vector<ResourceDirectory*>& GetPayloadItems() const
+		{
+			return m_payloadItems;
+		}
+
 	protected:
 		virtual bool OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData) override;
 		virtual void OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;

@@ -819,6 +819,8 @@ namespace Lina::Editor
 			resources.push_back(carry->guid);
 		}
 
+		m_payloadItems.clear();
+
 		if (!resources.empty())
 			EditorActionResourceMove::Create(m_editor, resources, previousParents, targetGUID);
 	}

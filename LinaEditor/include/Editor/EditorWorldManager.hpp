@@ -45,12 +45,9 @@ namespace Lina::Editor
 		void Shutdown();
 
 		void OpenWorld(ResourceID id);
-		void CloseWorld();
 
 	private:
-		EntityWorld*   m_world		   = nullptr;
-		WorldRenderer* m_worldRenderer = nullptr;
-		Editor*		   m_editor		   = nullptr;
+		Editor* m_editor = nullptr;
 	};
 
 } // namespace Lina::Editor

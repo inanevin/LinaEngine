@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Editor/Widgets/Panel/Panel.hpp"
+#include "Editor/PayloadListener.hpp"
 
 namespace Lina
 {
@@ -40,8 +41,9 @@ namespace Lina::Editor
 {
 	class Editor;
 	class WorldDisplayer;
+	class GridRenderer;
 
-	class PanelWorld : public Panel
+	class PanelWorld : public Panel, public EditorPayloadListener
 	{
 	public:
 		PanelWorld() : Panel(PanelType::World){};
@@ -51,12 +53,28 @@ namespace Lina::Editor
 		virtual void Destruct() override;
 		virtual void Tick(float delta) override;
 
-		void SetWorld(EntityWorld* world, WorldRenderer* worldRenderer);
+		void CreateWorld(const String& resourcePath);
+		void DestroyWorld();
+
+		virtual void OnPayloadStarted(PayloadType type, Widget* payload) override;
+		virtual void OnPayloadEnded(PayloadType type, Widget* payload) override;
+		virtual bool OnPayloadDropped(PayloadType type, Widget* payload) override;
+
+		virtual LinaGX::Window* OnPayloadGetWindow()
+		{
+			return m_lgxWindow;
+		}
+
+		inline EntityWorld* GetWorld() const
+		{
+			return m_world;
+		}
 
 	private:
 		Editor*			m_editor		 = nullptr;
 		EntityWorld*	m_world			 = nullptr;
 		WorldRenderer*	m_worldRenderer	 = nullptr;
+		GridRenderer*	m_gridRenderer	 = nullptr;
 		WorldDisplayer* m_worldDisplayer = nullptr;
 	};
 

@@ -28,18 +28,26 @@ SOFTWARE.
 
 #pragma once
 
+#include "Core/Resources/CommonResources.hpp"
+
 namespace Lina
 {
 	class Material;
 	class ResourceManagerV2;
+	class Model;
+	class Entity;
+	class EntityWorld;
 } // namespace Lina
 
 namespace Lina::Editor
 {
+	class Editor;
 
 	class WorldUtility
 	{
 	public:
-		static void SetupDefaultSkyMaterial(Material* mat, ResourceManagerV2* rm);
+		static void	   SetupDefaultSkyMaterial(Material* mat, ResourceManagerV2* rm);
+		static Entity* AddModelToWorld(EntityWorld* world, Model* model, const Vector<ResourceID>& materials);
+		static void	   LoadModelAndMaterials(Editor* editor, ResourceID model, ResourceID resourceSpace);
 	};
 } // namespace Lina::Editor

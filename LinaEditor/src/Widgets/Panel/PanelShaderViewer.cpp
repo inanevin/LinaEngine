@@ -356,7 +356,7 @@ namespace Lina::Editor
 			Model* cube = m_world->GetResourceManagerV2().GetResource<Model>(DEFAULT_MODEL_CUBE_ID);
 			Material* shaderMaterial = m_world->GetResourceManagerV2().CreateResource<Material>(m_world->GetResourceManagerV2().ConsumeResourceID(), "Shader Material");
 			shaderMaterial->SetShader(m_world->GetResourceManagerV2().GetResource<Shader>(m_shader->GetID()));
-			Entity* entityCube = m_world->AddModelToWorld(cube, {shaderMaterial});
+			Entity* entityCube = WorldUtility::AddModelToWorld(m_world,cube, {shaderMaterial});
 
 			Entity* camera = m_world->CreateEntity("Camera");
 			CameraComponent*   cameraComp = m_world->AddComponent<CameraComponent>(camera);

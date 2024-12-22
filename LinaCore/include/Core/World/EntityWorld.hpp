@@ -89,7 +89,6 @@ namespace Lina
 		virtual bool	   LoadFromFile(const String& path) override;
 		void			   AddListener(EntityWorldListener* listener);
 		void			   RemoveListener(EntityWorldListener* listener);
-		Entity*			   AddModelToWorld(Model* model, const Vector<ResourceID>& materials);
 		void			   CollectResourceNeeds(HashSet<ResourceID>& outResources);
 		HashSet<Resource*> LoadMissingResources(ResourceManagerV2& rm, ProjectData* project, const HashSet<ResourceID>& extraResources, uint64 resourceSpace);
 
