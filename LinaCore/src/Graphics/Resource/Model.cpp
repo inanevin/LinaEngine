@@ -283,9 +283,29 @@ namespace Lina
 
 					for (size_t k = 0; k < lgxChannel.keyframeTimes.size(); k++)
 					{
-						const float	  kf  = lgxChannel.keyframeTimes[k];
-						const Vector3 vec = Vector3(lgxChannel.values[k * 3], lgxChannel.values[k * 3 + 1], lgxChannel.values[k * 3 + 2]);
-						posChannel.keyframes.push_back(linatl::make_pair(kf, vec));
+						const float kf = lgxChannel.keyframeTimes[k];
+
+						if (lgxChannel.interpolation == LinaGX::GLTFInterpolation::CubicSpline)
+						{
+							const Vector3 vec = Vector3(lgxChannel.values[k * 3], lgxChannel.values[k * 3 + 1], lgxChannel.values[k * 3 + 2]);
+							const Vector3 in  = Vector3(lgxChannel.inTangents[k * 3], lgxChannel.inTangents[k * 3 + 1], lgxChannel.inTangents[k * 3 + 2]);
+							const Vector3 out = Vector3(lgxChannel.outTangents[k * 3], lgxChannel.outTangents[k * 3 + 1], lgxChannel.outTangents[k * 3 + 2]);
+
+							posChannel.keyframesSpline.push_back({
+								.time		= kf,
+								.inTangent	= in,
+								.value		= vec,
+								.outTangent = out,
+							});
+						}
+						else
+						{
+							const Vector3 vec = Vector3(lgxChannel.values[k * 3], lgxChannel.values[k * 3 + 1], lgxChannel.values[k * 3 + 2]);
+							posChannel.keyframes.push_back({
+								.time  = kf,
+								.value = vec,
+							});
+						}
 					}
 				}
 				else if (lgxChannel.targetProperty == LinaGX::GLTFAnimationProperty::Scale)
@@ -298,24 +318,64 @@ namespace Lina
 
 					for (size_t k = 0; k < lgxChannel.keyframeTimes.size(); k++)
 					{
-						const float	  kf  = lgxChannel.keyframeTimes[k];
-						const Vector3 vec = Vector3(lgxChannel.values[k * 3], lgxChannel.values[k * 3 + 1], lgxChannel.values[k * 3 + 2]);
-						channel.keyframes.push_back(linatl::make_pair(kf, vec));
+						const float kf = lgxChannel.keyframeTimes[k];
+
+						if (lgxChannel.interpolation == LinaGX::GLTFInterpolation::CubicSpline)
+						{
+							const Vector3 vec = Vector3(lgxChannel.values[k * 3], lgxChannel.values[k * 3 + 1], lgxChannel.values[k * 3 + 2]);
+							const Vector3 in  = Vector3(lgxChannel.inTangents[k * 3], lgxChannel.inTangents[k * 3 + 1], lgxChannel.inTangents[k * 3 + 2]);
+							const Vector3 out = Vector3(lgxChannel.outTangents[k * 3], lgxChannel.outTangents[k * 3 + 1], lgxChannel.outTangents[k * 3 + 2]);
+
+							channel.keyframesSpline.push_back({
+								.time		= kf,
+								.inTangent	= in,
+								.value		= vec,
+								.outTangent = out,
+							});
+						}
+						else
+						{
+							const Vector3 vec = Vector3(lgxChannel.values[k * 3], lgxChannel.values[k * 3 + 1], lgxChannel.values[k * 3 + 2]);
+							channel.keyframes.push_back({
+								.time  = kf,
+								.value = vec,
+							});
+						}
 					}
 				}
 				else if (lgxChannel.targetProperty == LinaGX::GLTFAnimationProperty::Rotation)
 				{
 					anim.rotationChannels.push_back({});
-					ModelAnimationChannelV4& channel = anim.rotationChannels.back();
+					ModelAnimationChannelQ& channel = anim.rotationChannels.back();
 
 					channel.interpolation = static_cast<ModelAnimationInterpolation>((uint32)lgxChannel.interpolation);
 					channel.nodeIndex	  = lgxChannel.targetNode->index;
 
 					for (size_t k = 0; k < lgxChannel.keyframeTimes.size(); k++)
 					{
-						const float	  kf  = lgxChannel.keyframeTimes[k];
-						const Vector4 vec = Vector4(lgxChannel.values[k * 4], lgxChannel.values[k * 4 + 1], lgxChannel.values[k * 4 + 2], lgxChannel.values[k * 4 + 3]);
-						channel.keyframes.push_back(linatl::make_pair(kf, vec));
+						const float kf = lgxChannel.keyframeTimes[k];
+
+						if (lgxChannel.interpolation == LinaGX::GLTFInterpolation::CubicSpline)
+						{
+							const Vector4 vec = Vector4(lgxChannel.values[k * 4], lgxChannel.values[k * 4 + 1], lgxChannel.values[k * 4 + 2], lgxChannel.values[k * 4 + 3]);
+							const Vector4 in  = Vector4(lgxChannel.inTangents[k * 4], lgxChannel.inTangents[k * 4 + 1], lgxChannel.inTangents[k * 4 + 2], lgxChannel.inTangents[k * 4 + 3]);
+							const Vector4 out = Vector4(lgxChannel.outTangents[k * 4], lgxChannel.outTangents[k * 4 + 1], lgxChannel.outTangents[k * 4 + 2], lgxChannel.outTangents[k * 4 + 3]);
+
+							channel.keyframesSpline.push_back({
+								.time		= kf,
+								.inTangent	= Quaternion(in),
+								.value		= Quaternion(vec),
+								.outTangent = Quaternion(out),
+							});
+						}
+						else
+						{
+							const Vector4 vec = Vector4(lgxChannel.values[k * 4], lgxChannel.values[k * 4 + 1], lgxChannel.values[k * 4 + 2], lgxChannel.values[k * 4 + 3]);
+							channel.keyframes.push_back({
+								.time  = kf,
+								.value = Quaternion(vec),
+							});
+						}
 					}
 				}
 			}

@@ -45,13 +45,18 @@ struct LinaVertexOutput
 
 //##user_shader_injected_here
 
+layout( push_constant ) uniform constants
+{
+	uint baseInstanceIndex;
+} PushConstants;
+
 void main()
 {
    LinaVertexInput vertexInput;
    vertexInput.pos = inPos;
    vertexInput.normal = inNormal;
    vertexInput.uv = vec2(inUV.x, 1.0 - inUV.y);
-   vertexInput.materialIndex = LINA_LIGHT_PASS.skyMaterialByteIndex;
+   vertexInput.materialIndex = LINA_PASS.skyMaterialByteIndex;
 
    LinaVertexOutput vertexOutput;
    LINA_VERTEX_MAIN(vertexInput, vertexOutput);

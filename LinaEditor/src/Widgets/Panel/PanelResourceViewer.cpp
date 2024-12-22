@@ -133,13 +133,6 @@ namespace Lina::Editor
 
 		if (dontExists)
 		{
-			Text* text = m_manager->Allocate<Text>("Info");
-			text->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
-			text->SetAlignedPos(Vector2(0.5f, 0.5f));
-			text->SetAnchorX(Anchor::Center);
-			text->SetAnchorY(Anchor::Center);
-			text->GetProps().text = Locale::GetStr(LocaleStr::ThisResourceNoLongerExists);
-			m_resourceBG->AddChild(text);
 			return;
 		}
 

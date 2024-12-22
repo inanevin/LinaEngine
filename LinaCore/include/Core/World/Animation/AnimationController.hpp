@@ -30,9 +30,32 @@ SOFTWARE.
 
 namespace Lina
 {
+	class CompModel;
+
 	class AnimationController
 	{
 	public:
+		AnimationController() = delete;
+		AnimationController(CompModel* comp) : m_comp(comp){};
+
+		void TickAnimation(float delta);
+
+		inline void SelectAnimation(int32 idx)
+		{
+			m_animationIndex = idx;
+			m_animationTime	 = 0.0f;
+		}
+
+		inline void SetSpeed(float speed)
+		{
+			m_speed = speed;
+		}
+
+	private:
+		CompModel* m_comp			= nullptr;
+		int32	   m_animationIndex = -1;
+		float	   m_animationTime	= 0.0f;
+		float	   m_speed			= 1.0f;
 	};
 
 } // namespace Lina

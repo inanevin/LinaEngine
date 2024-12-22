@@ -32,15 +32,44 @@ SOFTWARE.
 #include "Common/Math/Vector.hpp"
 #include "Common/Math/Matrix.hpp"
 #include "Common/Data/CommonData.hpp"
+#include "Core/Resources/CommonResources.hpp"
 
 namespace Lina
 {
 	class Material;
+	class Buffer;
 
 	struct MaterialComparator
 	{
 		bool operator()(const Material* lhs, const Material* rhs) const;
 	};
+
+	enum RenderPassType
+	{
+		RENDER_PASS_DEFERRED = 0,
+		RENDER_PASS_FORWARD,
+		RENDER_PASS_UNKNOWN,
+	};
+
+	enum MeshFormat
+	{
+		MESH_FORMAT_STATIC = 0,
+		MESH_FORMAT_SKINNED,
+		MESH_FORMAT_MAX,
+	};
+
+	constexpr const char* RPTypeToString(RenderPassType type)
+	{
+		switch (type)
+		{
+		case RENDER_PASS_DEFERRED:
+			return "Main";
+		case RENDER_PASS_FORWARD:
+			return "ForwardTransparency";
+		default:
+			return "Unknown";
+		}
+	}
 
 	enum RenderableType
 	{
@@ -91,15 +120,15 @@ namespace Lina
 		Matrix4 model;
 	};
 
-	struct GPUIndirectConstants0
+	struct GPUDrawArguments
 	{
-		uint32 entityIndex;
-		uint32 materialByteIndex;
-		uint32 boneIndex;
-		uint32 padding1;
+		uint32 constant0;
+		uint32 constant1;
+		uint32 constant2;
+		uint32 constant3;
 	};
 
-	struct GPUDataLightingPass
+	struct GPUForwardPassData
 	{
 		uint32 gBufAlbedo				 = 0;
 		uint32 gBufPositionMetallic		 = 0;
@@ -109,10 +138,5 @@ namespace Lina
 		uint32 skyMaterialByteIndex		 = 0;
 		uint32 pad3						 = 0;
 		uint32 pad4						 = 0;
-	};
-
-	struct GPUPushConstantsForwardPass
-	{
-		uint32 reserved0;
 	};
 } // namespace Lina

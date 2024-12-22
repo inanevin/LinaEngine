@@ -55,10 +55,9 @@ src/Graphics/Resource/Material.cpp
 src/Graphics/Resource/GUIWidget.cpp
 src/Graphics/Resource/Font.cpp
 src/Graphics/Renderers/WorldRenderer.cpp
-src/Graphics/Renderers/SkinningManager.cpp
 src/Graphics/Renderers/SkyRenderer.cpp
+src/Graphics/Renderers/DrawCollector.cpp
 src/Graphics/Renderers/LightingRenderer.cpp
-src/Graphics/Renderers/ObjectRenderer.cpp
 src/Graphics/Renderers/FeatureRenderer.cpp
 src/Graphics/Pipeline/Buffer.cpp
 src/Graphics/Pipeline/RenderPass.cpp
@@ -86,7 +85,6 @@ src/World/ComponentCache.cpp
 src/World/Screen.cpp
 src/World/WorldInput.cpp
 src/World/EntityWorld.cpp
-src/World/GraphicsWorld.cpp
 src/World/Camera.cpp
 src/World/Components/CompRenderable.cpp
 src/World/Components/CompCamera.cpp
@@ -187,10 +185,9 @@ include/Core/Graphics/Resource/Material.hpp
 include/Core/Graphics/Resource/GUIWidget.hpp
 include/Core/Graphics/Resource/Font.hpp
 include/Core/Graphics/Renderers/WorldRenderer.hpp
-include/Core/Graphics/Renderers/SkinningManager.hpp
 include/Core/Graphics/Renderers/FeatureRenderer.hpp
-include/Core/Graphics/Renderers/ObjectRenderer.hpp
 include/Core/Graphics/Renderers/SkyRenderer.hpp
+include/Core/Graphics/Renderers/DrawCollector.hpp
 include/Core/Graphics/Renderers/LightingRenderer.hpp
 include/Core/Graphics/Pipeline/Buffer.hpp
 include/Core/Graphics/Pipeline/RenderPass.hpp
@@ -208,7 +205,7 @@ include/Core/World/ComponentCache.hpp
 include/Core/World/Screen.hpp
 include/Core/World/WorldInput.hpp
 include/Core/World/EntityWorld.hpp
-include/Core/World/GraphicsWorld.hpp
+include/Core/World/EntityWorldListener.hpp
 include/Core/World/CommonWorld.hpp
 include/Core/World/Camera.hpp
 include/Core/World/Components/CompCamera.hpp

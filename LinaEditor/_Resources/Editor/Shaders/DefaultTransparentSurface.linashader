@@ -52,8 +52,7 @@ struct LinaFragOutput
 
 */
 
-
-#lina_shader_transparent
+#lina_shader_forward
 
 #lina_vs
 

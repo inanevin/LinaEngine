@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Editor/World/EditorCamera.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
+#include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
@@ -49,11 +50,24 @@ namespace Lina::Editor
 		GetFlags().Set(WF_KEY_PASSTHRU | WF_MOUSE_PASSTHRU);
 		GetWidgetProps().outlineThickness = Theme::GetDef().baseOutlineThickness;
 		GetWidgetProps().rounding		  = 0.0f;
+		GetWidgetProps().drawBackground	  = true;
+		GetWidgetProps().colorBackground  = Theme::GetDef().background0;
 
-		m_loading = CommonWidgets::BuildGenericPopupProgress(this, Locale::GetStr(LocaleStr::LoadingWorld), true);
-		AddChild(m_loading);
+		m_noWorldText = m_manager->Allocate<Text>("NoWorld");
+		m_noWorldText->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+		m_noWorldText->SetAlignedPos(Vector2(0.5f, 0.5f));
+		m_noWorldText->SetAnchorX(Anchor::Center);
+		m_noWorldText->SetAnchorY(Anchor::Center);
+		m_noWorldText->GetProps().font	= Theme::GetDef().altBigFont;
+		m_noWorldText->GetProps().color = Theme::GetDef().silent2;
+		AddChild(m_noWorldText);
 
 		m_gizmoFont = Editor::Get()->GetApp()->GetResourceManager().GetResource<Font>(EDITOR_FONT_PLAY_ID);
+	}
+
+	void WorldDisplayer::Initialize()
+	{
+		m_noWorldText->UpdateTextAndCalcSize(m_props.noWorldText);
 	}
 
 	void WorldDisplayer::Destruct()
@@ -64,24 +78,22 @@ namespace Lina::Editor
 		DestroyCamera();
 	}
 
-	void WorldDisplayer::DisplayWorld(WorldRenderer* renderer)
+	void WorldDisplayer::DisplayWorld(WorldRenderer* renderer, WorldCameraType cameraType)
 	{
-		if (renderer == nullptr)
-		{
-			if (m_camera)
-				m_camera->SetWorld(nullptr);
+		DestroyCamera();
+		m_noWorldText->GetFlags().Set(WF_HIDE, renderer != nullptr);
 
-			GetWidgetProps().drawBackground = false;
+		if (renderer == nullptr)
 			return;
-		}
 
 		m_worldRenderer = renderer;
 		m_worldRenderer->GetWorld()->AddListener(this);
 
-		if (m_camera)
-			m_camera->SetWorld(m_worldRenderer->GetWorld());
+		if (cameraType == WorldCameraType::Orbit)
+			m_camera = new OrbitCamera(m_worldRenderer->GetWorld());
+		else if (cameraType == WorldCameraType::FreeMove)
+			m_camera = new FreeCamera(m_worldRenderer->GetWorld());
 
-		GetWidgetProps().drawBackground	 = true;
 		GetWidgetProps().colorBackground = Color::White;
 	}
 
@@ -101,8 +113,6 @@ namespace Lina::Editor
 		const bool worldHasFocus = m_manager->GetControlsOwner() == this && m_lgxWindow->HasFocus();
 		m_worldRenderer->GetWorld()->GetInput().SetIsActive(worldHasFocus);
 		m_worldRenderer->GetWorld()->GetInput().SetWheelActive(m_isHovered);
-
-		m_loading->GetFlags().Set(WF_HIDE, !m_worldRenderer->GetWorld()->GetFlags().IsSet(WORLD_FLAGS_LOADING));
 
 		// Screen setup
 		Screen& sc = m_worldRenderer->GetWorld()->GetScreen();
@@ -127,6 +137,7 @@ namespace Lina::Editor
 	{
 		if (m_worldRenderer == nullptr)
 			return;
+
 		const uint32 frameIndex		= Application::GetLGX()->GetCurrentFrameIndex();
 		Texture*	 target			= m_worldRenderer->GetLightingPassOutput((frameIndex + SystemInfo::GetRendererBehindFrames()) % 2); // 1 frame behind renderer
 		GetWidgetProps().rawTexture = target;
@@ -166,14 +177,6 @@ namespace Lina::Editor
 		}
 
 		return false;
-	}
-
-	OrbitCamera* WorldDisplayer::CreateOrbitCamera()
-	{
-		m_camera = new OrbitCamera();
-		if (m_worldRenderer)
-			m_camera->SetWorld(m_worldRenderer->GetWorld());
-		return static_cast<OrbitCamera*>(m_camera);
 	}
 
 	void WorldDisplayer::DestroyCamera()

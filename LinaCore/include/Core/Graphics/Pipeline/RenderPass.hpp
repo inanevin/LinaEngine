@@ -40,12 +40,13 @@ namespace Lina
 
 	struct RenderPassBuffer
 	{
-		LinaGX::ResourceTypeHint bufferType	  = LinaGX::ResourceTypeHint::TH_ConstantBuffer;
-		String					 debugName	  = "";
-		size_t					 size		  = 0;
-		bool					 stagingOnly  = false;
-		int32					 bindingIndex = -1;
-		StringID				 ident		  = 0;
+		LinaGX::ResourceTypeHint bufferType		= LinaGX::ResourceTypeHint::TH_ConstantBuffer;
+		String					 debugName		= "";
+		size_t					 size			= 0;
+		bool					 stagingOnly	= false;
+		int32					 bindingIndex	= -1;
+		StringID				 ident			= 0;
+		uint32					 createdOutside = false;
 	};
 
 	struct RenderPassDescription
@@ -67,7 +68,7 @@ namespace Lina
 
 		void Create(const RenderPassDescription& desc);
 		void Destroy();
-		void BindDescriptors(LinaGX::CommandStream* stream, uint32 frameIndex, uint16 pipelineLayout);
+		void BindDescriptors(LinaGX::CommandStream* stream, uint32 frameIndex, uint16 pipelineLayout, uint32 firstSet);
 		void Begin(LinaGX::CommandStream* stream, const LinaGX::Viewport& vp, const LinaGX::ScissorsRect& scissors, uint32 frameIndex);
 		void End(LinaGX::CommandStream* stream);
 

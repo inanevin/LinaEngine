@@ -40,6 +40,7 @@ namespace Lina
 	class EntityWorld;
 	class WorldRenderer;
 	class Entity;
+	class CompModel;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -60,22 +61,29 @@ namespace Lina::Editor
 		virtual void StoreEditorActionBuffer() override;
 		virtual void UpdateResourceProperties() override;
 		virtual void RebuildContents() override;
+		void		 SetupWorld();
 
-	private:
-		void SetupWorld();
+		inline EntityWorld* GetWorld() const
+		{
+			return m_world;
+		}
 
 	private:
 		LINA_REFLECTION_ACCESS(PanelModelViewer);
 
-		String			m_modelName		 = "";
-		String			m_materialDefs	 = "";
-		String			m_animations	 = "";
-		String			m_meshes		 = "";
-		WorldDisplayer* m_worldDisplayer = nullptr;
-		EntityWorld*	m_world			 = nullptr;
-		WorldRenderer*	m_worldRenderer	 = nullptr;
-		GridRenderer*	m_gridRenderer	 = nullptr;
-		Entity*			m_displayEntity	 = nullptr;
+		String			m_modelName				= "";
+		String			m_materialDefs			= "";
+		String			m_animations			= "";
+		String			m_meshes				= "";
+		float			m_animationPreviewSpeed = 1.0f;
+		WorldDisplayer* m_worldDisplayer		= nullptr;
+		EntityWorld*	m_world					= nullptr;
+		WorldRenderer*	m_worldRenderer			= nullptr;
+		GridRenderer*	m_gridRenderer			= nullptr;
+		Entity*			m_displayEntity			= nullptr;
+		int32			m_displayAnimation		= -1;
+		CompModel*		m_compModel				= nullptr;
+		OStream			m_previousStream;
 	};
 
 	LINA_WIDGET_BEGIN(PanelModelViewer, Hidden)
@@ -83,6 +91,8 @@ namespace Lina::Editor
 	LINA_FIELD(PanelModelViewer, m_animations, "Animation Count", FieldType::StringFixed, 0)
 	LINA_FIELD(PanelModelViewer, m_materialDefs, "Material Def Count", FieldType::StringFixed, 0)
 	LINA_FIELD(PanelModelViewer, m_meshes, "Mesh Count", FieldType::StringFixed, 0)
+	LINA_FIELD(PanelModelViewer, m_animationPreviewSpeed, "Animation PreviewSpeed", FieldType::Float, 0)
+	LINA_FIELD_LIMITS(PanelModelViewer, m_animationPreviewSpeed, 0.0f, 10.0f, 0.1f)
 	LINA_CLASS_END(PanelModelViewer)
 
 } // namespace Lina::Editor

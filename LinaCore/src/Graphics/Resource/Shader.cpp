@@ -121,10 +121,10 @@ namespace Lina
 		ShaderPreprocessor::InjectVersionAndExtensions(vertexBase);
 		ShaderPreprocessor::InjectVersionAndExtensions(pixelBase);
 
-		if (type == ShaderType::OpaqueSurface)
+		if (type == ShaderType::DeferredSurface)
 		{
-			ShaderPreprocessor::InjectRenderPassInputs(vertexBase, RenderPassType::Deferred);
-			ShaderPreprocessor::InjectRenderPassInputs(pixelBase, RenderPassType::Deferred);
+			ShaderPreprocessor::InjectRenderPassInputs(vertexBase, RenderPassType::RENDER_PASS_DEFERRED);
+			ShaderPreprocessor::InjectRenderPassInputs(pixelBase, RenderPassType::RENDER_PASS_DEFERRED);
 
 			// Deferred default
 			{
@@ -142,8 +142,8 @@ namespace Lina
 								   .frontFace	 = LinaGX::FrontFace::CW,
 				   };
 
-				ShaderPreprocessor::InjectVertexMain(vtxShader, ShaderType::OpaqueSurface);
-				ShaderPreprocessor::InjectFragMain(pixelShader, ShaderType::OpaqueSurface);
+				ShaderPreprocessor::InjectVertexMain(vtxShader, ShaderType::DeferredSurface);
+				ShaderPreprocessor::InjectFragMain(pixelShader, ShaderType::DeferredSurface);
 				ShaderPreprocessor::InjectUserShader(vtxShader, vertexBlock);
 				ShaderPreprocessor::InjectUserShader(pixelShader, fragBlock);
 
@@ -176,8 +176,8 @@ namespace Lina
 								   .frontFace	 = LinaGX::FrontFace::CW,
 				   };
 
-				ShaderPreprocessor::InjectSkinnedVertexMain(vtxShader, ShaderType::OpaqueSurface);
-				ShaderPreprocessor::InjectFragMain(pixelShader, ShaderType::OpaqueSurface);
+				ShaderPreprocessor::InjectSkinnedVertexMain(vtxShader, ShaderType::DeferredSurface);
+				ShaderPreprocessor::InjectFragMain(pixelShader, ShaderType::DeferredSurface);
 				ShaderPreprocessor::InjectUserShader(vtxShader, vertexBlock);
 				ShaderPreprocessor::InjectUserShader(pixelShader, fragBlock);
 
@@ -194,10 +194,10 @@ namespace Lina
 				});
 			}
 		}
-		else if (type == ShaderType::TransparentSurface)
+		else if (type == ShaderType::ForwardSurface)
 		{
-			ShaderPreprocessor::InjectRenderPassInputs(vertexBase, RenderPassType::Forward);
-			ShaderPreprocessor::InjectRenderPassInputs(pixelBase, RenderPassType::Forward);
+			ShaderPreprocessor::InjectRenderPassInputs(vertexBase, RenderPassType::RENDER_PASS_FORWARD);
+			ShaderPreprocessor::InjectRenderPassInputs(pixelBase, RenderPassType::RENDER_PASS_FORWARD);
 
 			// Forward default
 			{
@@ -221,8 +221,8 @@ namespace Lina
 								   .frontFace			= LinaGX::FrontFace::CW,
 				   };
 
-				ShaderPreprocessor::InjectVertexMain(vtxShader, ShaderType::TransparentSurface);
-				ShaderPreprocessor::InjectFragMain(pixelShader, ShaderType::TransparentSurface);
+				ShaderPreprocessor::InjectVertexMain(vtxShader, ShaderType::ForwardSurface);
+				ShaderPreprocessor::InjectFragMain(pixelShader, ShaderType::ForwardSurface);
 				ShaderPreprocessor::InjectUserShader(vtxShader, vertexBlock);
 				ShaderPreprocessor::InjectUserShader(pixelShader, fragBlock);
 
@@ -261,8 +261,8 @@ namespace Lina
 								   .frontFace			= LinaGX::FrontFace::CW,
 				   };
 
-				ShaderPreprocessor::InjectSkinnedVertexMain(vtxShader, ShaderType::TransparentSurface);
-				ShaderPreprocessor::InjectFragMain(pixelShader, ShaderType::TransparentSurface);
+				ShaderPreprocessor::InjectSkinnedVertexMain(vtxShader, ShaderType::ForwardSurface);
+				ShaderPreprocessor::InjectFragMain(pixelShader, ShaderType::ForwardSurface);
 				ShaderPreprocessor::InjectUserShader(vtxShader, vertexBlock);
 				ShaderPreprocessor::InjectUserShader(pixelShader, fragBlock);
 
@@ -281,11 +281,10 @@ namespace Lina
 		}
 		else if (type == ShaderType::Lighting)
 		{
-			// TODO: convert default lighting shader to standard
-			// ShaderPreprocessor::InjectRenderPassInputs(vertexBase, RenderPassType::Forward);
-			// ShaderPreprocessor::InjectRenderPassInputs(pixelBase, RenderPassType::Forward);
+			ShaderPreprocessor::InjectRenderPassInputs(vertexBase, RenderPassType::RENDER_PASS_FORWARD);
+			ShaderPreprocessor::InjectRenderPassInputs(pixelBase, RenderPassType::RENDER_PASS_FORWARD);
 
-			// String vtxShader = vertexBase, pixelShader = pixelBase;
+			String vtxShader = vertexBase, pixelShader = pixelBase;
 
 			m_meta.variants.push_back({});
 			ShaderVariant& variant = m_meta.variants.back();
@@ -299,18 +298,20 @@ namespace Lina
 							   .frontFace	 = LinaGX::FrontFace::CW,
 			   };
 
-			vertexBase.insert(vertexBase.length(), vertexBlock);
-			pixelBase.insert(pixelBase.length(), fragBlock);
+			ShaderPreprocessor::InjectVertexMain(vtxShader, ShaderType::Lighting);
+			ShaderPreprocessor::InjectFragMain(pixelShader, ShaderType::Lighting);
+			ShaderPreprocessor::InjectUserShader(vtxShader, vertexBlock);
+			ShaderPreprocessor::InjectUserShader(pixelShader, fragBlock);
 
 			variant._compileData.push_back({
 				.stage		 = LinaGX::ShaderStage::Vertex,
-				.text		 = vertexBase,
+				.text		 = vtxShader,
 				.includePath = includePath.c_str(),
 			});
 
 			variant._compileData.push_back({
 				.stage		 = LinaGX::ShaderStage::Fragment,
-				.text		 = pixelBase,
+				.text		 = pixelShader,
 				.includePath = includePath.c_str(),
 			});
 		}
@@ -320,8 +321,8 @@ namespace Lina
 		}
 		else if (type == ShaderType::Sky)
 		{
-			ShaderPreprocessor::InjectRenderPassInputs(vertexBase, RenderPassType::Lighting);
-			ShaderPreprocessor::InjectRenderPassInputs(pixelBase, RenderPassType::Lighting);
+			ShaderPreprocessor::InjectRenderPassInputs(vertexBase, RenderPassType::RENDER_PASS_FORWARD);
+			ShaderPreprocessor::InjectRenderPassInputs(pixelBase, RenderPassType::RENDER_PASS_FORWARD);
 
 			String vtxShader = vertexBase, pixelShader = pixelBase;
 

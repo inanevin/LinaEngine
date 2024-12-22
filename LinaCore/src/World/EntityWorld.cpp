@@ -82,6 +82,11 @@ namespace Lina
 
 		if (m_playMode != PlayMode::None)
 			TickPlay(delta);
+
+		GetCache<CompModel>()->View([delta](CompModel* comp, uint32 idx) -> bool {
+			comp->GetAnimationController().TickAnimation(delta);
+			return false;
+		});
 	}
 
 	void EntityWorld::SetPlayMode(PlayMode playmode)

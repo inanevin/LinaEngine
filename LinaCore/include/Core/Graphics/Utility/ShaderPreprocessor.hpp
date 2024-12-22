@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Data/String.hpp"
+#include "Core/Graphics/Data/RenderData.hpp"
 
 namespace Lina
 {

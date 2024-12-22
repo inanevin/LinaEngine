@@ -26,6 +26,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+struct LinaTexture2D
+{
+	uint txt;
+	uint smp;
+};
+
 layout(set = 0, binding = 0) uniform GlobalData
 {
 	vec4 mouse;
@@ -39,12 +45,6 @@ layout (set = 0, binding = 1) readonly buffer MaterialBuffer
 
 layout (set = 0, binding = 2) uniform texture2D LINA_TEXTURES[];
 layout (set = 0, binding = 3) uniform sampler LINA_SAMPLERS[];
-
-struct LinaTexture2D
-{
-	uint txt;
-	uint smp;
-};
 
 vec4 LINA_SAMPLE_TEXTURE(LinaTexture2D linaTxt, vec2 uv)
 {

@@ -64,6 +64,7 @@ namespace Lina::Editor
 		m_guiHue			= m_editor->GetApp()->GetResourceManager().GetResource<Shader>(EDITOR_SHADER_GUI_HUE_DISPLAY_ID);
 		m_guiText			= m_editor->GetApp()->GetResourceManager().GetResource<Shader>(EDITOR_SHADER_GUI_TEXT_ID);
 		m_guiSDF			= m_editor->GetApp()->GetResourceManager().GetResource<Shader>(EDITOR_SHADER_GUI_SDF_TEXT_ID);
+		m_guiGlitch			= m_editor->GetApp()->GetResourceManager().GetResource<Shader>(EDITOR_SHADER_GUI_GLITCH_ID);
 
 		const LinaGX::VSyncStyle vsync = {
 			.vulkanVsync = VSYNC_VK,
@@ -265,6 +266,22 @@ namespace Lina::Editor
 
 					// materialBuffer.BufferData(m_frameMaterialBufferCounter, (uint8*)&material, sizeof(GPUMaterialGUIDefault));
 					// m_frameMaterialBufferCounter += sizeof(GPUMaterialGUIDefault);
+				}
+				else if (guiUserData->specialType == GUISpecialType::Glitch)
+				{
+					drawRequest.shader			  = m_guiGlitch;
+					Texture*			 texture  = buf->textureHandle == nullptr ? nullptr : static_cast<Texture*>(buf->textureHandle);
+					GPUMaterialGUIGlitch material = {
+						.uvTilingAndOffset = buf->textureUV,
+						.diffuse =
+							{
+								.textureIndex = texture != nullptr ? texture->GetBindlessIndex() : 0,
+								.samplerIndex = texture != nullptr ? m_editor->GetEditorRenderer().GetGUISampler()->GetBindlessIndex() : 0,
+							},
+					};
+
+					MEMCPY(m_cpuDraw.materialBuffer.data() + m_cpuDraw.materialBufferCounter, (uint8*)&material, sizeof(GPUMaterialGUIGlitch));
+					m_cpuDraw.materialBufferCounter += sizeof(GPUMaterialGUIGlitch);
 				}
 				else if (guiUserData->specialType == GUISpecialType::ColorWheel)
 				{
@@ -520,7 +537,7 @@ namespace Lina::Editor
 		barrierToColor->textureBarriers		= currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier));
 		barrierToColor->textureBarriers[0]	= GfxHelpers::GetTextureBarrierPresent2Color(static_cast<uint32>(m_swapchain), true);
 
-		m_guiPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_editor->GetEditorRenderer().GetPipelineLayoutGUI());
+		m_guiPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_editor->GetEditorRenderer().GetPipelineLayoutGUI(), 1);
 
 		// Begin render pass
 		m_guiPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);

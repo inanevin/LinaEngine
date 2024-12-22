@@ -48,9 +48,13 @@ vec3 UnprojectPoint(float x, float y, float z, mat4 view, mat4 projection) {
     return unprojectedPoint.xyz / unprojectedPoint.w;
 }
 
+layout( push_constant ) uniform constants
+{
+	uint baseInstanceIndex;
+} PushConstants;
+
 void main()
 {
-
     vec3 p = gridPlane[gl_VertexIndex].xyz;
     outNearPoint = UnprojectPoint(p.x, p.y, 0.0, LINA_VIEW.view, LINA_VIEW.proj).xyz; // unprojecting on the near plane
     outFarPoint = UnprojectPoint(p.x, p.y, 1.0, LINA_VIEW.view, LINA_VIEW.proj).xyz; // unprojecting on the far plane
@@ -108,7 +112,7 @@ struct LinaMaterial
    vec3 zAxisColor;
 };
 
-layout(set = 2, binding = 0) uniform DrawData
+layout(set = 3, binding = 0) uniform DrawData
 {
 	uint materialIndex;
 	uint padding0;

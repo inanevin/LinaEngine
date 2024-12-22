@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Core/Resources/Resource.hpp"
 #include "Core/World/ComponentCache.hpp"
+#include "Core/World/EntityWorldListener.hpp"
 #include "Core/World/Screen.hpp"
 #include "Core/World/Camera.hpp"
 #include "Core/World/WorldInput.hpp"
@@ -48,21 +49,6 @@ namespace Lina
 	class Component;
 	class ProjectData;
 	class ResourceManagerV2;
-
-	enum class PlayMode
-	{
-		None,
-		Play,
-		Other,
-	};
-
-	class EntityWorldListener
-	{
-	public:
-		virtual void OnComponentAdded(Component* c){};
-		virtual void OnComponentRemoved(Component* c){};
-		virtual void OnWorldTick(float delta, PlayMode playmode){};
-	};
 
 	class EntityWorld : public Resource
 	{
@@ -112,7 +98,7 @@ namespace Lina
 
 		template <typename T> T* GetComponent(Entity* e)
 		{
-			return GetCache<T>()->Get();
+			return static_cast<T*>(GetCache<T>()->Get(e));
 		}
 
 		template <typename T> T* AddComponent(Entity* e, const T& t)

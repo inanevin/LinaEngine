@@ -110,8 +110,8 @@ namespace Lina::Editor
 			opts.textureHandle = img;
 			// opts.textureUVOffset = img->rectUV.pos.AsLVG();
 			// opts.textureUVTiling = img->rectUV.size.AsLVG();
-			opts.color = color.AsLVG4();
-
+			opts.color			= color.AsLVG4();
+			opts.userData		= &m_guiUserData;
 			const Vector2 start = m_rect.pos + offset;
 			const Vector2 end	= start + (m_rect.GetEnd() - m_rect.pos);
 			m_lvg->DrawRect(start.AsLVG(), end.AsLVG(), opts, 0.0f, m_drawOrder);

@@ -44,7 +44,7 @@ namespace Lina::Editor
 	class EditorCamera
 	{
 	public:
-		EditorCamera()			= default;
+		EditorCamera(EntityWorld* world) : m_world(world){};
 		virtual ~EditorCamera() = default;
 
 		struct CameraProperties
@@ -57,11 +57,6 @@ namespace Lina::Editor
 		void Tick(float delta);
 
 		virtual void OnHandleCamera(float delta) = 0;
-
-		inline void SetWorld(EntityWorld* world)
-		{
-			m_world = world;
-		}
 
 		inline CameraProperties& GetProps()
 		{
@@ -86,7 +81,8 @@ namespace Lina::Editor
 			float	maxDistance	  = 24.0f;
 		};
 
-		OrbitCamera();
+		OrbitCamera(EntityWorld* world);
+
 		virtual ~OrbitCamera() = default;
 
 		virtual void OnHandleCamera(float delta) override;
@@ -102,5 +98,15 @@ namespace Lina::Editor
 		float			m_xAngle		 = 0.0f;
 		float			m_yAngle		 = 0.0f;
 		float			m_targetDistance = 0.0f;
+	};
+
+	class FreeCamera : public EditorCamera
+	{
+	public:
+		FreeCamera(EntityWorld* world) : EditorCamera(world){};
+
+		virtual ~FreeCamera() = default;
+
+		virtual void OnHandleCamera(float delta) override;
 	};
 } // namespace Lina::Editor

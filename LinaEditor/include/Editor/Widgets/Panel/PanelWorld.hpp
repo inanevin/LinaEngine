@@ -38,6 +38,8 @@ namespace Lina
 
 namespace Lina::Editor
 {
+	class Editor;
+	class WorldDisplayer;
 
 	class PanelWorld : public Panel
 	{
@@ -46,11 +48,20 @@ namespace Lina::Editor
 		virtual ~PanelWorld() = default;
 
 		virtual void Construct() override;
+		virtual void Destruct() override;
 		virtual void Tick(float delta) override;
 
+		void SetWorld(EntityWorld* world);
+
 	private:
-		EntityWorld*   m_world		   = nullptr;
-		WorldRenderer* m_worldRenderer = nullptr;
+		void DestroyWorldRenderer();
+		void CreateWorldRenderer();
+
+	private:
+		Editor*			m_editor		 = nullptr;
+		EntityWorld*	m_world			 = nullptr;
+		WorldRenderer*	m_worldRenderer	 = nullptr;
+		WorldDisplayer* m_worldDisplayer = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(PanelWorld, Hidden)

@@ -150,7 +150,7 @@ namespace Lina
 
 	size_t Material::GetSize() const
 	{
-		size_t total = 0.0f;
+		size_t total = 0;
 		for (MaterialProperty* p : m_properties)
 			total += sizeof(MaterialProperty) + p->data.size();
 		return total;

@@ -57,7 +57,7 @@ struct LinaFragOutput
 
 */
 
-#lina_shader_opaque
+#lina_shader_deferred
 
 #lina_vs
 
@@ -67,7 +67,6 @@ layout (location = 1) out vec2 outUV;
 void LINA_VERTEX_MAIN(in LinaVertexInput inVertex, out LinaVertexOutput outVertex)
 {
    outVertex.pos = vec4(inVertex.pos, 1.0);
-
    outMaterialIndex = inVertex.materialIndex;
    outUV = inVertex.uv;
 }

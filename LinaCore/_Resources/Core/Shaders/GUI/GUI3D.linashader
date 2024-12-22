@@ -39,18 +39,14 @@ layout (location = 0) out vec4 outCol;
 layout (location = 1) out vec2 outUV;
 layout (location = 2) flat out uint outDrawID;
 
+layout( push_constant ) uniform constants
+{
+	uint baseInstanceIndex;
+} PushConstants;
+
 void main()
 {
-
-// vulkan and metal = gl_InstanceIndex equals to startInstance + instanceID
-// dx12 = LGX_DRAW_ID is the startInstance, gl_InstanceIndex will be the instance ID
-#ifdef LGX_COMPILE_HLSL
-   int argBufferIndex = LGX_DRAW_ID + gl_InstanceIndex;
-#else
-   int argBufferIndex = gl_InstanceIndex;
-#endif  
-
-   IndirectArguments argBuffer = LINA_INDIRECT_ARGUMENTS.data[argBufferIndex];
+   DrawArguments argBuffer = LINA_DRAW_ARGUMENTS.data[PushConstants.baseInstanceIndex + gl_InstanceIndex];
    uint entityID = argBuffer.entityID;
    Object object = LINA_OBJECTS.data[entityID];
 

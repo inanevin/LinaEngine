@@ -190,6 +190,15 @@ namespace Lina::Editor
 			mat.SaveToFileAsBinary(path);
 			shaderStream.Destroy();
 		}
+		else if (tid == GetTypeID<EntityWorld>())
+		{
+			EntityWorld world(id, name);
+			world.SetPath(path);
+			world.GetGfxSettings().lightingMaterial = EDITOR_MATERIAL_DEFAULT_LIGHTING_ID;
+			world.GetGfxSettings().skyMaterial		= EDITOR_MATERIAL_DEFAULT_SKY_ID;
+			world.GetGfxSettings().skyModel			= EDITOR_MODEL_SKYSPHERE_ID;
+			world.SaveToFileAsBinary(path);
+		}
 		else
 			saveDefault();
 
@@ -253,7 +262,6 @@ namespace Lina::Editor
 			auto loadDefault = [&]() {
 				MetaType* meta = ReflectionSystem::Get().Resolve(resourceTID);
 				Resource* res  = static_cast<Resource*>(meta->GetFunction<void*()>("Allocate"_hs)());
-
 				if (res->LoadFromFile(def.path))
 				{
 					res->SetName(name);

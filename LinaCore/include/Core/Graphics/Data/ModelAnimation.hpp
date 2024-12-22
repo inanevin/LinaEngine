@@ -41,18 +41,108 @@ namespace Lina
 		CubicSpline,
 	};
 
-	struct ModelAnimationChannelV3
+	struct ModelAnimationKeyframeV3
 	{
-		ModelAnimationInterpolation	 interpolation = ModelAnimationInterpolation::Linear;
-		uint32						 nodeIndex	   = 0;
-		Vector<Pair<float, Vector3>> keyframes;
+		float	time  = 0.0f;
+		Vector3 value = Vector3::Zero;
+
+		void SaveToStream(OStream& stream) const
+		{
+			stream << time << value;
+		}
+		void LoadFromStream(IStream& stream)
+		{
+			stream >> time >> value;
+		}
 	};
 
-	struct ModelAnimationChannelV4
+	struct ModelAnimationKeyframeV3Spline
 	{
-		ModelAnimationInterpolation	 interpolation = ModelAnimationInterpolation::Linear;
-		uint32						 nodeIndex	   = 0;
-		Vector<Pair<float, Vector4>> keyframes;
+		float	time	   = 0.0f;
+		Vector3 inTangent  = Vector3::Zero;
+		Vector3 value	   = Vector3::Zero;
+		Vector3 outTangent = Vector3::Zero;
+
+		void SaveToStream(OStream& stream) const
+		{
+			stream << time << value << inTangent << outTangent;
+		}
+		void LoadFromStream(IStream& stream)
+		{
+			stream >> time >> value >> inTangent >> outTangent;
+		}
+	};
+
+	struct ModelAnimationKeyframeQ
+	{
+		float	   time	 = 0.0f;
+		Quaternion value = Quaternion();
+
+		void SaveToStream(OStream& stream) const
+		{
+			stream << time << value;
+		}
+		void LoadFromStream(IStream& stream)
+		{
+			stream >> time >> value;
+		}
+	};
+
+	struct ModelAnimationKeyframeQSpline
+	{
+		float	   time		  = 0.0f;
+		Quaternion inTangent  = Quaternion();
+		Quaternion value	  = Quaternion();
+		Quaternion outTangent = Quaternion();
+
+		void SaveToStream(OStream& stream) const
+		{
+			stream << time << value << inTangent << outTangent;
+		}
+		void LoadFromStream(IStream& stream)
+		{
+			stream >> time >> value >> inTangent >> outTangent;
+		}
+	};
+
+	struct ModelAnimationChannelV3
+	{
+		ModelAnimationInterpolation			   interpolation = ModelAnimationInterpolation::Linear;
+		uint32								   nodeIndex	 = 0;
+		Vector<ModelAnimationKeyframeV3>	   keyframes;
+		Vector<ModelAnimationKeyframeV3Spline> keyframesSpline;
+
+		Vector3 Sample(float time) const;
+
+		void SaveToStream(OStream& stream) const
+		{
+			stream << interpolation << nodeIndex << keyframes << keyframesSpline;
+		}
+
+		void LoadFromStream(IStream& stream)
+		{
+			stream >> interpolation >> nodeIndex >> keyframes >> keyframesSpline;
+		}
+	};
+
+	struct ModelAnimationChannelQ
+	{
+		ModelAnimationInterpolation			  interpolation = ModelAnimationInterpolation::Linear;
+		uint32								  nodeIndex		= 0;
+		Vector<ModelAnimationKeyframeQ>		  keyframes;
+		Vector<ModelAnimationKeyframeQSpline> keyframesSpline;
+
+		Quaternion Sample(float time) const;
+
+		void SaveToStream(OStream& stream) const
+		{
+			stream << interpolation << nodeIndex << keyframes << keyframesSpline;
+		}
+
+		void LoadFromStream(IStream& stream)
+		{
+			stream >> interpolation >> nodeIndex >> keyframes >> keyframesSpline;
+		}
 	};
 
 	struct ModelAnimation
@@ -61,9 +151,16 @@ namespace Lina
 		float							duration = 0.0f;
 		Vector<ModelAnimationChannelV3> positionChannels;
 		Vector<ModelAnimationChannelV3> scaleChannels;
-		Vector<ModelAnimationChannelV4> rotationChannels;
+		Vector<ModelAnimationChannelQ>	rotationChannels;
 
-		void SaveToStream(OStream& stream) const;
-		void LoadFromStream(IStream& stream);
+		void SaveToStream(OStream& stream) const
+		{
+			stream << name << duration << positionChannels << scaleChannels << rotationChannels;
+		}
+
+		void LoadFromStream(IStream& stream)
+		{
+			stream >> name >> duration >> positionChannels >> scaleChannels >> rotationChannels;
+		}
 	};
 } // namespace Lina

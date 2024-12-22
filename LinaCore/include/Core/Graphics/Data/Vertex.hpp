@@ -55,8 +55,8 @@ namespace Lina
 		Vector3	 pos		 = Vector3::Zero;
 		Vector3	 normal		 = Vector3::Zero;
 		Vector2	 uv			 = Vector2::Zero;
-		Vector4i boneIndices = Vector4i();
 		Vector4	 boneWeights = Vector4::Zero;
+		Vector4i boneIndices = Vector4i();
 
 		void SaveToStream(OStream& stream) const
 		{

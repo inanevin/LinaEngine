@@ -153,6 +153,26 @@ namespace Lina::Editor
 		OStream	   m_newStream	   = {};
 	};
 
+	class EditorActionResourceModel : public EditorAction
+	{
+	public:
+		EditorActionResourceModel() = default;
+		virtual ~EditorActionResourceModel()
+		{
+			m_prevStream.Destroy();
+			m_newStream.Destroy();
+		};
+
+		static EditorActionResourceModel* Create(Editor* editor, ResourceID resourceID, uint64 resourceSpace, const OStream& prevStream, const OStream& newStream);
+		virtual void					  Execute(Editor* editor, ExecType type) override;
+
+	private:
+		ResourceID m_resourceID	   = 0;
+		uint64	   m_resourceSpace = 0;
+		OStream	   m_prevStream	   = {};
+		OStream	   m_newStream	   = {};
+	};
+
 	class EditorActionResourceMaterialShader : public EditorAction
 	{
 	public:

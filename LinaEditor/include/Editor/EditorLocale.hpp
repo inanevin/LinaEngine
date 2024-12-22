@@ -74,7 +74,6 @@ namespace Lina::Editor
 		LinaWorldFile,
 		NoProject,
 		NoProjectFound,
-		NoWorld,
 		NewProject,
 		LoadProject,
 		SaveProject,
@@ -144,7 +143,8 @@ namespace Lina::Editor
 		Export,
 		Refresh,
 		ImportingResources,
-		ThisResourceNoLongerExists,
+		ResourceNotFound,
+		NoWorldInstalled,
 		GenerateSDF,
 		General,
 		Resource,
@@ -191,6 +191,7 @@ namespace Lina::Editor
 		SmoothedDelta,
 		Tris,
 		DPIScale,
+		PreviewAnimation,
 	};
 
 	class Locale

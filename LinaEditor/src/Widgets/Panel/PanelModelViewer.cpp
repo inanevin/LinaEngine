@@ -28,10 +28,18 @@ SOFTWARE.
 
 #include "Editor/Widgets/Panel/PanelModelViewer.hpp"
 #include "Editor/Widgets/World/WorldDisplayer.hpp"
+#include "Editor/Actions/EditorActionResources.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
+#include "Core/GUI/Widgets/Layout/Popup.hpp"
+#include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
+#include "Core/GUI/Widgets/Primitives/Text.hpp"
+#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
+#include "Core/World/Components/CompModel.hpp"
+#include "Core/Resources/ResourceDirectory.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Editor/Graphics/GridRenderer.hpp"
 #include "Editor/Editor.hpp"
+#include "Editor/EditorLocale.hpp"
 #include "Core/Application.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
 
@@ -41,12 +49,16 @@ namespace Lina::Editor
 	{
 		PanelResourceViewer::Construct();
 
-		m_worldDisplayer = m_manager->Allocate<WorldDisplayer>("WorldDisplayer");
+		m_resourceBG->GetWidgetProps().childMargins = TBLR::Eq(0.0f);
+		m_worldDisplayer							= m_manager->Allocate<WorldDisplayer>("WorldDisplayer");
 		m_worldDisplayer->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		m_worldDisplayer->SetAlignedPos(Vector2::Zero);
 		m_worldDisplayer->SetAlignedSize(Vector2::One);
 
 		m_resourceBG->AddChild(m_worldDisplayer);
+		m_displayAnimation = m_editor->GetSettings().GetParams().GetParamInt32("AnimationPreview"_hs, -1);
+
+		m_worldDisplayer->GetProps().noWorldText = Locale::GetStr(LocaleStr::ResourceNotFound);
 	}
 
 	void PanelModelViewer::Initialize()
@@ -68,8 +80,7 @@ namespace Lina::Editor
 		m_editor->GetApp()->GetWorldProcessor().AddWorld(m_world);
 		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer);
 
-		m_worldDisplayer->DisplayWorld(m_worldRenderer);
-		m_worldDisplayer->CreateOrbitCamera();
+		m_worldDisplayer->DisplayWorld(m_worldRenderer, WorldDisplayer::WorldCameraType::Orbit);
 
 		m_world->GetGfxSettings().lightingMaterial = EDITOR_MATERIAL_DEFAULT_LIGHTING_ID;
 		m_world->GetGfxSettings().skyModel		   = EDITOR_MODEL_SKYSPHERE_ID;
@@ -89,9 +100,17 @@ namespace Lina::Editor
 		for (ResourceID id : model->GetMeta().materials)
 			initialResources.insert(id);
 
+		if (m_displayAnimation >= static_cast<int32>(model->GetAllAnimations().size()))
+		{
+			m_displayAnimation = -1;
+			m_editor->GetSettings().GetParams().SetParamInt32("AnimationPreview"_hs, -1);
+			m_editor->SaveSettings();
+		}
+
 		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), initialResources, m_resourceSpace);
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 
+		m_world->Initialize(m_resourceManager);
 		SetupWorld();
 
 		UpdateResourceProperties();
@@ -101,6 +120,8 @@ namespace Lina::Editor
 	void PanelModelViewer::Destruct()
 	{
 		PanelResourceViewer::Destruct();
+
+		m_previousStream.Destroy();
 
 		if (m_world)
 		{
@@ -117,6 +138,9 @@ namespace Lina::Editor
 
 	void PanelModelViewer::StoreEditorActionBuffer()
 	{
+		Model* model = static_cast<Model*>(m_resource);
+		m_previousStream.Destroy();
+		model->SaveToStream(m_previousStream);
 	}
 
 	void PanelModelViewer::UpdateResourceProperties()
@@ -126,15 +150,78 @@ namespace Lina::Editor
 		m_animations   = "0";
 		m_materialDefs = TO_STRING(model->GetMaterialDefs().size());
 		m_meshes	   = TO_STRING(model->GetAllMeshes().size());
+		m_previousStream.Destroy();
+		model->SaveToStream(m_previousStream);
 	}
 
 	void PanelModelViewer::RebuildContents()
 	{
+		Model* model = static_cast<Model*>(m_resource);
+
 		m_inspector->DeallocAllChildren();
 		m_inspector->RemoveAllChildren();
-		CommonWidgets::BuildClassReflection(m_inspector, this, ReflectionSystem::Get().Resolve<PanelModelViewer>(), [this](MetaType* meta, FieldBase* field) {
-			// SetupWorld();
-		});
+		CommonWidgets::BuildClassReflection(m_inspector, this, ReflectionSystem::Get().Resolve<PanelModelViewer>(), [this](MetaType* meta, FieldBase* field) { m_compModel->GetAnimationController().SetSpeed(m_animationPreviewSpeed); });
+
+		// Animation preview
+		{
+			Widget*			   layout	 = CommonWidgets::BuildFieldLayoutWithRightSide(this, 0, Locale::GetStr(LocaleStr::PreviewAnimation), false, nullptr, 0.6f);
+			DirectionalLayout* rightSide = Widget::GetWidgetOfType<DirectionalLayout>(layout);
+
+			Dropdown* animationDD = m_manager->Allocate<Dropdown>("Animation DD");
+			animationDD->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+			animationDD->SetAlignedPos(Vector2::Zero);
+			animationDD->SetAlignedSize(Vector2(1.0f, 1.0f));
+
+			animationDD->GetText()->UpdateTextAndCalcSize(m_displayAnimation == -1 ? Locale::GetStr(LocaleStr::None) : model->GetAllAnimations().at(m_displayAnimation).name);
+
+			animationDD->GetProps().onAddItems = [model, this](Popup* popup) {
+				const Vector<ModelAnimation>& anims = model->GetAllAnimations();
+
+				popup->AddToggleItem(Locale::GetStr(LocaleStr::None), m_displayAnimation == -1, -1);
+				int32 i = 0;
+				for (const ModelAnimation& anim : anims)
+				{
+					popup->AddToggleItem(anim.name.empty() ? "NoName" : anim.name, m_displayAnimation == i, i);
+					i++;
+				}
+			};
+
+			animationDD->GetProps().onSelected = [this, model](int32 selection, String& newTitle) -> bool {
+				const Vector<ModelAnimation>& anims = model->GetAllAnimations();
+				m_displayAnimation					= selection;
+				m_compModel->GetAnimationController().SelectAnimation(m_displayAnimation);
+				newTitle = m_displayAnimation == -1 ? Locale::GetStr(LocaleStr::None) : anims.at(m_displayAnimation).name;
+				if (newTitle.empty())
+					newTitle = "NoName";
+				m_editor->GetSettings().GetParams().SetParamInt32("AnimationPreview"_hs, m_displayAnimation);
+				m_editor->SaveSettings();
+				return true;
+			};
+
+			rightSide->AddChild(animationDD);
+			m_inspector->AddChild(layout);
+		}
+
+		Model::Metadata&	meta	  = model->GetMeta();
+		Vector<ResourceID>& materials = meta.materials;
+
+		const size_t mtSize = meta.materials.size();
+		for (size_t i = 0; i < mtSize; i++)
+		{
+			Widget* materialField		  = CommonWidgets::BuildFieldLayoutWithRightSide(m_inspector, 0, Locale::GetStr(LocaleStr::Material), false, nullptr, 0.6f);
+			Widget* materialResourceField = CommonWidgets::BuildResourceField(m_inspector, &meta.materials[i], GetTypeID<Material>(), [this, i](ResourceDirectory* selected) {
+				Model* model				  = static_cast<Model*>(m_resource);
+				model->GetMeta().materials[i] = selected->resourceID;
+
+				OStream stream;
+				model->SaveToStream(stream);
+				EditorActionResourceModel::Create(m_editor, m_resource->GetID(), m_resourceSpace, m_previousStream, stream);
+				stream.Destroy();
+			});
+
+			Widget::GetWidgetOfType<DirectionalLayout>(materialField)->AddChild(materialResourceField);
+			m_inspector->AddChild(materialField);
+		}
 
 		m_inspector->Initialize();
 
@@ -159,6 +246,23 @@ namespace Lina::Editor
 
 		Model* model	= static_cast<Model*>(m_resource);
 		m_displayEntity = m_world->AddModelToWorld(model, model->GetMeta().materials);
+		m_compModel		= m_world->GetComponent<CompModel>(m_displayEntity);
+		m_compModel->GetAnimationController().SelectAnimation(m_displayAnimation);
+
+		// Entity* caps = m_world->AddModelToWorld(rm.GetIfExists<Model>(EDITOR_MODEL_CAPSULE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
+		// Entity* caps2 = m_world->AddModelToWorld(rm.GetIfExists<Model>(EDITOR_MODEL_CAPSULE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
+		// Entity* caps3 = m_world->AddModelToWorld(rm.GetIfExists<Model>(EDITOR_MODEL_CAPSULE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
+		// Entity* sph	 = m_world->AddModelToWorld(rm.GetIfExists<Model>(EDITOR_MODEL_SPHERE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
+		// Entity* sph2	 = m_world->AddModelToWorld(rm.GetIfExists<Model>(EDITOR_MODEL_SPHERE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
+		// Entity* aq	 = m_world->AddModelToWorld(model, model->GetMeta().materials);
+		//
+		//
+		// caps->SetPosition(Vector3(1, 0, 0));
+		// caps2->SetPosition(Vector3(2, 0, 0));
+		// caps3->SetPosition(Vector3(4, 0, 0));
+		// sph->SetPosition(Vector3(-1, 0, 0));
+		// sph2->SetPosition(Vector3(-3, 0, 0));
+		// aq->SetPosition(Vector3(0, -1, 0));
 	}
 
 } // namespace Lina::Editor

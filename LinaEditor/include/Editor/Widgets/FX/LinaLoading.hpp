@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Common/Data/String.hpp"
 #include "Common/Tween/Tween.hpp"
+#include "Editor/Graphics/EditorGfxHelpers.hpp"
 
 namespace Lina
 {
@@ -65,16 +66,19 @@ namespace Lina::Editor
 		int32 m_action = -1;
 		Tween m_tween;
 
-		Props	 m_props		= {};
-		Vector2	 m_leftOffset	= Vector2::Zero;
-		Vector2	 m_rightOffset	= Vector2::Zero;
-		Vector2	 m_bottomOffset = Vector2::Zero;
-		Color	 m_rightTint	= Color::White;
-		Color	 m_bottomTint	= Color::White;
-		Color	 m_leftTint		= Color::White;
-		Texture* m_imgLeft		= nullptr;
-		Texture* m_imgRight		= nullptr;
-		Texture* m_imgBottom	= nullptr;
+		Props		m_props		   = {};
+		Vector2		m_leftOffset   = Vector2::Zero;
+		Vector2		m_rightOffset  = Vector2::Zero;
+		Vector2		m_bottomOffset = Vector2::Zero;
+		Color		m_rightTint	   = Color::White;
+		Color		m_bottomTint   = Color::White;
+		Color		m_leftTint	   = Color::White;
+		Texture*	m_imgLeft	   = nullptr;
+		Texture*	m_imgRight	   = nullptr;
+		Texture*	m_imgBottom	   = nullptr;
+		GUIUserData m_guiUserData  = {
+			 .specialType = GUISpecialType::Glitch,
+		 };
 	};
 	LINA_WIDGET_BEGIN(LinaLoading, Hidden)
 	LINA_CLASS_END(LinaLoading)

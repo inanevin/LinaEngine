@@ -54,6 +54,12 @@ namespace Lina::Editor
 		LinaTexture2DBinding diffuse;
 	};
 
+	struct GPUMaterialGUIGlitch
+	{
+		Vector4				 uvTilingAndOffset;
+		LinaTexture2DBinding diffuse;
+	};
+
 	struct GPUMaterialGUIHueDisplay
 	{
 		Vector2 uvContribution;
@@ -80,6 +86,7 @@ namespace Lina::Editor
 		HorizontalHue,
 		VerticalHue,
 		ColorWheel,
+		Glitch,
 	};
 
 	enum class DisplayChannels

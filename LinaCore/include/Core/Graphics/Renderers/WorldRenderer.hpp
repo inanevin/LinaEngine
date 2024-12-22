@@ -35,10 +35,9 @@ SOFTWARE.
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Graphics/MeshManager.hpp"
 #include "Core/Graphics/GUI/GUIBackend.hpp"
-#include "Core/Graphics/Renderers/SkinningManager.hpp"
-#include "Core/Graphics/Renderers/ObjectRenderer.hpp"
 #include "Core/Graphics/Renderers/SkyRenderer.hpp"
 #include "Core/Graphics/Renderers/LightingRenderer.hpp"
+#include "Core/Graphics/Renderers/DrawCollector.hpp"
 
 namespace LinaGX
 {
@@ -81,6 +80,10 @@ namespace Lina
 			LinaGX::CommandStream* copyStream	   = nullptr;
 			SemaphoreData		   copySemaphore   = {};
 			SemaphoreData		   signalSemaphore = {};
+
+			Buffer entityDataBuffer;
+			Buffer boneBuffer;
+			Buffer instanceDataBuffer;
 
 			Texture* gBufAlbedo			= nullptr;
 			Texture* gBufPosition		= nullptr;
@@ -179,7 +182,6 @@ namespace Lina
 		ResourceUploadQueue		 m_uploadQueue;
 		PerFrameData			 m_pfd[FRAMES_IN_FLIGHT]  = {};
 		RenderPass				 m_deferredPass			  = {};
-		RenderPass				 m_lightingPass			  = {};
 		RenderPass				 m_forwardPass			  = {};
 		Vector2ui				 m_size					  = Vector2ui::Zero;
 		EntityWorld*			 m_world				  = nullptr;
@@ -191,12 +193,10 @@ namespace Lina
 		GfxContext*				 m_gfxContext;
 		String					 m_name		 = "";
 		WorldRendererExtension*	 m_extension = nullptr;
-		ObjectRenderer			 m_objRendererDeferred;
-		ObjectRenderer			 m_objRendererForward;
 		SkyRenderer				 m_skyRenderer;
 		LightingRenderer		 m_lightingRenderer;
 		JobExecutor				 m_executor;
-		SkinningManager			 m_skinningManager;
+		DrawCollector			 m_drawCollector;
 	};
 
 } // namespace Lina

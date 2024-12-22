@@ -147,7 +147,7 @@ namespace Lina::Editor
 	}
 	*/
 
-	OrbitCamera::OrbitCamera()
+	OrbitCamera::OrbitCamera(EntityWorld* world) : EditorCamera(world)
 	{
 		m_initialTransition = Tween(0.0f, 1.0f, 0.5f, TweenType::Linear);
 		m_xAngle			= Math::ToRadians(90.0f);
@@ -203,5 +203,8 @@ namespace Lina::Editor
 
 		m_absPosition = m_orbitProps.targetPoint + offset;
 		m_absRotation = Quaternion::LookAt(m_absPosition, m_orbitProps.targetPoint, Vector3::Up);
+	}
+	void FreeCamera::OnHandleCamera(float delta)
+	{
 	}
 } // namespace Lina::Editor

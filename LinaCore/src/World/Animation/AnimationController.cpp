@@ -27,8 +27,44 @@ SOFTWARE.
 */
 
 #include "Core/World/Animation/AnimationController.hpp"
+#include "Core/World/Components/CompModel.hpp"
 
 namespace Lina
 {
+	void AnimationController::TickAnimation(float delta)
+	{
+		if (m_animationIndex == -1)
+			return;
 
+		Model*						  model		 = m_comp->GetModelPtr();
+		const Vector<ModelAnimation>& anims		 = model->GetAllAnimations();
+		const ModelAnimation&		  targetAnim = anims.at(m_animationIndex);
+
+		Vector<CompModelNode>& nodes = m_comp->GetNodes();
+
+		for (const ModelAnimationChannelV3& ch : targetAnim.positionChannels)
+		{
+			const Vector3  position = ch.Sample(m_animationTime);
+			CompModelNode& node		= nodes.at(ch.nodeIndex);
+			node.transform.SetLocalPosition(position);
+		}
+
+		for (const ModelAnimationChannelV3& ch : targetAnim.scaleChannels)
+		{
+			const Vector3  scale = ch.Sample(m_animationTime);
+			CompModelNode& node	 = nodes.at(ch.nodeIndex);
+			node.transform.SetLocalScale(scale);
+		}
+
+		for (const ModelAnimationChannelQ& ch : targetAnim.rotationChannels)
+		{
+			const Quaternion rotation = ch.Sample(m_animationTime);
+			CompModelNode&	 node	  = nodes.at(ch.nodeIndex);
+			node.transform.SetLocalRotation(rotation);
+		}
+
+		m_animationTime += delta * m_speed;
+		if (m_animationTime > targetAnim.duration)
+			m_animationTime = 0.0f;
+	}
 } // namespace Lina

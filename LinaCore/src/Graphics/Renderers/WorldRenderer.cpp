@@ -108,27 +108,68 @@ namespace Lina
 			data.copySemaphore			= SemaphoreData(m_lgx->CreateUserSemaphore());
 		}
 
-		m_deferredPass.Create(GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassType::Deferred));
-		m_lightingPass.Create(GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassType::Lighting));
-		m_forwardPass.Create(GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassType::Forward));
+		m_deferredPass.Create(GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassType::RENDER_PASS_DEFERRED));
+		m_forwardPass.Create(GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassType::RENDER_PASS_FORWARD));
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data = m_pfd[i];
+
+			data.instanceDataBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUDrawArguments) * 1000, m_name + " InstanceDataBuffer");
+			data.entityDataBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUEntity) * 1000, m_name + " EntityBuffer");
+			data.boneBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(Matrix4) * 1000, m_name + " BoneBuffer");
+
+			const uint16 setDf = m_deferredPass.GetDescriptorSet(i);
+			const uint16 setFw = m_forwardPass.GetDescriptorSet(i);
+
+			m_lgx->DescriptorUpdateBuffer({
+				.setHandle = setDf,
+				.binding   = 1,
+				.buffers   = {data.instanceDataBuffer.GetGPUResource()},
+			});
+
+			m_lgx->DescriptorUpdateBuffer({
+				.setHandle = setDf,
+				.binding   = 2,
+				.buffers   = {data.entityDataBuffer.GetGPUResource()},
+			});
+
+			m_lgx->DescriptorUpdateBuffer({
+				.setHandle = setDf,
+				.binding   = 3,
+				.buffers   = {data.boneBuffer.GetGPUResource()},
+			});
+
+			// FW
+			m_lgx->DescriptorUpdateBuffer({
+				.setHandle = setFw,
+				.binding   = 2,
+				.buffers   = {data.instanceDataBuffer.GetGPUResource()},
+			});
+
+			m_lgx->DescriptorUpdateBuffer({
+				.setHandle = setFw,
+				.binding   = 3,
+				.buffers   = {data.entityDataBuffer.GetGPUResource()},
+			});
+
+			m_lgx->DescriptorUpdateBuffer({
+				.setHandle = setFw,
+				.binding   = 4,
+				.buffers   = {data.boneBuffer.GetGPUResource()},
+			});
 		}
 
+		m_drawCollector.Initialize(m_lgx, m_world, m_resourceManagerV2, m_gfxContext);
 		m_lightingRenderer.Initialize(m_lgx, m_world, m_resourceManagerV2);
 		m_skyRenderer.Initialize(m_lgx, m_world, m_resourceManagerV2);
-		m_objRendererDeferred.Initialize(m_lgx, m_world, m_resourceManagerV2, &m_skinningManager);
-		m_objRendererForward.Initialize(m_lgx, m_world, m_resourceManagerV2, &m_skinningManager);
 		m_guiBackend.Initialize(m_resourceManagerV2);
 		CreateSizeRelativeResources();
 	}
 
 	WorldRenderer::~WorldRenderer()
 	{
-		m_objRendererDeferred.Shutdown();
-		m_objRendererForward.Shutdown();
+		m_drawCollector.Shutdown();
 		m_skyRenderer.Shutdown();
 		m_lightingRenderer.Shutdown();
 
@@ -145,10 +186,13 @@ namespace Lina
 
 			m_lgx->DestroyUserSemaphore(data.signalSemaphore.GetSemaphore());
 			m_lgx->DestroyUserSemaphore(data.copySemaphore.GetSemaphore());
+
+			data.instanceDataBuffer.Destroy();
+			data.entityDataBuffer.Destroy();
+			data.boneBuffer.Destroy();
 		}
 
 		m_deferredPass.Destroy();
-		m_lightingPass.Destroy();
 		m_forwardPass.Destroy();
 
 		DestroySizeRelativeResources();
@@ -212,16 +256,6 @@ namespace Lina
 			m_deferredPass.SetColorAttachment(i, 2, {.clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.gBufNormal->GetGPUHandle(), .isSwapchain = false});
 			m_deferredPass.DepthStencilAttachment(i, {.useDepth = true, .texture = data.gBufDepth->GetGPUHandle(), .depthLoadOp = LinaGX::LoadOp::Clear, .depthStoreOp = LinaGX::StoreOp::Store, .clearDepth = 1.0f});
 
-			m_lightingPass.SetColorAttachment(i, 0, {.loadOp = LinaGX::LoadOp::Load, .storeOp = LinaGX::StoreOp::Store, .clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.lightingPassOutput->GetGPUHandle(), .isSwapchain = false});
-			m_lightingPass.DepthStencilAttachment(i,
-												  {
-													  .useDepth		= true,
-													  .texture		= data.gBufDepth->GetGPUHandle(),
-													  .depthLoadOp	= LinaGX::LoadOp::Load,
-													  .depthStoreOp = LinaGX::StoreOp::Store,
-													  .clearDepth	= 1.0f,
-												  });
-
 			m_forwardPass.SetColorAttachment(i, 0, {.loadOp = LinaGX::LoadOp::Load, .storeOp = LinaGX::StoreOp::Store, .clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.lightingPassOutput->GetGPUHandle(), .isSwapchain = false});
 			m_forwardPass.DepthStencilAttachment(i,
 												 {
@@ -253,20 +287,20 @@ namespace Lina
 			m_resourceManagerV2->DestroyResource(data.gBufDepth);
 			m_resourceManagerV2->DestroyResource(data.lightingPassOutput);
 		}
+
 		m_gfxContext->MarkBindlessDirty();
 	}
 
 	void WorldRenderer::OnComponentAdded(Component* c)
 	{
-		m_skinningManager.OnComponentAdded(c);
-
+		m_drawCollector.OnComponentAdded(c);
 		for (FeatureRenderer* ft : m_featureRenderers)
 			ft->OnComponentAdded(c);
 	}
 
 	void WorldRenderer::OnComponentRemoved(Component* comp)
 	{
-		m_skinningManager.OnComponentsRemoved(comp);
+		m_drawCollector.OnComponentRemoved(comp);
 
 		for (FeatureRenderer* ft : m_featureRenderers)
 			ft->OnComponentRemoved(comp);
@@ -303,28 +337,27 @@ namespace Lina
 		// Then calculate visibility for each view.
 		// For each renderable component, we pass it to a particular view to calculate it's visibility for that view.
 
-		m_skinningManager.CalculateSkinningMatrices(m_executor);
-
-		m_lightingRenderer.ProduceFrame();
-		m_skyRenderer.ProduceFrame();
-
 		const Camera& camera = m_world->GetWorldCamera();
-
-		View cameraView;
+		View		  cameraView;
 		cameraView.SetView(camera.GetView());
 		cameraView.CalculateVisibility();
 
-		m_objRendererDeferred.ProduceFrame(cameraView, nullptr, ShaderType::OpaqueSurface);
-		m_objRendererForward.ProduceFrame(cameraView, nullptr, ShaderType::TransparentSurface);
+		m_drawCollector.CreateGroup("Deferred"_hs);
+		m_drawCollector.CreateGroup("Forward"_hs);
+
+		m_drawCollector.CollectCompModels(m_drawCollector.GetGroup("Deferred"_hs), cameraView, 0, ShaderType::DeferredSurface);
+		m_drawCollector.CollectCompModels(m_drawCollector.GetGroup("Forward"_hs), cameraView, 0, ShaderType::ForwardSurface);
+
+		m_lightingRenderer.ProduceFrame();
+		m_skyRenderer.ProduceFrame();
 	}
 
 	void WorldRenderer::SyncRender()
 	{
-		m_skinningManager.SyncRender();
+		m_drawCollector.SyncRender();
+
 		m_lightingRenderer.SyncRender();
 		m_skyRenderer.SyncRender();
-		m_objRendererDeferred.SyncRender();
-		m_objRendererForward.SyncRender();
 
 		for (FeatureRenderer* ft : m_featureRenderers)
 			ft->SyncRender();
@@ -352,18 +385,17 @@ namespace Lina
 			view.cameraPositionAndNear = Vector4(camPos.x, camPos.y, camPos.z, worldCam.GetZNear());
 			view.cameraDirectionAndFar = Vector4(camDir.x, camDir.y, camDir.z, worldCam.GetZFar());
 			view.size				   = Vector2(static_cast<float>(m_size.x), static_cast<float>(m_size.y));
-			m_lightingPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
 			m_deferredPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
 			m_forwardPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
 		}
 
-		// Lighting pass specific.
+		// Forward pass specific.
 		{
 
 			Material* lightingMaterial = m_resourceManagerV2->GetIfExists<Material>(m_world->GetGfxSettings().lightingMaterial);
 			Material* skyMaterial	   = m_resourceManagerV2->GetIfExists<Material>(m_world->GetGfxSettings().skyMaterial);
 
-			GPUDataLightingPass renderPassData = {
+			GPUForwardPassData renderPassData = {
 				.gBufAlbedo			  = currentFrame.gBufAlbedo->GetBindlessIndex(),
 				.gBufPositionMetallic = currentFrame.gBufPosition->GetBindlessIndex(),
 				.gBufNormalRoughness  = currentFrame.gBufNormal->GetBindlessIndex(),
@@ -373,42 +405,28 @@ namespace Lina
 				.skyMaterialByteIndex	   = skyMaterial == nullptr ? UINT32_MAX : skyMaterial->GetBindlessIndex() / 4,
 			};
 
-			m_lightingPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&renderPassData, sizeof(GPUDataLightingPass));
+			m_forwardPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&renderPassData, sizeof(GPUForwardPassData));
 		}
 
-		// Copy skinning information.
-		Buffer&						 boneBufferDeferred = m_deferredPass.GetBuffer(frameIndex, "BoneBuffer"_hs);
-		Buffer&						 boneBufferForward	= m_forwardPass.GetBuffer(frameIndex, "BoneBuffer"_hs);
-		const Vector<BoneContainer>& bones				= m_skinningManager.GetBoneContainers();
-		size_t						 boneIndex			= 0;
-		for (const BoneContainer& cont : bones)
+		// for (FeatureRenderer* ft : m_featureRenderers)
+		//	ft->AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+
+		m_drawCollector.PrepareGPUData(m_executor);
+
+		const DrawCollector::RenderingData& data = m_drawCollector.GetRenderingData();
+
+		size_t entityIdx = 0;
+		for (const DrawCollector::DrawEntity& de : data.entities)
 		{
-			for (const SkinData& skinData : cont.skins)
-			{
-				boneBufferDeferred.BufferData(boneIndex * sizeof(Matrix4), (uint8*)skinData.matrices.data(), sizeof(Matrix4) * skinData.matrices.size());
-				boneBufferForward.BufferData(boneIndex * sizeof(Matrix4), (uint8*)skinData.matrices.data(), sizeof(Matrix4) * skinData.matrices.size());
-				boneIndex += skinData.matrices.size();
-			}
+			currentFrame.entityDataBuffer.BufferData(entityIdx * sizeof(GPUEntity), (uint8*)&de.entity, sizeof(GPUEntity));
+			entityIdx++;
 		}
 
-		m_deferredPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).SetIndirectCount(0);
-		m_deferredPass.GetBuffer(frameIndex, "IndirectConstants"_hs).SetIndirectCount(0);
-		m_deferredPass.GetBuffer(frameIndex, "EntityBuffer"_hs).SetIndirectCount(0);
-
-		m_objRendererDeferred.RecordFrame(frameIndex, currentFrame.gfxStream, m_deferredPass);
-
-		m_forwardPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).SetIndirectCount(0);
-		m_forwardPass.GetBuffer(frameIndex, "IndirectConstants"_hs).SetIndirectCount(0);
-		m_forwardPass.GetBuffer(frameIndex, "EntityBuffer"_hs).SetIndirectCount(0);
-
-		m_objRendererForward.RecordFrame(frameIndex, currentFrame.gfxStream, m_forwardPass);
-
-		for (FeatureRenderer* ft : m_featureRenderers)
-			ft->AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+		currentFrame.instanceDataBuffer.BufferData(0, (uint8*)data.instanceData.data(), sizeof(GPUDrawArguments) * data.instanceData.size());
+		currentFrame.boneBuffer.BufferData(0, (uint8*)data.bones.data(), sizeof(Matrix4) * data.bones.size());
 
 		m_deferredPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
 		m_forwardPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
-		m_lightingPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
 
 		if (m_uploadQueue.FlushAll(currentFrame.copyStream))
 			BumpAndSendTransfers(frameIndex);
@@ -461,24 +479,20 @@ namespace Lina
 			barrierToAttachment->textureBarriers[4]	 = GfxHelpers::GetTextureBarrierColorRead2Att(currentFrame.lightingPassOutput->GetGPUHandle());
 		}
 
-		// Global vertex/index buffers.
-		m_deferredPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
-		m_deferredPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxContext->GetPipelineLayoutPersistent(RenderPassType::Deferred));
+		uint16 lastBoundShader = 0;
+		bool   shaderBound	   = false;
 
-		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Deferred Pass");
+		// DEFERRED PASS
+		{
+			DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Deferred Pass");
 
-		m_deferredPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).SetIndirectCount(0);
-		m_deferredPass.GetBuffer(frameIndex, "EntityBuffer"_hs).SetIndirectCount(0);
+			m_deferredPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
+			m_deferredPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxContext->GetPipelineLayoutPersistent(RenderPassType::RENDER_PASS_DEFERRED), 1);
+			m_drawCollector.RenderGroup("Deferred"_hs, currentFrame.gfxStream);
+			m_deferredPass.End(currentFrame.gfxStream);
 
-		m_gfxContext->GetMeshManagerDefault().BindStatic(currentFrame.gfxStream);
-		m_objRendererDeferred.RenderStatic(frameIndex, currentFrame.gfxStream, m_deferredPass);
-
-		m_gfxContext->GetMeshManagerDefault().BindSkinned(currentFrame.gfxStream);
-		m_objRendererDeferred.RenderSkinned(frameIndex, currentFrame.gfxStream, m_deferredPass);
-
-		DEBUG_LABEL_END(currentFrame.gfxStream);
-
-		m_deferredPass.End(currentFrame.gfxStream);
+			DEBUG_LABEL_END(currentFrame.gfxStream);
+		}
 
 		// Barrier to shader read.
 		{
@@ -492,42 +506,24 @@ namespace Lina
 			barrier->textureBarriers[2]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.gBufNormal->GetGPUHandle());
 		}
 
-		m_lightingPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
-		m_lightingPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxContext->GetPipelineLayoutPersistent(RenderPassType::Lighting));
+		// FORWARD PASS
+		{
+			DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Forward Pass");
 
-		m_gfxContext->GetMeshManagerDefault().BindStatic(currentFrame.gfxStream);
+			m_forwardPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
+			m_forwardPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxContext->GetPipelineLayoutPersistent(RenderPassType::RENDER_PASS_FORWARD), 1);
 
-		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Lighting Pass");
+			m_gfxContext->GetMeshManagerDefault().BindStatic(currentFrame.gfxStream);
+			m_lightingRenderer.RenderLightingQuad(currentFrame.gfxStream);
+			m_skyRenderer.RenderSky(currentFrame.gfxStream);
 
-		// Render lighting quad.
+			// bindGlobal();
+			//
+			//  m_drawCollector.RenderGroup("Forward"_hs, currentFrame.gfxStream);
+			m_forwardPass.End(currentFrame.gfxStream);
 
-		m_lightingRenderer.RenderLightingQuad(currentFrame.gfxStream);
-		m_skyRenderer.RenderSky(currentFrame.gfxStream);
-
-		DEBUG_LABEL_END(currentFrame.gfxStream);
-
-		m_lightingPass.End(currentFrame.gfxStream);
-
-		m_forwardPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
-		m_forwardPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxContext->GetPipelineLayoutPersistent(RenderPassType::Forward));
-
-		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Forward Pass");
-
-		m_forwardPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).SetIndirectCount(0);
-		m_forwardPass.GetBuffer(frameIndex, "EntityBuffer"_hs).SetIndirectCount(0);
-
-		m_gfxContext->GetMeshManagerDefault().BindStatic(currentFrame.gfxStream);
-		m_objRendererForward.RenderStatic(frameIndex, currentFrame.gfxStream, m_forwardPass);
-
-		m_gfxContext->GetMeshManagerDefault().BindSkinned(currentFrame.gfxStream);
-		m_objRendererForward.RenderSkinned(frameIndex, currentFrame.gfxStream, m_forwardPass);
-
-		for (FeatureRenderer* ft : m_featureRenderers)
-			ft->RenderDrawPass(currentFrame.gfxStream, frameIndex, m_forwardPass, RenderPassType::Forward);
-
-		DEBUG_LABEL_END(currentFrame.gfxStream);
-
-		m_forwardPass.End(currentFrame.gfxStream);
+			DEBUG_LABEL_END(currentFrame.gfxStream);
+		}
 
 		// Barrier to shader read or transfer read
 		if (m_snapshotBuffer == nullptr)

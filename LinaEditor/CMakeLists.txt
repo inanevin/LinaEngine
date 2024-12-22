@@ -27,6 +27,7 @@ include/Editor/PayloadListener.hpp
 include/Editor/EditorLocale.hpp
 include/Editor/Editor.hpp
 include/Editor/EditorTaskManager.hpp
+include/Editor/EditorWorldManager.hpp
 include/Editor/Actions/EditorActionManager.hpp
 include/Editor/Actions/EditorAction.hpp
 include/Editor/Actions/EditorActionResources.hpp
@@ -109,6 +110,7 @@ include/Editor/Resources/EditorResources.hpp
 set(SOURCES
 # Core
 src/CommonEditor.cpp
+src/EditorWorldManager.cpp
 src/Actions/EditorActionManager.cpp
 src/Actions/EditorAction.cpp
 src/Actions/EditorActionResources.cpp

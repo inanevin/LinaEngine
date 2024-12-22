@@ -46,20 +46,19 @@ struct LinaVertexOutput
 
 //##user_shader_injected_here
 
+layout( push_constant ) uniform constants
+{
+	uint baseInstanceIndex;
+} PushConstants;
+
 void main()
 {
-#ifdef LGX_COMPILE_HLSL
-   int argBufferIndex = LGX_DRAW_ID + gl_InstanceIndex;
-#else
-   int argBufferIndex = gl_InstanceIndex;
-#endif  
-
-    IndirectArguments argBuffer = LINA_INDIRECT_ARGUMENTS.data[argBufferIndex];
+    DrawArguments argBuffer = LINA_DRAW_ARGUMENTS.data[PushConstants.baseInstanceIndex + gl_InstanceIndex];
 
     LinaVertexInput vertexInput;
     vertexInput.pos = inPos;
     vertexInput.normal = inNormal;
-    vertexInput.uv =  vec2(inUV.x, 1.0 - inUV.y);
+    vertexInput.uv =  vec2(inUV.x, inUV.y);
     vertexInput.materialIndex = argBuffer.materialID;
     vertexInput.entity = LINA_GET_ENTITY(argBuffer.entityIndex);
 

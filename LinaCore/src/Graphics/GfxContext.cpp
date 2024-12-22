@@ -53,8 +53,8 @@ namespace Lina
 
 		m_pipelineLayoutGlobal = m_lgx->CreatePipelineLayout(GfxHelpers::GetPLDescPersistentGlobal());
 
-		for (int32 i = 0; i < RenderPassType::Max; i++)
-			m_pipelineLayoutPersistent[i] = m_lgx->CreatePipelineLayout(GfxHelpers::GetPLDescPersistentRenderPass(static_cast<RenderPassType>(i)));
+		m_pipelineLayoutPersistent.push_back(m_lgx->CreatePipelineLayout(GfxHelpers::GetPLDescPersistentRenderPass(RenderPassType::RENDER_PASS_DEFERRED)));
+		m_pipelineLayoutPersistent.push_back(m_lgx->CreatePipelineLayout(GfxHelpers::GetPLDescPersistentRenderPass(RenderPassType::RENDER_PASS_FORWARD)));
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -99,8 +99,8 @@ namespace Lina
 
 		m_lgx->DestroyPipelineLayout(m_pipelineLayoutGlobal);
 
-		for (int32 i = 0; i < RenderPassType::Max; i++)
-			m_lgx->DestroyPipelineLayout(m_pipelineLayoutPersistent[i]);
+		for (uint16 l : m_pipelineLayoutPersistent)
+			m_lgx->DestroyPipelineLayout(l);
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{

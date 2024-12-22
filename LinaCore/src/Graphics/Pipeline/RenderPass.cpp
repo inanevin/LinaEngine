@@ -35,7 +35,6 @@ namespace Lina
 {
 	void RenderPass::Create(const RenderPassDescription& desc)
 	{
-
 		for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data		   = m_pfd[i];
@@ -43,6 +42,9 @@ namespace Lina
 
 			for (const auto& b : desc.buffers)
 			{
+				if (b.createdOutside)
+					continue;
+
 				m_bufferIndices[b.ident] = static_cast<uint32>(data.buffers.size());
 				data.buffers.push_back({});
 				auto& buffer = data.buffers.back();
@@ -87,11 +89,11 @@ namespace Lina
 			colorAttachments.push_back(att);
 	}
 
-	void RenderPass::BindDescriptors(LinaGX::CommandStream* stream, uint32 frameIndex, uint16 pipelineLayout)
+	void RenderPass::BindDescriptors(LinaGX::CommandStream* stream, uint32 frameIndex, uint16 pipelineLayout, uint32 firstSet)
 	{
 		LinaGX::CMDBindDescriptorSets* bind = stream->AddCommand<LinaGX::CMDBindDescriptorSets>();
 		bind->descriptorSetHandles			= stream->EmplaceAuxMemory<uint16>(m_pfd[frameIndex].descriptorSet);
-		bind->firstSet						= 1;
+		bind->firstSet						= firstSet;
 		bind->setCount						= 1;
 		bind->layoutSource					= LinaGX::DescriptorSetsLayoutSource::CustomLayout;
 		bind->customLayout					= pipelineLayout;

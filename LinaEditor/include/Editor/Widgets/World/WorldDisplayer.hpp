@@ -35,6 +35,7 @@ namespace Lina
 {
 	class WorldRenderer;
 	class Font;
+	class Text;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -45,28 +46,50 @@ namespace Lina::Editor
 	class WorldDisplayer : public Widget, public EntityWorldListener
 	{
 	public:
+		enum class WorldCameraType
+		{
+			Orbit,
+			FreeMove,
+		};
+
+		struct Properties
+		{
+			String noWorldText = "";
+		};
+
 		WorldDisplayer() : Widget(WF_CONTROLLABLE){};
 		virtual ~WorldDisplayer() = default;
 
 		virtual void Construct() override;
+		virtual void Initialize() override;
 		virtual void Destruct() override;
 		virtual void PreTick() override;
 		virtual void Tick(float dt) override;
 		virtual void Draw() override;
 
-		void		 DisplayWorld(WorldRenderer* renderer);
-		bool		 OnMouse(uint32 button, LinaGX::InputAction act) override;
-		OrbitCamera* CreateOrbitCamera();
-		void		 DestroyCamera();
+		void DisplayWorld(WorldRenderer* renderer, WorldCameraType cameraType);
+		bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
 		// World
 		virtual void OnWorldTick(float delta, PlayMode playmode) override;
 
+		inline EditorCamera* GetWorldCamera()
+		{
+			return m_camera;
+		}
+
+		inline Properties& GetProps()
+		{
+			return m_props;
+		}
+
 	private:
+		void DestroyCamera();
 		void DrawAxis(const Vector3& targetAxis, const Color& baseColor, const String& axis);
 
 	private:
-		Widget*		   m_loading	   = nullptr;
+		Properties	   m_props		   = {};
+		Text*		   m_noWorldText   = nullptr;
 		WorldRenderer* m_worldRenderer = nullptr;
 		bool		   m_mouseConfined = false;
 		EditorCamera*  m_camera		   = nullptr;

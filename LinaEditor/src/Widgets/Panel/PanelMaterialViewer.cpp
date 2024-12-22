@@ -58,12 +58,15 @@ namespace Lina::Editor
 	{
 		PanelResourceViewer::Construct();
 
-		WorldDisplayer* displayer = m_manager->Allocate<WorldDisplayer>("WorldDisplayer");
+		m_resourceBG->GetWidgetProps().childMargins = TBLR::Eq(0.0f);
+		WorldDisplayer* displayer					= m_manager->Allocate<WorldDisplayer>("WorldDisplayer");
 		displayer->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		displayer->SetAlignedPos(Vector2::Zero);
 		displayer->SetAlignedSize(Vector2::One);
 		m_resourceBG->AddChild(displayer);
 		m_worldDisplayer = displayer;
+
+		displayer->GetProps().noWorldText = Locale::GetStr(LocaleStr::ResourceNotFound);
 	}
 
 	void PanelMaterialViewer::Initialize()
@@ -86,8 +89,7 @@ namespace Lina::Editor
 		m_editor->GetApp()->GetWorldProcessor().AddWorld(m_world);
 		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer);
 
-		m_worldDisplayer->DisplayWorld(m_worldRenderer);
-		m_worldDisplayer->CreateOrbitCamera();
+		m_worldDisplayer->DisplayWorld(m_worldRenderer, WorldDisplayer::WorldCameraType::Orbit);
 
 		// Resource set up.
 		m_world->GetGfxSettings().lightingMaterial = EDITOR_MATERIAL_DEFAULT_LIGHTING_ID;
@@ -106,6 +108,8 @@ namespace Lina::Editor
 
 		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), initialResources, m_resourceSpace);
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
+
+		m_world->Initialize(m_resourceManager);
 		SetupWorld();
 
 		StoreShaderID();
@@ -151,17 +155,13 @@ namespace Lina::Editor
 		Material* mat  = static_cast<Material*>(m_resource);
 		m_materialName = m_resource->GetName();
 		m_shaderType   = mat->GetShaderType();
-		m_previousStream.Destroy();
-		mat->SaveToStream(m_previousStream);
 
-		if (mat->GetShaderType() == ShaderType::OpaqueSurface)
+		if (mat->GetShaderType() == ShaderType::DeferredSurface)
 			m_shaderTypeStr = "Opaque Surface";
-		else if (mat->GetShaderType() == ShaderType::TransparentSurface)
+		else if (mat->GetShaderType() == ShaderType::ForwardSurface)
 			m_shaderTypeStr = "Transparent Surface";
 		else if (mat->GetShaderType() == ShaderType::Sky)
 			m_shaderTypeStr = "Sky";
-		else if (mat->GetShaderType() == ShaderType::Lighting)
-			m_shaderTypeStr = "Lighting";
 		else
 			m_shaderTypeStr = "Custom";
 

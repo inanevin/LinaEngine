@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Atlas/AtlasManager.hpp"
 #include "Editor/WindowPanelManager.hpp"
 #include "Editor/EditorTaskManager.hpp"
+#include "Editor/EditorWorldManager.hpp"
 #include "Editor/Project/ProjectManager.hpp"
 #include "Editor/Graphics/EditorRenderer.hpp"
 #include "Editor/Actions/EditorActionManager.hpp"
@@ -134,6 +135,11 @@ namespace Lina::Editor
 			return m_taskManager;
 		}
 
+		inline EditorWorldManager& GetWorldManager()
+		{
+			return m_worldManager;
+		}
+
 	private:
 		EditorActionManager m_editorActionManager;
 		EditorRenderer		m_editorRenderer;
@@ -148,6 +154,7 @@ namespace Lina::Editor
 		static Editor*		s_editor;
 		EditorTaskManager	m_taskManager;
 		EditorResources		m_editorResources;
+		EditorWorldManager	m_worldManager;
 	};
 
 } // namespace Lina::Editor

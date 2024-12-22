@@ -64,7 +64,7 @@ namespace Lina
 		uint32		id			= 0;
 	};
 
-	struct DrawCall
+	struct ProfilerDrawCall
 	{
 		const char* category = "";
 		StringID	sid		 = 0;
@@ -74,10 +74,10 @@ namespace Lina
 
 	struct ProfilerFrame
 	{
-		uint64											 startCycles = 0;
-		uint64											 endCycles	 = 0;
-		ParallelHashMapMutex<StringID, Vector<Block>>	 threadBlocks;
-		ParallelHashMapMutex<StringID, Vector<DrawCall>> drawCalls;
+		uint64													 startCycles = 0;
+		uint64													 endCycles	 = 0;
+		ParallelHashMapMutex<StringID, Vector<Block>>			 threadBlocks;
+		ParallelHashMapMutex<StringID, Vector<ProfilerDrawCall>> drawCalls;
 	};
 
 	class Profiler

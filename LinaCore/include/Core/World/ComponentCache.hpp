@@ -87,7 +87,7 @@ namespace Lina
 				m_componentBucket.Free(component);
 		}
 
-		virtual Component* Get(Entity* e) override
+		virtual T* Get(Entity* e) override
 		{
 			T* component = nullptr;
 			m_componentBucket.View([&](T* comp, uint32 index) -> bool {

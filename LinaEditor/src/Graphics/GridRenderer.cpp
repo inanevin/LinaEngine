@@ -107,7 +107,7 @@ namespace Lina::Editor
 
 	void GridRenderer::RenderDrawPass(LinaGX::CommandStream* stream, uint32 frameIndex, RenderPass& pass, RenderPassType type)
 	{
-		if (type != RenderPassType::Forward)
+		if (type != RenderPassType::RENDER_PASS_FORWARD)
 			return;
 
 		m_gridShader->Bind(stream, m_gridShader->GetGPUHandle());

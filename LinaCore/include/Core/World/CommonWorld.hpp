@@ -38,6 +38,13 @@ namespace Lina
 
 	typedef uint64 EntityID;
 
+	enum class PlayMode
+	{
+		None,
+		Play,
+		Other,
+	};
+
 	enum EntityFlags
 	{
 		EF_NONE		 = 0,

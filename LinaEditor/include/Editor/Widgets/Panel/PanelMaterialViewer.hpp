@@ -94,7 +94,7 @@ namespace Lina::Editor
 		EntityWorld*			  m_world		   = nullptr;
 		WorldRenderer*			  m_worldRenderer  = nullptr;
 		GridRenderer*			  m_gridRenderer   = nullptr;
-		ShaderType				  m_shaderType	   = ShaderType::OpaqueSurface;
+		ShaderType				  m_shaderType	   = ShaderType::DeferredSurface;
 		String					  m_shaderTypeStr  = "";
 		Vector<uint32>			  m_propertyFoldValues;
 		OStream					  m_previousStream;

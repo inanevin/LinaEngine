@@ -64,6 +64,7 @@ namespace Lina::Editor
 #define EDITOR_SHADER_GUI_HUE_DISPLAY_PATH			   "Resources/Editor/Shaders/GUI/HueDisplay.linashader"
 #define EDITOR_SHADER_GUI_SDF_TEXT_PATH				   "Resources/Editor/Shaders/GUI/SDFText.linashader"
 #define EDITOR_SHADER_GUI_TEXT_PATH					   "Resources/Editor/Shaders/GUI/Text.linashader"
+#define EDITOR_SHADER_GUI_GLITCH_PATH				   "Resources/Editor/Shaders/GUI/GUIGlitch.linashader"
 #define EDITOR_SHADER_LINES_PATH					   "Resources/Editor/Shaders/Lines.linashader"
 #define EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_PATH	   "Resources/Editor/Shaders/DefaultOpaqueSurface.linashader"
 #define EDITOR_SHADER_DEFAULT_TRANSPARENT_SURFACE_PATH "Resources/Editor/Shaders/DefaultTransparentSurface.linashader"
@@ -84,6 +85,7 @@ namespace Lina::Editor
 #define EDITOR_SHADER_DEFAULT_LIGHTING_ID			 RESOURCE_ID_EDITOR_SHADERS + 9
 #define EDITOR_SHADER_DEFAULT_POSTPROCESS_ID		 RESOURCE_ID_EDITOR_SHADERS + 10
 #define EDITOR_SHADER_WORLD_GRID_ID					 RESOURCE_ID_EDITOR_SHADERS + 11
+#define EDITOR_SHADER_GUI_GLITCH_ID					 RESOURCE_ID_EDITOR_SHADERS + 12
 
 // Textures
 #define EDITOR_TEXTURE_CHECKERED_PATH				 "Resources/Editor/Textures/Checkered.png"

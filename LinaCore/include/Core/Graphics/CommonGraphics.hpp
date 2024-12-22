@@ -46,31 +46,6 @@ namespace Lina
 
 #define DEFAULT_FOV 90.0f
 
-	enum RenderPassType
-	{
-		Deferred = 0,
-		Lighting,
-		Forward,
-		Max,
-	};
-
-	constexpr const char* RPTypeToString(RenderPassType type)
-	{
-		switch (type)
-		{
-		case Deferred:
-			return "Main";
-		case Lighting:
-			return "Lighting";
-		case Forward:
-			return "ForwardTransparency";
-		case Max:
-			return "Max";
-		default:
-			return "Unknown";
-		}
-	}
-
 	constexpr uint32 GetBytesPerPixelFromFormat(LinaGX::Format format)
 	{
 		if (format == LinaGX::Format::R8_UNORM)
@@ -165,11 +140,11 @@ namespace Lina
 
 	enum class ShaderType
 	{
-		OpaqueSurface,
-		TransparentSurface,
+		DeferredSurface,
+		ForwardSurface,
 		Sky,
-		PostProcess,
 		Lighting,
+		PostProcess,
 		Custom
 	};
 

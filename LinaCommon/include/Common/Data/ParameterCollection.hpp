@@ -47,8 +47,14 @@ namespace Lina
 			StringID sid = 0;
 			uint8	 val = 0;
 
-			void SaveToStream(OStream& stream) const;
-			void LoadFromStream(IStream& stream);
+			void SaveToStream(OStream& stream) const
+			{
+				stream << val;
+			}
+			void LoadFromStream(IStream& stream)
+			{
+				stream >> val;
+			}
 		};
 
 		struct ColUint32
@@ -56,26 +62,57 @@ namespace Lina
 			StringID sid = 0;
 			uint32	 val = 0;
 
-			void SaveToStream(OStream& stream) const;
-			void LoadFromStream(IStream& stream);
+			void SaveToStream(OStream& stream) const
+			{
+				stream << val;
+			}
+			void LoadFromStream(IStream& stream)
+			{
+				stream >> val;
+			}
+		};
+
+		struct ColInt32
+		{
+			StringID sid = 0;
+			int32	 val = 0;
+
+			void SaveToStream(OStream& stream) const
+			{
+				stream << val;
+			}
+			void LoadFromStream(IStream& stream)
+			{
+				stream >> val;
+			}
 		};
 
 		struct ColFloat
 		{
 			StringID sid = 0;
 			float	 val = 0.0f;
-
-			void SaveToStream(OStream& stream) const;
-			void LoadFromStream(IStream& stream);
+			void	 SaveToStream(OStream& stream) const
+			{
+				stream << val;
+			}
+			void LoadFromStream(IStream& stream)
+			{
+				stream >> val;
+			}
 		};
 
 		struct ColString
 		{
 			StringID sid = 0;
 			String	 val = "";
-
-			void SaveToStream(OStream& stream) const;
-			void LoadFromStream(IStream& stream);
+			void	 SaveToStream(OStream& stream) const
+			{
+				stream << val;
+			}
+			void LoadFromStream(IStream& stream)
+			{
+				stream >> val;
+			}
 		};
 
 	public:
@@ -88,6 +125,9 @@ namespace Lina
 		void   SetParamUint32(StringID sid, uint32 val);
 		uint32 GetParamUint32(StringID sid, uint32 defaultVal = 0);
 
+		void  SetParamInt32(StringID sid, int32 val);
+		int32 GetParamInt32(StringID sid, int32 defaultVal = 0);
+
 		void  SetParamFloat(StringID sid, float val);
 		float GetParamFloat(StringID sid, float defaultVal = 0.0f);
 
@@ -97,6 +137,7 @@ namespace Lina
 	public:
 		Vector<ColUint8>  m_uint8s;
 		Vector<ColUint32> m_uint32s;
+		Vector<ColInt32>  m_int32s;
 		Vector<ColFloat>  m_floats;
 		Vector<ColString> m_strings;
 	};

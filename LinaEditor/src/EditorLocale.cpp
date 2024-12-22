@@ -71,7 +71,6 @@ namespace Lina::Editor
 		{LocaleStr::LinaWorldFile, "Lina World File"},
 		{LocaleStr::NoProject, "No Project"},
 		{LocaleStr::NoProjectFound, "No project was found. Create or open one."},
-		{LocaleStr::NoWorld, "No World"},
 		{LocaleStr::NewProject, "New Project"},
 		{LocaleStr::LoadProject, "Load Project"},
 		{LocaleStr::SaveProject, "Save Project"},
@@ -141,7 +140,8 @@ namespace Lina::Editor
 		{LocaleStr::Export, "Export"},
 		{LocaleStr::Refresh, "Refresh"},
 		{LocaleStr::ImportingResources, "Importing resources"},
-		{LocaleStr::ThisResourceNoLongerExists, "This resource no longer exists :("},
+		{LocaleStr::ResourceNotFound, "Resource is not found."},
+		{LocaleStr::NoWorldInstalled, "No world is loaded. Double-click from Resource Browser to open one."},
 		{LocaleStr::GenerateSDF, "Generate SDF"},
 		{LocaleStr::General, "General"},
 		{LocaleStr::Resource, "Resource"},
@@ -188,6 +188,7 @@ namespace Lina::Editor
 		{LocaleStr::SmoothedDelta, "Smoothed Delta (s)"},
 		{LocaleStr::Tris, "Tris"},
 		{LocaleStr::DPIScale, "DPI Scale"},
+		{LocaleStr::PreviewAnimation, "Preview Animation"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

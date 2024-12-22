@@ -438,7 +438,6 @@ namespace Lina::Editor
 
 	void EditorActionResourceMove::Execute(Editor* editor, ExecType type)
 	{
-
 		if (type == ExecType::Undo)
 		{
 			const size_t sz = m_resourceGUIDs.size();
@@ -514,6 +513,62 @@ namespace Lina::Editor
 		Panel* panel = editor->GetWindowPanelManager().FindPanelOfType(PanelType::ResourceBrowser, 0);
 		if (panel)
 			static_cast<PanelResourceBrowser*>(panel)->GetBrowser()->RefreshDirectory();
+	}
+
+	EditorActionResourceModel* EditorActionResourceModel::Create(Editor* editor, ResourceID resourceID, uint64 resourceSpace, const OStream& prevStream, const OStream& newStream)
+	{
+		EditorActionResourceModel* action = new EditorActionResourceModel();
+		action->m_resourceID			  = resourceID;
+		action->m_resourceSpace			  = resourceSpace;
+		action->m_prevStream.WriteRaw(prevStream.GetDataRaw(), prevStream.GetCurrentSize());
+		action->m_newStream.WriteRaw(newStream.GetDataRaw(), newStream.GetCurrentSize());
+		editor->GetEditorActionManager().AddToStack(action);
+		return action;
+	}
+
+	void EditorActionResourceModel::Execute(Editor* editor, ExecType type)
+	{
+		Resource* res = editor->GetApp()->GetResourceManager().GetIfExists<Model>(m_resourceID);
+		if (res == nullptr)
+			return;
+
+		Panel*				 panel		  = editor->GetWindowPanelManager().FindPanelOfType(PanelType::ModelViewer, m_resourceID);
+		PanelResourceViewer* panelResView = panel ? static_cast<PanelModelViewer*>(panel) : nullptr;
+		Model*				 model		  = editor->GetApp()->GetResourceManager().GetResource<Model>(m_resourceID);
+
+		if (type == ExecType::Undo)
+		{
+			IStream stream;
+			stream.Create(m_prevStream.GetDataRaw(), m_prevStream.GetCurrentSize());
+			model->LoadFromStream(stream);
+			stream.Destroy();
+		}
+		else if (type == ExecType::Redo)
+		{
+			IStream stream;
+			stream.Create(m_newStream.GetDataRaw(), m_newStream.GetCurrentSize());
+			model->LoadFromStream(stream);
+			stream.Destroy();
+		}
+
+		model->SaveToFileAsBinary(editor->GetProjectManager().GetProjectData()->GetResourcePath(model->GetID()));
+
+		if (panelResView)
+		{
+			panelResView->StoreEditorActionBuffer();
+			PanelModelViewer* modelViewer = static_cast<PanelModelViewer*>(panelResView);
+
+			if (type != ExecType::Create)
+			{
+				panelResView->UpdateResourceProperties();
+				panelResView->RebuildContents();
+			}
+
+			modelViewer->GetWorld()->LoadMissingResources(editor->GetApp()->GetResourceManager(), editor->GetProjectManager().GetProjectData(), {}, m_resourceSpace);
+			modelViewer->SetupWorld();
+		}
+
+		editor->GetApp()->GetResourceManager().ReloadResourceHW({model});
 	}
 
 } // namespace Lina::Editor

@@ -37,6 +37,7 @@ namespace Lina
 		stream << m_uint32s;
 		stream << m_floats;
 		stream << m_strings;
+		stream << m_int32s;
 	}
 
 	void ParameterCollection::LoadFromStream(IStream& stream)
@@ -47,6 +48,7 @@ namespace Lina
 		stream >> m_uint32s;
 		stream >> m_floats;
 		stream >> m_strings;
+		stream >> m_int32s;
 	}
 
 	void ParameterCollection::SetParamUint8(StringID sid, uint8 val)
@@ -93,6 +95,28 @@ namespace Lina
 		return defaultVal;
 	}
 
+	void ParameterCollection::SetParamInt32(StringID sid, int32 val)
+	{
+		auto it = linatl::find_if(m_int32s.begin(), m_int32s.end(), [sid](const ColInt32& col) -> bool { return col.sid == sid; });
+		if (it != m_int32s.end())
+		{
+			it->val = val;
+			return;
+		}
+
+		m_int32s.push_back({.sid = sid, .val = val});
+	}
+
+	int32 ParameterCollection::GetParamInt32(StringID sid, int32 defaultVal)
+	{
+		auto it = linatl::find_if(m_int32s.begin(), m_int32s.end(), [sid](const ColInt32& col) -> bool { return col.sid == sid; });
+		if (it != m_int32s.end())
+			return it->val;
+
+		m_int32s.push_back({.sid = sid, .val = defaultVal});
+		return defaultVal;
+	}
+
 	void ParameterCollection::SetParamFloat(StringID sid, float val)
 	{
 		auto it = linatl::find_if(m_floats.begin(), m_floats.end(), [sid](const ColFloat& col) -> bool { return col.sid == sid; });
@@ -135,46 +159,6 @@ namespace Lina
 
 		m_strings.push_back({.sid = sid, .val = defaultVal});
 		return defaultVal;
-	}
-
-	void ParameterCollection::ColUint8::SaveToStream(OStream& stream) const
-	{
-		stream << sid << val;
-	}
-
-	void ParameterCollection::ColUint8::LoadFromStream(IStream& stream)
-	{
-		stream >> sid >> val;
-	}
-
-	void ParameterCollection::ColUint32::SaveToStream(OStream& stream) const
-	{
-		stream << sid << val;
-	}
-
-	void ParameterCollection::ColUint32::LoadFromStream(IStream& stream)
-	{
-		stream >> sid >> val;
-	}
-
-	void ParameterCollection::ColFloat::SaveToStream(OStream& stream) const
-	{
-		stream << sid << val;
-	}
-
-	void ParameterCollection::ColFloat::LoadFromStream(IStream& stream)
-	{
-		stream >> sid >> val;
-	}
-
-	void ParameterCollection::ColString::SaveToStream(OStream& stream) const
-	{
-		stream << sid << val;
-	}
-
-	void ParameterCollection::ColString::LoadFromStream(IStream& stream)
-	{
-		stream >> sid >> val;
 	}
 
 } // namespace Lina

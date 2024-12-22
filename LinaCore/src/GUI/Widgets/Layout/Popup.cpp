@@ -127,7 +127,7 @@ namespace Lina
 			if (it.layout->GetIsHovered())
 			{
 				if (m_props.onSelectedItem)
-					m_props.onSelectedItem(it.outIndex == -1 ? idx : it.outIndex, it.layout->GetUserData());
+					m_props.onSelectedItem(it.outIndex, it.layout->GetUserData());
 
 				if (m_props.closeOnSelect)
 					m_manager->AddToKillList(this);

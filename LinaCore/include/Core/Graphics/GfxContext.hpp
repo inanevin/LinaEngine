@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Core/Graphics/ResourceUploadQueue.hpp"
 #include "Core/Graphics/Pipeline/Buffer.hpp"
 #include "Core/Graphics/MeshManager.hpp"
+#include "Core/Graphics/Data/RenderData.hpp"
 #include <LinaGX/Common/CommonGfx.hpp>
 
 namespace LinaGX
@@ -113,7 +114,7 @@ namespace Lina
 		ResourceUploadQueue m_uploadQueue;
 		PerFrameData		m_pfd[FRAMES_IN_FLIGHT];
 		uint16				m_pipelineLayoutGlobal = 0;
-		uint16				m_pipelineLayoutPersistent[RenderPassType::Max];
+		Vector<uint16>		m_pipelineLayoutPersistent;
 
 		MeshManager m_meshManagerDefault;
 	};

@@ -67,6 +67,26 @@ namespace Lina
 
 		void Refresh();
 
+		inline Buffer& GetVtxBufferStatic()
+		{
+			return m_bufferStatic.vertexBuffer;
+		}
+
+		inline Buffer& GetIdxBufferStatic()
+		{
+			return m_bufferStatic.indexBuffer;
+		}
+
+		inline Buffer& GetVtxBufferSkinned()
+		{
+			return m_bufferSkinned.vertexBuffer;
+		}
+
+		inline Buffer& GetIdxBufferSkinned()
+		{
+			return m_bufferSkinned.indexBuffer;
+		}
+
 	private:
 		void CreateBuffer(MeshBuffer& buf, size_t vtxSz, size_t idxSz);
 		void DestroyBuffer(MeshBuffer& buf);

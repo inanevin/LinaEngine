@@ -190,7 +190,7 @@ namespace Lina
 
 	LinaGX::DescriptorSetDesc GfxHelpers::GetSetDescPersistentRenderPass(RenderPassType type)
 	{
-		if (type == RenderPassType::Deferred)
+		if (type == RenderPassType::RENDER_PASS_DEFERRED)
 		{
 			LinaGX::DescriptorBinding binding0 = {
 				.type	= LinaGX::DescriptorType::UBO,
@@ -214,7 +214,7 @@ namespace Lina
 
 			return {.bindings = {binding0, binding1, binding2, binding3}};
 		}
-		else if (type == RenderPassType::Forward)
+		else if (type == RenderPassType::RENDER_PASS_FORWARD)
 		{
 			LinaGX::DescriptorBinding binding0 = {
 				.type	= LinaGX::DescriptorType::UBO,
@@ -222,7 +222,7 @@ namespace Lina
 			};
 
 			LinaGX::DescriptorBinding binding1 = {
-				.type	= LinaGX::DescriptorType::SSBO,
+				.type	= LinaGX::DescriptorType::UBO,
 				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 			};
 
@@ -236,21 +236,12 @@ namespace Lina
 				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 			};
 
-			return {.bindings = {binding0, binding1, binding2, binding3}};
-		}
-		else if (type == RenderPassType::Lighting)
-		{
-			LinaGX::DescriptorBinding binding0 = {
-				.type	= LinaGX::DescriptorType::UBO,
+			LinaGX::DescriptorBinding binding4 = {
+				.type	= LinaGX::DescriptorType::SSBO,
 				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 			};
 
-			LinaGX::DescriptorBinding binding1 = {
-				.type	= LinaGX::DescriptorType::UBO,
-				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-			};
-
-			return {.bindings = {binding0, binding1}};
+			return {.bindings = {binding0, binding1, binding2, binding3, binding4}};
 		}
 
 		LINA_ASSERT(false, "");
@@ -347,7 +338,11 @@ namespace Lina
 
 	LinaGX::PipelineLayoutDesc GfxHelpers::GetPLDescPersistentGlobal()
 	{
-		return {.descriptorSetDescriptions = {GetSetDescPersistentGlobal()}, .debugName = "Persistent Global Layout"};
+		LinaGX::PipelineLayoutDesc desc;
+		desc.descriptorSetDescriptions = {GetSetDescPersistentGlobal()};
+		desc.debugName				   = "Persistent Global Layout";
+		desc.constantRanges.push_back(LinaGX::PipelineLayoutPushConstantRange{.stages = {LinaGX::ShaderStage::Vertex}, .size = sizeof(uint32)});
+		return desc;
 	}
 
 	LinaGX::PipelineLayoutDesc GfxHelpers::GetPLDescPersistentRenderPass(RenderPassType renderPassType)
@@ -355,10 +350,7 @@ namespace Lina
 		LinaGX::PipelineLayoutDesc desc;
 		desc.descriptorSetDescriptions = {GetSetDescPersistentGlobal(), GetSetDescPersistentRenderPass(renderPassType)};
 		desc.debugName				   = "Persistent RenderPass Layout";
-
-		// if (renderPassType == RenderPassType::Forward)
-		//	desc.constantRanges.push_back(LinaGX::PipelineLayoutPushConstantRange{.stages = {LinaGX::ShaderStage::Fragment}, .size = sizeof(GPUPushConstantsForwardPass)});
-
+		desc.constantRanges.push_back(LinaGX::PipelineLayoutPushConstantRange{.stages = {LinaGX::ShaderStage::Vertex}, .size = sizeof(uint32)});
 		return desc;
 	}
 
@@ -392,124 +384,47 @@ namespace Lina
 	{
 		LinaGX::DescriptorSetDesc setDesc = GfxHelpers::GetSetDescPersistentRenderPass(type);
 
-		if (type == RenderPassType::Deferred)
+		if (type == RenderPassType::RENDER_PASS_DEFERRED)
 		{
 			return {
 				.buffers =
 					{
 						{
 							.bufferType	  = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
-							.debugName	  = "RP: Main - ViewData",
+							.debugName	  = "Deferred Pass View",
 							.size		  = sizeof(GPUDataView),
 							.stagingOnly  = true,
 							.bindingIndex = 0,
 							.ident		  = "ViewData"_hs,
 						},
-						{
-							.bufferType	  = LinaGX::ResourceTypeHint::TH_IndirectBuffer,
-							.debugName	  = "RP: Main - IndirectBuffer",
-							.size		  = lgx->GetIndexedIndirectCommandSize() * static_cast<size_t>(250),
-							.stagingOnly  = false,
-							.bindingIndex = -1,
-							.ident		  = "IndirectBuffer"_hs,
-						},
-						{
-							.bufferType	  = LinaGX::ResourceTypeHint::TH_StorageBuffer,
-							.debugName	  = "RP: Main - IndirectConstants",
-							.size		  = sizeof(GPUIndirectConstants0) * 2500,
-							.stagingOnly  = false,
-							.bindingIndex = 1,
-							.ident		  = "IndirectConstants"_hs,
-						},
-						{
-							.bufferType	  = LinaGX::ResourceTypeHint::TH_StorageBuffer,
-							.debugName	  = "RP: Main - EntityBuffer",
-							.size		  = sizeof(GPUEntity) * 2500,
-							.stagingOnly  = false,
-							.bindingIndex = 2,
-							.ident		  = "EntityBuffer"_hs,
-						},
-						{
-							.bufferType	  = LinaGX::ResourceTypeHint::TH_StorageBuffer,
-							.debugName	  = "RP: Main - BoneBuffer",
-							.size		  = sizeof(Matrix4) * 1000,
-							.stagingOnly  = false,
-							.bindingIndex = 3,
-							.ident		  = "BoneBuffer"_hs,
-						},
+
 					},
 				.setDescription = setDesc,
 			};
 		}
 
-		if (type == RenderPassType::Lighting)
-		{
-			return {
-				.buffers		= {{
-									   .bufferType	 = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
-									   .debugName	 = "RP: Lighting - ViewData",
-									   .size		 = sizeof(GPUDataView),
-									   .stagingOnly	 = true,
-									   .bindingIndex = 0,
-									   .ident		 = "ViewData"_hs,
-							   },
-								   {
-									   .bufferType	 = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
-									   .debugName	 = "RP: Lighting - PassData",
-									   .size		 = sizeof(GPUDataLightingPass),
-									   .stagingOnly	 = true,
-									   .bindingIndex = 1,
-									   .ident		 = "PassData"_hs,
-							   }},
-				.setDescription = setDesc,
-			};
-		}
-
-		if (type == RenderPassType::Forward)
+		if (type == RenderPassType::RENDER_PASS_FORWARD)
 		{
 			return {
 				.buffers =
 					{
 						{
 							.bufferType	  = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
-							.debugName	  = "RP: FWTransparency - ViewData",
+							.debugName	  = "Forward pass  ViewData",
 							.size		  = sizeof(GPUDataView),
 							.stagingOnly  = true,
 							.bindingIndex = 0,
 							.ident		  = "ViewData"_hs,
 						},
 						{
-							.bufferType	  = LinaGX::ResourceTypeHint::TH_IndirectBuffer,
-							.debugName	  = "RP: FWTransparency - IndirectBuffer",
-							.size		  = lgx->GetIndexedIndirectCommandSize() * static_cast<size_t>(250),
-							.stagingOnly  = false,
-							.bindingIndex = -1,
-							.ident		  = "IndirectBuffer"_hs,
-						},
-						{
-							.bufferType	  = LinaGX::ResourceTypeHint::TH_StorageBuffer,
-							.debugName	  = "RP: FWTransparency - IndirectConstants",
-							.size		  = sizeof(GPUIndirectConstants0) * 2500,
-							.stagingOnly  = false,
+							.bufferType	  = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
+							.debugName	  = "Forward Pass PassData",
+							.size		  = sizeof(GPUForwardPassData),
+							.stagingOnly  = true,
 							.bindingIndex = 1,
-							.ident		  = "IndirectConstants"_hs,
+							.ident		  = "PassData"_hs,
 						},
-						{
-							.bufferType	  = LinaGX::ResourceTypeHint::TH_StorageBuffer,
-							.debugName	  = "RP: Main - EntityBuffer",
-							.size		  = sizeof(GPUEntity) * 2500,
-							.stagingOnly  = false,
-							.bindingIndex = 2,
-							.ident		  = "EntityBuffer"_hs,
-						},
-						{
-							.bufferType	  = LinaGX::ResourceTypeHint::TH_StorageBuffer,
-							.debugName	  = "RP: Main - BoneBuffer",
-							.size		  = sizeof(Matrix4) * 1000,
-							.stagingOnly  = false,
-							.bindingIndex = 3,
-							.ident		  = "BoneBuffer"_hs,
-						},
+
 					},
 				.setDescription = setDesc,
 			};

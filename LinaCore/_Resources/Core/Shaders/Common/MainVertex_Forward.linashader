@@ -46,27 +46,25 @@ struct LinaVertexOutput
 
 //##user_shader_injected_here
 
+layout( push_constant ) uniform constants
+{
+	uint baseInstanceIndex;
+} PushConstants;
+
 void main()
 {
+   DrawArguments argBuffer = LINA_DRAW_ARGUMENTS.data[PushConstants.baseInstanceIndex + gl_InstanceIndex];
 
-#ifdef LGX_COMPILE_HLSL
-   int argBufferIndex = LGX_DRAW_ID + gl_InstanceIndex;
-#else
-   int argBufferIndex = gl_InstanceIndex;
-#endif  
+   LinaVertexInput vertexInput;
+   vertexInput.pos = inPos;
+   vertexInput.normal = inNormal;
+   vertexInput.uv =  vec2(inUV.x, inUV.y);
+   vertexInput.materialIndex = argBuffer.materialID;
+   vertexInput.entity = LINA_GET_ENTITY(argBuffer.entityIndex);
 
-    IndirectArguments argBuffer = LINA_INDIRECT_ARGUMENTS.data[argBufferIndex];
+   LinaVertexOutput vertexOutput;
+   LINA_VERTEX_MAIN(vertexInput, vertexOutput);
 
-    LinaVertexInput vertexInput;
-    vertexInput.pos = inPos;
-    vertexInput.normal = inNormal;
-    vertexInput.uv =  vec2(inUV.x, 1.0 - inUV.y);
-    vertexInput.materialIndex = argBuffer.materialID;
-    vertexInput.entity = LINA_GET_ENTITY(argBuffer.entityIndex);
-
-    LinaVertexOutput vertexOutput;
-    LINA_VERTEX_MAIN(vertexInput, vertexOutput);
-
-    vec3 worldPos = vec3(vertexInput.entity.modelMatrix * vertexOutput.pos);
-    gl_Position = LINA_VIEW.proj * LINA_VIEW.view *  vec4(worldPos, 1.0);
+   vec3 worldPos = vec3(vertexInput.entity.modelMatrix * vertexOutput.pos);
+   gl_Position = LINA_VIEW.proj * LINA_VIEW.view *  vec4(worldPos, 1.0);
 }

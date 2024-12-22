@@ -106,6 +106,7 @@ namespace Lina::Editor
 		m_atlasManager.Initialize(this);
 		m_windowPanelManager.Initialize(this);
 		m_editorActionManager.Initialize(this);
+		m_worldManager.Initialize(this);
 
 		m_mainWindow		   = m_app->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
 		m_primaryWidgetManager = &m_windowPanelManager.GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
@@ -213,6 +214,7 @@ namespace Lina::Editor
 
 	void Editor::PreShutdown()
 	{
+		m_worldManager.Shutdown();
 		m_editorActionManager.Shutdown();
 		m_editorRenderer.Shutdown();
 		m_atlasManager.Shutdown();

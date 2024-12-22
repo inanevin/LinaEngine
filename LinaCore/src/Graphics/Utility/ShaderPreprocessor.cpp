@@ -371,23 +371,16 @@ namespace Lina
 
 		input.insert(input.length(), globalHeader);
 
-		if (type == RenderPassType::Deferred)
+		if (type == RenderPassType::RENDER_PASS_DEFERRED)
 		{
 			const String header = "#include \"Resources/Core/Shaders/Common/RenderPass_Deferred.linashader\"\n";
 			input.insert(input.length(), header.c_str());
 			return;
 		}
 
-		if (type == RenderPassType::Forward)
+		if (type == RenderPassType::RENDER_PASS_FORWARD)
 		{
 			const String header = "#include \"Resources/Core/Shaders/Common/RenderPass_Forward.linashader\"\n";
-			input.insert(input.length(), header.c_str());
-			return;
-		}
-
-		if (type == RenderPassType::Lighting)
-		{
-			const String header = "#include \"Resources/Core/Shaders/Common/RenderPass_Lighting.linashader\"\n";
 			input.insert(input.length(), header.c_str());
 			return;
 		}
@@ -397,12 +390,14 @@ namespace Lina
 	{
 		String path = "";
 
-		if (type == ShaderType::OpaqueSurface)
+		if (type == ShaderType::DeferredSurface)
 			path = "Resources/Core/Shaders/Common/MainVertex_Deferred.linashader";
-		else if (type == ShaderType::TransparentSurface)
+		else if (type == ShaderType::ForwardSurface)
 			path = "Resources/Core/Shaders/Common/MainVertex_Forward.linashader";
 		else if (type == ShaderType::Sky)
 			path = "Resources/Core/Shaders/Common/MainVertex_Sky.linashader";
+		else if (type == ShaderType::Lighting)
+			path = "Resources/Core/Shaders/Common/MainVertex_Lighting.linashader";
 		else
 		{
 			LINA_ASSERT(false, "");
@@ -416,9 +411,9 @@ namespace Lina
 	{
 		String path = "";
 
-		if (type == ShaderType::OpaqueSurface)
+		if (type == ShaderType::DeferredSurface)
 			path = "Resources/Core/Shaders/Common/MainVertexSkinned_Deferred.linashader";
-		else if (type == ShaderType::TransparentSurface)
+		else if (type == ShaderType::ForwardSurface)
 			path = "Resources/Core/Shaders/Common/MainVertexSkinned_Forward.linashader";
 		else
 		{
@@ -433,12 +428,14 @@ namespace Lina
 	{
 		String path = "";
 
-		if (type == ShaderType::OpaqueSurface)
+		if (type == ShaderType::DeferredSurface)
 			path = "Resources/Core/Shaders/Common/MainFrag_Deferred.linashader";
-		else if (type == ShaderType::TransparentSurface)
+		else if (type == ShaderType::ForwardSurface)
 			path = "Resources/Core/Shaders/Common/MainFrag_Forward.linashader";
 		else if (type == ShaderType::Sky)
 			path = "Resources/Core/Shaders/Common/MainFrag_Sky.linashader";
+		else if (type == ShaderType::Lighting)
+			path = "Resources/Core/Shaders/Common/MainFrag_Lighting.linashader";
 		else
 		{
 			LINA_ASSERT(false, "");
@@ -460,11 +457,11 @@ namespace Lina
 
 	ShaderType ShaderPreprocessor::GetShaderType(const String& input)
 	{
-		if (input.find("#lina_shader_opaque") != String::npos)
-			return ShaderType::OpaqueSurface;
+		if (input.find("#lina_shader_deferred") != String::npos)
+			return ShaderType::DeferredSurface;
 
-		if (input.find("#lina_shader_transparent") != String::npos)
-			return ShaderType::TransparentSurface;
+		if (input.find("#lina_shader_forward") != String::npos)
+			return ShaderType::ForwardSurface;
 
 		if (input.find("#lina_shader_sky") != String::npos)
 			return ShaderType::Sky;

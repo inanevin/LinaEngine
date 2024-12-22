@@ -151,6 +151,10 @@ namespace Lina::Editor
 			{
 				m_editor->GetWindowPanelManager().OpenPanel(PanelType::AudioViewer, item->resourceID, this);
 			}
+			else if (item->resourceTID == GetTypeID<EntityWorld>())
+			{
+				m_editor->GetWorldManager().OpenWorld(item->resourceID);
+			}
 		};
 
 		controller->GetProps().payloadType	   = PayloadType::Resource;

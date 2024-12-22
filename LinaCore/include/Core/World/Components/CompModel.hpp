@@ -47,7 +47,7 @@ namespace Lina
 	class CompModel : public Component
 	{
 	public:
-		CompModel() : Component(GetTypeID<CompModel>(), CF_RENDERABLE){};
+		CompModel() : Component(GetTypeID<CompModel>(), CF_RENDERABLE), m_animationController(this){};
 
 		void SetModel(Model* model);
 
@@ -109,17 +109,17 @@ namespace Lina
 			return m_animationController;
 		}
 
-		inline const Vector<ModelSkin>& GetSkins() const
+		inline Model* GetModelPtr() const
 		{
-			return m_skins;
+			return m_modelPtr;
 		}
 
 	private:
+		Model*				  m_modelPtr = nullptr;
 		AnimationController	  m_animationController;
 		Vector<CompModelNode> m_nodes;
 		ResourceID			  m_model;
 		Vector<ResourceID>	  m_materials;
-		Vector<ModelSkin>	  m_skins;
 	};
 
 } // namespace Lina

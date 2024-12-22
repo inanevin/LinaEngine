@@ -118,6 +118,12 @@ namespace Lina::Editor
 				.customMeta = shaderStream,
 			},
 			{
+				.id			= EDITOR_SHADER_GUI_GLITCH_ID,
+				.name		= EDITOR_SHADER_GUI_GLITCH_PATH,
+				.tid		= GetTypeID<Shader>(),
+				.customMeta = shaderStream,
+			},
+			{
 				.id	  = EDITOR_TEXTURE_LINA_LOGO_ID,
 				.name = EDITOR_TEXTURE_LINA_LOGO_PATH,
 				.tid  = GetTypeID<Texture>(),
