@@ -44,6 +44,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/Application.hpp"
+#include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor
 {
@@ -213,6 +214,20 @@ namespace Lina::Editor
 		SelectEntity(last);
 
 		return true;
+	}
+
+	bool PanelWorld::OnMouse(uint32 button, LinaGX::InputAction act)
+	{
+		if (!m_worldDisplayer->GetIsHovered())
+			return false;
+
+		if (button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Pressed)
+		{
+			const Vector2 mp = m_lgxWindow->GetMousePosition() - m_worldDisplayer->GetStartFromMargins();
+			m_mousePickRenderer->PickEntity(mp);
+		}
+
+		return false;
 	}
 
 } // namespace Lina::Editor

@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/Resources/CommonResources.hpp"
 #include "Core/Graphics/Data/RenderData.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
+#include "Core/World/CommonWorld.hpp"
 
 namespace LinaGX
 {
@@ -59,10 +60,10 @@ namespace Lina
 		struct DrawEntity
 		{
 			GPUEntity entity;
-			uint64	  uniqueID	= 0;
-			uint32	  uniqueID2 = 0;
-			uint32	  uniqueID3 = 0;
-			uint32	  uniqueID4 = 0;
+			EntityID  entityGUID = 0;
+			uint32	  uniqueID2	 = 0;
+			uint32	  uniqueID3	 = 0;
+			uint32	  uniqueID4	 = 0;
 		};
 
 		struct DrawCall
@@ -84,16 +85,8 @@ namespace Lina
 		{
 			CompModel* compModel		= nullptr;
 			GPUEntity  customEntityData = {};
+			EntityID   customEntityGUID = {};
 			ResourceID materialID		= 0;
-		};
-
-		struct ModelDraw
-		{
-			ResourceID				  modelID		 = 0;
-			uint32					  shaderHandle	 = 0;
-			uint32					  meshIndex		 = 0;
-			uint32					  primitiveIndex = 0;
-			Vector<ModelDrawInstance> instances;
 		};
 
 		struct CustomDrawInstance
@@ -101,38 +94,128 @@ namespace Lina
 			GPUDrawArguments args;
 			ResourceID		 materialID = 0;
 			GPUEntity		 entity;
+			EntityID		 entityGUID					   = 0;
 			bool			 useEntityAsFirstArgument	   = true;
 			bool			 useMaterialIDAsSecondArgument = true;
 		};
 
+		struct ModelDraw
+		{
+			ResourceID		  modelID		 = 0;
+			ResourceID		  shaderID		 = 0;
+			StringID		  shaderVariant	 = 0;
+			uint32			  meshIndex		 = 0;
+			uint32			  primitiveIndex = 0;
+			bool			  isSkinned		 = false;
+			ModelDrawInstance instance;
+		};
+
 		struct CustomDraw
 		{
-			Buffer* vertexBuffer		  = nullptr;
-			Buffer* indexBuffer			  = nullptr;
-			size_t	vertexSize			  = 0;
-			uint32	shaderHandle		  = 0;
-			uint32	baseVertexLocation	  = 0;
-			uint32	indexCountPerInstance = 0;
-			uint32	startIndexLocation	  = 0;
-
-			Vector<CustomDrawInstance> instances;
+			Buffer*			   vertexBuffer			 = nullptr;
+			Buffer*			   indexBuffer			 = nullptr;
+			size_t			   vertexSize			 = 0;
+			ResourceID		   shaderID				 = 0;
+			StringID		   shaderVariant		 = 0;
+			uint32			   baseVertexLocation	 = 0;
+			uint32			   indexCountPerInstance = 0;
+			uint32			   startIndexLocation	 = 0;
+			CustomDrawInstance instance;
 		};
 
 		struct CustomDrawRaw
 		{
-			uint32 shaderHandle			  = 0;
-			uint32 baseVertexLocation	  = 0;
-			uint32 vertexCountPerInstance = 0;
+			ResourceID		   shaderID				  = 0;
+			StringID		   shaderVariant		  = 0;
+			uint32			   baseVertexLocation	  = 0;
+			uint32			   vertexCountPerInstance = 0;
+			CustomDrawInstance instance;
+		};
 
+		struct InstancedModelDraw
+		{
+			ResourceID				  modelID;
+			ResourceID				  shaderID;
+			StringID				  shaderVariant;
+			uint32					  meshIndex;
+			uint32					  primitiveIndex;
+			Vector<ModelDrawInstance> instances;
+
+			bool operator==(const ModelDraw& other) const
+			{
+				return modelID == other.modelID && shaderID == other.shaderID && shaderVariant == other.shaderVariant && meshIndex == other.meshIndex && primitiveIndex == other.primitiveIndex;
+			}
+		};
+
+		struct InstancedCustomDraw
+		{
+			Buffer*					   vertexBuffer;
+			Buffer*					   indexBuffer;
+			size_t					   vertexSize;
+			ResourceID				   shaderID;
+			StringID				   shaderVariant;
+			uint32					   baseVertexLocation;
+			uint32					   indexCountPerInstance;
+			uint32					   startIndexLocation;
 			Vector<CustomDrawInstance> instances;
+
+			bool operator==(const CustomDraw& other) const
+			{
+				return shaderID == other.shaderID && shaderVariant == other.shaderVariant && vertexBuffer == other.vertexBuffer && indexBuffer == other.indexBuffer && baseVertexLocation == other.baseVertexLocation &&
+					   indexCountPerInstance == other.indexCountPerInstance && startIndexLocation == other.startIndexLocation;
+			}
+		};
+
+		struct InstancedCustomDrawRaw
+		{
+			ResourceID				   shaderID;
+			StringID				   shaderVariant;
+			uint32					   baseVertexLocation;
+			uint32					   vertexCountPerInstance;
+			Vector<CustomDrawInstance> instances;
+
+			bool operator==(const CustomDrawRaw& other) const
+			{
+				return shaderID == other.shaderID && shaderVariant == other.shaderVariant && baseVertexLocation == other.baseVertexLocation && vertexCountPerInstance == other.vertexCountPerInstance;
+			}
 		};
 
 		struct DrawGroup
 		{
-			StringID			  id = 0;
+			StringID			  id   = 0;
+			String				  name = "";
 			Vector<ModelDraw>	  modelDraws;
 			Vector<CustomDraw>	  customDraws;
 			Vector<CustomDrawRaw> customRawDraws;
+
+			void AddOtherWithOverride(const DrawGroup& other, StringID newShaderVariantStatic, StringID newShaderVariantSkinned)
+			{
+				const size_t modelDrawSizeNow	  = modelDraws.size();
+				const size_t customDrawSizeNow	  = customDraws.size();
+				const size_t customRawDrawSizeNow = customRawDraws.size();
+
+				modelDraws.insert(modelDraws.end(), other.modelDraws.begin(), other.modelDraws.end());
+				customDraws.insert(customDraws.end(), other.customDraws.begin(), other.customDraws.end());
+				customRawDraws.insert(customRawDraws.end(), other.customRawDraws.begin(), other.customRawDraws.end());
+
+				for (size_t i = modelDrawSizeNow; i < modelDraws.size(); i++)
+				{
+					ModelDraw& draw	   = modelDraws[i];
+					draw.shaderVariant = draw.isSkinned ? newShaderVariantSkinned : newShaderVariantStatic;
+				}
+
+				for (size_t i = customDrawSizeNow; i < customDraws.size(); i++)
+				{
+					CustomDraw& draw   = customDraws[i];
+					draw.shaderVariant = newShaderVariantStatic;
+				}
+
+				for (size_t i = customRawDrawSizeNow; i < customRawDraws.size(); i++)
+				{
+					CustomDrawRaw& draw = customRawDraws[i];
+					draw.shaderVariant	= newShaderVariantStatic;
+				}
+			}
 		};
 
 		struct DrawData
@@ -142,7 +225,8 @@ namespace Lina
 
 		struct RenderingGroup
 		{
-			StringID		 id = 0;
+			StringID		 id	  = 0;
+			String			 name = "";
 			Vector<DrawCall> drawCalls;
 		};
 
@@ -163,15 +247,17 @@ namespace Lina
 		void OnComponentAdded(Component* comp);
 		void OnComponentRemoved(Component* comp);
 
-		void CollectCompModels(DrawGroup& group, const View& view, StringID staticVariant, StringID skinnedVariant, ShaderType shaderType);
-		void AddModelDraw(DrawGroup& group, ResourceID model, uint32 meshIndex, uint32 primitiveIndex, uint32 shaderHandle, const ModelDrawInstance& instance);
-		void AddCustomDraw(DrawGroup& group, const CustomDrawInstance& inst, uint32 shaderHandle, Buffer* vertexBuffer, Buffer* indexBuffer, size_t vertexSize, uint32 baseVertex, uint32 indexCount, uint32 startIndex);
-		void AddCustomDrawRaw(DrawGroup& group, const CustomDrawInstance& inst, uint32 shaderHandle, uint32 baseVertex, uint32 vtxCount);
+		void CollectCompModels(DrawGroup& group, const View& view, ShaderType shaderType);
+		void AddModelDraw(DrawGroup& group, ResourceID model, uint32 meshIndex, uint32 primitiveIndex, ResourceID shaderID, StringID shaderVariant, const ModelDrawInstance& instance);
+		void AddCustomDraw(DrawGroup& group, const CustomDrawInstance& inst, ResourceID shaderID, StringID shaderVariant, Buffer* vertexBuffer, Buffer* indexBuffer, size_t vertexSize, uint32 baseVertex, uint32 indexCount, uint32 startIndex);
+		void AddCustomDrawRaw(DrawGroup& group, const CustomDrawInstance& inst, ResourceID shaderID, StringID shaderVariant, uint32 baseVertex, uint32 vtxCount);
 
 		void PrepareGPUData(JobExecutor& executor);
 
-		void	   CreateGroup(StringID groupId);
-		DrawGroup& GetGroup(StringID groupId);
+		void			CreateGroup(const String& name);
+		DrawGroup&		GetGroup(StringID groupId);
+		RenderingGroup& GetRenderGroup(StringID groupId);
+		bool			GroupExists(StringID groupId);
 
 		void SyncRender();
 		void RenderGroup(StringID groupId, LinaGX::CommandStream* stream);
@@ -185,6 +271,10 @@ namespace Lina
 		void CalculateSkinning(const Vector<CompModel*>& comps, JobExecutor& executor);
 
 		bool DrawEntityExists(uint32& outIndex, uint64 uid, uint32 uid2, uint32 uid3, uint32 uid4);
+
+		void PrepareModelDraws(Vector<CompModel*>& skinnedModels, const DrawGroup& group, RenderingGroup& renderingGroup);
+		void PrepareCustomDraws(const DrawGroup& group, RenderingGroup& renderingGroup);
+		void PrepareCustomDrawsRaw(const DrawGroup& group, RenderingGroup& renderingGroup);
 
 	private:
 		GfxContext*		   m_gfxContext = nullptr;

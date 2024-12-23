@@ -28,7 +28,7 @@ SOFTWARE.
 
 
 layout (location = 10) flat in uint inEntityID;
-layout (location = 0) out vec4 outFragColor;
+layout (location = 0) out uint outFragColor;
 
 struct LinaFragOutput
 {
@@ -42,5 +42,5 @@ struct LinaFragOutput
 
 void main()
 {
-   outFragColor = vec4(float(inEntityID), 0,0,1);
+   outFragColor = inEntityID;
 }

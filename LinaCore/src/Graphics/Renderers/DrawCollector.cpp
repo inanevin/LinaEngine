@@ -60,7 +60,7 @@ namespace Lina
 			m_compModels.erase(it);
 	}
 
-	void DrawCollector::CollectCompModels(DrawGroup& group, const View& view, StringID staticVariant, StringID skinnedVariant, ShaderType shaderType)
+	void DrawCollector::CollectCompModels(DrawGroup& group, const View& view, ShaderType shaderType)
 	{
 		for (CompModel* comp : m_compModels)
 		{
@@ -100,33 +100,23 @@ namespace Lina
 					LINA_ASSERT(targetMaterial, "");
 					if (targetMaterial->GetShaderType() != shaderType)
 						continue;
-					Shader*			 targetShader	  = m_rm->GetResource<Shader>(targetMaterial->GetShader());
-					uint32			 usedShaderHandle = staticVariant == 0 ? targetShader->GetGPUHandle("Static"_hs) : targetShader->GetGPUHandle(staticVariant);
-					const ResourceID materialID		  = targetMaterial->GetID();
+					Shader*			 targetShader = m_rm->GetResource<Shader>(targetMaterial->GetShader());
+					const ResourceID materialID	  = targetMaterial->GetID();
 
 					const ModelDrawInstance inst = {
 						.compModel	= comp,
 						.materialID = materialID,
 					};
 
-					auto drawIt = linatl::find_if(group.modelDraws.begin(), group.modelDraws.end(), [model, usedShaderHandle, i, j](const ModelDraw& draw) -> bool {
-						return draw.modelID == model->GetID() && draw.shaderHandle == usedShaderHandle && draw.meshIndex == static_cast<uint32>(i) && draw.primitiveIndex == static_cast<uint32>(j);
+					group.modelDraws.push_back({
+						.modelID		= model->GetID(),
+						.shaderID		= targetShader->GetID(),
+						.shaderVariant	= "Static"_hs,
+						.meshIndex		= static_cast<uint32>(i),
+						.primitiveIndex = static_cast<uint32>(j),
+						.isSkinned		= false,
+						.instance		= inst,
 					});
-
-					if (drawIt != group.modelDraws.end())
-					{
-						drawIt->instances.push_back(inst);
-					}
-					else
-					{
-						group.modelDraws.push_back({
-							.modelID		= model->GetID(),
-							.shaderHandle	= usedShaderHandle,
-							.meshIndex		= static_cast<uint32>(i),
-							.primitiveIndex = static_cast<uint32>(j),
-							.instances		= {inst},
-						});
-					}
 				}
 
 				const Vector<PrimitiveSkinned>& primsSkinned   = mesh.primitivesSkinned;
@@ -139,103 +129,64 @@ namespace Lina
 					LINA_ASSERT(targetMaterial, "");
 					if (targetMaterial->GetShaderType() != shaderType)
 						continue;
-					Shader*			 targetShader	  = m_rm->GetResource<Shader>(targetMaterial->GetShader());
-					uint32			 usedShaderHandle = skinnedVariant == 0 ? targetShader->GetGPUHandle("Skinned"_hs) : targetShader->GetGPUHandle(skinnedVariant);
-					const ResourceID materialID		  = targetMaterial->GetID();
+					Shader*			 targetShader = m_rm->GetResource<Shader>(targetMaterial->GetShader());
+					const ResourceID materialID	  = targetMaterial->GetID();
 
 					const ModelDrawInstance inst = {
 						.compModel	= comp,
 						.materialID = materialID,
 					};
 
-					auto drawIt = linatl::find_if(group.modelDraws.begin(), group.modelDraws.end(), [model, usedShaderHandle, i, j](const ModelDraw& draw) -> bool {
-						return draw.modelID == model->GetID() && draw.shaderHandle == usedShaderHandle && draw.meshIndex == static_cast<uint32>(i) && draw.primitiveIndex == static_cast<uint32>(j);
+					group.modelDraws.push_back({
+						.modelID		= model->GetID(),
+						.shaderID		= targetShader->GetID(),
+						.shaderVariant	= "Skinned"_hs,
+						.meshIndex		= static_cast<uint32>(i),
+						.primitiveIndex = static_cast<uint32>(j),
+						.isSkinned		= true,
+						.instance		= inst,
 					});
-
-					if (drawIt != group.modelDraws.end())
-					{
-						drawIt->instances.push_back(inst);
-					}
-					else
-					{
-						group.modelDraws.push_back({
-							.modelID		= model->GetID(),
-							.shaderHandle	= usedShaderHandle,
-							.meshIndex		= static_cast<uint32>(i),
-							.primitiveIndex = static_cast<uint32>(j),
-							.instances		= {inst},
-						});
-					}
 				}
 			}
 		}
 	}
 
-	void DrawCollector::AddModelDraw(DrawGroup& group, ResourceID model, uint32 meshIndex, uint32 primitiveIndex, uint32 shaderHandle, const ModelDrawInstance& inst)
+	void DrawCollector::AddModelDraw(DrawGroup& group, ResourceID model, uint32 meshIndex, uint32 primitiveIndex, ResourceID shaderID, StringID shaderVariant, const ModelDrawInstance& inst)
 	{
-		auto drawIt = linatl::find_if(group.modelDraws.begin(), group.modelDraws.end(), [model, meshIndex, primitiveIndex, shaderHandle](const ModelDraw& draw) -> bool {
-			return draw.modelID == model && draw.shaderHandle == shaderHandle && draw.meshIndex == meshIndex && draw.primitiveIndex == primitiveIndex;
+		group.modelDraws.push_back({
+			.modelID		= model,
+			.shaderID		= shaderID,
+			.shaderVariant	= shaderVariant,
+			.meshIndex		= meshIndex,
+			.primitiveIndex = primitiveIndex,
+			.instance		= inst,
 		});
-
-		if (drawIt != group.modelDraws.end())
-		{
-			drawIt->instances.push_back(inst);
-		}
-		else
-		{
-			group.modelDraws.push_back({
-				.modelID		= model,
-				.shaderHandle	= shaderHandle,
-				.meshIndex		= meshIndex,
-				.primitiveIndex = primitiveIndex,
-				.instances		= {inst},
-			});
-		}
 	}
 
-	void DrawCollector::AddCustomDraw(DrawGroup& group, const CustomDrawInstance& inst, uint32 shaderHandle, Buffer* vertexBuffer, Buffer* indexBuffer, size_t vertexSize, uint32 baseVertex, uint32 indexCount, uint32 startIndex)
+	void DrawCollector::AddCustomDraw(DrawGroup& group, const CustomDrawInstance& inst, ResourceID shaderID, StringID shaderVariant, Buffer* vertexBuffer, Buffer* indexBuffer, size_t vertexSize, uint32 baseVertex, uint32 indexCount, uint32 startIndex)
 	{
-		auto it = linatl::find_if(group.customDraws.begin(), group.customDraws.end(), [&](const CustomDraw& draw) -> bool {
-			return draw.baseVertexLocation == baseVertex && draw.indexCountPerInstance == indexCount && draw.startIndexLocation == startIndex && draw.indexBuffer == indexBuffer && draw.vertexBuffer == vertexBuffer && draw.shaderHandle == shaderHandle;
+		group.customDraws.push_back({
+			.vertexBuffer		   = vertexBuffer,
+			.indexBuffer		   = indexBuffer,
+			.vertexSize			   = vertexSize,
+			.shaderID			   = shaderID,
+			.shaderVariant		   = shaderVariant,
+			.baseVertexLocation	   = baseVertex,
+			.indexCountPerInstance = indexCount,
+			.startIndexLocation	   = startIndex,
+			.instance			   = inst,
 		});
-
-		if (it != group.customDraws.end())
-		{
-			it->instances.push_back(inst);
-		}
-		else
-		{
-			group.customDraws.push_back({
-				.vertexBuffer		   = vertexBuffer,
-				.indexBuffer		   = indexBuffer,
-				.vertexSize			   = vertexSize,
-				.shaderHandle		   = shaderHandle,
-				.baseVertexLocation	   = baseVertex,
-				.indexCountPerInstance = indexCount,
-				.startIndexLocation	   = startIndex,
-				.instances			   = {inst},
-			});
-		}
 	}
 
-	void DrawCollector::AddCustomDrawRaw(DrawGroup& group, const CustomDrawInstance& inst, uint32 shaderHandle, uint32 baseVertex, uint32 vtxCount)
+	void DrawCollector::AddCustomDrawRaw(DrawGroup& group, const CustomDrawInstance& inst, ResourceID shaderID, StringID shaderVariant, uint32 baseVertex, uint32 vtxCount)
 	{
-		auto it =
-			linatl::find_if(group.customRawDraws.begin(), group.customRawDraws.end(), [&](const CustomDrawRaw& draw) -> bool { return draw.baseVertexLocation == baseVertex && draw.shaderHandle == shaderHandle && draw.vertexCountPerInstance == vtxCount; });
-
-		if (it != group.customRawDraws.end())
-		{
-			it->instances.push_back(inst);
-		}
-		else
-		{
-			group.customRawDraws.push_back({
-				.shaderHandle			= shaderHandle,
-				.baseVertexLocation		= baseVertex,
-				.vertexCountPerInstance = vtxCount,
-				.instances				= {inst},
-			});
-		}
+		group.customRawDraws.push_back({
+			.shaderID				= shaderID,
+			.shaderVariant			= shaderVariant,
+			.baseVertexLocation		= baseVertex,
+			.vertexCountPerInstance = vtxCount,
+			.instance				= inst,
+		});
 	}
 
 	void DrawCollector::PrepareGPUData(JobExecutor& executor)
@@ -249,14 +200,11 @@ namespace Lina
 		{
 			for (const ModelDraw& modelDraw : group.modelDraws)
 			{
-				for (const ModelDrawInstance& inst : modelDraw.instances)
+				if (modelDraw.instance.compModel != nullptr)
 				{
-					if (inst.compModel != nullptr)
-					{
-						const Vector<PrimitiveSkinned>& prims = inst.compModel->GetModelPtr()->GetAllMeshes().at(modelDraw.meshIndex).primitivesSkinned;
-						if (!prims.empty())
-							skinnedModels.push_back(inst.compModel);
-					}
+					const Vector<PrimitiveSkinned>& prims = modelDraw.instance.compModel->GetModelPtr()->GetAllMeshes().at(modelDraw.meshIndex).primitivesSkinned;
+					if (!prims.empty())
+						skinnedModels.push_back(modelDraw.instance.compModel);
 				}
 			}
 		}
@@ -267,193 +215,23 @@ namespace Lina
 
 		for (const DrawGroup& group : m_gpuDraw.drawGroups)
 		{
-			m_renderingData.groups.push_back({.id = group.id});
+			m_renderingData.groups.push_back({
+				.id	  = group.id,
+				.name = group.name,
+			});
 			RenderingGroup& renderingGroup = m_renderingData.groups.back();
-
-			for (const ModelDraw& modelDraw : group.modelDraws)
-			{
-				Model*		model = m_rm->GetResource<Model>(modelDraw.modelID);
-				const Mesh& mesh  = model->GetAllMeshes().at(modelDraw.meshIndex);
-
-				const uint32 instanceDataStart = static_cast<uint32>(m_renderingData.instanceData.size());
-
-				for (const ModelDrawInstance& inst : modelDraw.instances)
-				{
-					uint32 entityIndex	 = 0;
-					uint32 materialIndex = inst.materialID != 0 ? (m_rm->GetResource<Material>(inst.materialID)->GetBindlessIndex() / static_cast<uint32>(sizeof(uint32))) : 0;
-					uint32 boneIndex	 = 0;
-
-					if (inst.compModel)
-					{
-						if (!DrawEntityExists(entityIndex, inst.compModel->GetEntity()->GetGUID(), modelDraw.meshIndex, modelDraw.primitiveIndex, static_cast<uint32>(mesh.nodeIndex)))
-						{
-							entityIndex = static_cast<uint32>(m_renderingData.entities.size());
-
-							m_renderingData.entities.push_back({
-								.entity =
-									{
-										.model = inst.compModel->GetEntity()->GetTransform().GetMatrix() * inst.compModel->GetNodes().at(mesh.nodeIndex).transform.ToLocalMatrix(),
-									},
-								.uniqueID  = inst.compModel->GetEntity()->GetGUID(),
-								.uniqueID2 = modelDraw.meshIndex,
-								.uniqueID3 = modelDraw.primitiveIndex,
-								.uniqueID4 = static_cast<uint32>(mesh.nodeIndex),
-							});
-						}
-
-						bool found = false;
-
-						for (CompModel* comp : skinnedModels)
-						{
-							if (comp == inst.compModel)
-							{
-								found = true;
-								break;
-							}
-
-							const Vector<ModelSkin>& skins = comp->GetModelPtr()->GetAllSkins();
-
-							for (const ModelSkin& skin : skins)
-								boneIndex += static_cast<uint32>(skin.jointIndices.size());
-						}
-
-						if (!found)
-							boneIndex = 0;
-					}
-					else
-					{
-						entityIndex = static_cast<uint32>(m_renderingData.entities.size());
-						m_renderingData.entities.push_back({
-							.entity = inst.customEntityData,
-						});
-					}
-
-					const GPUDrawArguments arguments = {
-						.constant0 = entityIndex,
-						.constant1 = materialIndex,
-						.constant2 = boneIndex,
-					};
-
-					m_renderingData.instanceData.push_back(arguments);
-				}
-
-				if (!mesh.primitivesStatic.empty())
-				{
-					const PrimitiveStatic& prim = mesh.primitivesStatic.at(modelDraw.primitiveIndex);
-
-					const DrawCall drawCall = {
-						.shaderHandle		   = modelDraw.shaderHandle,
-						.vertexBuffer		   = &m_gfxContext->GetMeshManagerDefault().GetVtxBufferStatic(),
-						.indexBuffer		   = &m_gfxContext->GetMeshManagerDefault().GetIdxBufferStatic(),
-						.vertexSize			   = sizeof(VertexStatic),
-						.pushConstant		   = instanceDataStart,
-						.baseVertexLocation	   = prim._vertexOffset,
-						.indexCountPerInstance = static_cast<uint32>(prim.indices.size()),
-						.instanceCount		   = static_cast<uint32>(modelDraw.instances.size()),
-						.startIndexLocation	   = prim._indexOffset,
-						.startInstanceLocation = 0,
-					};
-
-					renderingGroup.drawCalls.push_back(drawCall);
-				}
-				else
-				{
-					const PrimitiveSkinned& prim = mesh.primitivesSkinned.at(modelDraw.primitiveIndex);
-
-					const DrawCall drawCall = {
-						.shaderHandle		   = modelDraw.shaderHandle,
-						.vertexBuffer		   = &m_gfxContext->GetMeshManagerDefault().GetVtxBufferSkinned(),
-						.indexBuffer		   = &m_gfxContext->GetMeshManagerDefault().GetIdxBufferSkinned(),
-						.vertexSize			   = sizeof(VertexSkinned),
-						.pushConstant		   = instanceDataStart,
-						.baseVertexLocation	   = prim._vertexOffset,
-						.indexCountPerInstance = static_cast<uint32>(prim.indices.size()),
-						.instanceCount		   = static_cast<uint32>(modelDraw.instances.size()),
-						.startIndexLocation	   = prim._indexOffset,
-						.startInstanceLocation = 0,
-					};
-
-					renderingGroup.drawCalls.push_back(drawCall);
-				}
-			}
-
-			for (const CustomDraw& customDraw : group.customDraws)
-			{
-				const uint32 baseInstance = static_cast<uint32>(m_renderingData.instanceData.size());
-
-				for (const CustomDrawInstance& inst : customDraw.instances)
-				{
-					GPUDrawArguments args = inst.args;
-
-					if (inst.useEntityAsFirstArgument)
-					{
-						args.constant0 = static_cast<uint32>(m_renderingData.entities.size());
-						m_renderingData.entities.push_back({inst.entity});
-					}
-
-					if (inst.useMaterialIDAsSecondArgument)
-					{
-						args.constant1 = m_rm->GetResource<Material>(inst.materialID)->GetBindlessIndex() / static_cast<uint32>(sizeof(uint32));
-					}
-
-					m_renderingData.instanceData.push_back(args);
-				}
-
-				const DrawCall drawCall = {
-					.shaderHandle		   = customDraw.shaderHandle,
-					.vertexBuffer		   = customDraw.vertexBuffer,
-					.indexBuffer		   = customDraw.indexBuffer,
-					.vertexSize			   = customDraw.vertexSize,
-					.pushConstant		   = baseInstance,
-					.baseVertexLocation	   = customDraw.baseVertexLocation,
-					.indexCountPerInstance = customDraw.indexCountPerInstance,
-					.instanceCount		   = static_cast<uint32>(customDraw.instances.size()),
-					.startIndexLocation	   = customDraw.startIndexLocation,
-					.startInstanceLocation = 0,
-				};
-
-				renderingGroup.drawCalls.push_back(drawCall);
-			}
-
-			for (const CustomDrawRaw& customDrawRaw : group.customRawDraws)
-			{
-				const uint32 baseInstance = static_cast<uint32>(m_renderingData.instanceData.size());
-
-				for (const CustomDrawInstance& inst : customDrawRaw.instances)
-				{
-					GPUDrawArguments args = inst.args;
-
-					if (inst.useEntityAsFirstArgument)
-					{
-						args.constant0 = static_cast<uint32>(m_renderingData.entities.size());
-						m_renderingData.entities.push_back({inst.entity});
-					}
-
-					if (inst.useMaterialIDAsSecondArgument)
-					{
-						args.constant1 = m_rm->GetResource<Material>(inst.materialID)->GetBindlessIndex() / static_cast<uint32>(sizeof(uint32));
-					}
-
-					m_renderingData.instanceData.push_back(args);
-				}
-
-				const DrawCall drawCall = {
-					.shaderHandle			= customDrawRaw.shaderHandle,
-					.pushConstant			= baseInstance,
-					.baseVertexLocation		= customDrawRaw.baseVertexLocation,
-					.instanceCount			= static_cast<uint32>(customDrawRaw.instances.size()),
-					.vertexCountPerInstance = customDrawRaw.vertexCountPerInstance,
-					.startInstanceLocation	= 0,
-				};
-
-				renderingGroup.drawCalls.push_back(drawCall);
-			}
+			PrepareModelDraws(skinnedModels, group, renderingGroup);
+			PrepareCustomDraws(group, renderingGroup);
+			PrepareCustomDrawsRaw(group, renderingGroup);
 		}
 	}
 
-	void DrawCollector::CreateGroup(StringID groupId)
+	void DrawCollector::CreateGroup(const String& name)
 	{
-		m_cpuDraw.drawGroups.push_back({.id = groupId});
+		m_cpuDraw.drawGroups.push_back({
+			.id	  = TO_SID(name),
+			.name = name,
+		});
 	}
 
 	DrawCollector::DrawGroup& DrawCollector::GetGroup(StringID groupId)
@@ -461,6 +239,19 @@ namespace Lina
 		auto it = linatl::find_if(m_cpuDraw.drawGroups.begin(), m_cpuDraw.drawGroups.end(), [groupId](const DrawGroup& g) -> bool { return groupId == g.id; });
 		LINA_ASSERT(it != m_cpuDraw.drawGroups.end(), "");
 		return *it;
+	}
+
+	DrawCollector::RenderingGroup& DrawCollector::GetRenderGroup(StringID groupId)
+	{
+		auto it = linatl::find_if(m_renderingData.groups.begin(), m_renderingData.groups.end(), [groupId](const RenderingGroup& g) -> bool { return groupId == g.id; });
+		LINA_ASSERT(it != m_renderingData.groups.end(), "");
+		return *it;
+	}
+
+	bool DrawCollector::GroupExists(StringID groupId)
+	{
+		auto it = linatl::find_if(m_cpuDraw.drawGroups.begin(), m_cpuDraw.drawGroups.end(), [groupId](const DrawGroup& g) -> bool { return groupId == g.id; });
+		return it != m_cpuDraw.drawGroups.end();
 	}
 
 	void DrawCollector::CalculateSkinning(const Vector<CompModel*>& comps, JobExecutor& executor)
@@ -582,16 +373,301 @@ namespace Lina
 		{
 			const DrawEntity& de = m_renderingData.entities.at(i);
 
-			if (de.uniqueID == 0 && de.uniqueID == de.uniqueID2 == de.uniqueID3 == de.uniqueID4)
+			if (de.entityGUID == 0 && de.entityGUID == de.uniqueID2 == de.uniqueID3 == de.uniqueID4)
 				continue;
 
-			if (de.uniqueID == uid && de.uniqueID2 == uid2 && de.uniqueID3 == uid3 && de.uniqueID4 == uid4)
+			if (de.entityGUID == uid && de.uniqueID2 == uid2 && de.uniqueID3 == uid3 && de.uniqueID4 == uid4)
 			{
 				outIndex = i;
 				return true;
 			}
 		}
 		return false;
+	}
+
+	void DrawCollector::PrepareModelDraws(Vector<CompModel*>& skinnedModels, const DrawGroup& group, RenderingGroup& renderingGroup)
+	{
+		Vector<InstancedModelDraw> modelDraws;
+		modelDraws.reserve(group.modelDraws.size());
+
+		for (const ModelDraw& draw : group.modelDraws)
+		{
+			auto it = linatl::find_if(modelDraws.begin(), modelDraws.end(), [&draw](const InstancedModelDraw& instanced) -> bool { return instanced == draw; });
+
+			if (it != modelDraws.end())
+				it->instances.push_back(draw.instance);
+			else
+			{
+				modelDraws.push_back({
+					.modelID		= draw.modelID,
+					.shaderID		= draw.shaderID,
+					.shaderVariant	= draw.shaderVariant,
+					.meshIndex		= draw.meshIndex,
+					.primitiveIndex = draw.primitiveIndex,
+					.instances		= {draw.instance},
+				});
+			}
+		}
+
+		for (const InstancedModelDraw& modelDraw : modelDraws)
+		{
+			Model*		model = m_rm->GetResource<Model>(modelDraw.modelID);
+			const Mesh& mesh  = model->GetAllMeshes().at(modelDraw.meshIndex);
+
+			const uint32 instanceDataStart = static_cast<uint32>(m_renderingData.instanceData.size());
+
+			for (const ModelDrawInstance& inst : modelDraw.instances)
+			{
+				uint32 entityIndex	 = 0;
+				uint32 materialIndex = inst.materialID != 0 ? (m_rm->GetResource<Material>(inst.materialID)->GetBindlessIndex() / static_cast<uint32>(sizeof(uint32))) : 0;
+				uint32 boneIndex	 = 0;
+
+				if (inst.compModel)
+				{
+					if (!DrawEntityExists(entityIndex, inst.compModel->GetEntity()->GetGUID(), modelDraw.meshIndex, modelDraw.primitiveIndex, static_cast<uint32>(mesh.nodeIndex)))
+					{
+						entityIndex = static_cast<uint32>(m_renderingData.entities.size());
+
+						m_renderingData.entities.push_back({
+							.entity =
+								{
+									.model = inst.compModel->GetEntity()->GetTransform().GetMatrix() * inst.compModel->GetNodes().at(mesh.nodeIndex).transform.ToLocalMatrix(),
+								},
+							.entityGUID = inst.compModel->GetEntity()->GetGUID(),
+							.uniqueID2	= modelDraw.meshIndex,
+							.uniqueID3	= modelDraw.primitiveIndex,
+							.uniqueID4	= static_cast<uint32>(mesh.nodeIndex),
+						});
+					}
+
+					bool found = false;
+
+					for (CompModel* comp : skinnedModels)
+					{
+						if (comp == inst.compModel)
+						{
+							found = true;
+							break;
+						}
+
+						const Vector<ModelSkin>& skins = comp->GetModelPtr()->GetAllSkins();
+
+						for (const ModelSkin& skin : skins)
+							boneIndex += static_cast<uint32>(skin.jointIndices.size());
+					}
+
+					if (!found)
+						boneIndex = 0;
+				}
+				else
+				{
+					if (!DrawEntityExists(entityIndex, inst.customEntityGUID, 0, 0, 0))
+					{
+						entityIndex = static_cast<uint32>(m_renderingData.entities.size());
+						m_renderingData.entities.push_back({
+							.entity		= inst.customEntityData,
+							.entityGUID = inst.customEntityGUID,
+						});
+					}
+				}
+
+				const GPUDrawArguments arguments = {
+					.constant0 = entityIndex,
+					.constant1 = materialIndex,
+					.constant2 = boneIndex,
+				};
+
+				m_renderingData.instanceData.push_back(arguments);
+			}
+
+			Shader*		 shader		  = m_rm->GetResource<Shader>(modelDraw.shaderID);
+			const uint32 shaderHandle = modelDraw.shaderVariant == 0 ? shader->GetGPUHandle() : shader->GetGPUHandle(modelDraw.shaderVariant);
+			if (!mesh.primitivesStatic.empty())
+			{
+				const PrimitiveStatic& prim = mesh.primitivesStatic.at(modelDraw.primitiveIndex);
+
+				const DrawCall drawCall = {
+					.shaderHandle		   = shaderHandle,
+					.vertexBuffer		   = &m_gfxContext->GetMeshManagerDefault().GetVtxBufferStatic(),
+					.indexBuffer		   = &m_gfxContext->GetMeshManagerDefault().GetIdxBufferStatic(),
+					.vertexSize			   = sizeof(VertexStatic),
+					.pushConstant		   = instanceDataStart,
+					.baseVertexLocation	   = prim._vertexOffset,
+					.indexCountPerInstance = static_cast<uint32>(prim.indices.size()),
+					.instanceCount		   = static_cast<uint32>(modelDraw.instances.size()),
+					.startIndexLocation	   = prim._indexOffset,
+					.startInstanceLocation = 0,
+				};
+
+				renderingGroup.drawCalls.push_back(drawCall);
+			}
+			else
+			{
+				const PrimitiveSkinned& prim = mesh.primitivesSkinned.at(modelDraw.primitiveIndex);
+
+				const DrawCall drawCall = {
+					.shaderHandle		   = shaderHandle,
+					.vertexBuffer		   = &m_gfxContext->GetMeshManagerDefault().GetVtxBufferSkinned(),
+					.indexBuffer		   = &m_gfxContext->GetMeshManagerDefault().GetIdxBufferSkinned(),
+					.vertexSize			   = sizeof(VertexSkinned),
+					.pushConstant		   = instanceDataStart,
+					.baseVertexLocation	   = prim._vertexOffset,
+					.indexCountPerInstance = static_cast<uint32>(prim.indices.size()),
+					.instanceCount		   = static_cast<uint32>(modelDraw.instances.size()),
+					.startIndexLocation	   = prim._indexOffset,
+					.startInstanceLocation = 0,
+				};
+
+				renderingGroup.drawCalls.push_back(drawCall);
+			}
+		}
+	}
+
+	void DrawCollector::PrepareCustomDraws(const DrawGroup& group, RenderingGroup& renderingGroup)
+	{
+		Vector<InstancedCustomDraw> customDraws;
+		customDraws.reserve(group.customDraws.size());
+
+		for (const CustomDraw& customDraw : group.customDraws)
+		{
+			auto it = linatl::find_if(customDraws.begin(), customDraws.end(), [&customDraw](const InstancedCustomDraw& instanced) -> bool { return instanced == customDraw; });
+
+			if (it != customDraws.end())
+				it->instances.push_back(customDraw.instance);
+			else
+			{
+				customDraws.push_back({
+					.vertexBuffer		   = customDraw.vertexBuffer,
+					.indexBuffer		   = customDraw.indexBuffer,
+					.vertexSize			   = customDraw.vertexSize,
+					.shaderID			   = customDraw.shaderID,
+					.shaderVariant		   = customDraw.shaderVariant,
+					.baseVertexLocation	   = customDraw.baseVertexLocation,
+					.indexCountPerInstance = customDraw.indexCountPerInstance,
+					.startIndexLocation	   = customDraw.startIndexLocation,
+					.instances			   = {customDraw.instance},
+				});
+			}
+		}
+
+		for (const InstancedCustomDraw& customDraw : customDraws)
+		{
+			const uint32 baseInstance = static_cast<uint32>(m_renderingData.instanceData.size());
+
+			for (const CustomDrawInstance& inst : customDraw.instances)
+			{
+				GPUDrawArguments args = inst.args;
+
+				if (inst.useEntityAsFirstArgument)
+				{
+					uint32 entityIndex = 0;
+					if (!DrawEntityExists(entityIndex, inst.entityGUID, 0, 0, 0))
+					{
+						entityIndex = static_cast<uint32>(m_renderingData.entities.size());
+						m_renderingData.entities.push_back({
+							.entity		= inst.entity,
+							.entityGUID = inst.entityGUID,
+						});
+					}
+
+					args.constant0 = entityIndex;
+				}
+
+				if (inst.useMaterialIDAsSecondArgument)
+				{
+					args.constant1 = m_rm->GetResource<Material>(inst.materialID)->GetBindlessIndex() / static_cast<uint32>(sizeof(uint32));
+				}
+
+				m_renderingData.instanceData.push_back(args);
+			}
+
+			Shader*		 shader		  = m_rm->GetResource<Shader>(customDraw.shaderID);
+			const uint32 shaderHandle = customDraw.shaderVariant == 0 ? shader->GetGPUHandle() : shader->GetGPUHandle(customDraw.shaderVariant);
+
+			const DrawCall drawCall = {
+				.shaderHandle		   = shaderHandle,
+				.vertexBuffer		   = customDraw.vertexBuffer,
+				.indexBuffer		   = customDraw.indexBuffer,
+				.vertexSize			   = customDraw.vertexSize,
+				.pushConstant		   = baseInstance,
+				.baseVertexLocation	   = customDraw.baseVertexLocation,
+				.indexCountPerInstance = customDraw.indexCountPerInstance,
+				.instanceCount		   = static_cast<uint32>(customDraw.instances.size()),
+				.startIndexLocation	   = customDraw.startIndexLocation,
+				.startInstanceLocation = 0,
+			};
+
+			renderingGroup.drawCalls.push_back(drawCall);
+		}
+	}
+
+	void DrawCollector::PrepareCustomDrawsRaw(const DrawGroup& group, RenderingGroup& renderingGroup)
+	{
+		Vector<InstancedCustomDrawRaw> customRawDraws;
+
+		for (const CustomDrawRaw& draw : group.customRawDraws)
+		{
+			auto it = linatl::find_if(customRawDraws.begin(), customRawDraws.end(), [&draw](const InstancedCustomDrawRaw& instanced) -> bool { return instanced == draw; });
+
+			if (it != customRawDraws.end())
+				it->instances.push_back(draw.instance);
+			else
+			{
+				customRawDraws.push_back({
+					.shaderID				= draw.shaderID,
+					.shaderVariant			= draw.shaderVariant,
+					.baseVertexLocation		= draw.baseVertexLocation,
+					.vertexCountPerInstance = draw.vertexCountPerInstance,
+					.instances				= {draw.instance},
+				});
+			}
+		}
+
+		for (const InstancedCustomDrawRaw& customDrawRaw : customRawDraws)
+		{
+			const uint32 baseInstance = static_cast<uint32>(m_renderingData.instanceData.size());
+
+			for (const CustomDrawInstance& inst : customDrawRaw.instances)
+			{
+				GPUDrawArguments args = inst.args;
+
+				if (inst.useEntityAsFirstArgument)
+				{
+					uint32 entityIndex = 0;
+					if (!DrawEntityExists(entityIndex, inst.entityGUID, 0, 0, 0))
+					{
+						entityIndex = static_cast<uint32>(m_renderingData.entities.size());
+						m_renderingData.entities.push_back({
+							.entity		= inst.entity,
+							.entityGUID = inst.entityGUID,
+						});
+					}
+
+					args.constant0 = entityIndex;
+				}
+
+				if (inst.useMaterialIDAsSecondArgument)
+				{
+					args.constant1 = m_rm->GetResource<Material>(inst.materialID)->GetBindlessIndex() / static_cast<uint32>(sizeof(uint32));
+				}
+
+				m_renderingData.instanceData.push_back(args);
+			}
+
+			Shader*		 shader		  = m_rm->GetResource<Shader>(customDrawRaw.shaderID);
+			const uint32 shaderHandle = customDrawRaw.shaderVariant == 0 ? shader->GetGPUHandle() : shader->GetGPUHandle(customDrawRaw.shaderVariant);
+
+			const DrawCall drawCall = {
+				.shaderHandle			= shaderHandle,
+				.pushConstant			= baseInstance,
+				.baseVertexLocation		= customDrawRaw.baseVertexLocation,
+				.instanceCount			= static_cast<uint32>(customDrawRaw.instances.size()),
+				.vertexCountPerInstance = customDrawRaw.vertexCountPerInstance,
+				.startInstanceLocation	= 0,
+			};
+
+			renderingGroup.drawCalls.push_back(drawCall);
+		}
 	}
 
 } // namespace Lina

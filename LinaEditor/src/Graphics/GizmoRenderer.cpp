@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Core/Application.hpp"
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
 #include "Core/Graphics/Renderers/DrawCollector.hpp"
+#include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/World/Entity.hpp"
 #include "Core/World/EntityWorld.hpp"
 
@@ -89,7 +90,8 @@ namespace Lina::Editor
 				{
 					.model = Matrix4::TransformMatrix(m_selected->GetPosition(), Quaternion::AngleAxis(90, -Vector3::Forward), Vector3(distScale)),
 				},
-			.materialID = m_gizmoMaterialX->GetID(),
+			.customEntityGUID = 100,
+			.materialID		  = m_gizmoMaterialX->GetID(),
 		};
 
 		const DrawCollector::ModelDrawInstance inst1 = {
@@ -97,7 +99,8 @@ namespace Lina::Editor
 				{
 					.model = Matrix4::TransformMatrix(m_selected->GetPosition(), Quaternion::Identity(), Vector3(distScale)),
 				},
-			.materialID = m_gizmoMaterialY->GetID(),
+			.customEntityGUID = 101,
+			.materialID		  = m_gizmoMaterialY->GetID(),
 		};
 
 		const DrawCollector::ModelDrawInstance inst2 = {
@@ -105,12 +108,25 @@ namespace Lina::Editor
 				{
 					.model = Matrix4::TransformMatrix(m_selected->GetPosition(), Quaternion::AngleAxis(90, Vector3::Right), Vector3(distScale)),
 				},
-			.materialID = m_gizmoMaterialZ->GetID(),
+			.customEntityGUID = 102,
+			.materialID		  = m_gizmoMaterialZ->GetID(),
 		};
 
-		collector.AddModelDraw(collector.GetGroup("Forward"_hs), EDITOR_MODEL_GIZMO_TRANSLATE_ID, 0, 0, m_gizmoShader->GetGPUHandle(), inst0);
-		collector.AddModelDraw(collector.GetGroup("Forward"_hs), EDITOR_MODEL_GIZMO_TRANSLATE_ID, 0, 0, m_gizmoShader->GetGPUHandle(), inst1);
-		collector.AddModelDraw(collector.GetGroup("Forward"_hs), EDITOR_MODEL_GIZMO_TRANSLATE_ID, 0, 0, m_gizmoShader->GetGPUHandle(), inst2);
+		collector.CreateGroup("Gizmo");
+		collector.AddModelDraw(collector.GetGroup("Gizmo"_hs), EDITOR_MODEL_GIZMO_TRANSLATE_ID, 0, 0, m_gizmoShader->GetID(), 0, inst0);
+		collector.AddModelDraw(collector.GetGroup("Gizmo"_hs), EDITOR_MODEL_GIZMO_TRANSLATE_ID, 0, 0, m_gizmoShader->GetID(), 0, inst1);
+		collector.AddModelDraw(collector.GetGroup("Gizmo"_hs), EDITOR_MODEL_GIZMO_TRANSLATE_ID, 0, 0, m_gizmoShader->GetID(), 0, inst2);
+	}
+
+	void GizmoRenderer::OnRenderPassPost(uint32 frameIndex, LinaGX::CommandStream* stream, RenderPassType type)
+	{
+		if (m_selected == nullptr)
+			return;
+
+		if (type != RenderPassType::RENDER_PASS_FORWARD)
+			return;
+
+		m_wr->GetDrawCollector().RenderGroup("Gizmo"_hs, stream);
 	}
 
 } // namespace Lina::Editor

@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
+#include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/Application.hpp"
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
 #include "Core/Graphics/Renderers/DrawCollector.hpp"
@@ -75,7 +76,16 @@ namespace Lina::Editor
 			.useMaterialIDAsSecondArgument = true,
 		};
 
-		collector.AddCustomDrawRaw(collector.GetGroup("Forward"_hs), inst, m_gridShader->GetGPUHandle(), 0, 6);
+		collector.CreateGroup("Grid");
+		collector.AddCustomDrawRaw(collector.GetGroup("Grid"_hs), inst, m_gridShader->GetID(), 0, 0, 6);
+	}
+
+	void GridRenderer::OnRenderPass(uint32 frameIndex, LinaGX::CommandStream* stream, RenderPassType type)
+	{
+		if (type != RenderPassType::RENDER_PASS_FORWARD)
+			return;
+
+		m_wr->GetDrawCollector().RenderGroup("Grid"_hs, stream);
 	}
 
 } // namespace Lina::Editor

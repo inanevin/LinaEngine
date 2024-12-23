@@ -189,6 +189,16 @@ namespace Lina
 			return m_drawCollector;
 		}
 
+		inline SemaphoreData& GetSignalSemaphoreData(uint32 frameIndex)
+		{
+			return m_pfd[frameIndex].signalSemaphore;
+		}
+
+		inline SemaphoreData& GetCopySemaphoreData(uint32 frameIndex)
+		{
+			return m_pfd[frameIndex].copySemaphore;
+		}
+
 	private:
 		void   UpdateBuffers(uint32 frameIndex);
 		void   CreateSizeRelativeResources();

@@ -96,8 +96,8 @@ namespace Lina::Editor
 
 		if (meta.shaderType == ShaderType::Custom)
 		{
-			ShaderPreprocessor::InjectVersionAndExtensions(vertexBlock);
-			ShaderPreprocessor::InjectVersionAndExtensions(fragBlock);
+			ShaderPreprocessor::InjectVersionAndExtensions(vertexBlock, true);
+			ShaderPreprocessor::InjectVersionAndExtensions(fragBlock, true);
 
 			for (ShaderVariant& variant : meta.variants)
 			{
@@ -120,13 +120,13 @@ namespace Lina::Editor
 		{
 			const String vertex = ShaderPreprocessor::MakeVariantBlock(vertexBlock, "Resources/Core/Shaders/Common/MainVertexSimple.linashader", "Resources/Core/Shaders/Common/RenderPass_Forward.linashader");
 			const String frag	= ShaderPreprocessor::MakeVariantBlock(fragBlock, "Resources/Core/Shaders/Common/MainFragSimple.linashader", "Resources/Core/Shaders/Common/RenderPass_Forward.linashader");
-			meta.variants.push_back(ShaderPreprocessor::MakeVariant("Default", vertex, frag, LinaGX::CullMode::None, BlendMode::Opaque, DepthTesting::None, RenderPassType::RENDER_PASS_FORWARD));
+			meta.variants.push_back(ShaderPreprocessor::MakeVariant("Default", vertex, frag, LinaGX::CullMode::None, BlendMode::Opaque, DepthTesting::None, {DEFAULT_RT_FORMAT}));
 		}
 		else if (meta.shaderType == ShaderType::Sky)
 		{
 			const String  vertex  = ShaderPreprocessor::MakeVariantBlock(vertexBlock, "Resources/Core/Shaders/Common/MainVertexSky.linashader", "Resources/Core/Shaders/Common/RenderPass_Forward.linashader");
 			const String  frag	  = ShaderPreprocessor::MakeVariantBlock(fragBlock, "Resources/Core/Shaders/Common/MainFragSimple.linashader", "Resources/Core/Shaders/Common/RenderPass_Forward.linashader");
-			ShaderVariant variant = ShaderPreprocessor::MakeVariant("Default", vertex, frag, LinaGX::CullMode::None, BlendMode::Opaque, DepthTesting::Test, RenderPassType::RENDER_PASS_FORWARD);
+			ShaderVariant variant = ShaderPreprocessor::MakeVariant("Default", vertex, frag, LinaGX::CullMode::None, BlendMode::Opaque, DepthTesting::Test, {DEFAULT_RT_FORMAT});
 			variant.depthOp		  = LinaGX::CompareOp::Equal;
 			meta.variants.push_back(variant);
 		}
@@ -136,28 +136,48 @@ namespace Lina::Editor
 			{
 				const String vertex = ShaderPreprocessor::MakeVariantBlock(vertexBlock, "Resources/Core/Shaders/Common/MainVertexStatic.linashader", "Resources/Core/Shaders/Common/RenderPass_Deferred.linashader");
 				const String frag	= ShaderPreprocessor::MakeVariantBlock(fragBlock, "Resources/Core/Shaders/Common/MainFragSurface.linashader", "Resources/Core/Shaders/Common/RenderPass_Deferred.linashader");
-				meta.variants.push_back(ShaderPreprocessor::MakeVariant("Static", vertex, frag, LinaGX::CullMode::Back, BlendMode::Opaque, DepthTesting::TestWrite, RenderPassType::RENDER_PASS_DEFERRED));
+				meta.variants.push_back(ShaderPreprocessor::MakeVariant("Static",
+																		vertex,
+																		frag,
+																		LinaGX::CullMode::Back,
+																		BlendMode::Opaque,
+																		DepthTesting::TestWrite,
+																		{
+																			DEFAULT_RT_FORMAT,
+																			DEFAULT_RT_FORMAT,
+																			DEFAULT_RT_FORMAT,
+																		}));
 			}
 
 			// Skinned
 			{
 				const String vertex = ShaderPreprocessor::MakeVariantBlock(vertexBlock, "Resources/Core/Shaders/Common/MainVertexSkinned.linashader", "Resources/Core/Shaders/Common/RenderPass_Deferred.linashader");
 				const String frag	= ShaderPreprocessor::MakeVariantBlock(fragBlock, "Resources/Core/Shaders/Common/MainFragSurface.linashader", "Resources/Core/Shaders/Common/RenderPass_Deferred.linashader");
-				meta.variants.push_back(ShaderPreprocessor::MakeVariant("Skinned", vertex, frag, LinaGX::CullMode::Back, BlendMode::Opaque, DepthTesting::TestWrite, RenderPassType::RENDER_PASS_DEFERRED));
+				meta.variants.push_back(ShaderPreprocessor::MakeVariant("Skinned",
+																		vertex,
+																		frag,
+																		LinaGX::CullMode::Back,
+																		BlendMode::Opaque,
+																		DepthTesting::TestWrite,
+																		{
+																			DEFAULT_RT_FORMAT,
+																			DEFAULT_RT_FORMAT,
+																			DEFAULT_RT_FORMAT,
+																		}));
 			}
 
 			// Static - Entity ID Support
 			{
 				const String vertex = ShaderPreprocessor::MakeVariantBlock(vertexBlock, "Resources/Editor/Shaders/Common/MainVertexStatic_EntityID.linashader", "Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader");
 				const String frag	= ShaderPreprocessor::MakeVariantBlock(fragBlock, "Resources/Editor/Shaders/Common/MainFrag_EntityID.linashader", "Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader");
-				meta.variants.push_back(ShaderPreprocessor::MakeVariant("StaticEntityID", vertex, frag, LinaGX::CullMode::Back, BlendMode::Opaque, DepthTesting::TestWrite, RenderPassType::RENDER_PASS_FORWARD));
+				meta.variants.push_back(ShaderPreprocessor::MakeVariant("StaticEntityID", vertex, frag, LinaGX::CullMode::Back, BlendMode::Opaque, DepthTesting::TestWrite, {LinaGX::Format::R32_UINT}));
 			}
 
 			// Skinned - Entity ID Support
 			{
 				const String vertex = ShaderPreprocessor::MakeVariantBlock(vertexBlock, "Resources/Editor/Shaders/Common/MainVertexSkinned_EntityID.linashader", "Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader");
 				const String frag	= ShaderPreprocessor::MakeVariantBlock(fragBlock, "Resources/Editor/Shaders/Common/MainFrag_EntityID.linashader", "Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader");
-				meta.variants.push_back(ShaderPreprocessor::MakeVariant("SkinnedEntityID", vertex, frag, LinaGX::CullMode::Back, BlendMode::Opaque, DepthTesting::TestWrite, RenderPassType::RENDER_PASS_FORWARD));
+				meta.variants.push_back(ShaderPreprocessor::MakeVariant("SkinnedEntityID", vertex, frag, LinaGX::CullMode::Back, BlendMode::Opaque, DepthTesting::TestWrite, {LinaGX::Format::R32_UINT}));
 			}
 		}
 		else if (meta.shaderType == ShaderType::ForwardSurface)
@@ -166,28 +186,28 @@ namespace Lina::Editor
 			{
 				const String vertex = ShaderPreprocessor::MakeVariantBlock(vertexBlock, "Resources/Core/Shaders/Common/MainVertexStatic.linashader", "Resources/Core/Shaders/Common/RenderPass_Forward.linashader");
 				const String frag	= ShaderPreprocessor::MakeVariantBlock(fragBlock, "Resources/Core/Shaders/Common/MainFragSimple.linashader", "Resources/Core/Shaders/Common/RenderPass_Forward.linashader");
-				meta.variants.push_back(ShaderPreprocessor::MakeVariant("Static", vertex, frag, LinaGX::CullMode::Back, BlendMode::AlphaBlend, DepthTesting::TestWrite, RenderPassType::RENDER_PASS_FORWARD));
+				meta.variants.push_back(ShaderPreprocessor::MakeVariant("Static", vertex, frag, LinaGX::CullMode::Back, BlendMode::AlphaBlend, DepthTesting::TestWrite, {DEFAULT_RT_FORMAT}));
 			}
 
 			// Skinned
 			{
 				const String vertex = ShaderPreprocessor::MakeVariantBlock(vertexBlock, "Resources/Core/Shaders/Common/MainVertexSkinned.linashader", "Resources/Core/Shaders/Common/RenderPass_Forward.linashader");
 				const String frag	= ShaderPreprocessor::MakeVariantBlock(fragBlock, "Resources/Core/Shaders/Common/MainFragSimple.linashader", "Resources/Core/Shaders/Common/RenderPass_Forward.linashader");
-				meta.variants.push_back(ShaderPreprocessor::MakeVariant("Skinned", vertex, frag, LinaGX::CullMode::Back, BlendMode::AlphaBlend, DepthTesting::TestWrite, RenderPassType::RENDER_PASS_FORWARD));
+				meta.variants.push_back(ShaderPreprocessor::MakeVariant("Skinned", vertex, frag, LinaGX::CullMode::Back, BlendMode::AlphaBlend, DepthTesting::TestWrite, {DEFAULT_RT_FORMAT}));
 			}
 
 			// Static - Entity ID Support
 			{
 				const String vertex = ShaderPreprocessor::MakeVariantBlock(vertexBlock, "Resources/Editor/Shaders/Common/MainVertexStatic_EntityID.linashader", "Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader");
-				const String frag	= ShaderPreprocessor::MakeVariantBlock(fragBlock, "Resources/Editor/Shaders/Common/MainFrag_EntityID.linashader", "Resources/Core/Shaders/Common/RenderPass_EntityID.linashader");
-				meta.variants.push_back(ShaderPreprocessor::MakeVariant("StaticEntityID", vertex, frag, LinaGX::CullMode::Back, BlendMode::Opaque, DepthTesting::TestWrite, RenderPassType::RENDER_PASS_FORWARD));
+				const String frag	= ShaderPreprocessor::MakeVariantBlock(fragBlock, "Resources/Editor/Shaders/Common/MainFrag_EntityID.linashader", "Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader");
+				meta.variants.push_back(ShaderPreprocessor::MakeVariant("StaticEntityID", vertex, frag, LinaGX::CullMode::Back, BlendMode::Opaque, DepthTesting::TestWrite, {LinaGX::Format::R32_UINT}));
 			}
 
 			// Skinned - Entity ID Support
 			{
 				const String vertex = ShaderPreprocessor::MakeVariantBlock(vertexBlock, "Resources/Editor/Shaders/Common/MainVertexSkinned_EntityID.linashader", "Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader");
-				const String frag	= ShaderPreprocessor::MakeVariantBlock(fragBlock, "Resources/Editor/Shaders/Common/MainFrag_EntityID.linashader", "Resources/Core/Shaders/Common/RenderPass_EntityID.linashader");
-				meta.variants.push_back(ShaderPreprocessor::MakeVariant("SkinnedEntityID", vertex, frag, LinaGX::CullMode::Back, BlendMode::Opaque, DepthTesting::TestWrite, RenderPassType::RENDER_PASS_FORWARD));
+				const String frag	= ShaderPreprocessor::MakeVariantBlock(fragBlock, "Resources/Editor/Shaders/Common/MainFrag_EntityID.linashader", "Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader");
+				meta.variants.push_back(ShaderPreprocessor::MakeVariant("SkinnedEntityID", vertex, frag, LinaGX::CullMode::Back, BlendMode::Opaque, DepthTesting::TestWrite, {LinaGX::Format::R32_UINT}));
 			}
 		}
 

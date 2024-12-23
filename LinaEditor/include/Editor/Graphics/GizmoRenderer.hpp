@@ -54,6 +54,7 @@ namespace Lina::Editor
 		}
 
 		virtual void ProduceFrame(DrawCollector& collector) override;
+		virtual void OnRenderPassPost(uint32 frameIndex, LinaGX::CommandStream* stream, RenderPassType type) override;
 
 	private:
 		Entity*	  m_selected	   = nullptr;

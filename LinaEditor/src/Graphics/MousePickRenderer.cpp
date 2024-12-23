@@ -96,7 +96,8 @@ namespace Lina::Editor
 
 	MousePickRenderer::~MousePickRenderer()
 	{
-		DestroySizeRelativeResources();
+		if (m_pfd[0].depthTarget)
+			DestroySizeRelativeResources();
 		m_entityBufferPass.Destroy();
 		m_lgx->DestroyPipelineLayout(m_pipelineLayout);
 		// m_rm->DestroyResource(m_gridMaterial);
@@ -109,20 +110,14 @@ namespace Lina::Editor
 		{
 			PerFrameData& data = m_pfd[i];
 
-			if (data.depthTarget != nullptr)
-			{
-				data.depthTarget->DestroyHW();
-				m_rm->DestroyResource(data.depthTarget);
-				data.depthTarget = nullptr;
-			}
+			data.depthTarget->DestroyHW();
+			data.renderTarget->DestroyHW();
+			data.snapshotBuffer.Destroy();
 
-			if (data.renderTarget != nullptr)
-			{
+			m_rm->DestroyResource(data.renderTarget);
+			m_rm->DestroyResource(data.depthTarget);
 
-				data.renderTarget->DestroyHW();
-				m_rm->DestroyResource(data.renderTarget);
-				data.renderTarget = nullptr;
-			}
+			data.renderTarget = data.depthTarget = nullptr;
 		}
 	}
 
@@ -130,8 +125,8 @@ namespace Lina::Editor
 	{
 		m_size							 = size;
 		const LinaGX::TextureDesc rtDesc = {
-			.format = DEFAULT_RT_FORMAT,
-			.flags	= LinaGX::TF_ColorAttachment | LinaGX::TF_Sampled,
+			.format = LinaGX::Format::R32_UINT,
+			.flags	= LinaGX::TF_ColorAttachment | LinaGX::TF_Sampled | LinaGX::TF_CopySource,
 			.width	= size.x,
 			.height = size.y,
 		};
@@ -154,6 +149,8 @@ namespace Lina::Editor
 			data.depthTarget->GenerateHWFromDesc(depthDesc);
 			m_entityBufferPass.SetColorAttachment(i, 0, {.clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.renderTarget->GetGPUHandle(), .isSwapchain = false});
 			m_entityBufferPass.DepthStencilAttachment(i, {.useDepth = true, .texture = data.depthTarget->GetGPUHandle(), .depthLoadOp = LinaGX::LoadOp::Clear, .depthStoreOp = LinaGX::StoreOp::Store, .clearDepth = 1.0f});
+
+			data.snapshotBuffer.Create(LinaGX::ResourceTypeHint::TH_ReadbackDest, m_size.x * m_size.y * 4, "MousePickerSnapshot", true);
 		}
 	}
 
@@ -179,16 +176,37 @@ namespace Lina::Editor
 
 	void MousePickRenderer::ProduceFrame(DrawCollector& collector)
 	{
-		collector.CreateGroup("EntityIDs"_hs);
+		collector.CreateGroup("MousePick");
+		DrawCollector::DrawGroup& group = collector.GetGroup("MousePick"_hs);
 
-		View cameraView = {};
-		cameraView.SetView(m_world->GetWorldCamera().GetView());
-		collector.CollectCompModels(collector.GetGroup("EntityIDs"_hs), cameraView, "StaticEntityID"_hs, "SkinnedEntityID"_hs, ShaderType::DeferredSurface);
-		collector.CollectCompModels(collector.GetGroup("EntityIDs"_hs), cameraView, "StaticEntityID"_hs, "SkinnedEntityID"_hs, ShaderType::ForwardSurface);
+		const DrawCollector::DrawGroup& deferredObjects = collector.GetGroup("Deferred"_hs);
+		const DrawCollector::DrawGroup& forwardObjects	= collector.GetGroup("Forward"_hs);
+
+		group.AddOtherWithOverride(deferredObjects, "StaticEntityID"_hs, "SkinnedEntityID"_hs);
+		group.AddOtherWithOverride(forwardObjects, "StaticEntityID"_hs, "SkinnedEntityID"_hs);
+
+		if (collector.GroupExists("Gizmo"_hs))
+		{
+			group.AddOtherWithOverride(collector.GetGroup("Gizmo"_hs), "StaticEntityID"_hs, 0);
+		}
 	}
 
-	void MousePickRenderer::PostRender(uint32 frameIndex, LinaGX::CommandStream* stream, const LinaGX::Viewport& vp, const LinaGX::ScissorsRect& sc)
+	void MousePickRenderer::OnPostRender(uint32 frameIndex, LinaGX::CommandStream* stream, const LinaGX::Viewport& vp, const LinaGX::ScissorsRect& sc)
 	{
+		PerFrameData& pfd = m_pfd[frameIndex];
+
+		if (m_pickEntityRequest)
+		{
+			uint32*		 mapping	 = reinterpret_cast<uint32*>(pfd.snapshotBuffer.GetMapped());
+			const uint32 pixel		 = m_size.x * m_pickEntityPosition.y + m_pickEntityPosition.x;
+			uint32		 entityIndex = (mapping[pixel]);
+
+			m_pickEntityRequest = false;
+
+			const EntityID entityID = m_lastEntityIDs.at(entityIndex);
+
+			LINA_TRACE("Entity index is {0} {1}", entityIndex, entityID);
+		}
 		DrawCollector& drawCollector = m_wr->GetDrawCollector();
 
 		// FORWARD PASS
@@ -198,7 +216,7 @@ namespace Lina::Editor
 			m_entityBufferPass.Begin(stream, vp, sc, frameIndex);
 			m_entityBufferPass.BindDescriptors(stream, frameIndex, m_pipelineLayout, 1);
 
-			drawCollector.RenderGroup("EntityIDs"_hs, stream);
+			drawCollector.RenderGroup("MousePick"_hs, stream);
 
 			m_entityBufferPass.End(stream);
 
@@ -207,16 +225,74 @@ namespace Lina::Editor
 			barrier->dstStageFlags		 = LinaGX::PSF_FragmentShader;
 			barrier->textureBarrierCount = 1;
 			barrier->textureBarriers	 = stream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 1);
-			barrier->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(m_pfd[frameIndex].renderTarget->GetGPUHandle());
+			barrier->textureBarriers[0]	 = {
+				 .texture		 = pfd.renderTarget->GetGPUHandle(),
+				 .isSwapchain	 = false,
+				 .toState		 = LinaGX::TextureBarrierState::TransferSource,
+				 .srcAccessFlags = LinaGX::AF_ColorAttachmentRead,
+				 .dstAccessFlags = LinaGX::AF_ShaderRead,
+			 };
+
+			LinaGX::CMDCopyTexture2DToBuffer* copy = stream->AddCommand<LinaGX::CMDCopyTexture2DToBuffer>();
+			copy->destBuffer					   = m_pfd[frameIndex].snapshotBuffer.GetGPUResource();
+			copy->srcLayer						   = 0;
+			copy->srcMip						   = 0;
+			copy->srcTexture					   = m_pfd[frameIndex].renderTarget->GetGPUHandle();
+
+			// Fetch last entities.
+			{
+				const Vector<DrawCollector::DrawEntity>& drawEntities	  = drawCollector.GetRenderingData().entities;
+				const size_t							 drawEntitiesSize = drawEntities.size();
+				m_lastEntityIDs.resize(drawEntitiesSize);
+				for (size_t i = 0; i < drawEntitiesSize; i++)
+					m_lastEntityIDs[i] = drawEntities.at(i).entityGUID;
+			}
 
 			DEBUG_LABEL_END(stream);
 		}
+	}
+
+	void MousePickRenderer::OnPostSubmit(uint32 frameIndex, LinaGX::CommandStream* stream)
+	{
+		return;
+
+		SemaphoreData& copySem	 = m_wr->GetCopySemaphoreData(frameIndex);
+		SemaphoreData& signalSem = m_wr->GetSignalSemaphoreData(frameIndex);
+
+		LinaGX::CMDCopyTexture2DToBuffer* copy = stream->AddCommand<LinaGX::CMDCopyTexture2DToBuffer>();
+		copy->destBuffer					   = m_pfd[frameIndex].snapshotBuffer.GetGPUResource();
+		copy->srcLayer						   = 0;
+		copy->srcMip						   = 0;
+		copy->srcTexture					   = m_pfd[frameIndex].renderTarget->GetGPUHandle();
+
+		copySem.Increment();
+		m_lgx->CloseCommandStreams(&stream, 1);
+		m_lgx->SubmitCommandStreams({
+			.targetQueue		  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Graphics),
+			.streams			  = &stream,
+			.streamCount		  = 1,
+			.useWait			  = true,
+			.waitCount			  = 1,
+			.waitSemaphores		  = signalSem.GetSemaphorePtr(),
+			.waitValues			  = signalSem.GetValuePtr(),
+			.useSignal			  = true,
+			.signalCount		  = 1,
+			.signalSemaphores	  = copySem.GetSemaphorePtr(),
+			.signalValues		  = copySem.GetValuePtr(),
+			.standaloneSubmission = false,
+		});
 	}
 
 	void MousePickRenderer::GetBarriersTextureToAttachment(uint32 frameIndex, Vector<LinaGX::TextureBarrier>& outBarriers)
 	{
 		outBarriers.push_back(GfxHelpers::GetTextureBarrierColorRead2Att(m_pfd[frameIndex].renderTarget->GetGPUHandle()));
 		outBarriers.push_back(GfxHelpers::GetTextureBarrierDepthRead2Att(m_pfd[frameIndex].depthTarget->GetGPUHandle()));
+	}
+
+	void MousePickRenderer::PickEntity(const Vector2& position)
+	{
+		m_pickEntityRequest	 = true;
+		m_pickEntityPosition = position;
 	}
 
 } // namespace Lina::Editor

@@ -255,19 +255,19 @@ namespace Lina::Editor
 		m_compModel->GetAnimationController().SelectAnimation(m_displayAnimation);
 		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {}, m_resourceSpace);
 
-		// Entity* caps  = WorldUtility::AddModelToWorld(m_world,rm.GetIfExists<Model>(EDITOR_MODEL_CAPSULE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
-		// Entity* caps2 = WorldUtility::AddModelToWorld(m_world,rm.GetIfExists<Model>(EDITOR_MODEL_CAPSULE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
-		// Entity* caps3 = WorldUtility::AddModelToWorld(m_world,rm.GetIfExists<Model>(EDITOR_MODEL_CAPSULE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
-		// Entity* sph	  = WorldUtility::AddModelToWorld(m_world,rm.GetIfExists<Model>(EDITOR_MODEL_SPHERE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
-		// Entity* sph2  = WorldUtility::AddModelToWorld(m_world,rm.GetIfExists<Model>(EDITOR_MODEL_SPHERE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
-		// Entity* aq	  = WorldUtility::AddModelToWorld(m_world,model, model->GetMeta().materials);
-		//
-		// caps->SetPosition(Vector3(1, 0, 0));
-		// caps2->SetPosition(Vector3(2, 0, 0));
-		// caps3->SetPosition(Vector3(4, 0, 0));
-		// sph->SetPosition(Vector3(-1, 0, 0));
-		// sph2->SetPosition(Vector3(-3, 0, 0));
-		// aq->SetPosition(Vector3(0, -1, 0));
+		Entity* caps  = WorldUtility::AddModelToWorld(m_world, rm.GetIfExists<Model>(EDITOR_MODEL_CAPSULE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
+		Entity* caps2 = WorldUtility::AddModelToWorld(m_world, rm.GetIfExists<Model>(EDITOR_MODEL_CAPSULE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
+		Entity* caps3 = WorldUtility::AddModelToWorld(m_world, rm.GetIfExists<Model>(EDITOR_MODEL_CAPSULE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
+		Entity* sph	  = WorldUtility::AddModelToWorld(m_world, rm.GetIfExists<Model>(EDITOR_MODEL_SPHERE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
+		Entity* sph2  = WorldUtility::AddModelToWorld(m_world, rm.GetIfExists<Model>(EDITOR_MODEL_SPHERE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
+		Entity* aq	  = WorldUtility::AddModelToWorld(m_world, model, model->GetMeta().materials);
+
+		caps->SetPosition(Vector3(1, 0, 0));
+		caps2->SetPosition(Vector3(2, 0, 0));
+		caps3->SetPosition(Vector3(4, 0, 0));
+		sph->SetPosition(Vector3(-1, 0, 0));
+		sph2->SetPosition(Vector3(-3, 0, 0));
+		aq->SetPosition(Vector3(0, -1, 0));
 	}
 
 } // namespace Lina::Editor

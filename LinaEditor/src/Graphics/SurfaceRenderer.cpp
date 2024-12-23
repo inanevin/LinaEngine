@@ -53,6 +53,21 @@ namespace Lina::Editor
 #define VSYNC_DX LinaGX::DXVsync::None
 #define VSYNC_VK LinaGX::VKVsync::None
 
+#ifdef LINA_DEBUG
+#define DEBUG_LABEL_BEGIN(Stream, LABEL)                                                                                                                                                                                                                           \
+	{                                                                                                                                                                                                                                                              \
+		LinaGX::CMDDebugBeginLabel* debug = Stream->AddCommand<LinaGX::CMDDebugBeginLabel>();                                                                                                                                                                      \
+		debug->label					  = LABEL;                                                                                                                                                                                                                 \
+	}
+#define DEBUG_LABEL_END(Stream)                                                                                                                                                                                                                                    \
+	{                                                                                                                                                                                                                                                              \
+		Stream->AddCommand<LinaGX::CMDDebugEndLabel>();                                                                                                                                                                                                            \
+	}
+#else
+#define DEBUG_LABEL_BEGIN(Stream, LABEL)
+#define DEBUG_LABEL_END(Stream)
+#endif
+
 	SurfaceRenderer::SurfaceRenderer(Editor* editor, LinaGX::Window* window, const Color& clearColor) : m_window(window)
 	{
 		m_editor			= editor;
@@ -539,6 +554,7 @@ namespace Lina::Editor
 
 		m_guiPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_editor->GetEditorRenderer().GetPipelineLayoutGUI(), 1);
 
+		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Surface Renderer");
 		// Begin render pass
 		m_guiPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
 
@@ -588,6 +604,8 @@ namespace Lina::Editor
 
 		// End render pass
 		m_guiPass.End(currentFrame.gfxStream);
+
+		DEBUG_LABEL_END(currentFrame.gfxStream);
 
 		// Barrier to Present
 		LinaGX::CMDBarrier* barrierToPresent  = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();

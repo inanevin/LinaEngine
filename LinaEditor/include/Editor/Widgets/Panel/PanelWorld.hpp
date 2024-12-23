@@ -65,6 +65,8 @@ namespace Lina::Editor
 		virtual void OnPayloadEnded(PayloadType type, Widget* payload) override;
 		virtual bool OnPayloadDropped(PayloadType type, Widget* payload) override;
 
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
+
 		virtual LinaGX::Window* OnPayloadGetWindow()
 		{
 			return m_lgxWindow;

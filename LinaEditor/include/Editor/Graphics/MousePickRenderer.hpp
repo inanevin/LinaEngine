@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/Graphics/Renderers/FeatureRenderer.hpp"
 #include "Core/Graphics/Pipeline/Buffer.hpp"
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
+#include "Core/World/CommonWorld.hpp"
 
 namespace Lina
 {
@@ -51,6 +52,7 @@ namespace Lina::Editor
 		{
 			Texture* depthTarget  = nullptr;
 			Texture* renderTarget = nullptr;
+			Buffer	 snapshotBuffer;
 		};
 		MousePickRenderer(Editor* editor, LinaGX::Instance* lgx, EntityWorld* world, WorldRenderer* wr, ResourceManagerV2* rm);
 		virtual ~MousePickRenderer();
@@ -60,17 +62,23 @@ namespace Lina::Editor
 
 		virtual void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue) override;
 		virtual void ProduceFrame(DrawCollector& collector) override;
-		virtual void PostRender(uint32 frameIndex, LinaGX::CommandStream* stream, const LinaGX::Viewport& vp, const LinaGX::ScissorsRect& sc) override;
+		virtual void OnPostRender(uint32 frameIndex, LinaGX::CommandStream* stream, const LinaGX::Viewport& vp, const LinaGX::ScissorsRect& sc) override;
+		virtual void OnPostSubmit(uint32 frameIndex, LinaGX::CommandStream* stream) override;
 
 		virtual void GetBarriersTextureToAttachment(uint32 frameIndex, Vector<LinaGX::TextureBarrier>& outBarriers) override;
 
+		void PickEntity(const Vector2& position);
+
 	private:
-		GfxContext*	 m_gfxContext = nullptr;
-		RenderPass	 m_entityBufferPass;
-		Shader*		 m_shader = nullptr;
-		Editor*		 m_editor = nullptr;
-		PerFrameData m_pfd[FRAMES_IN_FLIGHT];
-		uint16		 m_pipelineLayout = 0;
-		Vector2ui	 m_size			  = Vector2ui::Zero;
+		GfxContext*		 m_gfxContext = nullptr;
+		RenderPass		 m_entityBufferPass;
+		Shader*			 m_shader = nullptr;
+		Editor*			 m_editor = nullptr;
+		PerFrameData	 m_pfd[FRAMES_IN_FLIGHT];
+		uint16			 m_pipelineLayout = 0;
+		Vector2ui		 m_size			  = Vector2ui::Zero;
+		Vector<EntityID> m_lastEntityIDs;
+		bool			 m_pickEntityRequest  = false;
+		Vector2			 m_pickEntityPosition = Vector2::Zero;
 	};
 } // namespace Lina::Editor

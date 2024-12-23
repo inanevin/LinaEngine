@@ -350,13 +350,21 @@ namespace Lina
 		return true;
 	}
 
-	void ShaderPreprocessor::InjectVersionAndExtensions(String& input)
+	void ShaderPreprocessor::InjectVersionAndExtensions(String& input, bool insertAtHeader)
 	{
 		const String versionDirective	   = "#version 460 \n";
 		const String dynamicIndexDirective = "#extension GL_EXT_nonuniform_qualifier : enable\n";
 
-		input.insert(input.length(), versionDirective);
-		input.insert(input.length(), dynamicIndexDirective);
+		if (insertAtHeader)
+		{
+			input.insert(0, versionDirective);
+			input.insert(versionDirective.length(), dynamicIndexDirective);
+		}
+		else
+		{
+			input.insert(input.length(), versionDirective);
+			input.insert(input.length(), dynamicIndexDirective);
+		}
 	}
 
 	bool ShaderPreprocessor::InjectMaterialIfRequired(String& input, Vector<ShaderPropertyDefinition>& outProperties)
@@ -466,7 +474,7 @@ namespace Lina
 		return finalStr;
 	}
 
-	ShaderVariant ShaderPreprocessor::MakeVariant(const String& name, const String& vertexBlock, const String& fragBlock, LinaGX::CullMode cull, BlendMode blend, DepthTesting depth, RenderPassType rpType)
+	ShaderVariant ShaderPreprocessor::MakeVariant(const String& name, const String& vertexBlock, const String& fragBlock, LinaGX::CullMode cull, BlendMode blend, DepthTesting depth, const Vector<LinaGX::Format>& targets)
 	{
 		const String includePath = FileSystem::GetRunningDirectory();
 
@@ -493,12 +501,10 @@ namespace Lina
 		ApplyBlending(variant, blend);
 		ApplyDepth(variant, depth);
 
-		if (rpType == RenderPassType::RENDER_PASS_DEFERRED)
-		{
-			variant.targets = {{.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}};
-		}
-		else
-			variant.targets = {{.format = DEFAULT_RT_FORMAT}};
+		for (LinaGX::Format format : targets)
+			variant.targets.push_back({
+				.format = format,
+			});
 
 		return variant;
 	}

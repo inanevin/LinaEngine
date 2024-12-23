@@ -47,6 +47,7 @@ namespace Lina::Editor
 		virtual ~GridRenderer();
 
 		virtual void ProduceFrame(DrawCollector& collector) override;
+		virtual void OnRenderPass(uint32 frameIndex, LinaGX::CommandStream* stream, RenderPassType type) override;
 
 	private:
 		Material* m_gridMaterial = nullptr;

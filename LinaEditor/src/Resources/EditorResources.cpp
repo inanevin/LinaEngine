@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Editor/Resources/EditorResources.hpp"
 #include "Editor/CommonEditor.hpp"
+#include "Editor/Resources/ShaderImport.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
@@ -225,20 +226,6 @@ namespace Lina::Editor
 			.isSDF	= false,
 		};
 
-		gizmo->GetMeta().variants.push_back({
-			.id			  = "Default"_hs,
-			.name		  = "Default",
-			.blendDisable = true,
-			.depthTest	  = false,
-			.depthWrite	  = false,
-			.depthFormat  = LinaGX::Format::D32_SFLOAT,
-			.targets	  = {{DEFAULT_RT_FORMAT}},
-			.depthOp	  = LinaGX::CompareOp::Less,
-			.cullMode	  = LinaGX::CullMode::None,
-			.frontFace	  = LinaGX::FrontFace::CCW,
-			.topology	  = LinaGX::Topology::TriangleList,
-		});
-
 		shaderWorldGrid->GetMeta().variants.push_back({
 			ShaderVariant{
 				.id					 = "Default"_hs,
@@ -274,8 +261,16 @@ namespace Lina::Editor
 	{
 		for (Resource* r : m_createdResources)
 		{
-			if (r->LoadFromFile(r->GetPath()))
-				m_loadedResources.insert(r);
+			if (r->GetTID() == GetTypeID<Shader>())
+			{
+				if (ShaderImport::ImportShader(static_cast<Shader*>(r), r->GetPath()))
+					m_loadedResources.insert(r);
+			}
+			else
+			{
+				if (r->LoadFromFile(r->GetPath()))
+					m_loadedResources.insert(r);
+			}
 		}
 	}
 
@@ -285,7 +280,6 @@ namespace Lina::Editor
 			r->GenerateHW();
 
 		context.OnResourceManagerGeneratedHW(m_loadedResources);
-
 		m_createdResources.clear();
 		m_loadedResources.clear();
 		return m_loadedResources.size() == m_createdResources.size();

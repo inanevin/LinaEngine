@@ -35,6 +35,7 @@ namespace Lina
 {
 	class ResourceManagerV2;
 	class GfxContext;
+	class Shader;
 } // namespace Lina
 
 namespace Lina::Editor

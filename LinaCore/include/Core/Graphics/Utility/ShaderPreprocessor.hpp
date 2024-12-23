@@ -37,7 +37,8 @@ SOFTWARE.
 namespace LinaGX
 {
 	enum class CullMode;
-}
+	enum class Format;
+} // namespace LinaGX
 
 namespace Lina
 {
@@ -49,7 +50,7 @@ namespace Lina
 		static ShaderType	 GetShaderType(const String& input);
 		static bool			 VerifyFullShader(const String& input);
 		static bool			 ExtractVertexFrag(const String& input, String& outVertex, String& outFrag);
-		static void			 InjectVersionAndExtensions(String& input);
+		static void			 InjectVersionAndExtensions(String& input, bool insertAtHeader = false);
 		static bool			 InjectMaterialIfRequired(String& input, Vector<ShaderPropertyDefinition>& outProperties);
 		static void			 InjectRenderPassInputs(String& input, RenderPassType type);
 		static void			 InjectSkinnedVertexMain(String& input);
@@ -57,7 +58,7 @@ namespace Lina
 		static void			 InjectFragMain(String& input, ShaderType type);
 		static void			 InjectUserShader(String& input, const String& shader);
 		static String		 MakeVariantBlock(const String& userBlock, const String& variant, const String& renderPassInclude);
-		static ShaderVariant MakeVariant(const String& name, const String& vertexBlock, const String& fragBlock, LinaGX::CullMode cull, BlendMode blend, DepthTesting depth, RenderPassType rpType);
+		static ShaderVariant MakeVariant(const String& name, const String& vertexBlock, const String& fragBlock, LinaGX::CullMode cull, BlendMode blend, DepthTesting depth, const Vector<LinaGX::Format>& targets);
 		static void			 ApplyBlending(ShaderVariant& variant, BlendMode blendMode);
 		static void			 ApplyDepth(ShaderVariant& variant, DepthTesting depth);
 	};

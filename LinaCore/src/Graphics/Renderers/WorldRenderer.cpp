@@ -349,11 +349,11 @@ namespace Lina
 		cameraView.SetView(camera.GetView());
 		cameraView.CalculateVisibility();
 
-		m_drawCollector.CreateGroup("Deferred"_hs);
-		m_drawCollector.CreateGroup("Forward"_hs);
+		m_drawCollector.CreateGroup("Deferred");
+		m_drawCollector.CreateGroup("Forward");
 
-		m_drawCollector.CollectCompModels(m_drawCollector.GetGroup("Deferred"_hs), cameraView, 0, 0, ShaderType::DeferredSurface);
-		m_drawCollector.CollectCompModels(m_drawCollector.GetGroup("Forward"_hs), cameraView, 0, 0, ShaderType::ForwardSurface);
+		m_drawCollector.CollectCompModels(m_drawCollector.GetGroup("Deferred"_hs), cameraView, ShaderType::DeferredSurface);
+		m_drawCollector.CollectCompModels(m_drawCollector.GetGroup("Forward"_hs), cameraView, ShaderType::ForwardSurface);
 
 		m_lightingRenderer.ProduceFrame();
 		m_skyRenderer.ProduceFrame();
@@ -552,7 +552,14 @@ namespace Lina
 			m_gfxContext->GetMeshManagerDefault().BindStatic(currentFrame.gfxStream);
 			m_lightingRenderer.RenderLightingQuad(currentFrame.gfxStream);
 			m_skyRenderer.RenderSky(currentFrame.gfxStream);
+
+			for (FeatureRenderer* ft : m_featureRenderers)
+				ft->OnRenderPass(frameIndex, currentFrame.gfxStream, RenderPassType::RENDER_PASS_FORWARD);
+
 			m_drawCollector.RenderGroup("Forward"_hs, currentFrame.gfxStream);
+
+			for (FeatureRenderer* ft : m_featureRenderers)
+				ft->OnRenderPassPost(frameIndex, currentFrame.gfxStream, RenderPassType::RENDER_PASS_FORWARD);
 
 			m_forwardPass.End(currentFrame.gfxStream);
 
@@ -562,7 +569,7 @@ namespace Lina
 		// OTHERS
 		{
 			for (FeatureRenderer* ft : m_featureRenderers)
-				ft->PostRender(frameIndex, currentFrame.gfxStream, viewport, scissors);
+				ft->OnPostRender(frameIndex, currentFrame.gfxStream, viewport, scissors);
 		}
 
 		// Barrier to shader read or transfer read
@@ -619,6 +626,9 @@ namespace Lina
 			.signalValues		  = currentFrame.signalSemaphore.GetValuePtr(),
 			.standaloneSubmission = m_standaloneSubmit,
 		});
+
+		for (FeatureRenderer* fr : m_featureRenderers)
+			fr->OnPostSubmit(frameIndex, currentFrame.gfxStream);
 
 		if (m_snapshotBuffer != nullptr)
 		{
