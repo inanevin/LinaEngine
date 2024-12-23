@@ -32,7 +32,7 @@ SOFTWARE.
 // Vertex output definition
 struct LinaVertexOutput
 {
-   vec4 pos;
+   vec4 clipPosition;
 };
 
 // Fragment output definition
@@ -52,7 +52,7 @@ layout(location = 0) out vec2 outUV;
 void LINA_VERTEX_MAIN(out LinaVertexOutput outVertex)
 {
    outUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
-   outVertex.pos =  vec4(outUV * 2.0f + -1.0f, 0.0f, 1.0f);
+   outVertex.clipPosition =  vec4(outUV * 2.0f + -1.0f, 0.0f, 1.0f);
    outUV.y = 1.0f - outUV.y;
 }
 

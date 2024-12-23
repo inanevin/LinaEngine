@@ -35,6 +35,7 @@ namespace Lina
 {
 	class EntityWorld;
 	class WorldRenderer;
+	class Entity;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -42,6 +43,8 @@ namespace Lina::Editor
 	class Editor;
 	class WorldDisplayer;
 	class GridRenderer;
+	class GizmoRenderer;
+	class MousePickRenderer;
 
 	class PanelWorld : public Panel, public EditorPayloadListener
 	{
@@ -55,6 +58,8 @@ namespace Lina::Editor
 
 		void CreateWorld(const String& resourcePath);
 		void DestroyWorld();
+
+		void SelectEntity(Entity* e);
 
 		virtual void OnPayloadStarted(PayloadType type, Widget* payload) override;
 		virtual void OnPayloadEnded(PayloadType type, Widget* payload) override;
@@ -71,11 +76,14 @@ namespace Lina::Editor
 		}
 
 	private:
-		Editor*			m_editor		 = nullptr;
-		EntityWorld*	m_world			 = nullptr;
-		WorldRenderer*	m_worldRenderer	 = nullptr;
-		GridRenderer*	m_gridRenderer	 = nullptr;
-		WorldDisplayer* m_worldDisplayer = nullptr;
+		Vector<Entity*>	   m_selection		   = {};
+		Editor*			   m_editor			   = nullptr;
+		EntityWorld*	   m_world			   = nullptr;
+		WorldRenderer*	   m_worldRenderer	   = nullptr;
+		GridRenderer*	   m_gridRenderer	   = nullptr;
+		WorldDisplayer*	   m_worldDisplayer	   = nullptr;
+		GizmoRenderer*	   m_gizmoRenderer	   = nullptr;
+		MousePickRenderer* m_mousePickRenderer = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(PanelWorld, Hidden)

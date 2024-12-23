@@ -45,6 +45,8 @@ include/Editor/Graphics/EditorRenderer.hpp
 include/Editor/Graphics/SurfaceRenderer.hpp
 include/Editor/Graphics/EditorGfxHelpers.hpp
 include/Editor/Graphics/GridRenderer.hpp
+include/Editor/Graphics/GizmoRenderer.hpp
+include/Editor/Graphics/MousePickRenderer.hpp
 
 # IO
 include/Editor/IO/ThumbnailGenerator.hpp
@@ -106,6 +108,7 @@ include/Editor/Meta/EditorLayout.hpp
 # Resources
 include/Editor/Resources/ResourcePipeline.hpp
 include/Editor/Resources/EditorResources.hpp
+include/Editor/Resources/ShaderImport.hpp
 )
 
 set(SOURCES
@@ -132,6 +135,8 @@ src/Graphics/EditorRenderer.cpp
 src/Graphics/SurfaceRenderer.cpp
 src/Graphics/EditorGfxHelpers.cpp
 src/Graphics/GridRenderer.cpp
+src/Graphics/GizmoRenderer.cpp
+src/Graphics/MousePickRenderer.cpp
 
 
 # IO
@@ -194,6 +199,7 @@ src/Meta/EditorLayout.cpp
 # Resources
 src/Resources/ResourcePipeline.cpp
 src/Resources/EditorResources.cpp
+src/Resources/ShaderImport.cpp
 )
 
 #--------------------------------------------------------------------

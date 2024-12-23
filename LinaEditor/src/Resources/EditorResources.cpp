@@ -34,7 +34,6 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
 #include "Core/Graphics/GfxContext.hpp"
-#include "Common/FileSystem/FileSystem.hpp"
 
 namespace Lina::Editor
 {
@@ -195,6 +194,10 @@ namespace Lina::Editor
 		Font*	 fontPlayBold	 = manager.CreateResource<Font>(EDITOR_FONT_PLAY_BOLD_ID, EDITOR_FONT_PLAY_BOLD_PATH);
 		Font*	 fontPlayVeryBig = manager.CreateResource<Font>(EDITOR_FONT_PLAY_VERY_BIG_ID, EDITOR_FONT_PLAY_VERY_BIG_PATH);
 		Shader*	 shaderWorldGrid = manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_GRID_ID, EDITOR_SHADER_WORLD_GRID_PATH);
+		Model*	 gizmoTranslate	 = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_TRANSLATE_ID, EDITOR_MODEL_GIZMO_TRANSLATE_PATH);
+		Model*	 gizmoRotate	 = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_ROTATE_ID, EDITOR_MODEL_GIZMO_ROTATE_PATH);
+		Model*	 gizmoScale		 = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_SCALE_ID, EDITOR_MODEL_GIZMO_SCALE_PATH);
+		Shader*	 gizmo			 = manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_GIZMO_ID, EDITOR_SHADER_WORLD_GIZMO_PATH);
 
 		m_createdResources.insert(txtCheckered);
 		m_createdResources.insert(txtProtoDark);
@@ -202,6 +205,10 @@ namespace Lina::Editor
 		m_createdResources.insert(fontPlayBold);
 		m_createdResources.insert(fontPlayVeryBig);
 		m_createdResources.insert(shaderWorldGrid);
+		m_createdResources.insert(gizmoTranslate);
+		m_createdResources.insert(gizmoRotate);
+		m_createdResources.insert(gizmoScale);
+		m_createdResources.insert(gizmo);
 
 		fontPlay->GetMeta() = {
 			.points = {{.size = 14, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
@@ -217,6 +224,20 @@ namespace Lina::Editor
 			.points = {{.size = 32, .dpiLimit = 1.0f}, {.size = 36, .dpiLimit = 1.8f}, {.size = 38, .dpiLimit = 10.0f}},
 			.isSDF	= false,
 		};
+
+		gizmo->GetMeta().variants.push_back({
+			.id			  = "Default"_hs,
+			.name		  = "Default",
+			.blendDisable = true,
+			.depthTest	  = false,
+			.depthWrite	  = false,
+			.depthFormat  = LinaGX::Format::D32_SFLOAT,
+			.targets	  = {{DEFAULT_RT_FORMAT}},
+			.depthOp	  = LinaGX::CompareOp::Less,
+			.cullMode	  = LinaGX::CullMode::None,
+			.frontFace	  = LinaGX::FrontFace::CCW,
+			.topology	  = LinaGX::Topology::TriangleList,
+		});
 
 		shaderWorldGrid->GetMeta().variants.push_back({
 			ShaderVariant{

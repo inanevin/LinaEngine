@@ -380,7 +380,7 @@ namespace Lina
 		return Matrix4::Orthographic(L, R, B, T, 0.0f, 1.0f);
 	}
 
-	RenderPassDescription GfxHelpers::GetRenderPassDescription(LinaGX::Instance* lgx, RenderPassType type)
+	RenderPassDescription GfxHelpers::GetRenderPassDescription(RenderPassType type)
 	{
 		LinaGX::DescriptorSetDesc setDesc = GfxHelpers::GetSetDescPersistentRenderPass(type);
 

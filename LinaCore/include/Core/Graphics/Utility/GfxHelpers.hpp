@@ -62,7 +62,7 @@ namespace Lina
 
 		static LinaGX::DescriptorBinding GetBindingFromShaderBinding(const LinaGX::ShaderDescriptorSetBinding& b);
 
-		static RenderPassDescription GetRenderPassDescription(LinaGX::Instance* lgx, RenderPassType type);
+		static RenderPassDescription GetRenderPassDescription(RenderPassType type);
 
 		static Matrix4 GetProjectionFromSize(const Vector2ui& size);
 	};

@@ -38,6 +38,9 @@ namespace LinaGX
 {
 	class Instance;
 	class CommandStream;
+	struct Viewport;
+	struct ScissorsRect;
+	struct TextureBarrier;
 }; // namespace LinaGX
 
 namespace Lina
@@ -49,27 +52,36 @@ namespace Lina
 	class RenderPass;
 	class ResourceUploadQueue;
 	class DrawCollector;
+	class WorldRenderer;
 
 	class FeatureRenderer
 	{
 	public:
 		FeatureRenderer() = delete;
-		FeatureRenderer(LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm) : m_lgx(lgx), m_world(world), m_rm(rm){};
+		FeatureRenderer(LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm, WorldRenderer* wr) : m_lgx(lgx), m_world(world), m_rm(rm), m_wr(wr){};
 		virtual ~FeatureRenderer() = default;
 
 		virtual void OnComponentAdded(Component* comp){};
 		virtual void OnComponentRemoved(Component* comp){};
 		virtual void FetchRenderables(){};
 
+		virtual void DestroySizeRelativeResources(){};
+		virtual void CreateSizeRelativeResources(const Vector2ui& size){};
+
 		virtual void ProduceFrame(DrawCollector& drawCollector){};
 		virtual void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue){};
-		virtual void RenderDrawPass(LinaGX::CommandStream* stream, uint32 frameIndex, RenderPass& pass, RenderPassType type){};
+
+		virtual void PostRender(uint32 frameIndex, LinaGX::CommandStream* stream, const LinaGX::Viewport& vp, const LinaGX::ScissorsRect& sc){};
 		virtual void SyncRender(){};
+
+		virtual void GetBarriersTextureToAttachment(uint32 frameIndex, Vector<LinaGX::TextureBarrier>& outBarriers){};
+		virtual void GetBarriersTextureToShaderRead(uint32 frameIndex, Vector<LinaGX::TextureBarrier>& outBarriers){};
 
 	protected:
 		LinaGX::Instance*  m_lgx   = nullptr;
 		EntityWorld*	   m_world = nullptr;
 		ResourceManagerV2* m_rm	   = nullptr;
+		WorldRenderer*	   m_wr	   = nullptr;
 
 	private:
 	};

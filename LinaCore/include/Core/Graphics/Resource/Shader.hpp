@@ -50,16 +50,22 @@ namespace Lina
 	public:
 		struct Metadata
 		{
-			Vector<ShaderVariant> variants;
+			Vector<ShaderVariant>			 variants;
+			ShaderType						 shaderType = ShaderType::Custom;
+			Vector<ShaderPropertyDefinition> propertyDefinitions;
 
 			void SaveToStream(OStream& out) const
 			{
 				out << variants;
+				out << shaderType;
+				out << propertyDefinitions;
 			}
 
 			void LoadFromStream(IStream& in)
 			{
 				in >> variants;
+				in >> shaderType;
+				in >> propertyDefinitions;
 			}
 		};
 
@@ -78,6 +84,8 @@ namespace Lina
 		{
 			m_meta.LoadFromStream(stream);
 		}
+
+		bool CompileVariants();
 
 		void Bind(LinaGX::CommandStream* stream, uint32 gpuHandle);
 
@@ -104,22 +112,20 @@ namespace Lina
 
 		inline const Vector<ShaderPropertyDefinition>& GetPropertyDefinitions() const
 		{
-			return m_propertyDefinitions;
+			return m_meta.propertyDefinitions;
 		}
 
 		inline ShaderType GetShaderType() const
 		{
-			return m_shaderType;
+			return m_meta.shaderType;
 		}
 
 	private:
 		ALLOCATOR_BUCKET_MEM;
 		LINA_REFLECTION_ACCESS(Shader);
 
-		Vector<Pair<StringID, uint32>>	 m_gpuHandles;
-		Metadata						 m_meta		  = {};
-		ShaderType						 m_shaderType = ShaderType::Custom;
-		Vector<ShaderPropertyDefinition> m_propertyDefinitions;
+		Vector<Pair<StringID, uint32>> m_gpuHandles;
+		Metadata					   m_meta = {};
 	};
 
 	LINA_RESOURCE_BEGIN(Shader);

@@ -40,13 +40,36 @@ namespace Lina
 {
 	Shader::~Shader()
 	{
-		m_propertyDefinitions.clear();
-
 		for (ShaderVariant& variant : m_meta.variants)
 		{
 			for (LinaGX::ShaderCompileData& data : variant._compileData)
 				delete[] data.outBlob.ptr;
 		}
+	}
+
+	bool Shader::CompileVariants()
+	{
+		bool success = true;
+
+		for (ShaderVariant& variant : m_meta.variants)
+		{
+			for (LinaGX::ShaderCompileData& data : variant._compileData)
+			{
+				String fullText = "";
+				LinaGX::SPIRVUtility::GetShaderTextWithIncludes(fullText, data.text, data.includePath);
+				data.text = fullText;
+			}
+
+			success = LinaGX::Instance::CompileShader(variant._compileData, variant._outLayout);
+
+			if (!success)
+			{
+				LINA_ERR("Failed compiling shader! {0}", m_name);
+				break;
+			}
+		}
+
+		return success;
 	}
 
 	void Shader::Bind(LinaGX::CommandStream* stream, uint32 gpuHandle)
@@ -71,7 +94,10 @@ namespace Lina
 		if (!ShaderPreprocessor::VerifyFullShader(txt))
 			return false;
 
-		m_shaderType = ShaderPreprocessor::GetShaderType(txt);
+		const ShaderType shaderType = ShaderPreprocessor::GetShaderType(txt);
+		LINA_ASSERT(shaderType == ShaderType::Custom, "");
+
+		m_meta.shaderType = shaderType;
 
 		String vertexBlock = "", fragBlock = "";
 		if (!ShaderPreprocessor::ExtractVertexFrag(txt, vertexBlock, fragBlock))
@@ -90,321 +116,36 @@ namespace Lina
 				LINA_ERR("LinaMaterial structs in vertex and fragment shaders are different!");
 				return false;
 			}
-			m_propertyDefinitions = fragProperties.empty() ? vertexProperties : fragProperties;
+			m_meta.propertyDefinitions = fragProperties.empty() ? vertexProperties : fragProperties;
 			return true;
 		};
 
 		injectMaterials(vertexBlock, fragBlock);
 
-		const ShaderType type	 = m_shaderType;
-		bool			 success = true;
-
-		auto clearVariants = [this]() {
-			for (ShaderVariant& variant : m_meta.variants)
-			{
-				for (LinaGX::ShaderCompileData& data : variant._compileData)
-				{
-					if (data.outBlob.ptr != nullptr)
-						delete[] data.outBlob.ptr;
-				}
-				variant._compileData.clear();
-			}
-		};
-
-		if (type != ShaderType::Custom)
-		{
-			clearVariants();
-			m_meta.variants.clear();
-		}
-
 		String vertexBase = "", pixelBase = "";
 		ShaderPreprocessor::InjectVersionAndExtensions(vertexBase);
 		ShaderPreprocessor::InjectVersionAndExtensions(pixelBase);
-
-		if (type == ShaderType::DeferredSurface)
-		{
-			ShaderPreprocessor::InjectRenderPassInputs(vertexBase, RenderPassType::RENDER_PASS_DEFERRED);
-			ShaderPreprocessor::InjectRenderPassInputs(pixelBase, RenderPassType::RENDER_PASS_DEFERRED);
-
-			// Deferred default
-			{
-				String vtxShader = vertexBase, pixelShader = pixelBase;
-
-				m_meta.variants.push_back({});
-				ShaderVariant& variant = m_meta.variants.back();
-				variant				   = ShaderVariant{
-								   .id			 = "DeferredDefault"_hs,
-								   .blendDisable = true,
-								   .depthTest	 = true,
-								   .depthWrite	 = true,
-								   .targets		 = {{.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}},
-								   .cullMode	 = LinaGX::CullMode::Back,
-								   .frontFace	 = LinaGX::FrontFace::CW,
-				   };
-
-				ShaderPreprocessor::InjectVertexMain(vtxShader, ShaderType::DeferredSurface);
-				ShaderPreprocessor::InjectFragMain(pixelShader, ShaderType::DeferredSurface);
-				ShaderPreprocessor::InjectUserShader(vtxShader, vertexBlock);
-				ShaderPreprocessor::InjectUserShader(pixelShader, fragBlock);
-
-				variant._compileData.push_back({
-					.stage		 = LinaGX::ShaderStage::Vertex,
-					.text		 = vtxShader,
-					.includePath = includePath.c_str(),
-				});
-
-				variant._compileData.push_back({
-					.stage		 = LinaGX::ShaderStage::Fragment,
-					.text		 = pixelShader,
-					.includePath = includePath.c_str(),
-				});
-			}
-
-			// Deferred skinned
-			{
-				String vtxShader = vertexBase, pixelShader = pixelBase;
-
-				m_meta.variants.push_back({});
-				ShaderVariant& variant = m_meta.variants.back();
-				variant				   = ShaderVariant{
-								   .id			 = "Skinned"_hs,
-								   .blendDisable = true,
-								   .depthTest	 = true,
-								   .depthWrite	 = true,
-								   .targets		 = {{.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}},
-								   .cullMode	 = LinaGX::CullMode::Back,
-								   .frontFace	 = LinaGX::FrontFace::CW,
-				   };
-
-				ShaderPreprocessor::InjectSkinnedVertexMain(vtxShader, ShaderType::DeferredSurface);
-				ShaderPreprocessor::InjectFragMain(pixelShader, ShaderType::DeferredSurface);
-				ShaderPreprocessor::InjectUserShader(vtxShader, vertexBlock);
-				ShaderPreprocessor::InjectUserShader(pixelShader, fragBlock);
-
-				variant._compileData.push_back({
-					.stage		 = LinaGX::ShaderStage::Vertex,
-					.text		 = vtxShader,
-					.includePath = includePath.c_str(),
-				});
-
-				variant._compileData.push_back({
-					.stage		 = LinaGX::ShaderStage::Fragment,
-					.text		 = pixelShader,
-					.includePath = includePath.c_str(),
-				});
-			}
-		}
-		else if (type == ShaderType::ForwardSurface)
-		{
-			ShaderPreprocessor::InjectRenderPassInputs(vertexBase, RenderPassType::RENDER_PASS_FORWARD);
-			ShaderPreprocessor::InjectRenderPassInputs(pixelBase, RenderPassType::RENDER_PASS_FORWARD);
-
-			// Forward default
-			{
-				String vtxShader = vertexBase, pixelShader = pixelBase;
-
-				m_meta.variants.push_back({});
-				ShaderVariant& variant = m_meta.variants.back();
-				variant				   = ShaderVariant{
-								   .id					= "ForwardDefault"_hs,
-								   .blendDisable		= false,
-								   .blendSrcFactor		= LinaGX::BlendFactor::SrcAlpha,
-								   .blendDstFactor		= LinaGX::BlendFactor::OneMinusSrcAlpha,
-								   .blendColorOp		= LinaGX::BlendOp::Add,
-								   .blendSrcAlphaFactor = LinaGX::BlendFactor::One,
-								   .blendDstAlphaFactor = LinaGX::BlendFactor::OneMinusSrcAlpha,
-								   .blendAlphaOp		= LinaGX::BlendOp::Add,
-								   .depthTest			= true,
-								   .depthWrite			= true,
-								   .targets				= {{.format = DEFAULT_RT_FORMAT}},
-								   .cullMode			= LinaGX::CullMode::Back,
-								   .frontFace			= LinaGX::FrontFace::CW,
-				   };
-
-				ShaderPreprocessor::InjectVertexMain(vtxShader, ShaderType::ForwardSurface);
-				ShaderPreprocessor::InjectFragMain(pixelShader, ShaderType::ForwardSurface);
-				ShaderPreprocessor::InjectUserShader(vtxShader, vertexBlock);
-				ShaderPreprocessor::InjectUserShader(pixelShader, fragBlock);
-
-				variant._compileData.push_back({
-					.stage		 = LinaGX::ShaderStage::Vertex,
-					.text		 = vtxShader,
-					.includePath = includePath.c_str(),
-				});
-
-				variant._compileData.push_back({
-					.stage		 = LinaGX::ShaderStage::Fragment,
-					.text		 = pixelShader,
-					.includePath = includePath.c_str(),
-				});
-			}
-
-			// Forward default
-			{
-				String vtxShader = vertexBase, pixelShader = pixelBase;
-
-				m_meta.variants.push_back({});
-				ShaderVariant& variant = m_meta.variants.back();
-				variant				   = ShaderVariant{
-								   .id					= "Skinned"_hs,
-								   .blendDisable		= false,
-								   .blendSrcFactor		= LinaGX::BlendFactor::SrcAlpha,
-								   .blendDstFactor		= LinaGX::BlendFactor::OneMinusSrcAlpha,
-								   .blendColorOp		= LinaGX::BlendOp::Add,
-								   .blendSrcAlphaFactor = LinaGX::BlendFactor::One,
-								   .blendDstAlphaFactor = LinaGX::BlendFactor::One,
-								   .blendAlphaOp		= LinaGX::BlendOp::Add,
-								   .depthTest			= true,
-								   .depthWrite			= true,
-								   .targets				= {{.format = DEFAULT_RT_FORMAT}},
-								   .cullMode			= LinaGX::CullMode::Back,
-								   .frontFace			= LinaGX::FrontFace::CW,
-				   };
-
-				ShaderPreprocessor::InjectSkinnedVertexMain(vtxShader, ShaderType::ForwardSurface);
-				ShaderPreprocessor::InjectFragMain(pixelShader, ShaderType::ForwardSurface);
-				ShaderPreprocessor::InjectUserShader(vtxShader, vertexBlock);
-				ShaderPreprocessor::InjectUserShader(pixelShader, fragBlock);
-
-				variant._compileData.push_back({
-					.stage		 = LinaGX::ShaderStage::Vertex,
-					.text		 = vtxShader,
-					.includePath = includePath.c_str(),
-				});
-
-				variant._compileData.push_back({
-					.stage		 = LinaGX::ShaderStage::Fragment,
-					.text		 = pixelShader,
-					.includePath = includePath.c_str(),
-				});
-			}
-		}
-		else if (type == ShaderType::Lighting)
-		{
-			ShaderPreprocessor::InjectRenderPassInputs(vertexBase, RenderPassType::RENDER_PASS_FORWARD);
-			ShaderPreprocessor::InjectRenderPassInputs(pixelBase, RenderPassType::RENDER_PASS_FORWARD);
-
-			String vtxShader = vertexBase, pixelShader = pixelBase;
-
-			m_meta.variants.push_back({});
-			ShaderVariant& variant = m_meta.variants.back();
-			variant				   = ShaderVariant{
-							   .id			 = "Default"_hs,
-							   .blendDisable = false,
-							   .depthTest	 = false,
-							   .depthWrite	 = false,
-							   .targets		 = {{.format = DEFAULT_RT_FORMAT}},
-							   .cullMode	 = LinaGX::CullMode::None,
-							   .frontFace	 = LinaGX::FrontFace::CW,
-			   };
-
-			ShaderPreprocessor::InjectVertexMain(vtxShader, ShaderType::Lighting);
-			ShaderPreprocessor::InjectFragMain(pixelShader, ShaderType::Lighting);
-			ShaderPreprocessor::InjectUserShader(vtxShader, vertexBlock);
-			ShaderPreprocessor::InjectUserShader(pixelShader, fragBlock);
-
-			variant._compileData.push_back({
-				.stage		 = LinaGX::ShaderStage::Vertex,
-				.text		 = vtxShader,
-				.includePath = includePath.c_str(),
-			});
-
-			variant._compileData.push_back({
-				.stage		 = LinaGX::ShaderStage::Fragment,
-				.text		 = pixelShader,
-				.includePath = includePath.c_str(),
-			});
-		}
-		else if (type == ShaderType::PostProcess)
-		{
-			LINA_ASSERT(false, "");
-		}
-		else if (type == ShaderType::Sky)
-		{
-			ShaderPreprocessor::InjectRenderPassInputs(vertexBase, RenderPassType::RENDER_PASS_FORWARD);
-			ShaderPreprocessor::InjectRenderPassInputs(pixelBase, RenderPassType::RENDER_PASS_FORWARD);
-
-			String vtxShader = vertexBase, pixelShader = pixelBase;
-
-			m_meta.variants.push_back({});
-			ShaderVariant& variant = m_meta.variants.back();
-
-			variant = ShaderVariant{
-				.id				   = "Default"_hs,
-				.blendDisable	   = true,
-				.depthTest		   = true,
-				.depthWrite		   = false,
-				.targets		   = {{.format = DEFAULT_RT_FORMAT}},
-				.depthOp		   = LinaGX::CompareOp::Equal,
-				.cullMode		   = LinaGX::CullMode::Back,
-				.frontFace		   = LinaGX::FrontFace::CW,
-				.depthBiasEnable   = true,
-				.depthBiasConstant = 5.0f,
-			};
-
-			ShaderPreprocessor::InjectVertexMain(vtxShader, ShaderType::Sky);
-			ShaderPreprocessor::InjectFragMain(pixelShader, ShaderType::Sky);
-			ShaderPreprocessor::InjectUserShader(vtxShader, vertexBlock);
-			ShaderPreprocessor::InjectUserShader(pixelShader, fragBlock);
-
-			variant._compileData.push_back({
-				.stage		 = LinaGX::ShaderStage::Vertex,
-				.text		 = vtxShader,
-				.includePath = includePath.c_str(),
-			});
-
-			variant._compileData.push_back({
-				.stage		 = LinaGX::ShaderStage::Fragment,
-				.text		 = pixelShader,
-				.includePath = includePath.c_str(),
-			});
-		}
-		else if (type == ShaderType::Custom)
-		{
-			vertexBase.insert(vertexBase.length(), vertexBlock);
-			pixelBase.insert(pixelBase.length(), fragBlock);
-
-			for (ShaderVariant& variant : m_meta.variants)
-			{
-				variant._compileData.push_back({
-					.stage		 = LinaGX::ShaderStage::Vertex,
-					.text		 = vertexBase,
-					.includePath = includePath.c_str(),
-				});
-
-				variant._compileData.push_back({
-					.stage		 = LinaGX::ShaderStage::Fragment,
-					.text		 = pixelBase,
-					.includePath = includePath.c_str(),
-				});
-			}
-		}
+		vertexBase.insert(vertexBase.length(), vertexBlock);
+		pixelBase.insert(pixelBase.length(), fragBlock);
 
 		for (ShaderVariant& variant : m_meta.variants)
 		{
-			for (LinaGX::ShaderCompileData& data : variant._compileData)
-			{
-				String fullText = "";
-				LinaGX::SPIRVUtility::GetShaderTextWithIncludes(fullText, data.text, data.includePath);
-				data.text = fullText;
-			}
+			variant._compileData.clear();
 
-			success = LinaGX::Instance::CompileShader(variant._compileData, variant._outLayout);
+			variant._compileData.push_back({
+				.stage		 = LinaGX::ShaderStage::Vertex,
+				.text		 = vertexBase,
+				.includePath = includePath.c_str(),
+			});
 
-			if (!success)
-			{
-				LINA_ERR("Failed compiling shader! {0}", m_name);
-				break;
-			}
+			variant._compileData.push_back({
+				.stage		 = LinaGX::ShaderStage::Fragment,
+				.text		 = pixelBase,
+				.includePath = includePath.c_str(),
+			});
 		}
 
-		if (!success)
-		{
-			clearVariants();
-			return false;
-		}
-
-		return true;
+		return CompileVariants();
 	}
 
 	void Shader::SaveToStream(OStream& stream) const
@@ -412,8 +153,6 @@ namespace Lina
 		Resource::SaveToStream(stream);
 		stream << VERSION;
 		stream << m_meta;
-		stream << m_propertyDefinitions;
-		stream << m_shaderType;
 	}
 
 	void Shader::LoadFromStream(IStream& stream)
@@ -422,8 +161,6 @@ namespace Lina
 		uint32 version = 0;
 		stream >> version;
 		stream >> m_meta;
-		stream >> m_propertyDefinitions;
-		stream >> m_shaderType;
 	}
 
 	void Shader::GenerateHW()

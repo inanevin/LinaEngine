@@ -32,21 +32,33 @@ SOFTWARE.
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Data/String.hpp"
 #include "Core/Graphics/Data/RenderData.hpp"
+#include "Core/Graphics/CommonGraphics.hpp"
+
+namespace LinaGX
+{
+	enum class CullMode;
+}
 
 namespace Lina
 {
+	struct ShaderVariant;
+
 	class ShaderPreprocessor
 	{
 	public:
-		static ShaderType GetShaderType(const String& input);
-		static bool		  VerifyFullShader(const String& input);
-		static bool		  ExtractVertexFrag(const String& input, String& outVertex, String& outFrag);
-		static void		  InjectVersionAndExtensions(String& input);
-		static bool		  InjectMaterialIfRequired(String& input, Vector<ShaderPropertyDefinition>& outProperties);
-		static void		  InjectRenderPassInputs(String& input, RenderPassType type);
-		static void		  InjectSkinnedVertexMain(String& input, ShaderType type);
-		static void		  InjectVertexMain(String& input, ShaderType type);
-		static void		  InjectFragMain(String& input, ShaderType type);
-		static void		  InjectUserShader(String& input, const String& shader);
+		static ShaderType	 GetShaderType(const String& input);
+		static bool			 VerifyFullShader(const String& input);
+		static bool			 ExtractVertexFrag(const String& input, String& outVertex, String& outFrag);
+		static void			 InjectVersionAndExtensions(String& input);
+		static bool			 InjectMaterialIfRequired(String& input, Vector<ShaderPropertyDefinition>& outProperties);
+		static void			 InjectRenderPassInputs(String& input, RenderPassType type);
+		static void			 InjectSkinnedVertexMain(String& input);
+		static void			 InjectVertexMain(String& input, ShaderType type);
+		static void			 InjectFragMain(String& input, ShaderType type);
+		static void			 InjectUserShader(String& input, const String& shader);
+		static String		 MakeVariantBlock(const String& userBlock, const String& variant, const String& renderPassInclude);
+		static ShaderVariant MakeVariant(const String& name, const String& vertexBlock, const String& fragBlock, LinaGX::CullMode cull, BlendMode blend, DepthTesting depth, RenderPassType rpType);
+		static void			 ApplyBlending(ShaderVariant& variant, BlendMode blendMode);
+		static void			 ApplyDepth(ShaderVariant& variant, DepthTesting depth);
 	};
 } // namespace Lina

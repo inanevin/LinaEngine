@@ -43,7 +43,7 @@ namespace Lina::Editor
 	class GridRenderer : public FeatureRenderer
 	{
 	public:
-		GridRenderer(Editor* editor, LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm);
+		GridRenderer(Editor* editor, LinaGX::Instance* lgx, EntityWorld* world, WorldRenderer* wr, ResourceManagerV2* rm);
 		virtual ~GridRenderer();
 
 		virtual void ProduceFrame(DrawCollector& collector) override;

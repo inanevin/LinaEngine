@@ -31,16 +31,15 @@ SOFTWARE.
 // Vertex input definition
 struct LinaVertexInput
 {
-   vec3 pos;
+   vec4 pos;
    vec3 normal;
    vec2 uv;
-   uint materialIndex;
 };
 
 // Vertex output definition
 struct LinaVertexOutput
 {
-   vec4 pos;
+   vec4 clipPosition;
 };
 
 // Fragment output definition
@@ -62,11 +61,13 @@ layout (location = 3) out flat uint outMaterialIndex;
 
 void LINA_VERTEX_MAIN(in LinaVertexInput inVertex, out LinaVertexOutput outVertex)
 {
-   outVertex.pos = vec4(inVertex.pos, 1.0);
+   mat4 rotView = mat4(mat3(LINA_VIEW.view));
+   vec4 clipPos = LINA_VIEW.proj * rotView * inVertex.pos;
+   outVertex.clipPosition = clipPos.xyww;
    outUV = inVertex.uv;
    outNormal = inVertex.normal;
-   outWorldPos = inVertex.pos;
-   outMaterialIndex = inVertex.materialIndex;
+   outWorldPos = inVertex.pos.xyz;
+   outMaterialIndex = LINA_PASS.skyMaterialByteIndex;
 }
 
 #lina_end

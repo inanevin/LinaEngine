@@ -164,6 +164,20 @@ namespace Lina
 		Texture2D,
 	};
 
+	enum class BlendMode
+	{
+		Opaque,
+		AlphaBlend,
+	};
+
+	enum class DepthTesting
+	{
+		None,
+		TestWrite,
+		Test,
+		Write,
+	};
+
 	struct ShaderPropertyDefinition
 	{
 		String			   name = "";

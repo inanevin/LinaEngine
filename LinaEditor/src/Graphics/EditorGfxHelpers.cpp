@@ -59,6 +59,26 @@ namespace Lina::Editor
 		};
 	}
 
+	RenderPassDescription EditorGfxHelpers::GetEntityBufferPassDescription()
+	{
+		LinaGX::DescriptorSetDesc setDesc = GetSetDescriptionEntityBufferPass();
+
+		return {
+			.buffers =
+				{
+					{
+						.bufferType	  = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
+						.debugName	  = "EntityBuffer Pass - ViewData",
+						.size		  = sizeof(GPUDataView),
+						.stagingOnly  = true,
+						.bindingIndex = 0,
+						.ident		  = "ViewData"_hs,
+					},
+				},
+			.setDescription = setDesc,
+		};
+	}
+
 	LinaGX::DescriptorSetDesc EditorGfxHelpers::GetSetDescriptionGUI()
 	{
 		LinaGX::DescriptorBinding guiBinding0 = {
@@ -72,6 +92,31 @@ namespace Lina::Editor
 		};
 
 		return {.bindings = {guiBinding0, guiBinding1}};
+	}
+
+	LinaGX::DescriptorSetDesc EditorGfxHelpers::GetSetDescriptionEntityBufferPass()
+	{
+		LinaGX::DescriptorBinding binding0 = {
+			.type	= LinaGX::DescriptorType::UBO,
+			.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+		};
+
+		LinaGX::DescriptorBinding binding1 = {
+			.type	= LinaGX::DescriptorType::SSBO,
+			.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+		};
+
+		LinaGX::DescriptorBinding binding2 = {
+			.type	= LinaGX::DescriptorType::SSBO,
+			.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+		};
+
+		LinaGX::DescriptorBinding binding3 = {
+			.type	= LinaGX::DescriptorType::SSBO,
+			.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+		};
+
+		return {.bindings = {binding0, binding1, binding2, binding3}};
 	}
 
 	LinaGX::PipelineLayoutDesc EditorGfxHelpers::GetPipelineLayoutDescriptionGlobal()
@@ -96,6 +141,15 @@ namespace Lina::Editor
 			   }},
 			.debugName				   = "GUILayout",
 		};
+	}
+
+	LinaGX::PipelineLayoutDesc EditorGfxHelpers::GetPipelineLayoutDescriptionEntityBufferPass()
+	{
+		LinaGX::PipelineLayoutDesc desc;
+		desc.descriptorSetDescriptions = {GfxHelpers::GetSetDescPersistentGlobal(), GetSetDescriptionEntityBufferPass()};
+		desc.debugName				   = "Persistent EntityBufferPass Layout";
+		desc.constantRanges.push_back(LinaGX::PipelineLayoutPushConstantRange{.stages = {LinaGX::ShaderStage::Vertex}, .size = sizeof(uint32)});
+		return desc;
 	}
 
 } // namespace Lina::Editor

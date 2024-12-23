@@ -33,6 +33,8 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
 #include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
 #include "Editor/Graphics/GridRenderer.hpp"
+#include "Editor/Graphics/GizmoRenderer.hpp"
+#include "Editor/Graphics/MousePickRenderer.hpp"
 #include "Editor/World/WorldUtility.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Math/Math.hpp"
@@ -87,9 +89,13 @@ namespace Lina::Editor
 
 		m_world = new EntityWorld(0, "");
 		m_editor->GetApp()->GetWorldProcessor().AddWorld(m_world);
-		m_worldRenderer = new WorldRenderer(&m_editor->GetApp()->GetGfxContext(), &m_editor->GetApp()->GetResourceManager(), m_world, Vector2ui(4, 4), "WorldRenderer: " + m_world->GetName() + " :");
-		m_gridRenderer	= new GridRenderer(m_editor, m_editor->GetApp()->GetLGX(), m_world, m_resourceManager);
+		m_worldRenderer		= new WorldRenderer(&m_editor->GetApp()->GetGfxContext(), &m_editor->GetApp()->GetResourceManager(), m_world, Vector2ui(4, 4), "WorldRenderer: " + m_world->GetName());
+		m_gizmoRenderer		= new GizmoRenderer(m_editor, m_editor->GetApp()->GetLGX(), m_world, m_worldRenderer, m_resourceManager);
+		m_gridRenderer		= new GridRenderer(m_editor, m_editor->GetApp()->GetLGX(), m_world, m_worldRenderer, m_resourceManager);
+		m_mousePickRenderer = new MousePickRenderer(m_editor, m_editor->GetApp()->GetLGX(), m_world, m_worldRenderer, m_resourceManager);
 		m_worldRenderer->AddFeatureRenderer(m_gridRenderer);
+		m_worldRenderer->AddFeatureRenderer(m_gizmoRenderer);
+		m_worldRenderer->AddFeatureRenderer(m_mousePickRenderer);
 
 		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer);
 
@@ -97,7 +103,13 @@ namespace Lina::Editor
 		m_world->LoadFromStream(stream);
 		stream.Destroy();
 
-		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {}, m_world->GetID());
+		HashSet<ResourceID> defaultResources = {
+			EDITOR_MODEL_GIZMO_TRANSLATE_ID,
+			EDITOR_MODEL_GIZMO_ROTATE_ID,
+			EDITOR_MODEL_GIZMO_SCALE_ID,
+		};
+
+		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), defaultResources, m_world->GetID());
 
 		m_worldDisplayer->DisplayWorld(m_worldRenderer, WorldDisplayer::WorldCameraType::Orbit);
 	}
@@ -108,18 +120,31 @@ namespace Lina::Editor
 			return;
 
 		const ResourceID space = m_world->GetID();
-		m_worldRenderer->RemoveFeatureRenderer(m_gridRenderer);
-		delete m_gridRenderer;
 
 		m_editor->GetEditorRenderer().RemoveWorldRenderer(m_worldRenderer);
-		m_editor->GetApp()->GetWorldProcessor().RemoveWorld(m_world);
 		delete m_worldRenderer;
+		delete m_gridRenderer;
+		delete m_gizmoRenderer;
+		delete m_mousePickRenderer;
+
+		m_editor->GetApp()->GetWorldProcessor().RemoveWorld(m_world);
 		delete m_world;
-		m_world			= nullptr;
-		m_worldRenderer = nullptr;
+
+		m_world				= nullptr;
+		m_worldRenderer		= nullptr;
+		m_gridRenderer		= nullptr;
+		m_gizmoRenderer		= nullptr;
+		m_mousePickRenderer = nullptr;
+
 		m_worldDisplayer->DisplayWorld(nullptr, WorldDisplayer::WorldCameraType::FreeMove);
 
 		m_editor->GetApp()->GetResourceManager().UnloadResourceSpace(space);
+	}
+
+	void PanelWorld::SelectEntity(Entity* e)
+	{
+		m_selection.push_back(e);
+		m_gizmoRenderer->SetSelectedEntity(e);
 	}
 
 	void PanelWorld::OnPayloadStarted(PayloadType type, Widget* payload)
@@ -152,7 +177,7 @@ namespace Lina::Editor
 		if (m_world == nullptr)
 			return false;
 
-		if (!GetIsHovered())
+		if (!m_worldDisplayer->GetIsHovered())
 			return false;
 
 		Panel* panel = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::ResourceBrowser, 0);
@@ -164,6 +189,8 @@ namespace Lina::Editor
 
 		HashSet<ResourceID> resources;
 
+		Entity* last = nullptr;
+
 		for (ResourceDirectory* dir : payloadItems)
 		{
 			if (dir->resourceTID == GetTypeID<Model>())
@@ -173,8 +200,17 @@ namespace Lina::Editor
 				Model*	model  = m_resourceManager->GetResource<Model>(dir->resourceID);
 				Entity* entity = WorldUtility::AddModelToWorld(m_world, model, model->GetMeta().materials);
 				m_world->LoadMissingResources(*m_resourceManager, m_editor->GetProjectManager().GetProjectData(), {}, m_world->GetID());
+
+				const Vector2 mp	= m_lgxWindow->GetMousePosition() - m_worldDisplayer->GetStartFromMargins();
+				const Vector2 size	= m_worldDisplayer->GetEndFromMargins() - m_worldDisplayer->GetStartFromMargins();
+				const Vector3 point = Camera::ScreenToWorld(m_world->GetWorldCamera(), mp, size, 0.97f);
+				entity->SetPosition(point);
+
+				last = entity;
 			}
 		}
+
+		SelectEntity(last);
 
 		return true;
 	}

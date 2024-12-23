@@ -74,7 +74,7 @@ namespace Lina::Editor
 
 		m_world			= new EntityWorld(0, "");
 		m_worldRenderer = new WorldRenderer(&m_editor->GetApp()->GetGfxContext(), &m_editor->GetApp()->GetResourceManager(), m_world, Vector2ui(4, 4), "WorldRenderer: " + m_resource->GetName() + " :");
-		m_gridRenderer	= new GridRenderer(m_editor, m_editor->GetApp()->GetLGX(), m_world, &m_editor->GetApp()->GetResourceManager());
+		m_gridRenderer	= new GridRenderer(m_editor, m_editor->GetApp()->GetLGX(), m_world, m_worldRenderer, &m_editor->GetApp()->GetResourceManager());
 		m_worldRenderer->AddFeatureRenderer(m_gridRenderer);
 
 		m_editor->GetApp()->JoinRender();
@@ -136,8 +136,8 @@ namespace Lina::Editor
 			m_editor->GetApp()->JoinRender();
 			m_editor->GetApp()->GetWorldProcessor().RemoveWorld(m_world);
 			m_editor->GetEditorRenderer().RemoveWorldRenderer(m_worldRenderer);
-			delete m_gridRenderer;
 			delete m_worldRenderer;
+			delete m_gridRenderer;
 			delete m_world;
 			m_worldRenderer = nullptr;
 			m_world			= nullptr;

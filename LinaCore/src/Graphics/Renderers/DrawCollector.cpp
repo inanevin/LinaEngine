@@ -60,7 +60,7 @@ namespace Lina
 			m_compModels.erase(it);
 	}
 
-	void DrawCollector::CollectCompModels(DrawGroup& group, const View& view, uint32 shaderOverrideHandle, ShaderType shaderType)
+	void DrawCollector::CollectCompModels(DrawGroup& group, const View& view, StringID staticVariant, StringID skinnedVariant, ShaderType shaderType)
 	{
 		for (CompModel* comp : m_compModels)
 		{
@@ -96,20 +96,13 @@ namespace Lina
 				{
 					const PrimitiveStatic& prim = primsStatic.at(j);
 
-					uint32 usedShaderHandle = shaderOverrideHandle;
-
-					ResourceID materialID = 0;
-					if (usedShaderHandle == 0)
-					{
-						Material* targetMaterial = prim.materialIndex >= materials.size() ? nullptr : materials[prim.materialIndex];
-						LINA_ASSERT(targetMaterial, "");
-						if (targetMaterial->GetShaderType() != shaderType)
-							continue;
-
-						Shader* targetShader = m_rm->GetResource<Shader>(targetMaterial->GetShader());
-						usedShaderHandle	 = targetShader->GetGPUHandle();
-						materialID			 = targetMaterial->GetID();
-					}
+					Material* targetMaterial = prim.materialIndex >= materials.size() ? nullptr : materials[prim.materialIndex];
+					LINA_ASSERT(targetMaterial, "");
+					if (targetMaterial->GetShaderType() != shaderType)
+						continue;
+					Shader*			 targetShader	  = m_rm->GetResource<Shader>(targetMaterial->GetShader());
+					uint32			 usedShaderHandle = staticVariant == 0 ? targetShader->GetGPUHandle("Static"_hs) : targetShader->GetGPUHandle(staticVariant);
+					const ResourceID materialID		  = targetMaterial->GetID();
 
 					const ModelDrawInstance inst = {
 						.compModel	= comp,
@@ -142,19 +135,13 @@ namespace Lina
 				{
 					const PrimitiveSkinned& prim = primsSkinned.at(j);
 
-					uint32 usedShaderHandle = 0;
-
-					ResourceID materialID = 0;
-					if (usedShaderHandle == 0)
-					{
-						Material* targetMaterial = prim.materialIndex >= materials.size() ? nullptr : materials[prim.materialIndex];
-						LINA_ASSERT(targetMaterial, "");
-						if (targetMaterial->GetShaderType() != shaderType)
-							continue;
-						Shader* targetShader = m_rm->GetResource<Shader>(targetMaterial->GetShader());
-						usedShaderHandle	 = targetShader->GetGPUHandle("Skinned"_hs);
-						materialID			 = targetMaterial->GetID();
-					}
+					Material* targetMaterial = prim.materialIndex >= materials.size() ? nullptr : materials[prim.materialIndex];
+					LINA_ASSERT(targetMaterial, "");
+					if (targetMaterial->GetShaderType() != shaderType)
+						continue;
+					Shader*			 targetShader	  = m_rm->GetResource<Shader>(targetMaterial->GetShader());
+					uint32			 usedShaderHandle = skinnedVariant == 0 ? targetShader->GetGPUHandle("Skinned"_hs) : targetShader->GetGPUHandle(skinnedVariant);
+					const ResourceID materialID		  = targetMaterial->GetID();
 
 					const ModelDrawInstance inst = {
 						.compModel	= comp,
@@ -184,15 +171,12 @@ namespace Lina
 		}
 	}
 
-	void DrawCollector::AddModelDraw(DrawGroup& group, ResourceID model, uint32 meshIndex, uint32 primitiveIndex, uint32 shaderHandle, const GPUEntity& customEntityData)
+	void DrawCollector::AddModelDraw(DrawGroup& group, ResourceID model, uint32 meshIndex, uint32 primitiveIndex, uint32 shaderHandle, const ModelDrawInstance& inst)
 	{
 		auto drawIt = linatl::find_if(group.modelDraws.begin(), group.modelDraws.end(), [model, meshIndex, primitiveIndex, shaderHandle](const ModelDraw& draw) -> bool {
 			return draw.modelID == model && draw.shaderHandle == shaderHandle && draw.meshIndex == meshIndex && draw.primitiveIndex == primitiveIndex;
 		});
 
-		const ModelDrawInstance inst = {
-			.customEntityData = customEntityData,
-		};
 		if (drawIt != group.modelDraws.end())
 		{
 			drawIt->instances.push_back(inst);
@@ -316,13 +300,6 @@ namespace Lina
 								.uniqueID4 = static_cast<uint32>(mesh.nodeIndex),
 							});
 						}
-						else
-						{
-							entityIndex = static_cast<uint32>(m_renderingData.entities.size());
-							m_renderingData.entities.push_back({
-								.entity = inst.customEntityData,
-							});
-						}
 
 						bool found = false;
 
@@ -342,6 +319,13 @@ namespace Lina
 
 						if (!found)
 							boneIndex = 0;
+					}
+					else
+					{
+						entityIndex = static_cast<uint32>(m_renderingData.entities.size());
+						m_renderingData.entities.push_back({
+							.entity = inst.customEntityData,
+						});
 					}
 
 					const GPUDrawArguments arguments = {

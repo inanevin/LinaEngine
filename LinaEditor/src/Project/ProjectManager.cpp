@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Editor/IO/ThumbnailGenerator.hpp"
 #include "Editor/Widgets/Panel/PanelMaterialViewer.hpp"
 #include "Editor/World/WorldUtility.hpp"
+#include "Editor/Resources/ShaderImport.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Serialization/Serialization.hpp"
 #include "Core/Meta/ProjectData.hpp"
@@ -597,7 +598,11 @@ namespace Lina::Editor
 
 			for (Resource* res : m_editorResourcesToReimport)
 			{
-				const bool success = res->LoadFromFile(res->GetPath());
+				bool success = false;
+				if (res->GetTID() == GetTypeID<Shader>())
+					success = ShaderImport::ImportShader(static_cast<Shader*>(res), res->GetPath());
+				else
+					success = res->LoadFromFile(res->GetPath());
 
 				m_reimportResults.push_back({
 							.id				  = res->GetID(),

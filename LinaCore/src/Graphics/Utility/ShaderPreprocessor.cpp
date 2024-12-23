@@ -390,14 +390,12 @@ namespace Lina
 	{
 		String path = "";
 
-		if (type == ShaderType::DeferredSurface)
-			path = "Resources/Core/Shaders/Common/MainVertex_Deferred.linashader";
-		else if (type == ShaderType::ForwardSurface)
-			path = "Resources/Core/Shaders/Common/MainVertex_Forward.linashader";
+		if (type == ShaderType::DeferredSurface || type == ShaderType::ForwardSurface)
+			path = "Resources/Core/Shaders/Common/MainVertexStatic.linashader";
 		else if (type == ShaderType::Sky)
 			path = "Resources/Core/Shaders/Common/MainVertex_Sky.linashader";
 		else if (type == ShaderType::Lighting)
-			path = "Resources/Core/Shaders/Common/MainVertex_Lighting.linashader";
+			path = "Resources/Core/Shaders/Common/MainVertexSimple.linashader";
 		else
 		{
 			LINA_ASSERT(false, "");
@@ -407,20 +405,9 @@ namespace Lina
 		input.insert(input.length(), str);
 	}
 
-	void ShaderPreprocessor::InjectSkinnedVertexMain(String& input, ShaderType type)
+	void ShaderPreprocessor::InjectSkinnedVertexMain(String& input)
 	{
-		String path = "";
-
-		if (type == ShaderType::DeferredSurface)
-			path = "Resources/Core/Shaders/Common/MainVertexSkinned_Deferred.linashader";
-		else if (type == ShaderType::ForwardSurface)
-			path = "Resources/Core/Shaders/Common/MainVertexSkinned_Forward.linashader";
-		else
-		{
-			LINA_ASSERT(false, "");
-		}
-
-		String str = FileSystem::ReadFileContentsAsString(path);
+		String str = FileSystem::ReadFileContentsAsString("Resources/Core/Shaders/Common/MainVertexStatic.linashader");
 		input.insert(input.length(), str);
 	}
 
@@ -453,6 +440,115 @@ namespace Lina
 			return;
 
 		input.insert(pos, shader);
+	}
+
+	String ShaderPreprocessor::MakeVariantBlock(const String& userBlock, const String& variant, const String& renderPassInclude)
+	{
+		String finalStr = "";
+		InjectVersionAndExtensions(finalStr);
+		finalStr += "\n";
+		finalStr.insert(finalStr.length(), "#include \"Resources/Core/Shaders/Common/GlobalData.linashader\"\n");
+
+		const String inc = "#include \"" + renderPassInclude + "\"\n";
+		finalStr.insert(finalStr.length(), inc);
+		finalStr += "\n";
+
+		String variantStr = FileSystem::ReadFileContentsAsString(variant);
+		finalStr.insert(finalStr.length(), variantStr);
+		finalStr += "\n";
+
+		static String ident = "//##user_shader_injected_here";
+		const size_t  pos	= finalStr.find(ident);
+		if (pos == String::npos)
+			return "";
+		finalStr.insert(pos, userBlock);
+
+		return finalStr;
+	}
+
+	ShaderVariant ShaderPreprocessor::MakeVariant(const String& name, const String& vertexBlock, const String& fragBlock, LinaGX::CullMode cull, BlendMode blend, DepthTesting depth, RenderPassType rpType)
+	{
+		const String includePath = FileSystem::GetRunningDirectory();
+
+		ShaderVariant variant = {
+			.id		   = TO_SID(name),
+			.name	   = name,
+			.cullMode  = cull,
+			.frontFace = LinaGX::FrontFace::CW,
+			._compileData =
+				{
+					{
+						.stage		 = LinaGX::ShaderStage::Vertex,
+						.text		 = vertexBlock,
+						.includePath = includePath.c_str(),
+					},
+					{
+						.stage		 = LinaGX::ShaderStage::Fragment,
+						.text		 = fragBlock,
+						.includePath = includePath.c_str(),
+					},
+				},
+		};
+
+		ApplyBlending(variant, blend);
+		ApplyDepth(variant, depth);
+
+		if (rpType == RenderPassType::RENDER_PASS_DEFERRED)
+		{
+			variant.targets = {{.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}};
+		}
+		else
+			variant.targets = {{.format = DEFAULT_RT_FORMAT}};
+
+		return variant;
+	}
+
+	void ShaderPreprocessor::ApplyBlending(ShaderVariant& variant, BlendMode blendMode)
+	{
+		switch (blendMode)
+		{
+		case BlendMode::Opaque:
+			variant.blendDisable = true;
+			break;
+		case BlendMode::AlphaBlend:
+			variant.blendDisable		= false;
+			variant.blendSrcFactor		= LinaGX::BlendFactor::SrcAlpha;
+			variant.blendDstFactor		= LinaGX::BlendFactor::OneMinusSrcAlpha;
+			variant.blendColorOp		= LinaGX::BlendOp::Add;
+			variant.blendSrcAlphaFactor = LinaGX::BlendFactor::One;
+			variant.blendDstAlphaFactor = LinaGX::BlendFactor::OneMinusSrcAlpha;
+			variant.blendAlphaOp		= LinaGX::BlendOp::Add;
+			break;
+		default:
+			break;
+		}
+	}
+
+	void ShaderPreprocessor::ApplyDepth(ShaderVariant& variant, DepthTesting depth)
+	{
+		switch (depth)
+		{
+		case DepthTesting::None:
+			variant.depthTest  = false;
+			variant.depthWrite = false;
+			break;
+		case DepthTesting::TestWrite:
+			variant.depthTest		  = true;
+			variant.depthWrite		  = true;
+			variant.depthBiasEnable	  = true;
+			variant.depthBiasConstant = 5.0f;
+			break;
+		case DepthTesting::Test:
+			variant.depthTest		  = true;
+			variant.depthWrite		  = false;
+			variant.depthBiasEnable	  = true;
+			variant.depthBiasConstant = 5.0f;
+			break;
+		case DepthTesting::Write:
+			variant.depthTest  = false;
+			variant.depthWrite = true;
+			break;
+		}
 	}
 
 	ShaderType ShaderPreprocessor::GetShaderType(const String& input)

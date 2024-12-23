@@ -57,8 +57,6 @@ namespace Lina
 
 		LinaGX::ShaderLayout _outLayout = {};
 
-		LINAGX_VEC<LinaGX::ShaderCompileData> _compileData = {};
-
 		String					   name				   = "";
 		bool					   blendDisable		   = false;
 		LinaGX::BlendFactor		   blendSrcFactor	   = LinaGX::BlendFactor::SrcAlpha;
@@ -79,6 +77,8 @@ namespace Lina
 		float					   depthBiasConstant = 0.0f;
 		float					   depthBiasClamp	 = 0.0f;
 		float					   depthBiasSlope	 = 0.0f;
+
+		LINAGX_VEC<LinaGX::ShaderCompileData> _compileData = {};
 
 		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);

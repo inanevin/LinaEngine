@@ -36,7 +36,9 @@ namespace Lina
 	class Camera
 	{
 	public:
-		Vector3 WorldToScreen(const Vector3& point, const Vector2& screenSize) const;
+		static float   DistanceToClipZ(float distance, float near, float far, const Matrix4& projection);
+		static Vector3 WorldToScreen(const Camera& camera, const Vector3& point, const Vector2& screenSize);
+		static Vector3 ScreenToWorld(const Camera& camera, const Vector2& screenPoint, const Vector2& screenSize, float nonLinearDepth);
 
 		void Calculate(const Vector2& renderSize);
 

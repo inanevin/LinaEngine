@@ -210,8 +210,8 @@ namespace Lina::Editor
 
 		const Vector3 target   = targetAxis * worldCam.GetZFar();
 		const float	  dot	   = Math::Abs(worldCam.GetRotation().GetForward().Dot(targetAxis));
-		const Vector2 screen0  = worldCam.WorldToScreen(front, displaySize).XY();
-		const Vector2 screen1  = worldCam.WorldToScreen(target, displaySize).XY();
+		const Vector2 screen0  = Camera::WorldToScreen(worldCam, front, displaySize).XY();
+		const Vector2 screen1  = Camera::WorldToScreen(worldCam, target, displaySize).XY();
 		const Vector2 dir	   = (screen1 - screen0).Normalized();
 		const Vector2 line0	   = axesGizmoStart;
 		const Vector2 line1	   = line0 + dir * (1.0f - dot) * length;

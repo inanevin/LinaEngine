@@ -111,6 +111,21 @@ namespace Lina
 		void		 AddFeatureRenderer(FeatureRenderer* ft);
 		void		 RemoveFeatureRenderer(FeatureRenderer* ft);
 
+		inline Buffer& GetInstanceDataBuffer(uint32 frameIndex)
+		{
+			return m_pfd[frameIndex].instanceDataBuffer;
+		}
+
+		inline Buffer& GetEntityDataBuffer(uint32 frameIndex)
+		{
+			return m_pfd[frameIndex].entityDataBuffer;
+		}
+
+		inline Buffer& GetBoneBuffer(uint32 frameIndex)
+		{
+			return m_pfd[frameIndex].boneBuffer;
+		}
+
 		inline SemaphoreData GetSubmitSemaphore(uint32 frameIndex)
 		{
 			if (m_snapshotBuffer != nullptr)
@@ -167,6 +182,11 @@ namespace Lina
 		inline void SetExtension(WorldRendererExtension* ext)
 		{
 			m_extension = ext;
+		}
+
+		inline DrawCollector& GetDrawCollector()
+		{
+			return m_drawCollector;
 		}
 
 	private:

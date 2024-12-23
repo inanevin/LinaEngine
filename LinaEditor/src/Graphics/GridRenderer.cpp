@@ -39,7 +39,7 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-	GridRenderer::GridRenderer(Editor* editor, LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm) : FeatureRenderer(lgx, world, rm)
+	GridRenderer::GridRenderer(Editor* editor, LinaGX::Instance* lgx, EntityWorld* world, WorldRenderer* wr, ResourceManagerV2* rm) : FeatureRenderer(lgx, world, rm, wr)
 	{
 		m_editor	   = editor;
 		m_gridShader   = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_GRID_ID);

@@ -31,13 +31,35 @@ SOFTWARE.
 
 namespace Lina
 {
-	Vector3 Camera::WorldToScreen(const Vector3& point, const Vector2& screenSize) const
+	float Camera::DistanceToClipZ(float distance, float zNear, float zFar, const Matrix4& projectionMatrix)
 	{
-		Vector4 clipSpace		  = m_viewProj * Vector4(point.x, point.y, point.z, 1.0f);
+		float A = (zFar + zNear) / (zFar - zNear);
+		float B = (2.0f * zFar * zNear) / (zFar - zNear);
+		return A + B / distance;
+	}
+
+	Vector3 Camera::WorldToScreen(const Camera& camera, const Vector3& point, const Vector2& screenSize)
+	{
+		Vector4 clipSpace		  = camera.GetViewProj() * Vector4(point.x, point.y, point.z, 1.0f);
 		clipSpace.w				  = Math::Abs(clipSpace.w);
 		const Vector3 ndc		  = Vector3(clipSpace.x / clipSpace.w, clipSpace.y / clipSpace.w, clipSpace.z / clipSpace.w);
 		const Vector3 screenSpace = ndc * 0.5f + Vector3(0.5f);
 		return Vector3(screenSpace.x * screenSize.x, (1.0f - screenSpace.y) * screenSize.y, screenSpace.z);
+	}
+
+	Vector3 Camera::ScreenToWorld(const Camera& camera, const Vector2& screenPoint, const Vector2& screenSize, float nonLinearDepth)
+	{
+		const Vector2 screenRatio = (Vector2(screenPoint.x, screenSize.y - screenPoint.y) / screenSize);
+		const Vector2 ndc		  = screenRatio * 2 - Vector2::One;
+
+		// float		  clipZ		  = DistanceToClipZ(hm.z, camera.GetZNear(), camera.GetZFar(), camera.GetProjection());
+		Vector4 clipSpace(ndc.x, ndc.y, nonLinearDepth, 1.0f);
+
+		// Transform clip space to world space
+		Vector4 worldSpace = camera.GetViewProj().Inverse() * clipSpace;
+
+		// Perform perspective divide
+		return Vector3(worldSpace.x, worldSpace.y, worldSpace.z) / worldSpace.w;
 	}
 
 	void Camera::Calculate(const Vector2& sz)

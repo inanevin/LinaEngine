@@ -163,8 +163,8 @@ namespace Lina
 		void OnComponentAdded(Component* comp);
 		void OnComponentRemoved(Component* comp);
 
-		void CollectCompModels(DrawGroup& group, const View& view, uint32 shaderOverrideHandle, ShaderType shaderType);
-		void AddModelDraw(DrawGroup& group, ResourceID model, uint32 meshIndex, uint32 primitiveIndex, uint32 shaderHandle, const GPUEntity& customEntityData);
+		void CollectCompModels(DrawGroup& group, const View& view, StringID staticVariant, StringID skinnedVariant, ShaderType shaderType);
+		void AddModelDraw(DrawGroup& group, ResourceID model, uint32 meshIndex, uint32 primitiveIndex, uint32 shaderHandle, const ModelDrawInstance& instance);
 		void AddCustomDraw(DrawGroup& group, const CustomDrawInstance& inst, uint32 shaderHandle, Buffer* vertexBuffer, Buffer* indexBuffer, size_t vertexSize, uint32 baseVertex, uint32 indexCount, uint32 startIndex);
 		void AddCustomDrawRaw(DrawGroup& group, const CustomDrawInstance& inst, uint32 shaderHandle, uint32 baseVertex, uint32 vtxCount);
 
