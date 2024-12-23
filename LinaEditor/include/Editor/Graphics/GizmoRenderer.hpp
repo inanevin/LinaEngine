@@ -35,12 +35,12 @@ namespace Lina
 {
 	class Shader;
 	class Entity;
-
 } // namespace Lina
 
 namespace Lina::Editor
 {
 	class Editor;
+	class MousePickRenderer;
 
 	class GizmoRenderer : public FeatureRenderer
 	{
@@ -48,20 +48,21 @@ namespace Lina::Editor
 		GizmoRenderer(Editor* editor, LinaGX::Instance* lgx, EntityWorld* world, WorldRenderer* wr, ResourceManagerV2* rm);
 		virtual ~GizmoRenderer();
 
-		inline void SetSelectedEntity(Entity* e)
+		inline void SetSelectedEntities(const Vector<Entity*>& entities)
 		{
-			m_selected = e;
+			m_selectedEntities = entities;
 		}
 
-		virtual void ProduceFrame(DrawCollector& collector) override;
+		virtual void OnProduceFrame(DrawCollector& collector) override;
 		virtual void OnRenderPassPost(uint32 frameIndex, LinaGX::CommandStream* stream, RenderPassType type) override;
 
 	private:
-		Entity*	  m_selected	   = nullptr;
-		Material* m_gizmoMaterialX = nullptr;
-		Material* m_gizmoMaterialY = nullptr;
-		Material* m_gizmoMaterialZ = nullptr;
-		Shader*	  m_gizmoShader	   = nullptr;
-		Editor*	  m_editor		   = nullptr;
+		Vector<Entity*>	   m_selectedEntities  = {};
+		Material*		   m_gizmoMaterialX	   = nullptr;
+		Material*		   m_gizmoMaterialY	   = nullptr;
+		Material*		   m_gizmoMaterialZ	   = nullptr;
+		Shader*			   m_gizmoShader	   = nullptr;
+		Editor*			   m_editor			   = nullptr;
+		MousePickRenderer* m_mousePickRenderer = nullptr;
 	};
 } // namespace Lina::Editor

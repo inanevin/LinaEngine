@@ -95,7 +95,7 @@ namespace Lina
 		Vector4 cameraPositionAndNear;
 		Vector4 cameraDirectionAndFar;
 		Vector2 size;
-		Vector2 padding;
+		Vector2 mouse;
 		Vector4 padding2;
 	};
 

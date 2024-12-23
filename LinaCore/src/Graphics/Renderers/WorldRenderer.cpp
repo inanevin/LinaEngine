@@ -160,7 +160,7 @@ namespace Lina
 			});
 		}
 
-		m_drawCollector.Initialize(m_lgx, m_world, m_resourceManagerV2, m_gfxContext);
+		m_drawCollector.Initialize(m_lgx, m_world, m_resourceManagerV2, m_gfxContext, &m_executor);
 		m_lightingRenderer.Initialize(m_lgx, m_world, m_resourceManagerV2);
 		m_skyRenderer.Initialize(m_lgx, m_world, m_resourceManagerV2);
 		m_guiBackend.Initialize(m_resourceManagerV2);
@@ -355,11 +355,11 @@ namespace Lina
 		m_drawCollector.CollectCompModels(m_drawCollector.GetGroup("Deferred"_hs), cameraView, ShaderType::DeferredSurface);
 		m_drawCollector.CollectCompModels(m_drawCollector.GetGroup("Forward"_hs), cameraView, ShaderType::ForwardSurface);
 
-		m_lightingRenderer.ProduceFrame();
-		m_skyRenderer.ProduceFrame();
+		m_lightingRenderer.OnProduceFrame();
+		m_skyRenderer.OnProduceFrame();
 
 		for (FeatureRenderer* ft : m_featureRenderers)
-			ft->ProduceFrame(m_drawCollector);
+			ft->OnProduceFrame(m_drawCollector);
 	}
 
 	void WorldRenderer::SyncRender()
@@ -394,6 +394,7 @@ namespace Lina
 			view.cameraPositionAndNear = Vector4(camPos.x, camPos.y, camPos.z, worldCam.GetZNear());
 			view.cameraDirectionAndFar = Vector4(camDir.x, camDir.y, camDir.z, worldCam.GetZFar());
 			view.size				   = Vector2(static_cast<float>(m_size.x), static_cast<float>(m_size.y));
+			view.mouse				   = m_world->GetInput().GetMousePositionRatio();
 			m_deferredPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
 			m_forwardPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
 		}
@@ -417,11 +418,6 @@ namespace Lina
 			m_forwardPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&renderPassData, sizeof(GPUForwardPassData));
 		}
 
-		for (FeatureRenderer* ft : m_featureRenderers)
-			ft->AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
-
-		m_drawCollector.PrepareGPUData(m_executor);
-
 		const DrawCollector::RenderingData& data = m_drawCollector.GetRenderingData();
 
 		size_t entityIdx = 0;
@@ -433,6 +429,13 @@ namespace Lina
 
 		currentFrame.instanceDataBuffer.BufferData(0, (uint8*)data.instanceData.data(), sizeof(GPUDrawArguments) * data.instanceData.size());
 		currentFrame.boneBuffer.BufferData(0, (uint8*)data.bones.data(), sizeof(Matrix4) * data.bones.size());
+
+		m_uploadQueue.AddBufferRequest(&currentFrame.entityDataBuffer);
+		m_uploadQueue.AddBufferRequest(&currentFrame.instanceDataBuffer);
+		m_uploadQueue.AddBufferRequest(&currentFrame.boneBuffer);
+
+		for (FeatureRenderer* ft : m_featureRenderers)
+			ft->AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
 
 		m_deferredPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
 		m_forwardPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
@@ -566,11 +569,8 @@ namespace Lina
 			DEBUG_LABEL_END(currentFrame.gfxStream);
 		}
 
-		// OTHERS
-		{
-			for (FeatureRenderer* ft : m_featureRenderers)
-				ft->OnPostRender(frameIndex, currentFrame.gfxStream, viewport, scissors);
-		}
+		for (FeatureRenderer* ft : m_featureRenderers)
+			ft->OnPostRender(frameIndex, currentFrame.gfxStream, viewport, scissors);
 
 		// Barrier to shader read or transfer read
 		if (m_snapshotBuffer == nullptr)

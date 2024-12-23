@@ -83,6 +83,7 @@ namespace Lina
 
 		void			   Initialize(ResourceManagerV2* rm);
 		Entity*			   CreateEntity(const String& name);
+		Entity*			   GetEntity(EntityID guid);
 		void			   DestroyEntity(Entity* e);
 		virtual void	   SaveToStream(OStream& stream) const override;
 		virtual void	   LoadFromStream(IStream& stream) override;

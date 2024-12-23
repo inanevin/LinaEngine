@@ -31,6 +31,7 @@ include/Editor/EditorWorldManager.hpp
 include/Editor/Actions/EditorActionManager.hpp
 include/Editor/Actions/EditorAction.hpp
 include/Editor/Actions/EditorActionResources.hpp
+include/Editor/Actions/EditorActionEntity.hpp
 include/Editor/WindowPanelManager.hpp
 
 # Project
@@ -118,6 +119,7 @@ src/EditorWorldManager.cpp
 src/Actions/EditorActionManager.cpp
 src/Actions/EditorAction.cpp
 src/Actions/EditorActionResources.cpp
+src/Actions/EditorActionEntity.cpp
 src/EditorLocale.cpp
 src/Editor.cpp
 src/EditorTaskManager.cpp

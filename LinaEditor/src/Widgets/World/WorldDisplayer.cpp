@@ -139,7 +139,8 @@ namespace Lina::Editor
 			return;
 
 		const uint32 frameIndex		= Application::GetLGX()->GetCurrentFrameIndex();
-		Texture*	 target			= m_worldRenderer->GetLightingPassOutput((frameIndex + SystemInfo::GetRendererBehindFrames()) % 2); // 1 frame behind renderer
+		const uint32 txtFrameIndex	= (frameIndex + SystemInfo::GetRendererBehindFrames()) % 2;
+		Texture*	 target			= m_worldRenderer->GetLightingPassOutput(txtFrameIndex); // 1 frame behind renderer
 		GetWidgetProps().rawTexture = target;
 	}
 

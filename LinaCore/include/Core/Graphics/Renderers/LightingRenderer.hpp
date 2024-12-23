@@ -55,7 +55,7 @@ namespace Lina
 		void Initialize(LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm);
 		void Shutdown();
 
-		void ProduceFrame();
+		void OnProduceFrame();
 		void RenderLightingQuad(LinaGX::CommandStream* stream);
 		void SyncRender();
 

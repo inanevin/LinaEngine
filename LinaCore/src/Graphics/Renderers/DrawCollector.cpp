@@ -35,12 +35,13 @@ SOFTWARE.
 
 namespace Lina
 {
-	void DrawCollector::Initialize(LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm, GfxContext* context)
+	void DrawCollector::Initialize(LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm, GfxContext* context, JobExecutor* executor)
 	{
-		m_lgx		 = lgx;
-		m_world		 = world;
-		m_rm		 = rm;
-		m_gfxContext = context;
+		m_jobExecutor = executor;
+		m_lgx		  = lgx;
+		m_world		  = world;
+		m_rm		  = rm;
+		m_gfxContext  = context;
 	}
 
 	void DrawCollector::Shutdown()
@@ -189,14 +190,14 @@ namespace Lina
 		});
 	}
 
-	void DrawCollector::PrepareGPUData(JobExecutor& executor)
+	void DrawCollector::PrepareGPUData()
 	{
 		m_renderingData = {};
 
 		Vector<CompModel*> skinnedModels;
 
 		// Create a list of all comp models supporting skinning.
-		for (const DrawGroup& group : m_gpuDraw.drawGroups)
+		for (const DrawGroup& group : m_cpuDraw.drawGroups)
 		{
 			for (const ModelDraw& modelDraw : group.modelDraws)
 			{
@@ -211,9 +212,9 @@ namespace Lina
 
 		// Now we'll have bones populated for the rendering data.
 		if (!skinnedModels.empty())
-			CalculateSkinning(skinnedModels, executor);
+			CalculateSkinning(skinnedModels);
 
-		for (const DrawGroup& group : m_gpuDraw.drawGroups)
+		for (const DrawGroup& group : m_cpuDraw.drawGroups)
 		{
 			m_renderingData.groups.push_back({
 				.id	  = group.id,
@@ -248,13 +249,19 @@ namespace Lina
 		return *it;
 	}
 
-	bool DrawCollector::GroupExists(StringID groupId)
+	bool DrawCollector::GroupExists(StringID groupId) const
 	{
 		auto it = linatl::find_if(m_cpuDraw.drawGroups.begin(), m_cpuDraw.drawGroups.end(), [groupId](const DrawGroup& g) -> bool { return groupId == g.id; });
 		return it != m_cpuDraw.drawGroups.end();
 	}
 
-	void DrawCollector::CalculateSkinning(const Vector<CompModel*>& comps, JobExecutor& executor)
+	bool DrawCollector::RenderGroupExists(StringID groupId) const
+	{
+		auto it = linatl::find_if(m_renderingData.groups.begin(), m_renderingData.groups.end(), [groupId](const RenderingGroup& g) -> bool { return groupId == g.id; });
+		return it != m_renderingData.groups.end();
+	}
+
+	void DrawCollector::CalculateSkinning(const Vector<CompModel*>& comps)
 	{
 		Vector<uint32> boneIDs;
 		uint32		   boneIdxCounter = 0;
@@ -290,12 +297,12 @@ namespace Lina
 				}
 			}
 		});
-		executor.RunAndWait(tf);
+		m_jobExecutor->RunAndWait(tf);
 	}
 
 	void DrawCollector::SyncRender()
 	{
-		m_gpuDraw = m_cpuDraw;
+		PrepareGPUData();
 		m_cpuDraw = {};
 	}
 

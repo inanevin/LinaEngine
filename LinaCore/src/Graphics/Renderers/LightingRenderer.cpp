@@ -44,7 +44,7 @@ namespace Lina
 	{
 	}
 
-	void LightingRenderer::ProduceFrame()
+	void LightingRenderer::OnProduceFrame()
 	{
 		m_cpuDraw.materialID = m_world->GetGfxSettings().lightingMaterial;
 	}

@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Editor/Widgets/Panel/Panel.hpp"
 #include "Editor/PayloadListener.hpp"
+#include "Core/World/CommonWorld.hpp"
 
 namespace Lina
 {
@@ -59,7 +60,10 @@ namespace Lina::Editor
 		void CreateWorld(const String& resourcePath);
 		void DestroyWorld();
 
-		void SelectEntity(Entity* e);
+		void SelectEntity(Entity* e, bool clearOthers);
+		void SelectEntity(EntityID guid, bool clearOthers);
+		void ChangeSelectionByAction(const Vector<EntityID>& selection);
+		void OnEntitySelectionChanged();
 
 		virtual void OnPayloadStarted(PayloadType type, Widget* payload) override;
 		virtual void OnPayloadEnded(PayloadType type, Widget* payload) override;
@@ -78,7 +82,7 @@ namespace Lina::Editor
 		}
 
 	private:
-		Vector<Entity*>	   m_selection		   = {};
+		Vector<Entity*>	   m_selectedEntities  = {};
 		Editor*			   m_editor			   = nullptr;
 		EntityWorld*	   m_world			   = nullptr;
 		WorldRenderer*	   m_worldRenderer	   = nullptr;

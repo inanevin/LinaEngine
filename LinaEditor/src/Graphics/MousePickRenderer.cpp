@@ -164,17 +164,33 @@ namespace Lina::Editor
 					.proj = worldCam.GetProjection(),
 			};
 
+			const Vector2 displayPos = m_world->GetScreen().GetDisplayPos();
+
 			const Vector3& camPos	   = worldCam.GetPosition();
 			const Vector3& camDir	   = worldCam.GetRotation().GetForward();
 			view.viewProj			   = view.proj * view.view;
 			view.cameraPositionAndNear = Vector4(camPos.x, camPos.y, camPos.z, worldCam.GetZNear());
 			view.cameraDirectionAndFar = Vector4(camDir.x, camDir.y, camDir.z, worldCam.GetZFar());
 			view.size				   = Vector2(static_cast<float>(m_size.x), static_cast<float>(m_size.y));
+			view.mouse				   = m_world->GetInput().GetMousePositionRatio();
+
 			m_entityBufferPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
 		}
+
+		const Vector2 mp		  = m_world->GetInput().GetMousePosition();
+		uint32*		  mapping	  = reinterpret_cast<uint32*>(m_pfd[frameIndex].snapshotBuffer.GetMapped());
+		const uint32  pixel		  = m_size.x * static_cast<uint32>(mp.y) + static_cast<uint32>(mp.x);
+		const size_t  entityIndex = static_cast<size_t>(pixel[mapping]);
+
+		if (entityIndex == 0)
+			m_lastHoveredEntityGPU = 0;
+		else if (entityIndex - 1 < m_lastEntityIDs.size())
+			m_lastHoveredEntityGPU = m_lastEntityIDs[entityIndex - 1];
+
+		m_entityBufferPass.AddBuffersToUploadQueue(frameIndex, queue);
 	}
 
-	void MousePickRenderer::ProduceFrame(DrawCollector& collector)
+	void MousePickRenderer::OnProduceFrame(DrawCollector& collector)
 	{
 		collector.CreateGroup("MousePick");
 		DrawCollector::DrawGroup& group = collector.GetGroup("MousePick"_hs);
@@ -195,18 +211,6 @@ namespace Lina::Editor
 	{
 		PerFrameData& pfd = m_pfd[frameIndex];
 
-		if (m_pickEntityRequest)
-		{
-			uint32*		 mapping	 = reinterpret_cast<uint32*>(pfd.snapshotBuffer.GetMapped());
-			const uint32 pixel		 = m_size.x * m_pickEntityPosition.y + m_pickEntityPosition.x;
-			uint32		 entityIndex = (mapping[pixel]);
-
-			m_pickEntityRequest = false;
-
-			const EntityID entityID = m_lastEntityIDs.at(entityIndex);
-
-			LINA_TRACE("Entity index is {0} {1}", entityIndex, entityID);
-		}
 		DrawCollector& drawCollector = m_wr->GetDrawCollector();
 
 		// FORWARD PASS
@@ -239,60 +243,24 @@ namespace Lina::Editor
 			copy->srcMip						   = 0;
 			copy->srcTexture					   = m_pfd[frameIndex].renderTarget->GetGPUHandle();
 
-			// Fetch last entities.
-			{
-				const Vector<DrawCollector::DrawEntity>& drawEntities	  = drawCollector.GetRenderingData().entities;
-				const size_t							 drawEntitiesSize = drawEntities.size();
-				m_lastEntityIDs.resize(drawEntitiesSize);
-				for (size_t i = 0; i < drawEntitiesSize; i++)
-					m_lastEntityIDs[i] = drawEntities.at(i).entityGUID;
-			}
+			const Vector<DrawCollector::DrawEntity>& drawEntities = drawCollector.GetRenderingData().entities;
+			m_lastEntityIDs.resize(drawEntities.size());
+			for (size_t i = 0; i < drawEntities.size(); i++)
+				m_lastEntityIDs[i] = drawEntities.at(i).entityGUID;
 
 			DEBUG_LABEL_END(stream);
 		}
 	}
 
-	void MousePickRenderer::OnPostSubmit(uint32 frameIndex, LinaGX::CommandStream* stream)
+	void MousePickRenderer::SyncRender()
 	{
-		return;
-
-		SemaphoreData& copySem	 = m_wr->GetCopySemaphoreData(frameIndex);
-		SemaphoreData& signalSem = m_wr->GetSignalSemaphoreData(frameIndex);
-
-		LinaGX::CMDCopyTexture2DToBuffer* copy = stream->AddCommand<LinaGX::CMDCopyTexture2DToBuffer>();
-		copy->destBuffer					   = m_pfd[frameIndex].snapshotBuffer.GetGPUResource();
-		copy->srcLayer						   = 0;
-		copy->srcMip						   = 0;
-		copy->srcTexture					   = m_pfd[frameIndex].renderTarget->GetGPUHandle();
-
-		copySem.Increment();
-		m_lgx->CloseCommandStreams(&stream, 1);
-		m_lgx->SubmitCommandStreams({
-			.targetQueue		  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Graphics),
-			.streams			  = &stream,
-			.streamCount		  = 1,
-			.useWait			  = true,
-			.waitCount			  = 1,
-			.waitSemaphores		  = signalSem.GetSemaphorePtr(),
-			.waitValues			  = signalSem.GetValuePtr(),
-			.useSignal			  = true,
-			.signalCount		  = 1,
-			.signalSemaphores	  = copySem.GetSemaphorePtr(),
-			.signalValues		  = copySem.GetValuePtr(),
-			.standaloneSubmission = false,
-		});
+		m_lastHoveredEntityCPU = m_lastHoveredEntityGPU;
 	}
 
 	void MousePickRenderer::GetBarriersTextureToAttachment(uint32 frameIndex, Vector<LinaGX::TextureBarrier>& outBarriers)
 	{
 		outBarriers.push_back(GfxHelpers::GetTextureBarrierColorRead2Att(m_pfd[frameIndex].renderTarget->GetGPUHandle()));
 		outBarriers.push_back(GfxHelpers::GetTextureBarrierDepthRead2Att(m_pfd[frameIndex].depthTarget->GetGPUHandle()));
-	}
-
-	void MousePickRenderer::PickEntity(const Vector2& position)
-	{
-		m_pickEntityRequest	 = true;
-		m_pickEntityPosition = position;
 	}
 
 } // namespace Lina::Editor

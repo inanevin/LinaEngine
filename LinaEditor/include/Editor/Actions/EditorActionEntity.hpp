@@ -1,11 +1,11 @@
 /*
-This file is a part of: LinaGX
-https://github.com/inanevin/LinaGX
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
 
 Author: Inan Evin
 http://www.inanevin.com
 
-Copyright (c) [2023-] [Inan Evin]
+Copyright (c) [2018-] [Inan Evin]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,21 +26,33 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#pragma once
 
-layout (location = 10) flat in uint inEntityID;
-layout (location = 0) out uint outFragColor;
+#include "EditorAction.hpp"
+#include "Core/World/CommonWorld.hpp"
+#include "Common/Data/String.hpp"
 
-struct LinaFragOutput
+namespace Lina
 {
-   vec4 color;
-   vec3 normal;
-   vec3 worldPos;
-   uint isUnlit;
+	class Entity;
 };
 
-//##user_shader_injected_here
-
-void main()
+namespace Lina::Editor
 {
-   outFragColor = inEntityID + 1;
-}
+	class Editor;
+
+	class EditorActionEntitySelection : public EditorAction
+	{
+	public:
+		EditorActionEntitySelection()		   = default;
+		virtual ~EditorActionEntitySelection() = default;
+
+		static EditorActionEntitySelection* Create(Editor* editor, const Vector<Entity*>& previousSelection, const Vector<Entity*>& currentSelection);
+		virtual void						Execute(Editor* editor, ExecType type) override;
+
+	private:
+		Vector<EntityID> m_prevSelected = {};
+		Vector<EntityID> m_selected		= {};
+	};
+
+} // namespace Lina::Editor

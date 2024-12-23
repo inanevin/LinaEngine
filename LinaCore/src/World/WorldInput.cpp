@@ -87,13 +87,11 @@ namespace Lina
 
 	Vector2 WorldInput::GetMousePosition()
 	{
-		return m_lgxInput->GetMouseDelta();
-
-		if (!m_isActive)
-			return m_lastMousePosition;
-
-		if (m_screen->GetOwnerWindow() == nullptr)
-			return m_lastMousePosition;
+		// if (!m_isActive)
+		// 	return m_lastMousePosition;
+		//
+		// if (m_screen->GetOwnerWindow() == nullptr)
+		// 	return m_lastMousePosition;
 
 		const Vector2 mpRelativeWindow = m_screen->GetOwnerWindow()->GetMousePosition();
 		const Vector2 displayPos	   = m_screen->GetDisplayPos();

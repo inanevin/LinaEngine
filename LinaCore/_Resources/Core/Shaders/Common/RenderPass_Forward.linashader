@@ -47,7 +47,7 @@ layout(set = 1, binding = 0) uniform ViewData
 	vec4 cameraPositionAndNear;
 	vec4 cameraDirectionAndFar;
 	vec2 size;
-	vec2 padding;
+	vec2 mouse;
 	vec4 padding2;
 } LINA_VIEW;
 

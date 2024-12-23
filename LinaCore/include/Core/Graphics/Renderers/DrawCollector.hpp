@@ -241,7 +241,7 @@ namespace Lina
 		DrawCollector(){};
 		virtual ~DrawCollector() = default;
 
-		void Initialize(LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm, GfxContext* context);
+		void Initialize(LinaGX::Instance* lgx, EntityWorld* world, ResourceManagerV2* rm, GfxContext* context, JobExecutor* executor);
 		void Shutdown();
 
 		void OnComponentAdded(Component* comp);
@@ -251,13 +251,13 @@ namespace Lina
 		void AddModelDraw(DrawGroup& group, ResourceID model, uint32 meshIndex, uint32 primitiveIndex, ResourceID shaderID, StringID shaderVariant, const ModelDrawInstance& instance);
 		void AddCustomDraw(DrawGroup& group, const CustomDrawInstance& inst, ResourceID shaderID, StringID shaderVariant, Buffer* vertexBuffer, Buffer* indexBuffer, size_t vertexSize, uint32 baseVertex, uint32 indexCount, uint32 startIndex);
 		void AddCustomDrawRaw(DrawGroup& group, const CustomDrawInstance& inst, ResourceID shaderID, StringID shaderVariant, uint32 baseVertex, uint32 vtxCount);
-
-		void PrepareGPUData(JobExecutor& executor);
+		void PrepareGPUData();
 
 		void			CreateGroup(const String& name);
 		DrawGroup&		GetGroup(StringID groupId);
 		RenderingGroup& GetRenderGroup(StringID groupId);
-		bool			GroupExists(StringID groupId);
+		bool			GroupExists(StringID groupId) const;
+		bool			RenderGroupExists(StringID groupId) const;
 
 		void SyncRender();
 		void RenderGroup(StringID groupId, LinaGX::CommandStream* stream);
@@ -268,7 +268,7 @@ namespace Lina
 		}
 
 	private:
-		void CalculateSkinning(const Vector<CompModel*>& comps, JobExecutor& executor);
+		void CalculateSkinning(const Vector<CompModel*>& comps);
 
 		bool DrawEntityExists(uint32& outIndex, uint64 uid, uint32 uid2, uint32 uid3, uint32 uid4);
 
@@ -277,12 +277,12 @@ namespace Lina
 		void PrepareCustomDrawsRaw(const DrawGroup& group, RenderingGroup& renderingGroup);
 
 	private:
-		GfxContext*		   m_gfxContext = nullptr;
-		LinaGX::Instance*  m_lgx		= nullptr;
-		ResourceManagerV2* m_rm			= nullptr;
-		EntityWorld*	   m_world		= nullptr;
-		DrawData		   m_cpuDraw	= {};
-		DrawData		   m_gpuDraw	= {};
+		JobExecutor*	   m_jobExecutor = nullptr;
+		GfxContext*		   m_gfxContext	 = nullptr;
+		LinaGX::Instance*  m_lgx		 = nullptr;
+		ResourceManagerV2* m_rm			 = nullptr;
+		EntityWorld*	   m_world		 = nullptr;
+		DrawData		   m_cpuDraw	 = {};
 		Vector<CompModel*> m_compModels;
 		RenderingData	   m_renderingData;
 	};

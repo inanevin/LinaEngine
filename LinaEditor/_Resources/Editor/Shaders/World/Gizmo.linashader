@@ -31,7 +31,6 @@ SOFTWARE.
 #lina_vs
 
 layout (location = 0) out flat uint outMaterialIndex;
-layout (location = 1) out vec2 outUV;
 
 void LINA_VERTEX_MAIN(in LinaVertexInput inVertex, out LinaVertexOutput outVertex)
 {
@@ -39,9 +38,6 @@ void LINA_VERTEX_MAIN(in LinaVertexInput inVertex, out LinaVertexOutput outVerte
    vec3 worldPos = vec3(entity.modelMatrix * inVertex.pos);
    outVertex.clipPosition = LINA_VIEW.proj * LINA_VIEW.view * vec4(worldPos, 1.0);
    outMaterialIndex = inVertex.drawArguments.materialIndex;
-   outUV = inVertex.uv;
-
-   
 }
 
 #lina_end
@@ -59,11 +55,6 @@ void LINA_FRAG_MAIN(out LinaFragOutput outFrag)
 {
     LinaMaterial material = LINA_GET_MATERIAL(inMaterialIndex);
     outFrag.color = material.color;
-   
-    vec2 mousePosition = LINA_GLOBAL.mouse.xy;
-   
-    if(gl_FragCoord.x == uint(mousePosition.x) && gl_FragCoord.y == uint(mousePosition.y))
-        outFrag.color = vec4(1,1,1,1);
 }
 
 #lina_end

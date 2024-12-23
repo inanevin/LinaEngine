@@ -71,16 +71,23 @@ namespace Lina::Editor
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 	}
 
-	void GizmoRenderer::ProduceFrame(DrawCollector& collector)
+	void GizmoRenderer::OnProduceFrame(DrawCollector& collector)
 	{
-		if (m_selected == nullptr)
+		if (m_selectedEntities.empty())
+		{
 			return;
+		}
 
-		const Camera& worldCam = m_world->GetWorldCamera();
+		const Camera& worldCam	  = m_world->GetWorldCamera();
+		Vector3		  avgPosition = Vector3::Zero;
 
-		const Vector3& selectedPos = m_selected->GetPosition();
-		const Vector3& cameraPos   = worldCam.GetPosition();
-		const float	   distance	   = cameraPos.Distance(selectedPos);
+		for (Entity* e : m_selectedEntities)
+			avgPosition += e->GetPosition();
+
+		avgPosition /= static_cast<float>(m_selectedEntities.size());
+
+		const Vector3& cameraPos = worldCam.GetPosition();
+		const float	   distance	 = cameraPos.Distance(avgPosition);
 
 		const float distRatio = Math::Remap(distance, 0.0f, worldCam.GetZFar(), 0.0f, 1.0f);
 		const float distScale = Math::Clamp(distRatio * 50.0f, 0.2f, worldCam.GetZFar());
@@ -88,7 +95,7 @@ namespace Lina::Editor
 		const DrawCollector::ModelDrawInstance inst0 = {
 			.customEntityData =
 				{
-					.model = Matrix4::TransformMatrix(m_selected->GetPosition(), Quaternion::AngleAxis(90, -Vector3::Forward), Vector3(distScale)),
+					.model = Matrix4::TransformMatrix(avgPosition, Quaternion::AngleAxis(90, -Vector3::Forward), Vector3(distScale)),
 				},
 			.customEntityGUID = 100,
 			.materialID		  = m_gizmoMaterialX->GetID(),
@@ -97,7 +104,7 @@ namespace Lina::Editor
 		const DrawCollector::ModelDrawInstance inst1 = {
 			.customEntityData =
 				{
-					.model = Matrix4::TransformMatrix(m_selected->GetPosition(), Quaternion::Identity(), Vector3(distScale)),
+					.model = Matrix4::TransformMatrix(avgPosition, Quaternion::Identity(), Vector3(distScale)),
 				},
 			.customEntityGUID = 101,
 			.materialID		  = m_gizmoMaterialY->GetID(),
@@ -106,7 +113,7 @@ namespace Lina::Editor
 		const DrawCollector::ModelDrawInstance inst2 = {
 			.customEntityData =
 				{
-					.model = Matrix4::TransformMatrix(m_selected->GetPosition(), Quaternion::AngleAxis(90, Vector3::Right), Vector3(distScale)),
+					.model = Matrix4::TransformMatrix(avgPosition, Quaternion::AngleAxis(90, Vector3::Right), Vector3(distScale)),
 				},
 			.customEntityGUID = 102,
 			.materialID		  = m_gizmoMaterialZ->GetID(),
@@ -120,10 +127,13 @@ namespace Lina::Editor
 
 	void GizmoRenderer::OnRenderPassPost(uint32 frameIndex, LinaGX::CommandStream* stream, RenderPassType type)
 	{
-		if (m_selected == nullptr)
+		if (m_selectedEntities.empty())
 			return;
 
 		if (type != RenderPassType::RENDER_PASS_FORWARD)
+			return;
+
+		if (!m_wr->GetDrawCollector().RenderGroupExists("Gizmo"_hs))
 			return;
 
 		m_wr->GetDrawCollector().RenderGroup("Gizmo"_hs, stream);

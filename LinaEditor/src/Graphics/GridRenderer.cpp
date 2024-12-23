@@ -68,7 +68,7 @@ namespace Lina::Editor
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 	}
 
-	void GridRenderer::ProduceFrame(DrawCollector& collector)
+	void GridRenderer::OnProduceFrame(DrawCollector& collector)
 	{
 		const DrawCollector::CustomDrawInstance inst = {
 			.materialID					   = m_gridMaterial->GetID(),

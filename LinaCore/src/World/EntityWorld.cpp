@@ -141,6 +141,22 @@ namespace Lina
 		return e;
 	}
 
+	Entity* EntityWorld::GetEntity(EntityID guid)
+	{
+		Entity* ret = nullptr;
+		m_entityBucket.View([&](Entity* e, uint32 idx) -> bool {
+			if (e->GetGUID() == guid)
+			{
+				ret = e;
+				return true;
+			}
+
+			return false;
+		});
+
+		return ret;
+	}
+
 	void EntityWorld::DestroyEntity(Entity* e)
 	{
 		if (e->m_parent != nullptr)

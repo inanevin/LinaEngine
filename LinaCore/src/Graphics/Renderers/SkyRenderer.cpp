@@ -44,7 +44,7 @@ namespace Lina
 	{
 	}
 
-	void SkyRenderer::ProduceFrame()
+	void SkyRenderer::OnProduceFrame()
 	{
 		m_cpuDraw.skyModel = m_world->GetGfxSettings().skyModel;
 		m_cpuDraw.skyMat   = m_world->GetGfxSettings().skyMaterial;

@@ -280,6 +280,7 @@ namespace Lina::Editor
 			r->GenerateHW();
 
 		context.OnResourceManagerGeneratedHW(m_loadedResources);
+
 		m_createdResources.clear();
 		m_loadedResources.clear();
 		return m_loadedResources.size() == m_createdResources.size();

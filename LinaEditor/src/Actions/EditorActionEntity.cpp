@@ -26,32 +26,47 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#include "Core/Graphics/Renderers/FeatureRenderer.hpp"
-#include "Core/Graphics/Pipeline/Buffer.hpp"
-
-namespace Lina
-{
-	class Shader;
-}
+#include "Editor/Actions/EditorActionEntity.hpp"
+#include "Editor/Editor.hpp"
+#include "Editor/Widgets/Panel/PanelWorld.hpp"
+#include "Core/World/Entity.hpp"
 
 namespace Lina::Editor
 {
-	class Editor;
 
-	class GridRenderer : public FeatureRenderer
+	EditorActionEntitySelection* EditorActionEntitySelection::Create(Editor* editor, const Vector<Entity*>& previousSelection, const Vector<Entity*>& currentSelection)
 	{
-	public:
-		GridRenderer(Editor* editor, LinaGX::Instance* lgx, EntityWorld* world, WorldRenderer* wr, ResourceManagerV2* rm);
-		virtual ~GridRenderer();
+		EditorActionEntitySelection* action = new EditorActionEntitySelection();
 
-		virtual void OnProduceFrame(DrawCollector& collector) override;
-		virtual void OnRenderPass(uint32 frameIndex, LinaGX::CommandStream* stream, RenderPassType type) override;
+		action->m_prevSelected.reserve(previousSelection.size());
+		action->m_selected.reserve(currentSelection.size());
 
-	private:
-		Material* m_gridMaterial = nullptr;
-		Shader*	  m_gridShader	 = nullptr;
-		Editor*	  m_editor		 = nullptr;
-	};
+		for (Entity* prev : previousSelection)
+			action->m_prevSelected.push_back(prev->GetGUID());
+
+		for (Entity* prev : currentSelection)
+			action->m_selected.push_back(prev->GetGUID());
+
+		editor->GetEditorActionManager().AddToStack(action);
+		return action;
+	}
+
+	void EditorActionEntitySelection::Execute(Editor* editor, ExecType type)
+	{
+		Panel* panel = editor->GetWindowPanelManager().FindPanelOfType(PanelType::World, 0);
+		if (!panel)
+			return;
+
+		PanelWorld* panelWorld = static_cast<PanelWorld*>(panel);
+
+		if (type == ExecType::Undo)
+		{
+			panelWorld->ChangeSelectionByAction(m_prevSelected);
+		}
+		else if (type == ExecType::Redo)
+		{
+			panelWorld->ChangeSelectionByAction(m_selected);
+		}
+	}
+
 } // namespace Lina::Editor

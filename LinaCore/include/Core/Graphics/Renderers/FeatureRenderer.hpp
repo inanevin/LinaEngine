@@ -68,9 +68,9 @@ namespace Lina
 		virtual void DestroySizeRelativeResources(){};
 		virtual void CreateSizeRelativeResources(const Vector2ui& size){};
 
-		virtual void ProduceFrame(DrawCollector& drawCollector){};
 		virtual void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue){};
 
+		virtual void OnProduceFrame(DrawCollector& drawCollector){};
 		virtual void OnRenderPass(uint32 frameIndex, LinaGX::CommandStream* stream, RenderPassType type){};
 		virtual void OnRenderPassPost(uint32 frameIndex, LinaGX::CommandStream* stream, RenderPassType type){};
 		virtual void OnPostRender(uint32 frameIndex, LinaGX::CommandStream* stream, const LinaGX::Viewport& vp, const LinaGX::ScissorsRect& sc){};

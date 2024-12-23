@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Editor/Graphics/GizmoRenderer.hpp"
 #include "Editor/Graphics/MousePickRenderer.hpp"
 #include "Editor/World/WorldUtility.hpp"
+#include "Editor/Actions/EditorActionEntity.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Serialization/Serialization.hpp"
@@ -99,7 +100,6 @@ namespace Lina::Editor
 		m_worldRenderer->AddFeatureRenderer(m_mousePickRenderer);
 
 		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer);
-
 		IStream stream = Serialization::LoadFromFile(resourcePath.c_str());
 		m_world->LoadFromStream(stream);
 		stream.Destroy();
@@ -142,10 +142,38 @@ namespace Lina::Editor
 		m_editor->GetApp()->GetResourceManager().UnloadResourceSpace(space);
 	}
 
-	void PanelWorld::SelectEntity(Entity* e)
+	void PanelWorld::SelectEntity(Entity* e, bool clearOthers)
 	{
-		m_selection.push_back(e);
-		m_gizmoRenderer->SetSelectedEntity(e);
+		const Vector<Entity*> prev = m_selectedEntities;
+
+		if (clearOthers)
+			m_selectedEntities.clear();
+
+		if (e != nullptr)
+			m_selectedEntities.push_back(e);
+
+		EditorActionEntitySelection::Create(m_editor, prev, m_selectedEntities);
+
+		OnEntitySelectionChanged();
+	}
+
+	void PanelWorld::SelectEntity(EntityID guid, bool clearOthers)
+	{
+		SelectEntity(m_world->GetEntity(guid), clearOthers);
+	}
+
+	void PanelWorld::ChangeSelectionByAction(const Vector<EntityID>& selection)
+	{
+		m_selectedEntities.clear();
+		for (EntityID guid : selection)
+			m_selectedEntities.push_back(m_world->GetEntity(guid));
+
+		OnEntitySelectionChanged();
+	}
+
+	void PanelWorld::OnEntitySelectionChanged()
+	{
+		m_gizmoRenderer->SetSelectedEntities(m_selectedEntities);
 	}
 
 	void PanelWorld::OnPayloadStarted(PayloadType type, Widget* payload)
@@ -211,7 +239,7 @@ namespace Lina::Editor
 			}
 		}
 
-		SelectEntity(last);
+		SelectEntity(last, true);
 
 		return true;
 	}
@@ -222,11 +250,7 @@ namespace Lina::Editor
 			return false;
 
 		if (button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Pressed)
-		{
-			const Vector2 mp = m_lgxWindow->GetMousePosition() - m_worldDisplayer->GetStartFromMargins();
-			m_mousePickRenderer->PickEntity(mp);
-		}
-
+			SelectEntity(m_mousePickRenderer->GetLastHoveredEntity(), true);
 		return false;
 	}
 
