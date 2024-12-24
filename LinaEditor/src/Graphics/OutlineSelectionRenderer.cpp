@@ -74,7 +74,8 @@ namespace Lina::Editor
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 
 		m_fullscreenMaterial->SetShader(m_fullscreenShader);
-		m_fullscreenMaterial->SetProperty("color"_hs, Vector4(Theme::GetDef().accentDarkIndigo));
+		m_fullscreenMaterial->SetProperty("color"_hs, Vector4(1.0f, 0.5f, 0.0f, 1.0f));
+		m_fullscreenMaterial->SetProperty("thickness"_hs, 1.0f);
 
 		m_pipelineLayout = m_lgx->CreatePipelineLayout(EditorGfxHelpers::GetPipelineLayoutDescriptionEntityBufferPass());
 		m_outlinePass.Create(EditorGfxHelpers::GetEntityBufferPassDescription());

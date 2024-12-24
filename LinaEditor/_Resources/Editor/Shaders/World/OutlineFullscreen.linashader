@@ -63,17 +63,45 @@ layout(location = 0) out vec4 outFragColor;
 struct LinaMaterial
 {
    vec4 color;
+   float thickness;
 };
+
+vec4 outline(vec2 texCoord, vec2 pixelSize, float thickness)
+{
+	vec2 uv;
+	vec2 diffUV = pixelSize.xy * vec2(thickness, thickness);
+   LinaTexture2D outlineTxt;
+   outlineTxt.txt = LINA_VIEW.outlineSelectionTextureIndex;
+   outlineTxt.smp = LINA_VIEW.outlineSelectionSamplerIndex;
+ 
+	uv.x = texCoord.x - diffUV.x;
+	uv.y = texCoord.y;
+	vec4 xDif = LINA_SAMPLE_TEXTURE(outlineTxt, uv);
+	uv.x = texCoord.x + diffUV.x;
+	xDif -= LINA_SAMPLE_TEXTURE(outlineTxt, uv);
+
+	uv.x = texCoord.x;
+	uv.y = texCoord.y - diffUV.y;
+	vec4 yDif = LINA_SAMPLE_TEXTURE(outlineTxt, uv);
+	uv.y = texCoord.y + diffUV.y;
+	yDif -= LINA_SAMPLE_TEXTURE(outlineTxt, uv);
+	return sqrt(xDif*xDif + yDif*yDif);
+}
+
 
 void main()
 {
     LinaMaterial material = LINA_GET_MATERIAL(inMaterialIndex);
-    
-    LinaTexture2D outlineTxt;
-    outlineTxt.txt = LINA_VIEW.outlineSelectionTextureIndex;
-    outlineTxt.smp = LINA_VIEW.outlineSelectionSamplerIndex;
-    vec4 sampled = LINA_SAMPLE_TEXTURE(outlineTxt, inUV);
-    outFragColor = sampled;
+
+    vec2 texelSize = vec2(1.0 / LINA_VIEW.size.x, 1.0 / LINA_VIEW.size.y);
+    vec4 v = outline(inUV, texelSize, material.thickness);
+    outFragColor = material.color;
+	 outFragColor.w = v.x;
+
+	// float top = max(max(outFragColor.r, outFragColor.g), outFragColor.b);
+	// top = max(top,1.0);
+	// outFragColor.rgb /= top;
+	// outFragColor.a = min(outFragColor.a, 1.0);
 }
 
 #lina_end

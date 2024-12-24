@@ -63,12 +63,20 @@ namespace Lina::Editor
 
 		m_primaryWidgetManager = &editor->GetWindowPanelManager().GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
 
-		m_editorResourceReimports = {{
-			.lastModifiedSID = TO_SID(FileSystem::GetLastModifiedDate(EDITOR_SHADER_WORLD_GRID_PATH)),
-			.id				 = EDITOR_SHADER_WORLD_GRID_ID,
-			.tid			 = GetTypeID<Shader>(),
-			.path			 = EDITOR_SHADER_WORLD_GRID_PATH,
-		}};
+		m_editorResourceReimports = {
+			{
+				.lastModifiedSID = TO_SID(FileSystem::GetLastModifiedDate(EDITOR_SHADER_WORLD_GRID_PATH)),
+				.id				 = EDITOR_SHADER_WORLD_GRID_ID,
+				.tid			 = GetTypeID<Shader>(),
+				.path			 = EDITOR_SHADER_WORLD_GRID_PATH,
+			},
+			{
+				.lastModifiedSID = TO_SID(FileSystem::GetLastModifiedDate(EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_PATH)),
+				.id				 = EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_ID,
+				.tid			 = GetTypeID<Shader>(),
+				.path			 = EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_PATH,
+			},
+		};
 
 		const EditorSettings& settings = m_editor->GetSettings();
 

@@ -300,16 +300,22 @@ namespace Lina::Editor
 
 		outlineFullscreen->GetMeta().variants.push_back({
 			ShaderVariant{
-				.id			  = "Default"_hs,
-				.name		  = "Default",
-				.blendDisable = true,
-				.depthTest	  = false,
-				.depthWrite	  = false,
-				.depthFormat  = LinaGX::Format::D32_SFLOAT,
-				.targets	  = {{DEFAULT_RT_FORMAT}},
-				.cullMode	  = LinaGX::CullMode::None,
-				.frontFace	  = LinaGX::FrontFace::CCW,
-				.topology	  = LinaGX::Topology::TriangleList,
+				.id					 = "Default"_hs,
+				.name				 = "Default",
+				.blendDisable		 = false,
+				.blendSrcFactor		 = LinaGX::BlendFactor::SrcAlpha,
+				.blendDstFactor		 = LinaGX::BlendFactor::OneMinusSrcAlpha,
+				.blendColorOp		 = LinaGX::BlendOp::Add,
+				.blendSrcAlphaFactor = LinaGX::BlendFactor::One,
+				.blendDstAlphaFactor = LinaGX::BlendFactor::OneMinusSrcAlpha,
+				.blendAlphaOp		 = LinaGX::BlendOp::Add,
+				.depthTest			 = false,
+				.depthWrite			 = false,
+				.depthFormat		 = LinaGX::Format::D32_SFLOAT,
+				.targets			 = {{DEFAULT_RT_FORMAT}},
+				.cullMode			 = LinaGX::CullMode::None,
+				.frontFace			 = LinaGX::FrontFace::CCW,
+				.topology			 = LinaGX::Topology::TriangleList,
 			},
 		} // namespace Lina::Editor
 		);
