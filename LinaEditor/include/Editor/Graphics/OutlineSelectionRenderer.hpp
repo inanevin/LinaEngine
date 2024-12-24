@@ -41,11 +41,11 @@ namespace Lina::Editor
 {
 	class Editor;
 
-	class GizmoRenderer : public FeatureRenderer
+	class OutlineSelectionRenderer : public FeatureRenderer
 	{
 	public:
-		GizmoRenderer(Editor* editor, LinaGX::Instance* lgx, EntityWorld* world, WorldRenderer* wr, ResourceManagerV2* rm);
-		virtual ~GizmoRenderer();
+		OutlineSelectionRenderer(Editor* editor, LinaGX::Instance* lgx, EntityWorld* world, WorldRenderer* wr, ResourceManagerV2* rm);
+		virtual ~OutlineSelectionRenderer();
 
 		inline void SetSelectedEntities(const Vector<Entity*>& entities)
 		{
@@ -57,10 +57,8 @@ namespace Lina::Editor
 
 	private:
 		Vector<Entity*> m_selectedEntities = {};
-		Material*		m_gizmoMaterialX   = nullptr;
-		Material*		m_gizmoMaterialY   = nullptr;
-		Material*		m_gizmoMaterialZ   = nullptr;
-		Shader*			m_gizmoShader	   = nullptr;
+		Material*		m_outlineMaterial  = nullptr;
+		Shader*			m_outlineShader	   = nullptr;
 		Editor*			m_editor		   = nullptr;
 	};
 } // namespace Lina::Editor

@@ -46,6 +46,7 @@ namespace Lina::Editor
 	class GridRenderer;
 	class GizmoRenderer;
 	class MousePickRenderer;
+	class OutlineSelectionRenderer;
 
 	class PanelWorld : public Panel, public EditorPayloadListener
 	{
@@ -82,14 +83,15 @@ namespace Lina::Editor
 		}
 
 	private:
-		Vector<Entity*>	   m_selectedEntities  = {};
-		Editor*			   m_editor			   = nullptr;
-		EntityWorld*	   m_world			   = nullptr;
-		WorldRenderer*	   m_worldRenderer	   = nullptr;
-		GridRenderer*	   m_gridRenderer	   = nullptr;
-		WorldDisplayer*	   m_worldDisplayer	   = nullptr;
-		GizmoRenderer*	   m_gizmoRenderer	   = nullptr;
-		MousePickRenderer* m_mousePickRenderer = nullptr;
+		Vector<Entity*>			  m_selectedEntities		 = {};
+		Editor*					  m_editor					 = nullptr;
+		EntityWorld*			  m_world					 = nullptr;
+		WorldRenderer*			  m_worldRenderer			 = nullptr;
+		GridRenderer*			  m_gridRenderer			 = nullptr;
+		WorldDisplayer*			  m_worldDisplayer			 = nullptr;
+		GizmoRenderer*			  m_gizmoRenderer			 = nullptr;
+		MousePickRenderer*		  m_mousePickRenderer		 = nullptr;
+		OutlineSelectionRenderer* m_outlineSelectionRenderer = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(PanelWorld, Hidden)

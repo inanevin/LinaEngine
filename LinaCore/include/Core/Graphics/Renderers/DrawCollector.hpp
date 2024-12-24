@@ -57,13 +57,23 @@ namespace Lina
 	class DrawCollector
 	{
 	public:
+		struct EntityIdent
+		{
+			EntityID entityGUID = 0;
+			uint32	 uniqueID2	= 0;
+			uint32	 uniqueID3	= 0;
+			uint32	 uniqueID4	= 0;
+
+			bool operator==(const EntityIdent& other) const
+			{
+				return entityGUID == other.entityGUID && uniqueID2 == other.uniqueID2 && uniqueID3 == other.uniqueID3 && uniqueID4 == other.uniqueID4;
+			}
+		};
+
 		struct DrawEntity
 		{
-			GPUEntity entity;
-			EntityID  entityGUID = 0;
-			uint32	  uniqueID2	 = 0;
-			uint32	  uniqueID3	 = 0;
-			uint32	  uniqueID4	 = 0;
+			GPUEntity	entity;
+			EntityIdent ident;
 		};
 
 		struct DrawCall
@@ -92,11 +102,13 @@ namespace Lina
 		struct CustomDrawInstance
 		{
 			GPUDrawArguments args;
-			ResourceID		 materialID = 0;
 			GPUEntity		 entity;
-			EntityID		 entityGUID					   = 0;
-			bool			 useEntityAsFirstArgument	   = true;
-			bool			 useMaterialIDAsSecondArgument = true;
+			EntityIdent		 entityIdent;
+			ResourceID		 materialID	   = 0;
+			bool			 pushEntity	   = true;
+			bool			 pushMaterial  = true;
+			bool			 pushBoneIndex = false;
+			CompModel*		 boneModel	   = nullptr;
 		};
 
 		struct ModelDraw
@@ -187,6 +199,7 @@ namespace Lina
 			Vector<ModelDraw>	  modelDraws;
 			Vector<CustomDraw>	  customDraws;
 			Vector<CustomDrawRaw> customRawDraws;
+			Vector<CompModel*>	  skinningModels;
 
 			void AddOtherWithOverride(const DrawGroup& other, StringID newShaderVariantStatic, StringID newShaderVariantSkinned)
 			{
@@ -270,10 +283,9 @@ namespace Lina
 	private:
 		void CalculateSkinning(const Vector<CompModel*>& comps);
 
-		bool DrawEntityExists(uint32& outIndex, uint64 uid, uint32 uid2, uint32 uid3, uint32 uid4);
+		bool DrawEntityExists(uint32& outIndex, const EntityIdent& ident);
 
-		void PrepareModelDraws(Vector<CompModel*>& skinnedModels, const DrawGroup& group, RenderingGroup& renderingGroup);
-		void PrepareCustomDraws(const DrawGroup& group, RenderingGroup& renderingGroup);
+		void PrepareCustomDraws(Vector<CompModel*>& skinnedModels, const DrawGroup& group, RenderingGroup& renderingGroup);
 		void PrepareCustomDrawsRaw(const DrawGroup& group, RenderingGroup& renderingGroup);
 
 	private:
@@ -283,6 +295,7 @@ namespace Lina
 		ResourceManagerV2* m_rm			 = nullptr;
 		EntityWorld*	   m_world		 = nullptr;
 		DrawData		   m_cpuDraw	 = {};
+		DrawData		   m_gpuDraw	 = {};
 		Vector<CompModel*> m_compModels;
 		RenderingData	   m_renderingData;
 	};

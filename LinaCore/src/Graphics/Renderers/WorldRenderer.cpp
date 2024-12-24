@@ -267,8 +267,8 @@ namespace Lina
 												 });
 		}
 
-		for (FeatureRenderer* ft : m_featureRenderers)
-			ft->CreateSizeRelativeResources(m_size);
+		// for (FeatureRenderer* ft : m_featureRenderers)
+		// 	ft->CreateSizeRelativeResources(m_size);
 
 		m_gfxContext->MarkBindlessDirty();
 	}
@@ -291,8 +291,8 @@ namespace Lina
 			m_resourceManagerV2->DestroyResource(data.lightingPassOutput);
 		}
 
-		for (FeatureRenderer* ft : m_featureRenderers)
-			ft->DestroySizeRelativeResources();
+		// for (FeatureRenderer* ft : m_featureRenderers)
+		// 	ft->DestroySizeRelativeResources();
 
 		m_gfxContext->MarkBindlessDirty();
 	}
@@ -300,16 +300,16 @@ namespace Lina
 	void WorldRenderer::OnComponentAdded(Component* c)
 	{
 		m_drawCollector.OnComponentAdded(c);
-		for (FeatureRenderer* ft : m_featureRenderers)
-			ft->OnComponentAdded(c);
+		// for (FeatureRenderer* ft : m_featureRenderers)
+		// 	ft->OnComponentAdded(c);
 	}
 
 	void WorldRenderer::OnComponentRemoved(Component* comp)
 	{
 		m_drawCollector.OnComponentRemoved(comp);
 
-		for (FeatureRenderer* ft : m_featureRenderers)
-			ft->OnComponentRemoved(comp);
+		// for (FeatureRenderer* ft : m_featureRenderers)
+		// 	ft->OnComponentRemoved(comp);
 	}
 
 	void WorldRenderer::AddFeatureRenderer(FeatureRenderer* ft)
@@ -358,8 +358,8 @@ namespace Lina
 		m_lightingRenderer.OnProduceFrame();
 		m_skyRenderer.OnProduceFrame();
 
-		for (FeatureRenderer* ft : m_featureRenderers)
-			ft->OnProduceFrame(m_drawCollector);
+		// for (FeatureRenderer* ft : m_featureRenderers)
+		// 	ft->OnProduceFrame(m_drawCollector);
 	}
 
 	void WorldRenderer::SyncRender()
@@ -368,8 +368,8 @@ namespace Lina
 		m_lightingRenderer.SyncRender();
 		m_skyRenderer.SyncRender();
 
-		for (FeatureRenderer* ft : m_featureRenderers)
-			ft->SyncRender();
+		// for (FeatureRenderer* ft : m_featureRenderers)
+		// 	ft->SyncRender();
 	}
 
 	void WorldRenderer::DropRenderFrame()
@@ -379,6 +379,8 @@ namespace Lina
 	void WorldRenderer::UpdateBuffers(uint32 frameIndex)
 	{
 		auto& currentFrame = m_pfd[frameIndex];
+		currentFrame.copySemaphore.ResetModified();
+		currentFrame.signalSemaphore.ResetModified();
 
 		// View data.
 		{
@@ -434,11 +436,16 @@ namespace Lina
 		m_uploadQueue.AddBufferRequest(&currentFrame.instanceDataBuffer);
 		m_uploadQueue.AddBufferRequest(&currentFrame.boneBuffer);
 
-		for (FeatureRenderer* ft : m_featureRenderers)
-			ft->AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+		// for (FeatureRenderer* ft : m_featureRenderers)
+		// 	ft->AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
 
 		m_deferredPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
 		m_forwardPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+	}
+
+	void WorldRenderer::FlushTransfers(uint32 frameIndex)
+	{
+		auto& currentFrame = m_pfd[frameIndex];
 
 		if (m_uploadQueue.FlushAll(currentFrame.copyStream))
 			BumpAndSendTransfers(frameIndex);
@@ -446,12 +453,9 @@ namespace Lina
 
 	void WorldRenderer::Render(uint32 frameIndex)
 	{
+		m_drawCollector.PrepareGPUData();
+
 		auto& currentFrame = m_pfd[frameIndex];
-
-		currentFrame.copySemaphore.ResetModified();
-		currentFrame.signalSemaphore.ResetModified();
-
-		UpdateBuffers(frameIndex);
 
 		const LinaGX::Viewport viewport = {
 			.x		  = 0,
@@ -479,30 +483,16 @@ namespace Lina
 
 		{
 			// Barrier to Attachment
-			LinaGX::CMDBarrier* barrierToAttachment = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
-			barrierToAttachment->srcStageFlags		= LinaGX::PSF_TopOfPipe;
-			barrierToAttachment->dstStageFlags		= LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
-
-			Vector<LinaGX::TextureBarrier> allBarriers;
-			for (FeatureRenderer* ft : m_featureRenderers)
-				ft->GetBarriersTextureToAttachment(frameIndex, allBarriers);
-
-			uint32 totalBarriers = 5 + static_cast<uint32>(allBarriers.size());
-
-			barrierToAttachment->textureBarrierCount = totalBarriers;
-			barrierToAttachment->textureBarriers	 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * totalBarriers);
+			LinaGX::CMDBarrier* barrierToAttachment	 = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
+			barrierToAttachment->srcStageFlags		 = LinaGX::PSF_TopOfPipe;
+			barrierToAttachment->dstStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
+			barrierToAttachment->textureBarrierCount = 5;
+			barrierToAttachment->textureBarriers	 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 5);
 			barrierToAttachment->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorRead2Att(currentFrame.gBufAlbedo->GetGPUHandle());
 			barrierToAttachment->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierColorRead2Att(currentFrame.gBufPosition->GetGPUHandle());
 			barrierToAttachment->textureBarriers[2]	 = GfxHelpers::GetTextureBarrierColorRead2Att(currentFrame.gBufNormal->GetGPUHandle());
 			barrierToAttachment->textureBarriers[3]	 = GfxHelpers::GetTextureBarrierDepthRead2Att(currentFrame.gBufDepth->GetGPUHandle());
 			barrierToAttachment->textureBarriers[4]	 = GfxHelpers::GetTextureBarrierColorRead2Att(currentFrame.lightingPassOutput->GetGPUHandle());
-
-			uint32 idx = 5;
-			for (const LinaGX::TextureBarrier& barrier : allBarriers)
-			{
-				barrierToAttachment->textureBarriers[idx] = barrier;
-				idx++;
-			}
 		}
 
 		uint16 lastBoundShader = 0;
@@ -514,7 +504,9 @@ namespace Lina
 
 			m_deferredPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
 			m_deferredPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxContext->GetPipelineLayoutPersistent(RenderPassType::RENDER_PASS_DEFERRED), 1);
-			m_drawCollector.RenderGroup("Deferred"_hs, currentFrame.gfxStream);
+
+			if (m_drawCollector.RenderGroupExists("Deferred"_hs))
+				m_drawCollector.RenderGroup("Deferred"_hs, currentFrame.gfxStream);
 			m_deferredPass.End(currentFrame.gfxStream);
 
 			DEBUG_LABEL_END(currentFrame.gfxStream);
@@ -522,27 +514,14 @@ namespace Lina
 
 		// Barrier to shader read.
 		{
-			Vector<LinaGX::TextureBarrier> allBarriers;
-			for (FeatureRenderer* ft : m_featureRenderers)
-				ft->GetBarriersTextureToShaderRead(frameIndex, allBarriers);
-
-			uint32 totalBarriers = 3 + static_cast<uint32>(allBarriers.size());
-
 			LinaGX::CMDBarrier* barrier	 = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
 			barrier->srcStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
 			barrier->dstStageFlags		 = LinaGX::PSF_FragmentShader;
-			barrier->textureBarrierCount = totalBarriers;
-			barrier->textureBarriers	 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * totalBarriers);
+			barrier->textureBarrierCount = 3;
+			barrier->textureBarriers	 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 3);
 			barrier->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.gBufAlbedo->GetGPUHandle());
 			barrier->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.gBufPosition->GetGPUHandle());
 			barrier->textureBarriers[2]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.gBufNormal->GetGPUHandle());
-
-			uint32 idx = 3;
-			for (const LinaGX::TextureBarrier& br : allBarriers)
-			{
-				barrier->textureBarriers[idx] = br;
-				idx++;
-			}
 		}
 
 		// FORWARD PASS
@@ -556,32 +535,37 @@ namespace Lina
 			m_lightingRenderer.RenderLightingQuad(currentFrame.gfxStream);
 			m_skyRenderer.RenderSky(currentFrame.gfxStream);
 
-			for (FeatureRenderer* ft : m_featureRenderers)
-				ft->OnRenderPass(frameIndex, currentFrame.gfxStream, RenderPassType::RENDER_PASS_FORWARD);
+			// for (FeatureRenderer* ft : m_featureRenderers)
+			// 	ft->OnRenderPass(frameIndex, currentFrame.gfxStream, RenderPassType::RENDER_PASS_FORWARD);
 
-			m_drawCollector.RenderGroup("Forward"_hs, currentFrame.gfxStream);
+			// m_drawCollector.RenderGroup("Forward"_hs, currentFrame.gfxStream);
 
-			for (FeatureRenderer* ft : m_featureRenderers)
-				ft->OnRenderPassPost(frameIndex, currentFrame.gfxStream, RenderPassType::RENDER_PASS_FORWARD);
+			// for (FeatureRenderer* ft : m_featureRenderers)
+			// 	ft->OnRenderPassPost(frameIndex, currentFrame.gfxStream, RenderPassType::RENDER_PASS_FORWARD);
 
 			m_forwardPass.End(currentFrame.gfxStream);
 
 			DEBUG_LABEL_END(currentFrame.gfxStream);
 		}
 
-		for (FeatureRenderer* ft : m_featureRenderers)
-			ft->OnPostRender(frameIndex, currentFrame.gfxStream, viewport, scissors);
+		// for (FeatureRenderer* ft : m_featureRenderers)
+		// 	ft->OnPostRender(frameIndex, currentFrame.gfxStream, viewport, scissors);
+	}
+
+	void WorldRenderer::PostBarriers(uint32 frameIndex)
+	{
+		auto& currentFrame = m_pfd[frameIndex];
 
 		// Barrier to shader read or transfer read
 		if (m_snapshotBuffer == nullptr)
 		{
-			// LinaGX::CMDBarrier* barrier	 = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
-			// barrier->srcStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
-			// barrier->dstStageFlags		 = LinaGX::PSF_FragmentShader;
-			// barrier->textureBarrierCount = 2;
-			// barrier->textureBarriers	 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 2);
-			// barrier->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.lightingPassOutput->GetGPUHandle());
-			// barrier->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.gBufDepth->GetGPUHandle());
+			LinaGX::CMDBarrier* barrier	 = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
+			barrier->srcStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
+			barrier->dstStageFlags		 = LinaGX::PSF_FragmentShader;
+			barrier->textureBarrierCount = 2;
+			barrier->textureBarriers	 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 2);
+			barrier->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.lightingPassOutput->GetGPUHandle());
+			barrier->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.gBufDepth->GetGPUHandle());
 		}
 		else
 		{
@@ -598,6 +582,19 @@ namespace Lina
 				 .dstAccessFlags = LinaGX::AF_ShaderRead,
 			 };
 		}
+	}
+
+	void WorldRenderer::CloseAndSend(uint32 frameIndex)
+	{
+		auto& currentFrame = m_pfd[frameIndex];
+
+		LinaGX::CMDBarrier* barrier	 = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
+		barrier->srcStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
+		barrier->dstStageFlags		 = LinaGX::PSF_FragmentShader;
+		barrier->textureBarrierCount = 2;
+		barrier->textureBarriers	 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 2);
+		barrier->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.lightingPassOutput->GetGPUHandle());
+		barrier->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.gBufDepth->GetGPUHandle());
 
 		m_lgx->CloseCommandStreams(&currentFrame.gfxStream, 1);
 
@@ -627,8 +624,8 @@ namespace Lina
 			.standaloneSubmission = m_standaloneSubmit,
 		});
 
-		for (FeatureRenderer* fr : m_featureRenderers)
-			fr->OnPostSubmit(frameIndex, currentFrame.gfxStream);
+		// for (FeatureRenderer* fr : m_featureRenderers)
+		// 	fr->OnPostSubmit(frameIndex, currentFrame.gfxStream);
 
 		if (m_snapshotBuffer != nullptr)
 		{

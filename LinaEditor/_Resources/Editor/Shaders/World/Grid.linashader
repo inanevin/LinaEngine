@@ -31,7 +31,7 @@ SOFTWARE.
 #lina_vs
 
 #include "Resources/Core/Shaders/Common/GlobalData.linashader"
-#include "Resources/Core/Shaders/Common/RenderPass_Forward.linashader"
+#include "Resources/Editor/Shaders/Common/RenderPass_World.linashader"
 
 layout(location = 0) out vec3 outNearPoint;
 layout(location = 1) out vec3 outFarPoint;
@@ -68,7 +68,7 @@ void main()
 #lina_fs
 
 #include "Resources/Core/Shaders/Common/GlobalData.linashader"
-#include "Resources/Core/Shaders/Common/RenderPass_Forward.linashader"
+#include "Resources/Editor/Shaders/Common/RenderPass_World.linashader"
 
 layout(location = 0) in vec3 nearPoint;
 layout(location = 1) in vec3 farPoint;

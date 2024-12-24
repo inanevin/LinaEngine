@@ -101,7 +101,11 @@ namespace Lina
 		~WorldRenderer();
 
 		void Tick(float delta);
+		void UpdateBuffers(uint32 frameIndex);
+		void FlushTransfers(uint32 frameIndex);
 		void Render(uint32 frameIndex);
+		void PostBarriers(uint32 frameIndex);
+		void CloseAndSend(uint32 frameIndex);
 		void Resize(const Vector2ui& newSize);
 		void SyncRender();
 		void DropRenderFrame();
@@ -199,8 +203,22 @@ namespace Lina
 			return m_pfd[frameIndex].copySemaphore;
 		}
 
+		inline ResourceUploadQueue& GetUploadQueue()
+		{
+			return m_uploadQueue;
+		}
+
+		inline LinaGX::CommandStream* GetGfxStream(uint32 frameIndex) const
+		{
+			return m_pfd[frameIndex].gfxStream;
+		}
+
+		inline JobExecutor& GetExecutor()
+		{
+			return m_executor;
+		}
+
 	private:
-		void   UpdateBuffers(uint32 frameIndex);
 		void   CreateSizeRelativeResources();
 		void   DestroySizeRelativeResources();
 		uint64 BumpAndSendTransfers(uint32 frameIndex);

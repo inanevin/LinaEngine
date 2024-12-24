@@ -125,10 +125,13 @@ namespace Lina::Editor
 	public:
 		static RenderPassDescription	  GetGUIPassDescription();
 		static RenderPassDescription	  GetEntityBufferPassDescription();
+		static RenderPassDescription	  GetEditorWorldPassDescription();
 		static LinaGX::DescriptorSetDesc  GetSetDescriptionGUI();
 		static LinaGX::DescriptorSetDesc  GetSetDescriptionEntityBufferPass();
+		static LinaGX::DescriptorSetDesc  GetSetDescriptionEditorWorldPass();
 		static LinaGX::PipelineLayoutDesc GetPipelineLayoutDescriptionGlobal();
 		static LinaGX::PipelineLayoutDesc GetPipelineLayoutDescriptionGUI();
 		static LinaGX::PipelineLayoutDesc GetPipelineLayoutDescriptionEntityBufferPass();
+		static LinaGX::PipelineLayoutDesc GetPipelineLayoutDescriptionEditorWorldPass();
 	};
 } // namespace Lina::Editor

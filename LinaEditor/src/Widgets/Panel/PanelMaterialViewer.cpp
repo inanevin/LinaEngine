@@ -88,7 +88,7 @@ namespace Lina::Editor
 		m_editor->GetApp()->JoinRender();
 
 		m_editor->GetApp()->GetWorldProcessor().AddWorld(m_world);
-		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer);
+		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer, nullptr);
 
 		m_worldDisplayer->DisplayWorld(m_worldRenderer, WorldDisplayer::WorldCameraType::Orbit);
 

@@ -48,9 +48,17 @@ namespace Lina::Editor
 {
 	class Editor;
 	class SurfaceRenderer;
+	class EditorWorldRenderer;
 
 	class EditorRenderer
 	{
+	private:
+		struct WorldRendererPair
+		{
+			WorldRenderer*		 wr	 = nullptr;
+			EditorWorldRenderer* ewr = nullptr;
+		};
+
 	public:
 		void Initialize(Editor* editor);
 		void Shutdown();
@@ -60,7 +68,7 @@ namespace Lina::Editor
 		void SyncRender();
 		void DropRenderFrame();
 		void Render(uint32 frameIndex);
-		void AddWorldRenderer(WorldRenderer* wr);
+		void AddWorldRenderer(WorldRenderer* wr, EditorWorldRenderer* ewr);
 		void RemoveWorldRenderer(WorldRenderer* wr);
 
 		void AddSurfaceRenderer(SurfaceRenderer* sr);
@@ -86,24 +94,24 @@ namespace Lina::Editor
 			return m_pipelineLayoutGlobal;
 		}
 
-		inline const Vector<WorldRenderer*>& GetWorldRenderers()
+		inline const Vector<WorldRendererPair>& GetWorldRenderers()
 		{
 			return m_worldRenderers;
 		}
 
 	private:
-		JobExecutor				 m_executor;
-		Vector<Texture*>		 m_dynamicTextures;
-		uint16					 m_pipelineLayoutGUI	= 0;
-		uint16					 m_pipelineLayoutGlobal = 0;
-		Vector<SurfaceRenderer*> m_validSurfaceRenderers;
-		TextureSampler*			 m_guiSampler		 = nullptr;
-		TextureSampler*			 m_guiTextSampler	 = nullptr;
-		ResourceManagerV2*		 m_resourceManagerV2 = nullptr;
-		LinaGX::Instance*		 m_lgx				 = nullptr;
-		Vector<WorldRenderer*>	 m_worldRenderers;
-		Vector<SurfaceRenderer*> m_surfaceRenderers;
-		Editor*					 m_editor = nullptr;
+		JobExecutor				  m_executor;
+		Vector<Texture*>		  m_dynamicTextures;
+		uint16					  m_pipelineLayoutGUI	 = 0;
+		uint16					  m_pipelineLayoutGlobal = 0;
+		Vector<SurfaceRenderer*>  m_validSurfaceRenderers;
+		TextureSampler*			  m_guiSampler		  = nullptr;
+		TextureSampler*			  m_guiTextSampler	  = nullptr;
+		ResourceManagerV2*		  m_resourceManagerV2 = nullptr;
+		LinaGX::Instance*		  m_lgx				  = nullptr;
+		Vector<WorldRendererPair> m_worldRenderers;
+		Vector<SurfaceRenderer*>  m_surfaceRenderers;
+		Editor*					  m_editor = nullptr;
 	};
 
 } // namespace Lina::Editor

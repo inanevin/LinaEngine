@@ -70,22 +70,22 @@ namespace Lina::Editor
 
 	void GridRenderer::OnProduceFrame(DrawCollector& collector)
 	{
-		const DrawCollector::CustomDrawInstance inst = {
-			.materialID					   = m_gridMaterial->GetID(),
-			.useEntityAsFirstArgument	   = false,
-			.useMaterialIDAsSecondArgument = true,
-		};
-
-		collector.CreateGroup("Grid");
-		collector.AddCustomDrawRaw(collector.GetGroup("Grid"_hs), inst, m_gridShader->GetID(), 0, 0, 6);
+		// const DrawCollector::CustomDrawInstance inst = {
+		// 	.materialID					   = m_gridMaterial->GetID(),
+		// 	.useEntityAsFirstArgument	   = false,
+		// 	.useMaterialIDAsSecondArgument = true,
+		// };
+		//
+		// collector.CreateGroup("Grid");
+		// collector.AddCustomDrawRaw(collector.GetGroup("Grid"_hs), inst, m_gridShader->GetID(), 0, 0, 6);
 	}
 
 	void GridRenderer::OnRenderPass(uint32 frameIndex, LinaGX::CommandStream* stream, RenderPassType type)
 	{
-		if (type != RenderPassType::RENDER_PASS_FORWARD)
-			return;
-
-		m_wr->GetDrawCollector().RenderGroup("Grid"_hs, stream);
+		// if (type != RenderPassType::RENDER_PASS_FORWARD)
+		// 	return;
+		//
+		// m_wr->GetDrawCollector().RenderGroup("Grid"_hs, stream);
 	}
 
 } // namespace Lina::Editor

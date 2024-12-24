@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Editor/Editor.hpp"
 #include "Editor/Graphics/SurfaceRenderer.hpp"
 #include "Editor/Graphics/EditorGfxHelpers.hpp"
+#include "Editor/Graphics/EditorWorldRenderer.hpp"
 #include "Common/Data/CommonData.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 
@@ -110,13 +111,18 @@ namespace Lina::Editor
 		if (!m_worldRenderers.empty())
 		{
 			if (m_worldRenderers.size() == 1)
-				m_worldRenderers.at(0)->Tick(delta);
+			{
+				const WorldRendererPair& pair = m_worldRenderers.at(0);
+				pair.wr->Tick(delta);
+				pair.ewr->Tick(delta);
+			}
 			else
 			{
 				Taskflow tf;
 				tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) {
-					WorldRenderer* rend = m_worldRenderers.at(i);
-					rend->Tick(delta);
+					const WorldRendererPair& pair = m_worldRenderers.at(i);
+					pair.wr->Tick(delta);
+					pair.ewr->Tick(delta);
 				});
 				m_executor.RunAndWait(tf);
 			}
@@ -142,11 +148,6 @@ namespace Lina::Editor
 
 	void EditorRenderer::DropRenderFrame()
 	{
-		for (WorldRenderer* wr : m_worldRenderers)
-			wr->DropRenderFrame();
-
-		for (SurfaceRenderer* sr : m_surfaceRenderers)
-			sr->DropRenderFrame();
 	}
 
 	void EditorRenderer::SyncRender()
@@ -154,13 +155,18 @@ namespace Lina::Editor
 		if (!m_worldRenderers.empty())
 		{
 			if (m_worldRenderers.size() == 1)
-				m_worldRenderers.at(0)->SyncRender();
+			{
+				const WorldRendererPair& pair = m_worldRenderers.at(0);
+				pair.wr->SyncRender();
+				pair.ewr->SyncRender();
+			}
 			else
 			{
 				Taskflow tf;
 				tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) {
-					WorldRenderer* rend = m_worldRenderers.at(i);
-					rend->SyncRender();
+					const WorldRendererPair& pair = m_worldRenderers.at(i);
+					pair.wr->SyncRender();
+					pair.ewr->SyncRender();
 				});
 				m_executor.RunAndWait(tf);
 			}
@@ -190,14 +196,37 @@ namespace Lina::Editor
 		{
 			if (m_worldRenderers.size() == 1)
 			{
-				m_worldRenderers.at(0)->Render(frameIndex);
+				const WorldRendererPair& pair = m_worldRenderers.at(0);
+
+				pair.wr->UpdateBuffers(frameIndex);
+				pair.ewr->UpdateBuffers(frameIndex);
+
+				pair.wr->FlushTransfers(frameIndex);
+				pair.wr->Render(frameIndex);
+				pair.ewr->Render(frameIndex);
+
+				// No need as editor world renderer will handle, for now.
+				// pair.wr->PostBarriers(frameIndex);
+
+				pair.wr->CloseAndSend(frameIndex);
 			}
 			else
 			{
 				Taskflow tf;
 				tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) {
-					WorldRenderer* rend = m_worldRenderers.at(i);
-					rend->Render(frameIndex);
+					const WorldRendererPair& pair = m_worldRenderers.at(i);
+
+					pair.wr->UpdateBuffers(frameIndex);
+					pair.ewr->UpdateBuffers(frameIndex);
+
+					pair.wr->FlushTransfers(frameIndex);
+					pair.wr->Render(frameIndex);
+					pair.ewr->Render(frameIndex);
+
+					// No need as editor world renderer will handle, for now.
+					// pair.wr->PostBarriers(frameIndex);
+
+					pair.wr->CloseAndSend(frameIndex);
 				});
 				m_executor.RunAndWait(tf);
 			}
@@ -206,11 +235,14 @@ namespace Lina::Editor
 		Vector<uint16> waitSemaphores;
 		Vector<uint64> waitValues;
 
-		for (WorldRenderer* wr : m_worldRenderers)
+		for (const WorldRendererPair& pair : m_worldRenderers)
 		{
-			const SemaphoreData sem = wr->GetSubmitSemaphore(frameIndex);
-			waitSemaphores.push_back(sem.GetSemaphore());
-			waitValues.push_back(sem.GetValue());
+			const SemaphoreData	 semWr	= pair.wr->GetSubmitSemaphore(frameIndex);
+			const SemaphoreData& semEwr = pair.ewr->GetSubmitSemaphore(frameIndex);
+			waitSemaphores.push_back(semWr.GetSemaphore());
+			// waitSemaphores.push_back(semEwr.GetSemaphore());
+			waitValues.push_back(semWr.GetValue());
+			// waitValues.push_back(semEwr.GetValue());
 		}
 
 		Vector<LinaGX::CommandStream*> streams;
@@ -265,14 +297,17 @@ namespace Lina::Editor
 		});
 	}
 
-	void EditorRenderer::AddWorldRenderer(WorldRenderer* wr)
+	void EditorRenderer::AddWorldRenderer(WorldRenderer* wr, EditorWorldRenderer* ewr)
 	{
-		m_worldRenderers.push_back(wr);
+		m_worldRenderers.push_back({
+			.wr	 = wr,
+			.ewr = ewr,
+		});
 	}
 
 	void EditorRenderer::RemoveWorldRenderer(WorldRenderer* wr)
 	{
-		m_worldRenderers.erase(linatl::find_if(m_worldRenderers.begin(), m_worldRenderers.end(), [wr](WorldRenderer* rend) -> bool { return wr == rend; }));
+		m_worldRenderers.erase(linatl::find_if(m_worldRenderers.begin(), m_worldRenderers.end(), [wr](const WorldRendererPair& p) -> bool { return wr == p.wr; }));
 	}
 
 	void EditorRenderer::AddSurfaceRenderer(SurfaceRenderer* sr)

@@ -246,7 +246,7 @@ namespace Lina::Editor
 			const Vector<DrawCollector::DrawEntity>& drawEntities = drawCollector.GetRenderingData().entities;
 			m_lastEntityIDs.resize(drawEntities.size());
 			for (size_t i = 0; i < drawEntities.size(); i++)
-				m_lastEntityIDs[i] = drawEntities.at(i).entityGUID;
+				m_lastEntityIDs[i] = drawEntities.at(i).ident.entityGUID;
 
 			DEBUG_LABEL_END(stream);
 		}

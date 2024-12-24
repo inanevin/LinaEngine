@@ -28,39 +28,68 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/Graphics/Renderers/FeatureRenderer.hpp"
+#include "Core/Graphics/CommonGraphics.hpp"
+#include "Core/Graphics/Pipeline/RenderPass.hpp"
 #include "Core/Graphics/Pipeline/Buffer.hpp"
+#include "Core/Graphics/Renderers/DrawCollector.hpp"
 
 namespace Lina
 {
 	class Shader;
 	class Entity;
+	class WorldRenderer;
+	class ResourceManagerV2;
+	class EntityWorld;
 } // namespace Lina
+
+namespace LinaGX
+{
+	class Instance;
+	class CommandStream;
+} // namespace LinaGX
 
 namespace Lina::Editor
 {
 	class Editor;
 
-	class GizmoRenderer : public FeatureRenderer
+	class EditorWorldRenderer
 	{
-	public:
-		GizmoRenderer(Editor* editor, LinaGX::Instance* lgx, EntityWorld* world, WorldRenderer* wr, ResourceManagerV2* rm);
-		virtual ~GizmoRenderer();
-
-		inline void SetSelectedEntities(const Vector<Entity*>& entities)
+	private:
+		struct PerFrameData
 		{
-			m_selectedEntities = entities;
-		}
+			SemaphoreData copySemaphore		 = {};
+			SemaphoreData signalSemaphore	 = {};
+			Buffer		  entityBuffer		 = {};
+			Buffer		  instanceDataBuffer = {};
+		};
 
-		virtual void OnProduceFrame(DrawCollector& collector) override;
-		virtual void OnRenderPassPost(uint32 frameIndex, LinaGX::CommandStream* stream, RenderPassType type) override;
+	public:
+		EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr, ResourceManagerV2* rm);
+		virtual ~EditorWorldRenderer();
+
+		void Tick(float delta);
+		void SyncRender();
+		void UpdateBuffers(uint32 frameIndex);
+		void Render(uint32 frameIndex);
+
+		inline SemaphoreData GetSubmitSemaphore(uint32 frameIndex)
+		{
+			return m_pfd[frameIndex].signalSemaphore;
+		};
 
 	private:
-		Vector<Entity*> m_selectedEntities = {};
-		Material*		m_gizmoMaterialX   = nullptr;
-		Material*		m_gizmoMaterialY   = nullptr;
-		Material*		m_gizmoMaterialZ   = nullptr;
-		Shader*			m_gizmoShader	   = nullptr;
-		Editor*			m_editor		   = nullptr;
+	private:
+		EntityWorld*	   m_world = nullptr;
+		RenderPass		   m_pass;
+		LinaGX::Instance*  m_lgx			= nullptr;
+		WorldRenderer*	   m_wr				= nullptr;
+		ResourceManagerV2* m_rm				= nullptr;
+		Editor*			   m_editor			= nullptr;
+		uint16			   m_pipelineLayout = 0;
+		PerFrameData	   m_pfd[FRAMES_IN_FLIGHT];
+		DrawCollector	   m_drawCollector;
+
+		Shader*	  m_gridShader	 = nullptr;
+		Material* m_gridMaterial = nullptr;
 	};
 } // namespace Lina::Editor
