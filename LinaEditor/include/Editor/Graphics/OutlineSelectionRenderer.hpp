@@ -55,10 +55,6 @@ namespace Lina::Editor
 	class OutlineSelectionRenderer
 	{
 	private:
-		struct ViewData
-		{
-		};
-
 		struct PerFrameData
 		{
 			Texture* depthTarget  = nullptr;
@@ -80,6 +76,11 @@ namespace Lina::Editor
 		inline void SetSelectedEntities(const Vector<Entity*>& entities)
 		{
 			m_selectedEntities = entities;
+		}
+
+		inline Texture* GetRenderTarget(uint32 frameIndex) const
+		{
+			return m_pfd[frameIndex].renderTarget;
 		}
 
 	private:

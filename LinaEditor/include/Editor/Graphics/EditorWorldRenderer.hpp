@@ -43,6 +43,7 @@ namespace Lina
 	class WorldRenderer;
 	class ResourceManagerV2;
 	class EntityWorld;
+	class TextureSampler;
 } // namespace Lina
 
 namespace LinaGX
@@ -109,7 +110,8 @@ namespace Lina::Editor
 		MousePickRenderer		 m_mousePickRenderer;
 		OutlineSelectionRenderer m_outlineRenderer;
 
-		Shader*	  m_gridShader	 = nullptr;
-		Material* m_gridMaterial = nullptr;
+		Shader*			m_gridShader			  = nullptr;
+		Material*		m_gridMaterial			  = nullptr;
+		TextureSampler* m_outlineSelectionSampler = nullptr;
 	};
 } // namespace Lina::Editor

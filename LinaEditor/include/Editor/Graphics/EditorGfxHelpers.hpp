@@ -120,6 +120,20 @@ namespace Lina::Editor
 		bool			isSingleChannel		= false;
 	};
 
+	struct EditorWorldPassViewData
+	{
+		Matrix4 view;
+		Matrix4 proj;
+		Matrix4 viewProj;
+		Vector4 cameraPositionAndNear;
+		Vector4 cameraDirectionAndFar;
+		Vector2 size;
+		Vector2 mouse;
+		uint32	outlineSelectionTextureIndex;
+		uint32	outlineSelectionSamplerIndex;
+		Vector2 padding2;
+	};
+
 	class EditorGfxHelpers
 	{
 	public:

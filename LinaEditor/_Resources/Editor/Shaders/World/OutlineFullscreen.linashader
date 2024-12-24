@@ -68,7 +68,12 @@ struct LinaMaterial
 void main()
 {
     LinaMaterial material = LINA_GET_MATERIAL(inMaterialIndex);
-    outFragColor = material.color;
+    
+    LinaTexture2D outlineTxt;
+    outlineTxt.txt = LINA_VIEW.outlineSelectionTextureIndex;
+    outlineTxt.smp = LINA_VIEW.outlineSelectionSamplerIndex;
+    vec4 sampled = LINA_SAMPLE_TEXTURE(outlineTxt, inUV);
+    outFragColor = sampled;
 }
 
 #lina_end

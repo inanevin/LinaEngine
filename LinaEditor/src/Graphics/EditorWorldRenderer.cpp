@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Core/Application.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
+#include "Core/Graphics/Resource/TextureSampler.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
@@ -107,7 +108,6 @@ namespace Lina::Editor
 		{
 			m_gridShader   = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_GRID_ID);
 			m_gridMaterial = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Grid Material");
-			m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 
 			m_gridMaterial->SetShader(m_gridShader);
 			m_gridMaterial->SetProperty("sizeLOD2"_hs, 0.1f);
@@ -123,6 +123,20 @@ namespace Lina::Editor
 			m_gridMaterial->SetProperty("distLOD1"_hs, 90.0f);
 		}
 
+		m_outlineSelectionSampler = m_rm->CreateResource<TextureSampler>(m_rm->ConsumeResourceID(), "Outline Selection Sampler");
+		m_outlineSelectionSampler->GenerateHW(LinaGX::SamplerDesc{
+			.minFilter	= LinaGX::Filter::Anisotropic,
+			.magFilter	= LinaGX::Filter::Anisotropic,
+			.mode		= LinaGX::SamplerAddressMode::ClampToBorder,
+			.mipmapMode = LinaGX::MipmapMode::Linear,
+			.anisotropy = 0,
+			.minLod		= 0.0f,
+			.maxLod		= 10.0f,
+			.mipLodBias = 0.0f,
+		});
+
+		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
+
 		if (!m_props.disableSelection)
 		{
 			m_mousePickRenderer.CreateSizeRelativeResources();
@@ -132,7 +146,9 @@ namespace Lina::Editor
 
 	EditorWorldRenderer::~EditorWorldRenderer()
 	{
+		m_outlineSelectionSampler->DestroyHW();
 		m_rm->DestroyResource(m_gridMaterial);
+		m_rm->DestroyResource(m_outlineSelectionSampler);
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 
 		m_pass.Destroy();
@@ -187,8 +203,9 @@ namespace Lina::Editor
 
 		// View data.
 		{
-			Camera&		worldCam = m_world->GetWorldCamera();
-			GPUDataView view	 = {
+
+			Camera&					worldCam = m_world->GetWorldCamera();
+			EditorWorldPassViewData view	 = {
 					.view = worldCam.GetView(),
 					.proj = worldCam.GetProjection(),
 			};
@@ -201,7 +218,14 @@ namespace Lina::Editor
 			view.cameraDirectionAndFar = Vector4(camDir.x, camDir.y, camDir.z, worldCam.GetZFar());
 			view.size				   = Vector2(static_cast<float>(size.x), static_cast<float>(size.y));
 			view.mouse				   = m_world->GetInput().GetMousePositionRatio();
-			m_pass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
+
+			if (!m_props.disableSelection)
+			{
+				view.outlineSelectionTextureIndex = m_outlineRenderer.GetRenderTarget(frameIndex)->GetBindlessIndex();
+				view.outlineSelectionSamplerIndex = m_outlineSelectionSampler->GetBindlessIndex();
+			}
+
+			m_pass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(EditorWorldPassViewData));
 		}
 
 		if (!m_props.disableSelection)

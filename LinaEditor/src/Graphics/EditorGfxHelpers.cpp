@@ -89,7 +89,7 @@ namespace Lina::Editor
 					{
 						.bufferType	  = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
 						.debugName	  = "Editor World Pass - ViewData",
-						.size		  = sizeof(GPUDataView),
+						.size		  = sizeof(EditorWorldPassViewData),
 						.stagingOnly  = true,
 						.bindingIndex = 0,
 						.ident		  = "ViewData"_hs,
