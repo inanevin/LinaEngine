@@ -46,10 +46,34 @@ layout( push_constant ) uniform constants
 
 void main()
 {
+   // Retrieve draw arguments and entity data
    DrawArguments drawArguments = LINA_DRAW_ARGUMENTS.data[PushConstants.baseInstanceIndex + gl_InstanceIndex];
    LinaEntity entity = LINA_GET_ENTITY(drawArguments.entityIndex);
-   vec3 worldPos = vec3(entity.modelMatrix * vec4(inPos, 1.0));
-   gl_Position = LINA_VIEW.viewProj * vec4(worldPos, 1.0);
+   
+   // Compute world position of the cube's vertex
+   vec4 worldPos4 = entity.modelMatrix * vec4(inPos, 1.0);
+   vec3 worldPos = vec3(worldPos4);
+
+   // Transform cube's world position to view space
+   vec4 cubeViewPos = LINA_VIEW.view * vec4(entity.modelMatrix[3].xyz, 1.0);
+   float distance = abs(cubeViewPos.z); // Distance from camera in view space (z-axis)
+
+   // Desired size in normalized device coordinates (NDC)
+   float desiredSizeNDC = 0.1; // Adjust this for screen size of the cube
+
+   // Calculate the scale factor to counteract perspective
+   float scale = desiredSizeNDC * distance;
+
+   // Scale vertex positions relative to cube center
+   vec3 scaledVertexPos = inPos * scale;
+
+   // Transform scaled vertex positions back to world space
+   vec4 finalWorldPos = entity.modelMatrix * vec4(scaledVertexPos, 1.0);
+
+   // Compute final clip-space position
+   gl_Position = LINA_VIEW.viewProj * finalWorldPos;
+
+   // Pass the material index to the fragment shader
    outMaterialIndex = drawArguments.materialIndex;
 }
 

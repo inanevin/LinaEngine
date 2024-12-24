@@ -55,6 +55,8 @@ namespace Lina::Editor
 		GizmoRenderer(Editor* editor, WorldRenderer* wr);
 		virtual ~GizmoRenderer();
 
+		void Initialize();
+		void Shutdown();
 		void Tick(float delta, DrawCollector& collector);
 		void Render(DrawCollector& collector, LinaGX::CommandStream* stream);
 

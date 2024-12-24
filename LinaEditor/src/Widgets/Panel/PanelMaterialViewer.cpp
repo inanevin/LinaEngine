@@ -88,6 +88,7 @@ namespace Lina::Editor
 														{
 															.disableSelection = true,
 															.disableGizmos	  = true,
+															.disableShapes	  = true,
 														});
 
 		m_editor->GetApp()->JoinRender();

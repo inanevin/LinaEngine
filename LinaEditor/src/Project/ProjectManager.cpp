@@ -76,6 +76,12 @@ namespace Lina::Editor
 				.tid			 = GetTypeID<Shader>(),
 				.path			 = EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_PATH,
 			},
+			{
+				.lastModifiedSID = TO_SID(FileSystem::GetLastModifiedDate(EDITOR_SHADER_WORLD_GIZMO_PATH)),
+				.id				 = EDITOR_SHADER_WORLD_GIZMO_ID,
+				.tid			 = GetTypeID<Shader>(),
+				.path			 = EDITOR_SHADER_WORLD_GIZMO_PATH,
+			},
 		};
 
 		const EditorSettings& settings = m_editor->GetSettings();

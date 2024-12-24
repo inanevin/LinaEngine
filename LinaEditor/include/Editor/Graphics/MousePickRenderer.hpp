@@ -65,6 +65,9 @@ namespace Lina::Editor
 		MousePickRenderer(Editor* editor, WorldRenderer* wr);
 		virtual ~MousePickRenderer();
 
+		void Initialize();
+		void Shutdown();
+
 		void DestroySizeRelativeResources();
 		void CreateSizeRelativeResources();
 		void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue);
@@ -91,5 +94,6 @@ namespace Lina::Editor
 		EntityID		 m_lastHoveredEntityGPU = 0;
 		EntityID		 m_lastHoveredEntityCPU = 0;
 		Vector<EntityID> m_lastEntityIDs;
+		bool			 m_init = false;
 	};
 } // namespace Lina::Editor

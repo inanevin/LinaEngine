@@ -51,6 +51,14 @@ namespace Lina::Editor
 		m_gizmoShader	= m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_GIZMO_ID);
 		m_world			= m_worldRenderer->GetWorld();
 
+	} // namespace Lina::Editor
+
+	GizmoRenderer::~GizmoRenderer()
+	{
+	}
+
+	void GizmoRenderer::Initialize()
+	{
 		m_gizmoMaterialX = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material X");
 		m_gizmoMaterialY = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material Y");
 		m_gizmoMaterialZ = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material Z");
@@ -67,10 +75,9 @@ namespace Lina::Editor
 		m_translateModel = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_TRANSLATE_ID);
 		m_rotateModel	 = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_ROTATE_ID);
 		m_scaleModel	 = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_SCALE_ID);
+	}
 
-	} // namespace Lina::Editor
-
-	GizmoRenderer::~GizmoRenderer()
+	void GizmoRenderer::Shutdown()
 	{
 		m_rm->DestroyResource(m_gizmoMaterialX);
 		m_rm->DestroyResource(m_gizmoMaterialY);
@@ -95,7 +102,8 @@ namespace Lina::Editor
 		const float	   distance	 = cameraPos.Distance(avgPosition);
 
 		const float distRatio = Math::Remap(distance, 0.0f, worldCam.GetZFar(), 0.0f, 1.0f);
-		const float distScale = Math::Clamp(distRatio * 50.0f, 0.2f, worldCam.GetZFar());
+		const float distScale = 1.0f;
+		// Math::Clamp(distRatio * 40.0f, 0.2f, worldCam.GetZFar());
 
 		Buffer* vtx = &m_editor->GetApp()->GetGfxContext().GetMeshManagerDefault().GetVtxBufferStatic();
 		Buffer* idx = &m_editor->GetApp()->GetGfxContext().GetMeshManagerDefault().GetIdxBufferStatic();

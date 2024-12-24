@@ -26,15 +26,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#lina_shader_custom
+#LINA_SHADER_CUSTOM
 
 #lina_vs
 
 #include "Resources/Core/Shaders/Common/GlobalData.linashader"
 #include "Resources/Editor/Shaders/Common/RenderPass_World.linashader"
 
-layout (location = 0) out vec2 outUV;
-layout (location = 1) flat out uint outMaterialIndex;
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec3 nextPosition;
+layout (location = 2) in vec4 color;
+layout (location = 3) in float direction;
+
+layout (location = 0) out vec4 outColor;
 
 layout( push_constant ) uniform constants
 {
@@ -43,60 +47,48 @@ layout( push_constant ) uniform constants
 
 void main()
 {
-   outUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
-   gl_Position =  vec4(outUV * 2.0f + -1.0f, 0.0f, 1.0f);
-   outUV.y = 1.0f - outUV.y;
-   outMaterialIndex = LINA_DRAW_ARGUMENTS.data[PushConstants.baseInstanceIndex + gl_InstanceIndex].materialIndex;
+    vec4 currentView = LINA_VIEW.view * vec4(position, 1.0);
+    float aspect = LINA_VIEW.size.x / LINA_VIEW.size.y;
+
+    vec4 currentProjected = LINA_VIEW.proj * LINA_VIEW.view * vec4(position, 1.0);
+    vec4 nextProjected = LINA_VIEW.proj * LINA_VIEW.view * vec4(nextPosition, 1.0);
+
+    vec2 currentScreen = currentProjected.xy / currentProjected.w;
+    vec2 nextScreen = nextProjected.xy / nextProjected.w;
+    currentScreen.x *= aspect;
+    nextScreen.x *= aspect;
+
+    vec2 dir = normalize(nextScreen - currentScreen);
+    vec2 normal = vec2(-dir.y, dir.x);
+
+    float baseThickness = 0.025; 
+    float thicknessAlpha = (currentProjected.z / LINA_VIEW.cameraDirectionAndFar.w);
+    float fac = mix(0.0, .2, thicknessAlpha);
+    float thickness = baseThickness + fac;
+
+    normal *= thickness;
+
+    vec4 offset = vec4(normal * direction, 0.0, 0.0);
+
+    gl_Position = currentProjected + offset;
+    outColor = color;
 }
 
 #lina_end
 
 #lina_fs
 
-layout(location = 0) in vec2 inUV;
-layout(location = 1) flat in uint inMaterialIndex;
-layout(location = 0) out vec4 outFragColor;
-
 #include "Resources/Core/Shaders/Common/GlobalData.linashader"
 #include "Resources/Editor/Shaders/Common/RenderPass_World.linashader"
 
-struct LinaMaterial
-{
-   vec4 color;
-   float thickness;
-};
 
-vec4 outline(vec2 texCoord, vec2 pixelSize, float thickness)
-{
-	vec2 uv;
-	vec2 diffUV = pixelSize.xy * vec2(thickness, thickness);
-   LinaTexture2D outlineTxt;
-   outlineTxt.txt = LINA_VIEW.outlineSelectionTextureIndex;
-   outlineTxt.smp = LINA_VIEW.outlineSelectionSamplerIndex;
- 
-	uv.x = texCoord.x - diffUV.x;
-	uv.y = texCoord.y;
-	vec4 xDif = LINA_SAMPLE_TEXTURE(outlineTxt, uv);
-	uv.x = texCoord.x + diffUV.x;
-	xDif -= LINA_SAMPLE_TEXTURE(outlineTxt, uv);
+layout (location = 0) in vec4 inColor;
 
-	uv.x = texCoord.x;
-	uv.y = texCoord.y - diffUV.y;
-	vec4 yDif = LINA_SAMPLE_TEXTURE(outlineTxt, uv);
-	uv.y = texCoord.y + diffUV.y;
-	yDif -= LINA_SAMPLE_TEXTURE(outlineTxt, uv);
-	return sqrt(xDif*xDif + yDif*yDif);
-}
-
+layout (location = 0) out vec4 outFragColor;
 
 void main()
 {
-    LinaMaterial material = LINA_GET_MATERIAL(inMaterialIndex);
-
-    vec2 texelSize = vec2(1.0 / LINA_VIEW.size.x, 1.0 / LINA_VIEW.size.y);
-    vec4 v = outline(inUV, texelSize, material.thickness);
-    outFragColor = material.color;
-	 outFragColor.w = v.x;
+    outFragColor = inColor;
 }
 
 #lina_end

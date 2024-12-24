@@ -69,7 +69,16 @@ namespace Lina::Editor
 		m_world	 = m_wr->GetWorld();
 		m_lgx	 = m_editor->GetApp()->GetLGX();
 
-		m_fullscreenShader	 = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_ID);
+		m_fullscreenShader = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_ID);
+
+	} // namespace Lina::Editor
+
+	OutlineSelectionRenderer::~OutlineSelectionRenderer()
+	{
+	}
+
+	void OutlineSelectionRenderer::Initialize()
+	{
 		m_fullscreenMaterial = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Outline Fullscreen Material");
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 
@@ -104,9 +113,10 @@ namespace Lina::Editor
 			});
 		}
 
-	} // namespace Lina::Editor
+		CreateSizeRelativeResources();
+	}
 
-	OutlineSelectionRenderer::~OutlineSelectionRenderer()
+	void OutlineSelectionRenderer::Shutdown()
 	{
 		DestroySizeRelativeResources();
 		m_lgx->DestroyPipelineLayout(m_pipelineLayout);

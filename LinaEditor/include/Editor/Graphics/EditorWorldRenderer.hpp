@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Editor/Graphics/GizmoRenderer.hpp"
 #include "Editor/Graphics/MousePickRenderer.hpp"
 #include "Editor/Graphics/OutlineSelectionRenderer.hpp"
+#include "Editor/Graphics/ShapeRenderer.hpp"
 
 namespace Lina
 {
@@ -70,6 +71,7 @@ namespace Lina::Editor
 		{
 			bool disableSelection = false;
 			bool disableGizmos	  = false;
+			bool disableShapes	  = false;
 		};
 
 	public:
@@ -109,6 +111,7 @@ namespace Lina::Editor
 		GizmoRenderer			 m_gizmoRenderer;
 		MousePickRenderer		 m_mousePickRenderer;
 		OutlineSelectionRenderer m_outlineRenderer;
+		ShapeRenderer			 m_shapeRenderer;
 
 		Shader*			m_gridShader			  = nullptr;
 		Material*		m_gridMaterial			  = nullptr;

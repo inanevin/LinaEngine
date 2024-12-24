@@ -26,47 +26,34 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#LINA_SHADER_CUSTOM
+#lina_shader_custom
 
 #lina_vs
 
 #include "Resources/Core/Shaders/Common/GlobalData.linashader"
-#include "Resources/Core/Shaders/Common/RenderPass_forwardtransparency.linashader"
+#include "Resources/Editor/Shaders/Common/RenderPass_World.linashader"
 
-layout (location = 0) in vec3 position;
-layout (location = 1) in vec3 nextPosition;
-layout (location = 2) in vec4 color;
-layout (location = 3) in float direction;
+layout (location = 0) in vec2 pos;
+layout (location = 1) in vec2 uv;
+layout (location = 2) in vec4 col;
 
-layout (location = 0) out vec4 outColor;
+layout (location = 0) out vec4 outCol;
+layout (location = 1) out vec2 outUV;
+
+layout( push_constant ) uniform constants
+{
+	uint baseInstanceIndex;
+} PushConstants;
+
 
 void main()
 {
-    vec4 currentView = LINA_VIEW.view * vec4(position, 1.0);
-    float aspect = LINA_VIEW.size.x / LINA_VIEW.size.y;
-
-    vec4 currentProjected = LINA_VIEW.proj * LINA_VIEW.view * vec4(position, 1.0);
-    vec4 nextProjected = LINA_VIEW.proj * LINA_VIEW.view * vec4(nextPosition, 1.0);
-
-    vec2 currentScreen = currentProjected.xy / currentProjected.w;
-    vec2 nextScreen = nextProjected.xy / nextProjected.w;
-    currentScreen.x *= aspect;
-    nextScreen.x *= aspect;
-
-    vec2 dir = normalize(nextScreen - currentScreen);
-    vec2 normal = vec2(-dir.y, dir.x);
-
-    float baseThickness = 0.025; 
-    float thicknessAlpha = (currentProjected.z / LINA_VIEW.cameraDirectionAndFar.w);
-    float fac = mix(0.0, .2, thicknessAlpha);
-    float thickness = baseThickness + fac;
-
-    normal *= thickness;
-
-    vec4 offset = vec4(normal * direction, 0.0, 0.0);
-
-    gl_Position = currentProjected + offset;
-    outColor = color;
+   DrawArguments drawArguments = LINA_DRAW_ARGUMENTS.data[PushConstants.baseInstanceIndex + gl_InstanceIndex];
+   LinaEntity entity = LINA_GET_ENTITY(drawArguments.entityIndex);
+   vec3 worldPos = vec3(entity.modelMatrix * vec4(pos.x, pos.y, 0.0, 1.0));
+   gl_Position = LINA_VIEW.viewProj * vec4(worldPos, 1.0);
+   outCol = col;
+   outUV = uv;
 }
 
 #lina_end
@@ -74,16 +61,18 @@ void main()
 #lina_fs
 
 #include "Resources/Core/Shaders/Common/GlobalData.linashader"
-#include "Resources/Core/Shaders/Common/RenderPass_forwardtransparency.linashader"
+#include "Resources/Editor/Shaders/Common/RenderPass_World.linashader"
 
-
-layout (location = 0) in vec4 inColor;
+layout (location = 0) in vec4 inCol;
+layout (location = 1) in vec2 inUV;
 
 layout (location = 0) out vec4 outFragColor;
 
 void main()
 {
-    outFragColor = inColor;
+   vec4 color = inCol;
+   outFragColor = color;
 }
+
 
 #lina_end

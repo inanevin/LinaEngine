@@ -65,6 +65,8 @@ namespace Lina::Editor
 		OutlineSelectionRenderer(Editor* editor, WorldRenderer* wr);
 		virtual ~OutlineSelectionRenderer();
 
+		void Initialize();
+		void Shutdown();
 		void DestroySizeRelativeResources();
 		void CreateSizeRelativeResources();
 		void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue);

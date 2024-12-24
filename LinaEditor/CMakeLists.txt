@@ -47,6 +47,7 @@ include/Editor/Graphics/SurfaceRenderer.hpp
 include/Editor/Graphics/EditorGfxHelpers.hpp
 include/Editor/Graphics/EditorWorldRenderer.hpp
 include/Editor/Graphics/GizmoRenderer.hpp
+include/Editor/Graphics/ShapeRenderer.hpp
 include/Editor/Graphics/OutlineSelectionRenderer.hpp
 include/Editor/Graphics/MousePickRenderer.hpp
 
@@ -139,6 +140,7 @@ src/Graphics/SurfaceRenderer.cpp
 src/Graphics/EditorGfxHelpers.cpp
 src/Graphics/EditorWorldRenderer.cpp
 src/Graphics/GizmoRenderer.cpp
+src/Graphics/ShapeRenderer.cpp
 src/Graphics/OutlineSelectionRenderer.cpp
 src/Graphics/MousePickRenderer.cpp
 

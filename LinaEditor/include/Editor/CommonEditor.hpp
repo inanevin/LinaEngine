@@ -75,6 +75,8 @@ namespace Lina::Editor
 #define EDITOR_SHADER_WORLD_GIZMO_PATH				   "Resources/Editor/Shaders/World/Gizmo.linashader"
 #define EDITOR_SHADER_WORLD_ENTITYID_PATH			   "Resources/Editor/Shaders/World/EntityID.linashader"
 #define EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_PATH	   "Resources/Editor/Shaders/World/OutlineFullscreen.linashader"
+#define EDITOR_SHADER_WORLD_LINE3D_PATH				   "Resources/Editor/Shaders/World/Line3D.linashader"
+#define EDITOR_SHADER_WORLD_LVG3D_PATH				   "Resources/Editor/Shaders/World/LinaVG3D.linashader"
 
 #define EDITOR_SHADER_GUI_DEFAULT_ID				 RESOURCE_ID_EDITOR_SHADERS
 #define EDITOR_SHADER_GUI_COLOR_WHEEL_ID			 RESOURCE_ID_EDITOR_SHADERS + 1
@@ -92,6 +94,8 @@ namespace Lina::Editor
 #define EDITOR_SHADER_WORLD_GIZMO_ID				 RESOURCE_ID_EDITOR_SHADERS + 13
 #define EDITOR_SHADER_WORLD_ENTITYID_ID				 RESOURCE_ID_EDITOR_SHADERS + 14
 #define EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_ID	 RESOURCE_ID_EDITOR_SHADERS + 15
+#define EDITOR_SHADER_WORLD_LINE3D_ID				 RESOURCE_ID_EDITOR_SHADERS + 16
+#define EDITOR_SHADER_WORLD_LVG3D_ID				 RESOURCE_ID_EDITOR_SHADERS + 17
 
 // Textures
 #define EDITOR_TEXTURE_CHECKERED_PATH				 "Resources/Editor/Textures/Checkered.png"

@@ -188,7 +188,7 @@ namespace Lina::Editor
 	{
 		LinaGX::PipelineLayoutDesc desc;
 		desc.descriptorSetDescriptions = {GfxHelpers::GetSetDescPersistentGlobal(), GetSetDescriptionEntityBufferPass()};
-		desc.debugName				   = "Persistent EntityBufferPass Layout";
+		desc.debugName				   = "PL Editor EntityBuffer Pass";
 		desc.constantRanges.push_back(LinaGX::PipelineLayoutPushConstantRange{.stages = {LinaGX::ShaderStage::Vertex}, .size = sizeof(uint32)});
 		return desc;
 	}
@@ -197,7 +197,7 @@ namespace Lina::Editor
 	{
 		LinaGX::PipelineLayoutDesc desc;
 		desc.descriptorSetDescriptions = {GfxHelpers::GetSetDescPersistentGlobal(), GetSetDescriptionEditorWorldPass()};
-		desc.debugName				   = "Persistent EntityBufferPass Layout";
+		desc.debugName				   = "PL Editor World Pass";
 		desc.constantRanges.push_back(LinaGX::PipelineLayoutPushConstantRange{.stages = {LinaGX::ShaderStage::Vertex}, .size = sizeof(uint32)});
 		return desc;
 	}

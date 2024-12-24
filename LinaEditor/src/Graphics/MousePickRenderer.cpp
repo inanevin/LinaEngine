@@ -67,6 +67,15 @@ namespace Lina::Editor
 		m_world	 = m_wr->GetWorld();
 		m_lgx	 = editor->GetApp()->GetLGX();
 
+	} // namespace Lina::Editor
+
+	MousePickRenderer::~MousePickRenderer()
+	{
+	}
+
+	void MousePickRenderer::Initialize()
+	{
+		m_init			 = true;
 		m_pipelineLayout = m_lgx->CreatePipelineLayout(EditorGfxHelpers::GetPipelineLayoutDescriptionEntityBufferPass());
 		m_entityBufferPass.Create(EditorGfxHelpers::GetEntityBufferPassDescription());
 
@@ -94,9 +103,10 @@ namespace Lina::Editor
 			});
 		}
 
-	} // namespace Lina::Editor
+		CreateSizeRelativeResources();
+	}
 
-	MousePickRenderer::~MousePickRenderer()
+	void MousePickRenderer::Shutdown()
 	{
 		DestroySizeRelativeResources();
 		m_lgx->DestroyPipelineLayout(m_pipelineLayout);

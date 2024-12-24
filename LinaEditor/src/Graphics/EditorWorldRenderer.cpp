@@ -58,7 +58,7 @@ namespace Lina::Editor
 #define DEBUG_LABEL_END(Stream)
 #endif
 
-	EditorWorldRenderer::EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr, const Properties& props) : m_gizmoRenderer(editor, wr), m_mousePickRenderer(editor, wr), m_outlineRenderer(editor, wr)
+	EditorWorldRenderer::EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr, const Properties& props) : m_gizmoRenderer(editor, wr), m_mousePickRenderer(editor, wr), m_outlineRenderer(editor, wr), m_shapeRenderer(editor, wr)
 	{
 		m_props	 = props;
 		m_editor = editor;
@@ -68,7 +68,6 @@ namespace Lina::Editor
 		m_world	 = m_wr->GetWorld();
 
 		m_wr->AddListener(this);
-
 		m_pass.Create(EditorGfxHelpers::GetEditorWorldPassDescription());
 		m_pipelineLayout = m_lgx->CreatePipelineLayout(EditorGfxHelpers::GetPipelineLayoutDescriptionEditorWorldPass());
 
@@ -123,32 +122,54 @@ namespace Lina::Editor
 			m_gridMaterial->SetProperty("distLOD1"_hs, 90.0f);
 		}
 
-		m_outlineSelectionSampler = m_rm->CreateResource<TextureSampler>(m_rm->ConsumeResourceID(), "Outline Selection Sampler");
-		m_outlineSelectionSampler->GenerateHW(LinaGX::SamplerDesc{
-			.minFilter	= LinaGX::Filter::Anisotropic,
-			.magFilter	= LinaGX::Filter::Anisotropic,
-			.mode		= LinaGX::SamplerAddressMode::ClampToBorder,
-			.mipmapMode = LinaGX::MipmapMode::Linear,
-			.anisotropy = 0,
-			.minLod		= 0.0f,
-			.maxLod		= 10.0f,
-			.mipLodBias = 0.0f,
-		});
-
-		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
-
 		if (!m_props.disableSelection)
 		{
-			m_mousePickRenderer.CreateSizeRelativeResources();
-			m_outlineRenderer.CreateSizeRelativeResources();
+			m_mousePickRenderer.Initialize();
+			m_outlineRenderer.Initialize();
+
+			m_outlineSelectionSampler = m_rm->CreateResource<TextureSampler>(m_rm->ConsumeResourceID(), "Outline Selection Sampler");
+			m_outlineSelectionSampler->GenerateHW(LinaGX::SamplerDesc{
+				.minFilter	= LinaGX::Filter::Anisotropic,
+				.magFilter	= LinaGX::Filter::Anisotropic,
+				.mode		= LinaGX::SamplerAddressMode::ClampToBorder,
+				.mipmapMode = LinaGX::MipmapMode::Linear,
+				.anisotropy = 0,
+				.minLod		= 0.0f,
+				.maxLod		= 10.0f,
+				.mipLodBias = 0.0f,
+			});
 		}
+
+		if (!m_props.disableGizmos)
+			m_gizmoRenderer.Initialize();
+
+		if (!m_props.disableShapes)
+			m_shapeRenderer.Initialize();
+
+		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 	}
 
 	EditorWorldRenderer::~EditorWorldRenderer()
 	{
-		m_outlineSelectionSampler->DestroyHW();
+		if (!m_props.disableSelection)
+		{
+			m_mousePickRenderer.Shutdown();
+			m_outlineRenderer.Shutdown();
+		}
+
+		if (!m_props.disableGizmos)
+			m_gizmoRenderer.Shutdown();
+
+		if (!m_props.disableShapes)
+			m_shapeRenderer.Shutdown();
+
+		if (!m_props.disableSelection)
+		{
+			m_outlineSelectionSampler->DestroyHW();
+			m_rm->DestroyResource(m_outlineSelectionSampler);
+		}
+
 		m_rm->DestroyResource(m_gridMaterial);
-		m_rm->DestroyResource(m_outlineSelectionSampler);
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 
 		m_pass.Destroy();
@@ -185,6 +206,9 @@ namespace Lina::Editor
 			m_mousePickRenderer.Tick(delta, drawCollector);
 			m_outlineRenderer.Tick(delta, drawCollector);
 		}
+
+		if (!m_props.disableShapes)
+			m_shapeRenderer.Tick(delta, drawCollector);
 	}
 
 	void EditorWorldRenderer::SyncRender()
@@ -194,6 +218,9 @@ namespace Lina::Editor
 			m_mousePickRenderer.SyncRender();
 			m_outlineRenderer.SyncRender();
 		}
+
+		if (!m_props.disableShapes)
+			m_shapeRenderer.SyncRender();
 	}
 
 	void EditorWorldRenderer::UpdateBuffers(uint32 frameIndex)
@@ -234,6 +261,9 @@ namespace Lina::Editor
 			m_outlineRenderer.AddBuffersToUploadQueue(frameIndex, queue);
 		}
 
+		if (!m_props.disableShapes)
+			m_shapeRenderer.AddBuffersToUploadQueue(frameIndex, queue);
+
 		m_pass.AddBuffersToUploadQueue(frameIndex, queue);
 	}
 
@@ -272,9 +302,14 @@ namespace Lina::Editor
 		if (drawCollector.RenderGroupExists("EditorWorld"_hs))
 			drawCollector.RenderGroup("EditorWorld"_hs, gfxStream);
 
-		m_outlineRenderer.RenderFullscreen(drawCollector, gfxStream);
-		m_gizmoRenderer.Render(drawCollector, gfxStream);
+		if (!m_props.disableSelection)
+			m_outlineRenderer.RenderFullscreen(drawCollector, gfxStream);
 
+		if (!m_props.disableGizmos)
+			m_gizmoRenderer.Render(drawCollector, gfxStream);
+
+		if (!m_props.disableShapes)
+			m_shapeRenderer.Render(frameIndex, gfxStream);
 		m_pass.End(gfxStream);
 
 		LinaGX::CMDBarrier* barrier	 = gfxStream->AddCommand<LinaGX::CMDBarrier>();

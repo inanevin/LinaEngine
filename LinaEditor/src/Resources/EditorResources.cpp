@@ -201,6 +201,8 @@ namespace Lina::Editor
 		Model*	 gizmoScale			 = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_SCALE_ID, EDITOR_MODEL_GIZMO_SCALE_PATH);
 		Shader*	 gizmo				 = manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_GIZMO_ID, EDITOR_SHADER_WORLD_GIZMO_PATH);
 		Shader*	 outlineFullscreen	 = manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_ID, EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_PATH);
+		Shader*	 line3D				 = manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_LINE3D_ID, EDITOR_SHADER_WORLD_LINE3D_PATH);
+		Shader*	 shaderLinaVG3D		 = manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_LVG3D_ID, EDITOR_SHADER_WORLD_LVG3D_PATH);
 
 		m_createdResources.insert(txtCheckered);
 		m_createdResources.insert(txtProtoDark);
@@ -214,6 +216,8 @@ namespace Lina::Editor
 		m_createdResources.insert(gizmoScale);
 		m_createdResources.insert(gizmo);
 		m_createdResources.insert(outlineFullscreen);
+		m_createdResources.insert(line3D);
+		m_createdResources.insert(shaderLinaVG3D);
 
 		fontPlay->GetMeta() = {
 			.points = {{.size = 14, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
@@ -274,8 +278,26 @@ namespace Lina::Editor
 				.depthBiasClamp	   = 0.0f,
 				.depthBiasSlope	   = 0.0f,
 			},
-		} // namespace Lina::Editor
-		);
+		});
+
+		line3D->GetMeta().variants.push_back({
+			ShaderVariant{
+				.id				   = "Default"_hs,
+				.name			   = "Default",
+				.blendDisable	   = true,
+				.depthTest		   = false,
+				.depthWrite		   = false,
+				.depthFormat	   = LinaGX::Format::D32_SFLOAT,
+				.targets		   = {{DEFAULT_RT_FORMAT}},
+				.cullMode		   = LinaGX::CullMode::None,
+				.frontFace		   = LinaGX::FrontFace::CW,
+				.topology		   = LinaGX::Topology::TriangleList,
+				.depthBiasEnable   = false,
+				.depthBiasConstant = 0.0f,
+				.depthBiasClamp	   = 0.0f,
+				.depthBiasSlope	   = 0.0f,
+			},
+		});
 
 		shaderWorldEntityID->GetMeta().variants.push_back({
 			ShaderVariant{
@@ -295,8 +317,23 @@ namespace Lina::Editor
 				.depthBiasClamp	   = 0.0f,
 				.depthBiasSlope	   = 0.0f,
 			},
-		} // namespace Lina::Editor
-		);
+		});
+
+		shaderLinaVG3D->GetMeta().variants.push_back({
+			ShaderVariant{
+				.id			  = "Default"_hs,
+				.name		  = "Default",
+				.blendDisable = false,
+				.depthTest	  = true,
+				.depthWrite	  = true,
+				.depthFormat  = LinaGX::Format::D32_SFLOAT,
+				.targets	  = {{DEFAULT_RT_FORMAT}},
+				.depthOp	  = LinaGX::CompareOp::Less,
+				.cullMode	  = LinaGX::CullMode::None,
+				.frontFace	  = LinaGX::FrontFace::CCW,
+				.topology	  = LinaGX::Topology::TriangleList,
+			},
+		});
 
 		outlineFullscreen->GetMeta().variants.push_back({
 			ShaderVariant{
