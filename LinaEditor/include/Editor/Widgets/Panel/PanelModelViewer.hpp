@@ -47,7 +47,6 @@ namespace Lina::Editor
 {
 	class Editor;
 	class WorldDisplayer;
-	class GridRenderer;
 	class EditorWorldRenderer;
 
 	class PanelModelViewer : public PanelResourceViewer
@@ -80,7 +79,6 @@ namespace Lina::Editor
 		WorldDisplayer*		 m_worldDisplayer		 = nullptr;
 		EntityWorld*		 m_world				 = nullptr;
 		WorldRenderer*		 m_worldRenderer		 = nullptr;
-		GridRenderer*		 m_gridRenderer			 = nullptr;
 		Entity*				 m_displayEntity		 = nullptr;
 		int32				 m_displayAnimation		 = -1;
 		CompModel*			 m_compModel			 = nullptr;

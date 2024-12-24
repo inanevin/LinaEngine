@@ -63,6 +63,7 @@ namespace Lina::Editor
 		float	direction = 0.0f;
 	};
 
+	/*
 	class WorldRendererExtEditor : public WorldRendererExtension
 	{
 	public:
@@ -87,5 +88,7 @@ namespace Lina::Editor
 		Shader*			   m_shaderLines = nullptr;
 		PerFrameData	   m_pfd[FRAMES_IN_FLIGHT];
 	};
+
+	*/
 
 } // namespace Lina::Editor

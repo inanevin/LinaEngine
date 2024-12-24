@@ -34,6 +34,7 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+	/*
 	WorldRendererExtEditor::WorldRendererExtEditor(Editor* editor, WorldRenderer* renderer, ResourceManagerV2* rm)
 	{
 		m_worldRenderer = renderer;
@@ -195,5 +196,5 @@ namespace Lina::Editor
 	//	draw->indexCountPerInstance			  = 216;
 	//	draw->instanceCount					  = 1;
 	// }
-
+	*/
 } // namespace Lina::Editor

@@ -61,8 +61,10 @@ namespace Lina
 			m_compModels.erase(it);
 	}
 
-	void DrawCollector::CollectCompModels(DrawGroup& group, const View& view, ShaderType shaderType)
+	void DrawCollector::CollectCompModels(StringID groupId, const View& view, ShaderType shaderType)
 	{
+		DrawGroup& group = GetGroup(groupId);
+
 		for (CompModel* comp : m_compModels)
 		{
 			if (!comp->GetEntity()->GetVisible())
@@ -147,7 +149,7 @@ namespace Lina
 					group.customDraws.push_back({
 						.vertexBuffer		   = &m_gfxContext->GetMeshManagerDefault().GetVtxBufferSkinned(),
 						.indexBuffer		   = &m_gfxContext->GetMeshManagerDefault().GetIdxBufferSkinned(),
-						.vertexSize			   = sizeof(VertexStatic),
+						.vertexSize			   = sizeof(VertexSkinned),
 						.shaderID			   = targetShader->GetID(),
 						.shaderVariant		   = "Skinned"_hs,
 						.baseVertexLocation	   = prim._vertexOffset,
@@ -179,20 +181,10 @@ namespace Lina
 		}
 	}
 
-	void DrawCollector::AddModelDraw(DrawGroup& group, ResourceID model, uint32 meshIndex, uint32 primitiveIndex, ResourceID shaderID, StringID shaderVariant, const ModelDrawInstance& inst)
+	void DrawCollector::AddCustomDraw(StringID groupId, const CustomDrawInstance& inst, ResourceID shaderID, StringID shaderVariant, Buffer* vertexBuffer, Buffer* indexBuffer, size_t vertexSize, uint32 baseVertex, uint32 indexCount, uint32 startIndex)
 	{
-		group.modelDraws.push_back({
-			.modelID		= model,
-			.shaderID		= shaderID,
-			.shaderVariant	= shaderVariant,
-			.meshIndex		= meshIndex,
-			.primitiveIndex = primitiveIndex,
-			.instance		= inst,
-		});
-	}
+		DrawGroup& group = GetGroup(groupId);
 
-	void DrawCollector::AddCustomDraw(DrawGroup& group, const CustomDrawInstance& inst, ResourceID shaderID, StringID shaderVariant, Buffer* vertexBuffer, Buffer* indexBuffer, size_t vertexSize, uint32 baseVertex, uint32 indexCount, uint32 startIndex)
-	{
 		group.customDraws.push_back({
 			.vertexBuffer		   = vertexBuffer,
 			.indexBuffer		   = indexBuffer,
@@ -206,8 +198,10 @@ namespace Lina
 		});
 	}
 
-	void DrawCollector::AddCustomDrawRaw(DrawGroup& group, const CustomDrawInstance& inst, ResourceID shaderID, StringID shaderVariant, uint32 baseVertex, uint32 vtxCount)
+	void DrawCollector::AddCustomDrawRaw(StringID groupId, const CustomDrawInstance& inst, ResourceID shaderID, StringID shaderVariant, uint32 baseVertex, uint32 vtxCount)
 	{
+		DrawGroup& group = GetGroup(groupId);
+
 		group.customRawDraws.push_back({
 			.shaderID				= shaderID,
 			.shaderVariant			= shaderVariant,

@@ -35,8 +35,6 @@ SOFTWARE.
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Graphics/MeshManager.hpp"
 #include "Core/Graphics/GUI/GUIBackend.hpp"
-#include "Core/Graphics/Renderers/SkyRenderer.hpp"
-#include "Core/Graphics/Renderers/LightingRenderer.hpp"
 #include "Core/Graphics/Renderers/DrawCollector.hpp"
 
 namespace LinaGX
@@ -54,22 +52,7 @@ namespace Lina
 	class Texture;
 	class ResourceManagerV2;
 	class WorldRenderer;
-	class FeatureRenderer;
-
-	class WorldRendererExtension
-	{
-	public:
-		virtual ~WorldRendererExtension() = default;
-
-	protected:
-		friend class WorldRenderer;
-
-		virtual void Tick(float delta){};
-		virtual void RenderForward(uint32 frameIndex, LinaGX::CommandStream* stream){};
-		virtual void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue){};
-
-		WorldRenderer* m_worldRenderer = nullptr;
-	};
+	class WorldRendererListener;
 
 	class WorldRenderer : public EntityWorldListener
 	{
@@ -94,6 +77,9 @@ namespace Lina
 
 		struct RenderData
 		{
+			ResourceID lightingMaterial;
+			ResourceID skyMaterial;
+			ResourceID skyModel;
 		};
 
 	public:
@@ -112,8 +98,9 @@ namespace Lina
 
 		virtual void OnComponentAdded(Component* c) override;
 		virtual void OnComponentRemoved(Component* c) override;
-		void		 AddFeatureRenderer(FeatureRenderer* ft);
-		void		 RemoveFeatureRenderer(FeatureRenderer* ft);
+
+		void AddListener(WorldRendererListener* listener);
+		void RemoveListener(WorldRendererListener* listener);
 
 		inline Buffer& GetInstanceDataBuffer(uint32 frameIndex)
 		{
@@ -183,11 +170,6 @@ namespace Lina
 			return m_name;
 		}
 
-		inline void SetExtension(WorldRendererExtension* ext)
-		{
-			m_extension = ext;
-		}
-
 		inline DrawCollector& GetDrawCollector()
 		{
 			return m_drawCollector;
@@ -224,27 +206,27 @@ namespace Lina
 		uint64 BumpAndSendTransfers(uint32 frameIndex);
 
 	private:
-		GUIBackend				 m_guiBackend;
-		ResourceManagerV2*		 m_resourceManagerV2 = nullptr;
-		LinaGX::Instance*		 m_lgx				 = nullptr;
-		ResourceUploadQueue		 m_uploadQueue;
-		PerFrameData			 m_pfd[FRAMES_IN_FLIGHT]  = {};
-		RenderPass				 m_deferredPass			  = {};
-		RenderPass				 m_forwardPass			  = {};
-		Vector2ui				 m_size					  = Vector2ui::Zero;
-		EntityWorld*			 m_world				  = nullptr;
-		TextureSampler*			 m_gBufSampler			  = nullptr;
-		Shader*					 m_deferredLightingShader = nullptr;
-		Buffer*					 m_snapshotBuffer		  = nullptr;
-		bool					 m_standaloneSubmit		  = false;
-		Vector<FeatureRenderer*> m_featureRenderers;
-		GfxContext*				 m_gfxContext;
-		String					 m_name		 = "";
-		WorldRendererExtension*	 m_extension = nullptr;
-		SkyRenderer				 m_skyRenderer;
-		LightingRenderer		 m_lightingRenderer;
-		JobExecutor				 m_executor;
-		DrawCollector			 m_drawCollector;
+		Vector<WorldRendererListener*> m_listeners;
+		GUIBackend					   m_guiBackend;
+		ResourceManagerV2*			   m_resourceManagerV2 = nullptr;
+		LinaGX::Instance*			   m_lgx			   = nullptr;
+		ResourceUploadQueue			   m_uploadQueue;
+		PerFrameData				   m_pfd[FRAMES_IN_FLIGHT]	= {};
+		RenderPass					   m_deferredPass			= {};
+		RenderPass					   m_forwardPass			= {};
+		Vector2ui					   m_size					= Vector2ui::Zero;
+		EntityWorld*				   m_world					= nullptr;
+		TextureSampler*				   m_gBufSampler			= nullptr;
+		Shader*						   m_deferredLightingShader = nullptr;
+		Buffer*						   m_snapshotBuffer			= nullptr;
+		bool						   m_standaloneSubmit		= false;
+		GfxContext*					   m_gfxContext;
+		String						   m_name = "";
+		JobExecutor					   m_executor;
+		DrawCollector				   m_drawCollector;
+
+		RenderData m_cpuRenderData = {};
+		RenderData m_gpuRenderData = {};
 	};
 
 } // namespace Lina

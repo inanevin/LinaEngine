@@ -28,23 +28,27 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/Graphics/Renderers/FeatureRenderer.hpp"
 #include "Core/Graphics/Pipeline/Buffer.hpp"
 
 namespace Lina
 {
 	class Shader;
 	class Entity;
+	class WorldRenderer;
+	class EntityWorld;
+	class ResourceManagerV2;
+	class Material;
+	class DrawCollector;
 } // namespace Lina
 
 namespace Lina::Editor
 {
 	class Editor;
 
-	class OutlineSelectionRenderer : public FeatureRenderer
+	class OutlineSelectionRenderer
 	{
 	public:
-		OutlineSelectionRenderer(Editor* editor, LinaGX::Instance* lgx, EntityWorld* world, WorldRenderer* wr, ResourceManagerV2* rm);
+		OutlineSelectionRenderer(Editor* editor, WorldRenderer* wr);
 		virtual ~OutlineSelectionRenderer();
 
 		inline void SetSelectedEntities(const Vector<Entity*>& entities)
@@ -52,13 +56,17 @@ namespace Lina::Editor
 			m_selectedEntities = entities;
 		}
 
-		virtual void OnProduceFrame(DrawCollector& collector) override;
-		virtual void OnRenderPassPost(uint32 frameIndex, LinaGX::CommandStream* stream, RenderPassType type) override;
+		void OnProduceFrame(DrawCollector& collector);
+		void OnRenderPassPost(uint32 frameIndex, LinaGX::CommandStream* stream);
 
 	private:
+		Editor*			   m_editor = nullptr;
+		WorldRenderer*	   m_wr		= nullptr;
+		ResourceManagerV2* m_rm		= nullptr;
+		EntityWorld*	   m_world	= nullptr;
+
 		Vector<Entity*> m_selectedEntities = {};
 		Material*		m_outlineMaterial  = nullptr;
 		Shader*			m_outlineShader	   = nullptr;
-		Editor*			m_editor		   = nullptr;
 	};
 } // namespace Lina::Editor

@@ -26,18 +26,31 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#lina_shader_forward
+#lina_shader_custom
 
 #lina_vs
 
+layout (location = 0) in vec3 inPos;
+layout (location = 1) in vec3 inNormal;
+layout (location = 2) in vec2 inUV;
+
+#include "Resources/Core/Shaders/Common/GlobalData.linashader"
+#include "Resources/Editor/Shaders/Common/RenderPass_World.linashader"
+
 layout (location = 0) out flat uint outMaterialIndex;
 
-void LINA_VERTEX_MAIN(in LinaVertexInput inVertex, out LinaVertexOutput outVertex)
+layout( push_constant ) uniform constants
 {
-   LinaEntity entity = LINA_GET_ENTITY(inVertex.drawArguments.entityIndex);
-   vec3 worldPos = vec3(entity.modelMatrix * inVertex.pos);
-   outVertex.clipPosition = LINA_VIEW.proj * LINA_VIEW.view * vec4(worldPos, 1.0);
-   outMaterialIndex = inVertex.drawArguments.materialIndex;
+	uint baseInstanceIndex;
+} PushConstants;
+
+void main()
+{
+   DrawArguments drawArguments = LINA_DRAW_ARGUMENTS.data[PushConstants.baseInstanceIndex + gl_InstanceIndex];
+   LinaEntity entity = LINA_GET_ENTITY(drawArguments.entityIndex);
+   vec3 worldPos = vec3(entity.modelMatrix * vec4(inPos, 1.0));
+   gl_Position = LINA_VIEW.proj * LINA_VIEW.view * vec4(worldPos, 1.0);
+   outMaterialIndex = drawArguments.materialIndex;
 }
 
 #lina_end
@@ -45,16 +58,20 @@ void LINA_VERTEX_MAIN(in LinaVertexInput inVertex, out LinaVertexOutput outVerte
 #lina_fs
 
 layout(location = 0) flat in uint inMaterialIndex;
+layout(location = 0) out vec4 outFragColor;
+
+#include "Resources/Core/Shaders/Common/GlobalData.linashader"
+#include "Resources/Editor/Shaders/Common/RenderPass_World.linashader"
 
 struct LinaMaterial
 {
    vec4 color;
 };
 
-void LINA_FRAG_MAIN(out LinaFragOutput outFrag)
+void main()
 {
     LinaMaterial material = LINA_GET_MATERIAL(inMaterialIndex);
-    outFrag.color = material.color;
+    outFragColor = material.color;
 }
 
 #lina_end

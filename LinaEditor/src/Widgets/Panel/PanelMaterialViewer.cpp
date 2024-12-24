@@ -32,7 +32,7 @@ SOFTWARE.
 #include "Editor/Widgets/World/WorldDisplayer.hpp"
 #include "Editor/Widgets/Compound/ColorWheelCompound.hpp"
 #include "Editor/Actions/EditorActionResources.hpp"
-#include "Editor/Graphics/GridRenderer.hpp"
+#include "Editor/Graphics/EditorWorldRenderer.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Serialization/Serialization.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
@@ -80,15 +80,20 @@ namespace Lina::Editor
 		if (m_world)
 			return;
 
-		m_world			= new EntityWorld(0, "");
-		m_worldRenderer = new WorldRenderer(&m_editor->GetApp()->GetGfxContext(), &m_editor->GetApp()->GetResourceManager(), m_world, Vector2ui(4, 4), "WorldRenderer: " + m_resource->GetName() + " :");
-		m_gridRenderer	= new GridRenderer(m_editor, m_editor->GetApp()->GetLGX(), m_world, m_worldRenderer, &m_editor->GetApp()->GetResourceManager());
-		m_worldRenderer->AddFeatureRenderer(m_gridRenderer);
+		m_world				  = new EntityWorld(0, "");
+		m_worldRenderer		  = new WorldRenderer(&m_editor->GetApp()->GetGfxContext(), &m_editor->GetApp()->GetResourceManager(), m_world, Vector2ui(4, 4), "WorldRenderer: " + m_resource->GetName() + " :");
+		m_editorWorldRenderer = new EditorWorldRenderer(m_editor,
+														m_editor->GetApp()->GetLGX(),
+														m_worldRenderer,
+														{
+															.disableSelection = true,
+															.disableGizmos	  = true,
+														});
 
 		m_editor->GetApp()->JoinRender();
 
 		m_editor->GetApp()->GetWorldProcessor().AddWorld(m_world);
-		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer, nullptr);
+		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer, m_editorWorldRenderer);
 
 		m_worldDisplayer->DisplayWorld(m_worldRenderer, WorldDisplayer::WorldCameraType::Orbit);
 
@@ -138,7 +143,7 @@ namespace Lina::Editor
 			m_editor->GetApp()->GetWorldProcessor().RemoveWorld(m_world);
 			m_editor->GetEditorRenderer().RemoveWorldRenderer(m_worldRenderer);
 			delete m_worldRenderer;
-			delete m_gridRenderer;
+			delete m_editorWorldRenderer;
 			delete m_world;
 			m_worldRenderer = nullptr;
 			m_world			= nullptr;

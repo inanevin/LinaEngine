@@ -253,6 +253,27 @@ namespace Lina::Editor
 		} // namespace Lina::Editor
 		);
 
+		gizmo->GetMeta().variants.push_back({
+			ShaderVariant{
+				.id				   = "Default"_hs,
+				.name			   = "Default",
+				.blendDisable	   = true,
+				.depthTest		   = false,
+				.depthWrite		   = false,
+				.depthFormat	   = LinaGX::Format::D32_SFLOAT,
+				.targets		   = {{DEFAULT_RT_FORMAT}},
+				.depthOp		   = LinaGX::CompareOp::Less,
+				.cullMode		   = LinaGX::CullMode::None,
+				.frontFace		   = LinaGX::FrontFace::CCW,
+				.topology		   = LinaGX::Topology::TriangleList,
+				.depthBiasEnable   = false,
+				.depthBiasConstant = 0.0f,
+				.depthBiasClamp	   = 0.0f,
+				.depthBiasSlope	   = 0.0f,
+			},
+		} // namespace Lina::Editor
+		);
+
 		for (Resource* r : m_createdResources)
 			r->SetPath(r->GetName());
 	}

@@ -31,7 +31,9 @@ SOFTWARE.
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
 #include "Core/Graphics/Pipeline/Buffer.hpp"
-#include "Core/Graphics/Renderers/DrawCollector.hpp"
+#include "Core/Graphics/Renderers/WorldRendererListener.hpp"
+#include "Editor/Graphics/GizmoRenderer.hpp"
+#include "Editor/Graphics/MousePickRenderer.hpp"
 
 namespace Lina
 {
@@ -52,19 +54,24 @@ namespace Lina::Editor
 {
 	class Editor;
 
-	class EditorWorldRenderer
+	class EditorWorldRenderer : WorldRendererListener
 	{
 	private:
 		struct PerFrameData
 		{
-			SemaphoreData copySemaphore		 = {};
-			SemaphoreData signalSemaphore	 = {};
-			Buffer		  entityBuffer		 = {};
-			Buffer		  instanceDataBuffer = {};
+			SemaphoreData copySemaphore	  = {};
+			SemaphoreData signalSemaphore = {};
 		};
 
 	public:
-		EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr, ResourceManagerV2* rm);
+		struct Properties
+		{
+			bool disableSelection = false;
+			bool disableGizmos	  = false;
+		};
+
+	public:
+		EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr, const Properties& props);
 		virtual ~EditorWorldRenderer();
 
 		void Tick(float delta);
@@ -72,13 +79,19 @@ namespace Lina::Editor
 		void UpdateBuffers(uint32 frameIndex);
 		void Render(uint32 frameIndex);
 
+		virtual void OnWorldRendererCreateSizeRelative() override;
+		virtual void OnWorldRendererDestroySizeRelative() override;
+
 		inline SemaphoreData GetSubmitSemaphore(uint32 frameIndex)
 		{
 			return m_pfd[frameIndex].signalSemaphore;
 		};
 
+		void SetSelectedEntities(const Vector<Entity*>& selected);
+
 	private:
-	private:
+		Properties		   m_props;
+		Vector<Entity*>	   m_selectedEntities;
 		EntityWorld*	   m_world = nullptr;
 		RenderPass		   m_pass;
 		LinaGX::Instance*  m_lgx			= nullptr;
@@ -87,7 +100,8 @@ namespace Lina::Editor
 		Editor*			   m_editor			= nullptr;
 		uint16			   m_pipelineLayout = 0;
 		PerFrameData	   m_pfd[FRAMES_IN_FLIGHT];
-		DrawCollector	   m_drawCollector;
+		GizmoRenderer	   m_gizmoRenderer;
+		MousePickRenderer  m_mousePickRenderer;
 
 		Shader*	  m_gridShader	 = nullptr;
 		Material* m_gridMaterial = nullptr;

@@ -196,26 +196,17 @@ namespace Lina
 		{
 			StringID			  id   = 0;
 			String				  name = "";
-			Vector<ModelDraw>	  modelDraws;
 			Vector<CustomDraw>	  customDraws;
 			Vector<CustomDrawRaw> customRawDraws;
 			Vector<CompModel*>	  skinningModels;
 
 			void AddOtherWithOverride(const DrawGroup& other, StringID newShaderVariantStatic, StringID newShaderVariantSkinned)
 			{
-				const size_t modelDrawSizeNow	  = modelDraws.size();
 				const size_t customDrawSizeNow	  = customDraws.size();
 				const size_t customRawDrawSizeNow = customRawDraws.size();
 
-				modelDraws.insert(modelDraws.end(), other.modelDraws.begin(), other.modelDraws.end());
 				customDraws.insert(customDraws.end(), other.customDraws.begin(), other.customDraws.end());
 				customRawDraws.insert(customRawDraws.end(), other.customRawDraws.begin(), other.customRawDraws.end());
-
-				for (size_t i = modelDrawSizeNow; i < modelDraws.size(); i++)
-				{
-					ModelDraw& draw	   = modelDraws[i];
-					draw.shaderVariant = draw.isSkinned ? newShaderVariantSkinned : newShaderVariantStatic;
-				}
 
 				for (size_t i = customDrawSizeNow; i < customDraws.size(); i++)
 				{
@@ -260,10 +251,9 @@ namespace Lina
 		void OnComponentAdded(Component* comp);
 		void OnComponentRemoved(Component* comp);
 
-		void CollectCompModels(DrawGroup& group, const View& view, ShaderType shaderType);
-		void AddModelDraw(DrawGroup& group, ResourceID model, uint32 meshIndex, uint32 primitiveIndex, ResourceID shaderID, StringID shaderVariant, const ModelDrawInstance& instance);
-		void AddCustomDraw(DrawGroup& group, const CustomDrawInstance& inst, ResourceID shaderID, StringID shaderVariant, Buffer* vertexBuffer, Buffer* indexBuffer, size_t vertexSize, uint32 baseVertex, uint32 indexCount, uint32 startIndex);
-		void AddCustomDrawRaw(DrawGroup& group, const CustomDrawInstance& inst, ResourceID shaderID, StringID shaderVariant, uint32 baseVertex, uint32 vtxCount);
+		void CollectCompModels(StringID groupId, const View& view, ShaderType shaderType);
+		void AddCustomDraw(StringID groupId, const CustomDrawInstance& inst, ResourceID shaderID, StringID shaderVariant, Buffer* vertexBuffer, Buffer* indexBuffer, size_t vertexSize, uint32 baseVertex, uint32 indexCount, uint32 startIndex);
+		void AddCustomDrawRaw(StringID groupId, const CustomDrawInstance& inst, ResourceID shaderID, StringID shaderVariant, uint32 baseVertex, uint32 vtxCount);
 		void PrepareGPUData();
 
 		void			CreateGroup(const String& name);

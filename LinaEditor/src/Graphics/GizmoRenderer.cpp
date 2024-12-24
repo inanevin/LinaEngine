@@ -43,10 +43,13 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-	GizmoRenderer::GizmoRenderer(Editor* editor, LinaGX::Instance* lgx, EntityWorld* world, WorldRenderer* wr, ResourceManagerV2* rm) : FeatureRenderer(lgx, world, rm, wr)
+	GizmoRenderer::GizmoRenderer(Editor* editor, WorldRenderer* wr)
 	{
-		m_editor	  = editor;
-		m_gizmoShader = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_GIZMO_ID);
+		m_editor		= editor;
+		m_worldRenderer = wr;
+		m_rm			= &m_editor->GetApp()->GetResourceManager();
+		m_gizmoShader	= m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_GIZMO_ID);
+		m_world			= m_worldRenderer->GetWorld();
 
 		m_gizmoMaterialX = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material X");
 		m_gizmoMaterialY = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material Y");
@@ -61,6 +64,10 @@ namespace Lina::Editor
 		m_gizmoMaterialY->SetProperty("color"_hs, Vector4(Theme::GetDef().accentSuccess));
 		m_gizmoMaterialZ->SetProperty("color"_hs, Vector4(Theme::GetDef().accentSecondary));
 
+		m_translateModel = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_TRANSLATE_ID);
+		m_rotateModel	 = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_ROTATE_ID);
+		m_scaleModel	 = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_SCALE_ID);
+
 	} // namespace Lina::Editor
 
 	GizmoRenderer::~GizmoRenderer()
@@ -71,12 +78,10 @@ namespace Lina::Editor
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 	}
 
-	void GizmoRenderer::OnProduceFrame(DrawCollector& collector)
+	void GizmoRenderer::Tick(float delta, DrawCollector& collector)
 	{
 		if (m_selectedEntities.empty())
-		{
 			return;
-		}
 
 		const Camera& worldCam	  = m_world->GetWorldCamera();
 		Vector3		  avgPosition = Vector3::Zero;
@@ -92,51 +97,58 @@ namespace Lina::Editor
 		const float distRatio = Math::Remap(distance, 0.0f, worldCam.GetZFar(), 0.0f, 1.0f);
 		const float distScale = Math::Clamp(distRatio * 50.0f, 0.2f, worldCam.GetZFar());
 
-		const DrawCollector::ModelDrawInstance inst0 = {
-			.customEntityData =
+		Buffer* vtx = &m_editor->GetApp()->GetGfxContext().GetMeshManagerDefault().GetVtxBufferStatic();
+		Buffer* idx = &m_editor->GetApp()->GetGfxContext().GetMeshManagerDefault().GetIdxBufferStatic();
+
+		const DrawCollector::CustomDrawInstance inst0 = {
+			.entity =
 				{
 					.model = Matrix4::TransformMatrix(avgPosition, Quaternion::AngleAxis(90, -Vector3::Forward), Vector3(distScale)),
 				},
-			.customEntityGUID = 100,
-			.materialID		  = m_gizmoMaterialX->GetID(),
+			.entityIdent =
+				{
+					.entityGUID = 100,
+				},
+			.materialID	  = m_gizmoMaterialX->GetID(),
+			.pushEntity	  = true,
+			.pushMaterial = true,
 		};
 
-		const DrawCollector::ModelDrawInstance inst1 = {
-			.customEntityData =
+		const DrawCollector::CustomDrawInstance inst1 = {
+			.entity =
 				{
 					.model = Matrix4::TransformMatrix(avgPosition, Quaternion::Identity(), Vector3(distScale)),
 				},
-			.customEntityGUID = 101,
-			.materialID		  = m_gizmoMaterialY->GetID(),
+			.entityIdent =
+				{
+					.entityGUID = 101,
+				},
+			.materialID	  = m_gizmoMaterialY->GetID(),
+			.pushEntity	  = true,
+			.pushMaterial = true,
 		};
-
-		const DrawCollector::ModelDrawInstance inst2 = {
-			.customEntityData =
+		const DrawCollector::CustomDrawInstance inst2 = {
+			.entity =
 				{
 					.model = Matrix4::TransformMatrix(avgPosition, Quaternion::AngleAxis(90, Vector3::Right), Vector3(distScale)),
 				},
-			.customEntityGUID = 102,
-			.materialID		  = m_gizmoMaterialZ->GetID(),
+			.entityIdent =
+				{
+					.entityGUID = 102,
+				},
+			.materialID	  = m_gizmoMaterialZ->GetID(),
+			.pushEntity	  = true,
+			.pushMaterial = true,
 		};
 
-		collector.CreateGroup("Gizmo");
-		collector.AddModelDraw(collector.GetGroup("Gizmo"_hs), EDITOR_MODEL_GIZMO_TRANSLATE_ID, 0, 0, m_gizmoShader->GetID(), 0, inst0);
-		collector.AddModelDraw(collector.GetGroup("Gizmo"_hs), EDITOR_MODEL_GIZMO_TRANSLATE_ID, 0, 0, m_gizmoShader->GetID(), 0, inst1);
-		collector.AddModelDraw(collector.GetGroup("Gizmo"_hs), EDITOR_MODEL_GIZMO_TRANSLATE_ID, 0, 0, m_gizmoShader->GetID(), 0, inst2);
-	}
-
-	void GizmoRenderer::OnRenderPassPost(uint32 frameIndex, LinaGX::CommandStream* stream, RenderPassType type)
-	{
-		if (m_selectedEntities.empty())
-			return;
-
-		if (type != RenderPassType::RENDER_PASS_FORWARD)
-			return;
-
-		if (!m_wr->GetDrawCollector().RenderGroupExists("Gizmo"_hs))
-			return;
-
-		m_wr->GetDrawCollector().RenderGroup("Gizmo"_hs, stream);
+		Model*				   model	  = m_translateModel;
+		const PrimitiveStatic& prim		  = model->GetAllMeshes().at(0).primitivesStatic.at(0);
+		const uint32		   baseVertex = prim._vertexOffset;
+		const uint32		   baseIndex  = prim._indexOffset;
+		const uint32		   indexCount = static_cast<uint32>(prim.indices.size());
+		collector.AddCustomDraw("EditorWorld"_hs, inst0, m_gizmoShader->GetID(), 0, vtx, idx, sizeof(VertexStatic), baseVertex, indexCount, baseIndex);
+		collector.AddCustomDraw("EditorWorld"_hs, inst1, m_gizmoShader->GetID(), 0, vtx, idx, sizeof(VertexStatic), baseVertex, indexCount, baseIndex);
+		collector.AddCustomDraw("EditorWorld"_hs, inst2, m_gizmoShader->GetID(), 0, vtx, idx, sizeof(VertexStatic), baseVertex, indexCount, baseIndex);
 	}
 
 } // namespace Lina::Editor

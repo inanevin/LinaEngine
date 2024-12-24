@@ -45,7 +45,6 @@ include/Editor/Graphics/WorldRendererExtEditor.hpp
 include/Editor/Graphics/EditorRenderer.hpp
 include/Editor/Graphics/SurfaceRenderer.hpp
 include/Editor/Graphics/EditorGfxHelpers.hpp
-include/Editor/Graphics/GridRenderer.hpp
 include/Editor/Graphics/EditorWorldRenderer.hpp
 include/Editor/Graphics/GizmoRenderer.hpp
 include/Editor/Graphics/OutlineSelectionRenderer.hpp
@@ -138,7 +137,6 @@ src/Graphics/WorldRendererExtEditor.cpp
 src/Graphics/EditorRenderer.cpp
 src/Graphics/SurfaceRenderer.cpp
 src/Graphics/EditorGfxHelpers.cpp
-src/Graphics/GridRenderer.cpp
 src/Graphics/EditorWorldRenderer.cpp
 src/Graphics/GizmoRenderer.cpp
 src/Graphics/OutlineSelectionRenderer.cpp

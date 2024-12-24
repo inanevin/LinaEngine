@@ -28,39 +28,49 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/Graphics/Renderers/FeatureRenderer.hpp"
-#include "Core/Graphics/Pipeline/Buffer.hpp"
-
 namespace Lina
 {
 	class Shader;
 	class Entity;
+	class ResourceManagerV2;
+	class WorldRenderer;
+	class DrawCollector;
+	class EntityWorld;
+	class Material;
+	class Model;
 } // namespace Lina
 
 namespace Lina::Editor
 {
 	class Editor;
 
-	class GizmoRenderer : public FeatureRenderer
+	class GizmoRenderer
 	{
 	public:
-		GizmoRenderer(Editor* editor, LinaGX::Instance* lgx, EntityWorld* world, WorldRenderer* wr, ResourceManagerV2* rm);
+		GizmoRenderer(Editor* editor, WorldRenderer* wr);
 		virtual ~GizmoRenderer();
+
+		void Tick(float delta, DrawCollector& collector);
 
 		inline void SetSelectedEntities(const Vector<Entity*>& entities)
 		{
 			m_selectedEntities = entities;
 		}
 
-		virtual void OnProduceFrame(DrawCollector& collector) override;
-		virtual void OnRenderPassPost(uint32 frameIndex, LinaGX::CommandStream* stream, RenderPassType type) override;
-
 	private:
+		Editor*			   m_editor		   = nullptr;
+		WorldRenderer*	   m_worldRenderer = nullptr;
+		ResourceManagerV2* m_rm			   = nullptr;
+		EntityWorld*	   m_world		   = nullptr;
+
+		Model* m_translateModel = nullptr;
+		Model* m_scaleModel		= nullptr;
+		Model* m_rotateModel	= nullptr;
+
 		Vector<Entity*> m_selectedEntities = {};
 		Material*		m_gizmoMaterialX   = nullptr;
 		Material*		m_gizmoMaterialY   = nullptr;
 		Material*		m_gizmoMaterialZ   = nullptr;
 		Shader*			m_gizmoShader	   = nullptr;
-		Editor*			m_editor		   = nullptr;
 	};
 } // namespace Lina::Editor

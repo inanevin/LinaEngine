@@ -32,11 +32,8 @@ SOFTWARE.
 #include "Editor/Widgets/World/WorldDisplayer.hpp"
 #include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
 #include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
-#include "Editor/Graphics/GridRenderer.hpp"
-#include "Editor/Graphics/OutlineSelectionRenderer.hpp"
-#include "Editor/Graphics/GizmoRenderer.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
-#include "Editor/Graphics/MousePickRenderer.hpp"
+#include "Editor/Graphics/EditorWorldRenderer.hpp"
 #include "Editor/World/WorldUtility.hpp"
 #include "Editor/Actions/EditorActionEntity.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
@@ -92,17 +89,10 @@ namespace Lina::Editor
 
 		m_world = new EntityWorld(0, "");
 		m_editor->GetApp()->GetWorldProcessor().AddWorld(m_world);
-		m_worldRenderer			   = new WorldRenderer(&m_editor->GetApp()->GetGfxContext(), &m_editor->GetApp()->GetResourceManager(), m_world, Vector2ui(4, 4), "WorldRenderer: " + m_world->GetName());
-		m_gizmoRenderer			   = new GizmoRenderer(m_editor, m_editor->GetApp()->GetLGX(), m_world, m_worldRenderer, m_resourceManager);
-		m_gridRenderer			   = new GridRenderer(m_editor, m_editor->GetApp()->GetLGX(), m_world, m_worldRenderer, m_resourceManager);
-		m_mousePickRenderer		   = new MousePickRenderer(m_editor, m_editor->GetApp()->GetLGX(), m_world, m_worldRenderer, m_resourceManager);
-		m_outlineSelectionRenderer = new OutlineSelectionRenderer(m_editor, m_editor->GetApp()->GetLGX(), m_world, m_worldRenderer, m_resourceManager);
-		m_worldRenderer->AddFeatureRenderer(m_gridRenderer);
-		m_worldRenderer->AddFeatureRenderer(m_gizmoRenderer);
-		m_worldRenderer->AddFeatureRenderer(m_mousePickRenderer);
-		m_worldRenderer->AddFeatureRenderer(m_outlineSelectionRenderer);
+		m_worldRenderer		  = new WorldRenderer(&m_editor->GetApp()->GetGfxContext(), &m_editor->GetApp()->GetResourceManager(), m_world, Vector2ui(4, 4), "WorldRenderer: " + m_world->GetName());
+		m_editorWorldRenderer = new EditorWorldRenderer(m_editor, m_editor->GetApp()->GetLGX(), m_worldRenderer, {});
 
-		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer, nullptr);
+		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer, m_editorWorldRenderer);
 		IStream stream = Serialization::LoadFromFile(resourcePath.c_str());
 		m_world->LoadFromStream(stream);
 		stream.Destroy();
@@ -127,20 +117,13 @@ namespace Lina::Editor
 
 		m_editor->GetEditorRenderer().RemoveWorldRenderer(m_worldRenderer);
 		delete m_worldRenderer;
-		delete m_gridRenderer;
-		delete m_gizmoRenderer;
-		delete m_mousePickRenderer;
-		delete m_outlineSelectionRenderer;
+		delete m_editorWorldRenderer;
 
 		m_editor->GetApp()->GetWorldProcessor().RemoveWorld(m_world);
 		delete m_world;
 
-		m_world					   = nullptr;
-		m_worldRenderer			   = nullptr;
-		m_gridRenderer			   = nullptr;
-		m_gizmoRenderer			   = nullptr;
-		m_mousePickRenderer		   = nullptr;
-		m_outlineSelectionRenderer = nullptr;
+		m_world			= nullptr;
+		m_worldRenderer = nullptr;
 
 		m_worldDisplayer->DisplayWorld(nullptr, WorldDisplayer::WorldCameraType::FreeMove);
 
@@ -178,7 +161,7 @@ namespace Lina::Editor
 
 	void PanelWorld::OnEntitySelectionChanged()
 	{
-		m_gizmoRenderer->SetSelectedEntities(m_selectedEntities);
+		m_editorWorldRenderer->SetSelectedEntities(m_selectedEntities);
 	}
 
 	void PanelWorld::OnPayloadStarted(PayloadType type, Widget* payload)
@@ -254,8 +237,8 @@ namespace Lina::Editor
 		if (!m_worldDisplayer->GetIsHovered())
 			return false;
 
-		if (button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Pressed)
-			SelectEntity(m_mousePickRenderer->GetLastHoveredEntity(), true);
+		// if (button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Pressed)
+		// 	SelectEntity(m_mousePickRenderer->GetLastHoveredEntity(), true);
 		return false;
 	}
 

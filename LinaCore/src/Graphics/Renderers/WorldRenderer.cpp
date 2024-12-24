@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
-#include "Core/Graphics/Renderers/FeatureRenderer.hpp"
+#include "Core/Graphics/Renderers/WorldRendererListener.hpp"
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
@@ -161,8 +161,6 @@ namespace Lina
 		}
 
 		m_drawCollector.Initialize(m_lgx, m_world, m_resourceManagerV2, m_gfxContext, &m_executor);
-		m_lightingRenderer.Initialize(m_lgx, m_world, m_resourceManagerV2);
-		m_skyRenderer.Initialize(m_lgx, m_world, m_resourceManagerV2);
 		m_guiBackend.Initialize(m_resourceManagerV2);
 		CreateSizeRelativeResources();
 	}
@@ -170,8 +168,6 @@ namespace Lina
 	WorldRenderer::~WorldRenderer()
 	{
 		m_drawCollector.Shutdown();
-		m_skyRenderer.Shutdown();
-		m_lightingRenderer.Shutdown();
 
 		m_gBufSampler->DestroyHW();
 		m_resourceManagerV2->DestroyResource(m_gBufSampler);
@@ -262,13 +258,13 @@ namespace Lina
 													 .useDepth	   = true,
 													 .texture	   = data.gBufDepth->GetGPUHandle(),
 													 .depthLoadOp  = LinaGX::LoadOp::Load,
-													 .depthStoreOp = LinaGX::StoreOp::DontCare,
+													 .depthStoreOp = LinaGX::StoreOp::Store,
 													 .clearDepth   = 1.0f,
 												 });
 		}
 
-		// for (FeatureRenderer* ft : m_featureRenderers)
-		// 	ft->CreateSizeRelativeResources(m_size);
+		for (WorldRendererListener* l : m_listeners)
+			l->OnWorldRendererCreateSizeRelative();
 
 		m_gfxContext->MarkBindlessDirty();
 	}
@@ -291,38 +287,30 @@ namespace Lina
 			m_resourceManagerV2->DestroyResource(data.lightingPassOutput);
 		}
 
-		// for (FeatureRenderer* ft : m_featureRenderers)
-		// 	ft->DestroySizeRelativeResources();
-
+		for (WorldRendererListener* l : m_listeners)
+			l->OnWorldRendererDestroySizeRelative();
 		m_gfxContext->MarkBindlessDirty();
 	}
 
 	void WorldRenderer::OnComponentAdded(Component* c)
 	{
 		m_drawCollector.OnComponentAdded(c);
-		// for (FeatureRenderer* ft : m_featureRenderers)
-		// 	ft->OnComponentAdded(c);
 	}
 
 	void WorldRenderer::OnComponentRemoved(Component* comp)
 	{
 		m_drawCollector.OnComponentRemoved(comp);
-
-		// for (FeatureRenderer* ft : m_featureRenderers)
-		// 	ft->OnComponentRemoved(comp);
 	}
 
-	void WorldRenderer::AddFeatureRenderer(FeatureRenderer* ft)
+	void WorldRenderer::AddListener(WorldRendererListener* listener)
 	{
-		m_featureRenderers.push_back(ft);
-		ft->FetchRenderables();
-		ft->CreateSizeRelativeResources(m_size);
+		m_listeners.push_back(listener);
 	}
 
-	void WorldRenderer::RemoveFeatureRenderer(FeatureRenderer* ft)
+	void WorldRenderer::RemoveListener(WorldRendererListener* listener)
 	{
-		auto it = linatl::find_if(m_featureRenderers.begin(), m_featureRenderers.end(), [ft](FeatureRenderer* rend) -> bool { return ft == rend; });
-		m_featureRenderers.erase(it);
+		auto it = linatl::find_if(m_listeners.begin(), m_listeners.end(), [listener](WorldRendererListener* l) -> bool { return l == listener; });
+		m_listeners.erase(it);
 	}
 
 	void WorldRenderer::Resize(const Vector2ui& newSize)
@@ -352,24 +340,20 @@ namespace Lina
 		m_drawCollector.CreateGroup("Deferred");
 		m_drawCollector.CreateGroup("Forward");
 
-		m_drawCollector.CollectCompModels(m_drawCollector.GetGroup("Deferred"_hs), cameraView, ShaderType::DeferredSurface);
-		m_drawCollector.CollectCompModels(m_drawCollector.GetGroup("Forward"_hs), cameraView, ShaderType::ForwardSurface);
+		m_drawCollector.CollectCompModels("Deferred"_hs, cameraView, ShaderType::DeferredSurface);
+		m_drawCollector.CollectCompModels("Forward"_hs, cameraView, ShaderType::ForwardSurface);
 
-		m_lightingRenderer.OnProduceFrame();
-		m_skyRenderer.OnProduceFrame();
-
-		// for (FeatureRenderer* ft : m_featureRenderers)
-		// 	ft->OnProduceFrame(m_drawCollector);
+		m_cpuRenderData.lightingMaterial = m_world->GetGfxSettings().lightingMaterial;
+		m_cpuRenderData.skyMaterial		 = m_world->GetGfxSettings().skyMaterial;
+		m_cpuRenderData.skyModel		 = m_world->GetGfxSettings().skyModel;
 	}
 
 	void WorldRenderer::SyncRender()
 	{
 		m_drawCollector.SyncRender();
-		m_lightingRenderer.SyncRender();
-		m_skyRenderer.SyncRender();
 
-		// for (FeatureRenderer* ft : m_featureRenderers)
-		// 	ft->SyncRender();
+		m_gpuRenderData = m_cpuRenderData;
+		m_cpuRenderData = {};
 	}
 
 	void WorldRenderer::DropRenderFrame()
@@ -378,6 +362,8 @@ namespace Lina
 
 	void WorldRenderer::UpdateBuffers(uint32 frameIndex)
 	{
+		m_drawCollector.PrepareGPUData();
+
 		auto& currentFrame = m_pfd[frameIndex];
 		currentFrame.copySemaphore.ResetModified();
 		currentFrame.signalSemaphore.ResetModified();
@@ -436,9 +422,6 @@ namespace Lina
 		m_uploadQueue.AddBufferRequest(&currentFrame.instanceDataBuffer);
 		m_uploadQueue.AddBufferRequest(&currentFrame.boneBuffer);
 
-		// for (FeatureRenderer* ft : m_featureRenderers)
-		// 	ft->AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
-
 		m_deferredPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
 		m_forwardPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
 	}
@@ -453,7 +436,6 @@ namespace Lina
 
 	void WorldRenderer::Render(uint32 frameIndex)
 	{
-		m_drawCollector.PrepareGPUData();
 
 		auto& currentFrame = m_pfd[frameIndex];
 
@@ -532,24 +514,48 @@ namespace Lina
 			m_forwardPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxContext->GetPipelineLayoutPersistent(RenderPassType::RENDER_PASS_FORWARD), 1);
 
 			m_gfxContext->GetMeshManagerDefault().BindStatic(currentFrame.gfxStream);
-			m_lightingRenderer.RenderLightingQuad(currentFrame.gfxStream);
-			m_skyRenderer.RenderSky(currentFrame.gfxStream);
 
-			// for (FeatureRenderer* ft : m_featureRenderers)
-			// 	ft->OnRenderPass(frameIndex, currentFrame.gfxStream, RenderPassType::RENDER_PASS_FORWARD);
+			// Lighting quad
+			{
+				Material* lightingMaterial = m_resourceManagerV2->GetResource<Material>(m_gpuRenderData.lightingMaterial);
+				Shader*	  lightingShader   = m_resourceManagerV2->GetResource<Shader>(lightingMaterial->GetShader());
 
-			// m_drawCollector.RenderGroup("Forward"_hs, currentFrame.gfxStream);
+				LinaGX::CMDBindPipeline* bind = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindPipeline>();
+				bind->shader				  = lightingShader->GetGPUHandle();
 
-			// for (FeatureRenderer* ft : m_featureRenderers)
-			// 	ft->OnRenderPassPost(frameIndex, currentFrame.gfxStream, RenderPassType::RENDER_PASS_FORWARD);
+				LinaGX::CMDDrawInstanced* lightingDraw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawInstanced>();
+				lightingDraw->instanceCount			   = 1;
+				lightingDraw->startInstanceLocation	   = 0;
+				lightingDraw->startVertexLocation	   = 0;
+				lightingDraw->vertexCountPerInstance   = 3;
+			}
+
+			// Skybox
+			{
+				Material* skyMaterial = m_resourceManagerV2->GetResource<Material>(m_gpuRenderData.skyMaterial);
+				Shader*	  skyShader	  = m_resourceManagerV2->GetResource<Shader>(skyMaterial->GetShader());
+				Model*	  skyModel	  = m_resourceManagerV2->GetIfExists<Model>(m_gpuRenderData.skyModel);
+				if (skyModel == nullptr)
+					return;
+
+				const Mesh&				 mesh			 = skyModel->GetAllMeshes().at(0);
+				LinaGX::CMDBindPipeline* bind			 = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindPipeline>();
+				bind->shader							 = skyShader->GetGPUHandle();
+				LinaGX::CMDDrawIndexedInstanced* skyDraw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
+				skyDraw->baseVertexLocation				 = mesh.primitivesStatic.at(0)._vertexOffset;
+				skyDraw->indexCountPerInstance			 = static_cast<uint32>(mesh.primitivesStatic.at(0).indices.size());
+				skyDraw->instanceCount					 = 1;
+				skyDraw->startIndexLocation				 = mesh.primitivesStatic.at(0)._indexOffset;
+				skyDraw->startInstanceLocation			 = 0;
+			}
+
+			if (m_drawCollector.RenderGroupExists("Forward"_hs))
+				m_drawCollector.RenderGroup("Forward"_hs, currentFrame.gfxStream);
 
 			m_forwardPass.End(currentFrame.gfxStream);
 
 			DEBUG_LABEL_END(currentFrame.gfxStream);
 		}
-
-		// for (FeatureRenderer* ft : m_featureRenderers)
-		// 	ft->OnPostRender(frameIndex, currentFrame.gfxStream, viewport, scissors);
 	}
 
 	void WorldRenderer::PostBarriers(uint32 frameIndex)
@@ -565,7 +571,7 @@ namespace Lina
 			barrier->textureBarrierCount = 2;
 			barrier->textureBarriers	 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 2);
 			barrier->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.lightingPassOutput->GetGPUHandle());
-			barrier->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.gBufDepth->GetGPUHandle());
+			barrier->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierDepthAtt2Read(currentFrame.gBufDepth->GetGPUHandle());
 		}
 		else
 		{
@@ -587,14 +593,6 @@ namespace Lina
 	void WorldRenderer::CloseAndSend(uint32 frameIndex)
 	{
 		auto& currentFrame = m_pfd[frameIndex];
-
-		LinaGX::CMDBarrier* barrier	 = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
-		barrier->srcStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
-		barrier->dstStageFlags		 = LinaGX::PSF_FragmentShader;
-		barrier->textureBarrierCount = 2;
-		barrier->textureBarriers	 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 2);
-		barrier->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.lightingPassOutput->GetGPUHandle());
-		barrier->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.gBufDepth->GetGPUHandle());
 
 		m_lgx->CloseCommandStreams(&currentFrame.gfxStream, 1);
 
@@ -623,9 +621,6 @@ namespace Lina
 			.signalValues		  = currentFrame.signalSemaphore.GetValuePtr(),
 			.standaloneSubmission = m_standaloneSubmit,
 		});
-
-		// for (FeatureRenderer* fr : m_featureRenderers)
-		// 	fr->OnPostSubmit(frameIndex, currentFrame.gfxStream);
 
 		if (m_snapshotBuffer != nullptr)
 		{

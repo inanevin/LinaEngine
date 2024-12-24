@@ -57,13 +57,16 @@ namespace Lina::Editor
 #define DEBUG_LABEL_END(Stream)
 #endif
 
-	EditorWorldRenderer::EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr, ResourceManagerV2* rm)
+	EditorWorldRenderer::EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr, const Properties& props) : m_gizmoRenderer(editor, wr), m_mousePickRenderer(editor, wr)
 	{
+		m_props	 = props;
 		m_editor = editor;
 		m_lgx	 = lgx;
-		m_rm	 = rm;
+		m_rm	 = &m_editor->GetApp()->GetResourceManager();
 		m_wr	 = wr;
 		m_world	 = m_wr->GetWorld();
+
+		m_wr->AddListener(this);
 
 		m_pass.Create(EditorGfxHelpers::GetEditorWorldPassDescription());
 		m_pipelineLayout = m_lgx->CreatePipelineLayout(EditorGfxHelpers::GetPipelineLayoutDescriptionEditorWorldPass());
@@ -71,21 +74,19 @@ namespace Lina::Editor
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& pfd = m_pfd[i];
-			pfd.entityBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUEntity) * 100, "EditorWorldEntityBuffer");
-			pfd.instanceDataBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUDrawArguments) * 100, "EditorWorldInstanceBuffer");
 
 			const uint16 set = m_pass.GetDescriptorSet(i);
 
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = set,
 				.binding   = 1,
-				.buffers   = {pfd.instanceDataBuffer.GetGPUResource()},
+				.buffers   = {m_wr->GetInstanceDataBuffer(i).GetGPUResource()},
 			});
 
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = set,
 				.binding   = 2,
-				.buffers   = {pfd.entityBuffer.GetGPUResource()},
+				.buffers   = {m_wr->GetEntityDataBuffer(i).GetGPUResource()},
 			});
 
 			Texture* renderTarget = m_wr->GetLightingPassOutput(i);
@@ -122,14 +123,12 @@ namespace Lina::Editor
 			m_gridMaterial->SetProperty("distLOD1"_hs, 90.0f);
 		}
 
-		m_drawCollector.Initialize(m_lgx, m_world, m_rm, &m_editor->GetApp()->GetGfxContext(), &m_wr->GetExecutor());
+		if (!m_props.disableSelection)
+			m_mousePickRenderer.CreateSizeRelativeResources();
 	}
 
 	EditorWorldRenderer::~EditorWorldRenderer()
 	{
-
-		m_drawCollector.Shutdown();
-
 		m_rm->DestroyResource(m_gridMaterial);
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 
@@ -139,33 +138,41 @@ namespace Lina::Editor
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& pfd = m_pfd[i];
-			pfd.entityBuffer.Destroy();
-			pfd.instanceDataBuffer.Destroy();
 		}
 	}
 
 	void EditorWorldRenderer::Tick(float delta)
 	{
-		const DrawCollector::CustomDrawInstance gridInstance = {
-			.materialID	   = m_gridMaterial->GetID(),
-			.pushEntity	   = false,
-			.pushMaterial  = true,
-			.pushBoneIndex = false,
-		};
+		DrawCollector& drawCollector = m_wr->GetDrawCollector();
 
-		m_drawCollector.CreateGroup("EditorWorld");
-		m_drawCollector.AddCustomDrawRaw(m_drawCollector.GetGroup("EditorWorld"_hs), gridInstance, m_gridShader->GetID(), 0, 0, 6);
+		drawCollector.CreateGroup("EditorWorld");
+
+		// Grid
+		{
+			const DrawCollector::CustomDrawInstance gridInstance = {
+				.materialID	   = m_gridMaterial->GetID(),
+				.pushEntity	   = false,
+				.pushMaterial  = true,
+				.pushBoneIndex = false,
+			};
+			drawCollector.AddCustomDrawRaw("EditorWorld"_hs, gridInstance, m_gridShader->GetID(), 0, 0, 6);
+		}
+
+		if (!m_props.disableGizmos)
+			m_gizmoRenderer.Tick(delta, drawCollector);
+
+		if (!m_props.disableSelection)
+			m_mousePickRenderer.Tick(delta, drawCollector);
 	}
 
 	void EditorWorldRenderer::SyncRender()
 	{
-		m_drawCollector.SyncRender();
+		if (!m_props.disableSelection)
+			m_mousePickRenderer.SyncRender();
 	}
 
 	void EditorWorldRenderer::UpdateBuffers(uint32 frameIndex)
 	{
-		return;
-
 		PerFrameData&		 pfd   = m_pfd[frameIndex];
 		ResourceUploadQueue& queue = m_wr->GetUploadQueue();
 
@@ -188,19 +195,19 @@ namespace Lina::Editor
 			m_pass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
 		}
 
-		// queue.AddBufferRequest(&pfd.entityBuffer);
-		// queue.AddBufferRequest(&pfd.instanceDataBuffer);
+		if (!m_props.disableSelection)
+			m_mousePickRenderer.AddBuffersToUploadQueue(frameIndex, queue);
 
 		m_pass.AddBuffersToUploadQueue(frameIndex, queue);
 	}
 
 	void EditorWorldRenderer::Render(uint32 frameIndex)
 	{
-		return;
-		PerFrameData& pfd = m_pfd[frameIndex];
+		PerFrameData&		   pfd			 = m_pfd[frameIndex];
+		LinaGX::CommandStream* gfxStream	 = m_wr->GetGfxStream(frameIndex);
+		DrawCollector&		   drawCollector = m_wr->GetDrawCollector();
 
-		LinaGX::CommandStream* gfxStream = m_wr->GetGfxStream(frameIndex);
-		const Vector2ui&	   size		 = m_wr->GetSize();
+		const Vector2ui& size = m_wr->GetSize();
 
 		const LinaGX::Viewport viewport = {
 			.x		  = 0,
@@ -220,13 +227,13 @@ namespace Lina::Editor
 
 		DEBUG_LABEL_BEGIN(gfxStream, "Deferred Pass");
 
-		// m_pass.Begin(gfxStream, viewport, scissors, frameIndex);
-		// m_pass.BindDescriptors(gfxStream, frameIndex, m_pipelineLayout, 1);
+		m_pass.Begin(gfxStream, viewport, scissors, frameIndex);
+		m_pass.BindDescriptors(gfxStream, frameIndex, m_pipelineLayout, 1);
 
-		// if (m_drawCollector.RenderGroupExists("EditorWorld"_hs))
-		// 	m_drawCollector.RenderGroup("EditorWorld"_hs, gfxStream);
+		if (drawCollector.RenderGroupExists("EditorWorld"_hs))
+			drawCollector.RenderGroup("EditorWorld"_hs, gfxStream);
 
-		// m_pass.End(gfxStream);
+		m_pass.End(gfxStream);
 
 		LinaGX::CMDBarrier* barrier	 = gfxStream->AddCommand<LinaGX::CMDBarrier>();
 		barrier->srcStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
@@ -237,6 +244,46 @@ namespace Lina::Editor
 		barrier->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(m_wr->GetGBufDepth(frameIndex)->GetGPUHandle());
 
 		DEBUG_LABEL_END(gfxStream);
+
+		// if (!m_props.disableSelection)
+		// 	m_mousePickRenderer.Render(frameIndex, gfxStream);
+	}
+
+	void EditorWorldRenderer::OnWorldRendererCreateSizeRelative()
+	{
+
+		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+		{
+			auto& pfd = m_pfd[i];
+
+			Texture* renderTarget = m_wr->GetLightingPassOutput(i);
+			Texture* depthTarget  = m_wr->GetGBufDepth(i);
+
+			m_pass.SetColorAttachment(i, 0, {.loadOp = LinaGX::LoadOp::Load, .storeOp = LinaGX::StoreOp::Store, .clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = renderTarget->GetGPUHandle(), .isSwapchain = false});
+			m_pass.DepthStencilAttachment(i,
+										  {
+											  .useDepth		= true,
+											  .texture		= depthTarget->GetGPUHandle(),
+											  .depthLoadOp	= LinaGX::LoadOp::Load,
+											  .depthStoreOp = LinaGX::StoreOp::DontCare,
+											  .clearDepth	= 1.0f,
+										  });
+		}
+
+		if (!m_props.disableSelection)
+			m_mousePickRenderer.CreateSizeRelativeResources();
+	}
+
+	void EditorWorldRenderer::OnWorldRendererDestroySizeRelative()
+	{
+		if (!m_props.disableSelection)
+			m_mousePickRenderer.DestroySizeRelativeResources();
+	}
+
+	void EditorWorldRenderer::SetSelectedEntities(const Vector<Entity*>& selected)
+	{
+		m_selectedEntities = selected;
+		m_gizmoRenderer.SetSelectedEntities(selected);
 	}
 
 } // namespace Lina::Editor

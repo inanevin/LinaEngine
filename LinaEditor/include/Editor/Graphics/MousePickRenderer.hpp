@@ -28,7 +28,6 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/Graphics/Renderers/FeatureRenderer.hpp"
 #include "Core/Graphics/Pipeline/Buffer.hpp"
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
 #include "Core/World/CommonWorld.hpp"
@@ -38,14 +37,22 @@ namespace Lina
 	class Shader;
 	class Entity;
 	class Texture;
-	class GfxContext;
+	class WorldRenderer;
+	class EntityWorld;
+	class DrawCollector;
+	class ResourceManagerV2;
 } // namespace Lina
+
+namespace LinaGX
+{
+	class Instance;
+}
 
 namespace Lina::Editor
 {
 	class Editor;
 
-	class MousePickRenderer : public FeatureRenderer
+	class MousePickRenderer
 	{
 	public:
 		struct PerFrameData
@@ -54,17 +61,17 @@ namespace Lina::Editor
 			Texture* renderTarget = nullptr;
 			Buffer	 snapshotBuffer;
 		};
-		MousePickRenderer(Editor* editor, LinaGX::Instance* lgx, EntityWorld* world, WorldRenderer* wr, ResourceManagerV2* rm);
+
+		MousePickRenderer(Editor* editor, WorldRenderer* wr);
 		virtual ~MousePickRenderer();
 
-		virtual void DestroySizeRelativeResources() override;
-		virtual void CreateSizeRelativeResources(const Vector2ui& size) override;
+		void DestroySizeRelativeResources();
+		void CreateSizeRelativeResources();
 
-		virtual void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue) override;
-		virtual void OnProduceFrame(DrawCollector& collector) override;
-		virtual void OnPostRender(uint32 frameIndex, LinaGX::CommandStream* stream, const LinaGX::Viewport& vp, const LinaGX::ScissorsRect& sc) override;
-		virtual void SyncRender() override;
-		virtual void GetBarriersTextureToAttachment(uint32 frameIndex, Vector<LinaGX::TextureBarrier>& outBarriers) override;
+		void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue);
+		void Tick(float delta, DrawCollector& collector);
+		void Render(uint32 frameIndex, LinaGX::CommandStream* stream);
+		void SyncRender();
 
 		inline Texture* GetRenderTarget(uint32 frameIndex) const
 		{
@@ -77,15 +84,18 @@ namespace Lina::Editor
 		}
 
 	private:
-		GfxContext*		 m_gfxContext = nullptr;
+		LinaGX::Instance*  m_lgx	= nullptr;
+		Editor*			   m_editor = nullptr;
+		WorldRenderer*	   m_wr		= nullptr;
+		ResourceManagerV2* m_rm		= nullptr;
+		EntityWorld*	   m_world	= nullptr;
+
 		RenderPass		 m_entityBufferPass;
-		Shader*			 m_shader = nullptr;
-		Editor*			 m_editor = nullptr;
 		PerFrameData	 m_pfd[FRAMES_IN_FLIGHT];
-		uint16			 m_pipelineLayout = 0;
-		Vector2ui		 m_size			  = Vector2ui::Zero;
-		EntityID		 m_lastHoveredEntityGPU;
-		EntityID		 m_lastHoveredEntityCPU;
+		uint16			 m_pipelineLayout		= 0;
+		Vector2ui		 m_size					= Vector2ui::Zero;
+		EntityID		 m_lastHoveredEntityGPU = 0;
+		EntityID		 m_lastHoveredEntityCPU = 0;
 		Vector<EntityID> m_lastEntityIDs;
 	};
 } // namespace Lina::Editor

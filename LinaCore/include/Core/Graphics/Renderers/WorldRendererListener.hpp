@@ -28,30 +28,15 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/Graphics/Renderers/FeatureRenderer.hpp"
-#include "Core/Graphics/Pipeline/Buffer.hpp"
-
 namespace Lina
 {
-	class Shader;
-}
-
-namespace Lina::Editor
-{
-	class Editor;
-
-	class GridRenderer : public FeatureRenderer
+	class WorldRendererListener
 	{
 	public:
-		GridRenderer(Editor* editor, LinaGX::Instance* lgx, EntityWorld* world, WorldRenderer* wr, ResourceManagerV2* rm);
-		virtual ~GridRenderer();
+		WorldRendererListener()			 = default;
+		virtual ~WorldRendererListener() = default;
 
-		virtual void OnProduceFrame(DrawCollector& collector) override;
-		virtual void OnRenderPass(uint32 frameIndex, LinaGX::CommandStream* stream, RenderPassType type) override;
-
-	private:
-		Material* m_gridMaterial = nullptr;
-		Shader*	  m_gridShader	 = nullptr;
-		Editor*	  m_editor		 = nullptr;
+		virtual void OnWorldRendererCreateSizeRelative(){};
+		virtual void OnWorldRendererDestroySizeRelative(){};
 	};
-} // namespace Lina::Editor
+} // namespace Lina

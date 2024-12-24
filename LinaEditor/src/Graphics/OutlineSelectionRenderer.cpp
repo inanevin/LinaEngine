@@ -43,9 +43,13 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-	OutlineSelectionRenderer::OutlineSelectionRenderer(Editor* editor, LinaGX::Instance* lgx, EntityWorld* world, WorldRenderer* wr, ResourceManagerV2* rm) : FeatureRenderer(lgx, world, rm, wr)
+	OutlineSelectionRenderer::OutlineSelectionRenderer(Editor* editor, WorldRenderer* wr)
 	{
-		m_editor		= editor;
+		m_editor = editor;
+		m_wr	 = wr;
+		m_rm	 = &m_editor->GetApp()->GetResourceManager();
+		m_world	 = m_wr->GetWorld();
+
 		m_outlineShader = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_GIZMO_ID);
 
 		m_outlineMaterial = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Outline Selection Material");
@@ -93,15 +97,11 @@ namespace Lina::Editor
 		};
 
 		collector.CreateGroup("Outline");
-		collector.AddModelDraw(collector.GetGroup("Outline"_hs), EDITOR_MODEL_GIZMO_TRANSLATE_ID, 0, 0, m_outlineShader->GetID(), 0, inst0);
 	}
 
-	void OutlineSelectionRenderer::OnRenderPassPost(uint32 frameIndex, LinaGX::CommandStream* stream, RenderPassType type)
+	void OutlineSelectionRenderer::OnRenderPassPost(uint32 frameIndex, LinaGX::CommandStream* stream)
 	{
 		if (m_selectedEntities.empty())
-			return;
-
-		if (type != RenderPassType::RENDER_PASS_FORWARD)
 			return;
 
 		if (!m_wr->GetDrawCollector().RenderGroupExists("Outline"_hs))

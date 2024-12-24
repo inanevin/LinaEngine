@@ -22,6 +22,10 @@ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+        const DrawCollector::CustomDrawInstance lightingDrawInstance = {
+        .
+        };
+        m_drawCollector.AddCustomDrawRaw("Forward"_hs, lightingDrawInstance, lightingMaterial->GetShader(), 0, 0, 3);
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
@@ -59,7 +63,7 @@ void main()
     vec3 p = gridPlane[gl_VertexIndex].xyz;
     outNearPoint = UnprojectPoint(p.x, p.y, 0.0, LINA_VIEW.view, LINA_VIEW.proj).xyz; // unprojecting on the near plane
     outFarPoint = UnprojectPoint(p.x, p.y, 1.0, LINA_VIEW.view, LINA_VIEW.proj).xyz; // unprojecting on the far plane
-    outMaterialIndex = LINA_DRAW_ARGUMENTS.data[PushConstants.baseInstanceIndex].materialIndex;
+    outMaterialIndex = LINA_DRAW_ARGUMENTS.data[PushConstants.baseInstanceIndex + gl_InstanceIndex].materialIndex;
     gl_Position = vec4(p, 1.0); // using directly the clipped coordinates
 }
 
