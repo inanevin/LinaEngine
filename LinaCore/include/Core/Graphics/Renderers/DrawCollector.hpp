@@ -49,6 +49,7 @@ namespace Lina
 	class View;
 	class GfxContext;
 	class Buffer;
+	class Entity;
 
 	struct StaticDraw
 	{
@@ -274,6 +275,7 @@ namespace Lina
 		void OnComponentAdded(Component* comp);
 		void OnComponentRemoved(Component* comp);
 
+		void CollectEntity(Entity* e, StringID groupId, StringID staticVariant, StringID skinnedVariant);
 		void CollectCompModels(StringID groupId, const View& view, ShaderType shaderType);
 		void AddCustomDraw(StringID groupId, const CustomDrawInstance& inst, ResourceID shaderID, StringID shaderVariant, Buffer* vertexBuffer, Buffer* indexBuffer, size_t vertexSize, uint32 baseVertex, uint32 indexCount, uint32 startIndex);
 		void AddCustomDrawRaw(StringID groupId, const CustomDrawInstance& inst, ResourceID shaderID, StringID shaderVariant, uint32 baseVertex, uint32 vtxCount);
@@ -300,6 +302,7 @@ namespace Lina
 
 		void PrepareCustomDraws(Vector<CompModel*>& skinnedModels, const DrawGroup& group, RenderingGroup& renderingGroup);
 		void PrepareCustomDrawsRaw(const DrawGroup& group, RenderingGroup& renderingGroup);
+		void CollectCompModel(DrawGroup& group, CompModel* comp, ShaderType type, bool skipShaderType = false, StringID staticVariantOverride = 0, StringID skinnedVariantOverride = 0);
 
 	private:
 		JobExecutor*	   m_jobExecutor = nullptr;

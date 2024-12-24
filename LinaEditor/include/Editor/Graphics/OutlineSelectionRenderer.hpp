@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Core/Graphics/Pipeline/Buffer.hpp"
+#include "Core/Graphics/Pipeline/RenderPass.hpp"
 
 namespace Lina
 {
@@ -39,7 +40,13 @@ namespace Lina
 	class ResourceManagerV2;
 	class Material;
 	class DrawCollector;
+	class Texture;
 } // namespace Lina
+
+namespace LinaGX
+{
+	class Instance;
+}
 
 namespace Lina::Editor
 {
@@ -47,26 +54,49 @@ namespace Lina::Editor
 
 	class OutlineSelectionRenderer
 	{
+	private:
+		struct ViewData
+		{
+		};
+
+		struct PerFrameData
+		{
+			Texture* depthTarget  = nullptr;
+			Texture* renderTarget = nullptr;
+		};
+
 	public:
 		OutlineSelectionRenderer(Editor* editor, WorldRenderer* wr);
 		virtual ~OutlineSelectionRenderer();
+
+		void DestroySizeRelativeResources();
+		void CreateSizeRelativeResources();
+		void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue);
+		void Tick(float delta, DrawCollector& collector);
+		void Render(uint32 frameIndex, LinaGX::CommandStream* stream, DrawCollector& collector);
+		void RenderFullscreen(DrawCollector& collector, LinaGX::CommandStream* stream);
+		void SyncRender();
 
 		inline void SetSelectedEntities(const Vector<Entity*>& entities)
 		{
 			m_selectedEntities = entities;
 		}
 
-		void OnProduceFrame(DrawCollector& collector);
-		void OnRenderPassPost(uint32 frameIndex, LinaGX::CommandStream* stream);
-
 	private:
+		LinaGX::Instance*  m_lgx	= nullptr;
 		Editor*			   m_editor = nullptr;
 		WorldRenderer*	   m_wr		= nullptr;
 		ResourceManagerV2* m_rm		= nullptr;
 		EntityWorld*	   m_world	= nullptr;
 
-		Vector<Entity*> m_selectedEntities = {};
-		Material*		m_outlineMaterial  = nullptr;
-		Shader*			m_outlineShader	   = nullptr;
+		Vector<Entity*> m_selectedEntities	 = {};
+		Material*		m_fullscreenMaterial = nullptr;
+		Shader*			m_fullscreenShader	 = nullptr;
+
+		uint16	   m_pipelineLayout = 0;
+		RenderPass m_outlinePass;
+		Vector2ui  m_size = Vector2ui::Zero;
+
+		PerFrameData m_pfd[FRAMES_IN_FLIGHT];
 	};
 } // namespace Lina::Editor

@@ -61,6 +61,129 @@ namespace Lina
 			m_compModels.erase(it);
 	}
 
+	void DrawCollector::CollectCompModel(DrawGroup& group, CompModel* comp, ShaderType shaderType, bool skipShaderType, StringID staticVariantOverride, StringID skinnedVariantOverride)
+	{
+		const Vector<CompModelNode>& nodes	= comp->GetNodes();
+		Entity*						 entity = comp->GetEntity();
+
+		Model* model = m_rm->GetIfExists<Model>(comp->GetModel());
+		LINA_ASSERT(model, "");
+
+		Vector<Material*>		  materials;
+		const Vector<ResourceID>& materialIDs = comp->GetMaterials();
+		const size_t			  materialsSz = materialIDs.size();
+
+		materials.resize(materialsSz);
+		for (size_t i = 0; i < materialsSz; i++)
+			materials[i] = m_rm->GetIfExists<Material>(materialIDs[i]);
+
+		const Vector<Mesh>& meshes	 = model->GetAllMeshes();
+		const size_t		meshesSz = meshes.size();
+
+		for (size_t i = 0; i < meshesSz; i++)
+		{
+			const Mesh& mesh = meshes[i];
+
+			const Vector<PrimitiveStatic>& primsStatic	 = mesh.primitivesStatic;
+			const size_t				   primsStaticSz = primsStatic.size();
+			for (size_t j = 0; j < primsStaticSz; j++)
+			{
+				const PrimitiveStatic& prim = primsStatic.at(j);
+
+				Material* targetMaterial = prim.materialIndex >= materials.size() ? nullptr : materials[prim.materialIndex];
+				LINA_ASSERT(targetMaterial, "");
+				if (!skipShaderType && targetMaterial->GetShaderType() != shaderType)
+					continue;
+				Shader* targetShader = m_rm->GetResource<Shader>(targetMaterial->GetShader());
+
+				group.customDraws.push_back({
+					.vertexBuffer		   = &m_gfxContext->GetMeshManagerDefault().GetVtxBufferStatic(),
+					.indexBuffer		   = &m_gfxContext->GetMeshManagerDefault().GetIdxBufferStatic(),
+					.vertexSize			   = sizeof(VertexStatic),
+					.shaderID			   = targetShader->GetID(),
+					.shaderVariant		   = staticVariantOverride == 0 ? "Static"_hs : staticVariantOverride,
+					.baseVertexLocation	   = prim._vertexOffset,
+					.indexCountPerInstance = static_cast<uint32>(prim.indices.size()),
+					.startIndexLocation	   = prim._indexOffset,
+					.instance =
+						{
+							.entity =
+								{
+									.model = comp->GetEntity()->GetTransform().GetMatrix() * nodes.at(mesh.nodeIndex).transform.ToLocalMatrix(),
+								},
+							.entityIdent =
+								{
+									.entityGUID = entity->GetGUID(),
+									.uniqueID2	= static_cast<uint32>(i),
+									.uniqueID3	= static_cast<uint32>(j),
+									.uniqueID4	= static_cast<uint32>(mesh.nodeIndex),
+								},
+							.materialID	  = targetMaterial->GetID(),
+							.pushEntity	  = true,
+							.pushMaterial = true,
+						},
+				});
+			}
+
+			const Vector<PrimitiveSkinned>& primsSkinned   = mesh.primitivesSkinned;
+			const size_t					primsSkinnedSz = primsSkinned.size();
+			for (size_t j = 0; j < primsSkinnedSz; j++)
+			{
+				const PrimitiveSkinned& prim = primsSkinned.at(j);
+
+				Material* targetMaterial = prim.materialIndex >= materials.size() ? nullptr : materials[prim.materialIndex];
+				LINA_ASSERT(targetMaterial, "");
+				if (!skipShaderType && targetMaterial->GetShaderType() != shaderType)
+					continue;
+				Shader* targetShader = m_rm->GetResource<Shader>(targetMaterial->GetShader());
+
+				group.customDraws.push_back({
+					.vertexBuffer		   = &m_gfxContext->GetMeshManagerDefault().GetVtxBufferSkinned(),
+					.indexBuffer		   = &m_gfxContext->GetMeshManagerDefault().GetIdxBufferSkinned(),
+					.vertexSize			   = sizeof(VertexSkinned),
+					.shaderID			   = targetShader->GetID(),
+					.shaderVariant		   = skinnedVariantOverride == 0 ? "Skinned"_hs : skinnedVariantOverride,
+					.baseVertexLocation	   = prim._vertexOffset,
+					.indexCountPerInstance = static_cast<uint32>(prim.indices.size()),
+					.startIndexLocation	   = prim._indexOffset,
+					.instance =
+						{
+							.entity =
+								{
+									.model = comp->GetEntity()->GetTransform().GetMatrix() * nodes.at(mesh.nodeIndex).transform.ToLocalMatrix(),
+								},
+							.entityIdent =
+								{
+									.entityGUID = entity->GetGUID(),
+									.uniqueID2	= static_cast<uint32>(i),
+									.uniqueID3	= static_cast<uint32>(j),
+									.uniqueID4	= static_cast<uint32>(mesh.nodeIndex),
+								},
+							.materialID	   = targetMaterial->GetID(),
+							.pushEntity	   = true,
+							.pushMaterial  = true,
+							.pushBoneIndex = true,
+							.boneModel	   = comp,
+						},
+				});
+				group.skinningModels.push_back(comp);
+			}
+		}
+	}
+	void DrawCollector::CollectEntity(Entity* e, StringID groupId, StringID staticVariant, StringID skinnedVariant)
+	{
+		DrawGroup& group = GetGroup(groupId);
+
+		for (CompModel* comp : m_compModels)
+		{
+			if (comp->GetEntity() == e)
+			{
+				CollectCompModel(group, comp, ShaderType::Custom, true, staticVariant, skinnedVariant);
+				break;
+			}
+		}
+	}
+
 	void DrawCollector::CollectCompModels(StringID groupId, const View& view, ShaderType shaderType)
 	{
 		DrawGroup& group = GetGroup(groupId);
@@ -70,114 +193,10 @@ namespace Lina
 			if (!comp->GetEntity()->GetVisible())
 				continue;
 
-			const Vector<CompModelNode>& nodes = comp->GetNodes();
-
 			Entity* entity = comp->GetEntity();
 			// TODO: view visibility check.
 
-			Model* model = m_rm->GetIfExists<Model>(comp->GetModel());
-			LINA_ASSERT(model, "");
-
-			Vector<Material*>		  materials;
-			const Vector<ResourceID>& materialIDs = comp->GetMaterials();
-			const size_t			  materialsSz = materialIDs.size();
-
-			materials.resize(materialsSz);
-			for (size_t i = 0; i < materialsSz; i++)
-				materials[i] = m_rm->GetIfExists<Material>(materialIDs[i]);
-
-			const Vector<Mesh>& meshes	 = model->GetAllMeshes();
-			const size_t		meshesSz = meshes.size();
-
-			for (size_t i = 0; i < meshesSz; i++)
-			{
-				const Mesh& mesh = meshes[i];
-
-				const Vector<PrimitiveStatic>& primsStatic	 = mesh.primitivesStatic;
-				const size_t				   primsStaticSz = primsStatic.size();
-				for (size_t j = 0; j < primsStaticSz; j++)
-				{
-					const PrimitiveStatic& prim = primsStatic.at(j);
-
-					Material* targetMaterial = prim.materialIndex >= materials.size() ? nullptr : materials[prim.materialIndex];
-					LINA_ASSERT(targetMaterial, "");
-					if (targetMaterial->GetShaderType() != shaderType)
-						continue;
-					Shader* targetShader = m_rm->GetResource<Shader>(targetMaterial->GetShader());
-
-					group.customDraws.push_back({
-						.vertexBuffer		   = &m_gfxContext->GetMeshManagerDefault().GetVtxBufferStatic(),
-						.indexBuffer		   = &m_gfxContext->GetMeshManagerDefault().GetIdxBufferStatic(),
-						.vertexSize			   = sizeof(VertexStatic),
-						.shaderID			   = targetShader->GetID(),
-						.shaderVariant		   = "Static"_hs,
-						.baseVertexLocation	   = prim._vertexOffset,
-						.indexCountPerInstance = static_cast<uint32>(prim.indices.size()),
-						.startIndexLocation	   = prim._indexOffset,
-						.instance =
-							{
-								.entity =
-									{
-										.model = comp->GetEntity()->GetTransform().GetMatrix() * nodes.at(mesh.nodeIndex).transform.ToLocalMatrix(),
-									},
-								.entityIdent =
-									{
-										.entityGUID = entity->GetGUID(),
-										.uniqueID2	= static_cast<uint32>(i),
-										.uniqueID3	= static_cast<uint32>(j),
-										.uniqueID4	= static_cast<uint32>(mesh.nodeIndex),
-									},
-								.materialID	  = targetMaterial->GetID(),
-								.pushEntity	  = true,
-								.pushMaterial = true,
-							},
-					});
-				}
-
-				const Vector<PrimitiveSkinned>& primsSkinned   = mesh.primitivesSkinned;
-				const size_t					primsSkinnedSz = primsSkinned.size();
-				for (size_t j = 0; j < primsSkinnedSz; j++)
-				{
-					const PrimitiveSkinned& prim = primsSkinned.at(j);
-
-					Material* targetMaterial = prim.materialIndex >= materials.size() ? nullptr : materials[prim.materialIndex];
-					LINA_ASSERT(targetMaterial, "");
-					if (targetMaterial->GetShaderType() != shaderType)
-						continue;
-					Shader* targetShader = m_rm->GetResource<Shader>(targetMaterial->GetShader());
-
-					group.customDraws.push_back({
-						.vertexBuffer		   = &m_gfxContext->GetMeshManagerDefault().GetVtxBufferSkinned(),
-						.indexBuffer		   = &m_gfxContext->GetMeshManagerDefault().GetIdxBufferSkinned(),
-						.vertexSize			   = sizeof(VertexSkinned),
-						.shaderID			   = targetShader->GetID(),
-						.shaderVariant		   = "Skinned"_hs,
-						.baseVertexLocation	   = prim._vertexOffset,
-						.indexCountPerInstance = static_cast<uint32>(prim.indices.size()),
-						.startIndexLocation	   = prim._indexOffset,
-						.instance =
-							{
-								.entity =
-									{
-										.model = comp->GetEntity()->GetTransform().GetMatrix() * nodes.at(mesh.nodeIndex).transform.ToLocalMatrix(),
-									},
-								.entityIdent =
-									{
-										.entityGUID = entity->GetGUID(),
-										.uniqueID2	= static_cast<uint32>(i),
-										.uniqueID3	= static_cast<uint32>(j),
-										.uniqueID4	= static_cast<uint32>(mesh.nodeIndex),
-									},
-								.materialID	   = targetMaterial->GetID(),
-								.pushEntity	   = true,
-								.pushMaterial  = true,
-								.pushBoneIndex = true,
-								.boneModel	   = comp,
-							},
-					});
-					group.skinningModels.push_back(comp);
-				}
-			}
+			CollectCompModel(group, comp, shaderType);
 		}
 	}
 

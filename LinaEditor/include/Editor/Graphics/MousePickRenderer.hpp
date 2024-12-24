@@ -67,16 +67,10 @@ namespace Lina::Editor
 
 		void DestroySizeRelativeResources();
 		void CreateSizeRelativeResources();
-
 		void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue);
 		void Tick(float delta, DrawCollector& collector);
 		void Render(uint32 frameIndex, LinaGX::CommandStream* stream, DrawCollector& collector);
 		void SyncRender();
-
-		inline Texture* GetRenderTarget(uint32 frameIndex) const
-		{
-			return m_pfd[frameIndex].renderTarget;
-		}
 
 		inline EntityID GetLastHoveredEntity() const
 		{

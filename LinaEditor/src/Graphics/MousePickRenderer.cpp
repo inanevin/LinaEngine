@@ -99,8 +99,8 @@ namespace Lina::Editor
 	MousePickRenderer::~MousePickRenderer()
 	{
 		DestroySizeRelativeResources();
-		m_entityBufferPass.Destroy();
 		m_lgx->DestroyPipelineLayout(m_pipelineLayout);
+		m_entityBufferPass.Destroy();
 	}
 
 	void MousePickRenderer::DestroySizeRelativeResources()

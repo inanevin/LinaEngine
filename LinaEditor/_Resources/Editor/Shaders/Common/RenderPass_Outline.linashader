@@ -26,29 +26,48 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-layout (location = 0) out vec4 outAlbedo;
-layout (location = 1) out vec4 outPosition;
-layout (location = 2) out vec4 outNormal;
-
-struct LinaFragOutput
+struct DrawArguments
 {
-   vec4 color;
-   vec3 normal;
-   vec3 worldPos;
-   uint isUnlit;
+	uint entityIndex;
+	uint materialIndex;
+	uint boneIndex;
+	uint padding1;
 };
 
-//##user_shader_injected_here
-
-void main()
+struct LinaEntity
 {
-   LinaFragOutput fragOutput;
-   LINA_FRAG_MAIN(fragOutput);
+    mat4 modelMatrix;
+};
 
-   if(fragOutput.color.a < 0.99f)
-      discard;
+layout(set = 1, binding = 0) uniform ViewData
+{
+	mat4 view;
+	mat4 proj;
+	mat4 viewProj;
+	vec4 cameraPositionAndNear;
+	vec4 cameraDirectionAndFar;
+	vec2 size;
+	vec2 mouse;
+	vec4 padding2;
+} LINA_VIEW;
 
-   outAlbedo = vec4(fragOutput.color.rgb, fragOutput.isUnlit);
-   outPosition = vec4(fragOutput.worldPos, 0.0);
-   outNormal = vec4(fragOutput.normal, 0.0);
+
+layout(set = 1, binding = 1) readonly buffer DrawArgumentsBuffer
+{
+    DrawArguments data[];
+} LINA_DRAW_ARGUMENTS;
+
+layout(set = 1, binding = 2) readonly buffer EntityBuffer
+{
+    LinaEntity data[];
+} LINA_ENTITIES;
+
+layout(set = 1, binding = 3) readonly buffer BoneBuffer
+{
+    mat4 data[];
+} LINA_BONES;
+
+LinaEntity LINA_GET_ENTITY(uint index)
+{
+	return LINA_ENTITIES.data[index];
 }

@@ -200,6 +200,7 @@ namespace Lina::Editor
 		Model*	 gizmoRotate		 = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_ROTATE_ID, EDITOR_MODEL_GIZMO_ROTATE_PATH);
 		Model*	 gizmoScale			 = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_SCALE_ID, EDITOR_MODEL_GIZMO_SCALE_PATH);
 		Shader*	 gizmo				 = manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_GIZMO_ID, EDITOR_SHADER_WORLD_GIZMO_PATH);
+		Shader*	 outlineFullscreen	 = manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_ID, EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_PATH);
 
 		m_createdResources.insert(txtCheckered);
 		m_createdResources.insert(txtProtoDark);
@@ -212,6 +213,7 @@ namespace Lina::Editor
 		m_createdResources.insert(gizmoRotate);
 		m_createdResources.insert(gizmoScale);
 		m_createdResources.insert(gizmo);
+		m_createdResources.insert(outlineFullscreen);
 
 		fontPlay->GetMeta() = {
 			.points = {{.size = 14, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
@@ -292,6 +294,22 @@ namespace Lina::Editor
 				.depthBiasConstant = 0.0f,
 				.depthBiasClamp	   = 0.0f,
 				.depthBiasSlope	   = 0.0f,
+			},
+		} // namespace Lina::Editor
+		);
+
+		outlineFullscreen->GetMeta().variants.push_back({
+			ShaderVariant{
+				.id			  = "Default"_hs,
+				.name		  = "Default",
+				.blendDisable = true,
+				.depthTest	  = false,
+				.depthWrite	  = false,
+				.depthFormat  = LinaGX::Format::D32_SFLOAT,
+				.targets	  = {{DEFAULT_RT_FORMAT}},
+				.cullMode	  = LinaGX::CullMode::None,
+				.frontFace	  = LinaGX::FrontFace::CCW,
+				.topology	  = LinaGX::Topology::TriangleList,
 			},
 		} // namespace Lina::Editor
 		);

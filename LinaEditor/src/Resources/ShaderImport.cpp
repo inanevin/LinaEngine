@@ -169,15 +169,29 @@ namespace Lina::Editor
 			// Static - Entity ID Support
 			{
 				const String vertex = ShaderPreprocessor::MakeVariantBlock(vertexBlock, "Resources/Editor/Shaders/Common/MainVertexStatic_EntityID.linashader", "Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader");
-				const String frag	= ShaderPreprocessor::MakeVariantBlock(fragBlock, "Resources/Editor/Shaders/Common/MainFrag_EntityID.linashader", "Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader");
+				const String frag	= ShaderPreprocessor::MakeVariantBlock(fragBlock, "Resources/Editor/Shaders/Common/MainFragEntityID.linashader", "Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader");
 				meta.variants.push_back(ShaderPreprocessor::MakeVariant("StaticEntityID", vertex, frag, LinaGX::CullMode::Back, BlendMode::Opaque, DepthTesting::TestWrite, {LinaGX::Format::R32_UINT}));
 			}
 
 			// Skinned - Entity ID Support
 			{
 				const String vertex = ShaderPreprocessor::MakeVariantBlock(vertexBlock, "Resources/Editor/Shaders/Common/MainVertexSkinned_EntityID.linashader", "Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader");
-				const String frag	= ShaderPreprocessor::MakeVariantBlock(fragBlock, "Resources/Editor/Shaders/Common/MainFrag_EntityID.linashader", "Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader");
+				const String frag	= ShaderPreprocessor::MakeVariantBlock(fragBlock, "Resources/Editor/Shaders/Common/MainFragEntityID.linashader", "Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader");
 				meta.variants.push_back(ShaderPreprocessor::MakeVariant("SkinnedEntityID", vertex, frag, LinaGX::CullMode::Back, BlendMode::Opaque, DepthTesting::TestWrite, {LinaGX::Format::R32_UINT}));
+			}
+
+			// Static - Outline Support
+			{
+				const String vertex = ShaderPreprocessor::MakeVariantBlock(vertexBlock, "Resources/Core/Shaders/Common/MainVertexStatic.linashader", "Resources/Editor/Shaders/Common/RenderPass_Outline.linashader");
+				const String frag	= ShaderPreprocessor::MakeVariantBlock(fragBlock, "Resources/Editor/Shaders/Common/MainFragOutline.linashader", "Resources/Editor/Shaders/Common/RenderPass_Outline.linashader");
+				meta.variants.push_back(ShaderPreprocessor::MakeVariant("StaticOutline", vertex, frag, LinaGX::CullMode::Back, BlendMode::Opaque, DepthTesting::TestWrite, {LinaGX::Format::R8G8B8A8_SRGB}));
+			}
+
+			// Skinned - Outline Support
+			{
+				const String vertex = ShaderPreprocessor::MakeVariantBlock(vertexBlock, "Resources/Core/Shaders/Common/MainVertexSkinned.linashader", "Resources/Editor/Shaders/Common/RenderPass_Outline.linashader");
+				const String frag	= ShaderPreprocessor::MakeVariantBlock(fragBlock, "Resources/Editor/Shaders/Common/MainFragOutline.linashader", "Resources/Editor/Shaders/Common/RenderPass_Outline.linashader");
+				meta.variants.push_back(ShaderPreprocessor::MakeVariant("SkinnedOutline", vertex, frag, LinaGX::CullMode::Back, BlendMode::Opaque, DepthTesting::TestWrite, {LinaGX::Format::R8G8B8A8_SRGB}));
 			}
 		}
 		else if (meta.shaderType == ShaderType::ForwardSurface)
@@ -199,15 +213,29 @@ namespace Lina::Editor
 			// Static - Entity ID Support
 			{
 				const String vertex = ShaderPreprocessor::MakeVariantBlock(vertexBlock, "Resources/Editor/Shaders/Common/MainVertexStatic_EntityID.linashader", "Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader");
-				const String frag	= ShaderPreprocessor::MakeVariantBlock(fragBlock, "Resources/Editor/Shaders/Common/MainFrag_EntityID.linashader", "Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader");
+				const String frag	= ShaderPreprocessor::MakeVariantBlock(fragBlock, "Resources/Editor/Shaders/Common/MainFragEntityID.linashader", "Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader");
 				meta.variants.push_back(ShaderPreprocessor::MakeVariant("StaticEntityID", vertex, frag, LinaGX::CullMode::Back, BlendMode::Opaque, DepthTesting::TestWrite, {LinaGX::Format::R32_UINT}));
 			}
 
 			// Skinned - Entity ID Support
 			{
 				const String vertex = ShaderPreprocessor::MakeVariantBlock(vertexBlock, "Resources/Editor/Shaders/Common/MainVertexSkinned_EntityID.linashader", "Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader");
-				const String frag	= ShaderPreprocessor::MakeVariantBlock(fragBlock, "Resources/Editor/Shaders/Common/MainFrag_EntityID.linashader", "Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader");
+				const String frag	= ShaderPreprocessor::MakeVariantBlock(fragBlock, "Resources/Editor/Shaders/Common/MainFragEntityID.linashader", "Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader");
 				meta.variants.push_back(ShaderPreprocessor::MakeVariant("SkinnedEntityID", vertex, frag, LinaGX::CullMode::Back, BlendMode::Opaque, DepthTesting::TestWrite, {LinaGX::Format::R32_UINT}));
+			}
+
+			// Static - Outline Support
+			{
+				const String vertex = ShaderPreprocessor::MakeVariantBlock(vertexBlock, "Resources/Core/Shaders/Common/MainVertexStatic.linashader", "Resources/Editor/Shaders/Common/RenderPass_Outline.linashader");
+				const String frag	= ShaderPreprocessor::MakeVariantBlock(fragBlock, "Resources/Editor/Shaders/Common/MainFragOutline.linashader", "Resources/Editor/Shaders/Common/RenderPass_Outline.linashader");
+				meta.variants.push_back(ShaderPreprocessor::MakeVariant("StaticOutline", vertex, frag, LinaGX::CullMode::Back, BlendMode::Opaque, DepthTesting::TestWrite, {LinaGX::Format::R8G8B8A8_SRGB}));
+			}
+
+			// Skinned - Outline Support
+			{
+				const String vertex = ShaderPreprocessor::MakeVariantBlock(vertexBlock, "Resources/Core/Shaders/Common/MainVertexSkinned.linashader", "Resources/Editor/Shaders/Common/RenderPass_Outline.linashader");
+				const String frag	= ShaderPreprocessor::MakeVariantBlock(fragBlock, "Resources/Editor/Shaders/Common/MainFragOutline.linashader", "Resources/Editor/Shaders/Common/RenderPass_Outline.linashader");
+				meta.variants.push_back(ShaderPreprocessor::MakeVariant("SkinnedOutline", vertex, frag, LinaGX::CullMode::Back, BlendMode::Opaque, DepthTesting::TestWrite, {LinaGX::Format::R8G8B8A8_SRGB}));
 			}
 		}
 

@@ -49,7 +49,7 @@ void main()
    DrawArguments drawArguments = LINA_DRAW_ARGUMENTS.data[PushConstants.baseInstanceIndex + gl_InstanceIndex];
    LinaEntity entity = LINA_GET_ENTITY(drawArguments.entityIndex);
    vec3 worldPos = vec3(entity.modelMatrix * vec4(inPos, 1.0));
-   gl_Position = LINA_VIEW.proj * LINA_VIEW.view * vec4(worldPos, 1.0);
+   gl_Position = LINA_VIEW.viewProj * vec4(worldPos, 1.0);
    outEntityIndex = drawArguments.entityIndex;
 }
 

@@ -152,4 +152,10 @@ namespace Lina::Editor
 		collector.AddCustomDraw("Gizmo"_hs, inst2, m_gizmoShader->GetID(), 0, vtx, idx, sizeof(VertexStatic), baseVertex, indexCount, baseIndex);
 	}
 
+	void GizmoRenderer::Render(DrawCollector& collector, LinaGX::CommandStream* stream)
+	{
+		if (collector.RenderGroupExists("Gizmo"_hs))
+			collector.RenderGroup("Gizmo"_hs, stream);
+	}
+
 } // namespace Lina::Editor

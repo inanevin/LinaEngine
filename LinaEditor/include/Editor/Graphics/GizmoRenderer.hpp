@@ -40,6 +40,11 @@ namespace Lina
 	class Model;
 } // namespace Lina
 
+namespace LinaGX
+{
+	class CommandStream;
+}
+
 namespace Lina::Editor
 {
 	class Editor;
@@ -51,6 +56,7 @@ namespace Lina::Editor
 		virtual ~GizmoRenderer();
 
 		void Tick(float delta, DrawCollector& collector);
+		void Render(DrawCollector& collector, LinaGX::CommandStream* stream);
 
 		inline void SetSelectedEntities(const Vector<Entity*>& entities)
 		{

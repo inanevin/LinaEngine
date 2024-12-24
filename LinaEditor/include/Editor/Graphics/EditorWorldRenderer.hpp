@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Core/Graphics/Renderers/WorldRendererListener.hpp"
 #include "Editor/Graphics/GizmoRenderer.hpp"
 #include "Editor/Graphics/MousePickRenderer.hpp"
+#include "Editor/Graphics/OutlineSelectionRenderer.hpp"
 
 namespace Lina
 {
@@ -94,18 +95,19 @@ namespace Lina::Editor
 		}
 
 	private:
-		Properties		   m_props;
-		Vector<Entity*>	   m_selectedEntities;
-		EntityWorld*	   m_world = nullptr;
-		RenderPass		   m_pass;
-		LinaGX::Instance*  m_lgx			= nullptr;
-		WorldRenderer*	   m_wr				= nullptr;
-		ResourceManagerV2* m_rm				= nullptr;
-		Editor*			   m_editor			= nullptr;
-		uint16			   m_pipelineLayout = 0;
-		PerFrameData	   m_pfd[FRAMES_IN_FLIGHT];
-		GizmoRenderer	   m_gizmoRenderer;
-		MousePickRenderer  m_mousePickRenderer;
+		Properties				 m_props;
+		Vector<Entity*>			 m_selectedEntities;
+		EntityWorld*			 m_world = nullptr;
+		RenderPass				 m_pass;
+		LinaGX::Instance*		 m_lgx			  = nullptr;
+		WorldRenderer*			 m_wr			  = nullptr;
+		ResourceManagerV2*		 m_rm			  = nullptr;
+		Editor*					 m_editor		  = nullptr;
+		uint16					 m_pipelineLayout = 0;
+		PerFrameData			 m_pfd[FRAMES_IN_FLIGHT];
+		GizmoRenderer			 m_gizmoRenderer;
+		MousePickRenderer		 m_mousePickRenderer;
+		OutlineSelectionRenderer m_outlineRenderer;
 
 		Shader*	  m_gridShader	 = nullptr;
 		Material* m_gridMaterial = nullptr;

@@ -57,7 +57,7 @@ namespace Lina::Editor
 #define DEBUG_LABEL_END(Stream)
 #endif
 
-	EditorWorldRenderer::EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr, const Properties& props) : m_gizmoRenderer(editor, wr), m_mousePickRenderer(editor, wr)
+	EditorWorldRenderer::EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr, const Properties& props) : m_gizmoRenderer(editor, wr), m_mousePickRenderer(editor, wr), m_outlineRenderer(editor, wr)
 	{
 		m_props	 = props;
 		m_editor = editor;
@@ -124,7 +124,10 @@ namespace Lina::Editor
 		}
 
 		if (!m_props.disableSelection)
+		{
 			m_mousePickRenderer.CreateSizeRelativeResources();
+			m_outlineRenderer.CreateSizeRelativeResources();
+		}
 	}
 
 	EditorWorldRenderer::~EditorWorldRenderer()
@@ -162,13 +165,19 @@ namespace Lina::Editor
 			m_gizmoRenderer.Tick(delta, drawCollector);
 
 		if (!m_props.disableSelection)
+		{
 			m_mousePickRenderer.Tick(delta, drawCollector);
+			m_outlineRenderer.Tick(delta, drawCollector);
+		}
 	}
 
 	void EditorWorldRenderer::SyncRender()
 	{
 		if (!m_props.disableSelection)
+		{
 			m_mousePickRenderer.SyncRender();
+			m_outlineRenderer.SyncRender();
+		}
 	}
 
 	void EditorWorldRenderer::UpdateBuffers(uint32 frameIndex)
@@ -196,7 +205,10 @@ namespace Lina::Editor
 		}
 
 		if (!m_props.disableSelection)
+		{
 			m_mousePickRenderer.AddBuffersToUploadQueue(frameIndex, queue);
+			m_outlineRenderer.AddBuffersToUploadQueue(frameIndex, queue);
+		}
 
 		m_pass.AddBuffersToUploadQueue(frameIndex, queue);
 	}
@@ -225,6 +237,9 @@ namespace Lina::Editor
 			.height = size.y,
 		};
 
+		if (!m_props.disableSelection)
+			m_outlineRenderer.Render(frameIndex, gfxStream, drawCollector);
+
 		DEBUG_LABEL_BEGIN(gfxStream, "Editor World Pass");
 
 		m_pass.Begin(gfxStream, viewport, scissors, frameIndex);
@@ -233,8 +248,8 @@ namespace Lina::Editor
 		if (drawCollector.RenderGroupExists("EditorWorld"_hs))
 			drawCollector.RenderGroup("EditorWorld"_hs, gfxStream);
 
-		if (drawCollector.RenderGroupExists("Gizmo"_hs))
-			drawCollector.RenderGroup("Gizmo"_hs, gfxStream);
+		m_outlineRenderer.RenderFullscreen(drawCollector, gfxStream);
+		m_gizmoRenderer.Render(drawCollector, gfxStream);
 
 		m_pass.End(gfxStream);
 
@@ -274,19 +289,26 @@ namespace Lina::Editor
 		}
 
 		if (!m_props.disableSelection)
+		{
 			m_mousePickRenderer.CreateSizeRelativeResources();
+			m_outlineRenderer.CreateSizeRelativeResources();
+		}
 	}
 
 	void EditorWorldRenderer::OnWorldRendererDestroySizeRelative()
 	{
 		if (!m_props.disableSelection)
+		{
 			m_mousePickRenderer.DestroySizeRelativeResources();
+			m_outlineRenderer.DestroySizeRelativeResources();
+		}
 	}
 
 	void EditorWorldRenderer::SetSelectedEntities(const Vector<Entity*>& selected)
 	{
 		m_selectedEntities = selected;
 		m_gizmoRenderer.SetSelectedEntities(selected);
+		m_outlineRenderer.SetSelectedEntities(selected);
 	}
 
 } // namespace Lina::Editor
