@@ -73,6 +73,7 @@ namespace Lina::Editor
 #define EDITOR_SHADER_DEFAULT_POSTPROCESS_PATH		   "Resources/Editor/Shaders/DefaultPostProcess.linashader"
 #define EDITOR_SHADER_WORLD_GRID_PATH				   "Resources/Editor/Shaders/World/Grid.linashader"
 #define EDITOR_SHADER_WORLD_GIZMO_PATH				   "Resources/Editor/Shaders/World/Gizmo.linashader"
+#define EDITOR_SHADER_WORLD_ENTITYID_PATH			   "Resources/Editor/Shaders/World/EntityID.linashader"
 
 #define EDITOR_SHADER_GUI_DEFAULT_ID				 RESOURCE_ID_EDITOR_SHADERS
 #define EDITOR_SHADER_GUI_COLOR_WHEEL_ID			 RESOURCE_ID_EDITOR_SHADERS + 1
@@ -88,6 +89,7 @@ namespace Lina::Editor
 #define EDITOR_SHADER_WORLD_GRID_ID					 RESOURCE_ID_EDITOR_SHADERS + 11
 #define EDITOR_SHADER_GUI_GLITCH_ID					 RESOURCE_ID_EDITOR_SHADERS + 12
 #define EDITOR_SHADER_WORLD_GIZMO_ID				 RESOURCE_ID_EDITOR_SHADERS + 13
+#define EDITOR_SHADER_WORLD_ENTITYID_ID				 RESOURCE_ID_EDITOR_SHADERS + 14
 
 // Textures
 #define EDITOR_TEXTURE_CHECKERED_PATH				 "Resources/Editor/Textures/Checkered.png"

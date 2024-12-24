@@ -225,13 +225,16 @@ namespace Lina::Editor
 			.height = size.y,
 		};
 
-		DEBUG_LABEL_BEGIN(gfxStream, "Deferred Pass");
+		DEBUG_LABEL_BEGIN(gfxStream, "Editor World Pass");
 
 		m_pass.Begin(gfxStream, viewport, scissors, frameIndex);
 		m_pass.BindDescriptors(gfxStream, frameIndex, m_pipelineLayout, 1);
 
 		if (drawCollector.RenderGroupExists("EditorWorld"_hs))
 			drawCollector.RenderGroup("EditorWorld"_hs, gfxStream);
+
+		if (drawCollector.RenderGroupExists("Gizmo"_hs))
+			drawCollector.RenderGroup("Gizmo"_hs, gfxStream);
 
 		m_pass.End(gfxStream);
 
@@ -245,8 +248,8 @@ namespace Lina::Editor
 
 		DEBUG_LABEL_END(gfxStream);
 
-		// if (!m_props.disableSelection)
-		// 	m_mousePickRenderer.Render(frameIndex, gfxStream);
+		if (!m_props.disableSelection)
+			m_mousePickRenderer.Render(frameIndex, gfxStream, drawCollector);
 	}
 
 	void EditorWorldRenderer::OnWorldRendererCreateSizeRelative()

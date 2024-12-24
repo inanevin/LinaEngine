@@ -189,16 +189,17 @@ namespace Lina::Editor
 
 	void EditorResources::StartLoadCoreResources(ResourceManagerV2& manager)
 	{
-		Texture* txtCheckered	 = manager.CreateResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID, EDITOR_TEXTURE_CHECKERED_PATH);
-		Texture* txtProtoDark	 = manager.CreateResource<Texture>(EDITOR_TEXTURE_PROTOTYPE_DARK_ID, EDITOR_TEXTURE_PROTOTYPE_DARK_PATH);
-		Font*	 fontPlay		 = manager.CreateResource<Font>(EDITOR_FONT_PLAY_ID, EDITOR_FONT_PLAY_PATH);
-		Font*	 fontPlayBold	 = manager.CreateResource<Font>(EDITOR_FONT_PLAY_BOLD_ID, EDITOR_FONT_PLAY_BOLD_PATH);
-		Font*	 fontPlayVeryBig = manager.CreateResource<Font>(EDITOR_FONT_PLAY_VERY_BIG_ID, EDITOR_FONT_PLAY_VERY_BIG_PATH);
-		Shader*	 shaderWorldGrid = manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_GRID_ID, EDITOR_SHADER_WORLD_GRID_PATH);
-		Model*	 gizmoTranslate	 = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_TRANSLATE_ID, EDITOR_MODEL_GIZMO_TRANSLATE_PATH);
-		Model*	 gizmoRotate	 = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_ROTATE_ID, EDITOR_MODEL_GIZMO_ROTATE_PATH);
-		Model*	 gizmoScale		 = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_SCALE_ID, EDITOR_MODEL_GIZMO_SCALE_PATH);
-		Shader*	 gizmo			 = manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_GIZMO_ID, EDITOR_SHADER_WORLD_GIZMO_PATH);
+		Texture* txtCheckered		 = manager.CreateResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID, EDITOR_TEXTURE_CHECKERED_PATH);
+		Texture* txtProtoDark		 = manager.CreateResource<Texture>(EDITOR_TEXTURE_PROTOTYPE_DARK_ID, EDITOR_TEXTURE_PROTOTYPE_DARK_PATH);
+		Font*	 fontPlay			 = manager.CreateResource<Font>(EDITOR_FONT_PLAY_ID, EDITOR_FONT_PLAY_PATH);
+		Font*	 fontPlayBold		 = manager.CreateResource<Font>(EDITOR_FONT_PLAY_BOLD_ID, EDITOR_FONT_PLAY_BOLD_PATH);
+		Font*	 fontPlayVeryBig	 = manager.CreateResource<Font>(EDITOR_FONT_PLAY_VERY_BIG_ID, EDITOR_FONT_PLAY_VERY_BIG_PATH);
+		Shader*	 shaderWorldGrid	 = manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_GRID_ID, EDITOR_SHADER_WORLD_GRID_PATH);
+		Shader*	 shaderWorldEntityID = manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_ENTITYID_ID, EDITOR_SHADER_WORLD_ENTITYID_PATH);
+		Model*	 gizmoTranslate		 = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_TRANSLATE_ID, EDITOR_MODEL_GIZMO_TRANSLATE_PATH);
+		Model*	 gizmoRotate		 = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_ROTATE_ID, EDITOR_MODEL_GIZMO_ROTATE_PATH);
+		Model*	 gizmoScale			 = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_SCALE_ID, EDITOR_MODEL_GIZMO_SCALE_PATH);
+		Shader*	 gizmo				 = manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_GIZMO_ID, EDITOR_SHADER_WORLD_GIZMO_PATH);
 
 		m_createdResources.insert(txtCheckered);
 		m_createdResources.insert(txtProtoDark);
@@ -206,6 +207,7 @@ namespace Lina::Editor
 		m_createdResources.insert(fontPlayBold);
 		m_createdResources.insert(fontPlayVeryBig);
 		m_createdResources.insert(shaderWorldGrid);
+		m_createdResources.insert(shaderWorldEntityID);
 		m_createdResources.insert(gizmoTranslate);
 		m_createdResources.insert(gizmoRotate);
 		m_createdResources.insert(gizmoScale);
@@ -262,8 +264,28 @@ namespace Lina::Editor
 				.depthWrite		   = false,
 				.depthFormat	   = LinaGX::Format::D32_SFLOAT,
 				.targets		   = {{DEFAULT_RT_FORMAT}},
+				.cullMode		   = LinaGX::CullMode::Back,
+				.frontFace		   = LinaGX::FrontFace::CCW,
+				.topology		   = LinaGX::Topology::TriangleList,
+				.depthBiasEnable   = false,
+				.depthBiasConstant = 0.0f,
+				.depthBiasClamp	   = 0.0f,
+				.depthBiasSlope	   = 0.0f,
+			},
+		} // namespace Lina::Editor
+		);
+
+		shaderWorldEntityID->GetMeta().variants.push_back({
+			ShaderVariant{
+				.id				   = "Default"_hs,
+				.name			   = "Default",
+				.blendDisable	   = true,
+				.depthTest		   = true,
+				.depthWrite		   = true,
+				.depthFormat	   = LinaGX::Format::D32_SFLOAT,
+				.targets		   = {{LinaGX::Format::R32_UINT}},
 				.depthOp		   = LinaGX::CompareOp::Less,
-				.cullMode		   = LinaGX::CullMode::None,
+				.cullMode		   = LinaGX::CullMode::Back,
 				.frontFace		   = LinaGX::FrontFace::CCW,
 				.topology		   = LinaGX::Topology::TriangleList,
 				.depthBiasEnable   = false,

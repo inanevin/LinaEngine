@@ -67,9 +67,7 @@ namespace Lina::Editor
 		m_world	 = m_wr->GetWorld();
 		m_lgx	 = editor->GetApp()->GetLGX();
 
-		// m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 		m_pipelineLayout = m_lgx->CreatePipelineLayout(EditorGfxHelpers::GetPipelineLayoutDescriptionEntityBufferPass());
-
 		m_entityBufferPass.Create(EditorGfxHelpers::GetEntityBufferPassDescription());
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
@@ -103,8 +101,6 @@ namespace Lina::Editor
 		DestroySizeRelativeResources();
 		m_entityBufferPass.Destroy();
 		m_lgx->DestroyPipelineLayout(m_pipelineLayout);
-		// m_rm->DestroyResource(m_gridMaterial);
-		// m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 	}
 
 	void MousePickRenderer::DestroySizeRelativeResources()
@@ -203,20 +199,18 @@ namespace Lina::Editor
 		const DrawCollector::DrawGroup& deferredObjects = collector.GetGroup("Deferred"_hs);
 		const DrawCollector::DrawGroup& forwardObjects	= collector.GetGroup("Forward"_hs);
 
-		group.AddOtherWithOverride(deferredObjects, "StaticEntityID"_hs, "SkinnedEntityID"_hs);
-		group.AddOtherWithOverride(forwardObjects, "StaticEntityID"_hs, "SkinnedEntityID"_hs);
+		group.VariantOverride(deferredObjects, "StaticEntityID"_hs, "SkinnedEntityID"_hs);
+		group.VariantOverride(forwardObjects, "StaticEntityID"_hs, "SkinnedEntityID"_hs);
 
-		// if (collector.GroupExists("Gizmo"_hs))
-		// {
-		// 	group.AddOtherWithOverride(collector.GetGroup("Gizmo"_hs), "StaticEntityID"_hs, 0);
-		// }
+		if (collector.GroupExists("Gizmo"_hs))
+		{
+			group.ShaderOverride(collector.GetGroup("Gizmo"_hs), EDITOR_SHADER_WORLD_ENTITYID_ID, 0);
+		}
 	}
 
-	void MousePickRenderer::Render(uint32 frameIndex, LinaGX::CommandStream* stream)
+	void MousePickRenderer::Render(uint32 frameIndex, LinaGX::CommandStream* stream, DrawCollector& collector)
 	{
 		PerFrameData& pfd = m_pfd[frameIndex];
-
-		DrawCollector& drawCollector = m_wr->GetDrawCollector();
 
 		const LinaGX::Viewport viewport = {
 			.x		  = 0,
@@ -244,7 +238,7 @@ namespace Lina::Editor
 				barrierToAttachment->srcStageFlags		 = LinaGX::PSF_TopOfPipe;
 				barrierToAttachment->dstStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
 				barrierToAttachment->textureBarrierCount = 2;
-				barrierToAttachment->textureBarriers	 = stream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 1);
+				barrierToAttachment->textureBarriers	 = stream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 2);
 				barrierToAttachment->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorRead2Att(pfd.renderTarget->GetGPUHandle());
 				barrierToAttachment->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierDepthRead2Att(pfd.depthTarget->GetGPUHandle());
 			}
@@ -252,7 +246,7 @@ namespace Lina::Editor
 			m_entityBufferPass.Begin(stream, viewport, scissors, frameIndex);
 			m_entityBufferPass.BindDescriptors(stream, frameIndex, m_pipelineLayout, 1);
 
-			drawCollector.RenderGroup("MousePick"_hs, stream);
+			collector.RenderGroup("MousePick"_hs, stream);
 
 			m_entityBufferPass.End(stream);
 
@@ -279,7 +273,7 @@ namespace Lina::Editor
 			copy->srcMip						   = 0;
 			copy->srcTexture					   = m_pfd[frameIndex].renderTarget->GetGPUHandle();
 
-			const Vector<DrawCollector::DrawEntity>& drawEntities = drawCollector.GetRenderingData().entities;
+			const Vector<DrawCollector::DrawEntity>& drawEntities = collector.GetRenderingData().entities;
 			m_lastEntityIDs.resize(drawEntities.size());
 			for (size_t i = 0; i < drawEntities.size(); i++)
 				m_lastEntityIDs[i] = drawEntities.at(i).ident.entityGUID;

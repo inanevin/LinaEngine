@@ -146,9 +146,10 @@ namespace Lina::Editor
 		const uint32		   baseVertex = prim._vertexOffset;
 		const uint32		   baseIndex  = prim._indexOffset;
 		const uint32		   indexCount = static_cast<uint32>(prim.indices.size());
-		collector.AddCustomDraw("EditorWorld"_hs, inst0, m_gizmoShader->GetID(), 0, vtx, idx, sizeof(VertexStatic), baseVertex, indexCount, baseIndex);
-		collector.AddCustomDraw("EditorWorld"_hs, inst1, m_gizmoShader->GetID(), 0, vtx, idx, sizeof(VertexStatic), baseVertex, indexCount, baseIndex);
-		collector.AddCustomDraw("EditorWorld"_hs, inst2, m_gizmoShader->GetID(), 0, vtx, idx, sizeof(VertexStatic), baseVertex, indexCount, baseIndex);
+		collector.CreateGroup("Gizmo");
+		collector.AddCustomDraw("Gizmo"_hs, inst0, m_gizmoShader->GetID(), 0, vtx, idx, sizeof(VertexStatic), baseVertex, indexCount, baseIndex);
+		collector.AddCustomDraw("Gizmo"_hs, inst1, m_gizmoShader->GetID(), 0, vtx, idx, sizeof(VertexStatic), baseVertex, indexCount, baseIndex);
+		collector.AddCustomDraw("Gizmo"_hs, inst2, m_gizmoShader->GetID(), 0, vtx, idx, sizeof(VertexStatic), baseVertex, indexCount, baseIndex);
 	}
 
 } // namespace Lina::Editor

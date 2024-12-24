@@ -200,7 +200,7 @@ namespace Lina
 			Vector<CustomDrawRaw> customRawDraws;
 			Vector<CompModel*>	  skinningModels;
 
-			void AddOtherWithOverride(const DrawGroup& other, StringID newShaderVariantStatic, StringID newShaderVariantSkinned)
+			void VariantOverride(const DrawGroup& other, StringID newShaderVariantStatic, StringID newShaderVariantSkinned)
 			{
 				const size_t customDrawSizeNow	  = customDraws.size();
 				const size_t customRawDrawSizeNow = customRawDraws.size();
@@ -211,13 +211,36 @@ namespace Lina
 				for (size_t i = customDrawSizeNow; i < customDraws.size(); i++)
 				{
 					CustomDraw& draw   = customDraws[i];
-					draw.shaderVariant = newShaderVariantStatic;
+					draw.shaderVariant = draw.instance.pushBoneIndex ? newShaderVariantSkinned : newShaderVariantStatic;
 				}
 
 				for (size_t i = customRawDrawSizeNow; i < customRawDraws.size(); i++)
 				{
 					CustomDrawRaw& draw = customRawDraws[i];
 					draw.shaderVariant	= newShaderVariantStatic;
+				}
+			}
+
+			void ShaderOverride(const DrawGroup& other, ResourceID shader, StringID variant)
+			{
+				const size_t customDrawSizeNow	  = customDraws.size();
+				const size_t customRawDrawSizeNow = customRawDraws.size();
+
+				customDraws.insert(customDraws.end(), other.customDraws.begin(), other.customDraws.end());
+				customRawDraws.insert(customRawDraws.end(), other.customRawDraws.begin(), other.customRawDraws.end());
+
+				for (size_t i = customDrawSizeNow; i < customDraws.size(); i++)
+				{
+					CustomDraw& draw   = customDraws[i];
+					draw.shaderID	   = shader;
+					draw.shaderVariant = variant;
+				}
+
+				for (size_t i = customRawDrawSizeNow; i < customRawDraws.size(); i++)
+				{
+					CustomDrawRaw& draw = customRawDraws[i];
+					draw.shaderID		= shader;
+					draw.shaderVariant	= variant;
 				}
 			}
 		};

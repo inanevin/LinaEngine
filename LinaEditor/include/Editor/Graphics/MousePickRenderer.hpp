@@ -70,7 +70,7 @@ namespace Lina::Editor
 
 		void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue);
 		void Tick(float delta, DrawCollector& collector);
-		void Render(uint32 frameIndex, LinaGX::CommandStream* stream);
+		void Render(uint32 frameIndex, LinaGX::CommandStream* stream, DrawCollector& collector);
 		void SyncRender();
 
 		inline Texture* GetRenderTarget(uint32 frameIndex) const

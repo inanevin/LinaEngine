@@ -82,12 +82,16 @@ namespace Lina::Editor
 		virtual void OnWorldRendererCreateSizeRelative() override;
 		virtual void OnWorldRendererDestroySizeRelative() override;
 
+		void SetSelectedEntities(const Vector<Entity*>& selected);
+
 		inline SemaphoreData GetSubmitSemaphore(uint32 frameIndex)
 		{
 			return m_pfd[frameIndex].signalSemaphore;
 		};
-
-		void SetSelectedEntities(const Vector<Entity*>& selected);
+		inline MousePickRenderer& GetMousePick()
+		{
+			return m_mousePickRenderer;
+		}
 
 	private:
 		Properties		   m_props;
