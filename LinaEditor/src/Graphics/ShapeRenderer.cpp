@@ -77,9 +77,9 @@ namespace Lina::Editor
 			PerFrameData& pfd = m_pfd[i];
 
 			pfd.lineVtxBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, sizeof(LineVertex) * 1000, "ShapeRendererLineVertexBuffer");
-			pfd.lvgVtxBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, sizeof(LinaVG::Vertex) * 1000, "ShapeRendererLVGVertexBuffer");
+			pfd.lvgVtxBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, sizeof(LinaVG::Vertex) * 2000, "ShapeRendererLVGVertexBuffer");
 			pfd.lineIdxBuffer.Create(LinaGX::ResourceTypeHint::TH_IndexBuffer, sizeof(uint16) * 1000, "ShapeRendererLineIndexBuffer");
-			pfd.lvgIdxBuffer.Create(LinaGX::ResourceTypeHint::TH_IndexBuffer, sizeof(LinaVG::Index) * 1000, "ShapeRendererLVGIndexBuffer");
+			pfd.lvgIdxBuffer.Create(LinaGX::ResourceTypeHint::TH_IndexBuffer, sizeof(LinaVG::Index) * 5000, "ShapeRendererLVGIndexBuffer");
 		}
 
 		m_lvgDrawer.GetCallbacks().draw = BIND(&ShapeRenderer::OnLinaVGDraw, this, std::placeholders::_1);
@@ -100,14 +100,21 @@ namespace Lina::Editor
 
 	void ShapeRenderer::Tick(float delta, DrawCollector& collector)
 	{
-		DrawLine3D(Vector3(0, 2, 0), Vector3(1, 2, 0), 0.2f, Color::White);
-		DrawLine3D(Vector3(0, 2, 0), Vector3(0, 3, 0), 0.2f, Color::White);
-		DrawLine3D(Vector3(0, 2, 0), Vector3(0, 2, 1), 0.2f, Color::White);
+		DrawLine3D(Vector3(0, 2, 0), Vector3(1, 2, 0), 0.6f, Color::White);
+		DrawLine3D(Vector3(0, 2, 0), Vector3(0, 3, 0), 0.6f, Color::White);
+		DrawLine3D(Vector3(0, 2, 0), Vector3(0, 2, 1), 0.6f, Color::White);
 
-		StartLVGBatch({.model = Matrix4::Identity()}, 0);
-
-		DrawLVGLine(Vector2(0, 0), Vector2(100, 0), Color::Red, 5.0f);
+		StartLVGBatch({.model = Matrix4::TransformMatrix(Vector3(1, 1, 1), Quaternion::Identity(), Vector3::One)}, 0);
+		DrawLVGLine(Vector2(0, 0), Vector2(1, 0), Color::Red, .02f);
 		EndLVGBatch();
+
+		StartLVGBatch({.model = Matrix4::TransformMatrix(Vector3(1, 1, 1), Quaternion::AngleAxis(90, Vector3::Right), Vector3::One)}, 0);
+		DrawLVGLine(Vector2(0, 0), Vector2(1, 0), Color::Blue, .02f);
+		EndLVGBatch();
+
+		// StartLVGBatch({.model = Matrix4::TransformMatrix(Vector3(1, 1, 1), Quaternion::Identity(), Vector3::One)}, 0);
+		// DrawLVGLine(Vector2(0, 0), Vector2(1, 0), Color::Red, .2f);
+		// EndLVGBatch();
 	}
 
 	void ShapeRenderer::AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue)
@@ -213,7 +220,12 @@ namespace Lina::Editor
 		LinaVG::StyleOptions opts;
 		opts.color	   = color.AsLVG();
 		opts.thickness = thickness;
-		m_lvgDrawer.DrawLine(p1.AsLVG(), p2.AsLVG(), opts);
+		opts.isFilled  = false;
+		// opts.aaEnabled = true;
+		// m_lvgDrawer.DrawLine(p1.AsLVG(), p2.AsLVG(), opts);
+
+		m_lvgDrawer.DrawCircle(p1.AsLVG(), 0.25f, opts);
+		// m_lvgDrawer.DrawRect(p1.AsLVG(), (p1 + Vector2(1, 1)).AsLVG(), opts);
 	}
 
 	void ShapeRenderer::OnLinaVGDraw(LinaVG::DrawBuffer* lvg)

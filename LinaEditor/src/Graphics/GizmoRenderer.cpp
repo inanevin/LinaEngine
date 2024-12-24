@@ -111,7 +111,7 @@ namespace Lina::Editor
 		const DrawCollector::CustomDrawInstance inst0 = {
 			.entity =
 				{
-					.model = Matrix4::TransformMatrix(avgPosition, Quaternion::AngleAxis(90, -Vector3::Forward), Vector3(distScale)),
+					.model = Matrix4::TransformMatrix(avgPosition, Quaternion::AngleAxis(90, Vector3::Forward), Vector3(distScale)),
 				},
 			.entityIdent =
 				{
@@ -148,8 +148,7 @@ namespace Lina::Editor
 			.pushEntity	  = true,
 			.pushMaterial = true,
 		};
-
-		Model*				   model	  = m_translateModel;
+		Model*				   model	  = m_rotateModel;
 		const PrimitiveStatic& prim		  = model->GetAllMeshes().at(0).primitivesStatic.at(0);
 		const uint32		   baseVertex = prim._vertexOffset;
 		const uint32		   baseIndex  = prim._indexOffset;
