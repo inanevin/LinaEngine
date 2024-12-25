@@ -58,7 +58,7 @@ namespace Lina::Editor
 #define DEBUG_LABEL_END(Stream)
 #endif
 
-	EditorWorldRenderer::EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr, const Properties& props) : m_gizmoRenderer(editor, wr), m_mousePickRenderer(editor, wr), m_outlineRenderer(editor, wr), m_shapeRenderer(editor, wr)
+	EditorWorldRenderer::EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr, const Properties& props) : m_gizmoRenderer(editor, wr), m_mousePickRenderer(editor, wr), m_outlineRenderer(editor, wr)
 	{
 		m_props	 = props;
 		m_editor = editor;
@@ -80,13 +80,13 @@ namespace Lina::Editor
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = set,
 				.binding   = 1,
-				.buffers   = {m_wr->GetInstanceDataBuffer(i).GetGPUResource()},
+				.buffers   = {m_wr->GetDrawCollector().GetInstanceDataBuffer(i).GetGPUResource()},
 			});
 
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = set,
 				.binding   = 2,
-				.buffers   = {m_wr->GetEntityDataBuffer(i).GetGPUResource()},
+				.buffers   = {m_wr->GetDrawCollector().GetEntityDataBuffer(i).GetGPUResource()},
 			});
 
 			Texture* renderTarget = m_wr->GetLightingPassOutput(i);
@@ -143,9 +143,6 @@ namespace Lina::Editor
 		if (!m_props.disableGizmos)
 			m_gizmoRenderer.Initialize();
 
-		if (!m_props.disableShapes)
-			m_shapeRenderer.Initialize();
-
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 	}
 
@@ -159,9 +156,6 @@ namespace Lina::Editor
 
 		if (!m_props.disableGizmos)
 			m_gizmoRenderer.Shutdown();
-
-		if (!m_props.disableShapes)
-			m_shapeRenderer.Shutdown();
 
 		if (!m_props.disableSelection)
 		{
@@ -206,9 +200,6 @@ namespace Lina::Editor
 			m_mousePickRenderer.Tick(delta, drawCollector);
 			m_outlineRenderer.Tick(delta, drawCollector);
 		}
-
-		if (!m_props.disableShapes)
-			m_shapeRenderer.Tick(delta, drawCollector);
 	}
 
 	void EditorWorldRenderer::SyncRender()
@@ -218,9 +209,6 @@ namespace Lina::Editor
 			m_mousePickRenderer.SyncRender();
 			m_outlineRenderer.SyncRender();
 		}
-
-		if (!m_props.disableShapes)
-			m_shapeRenderer.SyncRender();
 	}
 
 	void EditorWorldRenderer::UpdateBuffers(uint32 frameIndex)
@@ -260,9 +248,6 @@ namespace Lina::Editor
 			m_mousePickRenderer.AddBuffersToUploadQueue(frameIndex, queue);
 			m_outlineRenderer.AddBuffersToUploadQueue(frameIndex, queue);
 		}
-
-		if (!m_props.disableShapes)
-			m_shapeRenderer.AddBuffersToUploadQueue(frameIndex, queue);
 
 		m_pass.AddBuffersToUploadQueue(frameIndex, queue);
 	}
@@ -308,8 +293,6 @@ namespace Lina::Editor
 		if (!m_props.disableGizmos)
 			m_gizmoRenderer.Render(drawCollector, gfxStream);
 
-		if (!m_props.disableShapes)
-			m_shapeRenderer.Render(frameIndex, gfxStream);
 		m_pass.End(gfxStream);
 
 		LinaGX::CMDBarrier* barrier	 = gfxStream->AddCommand<LinaGX::CMDBarrier>();

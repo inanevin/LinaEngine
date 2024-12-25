@@ -30,7 +30,6 @@ SOFTWARE.
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Resources/EditorResources.hpp"
 #include "Editor/Widgets/EditorRoot.hpp"
-#include "Editor/Graphics/WorldRendererExtEditor.hpp"
 #include "Editor/Graphics/SurfaceRenderer.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Editor/IO/ExtensionSupport.hpp"

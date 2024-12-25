@@ -111,13 +111,11 @@ namespace Lina
 		m_deferredPass.Create(GfxHelpers::GetRenderPassDescription(RenderPassType::RENDER_PASS_DEFERRED));
 		m_forwardPass.Create(GfxHelpers::GetRenderPassDescription(RenderPassType::RENDER_PASS_FORWARD));
 
+		m_drawCollector.Initialize(m_lgx, m_world, m_resourceManagerV2, m_gfxContext, &m_executor);
+
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data = m_pfd[i];
-
-			data.instanceDataBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUDrawArguments) * 1000, m_name + " InstanceDataBuffer");
-			data.entityDataBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUEntity) * 1000, m_name + " EntityBuffer");
-			data.boneBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(Matrix4) * 1000, m_name + " BoneBuffer");
 
 			const uint16 setDf = m_deferredPass.GetDescriptorSet(i);
 			const uint16 setFw = m_forwardPass.GetDescriptorSet(i);
@@ -125,42 +123,41 @@ namespace Lina
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = setDf,
 				.binding   = 1,
-				.buffers   = {data.instanceDataBuffer.GetGPUResource()},
+				.buffers   = {m_drawCollector.GetInstanceDataBuffer(i).GetGPUResource()},
 			});
 
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = setDf,
 				.binding   = 2,
-				.buffers   = {data.entityDataBuffer.GetGPUResource()},
+				.buffers   = {m_drawCollector.GetEntityDataBuffer(i).GetGPUResource()},
 			});
 
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = setDf,
 				.binding   = 3,
-				.buffers   = {data.boneBuffer.GetGPUResource()},
+				.buffers   = {m_drawCollector.GetBoneBuffer(i).GetGPUResource()},
 			});
 
 			// FW
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = setFw,
 				.binding   = 2,
-				.buffers   = {data.instanceDataBuffer.GetGPUResource()},
+				.buffers   = {m_drawCollector.GetInstanceDataBuffer(i).GetGPUResource()},
 			});
 
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = setFw,
 				.binding   = 3,
-				.buffers   = {data.entityDataBuffer.GetGPUResource()},
+				.buffers   = {m_drawCollector.GetEntityDataBuffer(i).GetGPUResource()},
 			});
 
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = setFw,
 				.binding   = 4,
-				.buffers   = {data.boneBuffer.GetGPUResource()},
+				.buffers   = {m_drawCollector.GetBoneBuffer(i).GetGPUResource()},
 			});
 		}
 
-		m_drawCollector.Initialize(m_lgx, m_world, m_resourceManagerV2, m_gfxContext, &m_executor);
 		m_guiBackend.Initialize(m_resourceManagerV2);
 		CreateSizeRelativeResources();
 	}
@@ -182,10 +179,6 @@ namespace Lina
 
 			m_lgx->DestroyUserSemaphore(data.signalSemaphore.GetSemaphore());
 			m_lgx->DestroyUserSemaphore(data.copySemaphore.GetSemaphore());
-
-			data.instanceDataBuffer.Destroy();
-			data.entityDataBuffer.Destroy();
-			data.boneBuffer.Destroy();
 		}
 
 		m_deferredPass.Destroy();
@@ -362,8 +355,6 @@ namespace Lina
 
 	void WorldRenderer::UpdateBuffers(uint32 frameIndex)
 	{
-		m_drawCollector.PrepareGPUData();
-
 		auto& currentFrame = m_pfd[frameIndex];
 		currentFrame.copySemaphore.ResetModified();
 		currentFrame.signalSemaphore.ResetModified();
@@ -406,21 +397,7 @@ namespace Lina
 			m_forwardPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&renderPassData, sizeof(GPUForwardPassData));
 		}
 
-		const DrawCollector::RenderingData& data = m_drawCollector.GetRenderingData();
-
-		size_t entityIdx = 0;
-		for (const DrawCollector::DrawEntity& de : data.entities)
-		{
-			currentFrame.entityDataBuffer.BufferData(entityIdx * sizeof(GPUEntity), (uint8*)&de.entity, sizeof(GPUEntity));
-			entityIdx++;
-		}
-
-		currentFrame.instanceDataBuffer.BufferData(0, (uint8*)data.instanceData.data(), sizeof(GPUDrawArguments) * data.instanceData.size());
-		currentFrame.boneBuffer.BufferData(0, (uint8*)data.bones.data(), sizeof(Matrix4) * data.bones.size());
-
-		m_uploadQueue.AddBufferRequest(&currentFrame.entityDataBuffer);
-		m_uploadQueue.AddBufferRequest(&currentFrame.instanceDataBuffer);
-		m_uploadQueue.AddBufferRequest(&currentFrame.boneBuffer);
+		m_drawCollector.PrepareGPUData(frameIndex, m_uploadQueue);
 
 		m_deferredPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
 		m_forwardPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);

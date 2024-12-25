@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/Resources/CommonResources.hpp"
 #include "Core/Graphics/Data/RenderData.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
+#include "Core/Graphics/Renderers/ShapeCollector.hpp"
 #include "Core/World/CommonWorld.hpp"
 
 namespace LinaGX
@@ -266,6 +267,13 @@ namespace Lina
 			Vector<GPUDrawArguments> instanceData;
 		};
 
+		struct PerFrameData
+		{
+			Buffer entityBuffer;
+			Buffer instanceDataBuffer;
+			Buffer boneBuffer;
+		};
+
 		DrawCollector(){};
 		virtual ~DrawCollector() = default;
 
@@ -279,7 +287,7 @@ namespace Lina
 		void CollectCompModels(StringID groupId, const View& view, ShaderType shaderType);
 		void AddCustomDraw(StringID groupId, const CustomDrawInstance& inst, ResourceID shaderID, StringID shaderVariant, Buffer* vertexBuffer, Buffer* indexBuffer, size_t vertexSize, uint32 baseVertex, uint32 indexCount, uint32 startIndex);
 		void AddCustomDrawRaw(StringID groupId, const CustomDrawInstance& inst, ResourceID shaderID, StringID shaderVariant, uint32 baseVertex, uint32 vtxCount);
-		void PrepareGPUData();
+		void PrepareGPUData(uint32 frameIndex, ResourceUploadQueue& queue);
 
 		void			CreateGroup(const String& name);
 		DrawGroup&		GetGroup(StringID groupId);
@@ -295,11 +303,24 @@ namespace Lina
 			return m_renderingData;
 		}
 
+		inline Buffer& GetEntityDataBuffer(uint32 frameIndex)
+		{
+			return m_pfd[frameIndex].entityBuffer;
+		}
+
+		inline Buffer& GetInstanceDataBuffer(uint32 frameIndex)
+		{
+			return m_pfd[frameIndex].instanceDataBuffer;
+		}
+
+		inline Buffer& GetBoneBuffer(uint32 frameIndex)
+		{
+			return m_pfd[frameIndex].boneBuffer;
+		}
+
 	private:
 		void CalculateSkinning(const Vector<CompModel*>& comps);
-
 		bool DrawEntityExists(uint32& outIndex, const EntityIdent& ident);
-
 		void PrepareCustomDraws(Vector<CompModel*>& skinnedModels, const DrawGroup& group, RenderingGroup& renderingGroup);
 		void PrepareCustomDrawsRaw(const DrawGroup& group, RenderingGroup& renderingGroup);
 		void CollectCompModel(DrawGroup& group, CompModel* comp, ShaderType type, bool skipShaderType = false, StringID staticVariantOverride = 0, StringID skinnedVariantOverride = 0);
@@ -314,5 +335,7 @@ namespace Lina
 		DrawData		   m_gpuDraw	 = {};
 		Vector<CompModel*> m_compModels;
 		RenderingData	   m_renderingData;
+		ShapeCollector	   m_shapeCollector;
+		PerFrameData	   m_pfd[FRAMES_IN_FLIGHT];
 	};
 } // namespace Lina

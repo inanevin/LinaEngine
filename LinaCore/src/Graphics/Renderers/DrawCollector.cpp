@@ -42,10 +42,30 @@ namespace Lina
 		m_world		  = world;
 		m_rm		  = rm;
 		m_gfxContext  = context;
+		m_shapeCollector.Initialize(this, lgx);
+
+		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+		{
+			PerFrameData& data = m_pfd[i];
+
+			data.instanceDataBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUDrawArguments) * 1000, "DrawCollector: InstanceDataBuffer");
+			data.entityBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUEntity) * 1000, "DrawCollector: EntityBuffer");
+			data.boneBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(Matrix4) * 1000, "DrawCollector: BoneBuffer");
+		}
 	}
 
 	void DrawCollector::Shutdown()
 	{
+		m_shapeCollector.Shutdown();
+
+		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+		{
+			PerFrameData& data = m_pfd[i];
+
+			data.instanceDataBuffer.Destroy();
+			data.entityBuffer.Destroy();
+			data.boneBuffer.Destroy();
+		}
 	}
 
 	void DrawCollector::OnComponentAdded(Component* comp)
@@ -230,8 +250,12 @@ namespace Lina
 		});
 	}
 
-	void DrawCollector::PrepareGPUData()
+	void DrawCollector::PrepareGPUData(uint32 frameIndex, ResourceUploadQueue& queue)
 	{
+		PerFrameData& pfd = m_pfd[frameIndex];
+
+		m_shapeCollector.AddBuffersToUploadQueue(frameIndex, queue);
+
 		m_renderingData = {};
 
 		Vector<CompModel*> skinnedModels;
@@ -252,6 +276,20 @@ namespace Lina
 			PrepareCustomDraws(skinnedModels, group, renderingGroup);
 			PrepareCustomDrawsRaw(group, renderingGroup);
 		}
+
+		size_t entityIdx = 0;
+		for (const DrawCollector::DrawEntity& de : m_renderingData.entities)
+		{
+			pfd.entityBuffer.BufferData(entityIdx * sizeof(GPUEntity), (uint8*)&de.entity, sizeof(GPUEntity));
+			entityIdx++;
+		}
+
+		pfd.instanceDataBuffer.BufferData(0, (uint8*)m_renderingData.instanceData.data(), sizeof(GPUDrawArguments) * m_renderingData.instanceData.size());
+		pfd.boneBuffer.BufferData(0, (uint8*)m_renderingData.bones.data(), sizeof(Matrix4) * m_renderingData.bones.size());
+
+		queue.AddBufferRequest(&pfd.entityBuffer);
+		queue.AddBufferRequest(&pfd.instanceDataBuffer);
+		queue.AddBufferRequest(&pfd.boneBuffer);
 	}
 
 	void DrawCollector::CreateGroup(const String& name)
@@ -329,6 +367,7 @@ namespace Lina
 
 	void DrawCollector::SyncRender()
 	{
+		m_shapeCollector.SyncRender();
 		m_gpuDraw = m_cpuDraw;
 		m_cpuDraw = {};
 	}

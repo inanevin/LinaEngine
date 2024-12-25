@@ -97,19 +97,19 @@ namespace Lina::Editor
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = set,
 				.binding   = 1,
-				.buffers   = {m_wr->GetInstanceDataBuffer(i).GetGPUResource()},
+				.buffers   = {m_wr->GetDrawCollector().GetInstanceDataBuffer(i).GetGPUResource()},
 			});
 
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = set,
 				.binding   = 2,
-				.buffers   = {m_wr->GetEntityDataBuffer(i).GetGPUResource()},
+				.buffers   = {m_wr->GetDrawCollector().GetEntityDataBuffer(i).GetGPUResource()},
 			});
 
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = set,
 				.binding   = 3,
-				.buffers   = {m_wr->GetBoneBuffer(i).GetGPUResource()},
+				.buffers   = {m_wr->GetDrawCollector().GetBoneBuffer(i).GetGPUResource()},
 			});
 		}
 

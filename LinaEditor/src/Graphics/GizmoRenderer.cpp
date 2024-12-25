@@ -68,7 +68,7 @@ namespace Lina::Editor
 		m_gizmoMaterialY->SetShader(m_gizmoShader);
 		m_gizmoMaterialZ->SetShader(m_gizmoShader);
 
-		m_gizmoMaterialX->SetProperty("color"_hs, Vector4(Theme::GetDef().accentError));
+		m_gizmoMaterialX->SetProperty("color"_hs, Vector4(Theme::GetDef().accentPrimary2));
 		m_gizmoMaterialY->SetProperty("color"_hs, Vector4(Theme::GetDef().accentSuccess));
 		m_gizmoMaterialZ->SetProperty("color"_hs, Vector4(Theme::GetDef().accentSecondary));
 
@@ -148,7 +148,7 @@ namespace Lina::Editor
 			.pushEntity	  = true,
 			.pushMaterial = true,
 		};
-		Model*				   model	  = m_rotateModel;
+		Model*				   model	  = m_translateModel;
 		const PrimitiveStatic& prim		  = model->GetAllMeshes().at(0).primitivesStatic.at(0);
 		const uint32		   baseVertex = prim._vertexOffset;
 		const uint32		   baseIndex  = prim._indexOffset;

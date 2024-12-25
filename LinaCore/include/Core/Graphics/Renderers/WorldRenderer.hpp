@@ -64,10 +64,6 @@ namespace Lina
 			SemaphoreData		   copySemaphore   = {};
 			SemaphoreData		   signalSemaphore = {};
 
-			Buffer entityDataBuffer;
-			Buffer boneBuffer;
-			Buffer instanceDataBuffer;
-
 			Texture* gBufAlbedo			= nullptr;
 			Texture* gBufPosition		= nullptr;
 			Texture* gBufNormal			= nullptr;
@@ -101,21 +97,6 @@ namespace Lina
 
 		void AddListener(WorldRendererListener* listener);
 		void RemoveListener(WorldRendererListener* listener);
-
-		inline Buffer& GetInstanceDataBuffer(uint32 frameIndex)
-		{
-			return m_pfd[frameIndex].instanceDataBuffer;
-		}
-
-		inline Buffer& GetEntityDataBuffer(uint32 frameIndex)
-		{
-			return m_pfd[frameIndex].entityDataBuffer;
-		}
-
-		inline Buffer& GetBoneBuffer(uint32 frameIndex)
-		{
-			return m_pfd[frameIndex].boneBuffer;
-		}
 
 		inline SemaphoreData GetSubmitSemaphore(uint32 frameIndex)
 		{

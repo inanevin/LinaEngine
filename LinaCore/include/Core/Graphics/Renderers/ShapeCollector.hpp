@@ -28,38 +28,34 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/Graphics/CommonGraphics.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
 #include "Core/Graphics/Pipeline/Buffer.hpp"
 #include "Core/Graphics/Data/RenderData.hpp"
-#include "Common/Data/Vector.hpp"
-#include "Common/Platform/LinaVGIncl.hpp"
-
-namespace Lina
-{
-	class Shader;
-	class ResourceManagerV2;
-	class WorldRenderer;
-	class DrawCollector;
-	class EntityWorld;
-	class Material;
-	class Model;
-	class ResourceUploadQueue;
-} // namespace Lina
+#include "Common/Math/Color.hpp"
+#include "Core/Graphics/CommonGraphics.hpp"
 
 namespace LinaGX
 {
-	class CommandStream;
+	class Instance;
 }
-
-namespace Lina::Editor
+namespace Lina
 {
-	class Editor;
+	class DrawCollector;
+	class ResourceUploadQueue;
+	class Shader;
 
-	class ShapeRenderer
+	class ShapeCollector
 	{
-
 	private:
-		struct LineVertex
+		struct PerFrameData
+		{
+			Buffer lvgVtxBuffer;
+			Buffer lvgIdxBuffer;
+			Buffer line3DVtxBuffer;
+			Buffer line3DIdxBuffer;
+		};
+
+		struct Line3DVertex
 		{
 			Vector3 position;
 			Vector3 nextPosition;
@@ -67,75 +63,46 @@ namespace Lina::Editor
 			float	direction;
 		};
 
-		struct LineRequest
-		{
-			Vector3	  p1;
-			Vector3	  p2;
-			float	  thickness;
-			ColorGrad color;
-		};
-
-		struct LinaVGLine
-		{
-			Vector2 p1;
-			Vector2 p2;
-		};
-
-	private:
-		struct PerFrameData
-		{
-			Buffer lineVtxBuffer;
-			Buffer lineIdxBuffer;
-			Buffer lvgVtxBuffer;
-			Buffer lvgIdxBuffer;
-		};
-
 		struct RenderData
 		{
-			Vector<LineRequest>	   lineRequests;
+			Vector<Line3DVertex>   line3DVertices;
+			Vector<uint16>		   line3DIndices;
 			Vector<LinaVG::Vertex> lvgVertices;
 			Vector<LinaVG::Index>  lvgIndices;
 		};
 
 	public:
-		ShapeRenderer(Editor* editor, WorldRenderer* wr);
-		virtual ~ShapeRenderer();
-
-		void DrawLine3D(const Vector3& p1, const Vector3& p2, float thickness, const ColorGrad& color);
-
-		void Initialize();
+		void Initialize(DrawCollector* dc, LinaGX::Instance* lgx);
 		void Shutdown();
-		void Tick(float delta, DrawCollector& collector);
-		void Render(uint32 frameIndex, LinaGX::CommandStream* stream);
+
 		void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue);
 		void SyncRender();
 
-		void StartLVGBatch(const GPUEntity& entity, uint64 entityGUID);
+		void StartLVGBatch(StringID groupId, Shader* shader, const GPUEntity& entity, uint64 entityGUID);
 		void EndLVGBatch();
 		void DrawLVGLine(const Vector2& p1, const Vector2& p2, const ColorGrad& color, float thickness);
-
-	private:
+		void DrawLVGCircle(const Vector2& p0, float radius, const ColorGrad& color, float thickness, float startAngle, float endAngle, bool isFilled);
 		void OnLinaVGDraw(LinaVG::DrawBuffer* buffer);
 
+		void Start3DBatch(StringID groupId, Shader* shader);
+		void End3DBatch();
+		void DrawLine3D(StringID groupId, const Vector3& p1, const Vector3& p2, float thickness, const ColorGrad& color);
+
 	private:
-		Editor*			   m_editor		   = nullptr;
-		WorldRenderer*	   m_worldRenderer = nullptr;
-		ResourceManagerV2* m_rm			   = nullptr;
-		EntityWorld*	   m_world		   = nullptr;
+		LinaGX::Instance* m_lgx = nullptr;
+		PerFrameData	  m_pfd[FRAMES_IN_FLIGHT];
+		DrawCollector*	  m_drawCollector;
+		LinaVG::Drawer	  m_lvgDrawer;
+		RenderData		  m_cpuData;
+		RenderData		  m_gpuData;
+		GPUEntity		  m_currentLvgEntity;
+		uint64			  m_currentLvgEntityGUID = 0;
+		StringID		  m_currentLvgGroup		 = 0;
+		Shader*			  m_currentLvgShader	 = nullptr;
 
-		Shader* m_lineShader   = nullptr;
-		Shader* m_circleShader = nullptr;
-		Shader* m_lvgShader	   = nullptr;
-
-		PerFrameData m_pfd[FRAMES_IN_FLIGHT];
-		RenderData	 m_cpuData;
-		RenderData	 m_gpuData;
-
-		Vector<LineVertex> m_dummyLines;
-		Vector<uint16>	   m_dummyLineIndices;
-		LinaVG::Drawer	   m_lvgDrawer;
-
-		GPUEntity m_lvgEntity;
-		uint64	  m_lvgEntityGUID = 0;
+		StringID m_current3DGroup	   = 0;
+		Shader*	 m_current3DShader	   = nullptr;
+		uint32	 m_current3DBaseVertex = 0;
+		uint32	 m_current3DBaseIndex  = 0;
 	};
-} // namespace Lina::Editor
+} // namespace Lina
