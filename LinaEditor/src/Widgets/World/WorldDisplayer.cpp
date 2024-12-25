@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Editor/Editor.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
+#include "Editor/Graphics/EditorWorldRenderer.hpp"
 #include "Editor/World/EditorCamera.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
@@ -78,7 +79,7 @@ namespace Lina::Editor
 		DestroyCamera();
 	}
 
-	void WorldDisplayer::DisplayWorld(WorldRenderer* renderer, WorldCameraType cameraType)
+	void WorldDisplayer::DisplayWorld(WorldRenderer* renderer, EditorWorldRenderer* ewr, WorldCameraType cameraType)
 	{
 		DestroyCamera();
 		m_noWorldText->GetFlags().Set(WF_HIDE, renderer != nullptr);
@@ -88,6 +89,7 @@ namespace Lina::Editor
 
 		m_worldRenderer = renderer;
 		m_worldRenderer->GetWorld()->AddListener(this);
+		m_ewr = ewr;
 
 		if (cameraType == WorldCameraType::Orbit)
 			m_camera = new OrbitCamera(m_worldRenderer->GetWorld());
@@ -140,7 +142,7 @@ namespace Lina::Editor
 
 		const uint32 frameIndex		= Application::GetLGX()->GetCurrentFrameIndex();
 		const uint32 txtFrameIndex	= (frameIndex + SystemInfo::GetRendererBehindFrames()) % 2;
-		Texture*	 target			= m_worldRenderer->GetLightingPassOutput(txtFrameIndex); // 1 frame behind renderer
+		Texture*	 target			= m_ewr->GetRenderTarget(txtFrameIndex); // 1 frame behind renderer
 		GetWidgetProps().rawTexture = target;
 	}
 

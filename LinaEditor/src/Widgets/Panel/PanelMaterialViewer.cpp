@@ -96,7 +96,7 @@ namespace Lina::Editor
 		m_editor->GetApp()->GetWorldProcessor().AddWorld(m_world);
 		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer, m_editorWorldRenderer);
 
-		m_worldDisplayer->DisplayWorld(m_worldRenderer, WorldDisplayer::WorldCameraType::Orbit);
+		m_worldDisplayer->DisplayWorld(m_worldRenderer, m_editorWorldRenderer, WorldDisplayer::WorldCameraType::Orbit);
 
 		// Resource set up.
 		m_world->GetGfxSettings().lightingMaterial = EDITOR_MATERIAL_DEFAULT_LIGHTING_ID;

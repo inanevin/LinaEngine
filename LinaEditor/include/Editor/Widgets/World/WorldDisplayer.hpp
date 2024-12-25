@@ -42,6 +42,7 @@ namespace Lina::Editor
 {
 	class EditorCamera;
 	class OrbitCamera;
+	class EditorWorldRenderer;
 
 	class WorldDisplayer : public Widget, public EntityWorldListener
 	{
@@ -67,7 +68,7 @@ namespace Lina::Editor
 		virtual void Tick(float dt) override;
 		virtual void Draw() override;
 
-		void DisplayWorld(WorldRenderer* renderer, WorldCameraType cameraType);
+		void DisplayWorld(WorldRenderer* renderer, EditorWorldRenderer* ewr, WorldCameraType cameraType);
 		bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
 		// World
@@ -88,12 +89,13 @@ namespace Lina::Editor
 		void DrawAxis(const Vector3& targetAxis, const Color& baseColor, const String& axis);
 
 	private:
-		Properties	   m_props		   = {};
-		Text*		   m_noWorldText   = nullptr;
-		WorldRenderer* m_worldRenderer = nullptr;
-		bool		   m_mouseConfined = false;
-		EditorCamera*  m_camera		   = nullptr;
-		Font*		   m_gizmoFont	   = nullptr;
+		EditorWorldRenderer* m_ewr			 = nullptr;
+		Properties			 m_props		 = {};
+		Text*				 m_noWorldText	 = nullptr;
+		WorldRenderer*		 m_worldRenderer = nullptr;
+		bool				 m_mouseConfined = false;
+		EditorCamera*		 m_camera		 = nullptr;
+		Font*				 m_gizmoFont	 = nullptr;
 	};
 	LINA_WIDGET_BEGIN(WorldDisplayer, Hidden)
 	LINA_CLASS_END(WorldDisplayer)

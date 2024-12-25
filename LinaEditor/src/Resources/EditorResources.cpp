@@ -189,21 +189,22 @@ namespace Lina::Editor
 
 	void EditorResources::StartLoadCoreResources(ResourceManagerV2& manager)
 	{
-		Texture* txtCheckered		 = manager.CreateResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID, EDITOR_TEXTURE_CHECKERED_PATH);
-		Texture* txtProtoDark		 = manager.CreateResource<Texture>(EDITOR_TEXTURE_PROTOTYPE_DARK_ID, EDITOR_TEXTURE_PROTOTYPE_DARK_PATH);
-		Font*	 fontPlay			 = manager.CreateResource<Font>(EDITOR_FONT_PLAY_ID, EDITOR_FONT_PLAY_PATH);
-		Font*	 fontPlayBold		 = manager.CreateResource<Font>(EDITOR_FONT_PLAY_BOLD_ID, EDITOR_FONT_PLAY_BOLD_PATH);
-		Font*	 fontPlayVeryBig	 = manager.CreateResource<Font>(EDITOR_FONT_PLAY_VERY_BIG_ID, EDITOR_FONT_PLAY_VERY_BIG_PATH);
-		Shader*	 shaderWorldGrid	 = manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_GRID_ID, EDITOR_SHADER_WORLD_GRID_PATH);
-		Shader*	 shaderWorldEntityID = manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_ENTITYID_ID, EDITOR_SHADER_WORLD_ENTITYID_PATH);
-		Model*	 gizmoTranslate		 = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_TRANSLATE_ID, EDITOR_MODEL_GIZMO_TRANSLATE_PATH);
-		Model*	 gizmoRotate		 = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_ROTATE_ID, EDITOR_MODEL_GIZMO_ROTATE_PATH);
-		Model*	 gizmoScale			 = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_SCALE_ID, EDITOR_MODEL_GIZMO_SCALE_PATH);
-		Shader*	 gizmo				 = manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_GIZMO_ID, EDITOR_SHADER_WORLD_GIZMO_PATH);
-		Shader*	 outlineFullscreen	 = manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_ID, EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_PATH);
-		Shader*	 line3D				 = manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_LINE3D_ID, EDITOR_SHADER_WORLD_LINE3D_PATH);
-		Shader*	 shaderLinaVG3D		 = manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_LVG3D_ID, EDITOR_SHADER_WORLD_LVG3D_PATH);
-		Shader*	 shaderWorldSample	 = manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_FULLSCREEN_SAMPLE_ID, EDITOR_SHADER_WORLD_FULLSCREEN_SAMPLE_PATH);
+		Texture* txtCheckered			= manager.CreateResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID, EDITOR_TEXTURE_CHECKERED_PATH);
+		Texture* txtProtoDark			= manager.CreateResource<Texture>(EDITOR_TEXTURE_PROTOTYPE_DARK_ID, EDITOR_TEXTURE_PROTOTYPE_DARK_PATH);
+		Font*	 fontPlay				= manager.CreateResource<Font>(EDITOR_FONT_PLAY_ID, EDITOR_FONT_PLAY_PATH);
+		Font*	 fontPlayBold			= manager.CreateResource<Font>(EDITOR_FONT_PLAY_BOLD_ID, EDITOR_FONT_PLAY_BOLD_PATH);
+		Font*	 fontPlayVeryBig		= manager.CreateResource<Font>(EDITOR_FONT_PLAY_VERY_BIG_ID, EDITOR_FONT_PLAY_VERY_BIG_PATH);
+		Shader*	 shaderWorldGrid		= manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_GRID_ID, EDITOR_SHADER_WORLD_GRID_PATH);
+		Shader*	 shaderWorldEntityID	= manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_ENTITYID_ID, EDITOR_SHADER_WORLD_ENTITYID_PATH);
+		Model*	 gizmoTranslate			= manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_TRANSLATE_ID, EDITOR_MODEL_GIZMO_TRANSLATE_PATH);
+		Model*	 gizmoRotate			= manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_ROTATE_ID, EDITOR_MODEL_GIZMO_ROTATE_PATH);
+		Model*	 gizmoScale				= manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_SCALE_ID, EDITOR_MODEL_GIZMO_SCALE_PATH);
+		Shader*	 gizmo					= manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_GIZMO_ID, EDITOR_SHADER_WORLD_GIZMO_PATH);
+		Shader*	 outlineFullscreen		= manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_ID, EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_PATH);
+		Shader*	 line3D					= manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_LINE3D_ID, EDITOR_SHADER_WORLD_LINE3D_PATH);
+		Shader*	 shaderLinaVG3D			= manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_LVG3D_ID, EDITOR_SHADER_WORLD_LVG3D_PATH);
+		Shader*	 shaderWorldSample		= manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_SAMPLE_ID, EDITOR_SHADER_WORLD_SAMPLE_PATH);
+		Shader*	 shaderWorldDepthSample = manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_DEPTH_SAMPLE_ID, EDITOR_SHADER_WORLD_DEPTH_SAMPLE_PATH);
 
 		m_createdResources.insert(txtCheckered);
 		m_createdResources.insert(txtProtoDark);
@@ -220,6 +221,7 @@ namespace Lina::Editor
 		m_createdResources.insert(line3D);
 		m_createdResources.insert(shaderLinaVG3D);
 		m_createdResources.insert(shaderWorldSample);
+		m_createdResources.insert(shaderWorldDepthSample);
 
 		fontPlay->GetMeta() = {
 			.points = {{.size = 14, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
@@ -250,15 +252,12 @@ namespace Lina::Editor
 				.depthTest			 = true,
 				.depthWrite			 = true,
 				.depthFormat		 = LinaGX::Format::D32_SFLOAT,
-				.targets			 = {{DEFAULT_RT_FORMAT}},
+				.targets			 = {{LinaGX::Format::R8G8B8A8_SRGB}},
 				.depthOp			 = LinaGX::CompareOp::Less,
 				.cullMode			 = LinaGX::CullMode::None,
 				.frontFace			 = LinaGX::FrontFace::CCW,
 				.topology			 = LinaGX::Topology::TriangleList,
-				.depthBiasEnable	 = false,
-				.depthBiasConstant	 = 0.0f,
-				.depthBiasClamp		 = 0.0f,
-				.depthBiasSlope		 = 0.0f,
+				.msaaSamples		 = EDITOR_WORLD_MSAA_SAMPLES,
 			},
 		} // namespace Lina::Editor
 		);
@@ -380,6 +379,29 @@ namespace Lina::Editor
 				.depthWrite			 = false,
 				.depthFormat		 = LinaGX::Format::D32_SFLOAT,
 				.targets			 = {{LinaGX::Format::R8G8B8A8_SRGB}},
+				.cullMode			 = LinaGX::CullMode::None,
+				.frontFace			 = LinaGX::FrontFace::CCW,
+				.topology			 = LinaGX::Topology::TriangleList,
+				.msaaSamples		 = EDITOR_WORLD_MSAA_SAMPLES,
+			},
+		} // namespace Lina::Editor
+		);
+		shaderWorldDepthSample->GetMeta().variants.push_back({
+			ShaderVariant{
+				.id					 = "Default"_hs,
+				.name				 = "Default",
+				.blendDisable		 = false,
+				.blendSrcFactor		 = LinaGX::BlendFactor::SrcAlpha,
+				.blendDstFactor		 = LinaGX::BlendFactor::OneMinusSrcAlpha,
+				.blendColorOp		 = LinaGX::BlendOp::Add,
+				.blendSrcAlphaFactor = LinaGX::BlendFactor::One,
+				.blendDstAlphaFactor = LinaGX::BlendFactor::OneMinusSrcAlpha,
+				.blendAlphaOp		 = LinaGX::BlendOp::Add,
+				.depthTest			 = true,
+				.depthWrite			 = true,
+				.depthFormat		 = LinaGX::Format::D32_SFLOAT,
+				.targets			 = {},
+				.depthOp			 = LinaGX::CompareOp::Always,
 				.cullMode			 = LinaGX::CullMode::None,
 				.frontFace			 = LinaGX::FrontFace::CCW,
 				.topology			 = LinaGX::Topology::TriangleList,

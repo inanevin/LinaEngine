@@ -105,7 +105,7 @@ namespace Lina::Editor
 
 		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), defaultResources, m_world->GetID());
 
-		m_worldDisplayer->DisplayWorld(m_worldRenderer, WorldDisplayer::WorldCameraType::Orbit);
+		m_worldDisplayer->DisplayWorld(m_worldRenderer, m_editorWorldRenderer, WorldDisplayer::WorldCameraType::Orbit);
 	}
 
 	void PanelWorld::DestroyWorld()
@@ -125,7 +125,7 @@ namespace Lina::Editor
 		m_world			= nullptr;
 		m_worldRenderer = nullptr;
 
-		m_worldDisplayer->DisplayWorld(nullptr, WorldDisplayer::WorldCameraType::FreeMove);
+		m_worldDisplayer->DisplayWorld(nullptr, nullptr, WorldDisplayer::WorldCameraType::FreeMove);
 
 		m_editor->GetApp()->GetResourceManager().UnloadResourceSpace(space);
 	}

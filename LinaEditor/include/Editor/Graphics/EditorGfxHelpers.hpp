@@ -132,7 +132,11 @@ namespace Lina::Editor
 		uint32	outlineSelectionTextureIndex;
 		uint32	outlineSelectionSamplerIndex;
 		uint32	worldTextureIndex;
+		uint32	worldDepthTextureIndex;
 		uint32	worldSamplerIndex;
+		uint32	padding0;
+		uint32	padding1;
+		uint32	padding2;
 	};
 
 	class EditorGfxHelpers

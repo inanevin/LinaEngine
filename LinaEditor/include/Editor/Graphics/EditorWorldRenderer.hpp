@@ -100,6 +100,11 @@ namespace Lina::Editor
 			return m_mousePickRenderer;
 		}
 
+		inline Texture* GetRenderTarget(uint32 frameIndex) const
+		{
+			return m_pfd[frameIndex].renderTargetResolve;
+		}
+
 	private:
 		Properties				 m_props;
 		Vector<Entity*>			 m_selectedEntities;
@@ -117,6 +122,7 @@ namespace Lina::Editor
 
 		Shader*			m_gridShader			  = nullptr;
 		Shader*			m_worldSampleShader		  = nullptr;
+		Shader*			m_worldDepthSampleShader  = nullptr;
 		Material*		m_gridMaterial			  = nullptr;
 		TextureSampler* m_outlineSelectionSampler = nullptr;
 		TextureSampler* m_worldSampler			  = nullptr;

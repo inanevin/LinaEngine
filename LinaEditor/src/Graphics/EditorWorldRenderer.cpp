@@ -109,7 +109,8 @@ namespace Lina::Editor
 			m_gridMaterial->SetProperty("distLOD1"_hs, 90.0f);
 		}
 
-		m_worldSampleShader = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_FULLSCREEN_SAMPLE_ID);
+		m_worldSampleShader		 = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_SAMPLE_ID);
+		m_worldDepthSampleShader = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_DEPTH_SAMPLE_ID);
 
 		m_worldSampler = m_rm->CreateResource<TextureSampler>(m_rm->ConsumeResourceID(), "EWR: World Sampler");
 		m_worldSampler->GenerateHW(LinaGX::SamplerDesc{
@@ -185,8 +186,7 @@ namespace Lina::Editor
 
 		drawCollector.CreateGroup("EditorWorld");
 
-		drawCollector.CreateGroup("WorldSample");
-		drawCollector.AddCustomDrawRaw("WorldSample"_hs,
+		drawCollector.AddCustomDrawRaw("EditorWorld"_hs,
 									   {
 										   .pushEntity	  = false,
 										   .pushMaterial  = false,
@@ -196,18 +196,28 @@ namespace Lina::Editor
 									   0,
 									   0,
 									   3);
+		drawCollector.AddCustomDrawRaw("EditorWorld"_hs,
+									   {
+										   .pushEntity	  = false,
+										   .pushMaterial  = false,
+										   .pushBoneIndex = false,
+									   },
+									   m_worldDepthSampleShader->GetID(),
+									   0,
+									   0,
+									   3);
 
-		// // Grid
-		// {
-		// 	const DrawCollector::CustomDrawInstance gridInstance = {
-		// 		.materialID	   = m_gridMaterial->GetID(),
-		// 		.pushEntity	   = false,
-		// 		.pushMaterial  = true,
-		// 		.pushBoneIndex = false,
-		// 	};
-		// 	drawCollector.AddCustomDrawRaw("EditorWorld"_hs, gridInstance, m_gridShader->GetID(), 0, 0, 6);
-		// }
-		//
+		// Grid
+		{
+			const DrawCollector::CustomDrawInstance gridInstance = {
+				.materialID	   = m_gridMaterial->GetID(),
+				.pushEntity	   = false,
+				.pushMaterial  = true,
+				.pushBoneIndex = false,
+			};
+			drawCollector.AddCustomDrawRaw("EditorWorld"_hs, gridInstance, m_gridShader->GetID(), 0, 0, 6);
+		}
+
 		// if (!m_props.disableGizmos)
 		// 	m_gizmoRenderer.Tick(delta, drawCollector);
 		//
@@ -256,8 +266,9 @@ namespace Lina::Editor
 				view.outlineSelectionSamplerIndex = m_outlineSelectionSampler->GetBindlessIndex();
 			}
 
-			view.worldTextureIndex = m_wr->GetLightingPassOutput(frameIndex)->GetBindlessIndex();
-			view.worldSamplerIndex = m_worldSampler->GetBindlessIndex();
+			view.worldTextureIndex		= m_wr->GetLightingPassOutput(frameIndex)->GetBindlessIndex();
+			view.worldDepthTextureIndex = m_wr->GetGBufDepth(frameIndex)->GetBindlessIndex();
+			view.worldSamplerIndex		= m_worldSampler->GetBindlessIndex();
 
 			m_pass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(EditorWorldPassViewData));
 		}
@@ -300,15 +311,22 @@ namespace Lina::Editor
 
 		DEBUG_LABEL_BEGIN(gfxStream, "Editor World Pass");
 
+		{
+			// Barrier to Attachment
+			LinaGX::CMDBarrier* barrierToAttachment	 = gfxStream->AddCommand<LinaGX::CMDBarrier>();
+			barrierToAttachment->srcStageFlags		 = LinaGX::PSF_TopOfPipe;
+			barrierToAttachment->dstStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
+			barrierToAttachment->textureBarrierCount = 1;
+			barrierToAttachment->textureBarriers	 = gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 1);
+			barrierToAttachment->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorRead2Att(pfd.renderTargetResolve->GetGPUHandle());
+		}
+
 		m_pass.Begin(gfxStream, viewport, scissors, frameIndex);
 		m_pass.BindDescriptors(gfxStream, frameIndex, m_pipelineLayout, 1);
 
-		// Full-screen world sampling.
-		if (drawCollector.RenderGroupExists("WorldSample"_hs))
-			drawCollector.RenderGroup("WorldSample"_hs, gfxStream);
+		if (drawCollector.RenderGroupExists("EditorWorld"_hs))
+			drawCollector.RenderGroup("EditorWorld"_hs, gfxStream);
 
-		// if (drawCollector.RenderGroupExists("EditorWorld"_hs))
-		// 	drawCollector.RenderGroup("EditorWorld"_hs, gfxStream);
 		//
 		// if (!m_props.disableSelection)
 		// 	m_outlineRenderer.RenderFullscreen(drawCollector, gfxStream);
@@ -318,13 +336,14 @@ namespace Lina::Editor
 
 		m_pass.End(gfxStream);
 
-		// LinaGX::CMDBarrier* barrier	 = gfxStream->AddCommand<LinaGX::CMDBarrier>();
-		// barrier->srcStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
-		// barrier->dstStageFlags		 = LinaGX::PSF_FragmentShader;
-		// barrier->textureBarrierCount = 2;
-		// barrier->textureBarriers	 = gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 2);
-		// barrier->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(m_wr->GetLightingPassOutput(frameIndex)->GetGPUHandle());
-		// barrier->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(m_wr->GetGBufDepth(frameIndex)->GetGPUHandle());
+		{
+			LinaGX::CMDBarrier* barrier	 = gfxStream->AddCommand<LinaGX::CMDBarrier>();
+			barrier->srcStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
+			barrier->dstStageFlags		 = LinaGX::PSF_FragmentShader;
+			barrier->textureBarrierCount = 1;
+			barrier->textureBarriers	 = gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 1);
+			barrier->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(pfd.renderTargetResolve->GetGPUHandle());
+		}
 
 		DEBUG_LABEL_END(gfxStream);
 

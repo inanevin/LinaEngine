@@ -77,7 +77,8 @@ namespace Lina::Editor
 #define EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_PATH	   "Resources/Editor/Shaders/World/OutlineFullscreen.linashader"
 #define EDITOR_SHADER_WORLD_LINE3D_PATH				   "Resources/Editor/Shaders/World/Line3D.linashader"
 #define EDITOR_SHADER_WORLD_LVG3D_PATH				   "Resources/Editor/Shaders/World/LinaVG3D.linashader"
-#define EDITOR_SHADER_WORLD_FULLSCREEN_SAMPLE_PATH	   "Resources/Editor/Shaders/World/WorldSample.linashader"
+#define EDITOR_SHADER_WORLD_SAMPLE_PATH				   "Resources/Editor/Shaders/World/WorldSample.linashader"
+#define EDITOR_SHADER_WORLD_DEPTH_SAMPLE_PATH		   "Resources/Editor/Shaders/World/WorldSampleDepth.linashader"
 
 #define EDITOR_SHADER_GUI_DEFAULT_ID				 RESOURCE_ID_EDITOR_SHADERS
 #define EDITOR_SHADER_GUI_COLOR_WHEEL_ID			 RESOURCE_ID_EDITOR_SHADERS + 1
@@ -97,7 +98,8 @@ namespace Lina::Editor
 #define EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_ID	 RESOURCE_ID_EDITOR_SHADERS + 15
 #define EDITOR_SHADER_WORLD_LINE3D_ID				 RESOURCE_ID_EDITOR_SHADERS + 16
 #define EDITOR_SHADER_WORLD_LVG3D_ID				 RESOURCE_ID_EDITOR_SHADERS + 17
-#define EDITOR_SHADER_WORLD_FULLSCREEN_SAMPLE_ID	 RESOURCE_ID_EDITOR_SHADERS + 18
+#define EDITOR_SHADER_WORLD_SAMPLE_ID				 RESOURCE_ID_EDITOR_SHADERS + 18
+#define EDITOR_SHADER_WORLD_DEPTH_SAMPLE_ID			 RESOURCE_ID_EDITOR_SHADERS + 19
 
 // Textures
 #define EDITOR_TEXTURE_CHECKERED_PATH				 "Resources/Editor/Textures/Checkered.png"
