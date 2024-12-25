@@ -63,6 +63,10 @@ namespace Lina::Editor
 		{
 			SemaphoreData copySemaphore	  = {};
 			SemaphoreData signalSemaphore = {};
+
+			Texture* renderTargetMSAA	 = nullptr;
+			Texture* renderTargetResolve = nullptr;
+			Texture* depthTarget		 = nullptr;
 		};
 
 	public:
@@ -112,7 +116,10 @@ namespace Lina::Editor
 		OutlineSelectionRenderer m_outlineRenderer;
 
 		Shader*			m_gridShader			  = nullptr;
+		Shader*			m_worldSampleShader		  = nullptr;
 		Material*		m_gridMaterial			  = nullptr;
 		TextureSampler* m_outlineSelectionSampler = nullptr;
+		TextureSampler* m_worldSampler			  = nullptr;
+		Vector2ui		m_size					  = Vector2ui::Zero;
 	};
 } // namespace Lina::Editor

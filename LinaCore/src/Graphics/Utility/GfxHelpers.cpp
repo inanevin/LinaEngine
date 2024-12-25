@@ -116,7 +116,7 @@ namespace Lina
 		LinaGX::Config.logLevel		 = LinaGX::LogLevel::Verbose;
 		LinaGX::Config.errorCallback = LinaGX_ErrorCallback;
 		LinaGX::Config.infoCallback	 = LinaGX_LogCallback;
-		LinaGX::BackendAPI api		 = LinaGX::BackendAPI::Vulkan;
+		LinaGX::BackendAPI api		 = LinaGX::BackendAPI::DX12;
 
 #ifdef LINA_PLATFORM_APPLE
 		api = LinaGX::BackendAPI::Metal;
@@ -253,7 +253,7 @@ namespace Lina
 		return {
 			.texture		= texture,
 			.isSwapchain	= isSwapchain,
-			.toState		= LinaGX::TextureBarrierState::Present,
+			.toState		= LinaGX::TextureState::Present,
 			.srcAccessFlags = LinaGX::AF_ColorAttachmentWrite,
 			.dstAccessFlags = 0,
 		};
@@ -264,7 +264,7 @@ namespace Lina
 		return {
 			.texture		= texture,
 			.isSwapchain	= isSwapchain,
-			.toState		= LinaGX::TextureBarrierState::ColorAttachment,
+			.toState		= LinaGX::TextureState::ColorAttachment,
 			.srcAccessFlags = LinaGX::AF_MemoryRead | LinaGX::AF_MemoryWrite,
 			.dstAccessFlags = LinaGX::AF_ColorAttachmentRead,
 		};
@@ -275,7 +275,7 @@ namespace Lina
 		return {
 			.texture		= texture,
 			.isSwapchain	= false,
-			.toState		= LinaGX::TextureBarrierState::ColorAttachment,
+			.toState		= LinaGX::TextureState::ColorAttachment,
 			.srcAccessFlags = LinaGX::AF_MemoryRead | LinaGX::AF_MemoryWrite,
 			.dstAccessFlags = LinaGX::AF_ColorAttachmentRead,
 		};
@@ -286,7 +286,7 @@ namespace Lina
 		return {
 			.texture		= texture,
 			.isSwapchain	= false,
-			.toState		= LinaGX::TextureBarrierState::ShaderRead,
+			.toState		= LinaGX::TextureState::ShaderRead,
 			.srcAccessFlags = LinaGX::AF_ColorAttachmentRead,
 			.dstAccessFlags = LinaGX::AF_ShaderRead,
 		};
@@ -297,7 +297,7 @@ namespace Lina
 		return {
 			.texture		= texture,
 			.isSwapchain	= false,
-			.toState		= LinaGX::TextureBarrierState::DepthStencilAttachment,
+			.toState		= LinaGX::TextureState::DepthStencilAttachment,
 			.srcAccessFlags = LinaGX::AF_MemoryRead | LinaGX::AF_MemoryWrite,
 			.dstAccessFlags = LinaGX::AF_DepthStencilAttachmentRead,
 		};
@@ -308,7 +308,7 @@ namespace Lina
 		return {
 			.texture		= texture,
 			.isSwapchain	= false,
-			.toState		= LinaGX::TextureBarrierState::ShaderRead,
+			.toState		= LinaGX::TextureState::ShaderRead,
 			.srcAccessFlags = LinaGX::AF_DepthStencilAttachmentRead,
 			.dstAccessFlags = LinaGX::AF_ShaderRead,
 		};
@@ -319,7 +319,7 @@ namespace Lina
 		return {
 			.texture		= texture,
 			.isSwapchain	= false,
-			.toState		= LinaGX::TextureBarrierState::TransferDestination,
+			.toState		= LinaGX::TextureState::TransferDestination,
 			.srcAccessFlags = 0,
 			.dstAccessFlags = LinaGX::AF_TransferWrite,
 		};
@@ -330,7 +330,7 @@ namespace Lina
 		return {
 			.texture		= texture,
 			.isSwapchain	= false,
-			.toState		= LinaGX::TextureBarrierState::ShaderRead,
+			.toState		= LinaGX::TextureState::ShaderRead,
 			.srcAccessFlags = LinaGX::AF_TransferWrite,
 			.dstAccessFlags = LinaGX::AF_ShaderRead,
 		};

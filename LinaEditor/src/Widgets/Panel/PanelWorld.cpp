@@ -238,7 +238,10 @@ namespace Lina::Editor
 			return false;
 
 		if (button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Pressed)
-			SelectEntity(m_editorWorldRenderer->GetMousePick().GetLastHoveredEntity(), true);
+		{
+			if (m_editorWorldRenderer)
+				SelectEntity(m_editorWorldRenderer->GetMousePick().GetLastHoveredEntity(), true);
+		}
 		return false;
 	}
 

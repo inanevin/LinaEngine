@@ -256,7 +256,8 @@ namespace Lina::Editor
 			m_entityBufferPass.Begin(stream, viewport, scissors, frameIndex);
 			m_entityBufferPass.BindDescriptors(stream, frameIndex, m_pipelineLayout, 1);
 
-			collector.RenderGroup("MousePick"_hs, stream);
+			if (collector.RenderGroupExists("MosuePick"_hs))
+				collector.RenderGroup("MousePick"_hs, stream);
 
 			m_entityBufferPass.End(stream);
 
@@ -270,7 +271,7 @@ namespace Lina::Editor
 				barrier->textureBarriers[0]	 = {
 					 .texture		 = pfd.renderTarget->GetGPUHandle(),
 					 .isSwapchain	 = false,
-					 .toState		 = LinaGX::TextureBarrierState::TransferSource,
+					 .toState		 = LinaGX::TextureState::TransferSource,
 					 .srcAccessFlags = LinaGX::AF_ColorAttachmentRead,
 					 .dstAccessFlags = LinaGX::AF_ShaderRead,
 				 };

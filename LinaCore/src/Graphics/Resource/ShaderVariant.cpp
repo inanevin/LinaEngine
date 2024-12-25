@@ -47,6 +47,8 @@ namespace Lina
 		stream << name;
 		stream << targets;
 		stream << blendSrcFactor << blendDstFactor << blendSrcAlphaFactor << blendDstAlphaFactor << blendColorOp << blendAlphaOp;
+		stream << enableSampleShading;
+		stream << msaaSamples;
 
 		const uint32 size = static_cast<uint32>(_compileData.size());
 		stream << size;
@@ -69,6 +71,8 @@ namespace Lina
 		stream >> name;
 		stream >> targets;
 		stream >> blendSrcFactor >> blendDstFactor >> blendSrcAlphaFactor >> blendDstAlphaFactor >> blendColorOp >> blendAlphaOp;
+		stream >> enableSampleShading;
+		stream >> msaaSamples;
 
 		uint32 size = 0;
 		stream >> size;

@@ -277,6 +277,7 @@ namespace Lina
 		m_gpuHandle = Application::GetLGX()->CreateTexture(desc);
 		m_hwValid	= true;
 		m_size		= Vector2ui(desc.width, desc.height);
+		m_isMSAA	= desc.samples > 1;
 	}
 
 	void Texture::GenerateHW()

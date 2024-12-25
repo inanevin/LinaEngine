@@ -203,6 +203,7 @@ namespace Lina::Editor
 		Shader*	 outlineFullscreen	 = manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_ID, EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_PATH);
 		Shader*	 line3D				 = manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_LINE3D_ID, EDITOR_SHADER_WORLD_LINE3D_PATH);
 		Shader*	 shaderLinaVG3D		 = manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_LVG3D_ID, EDITOR_SHADER_WORLD_LVG3D_PATH);
+		Shader*	 shaderWorldSample	 = manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_FULLSCREEN_SAMPLE_ID, EDITOR_SHADER_WORLD_FULLSCREEN_SAMPLE_PATH);
 
 		m_createdResources.insert(txtCheckered);
 		m_createdResources.insert(txtProtoDark);
@@ -218,6 +219,7 @@ namespace Lina::Editor
 		m_createdResources.insert(outlineFullscreen);
 		m_createdResources.insert(line3D);
 		m_createdResources.insert(shaderLinaVG3D);
+		m_createdResources.insert(shaderWorldSample);
 
 		fontPlay->GetMeta() = {
 			.points = {{.size = 14, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
@@ -359,6 +361,29 @@ namespace Lina::Editor
 				.cullMode			 = LinaGX::CullMode::None,
 				.frontFace			 = LinaGX::FrontFace::CCW,
 				.topology			 = LinaGX::Topology::TriangleList,
+			},
+		} // namespace Lina::Editor
+		);
+
+		shaderWorldSample->GetMeta().variants.push_back({
+			ShaderVariant{
+				.id					 = "Default"_hs,
+				.name				 = "Default",
+				.blendDisable		 = false,
+				.blendSrcFactor		 = LinaGX::BlendFactor::SrcAlpha,
+				.blendDstFactor		 = LinaGX::BlendFactor::OneMinusSrcAlpha,
+				.blendColorOp		 = LinaGX::BlendOp::Add,
+				.blendSrcAlphaFactor = LinaGX::BlendFactor::One,
+				.blendDstAlphaFactor = LinaGX::BlendFactor::OneMinusSrcAlpha,
+				.blendAlphaOp		 = LinaGX::BlendOp::Add,
+				.depthTest			 = false,
+				.depthWrite			 = false,
+				.depthFormat		 = LinaGX::Format::D32_SFLOAT,
+				.targets			 = {{LinaGX::Format::R8G8B8A8_SRGB}},
+				.cullMode			 = LinaGX::CullMode::None,
+				.frontFace			 = LinaGX::FrontFace::CCW,
+				.topology			 = LinaGX::Topology::TriangleList,
+				.msaaSamples		 = EDITOR_WORLD_MSAA_SAMPLES,
 			},
 		} // namespace Lina::Editor
 		);

@@ -88,25 +88,12 @@ namespace Lina::Editor
 				.binding   = 2,
 				.buffers   = {m_wr->GetDrawCollector().GetEntityDataBuffer(i).GetGPUResource()},
 			});
-
-			Texture* renderTarget = m_wr->GetLightingPassOutput(i);
-			Texture* depthTarget  = m_wr->GetGBufDepth(i);
-
-			m_pass.SetColorAttachment(i, 0, {.loadOp = LinaGX::LoadOp::Load, .storeOp = LinaGX::StoreOp::Store, .clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = renderTarget->GetGPUHandle(), .isSwapchain = false});
-			m_pass.DepthStencilAttachment(i,
-										  {
-											  .useDepth		= true,
-											  .texture		= depthTarget->GetGPUHandle(),
-											  .depthLoadOp	= LinaGX::LoadOp::Load,
-											  .depthStoreOp = LinaGX::StoreOp::DontCare,
-											  .clearDepth	= 1.0f,
-										  });
 		}
 
 		// Grid
 		{
 			m_gridShader   = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_GRID_ID);
-			m_gridMaterial = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Grid Material");
+			m_gridMaterial = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "EWR: Grid Material");
 
 			m_gridMaterial->SetShader(m_gridShader);
 			m_gridMaterial->SetProperty("sizeLOD2"_hs, 0.1f);
@@ -122,12 +109,26 @@ namespace Lina::Editor
 			m_gridMaterial->SetProperty("distLOD1"_hs, 90.0f);
 		}
 
+		m_worldSampleShader = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_FULLSCREEN_SAMPLE_ID);
+
+		m_worldSampler = m_rm->CreateResource<TextureSampler>(m_rm->ConsumeResourceID(), "EWR: World Sampler");
+		m_worldSampler->GenerateHW(LinaGX::SamplerDesc{
+			.minFilter	= LinaGX::Filter::Anisotropic,
+			.magFilter	= LinaGX::Filter::Anisotropic,
+			.mode		= LinaGX::SamplerAddressMode::ClampToBorder,
+			.mipmapMode = LinaGX::MipmapMode::Linear,
+			.anisotropy = 0,
+			.minLod		= 0.0f,
+			.maxLod		= 10.0f,
+			.mipLodBias = 0.0f,
+		});
+
 		if (!m_props.disableSelection)
 		{
 			m_mousePickRenderer.Initialize();
 			m_outlineRenderer.Initialize();
 
-			m_outlineSelectionSampler = m_rm->CreateResource<TextureSampler>(m_rm->ConsumeResourceID(), "Outline Selection Sampler");
+			m_outlineSelectionSampler = m_rm->CreateResource<TextureSampler>(m_rm->ConsumeResourceID(), "EWR: Outline Sampler");
 			m_outlineSelectionSampler->GenerateHW(LinaGX::SamplerDesc{
 				.minFilter	= LinaGX::Filter::Anisotropic,
 				.magFilter	= LinaGX::Filter::Anisotropic,
@@ -163,6 +164,9 @@ namespace Lina::Editor
 			m_rm->DestroyResource(m_outlineSelectionSampler);
 		}
 
+		m_worldSampler->DestroyHW();
+		m_rm->DestroyResource(m_worldSampler);
+
 		m_rm->DestroyResource(m_gridMaterial);
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 
@@ -181,25 +185,37 @@ namespace Lina::Editor
 
 		drawCollector.CreateGroup("EditorWorld");
 
-		// Grid
-		{
-			const DrawCollector::CustomDrawInstance gridInstance = {
-				.materialID	   = m_gridMaterial->GetID(),
-				.pushEntity	   = false,
-				.pushMaterial  = true,
-				.pushBoneIndex = false,
-			};
-			drawCollector.AddCustomDrawRaw("EditorWorld"_hs, gridInstance, m_gridShader->GetID(), 0, 0, 6);
-		}
+		drawCollector.CreateGroup("WorldSample");
+		drawCollector.AddCustomDrawRaw("WorldSample"_hs,
+									   {
+										   .pushEntity	  = false,
+										   .pushMaterial  = false,
+										   .pushBoneIndex = false,
+									   },
+									   m_worldSampleShader->GetID(),
+									   0,
+									   0,
+									   3);
 
-		if (!m_props.disableGizmos)
-			m_gizmoRenderer.Tick(delta, drawCollector);
-
-		if (!m_props.disableSelection)
-		{
-			m_mousePickRenderer.Tick(delta, drawCollector);
-			m_outlineRenderer.Tick(delta, drawCollector);
-		}
+		// // Grid
+		// {
+		// 	const DrawCollector::CustomDrawInstance gridInstance = {
+		// 		.materialID	   = m_gridMaterial->GetID(),
+		// 		.pushEntity	   = false,
+		// 		.pushMaterial  = true,
+		// 		.pushBoneIndex = false,
+		// 	};
+		// 	drawCollector.AddCustomDrawRaw("EditorWorld"_hs, gridInstance, m_gridShader->GetID(), 0, 0, 6);
+		// }
+		//
+		// if (!m_props.disableGizmos)
+		// 	m_gizmoRenderer.Tick(delta, drawCollector);
+		//
+		// if (!m_props.disableSelection)
+		// {
+		// 	m_mousePickRenderer.Tick(delta, drawCollector);
+		// 	m_outlineRenderer.Tick(delta, drawCollector);
+		// }
 	}
 
 	void EditorWorldRenderer::SyncRender()
@@ -240,6 +256,9 @@ namespace Lina::Editor
 				view.outlineSelectionSamplerIndex = m_outlineSelectionSampler->GetBindlessIndex();
 			}
 
+			view.worldTextureIndex = m_wr->GetLightingPassOutput(frameIndex)->GetBindlessIndex();
+			view.worldSamplerIndex = m_worldSampler->GetBindlessIndex();
+
 			m_pass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(EditorWorldPassViewData));
 		}
 
@@ -276,55 +295,105 @@ namespace Lina::Editor
 			.height = size.y,
 		};
 
-		if (!m_props.disableSelection)
-			m_outlineRenderer.Render(frameIndex, gfxStream, drawCollector);
+		// if (!m_props.disableSelection)
+		// 	m_outlineRenderer.Render(frameIndex, gfxStream, drawCollector);
 
 		DEBUG_LABEL_BEGIN(gfxStream, "Editor World Pass");
 
 		m_pass.Begin(gfxStream, viewport, scissors, frameIndex);
 		m_pass.BindDescriptors(gfxStream, frameIndex, m_pipelineLayout, 1);
 
-		if (drawCollector.RenderGroupExists("EditorWorld"_hs))
-			drawCollector.RenderGroup("EditorWorld"_hs, gfxStream);
+		// Full-screen world sampling.
+		if (drawCollector.RenderGroupExists("WorldSample"_hs))
+			drawCollector.RenderGroup("WorldSample"_hs, gfxStream);
 
-		if (!m_props.disableSelection)
-			m_outlineRenderer.RenderFullscreen(drawCollector, gfxStream);
-
-		if (!m_props.disableGizmos)
-			m_gizmoRenderer.Render(drawCollector, gfxStream);
+		// if (drawCollector.RenderGroupExists("EditorWorld"_hs))
+		// 	drawCollector.RenderGroup("EditorWorld"_hs, gfxStream);
+		//
+		// if (!m_props.disableSelection)
+		// 	m_outlineRenderer.RenderFullscreen(drawCollector, gfxStream);
+		//
+		// if (!m_props.disableGizmos)
+		// 	m_gizmoRenderer.Render(drawCollector, gfxStream);
 
 		m_pass.End(gfxStream);
 
-		LinaGX::CMDBarrier* barrier	 = gfxStream->AddCommand<LinaGX::CMDBarrier>();
-		barrier->srcStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
-		barrier->dstStageFlags		 = LinaGX::PSF_FragmentShader;
-		barrier->textureBarrierCount = 2;
-		barrier->textureBarriers	 = gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 2);
-		barrier->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(m_wr->GetLightingPassOutput(frameIndex)->GetGPUHandle());
-		barrier->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(m_wr->GetGBufDepth(frameIndex)->GetGPUHandle());
+		// LinaGX::CMDBarrier* barrier	 = gfxStream->AddCommand<LinaGX::CMDBarrier>();
+		// barrier->srcStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
+		// barrier->dstStageFlags		 = LinaGX::PSF_FragmentShader;
+		// barrier->textureBarrierCount = 2;
+		// barrier->textureBarriers	 = gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 2);
+		// barrier->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(m_wr->GetLightingPassOutput(frameIndex)->GetGPUHandle());
+		// barrier->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(m_wr->GetGBufDepth(frameIndex)->GetGPUHandle());
 
 		DEBUG_LABEL_END(gfxStream);
 
-		if (!m_props.disableSelection)
-			m_mousePickRenderer.Render(frameIndex, gfxStream, drawCollector);
+		// if (!m_props.disableSelection)
+		//	m_mousePickRenderer.Render(frameIndex, gfxStream, drawCollector);
 	}
 
 	void EditorWorldRenderer::OnWorldRendererCreateSizeRelative()
 	{
+		m_size = m_wr->GetSize();
+
+		const LinaGX::TextureDesc colorMSAA = {
+			.format	   = LinaGX::Format::R8G8B8A8_SRGB,
+			.flags	   = LinaGX::TF_ColorAttachment,
+			.width	   = m_size.x,
+			.height	   = m_size.y,
+			.samples   = EDITOR_WORLD_MSAA_SAMPLES,
+			.debugName = "EditorWorldRendererMSAA",
+		};
+
+		const LinaGX::TextureDesc color = {
+			.format	   = LinaGX::Format::R8G8B8A8_SRGB,
+			.flags	   = LinaGX::TF_ColorAttachment | LinaGX::TF_Sampled,
+			.width	   = m_size.x,
+			.height	   = m_size.y,
+			.samples   = 1,
+			.debugName = "EditorWorldRendererMSAAResolve",
+		};
+
+		const LinaGX::TextureDesc depthMSAA = {
+			.format					  = LinaGX::Format::D32_SFLOAT,
+			.depthStencilSampleFormat = LinaGX::Format::R32_SFLOAT,
+			.flags					  = LinaGX::TF_DepthTexture,
+			.width					  = m_size.x,
+			.height					  = m_size.y,
+			.samples				  = EDITOR_WORLD_MSAA_SAMPLES,
+			.debugName				  = "EditorWorldRendererMSAADepth",
+		};
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& pfd = m_pfd[i];
 
-			Texture* renderTarget = m_wr->GetLightingPassOutput(i);
-			Texture* depthTarget  = m_wr->GetGBufDepth(i);
+			pfd.renderTargetMSAA	= m_rm->CreateResource<Texture>(m_rm->ConsumeResourceID(), "WorldRenderer MSAA Color");
+			pfd.renderTargetResolve = m_rm->CreateResource<Texture>(m_rm->ConsumeResourceID(), "WorldRenderer MSAA Resolve");
+			pfd.depthTarget			= m_rm->CreateResource<Texture>(m_rm->ConsumeResourceID(), "WorldRenderer MSAA Depth");
 
-			m_pass.SetColorAttachment(i, 0, {.loadOp = LinaGX::LoadOp::Load, .storeOp = LinaGX::StoreOp::Store, .clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = renderTarget->GetGPUHandle(), .isSwapchain = false});
+			pfd.renderTargetMSAA->GenerateHWFromDesc(colorMSAA);
+			pfd.renderTargetResolve->GenerateHWFromDesc(color);
+			pfd.depthTarget->GenerateHWFromDesc(depthMSAA);
+
+			m_pass.SetColorAttachment(i,
+									  0,
+									  {
+										  .loadOp		  = LinaGX::LoadOp::Clear,
+										  .storeOp		  = LinaGX::StoreOp::Store,
+										  .clearColor	  = {0.0f, 0.0f, 0.0f, 1.0f},
+										  .texture		  = pfd.renderTargetMSAA->GetGPUHandle(),
+										  .resolveTexture = pfd.renderTargetResolve->GetGPUHandle(),
+										  .resolveMode	  = LinaGX::ResolveMode::Average,
+										  .resolveState	  = LinaGX::TextureState::ColorAttachment,
+										  .isSwapchain	  = false,
+									  });
+
 			m_pass.DepthStencilAttachment(i,
 										  {
 											  .useDepth		= true,
-											  .texture		= depthTarget->GetGPUHandle(),
-											  .depthLoadOp	= LinaGX::LoadOp::Load,
+											  .texture		= pfd.depthTarget->GetGPUHandle(),
+											  .depthLoadOp	= LinaGX::LoadOp::Clear,
 											  .depthStoreOp = LinaGX::StoreOp::DontCare,
 											  .clearDepth	= 1.0f,
 										  });
@@ -339,6 +408,22 @@ namespace Lina::Editor
 
 	void EditorWorldRenderer::OnWorldRendererDestroySizeRelative()
 	{
+		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+		{
+			auto& pfd = m_pfd[i];
+
+			if (pfd.depthTarget == nullptr)
+				continue;
+			pfd.depthTarget->DestroyHW();
+			pfd.renderTargetMSAA->DestroyHW();
+			pfd.renderTargetResolve->DestroyHW();
+			m_rm->DestroyResource(pfd.renderTargetMSAA);
+			m_rm->DestroyResource(pfd.renderTargetResolve);
+			m_rm->DestroyResource(pfd.depthTarget);
+
+			pfd.depthTarget = pfd.renderTargetMSAA = pfd.renderTargetResolve = nullptr;
+		}
+
 		if (!m_props.disableSelection)
 		{
 			m_mousePickRenderer.DestroySizeRelativeResources();

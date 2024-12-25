@@ -50,7 +50,8 @@ layout(set = 1, binding = 0) uniform ViewData
 	vec2 mouse;
 	uint outlineSelectionTextureIndex;
 	uint outlineSelectionSamplerIndex;
-	vec2 padding2;
+	uint worldTextureIndex;
+	uint worldSamplerIndex;
 } LINA_VIEW;
 
 

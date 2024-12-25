@@ -210,6 +210,8 @@ namespace Lina
 				.cullMode				 = variant.cullMode,
 				.frontFace				 = variant.frontFace,
 				.topology				 = variant.topology,
+				.samples				 = variant.msaaSamples,
+				.enableSampleShading	 = variant.enableSampleShading,
 				.depthBiasEnable		 = variant.depthBiasEnable,
 				.depthBiasConstant		 = variant.depthBiasConstant,
 				.depthBiasClamp			 = variant.depthBiasClamp,

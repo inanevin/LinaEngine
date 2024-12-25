@@ -131,7 +131,8 @@ namespace Lina::Editor
 		Vector2 mouse;
 		uint32	outlineSelectionTextureIndex;
 		uint32	outlineSelectionSamplerIndex;
-		Vector2 padding2;
+		uint32	worldTextureIndex;
+		uint32	worldSamplerIndex;
 	};
 
 	class EditorGfxHelpers

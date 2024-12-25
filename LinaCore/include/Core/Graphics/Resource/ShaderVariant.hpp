@@ -69,14 +69,16 @@ namespace Lina
 		bool					   depthWrite		   = true;
 		LinaGX::Format			   depthFormat		   = LinaGX::Format::D32_SFLOAT;
 		Vector<VariantColorTarget> targets;
-		LinaGX::CompareOp		   depthOp			 = LinaGX::CompareOp::Less;
-		LinaGX::CullMode		   cullMode			 = LinaGX::CullMode::Back;
-		LinaGX::FrontFace		   frontFace		 = LinaGX::FrontFace::CCW;
-		LinaGX::Topology		   topology			 = LinaGX::Topology::TriangleList;
-		bool					   depthBiasEnable	 = false;
-		float					   depthBiasConstant = 0.0f;
-		float					   depthBiasClamp	 = 0.0f;
-		float					   depthBiasSlope	 = 0.0f;
+		LinaGX::CompareOp		   depthOp			   = LinaGX::CompareOp::Less;
+		LinaGX::CullMode		   cullMode			   = LinaGX::CullMode::Back;
+		LinaGX::FrontFace		   frontFace		   = LinaGX::FrontFace::CCW;
+		LinaGX::Topology		   topology			   = LinaGX::Topology::TriangleList;
+		bool					   depthBiasEnable	   = false;
+		float					   depthBiasConstant   = 0.0f;
+		float					   depthBiasClamp	   = 0.0f;
+		float					   depthBiasSlope	   = 0.0f;
+		bool					   enableSampleShading = false;
+		uint32					   msaaSamples		   = 1;
 
 		LINAGX_VEC<LinaGX::ShaderCompileData> _compileData = {};
 

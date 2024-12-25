@@ -532,38 +532,35 @@ namespace Lina
 			m_forwardPass.End(currentFrame.gfxStream);
 
 			DEBUG_LABEL_END(currentFrame.gfxStream);
-		}
-	}
 
-	void WorldRenderer::PostBarriers(uint32 frameIndex)
-	{
-		auto& currentFrame = m_pfd[frameIndex];
+			auto& currentFrame = m_pfd[frameIndex];
 
-		// Barrier to shader read or transfer read
-		if (m_snapshotBuffer == nullptr)
-		{
-			LinaGX::CMDBarrier* barrier	 = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
-			barrier->srcStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
-			barrier->dstStageFlags		 = LinaGX::PSF_FragmentShader;
-			barrier->textureBarrierCount = 2;
-			barrier->textureBarriers	 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 2);
-			barrier->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.lightingPassOutput->GetGPUHandle());
-			barrier->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierDepthAtt2Read(currentFrame.gBufDepth->GetGPUHandle());
-		}
-		else
-		{
-			LinaGX::CMDBarrier* barrier	 = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
-			barrier->srcStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
-			barrier->dstStageFlags		 = LinaGX::PSF_FragmentShader;
-			barrier->textureBarrierCount = 1;
-			barrier->textureBarriers	 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 1);
-			barrier->textureBarriers[0]	 = {
-				 .texture		 = currentFrame.lightingPassOutput->GetGPUHandle(),
-				 .isSwapchain	 = false,
-				 .toState		 = LinaGX::TextureBarrierState::TransferSource,
-				 .srcAccessFlags = LinaGX::AF_ColorAttachmentRead,
-				 .dstAccessFlags = LinaGX::AF_ShaderRead,
-			 };
+			// Barrier to shader read or transfer read
+			if (m_snapshotBuffer == nullptr)
+			{
+				LinaGX::CMDBarrier* barrier	 = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
+				barrier->srcStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
+				barrier->dstStageFlags		 = LinaGX::PSF_FragmentShader;
+				barrier->textureBarrierCount = 2;
+				barrier->textureBarriers	 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 2);
+				barrier->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.lightingPassOutput->GetGPUHandle());
+				barrier->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierDepthAtt2Read(currentFrame.gBufDepth->GetGPUHandle());
+			}
+			else
+			{
+				LinaGX::CMDBarrier* barrier	 = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
+				barrier->srcStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
+				barrier->dstStageFlags		 = LinaGX::PSF_FragmentShader;
+				barrier->textureBarrierCount = 1;
+				barrier->textureBarriers	 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 1);
+				barrier->textureBarriers[0]	 = {
+					 .texture		 = currentFrame.lightingPassOutput->GetGPUHandle(),
+					 .isSwapchain	 = false,
+					 .toState		 = LinaGX::TextureState::TransferSource,
+					 .srcAccessFlags = LinaGX::AF_ColorAttachmentRead,
+					 .dstAccessFlags = LinaGX::AF_ShaderRead,
+				 };
+			}
 		}
 	}
 

@@ -86,7 +86,6 @@ namespace Lina
 		void UpdateBuffers(uint32 frameIndex);
 		void FlushTransfers(uint32 frameIndex);
 		void Render(uint32 frameIndex);
-		void PostBarriers(uint32 frameIndex);
 		void CloseAndSend(uint32 frameIndex);
 		void Resize(const Vector2ui& newSize);
 		void SyncRender();

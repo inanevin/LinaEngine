@@ -123,12 +123,17 @@ namespace Lina
 			return;
 
 		// Textures.
-		ResourceCache<Texture>* cacheTxt	 = m_rm->GetCache<Texture>();
-		const size_t			txtCacheSize = static_cast<size_t>(cacheTxt->GetActiveItemCount());
-		pfd.globalTexturesDesc.textures.resize(txtCacheSize);
+		ResourceCache<Texture>* cacheTxt = m_rm->GetCache<Texture>();
+		// const size_t			txtCacheSize = static_cast<size_t>(cacheTxt->GetActiveItemCount());
+		// pfd.globalTexturesDesc.textures.resize(txtCacheSize);
+		pfd.globalTexturesDesc.textures.resize(0);
 		cacheTxt->View([&](Texture* txt, uint32 index) -> bool {
-			pfd.globalTexturesDesc.textures[index] = txt->GetGPUHandle();
-			txt->SetBindlessIndex(index);
+			if (txt->GetIsMSAA())
+				return false;
+
+			const uint32 idx = static_cast<uint32>(pfd.globalTexturesDesc.textures.size());
+			pfd.globalTexturesDesc.textures.push_back(txt->GetGPUHandle());
+			txt->SetBindlessIndex(idx);
 			return false;
 		});
 

@@ -205,9 +205,6 @@ namespace Lina::Editor
 				pair.wr->Render(frameIndex);
 				pair.ewr->Render(frameIndex);
 
-				// No need as editor world renderer will handle, for now.
-				// pair.wr->PostBarriers(frameIndex);
-
 				pair.wr->CloseAndSend(frameIndex);
 			}
 			else
@@ -222,9 +219,6 @@ namespace Lina::Editor
 					pair.wr->FlushTransfers(frameIndex);
 					pair.wr->Render(frameIndex);
 					pair.ewr->Render(frameIndex);
-
-					// No need as editor world renderer will handle, for now.
-					// pair.wr->PostBarriers(frameIndex);
 
 					pair.wr->CloseAndSend(frameIndex);
 				});

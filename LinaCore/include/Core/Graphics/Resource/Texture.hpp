@@ -115,6 +115,11 @@ namespace Lina
 			return m_bytesPerPixel;
 		}
 
+		inline bool GetIsMSAA() const
+		{
+			return m_isMSAA;
+		}
+
 	private:
 		uint32 GetChannels();
 		void   CalculateTotalSize();
@@ -132,6 +137,7 @@ namespace Lina
 		size_t						  m_totalSize			 = 0;
 		LinaGX::MipmapFilter		  m_generatedMipFilter	 = LinaGX::MipmapFilter::Default;
 		bool						  m_generatedMipPreAlpha = false;
+		bool						  m_isMSAA				 = false;
 	};
 
 	LINA_RESOURCE_BEGIN(Texture);
