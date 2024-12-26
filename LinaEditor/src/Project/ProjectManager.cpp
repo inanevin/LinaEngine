@@ -612,11 +612,7 @@ namespace Lina::Editor
 
 			for (Resource* res : m_editorResourcesToReimport)
 			{
-				bool success = false;
-				if (res->GetTID() == GetTypeID<Shader>())
-					success = ShaderImport::ImportShader(static_cast<Shader*>(res), res->GetPath());
-				else
-					success = res->LoadFromFile(res->GetPath());
+				const bool success = res->LoadFromFile(res->GetPath());
 
 				m_reimportResults.push_back({
 							.id				  = res->GetID(),

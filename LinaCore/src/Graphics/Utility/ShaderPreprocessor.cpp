@@ -683,23 +683,4 @@ namespace Lina
 		}
 	}
 
-	ShaderType ShaderPreprocessor::GetShaderType(const String& input)
-	{
-		if (input.find("#lina_shader_deferred") != String::npos)
-			return ShaderType::DeferredSurface;
-
-		if (input.find("#lina_shader_forward") != String::npos)
-			return ShaderType::ForwardSurface;
-
-		if (input.find("#lina_shader_sky") != String::npos)
-			return ShaderType::Sky;
-
-		if (input.find("#lina_shader_lighting") != String::npos)
-			return ShaderType::Lighting;
-
-		if (input.find("#lina_shader_postprocess") != String::npos)
-			return ShaderType::PostProcess;
-
-		return ShaderType::Custom;
-	}
 } // namespace Lina

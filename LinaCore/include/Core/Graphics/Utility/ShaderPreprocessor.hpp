@@ -54,7 +54,6 @@ namespace Lina
 		static LinaGX::CullMode	 GetCullFromStr(const String& str);
 		static LinaGX::FrontFace GetFaceFromStr(const String& str);
 		static void				 ExtractVariants(const String& input, Vector<ShaderVariant>& variants);
-		static ShaderType		 GetShaderType(const String& input);
 		static bool				 VerifyFullShader(const String& input);
 		static bool				 ExtractVertexFrag(const String& input, String& outVertex, String& outFrag);
 		static void				 InjectVersionAndExtensions(String& input, bool insertAtHeader = false);

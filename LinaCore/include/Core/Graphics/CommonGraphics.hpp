@@ -143,8 +143,6 @@ namespace Lina
 		DeferredSurface,
 		ForwardSurface,
 		Sky,
-		Lighting,
-		PostProcess,
 		Custom
 	};
 

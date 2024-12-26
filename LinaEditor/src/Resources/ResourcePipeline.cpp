@@ -278,19 +278,7 @@ namespace Lina::Editor
 				meta->GetFunction<void(void*)>("Deallocate"_hs)(res);
 			};
 
-			if (resourceTID == GetTypeID<Shader>())
-			{
-				Shader shader(0, "");
-				shader.SetName(name);
-				shader.SetID(def.id == 0 ? projectData->ConsumeResourceID() : def.id);
-				shader.SetPath(def.path);
-				if (ShaderImport::ImportShader(&shader, def.path))
-				{
-					shader.SaveToFileAsBinary(projectData->GetResourcePath(shader.GetID()));
-					createDirectory(shader.GetID());
-				}
-			}
-			else if (resourceTID == GetTypeID<Model>())
+			if (resourceTID == GetTypeID<Model>())
 			{
 				Model model(0, name);
 				if (!model.LoadFromFile(def.path))
@@ -303,9 +291,7 @@ namespace Lina::Editor
 				if (defaultShader == nullptr)
 				{
 					defaultShader = new Shader(EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_ID, EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_PATH);
-					if (ShaderImport::ImportShader(defaultShader, EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_PATH))
-					{
-					}
+					defaultShader->LoadFromFile(EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_PATH);
 				}
 
 				const Vector<ModelMaterial>&	   matDefs	   = model.GetMaterialDefs();

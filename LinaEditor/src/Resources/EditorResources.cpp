@@ -41,11 +41,7 @@ namespace Lina::Editor
 
 	bool EditorResources::LoadPriorityResources(ResourceManagerV2& manager)
 	{
-		Shader::Metadata meta = {};
-
-		meta.variants.push_back({});
-		ShaderVariant& variant = meta.variants.back();
-
+		/* GUI STUFF
 		variant = ShaderVariant{
 			.id					 = "Swapchain"_hs,
 			.blendDisable		 = false,
@@ -62,7 +58,7 @@ namespace Lina::Editor
 			.cullMode			 = LinaGX::CullMode::None,
 			.frontFace			 = LinaGX::FrontFace::CCW,
 		};
-
+		 */
 		Font::Metadata fontMeta1 = {
 			.points = {{.size = 32, .dpiLimit = 10.0f}},
 			.isSDF	= true,
@@ -78,9 +74,6 @@ namespace Lina::Editor
 			.isSDF	= false,
 		};
 
-		OStream shaderStream;
-		meta.SaveToStream(shaderStream);
-
 		OStream fontStream1, fontStream2, fontStream3;
 		fontMeta1.SaveToStream(fontStream1);
 		fontMeta2.SaveToStream(fontStream2);
@@ -88,40 +81,79 @@ namespace Lina::Editor
 
 		ResourceDefinitionList defs = {
 			{
-				.id			= EDITOR_SHADER_GUI_SDF_TEXT_ID,
-				.name		= EDITOR_SHADER_GUI_SDF_TEXT_PATH,
-				.tid		= GetTypeID<Shader>(),
-				.customMeta = shaderStream,
+				.id	  = EDITOR_SHADER_GUI_SDF_TEXT_ID,
+				.name = EDITOR_SHADER_GUI_SDF_TEXT_PATH,
+				.tid  = GetTypeID<Shader>(),
 			},
 			{
-				.id			= EDITOR_SHADER_GUI_TEXT_ID,
-				.name		= EDITOR_SHADER_GUI_TEXT_PATH,
-				.tid		= GetTypeID<Shader>(),
-				.customMeta = shaderStream,
+				.id	  = EDITOR_SHADER_GUI_TEXT_ID,
+				.name = EDITOR_SHADER_GUI_TEXT_PATH,
+				.tid  = GetTypeID<Shader>(),
 			},
 			{
-				.id			= EDITOR_SHADER_GUI_HUE_DISPLAY_ID,
-				.name		= EDITOR_SHADER_GUI_HUE_DISPLAY_PATH,
-				.tid		= GetTypeID<Shader>(),
-				.customMeta = shaderStream,
+				.id	  = EDITOR_SHADER_GUI_HUE_DISPLAY_ID,
+				.name = EDITOR_SHADER_GUI_HUE_DISPLAY_PATH,
+				.tid  = GetTypeID<Shader>(),
 			},
 			{
-				.id			= EDITOR_SHADER_GUI_COLOR_WHEEL_ID,
-				.name		= EDITOR_SHADER_GUI_COLOR_WHEEL_PATH,
-				.tid		= GetTypeID<Shader>(),
-				.customMeta = shaderStream,
+				.id	  = EDITOR_SHADER_GUI_COLOR_WHEEL_ID,
+				.name = EDITOR_SHADER_GUI_COLOR_WHEEL_PATH,
+				.tid  = GetTypeID<Shader>(),
 			},
 			{
-				.id			= EDITOR_SHADER_GUI_DEFAULT_ID,
-				.name		= EDITOR_SHADER_GUI_DEFAULT_PATH,
-				.tid		= GetTypeID<Shader>(),
-				.customMeta = shaderStream,
+				.id	  = EDITOR_SHADER_GUI_DEFAULT_ID,
+				.name = EDITOR_SHADER_GUI_DEFAULT_PATH,
+				.tid  = GetTypeID<Shader>(),
 			},
 			{
-				.id			= EDITOR_SHADER_GUI_GLITCH_ID,
-				.name		= EDITOR_SHADER_GUI_GLITCH_PATH,
-				.tid		= GetTypeID<Shader>(),
-				.customMeta = shaderStream,
+				.id	  = EDITOR_SHADER_GUI_GLITCH_ID,
+				.name = EDITOR_SHADER_GUI_GLITCH_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
+			{
+				.id	  = EDITOR_SHADER_WORLD_GIZMO_ID,
+				.name = EDITOR_SHADER_WORLD_GIZMO_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
+			{
+				.id	  = EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_ID,
+				.name = EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
+			{
+				.id	  = EDITOR_SHADER_WORLD_LINE3D_ID,
+				.name = EDITOR_SHADER_WORLD_LINE3D_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
+			{
+				.id	  = EDITOR_SHADER_WORLD_LVG3D_ID,
+				.name = EDITOR_SHADER_WORLD_LVG3D_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
+			{
+				.id	  = EDITOR_SHADER_WORLD_SAMPLE_ID,
+				.name = EDITOR_SHADER_WORLD_SAMPLE_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
+			{
+				.id	  = EDITOR_SHADER_WORLD_DEPTH_SAMPLE_ID,
+				.name = EDITOR_SHADER_WORLD_DEPTH_SAMPLE_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
+			{
+				.id	  = EDITOR_SHADER_WORLD_GRID_ID,
+				.name = EDITOR_SHADER_WORLD_GRID_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
+			{
+				.id	  = EDITOR_SHADER_WORLD_ENTITYID_ID,
+				.name = EDITOR_SHADER_WORLD_ENTITYID_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
+			{
+				.id	  = ENGINE_SHADER_LIGHTING_QUAD_ID,
+				.name = ENGINE_SHADER_LIGHTING_QUAD_PATH,
+				.tid  = GetTypeID<Shader>(),
 			},
 			{
 				.id	  = EDITOR_TEXTURE_LINA_LOGO_ID,
@@ -174,7 +206,6 @@ namespace Lina::Editor
 		fontStream1.Destroy();
 		fontStream2.Destroy();
 		fontStream3.Destroy();
-		shaderStream.Destroy();
 
 		for (const ResourceDef& def : defs)
 		{
@@ -189,39 +220,23 @@ namespace Lina::Editor
 
 	void EditorResources::StartLoadCoreResources(ResourceManagerV2& manager)
 	{
-		Texture* txtCheckered			= manager.CreateResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID, EDITOR_TEXTURE_CHECKERED_PATH);
-		Texture* txtProtoDark			= manager.CreateResource<Texture>(EDITOR_TEXTURE_PROTOTYPE_DARK_ID, EDITOR_TEXTURE_PROTOTYPE_DARK_PATH);
-		Font*	 fontPlay				= manager.CreateResource<Font>(EDITOR_FONT_PLAY_ID, EDITOR_FONT_PLAY_PATH);
-		Font*	 fontPlayBold			= manager.CreateResource<Font>(EDITOR_FONT_PLAY_BOLD_ID, EDITOR_FONT_PLAY_BOLD_PATH);
-		Font*	 fontPlayVeryBig		= manager.CreateResource<Font>(EDITOR_FONT_PLAY_VERY_BIG_ID, EDITOR_FONT_PLAY_VERY_BIG_PATH);
-		Shader*	 shaderWorldGrid		= manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_GRID_ID, EDITOR_SHADER_WORLD_GRID_PATH);
-		Shader*	 shaderWorldEntityID	= manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_ENTITYID_ID, EDITOR_SHADER_WORLD_ENTITYID_PATH);
-		Model*	 gizmoTranslate			= manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_TRANSLATE_ID, EDITOR_MODEL_GIZMO_TRANSLATE_PATH);
-		Model*	 gizmoRotate			= manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_ROTATE_ID, EDITOR_MODEL_GIZMO_ROTATE_PATH);
-		Model*	 gizmoScale				= manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_SCALE_ID, EDITOR_MODEL_GIZMO_SCALE_PATH);
-		Shader*	 gizmo					= manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_GIZMO_ID, EDITOR_SHADER_WORLD_GIZMO_PATH);
-		Shader*	 outlineFullscreen		= manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_ID, EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_PATH);
-		Shader*	 line3D					= manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_LINE3D_ID, EDITOR_SHADER_WORLD_LINE3D_PATH);
-		Shader*	 shaderLinaVG3D			= manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_LVG3D_ID, EDITOR_SHADER_WORLD_LVG3D_PATH);
-		Shader*	 shaderWorldSample		= manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_SAMPLE_ID, EDITOR_SHADER_WORLD_SAMPLE_PATH);
-		Shader*	 shaderWorldDepthSample = manager.CreateResource<Shader>(EDITOR_SHADER_WORLD_DEPTH_SAMPLE_ID, EDITOR_SHADER_WORLD_DEPTH_SAMPLE_PATH);
+		Texture* txtCheckered	 = manager.CreateResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID, EDITOR_TEXTURE_CHECKERED_PATH);
+		Texture* txtProtoDark	 = manager.CreateResource<Texture>(EDITOR_TEXTURE_PROTOTYPE_DARK_ID, EDITOR_TEXTURE_PROTOTYPE_DARK_PATH);
+		Font*	 fontPlay		 = manager.CreateResource<Font>(EDITOR_FONT_PLAY_ID, EDITOR_FONT_PLAY_PATH);
+		Font*	 fontPlayBold	 = manager.CreateResource<Font>(EDITOR_FONT_PLAY_BOLD_ID, EDITOR_FONT_PLAY_BOLD_PATH);
+		Font*	 fontPlayVeryBig = manager.CreateResource<Font>(EDITOR_FONT_PLAY_VERY_BIG_ID, EDITOR_FONT_PLAY_VERY_BIG_PATH);
+		Model*	 gizmoTranslate	 = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_TRANSLATE_ID, EDITOR_MODEL_GIZMO_TRANSLATE_PATH);
+		Model*	 gizmoRotate	 = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_ROTATE_ID, EDITOR_MODEL_GIZMO_ROTATE_PATH);
+		Model*	 gizmoScale		 = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_SCALE_ID, EDITOR_MODEL_GIZMO_SCALE_PATH);
 
 		m_createdResources.insert(txtCheckered);
 		m_createdResources.insert(txtProtoDark);
 		m_createdResources.insert(fontPlay);
 		m_createdResources.insert(fontPlayBold);
 		m_createdResources.insert(fontPlayVeryBig);
-		m_createdResources.insert(shaderWorldGrid);
-		m_createdResources.insert(shaderWorldEntityID);
 		m_createdResources.insert(gizmoTranslate);
 		m_createdResources.insert(gizmoRotate);
 		m_createdResources.insert(gizmoScale);
-		m_createdResources.insert(gizmo);
-		m_createdResources.insert(outlineFullscreen);
-		m_createdResources.insert(line3D);
-		m_createdResources.insert(shaderLinaVG3D);
-		m_createdResources.insert(shaderWorldSample);
-		m_createdResources.insert(shaderWorldDepthSample);
 
 		fontPlay->GetMeta() = {
 			.points = {{.size = 14, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
@@ -238,6 +253,7 @@ namespace Lina::Editor
 			.isSDF	= false,
 		};
 
+		/*
 		shaderWorldGrid->GetMeta().variants.push_back({
 			ShaderVariant{
 				.id					 = "Default"_hs,
@@ -405,6 +421,7 @@ namespace Lina::Editor
 			},
 		} // namespace Lina::Editor
 		);
+		*/
 
 		for (Resource* r : m_createdResources)
 			r->SetPath(r->GetName());
@@ -414,16 +431,8 @@ namespace Lina::Editor
 	{
 		for (Resource* r : m_createdResources)
 		{
-			if (r->GetTID() == GetTypeID<Shader>())
-			{
-				if (ShaderImport::ImportShader(static_cast<Shader*>(r), r->GetPath()))
-					m_loadedResources.insert(r);
-			}
-			else
-			{
-				if (r->LoadFromFile(r->GetPath()))
-					m_loadedResources.insert(r);
-			}
+			if (r->LoadFromFile(r->GetPath()))
+				m_loadedResources.insert(r);
 		}
 	}
 

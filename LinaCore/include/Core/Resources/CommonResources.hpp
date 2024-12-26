@@ -45,6 +45,9 @@ namespace Lina
 #define RESOURCE_ID_CUSTOM_SPACE_MAX RESOURCE_ID_ENGINE_SPACE
 #define RESOURCE_ID_MAX				 RESOURCE_ID_CUSTOM_SPACE - 1
 
+#define ENGINE_SHADER_LIGHTING_QUAD_ID	 RESOURCE_ID_ENGINE_SPACE
+#define ENGINE_SHADER_LIGHTING_QUAD_PATH "Resources/Core/Shaders/Lighting/LightingQuad.linashader"
+
 	enum class PackageType
 	{
 		Default,
