@@ -35,7 +35,7 @@ SOFTWARE.
 #include "Atlas/AtlasManager.hpp"
 #include "Editor/WindowPanelManager.hpp"
 #include "Editor/EditorTaskManager.hpp"
-#include "Editor/EditorWorldManager.hpp"
+#include "Editor/World/EditorWorldManager.hpp"
 #include "Editor/Project/ProjectManager.hpp"
 #include "Editor/Graphics/EditorRenderer.hpp"
 #include "Editor/Actions/EditorActionManager.hpp"

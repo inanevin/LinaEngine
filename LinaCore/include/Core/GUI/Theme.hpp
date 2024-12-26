@@ -74,6 +74,7 @@ namespace Lina
 			Color accentPrimary2   = Color(180.0f, 5.0f, 149.0f, 255.0f, true, true);
 			Color accentPrimary3   = Color(0.38499f, 0.08519f, 0.1258f, 1.0f);
 			Color accentSecondary  = Color(7, 131, 214, 255.0f, true, true);
+			Color accentSecondary1 = Color(90, 190, 255, 255.0f, true, true);
 			Color accentSuccess	   = Color(0, 204.0f, 136.0f, 255.0f, true, true);
 			Color accentSuccess1   = Color(0.0f, 179.0f, 89.0f, 255.0f, true, true);
 			Color accentOrange	   = Color(255.0f, 102.0f, 0.0f, 255.0f, true, true);

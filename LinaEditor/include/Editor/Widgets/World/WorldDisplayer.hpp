@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Editor/PayloadListener.hpp"
+#include "Editor/World/CommonEditorWorld.hpp"
 #include "Core/World/EntityWorld.hpp"
 
 namespace Lina
@@ -48,13 +49,14 @@ namespace Lina::Editor
 
 	class WorldDisplayer : public Widget, public EntityWorldListener, public EditorPayloadListener
 	{
-	public:
-		enum class WorldCameraType
+	private:
+		struct GizmoControls
 		{
-			Orbit,
-			FreeMove,
+			GizmoType selectedGizmo = GizmoType::Move;
+			GizmoAxis hoveredAxis	= GizmoAxis::None;
 		};
 
+	public:
 		struct Properties
 		{
 			String noWorldText		 = "";
@@ -64,17 +66,22 @@ namespace Lina::Editor
 		WorldDisplayer() : Widget(WF_CONTROLLABLE){};
 		virtual ~WorldDisplayer() = default;
 
-		virtual void Construct() override;
-		virtual void Initialize() override;
-		virtual void Destruct() override;
-		virtual void PreTick() override;
-		virtual void Tick(float dt) override;
-		virtual void Draw() override;
-		virtual void OnPayloadStarted(PayloadType type, Widget* payload) override;
-		virtual void OnPayloadEnded(PayloadType type, Widget* payload) override;
-		virtual bool OnPayloadDropped(PayloadType type, Widget* payload) override;
+		virtual void			Construct() override;
+		virtual void			Initialize() override;
+		virtual void			Destruct() override;
+		virtual void			PreTick() override;
+		virtual void			Tick(float dt) override;
+		virtual void			Draw() override;
+		virtual void			OnPayloadStarted(PayloadType type, Widget* payload) override;
+		virtual void			OnPayloadEnded(PayloadType type, Widget* payload) override;
+		virtual bool			OnPayloadDropped(PayloadType type, Widget* payload) override;
+		virtual LinaGX::Window* OnPayloadGetWindow() override
+		{
+			return m_lgxWindow;
+		}
 		void		 DisplayWorld(WorldRenderer* renderer, EditorWorldRenderer* ewr, WorldCameraType cameraType);
-		bool		 OnMouse(uint32 button, LinaGX::InputAction act) override;
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
+		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act) override;
 
 		// World
 		virtual void OnWorldTick(float delta, PlayMode playmode) override;
@@ -99,6 +106,8 @@ namespace Lina::Editor
 		void DrawAxis(const Vector3& targetAxis, const Color& baseColor, const String& axis);
 
 	private:
+		GizmoControls m_gizmoControls;
+
 		Vector<Entity*>		 m_selectedEntities;
 		Editor*				 m_editor		 = nullptr;
 		EditorWorldRenderer* m_ewr			 = nullptr;

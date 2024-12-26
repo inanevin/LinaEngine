@@ -135,6 +135,8 @@ namespace Lina::Editor
 			.mipLodBias = 0.0f,
 		});
 
+		m_gizmoRenderer.SetMousePickRenderer(&m_mousePickRenderer);
+
 		OnWorldRendererCreateSizeRelative();
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 	}

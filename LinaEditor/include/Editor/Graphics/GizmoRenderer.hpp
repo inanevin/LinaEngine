@@ -28,6 +28,8 @@ SOFTWARE.
 
 #pragma once
 
+#include "Editor/World/CommonEditorWorld.hpp"
+
 namespace Lina
 {
 	class Shader;
@@ -48,6 +50,7 @@ namespace LinaGX
 namespace Lina::Editor
 {
 	class Editor;
+	class MousePickRenderer;
 
 	class GizmoRenderer
 	{
@@ -58,16 +61,35 @@ namespace Lina::Editor
 		void Tick(float delta, DrawCollector& collector);
 		void Render(DrawCollector& collector, LinaGX::CommandStream* stream);
 
+		inline void SetMousePickRenderer(MousePickRenderer* mpr)
+		{
+			m_mpr = mpr;
+		}
+
 		inline void SetSelectedEntities(const Vector<Entity*>& entities)
 		{
 			m_selectedEntities = entities;
 		}
 
+		inline void SetHoveredAxis(GizmoAxis hoveredAxis)
+		{
+			m_hoveredAxis = hoveredAxis;
+		}
+
+		inline void SetSelectedGizmo(GizmoType gizmo)
+		{
+			m_selectedGizmo = gizmo;
+		}
+
 	private:
-		Editor*			   m_editor		   = nullptr;
-		WorldRenderer*	   m_worldRenderer = nullptr;
-		ResourceManagerV2* m_rm			   = nullptr;
-		EntityWorld*	   m_world		   = nullptr;
+		GizmoType		   m_selectedGizmo	 = GizmoType::Move;
+		GizmoAxis		   m_hoveredAxis	 = GizmoAxis::None;
+		GizmoAxis		   m_lastHoveredAxis = GizmoAxis::None;
+		MousePickRenderer* m_mpr			 = nullptr;
+		Editor*			   m_editor			 = nullptr;
+		WorldRenderer*	   m_worldRenderer	 = nullptr;
+		ResourceManagerV2* m_rm				 = nullptr;
+		EntityWorld*	   m_world			 = nullptr;
 
 		Model* m_translateModel = nullptr;
 		Model* m_scaleModel		= nullptr;

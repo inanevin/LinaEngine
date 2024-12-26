@@ -233,11 +233,6 @@ namespace Lina::Editor
 #define RESOURCE_THUMBNAIL_SIZE	  96
 #define EDITOR_WORLD_MSAA_SAMPLES 4
 
-#define GIZMO_GUID_START  UINT64_MAX - 100
-#define GIZMO_GUID_X_AXIS GIZMI_GUID_START + 1
-#define GIZMO_GUID_Y_AXIS GIZMI_GUID_START + 2
-#define GIZMO_GUID_Z_AXIS GIZMI_GUID_START + 3
-
 	enum class PanelType
 	{
 		Entities,

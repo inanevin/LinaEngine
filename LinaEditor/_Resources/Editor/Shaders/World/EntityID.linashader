@@ -65,7 +65,7 @@ layout (location = 0) out uint outFragColor;
 
 void main()
 {
-    outFragColor = inEntityIndex;
+    outFragColor = inEntityIndex + 1;
 }
 
 #lina_end

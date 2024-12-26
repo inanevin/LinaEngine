@@ -26,51 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#include "Editor/Widgets/Panel/Panel.hpp"
-#include "Core/World/CommonWorld.hpp"
-
-namespace Lina
-{
-	class EntityWorld;
-	class WorldRenderer;
-	class Entity;
-} // namespace Lina
+#include "Editor/World/CommonEditorWorld.hpp"
 
 namespace Lina::Editor
 {
-	class Editor;
-	class WorldDisplayer;
-	class EditorWorldRenderer;
-
-	class PanelWorld : public Panel
-	{
-	public:
-		PanelWorld() : Panel(PanelType::World){};
-		virtual ~PanelWorld() = default;
-
-		virtual void Construct() override;
-		virtual void Destruct() override;
-
-		void CreateWorld(const String& resourcePath);
-		void DestroyWorld();
-
-		inline EntityWorld* GetWorld() const
-		{
-			return m_world;
-		}
-
-	private:
-		Vector<Entity*>		 m_selectedEntities	   = {};
-		Editor*				 m_editor			   = nullptr;
-		EntityWorld*		 m_world			   = nullptr;
-		WorldRenderer*		 m_worldRenderer	   = nullptr;
-		WorldDisplayer*		 m_worldDisplayer	   = nullptr;
-		EditorWorldRenderer* m_editorWorldRenderer = nullptr;
-	};
-
-	LINA_WIDGET_BEGIN(PanelWorld, Hidden)
-	LINA_CLASS_END(PanelWorld)
 
 } // namespace Lina::Editor

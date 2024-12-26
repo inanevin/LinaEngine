@@ -27,12 +27,13 @@ include/Editor/PayloadListener.hpp
 include/Editor/EditorLocale.hpp
 include/Editor/Editor.hpp
 include/Editor/EditorTaskManager.hpp
-include/Editor/EditorWorldManager.hpp
 include/Editor/Actions/EditorActionManager.hpp
 include/Editor/Actions/EditorAction.hpp
 include/Editor/Actions/EditorActionResources.hpp
 include/Editor/Actions/EditorActionEntity.hpp
 include/Editor/WindowPanelManager.hpp
+include/Editor/World/CommonEditorWorld.hpp
+include/Editor/World/EditorWorldManager.hpp
 
 # Project
 include/Editor/Project/ProjectManager.hpp
@@ -115,7 +116,6 @@ include/Editor/Resources/ShaderImport.hpp
 set(SOURCES
 # Core
 src/CommonEditor.cpp
-src/EditorWorldManager.cpp
 src/Actions/EditorActionManager.cpp
 src/Actions/EditorAction.cpp
 src/Actions/EditorActionResources.cpp
@@ -193,6 +193,8 @@ src/Widgets/World/WorldDisplayer.cpp
 # World
 src/World/EditorCamera.cpp
 src/World/WorldUtility.cpp
+src/World/EditorWorldManager.cpp
+src/World/CommonEditorWorld.cpp
 
 # Meta
 src/Meta/EditorSettings.cpp

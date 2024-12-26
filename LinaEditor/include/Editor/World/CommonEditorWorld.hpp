@@ -28,49 +28,46 @@ SOFTWARE.
 
 #pragma once
 
-#include "Editor/Widgets/Panel/Panel.hpp"
-#include "Core/World/CommonWorld.hpp"
-
-namespace Lina
-{
-	class EntityWorld;
-	class WorldRenderer;
-	class Entity;
-} // namespace Lina
+#include "Core/Resources/CommonResources.hpp"
 
 namespace Lina::Editor
 {
-	class Editor;
-	class WorldDisplayer;
-	class EditorWorldRenderer;
 
-	class PanelWorld : public Panel
+#define GIZMO_GUID_START  UINT64_MAX - 100
+#define GIZMO_GUID_X_AXIS GIZMO_GUID_START + 1
+#define GIZMO_GUID_Y_AXIS GIZMO_GUID_START + 2
+#define GIZMO_GUID_Z_AXIS GIZMO_GUID_START + 3
+
+	enum class GizmoType
 	{
-	public:
-		PanelWorld() : Panel(PanelType::World){};
-		virtual ~PanelWorld() = default;
-
-		virtual void Construct() override;
-		virtual void Destruct() override;
-
-		void CreateWorld(const String& resourcePath);
-		void DestroyWorld();
-
-		inline EntityWorld* GetWorld() const
-		{
-			return m_world;
-		}
-
-	private:
-		Vector<Entity*>		 m_selectedEntities	   = {};
-		Editor*				 m_editor			   = nullptr;
-		EntityWorld*		 m_world			   = nullptr;
-		WorldRenderer*		 m_worldRenderer	   = nullptr;
-		WorldDisplayer*		 m_worldDisplayer	   = nullptr;
-		EditorWorldRenderer* m_editorWorldRenderer = nullptr;
+		Move,
+		Rotate,
+		Scale
 	};
 
-	LINA_WIDGET_BEGIN(PanelWorld, Hidden)
-	LINA_CLASS_END(PanelWorld)
+	enum class GizmoLoclity
+	{
+		World,
+		Local,
+	};
 
+	enum class Snapping
+	{
+		Free,
+		Step,
+	};
+
+	enum class WorldCameraType
+	{
+		Orbit,
+		FreeMove,
+	};
+
+	enum class GizmoAxis
+	{
+		None,
+		X,
+		Y,
+		Z
+	};
 } // namespace Lina::Editor

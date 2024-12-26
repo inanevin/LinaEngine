@@ -113,10 +113,27 @@ namespace Lina::Editor
 		if (m_worldRenderer == nullptr)
 			return;
 
+		{
+			const EntityID hovered	   = m_ewr->GetMousePick().GetLastHoveredEntity();
+			GizmoAxis	   hoveredAxis = GizmoAxis::None;
+
+			if (hovered == GIZMO_GUID_X_AXIS)
+				hoveredAxis = GizmoAxis::X;
+			else if (hovered == GIZMO_GUID_Y_AXIS)
+				hoveredAxis = GizmoAxis::Y;
+			else if (hovered == GIZMO_GUID_Z_AXIS)
+				hoveredAxis = GizmoAxis::Z;
+			else
+				hoveredAxis == GizmoAxis::None;
+
+			m_ewr->GetGizmoRenderer().SetHoveredAxis(hoveredAxis);
+			m_gizmoControls.hoveredAxis = hoveredAxis;
+		}
+
 		// Input setup
 		const bool worldHasFocus = m_manager->GetControlsOwner() == this && m_lgxWindow->HasFocus();
 		m_worldRenderer->GetWorld()->GetInput().SetIsActive(worldHasFocus);
-		m_worldRenderer->GetWorld()->GetInput().SetWheelActive(m_isHovered);
+		m_worldRenderer->GetWorld()->GetInput().SetWheelActive(m_isHovered && m_lgxWindow->HasFocus());
 
 		// Screen setup
 		Screen& sc = m_worldRenderer->GetWorld()->GetScreen();
@@ -215,23 +232,53 @@ namespace Lina::Editor
 
 	bool WorldDisplayer::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
-		if (m_isHovered && button == LINAGX_MOUSE_1 && (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated))
-		{
-			m_manager->GrabControls(this);
-			return true;
-		};
-
 		if (m_isHovered)
-		{
 			m_manager->GrabControls(this);
-			return true;
-		}
 		else
-		{
 			m_manager->ReleaseControls(this);
+
+		if (m_worldRenderer == nullptr)
+			return false;
+
+		for (Widget* c : m_children)
+		{
+			if (c->OnMouse(button, act))
+				return false;
+		}
+
+		if (m_isHovered && button == LINAGX_MOUSE_0 && (act == LinaGX::InputAction::Pressed))
+		{
+			SelectEntity(m_ewr->GetMousePick().GetLastHoveredEntity(), true);
 		}
 
 		return false;
+	}
+
+	bool WorldDisplayer::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act)
+	{
+		if (m_worldRenderer == nullptr)
+			return false;
+
+		if (m_manager->GetControlsOwner() != this)
+			return false;
+
+		if (keycode == LINAGX_KEY_1 && act == LinaGX::InputAction::Pressed)
+		{
+			m_gizmoControls.selectedGizmo = GizmoType::Move;
+			m_ewr->GetGizmoRenderer().SetSelectedGizmo(m_gizmoControls.selectedGizmo);
+		}
+		else if (keycode == LINAGX_KEY_2 && act == LinaGX::InputAction::Pressed)
+		{
+			m_gizmoControls.selectedGizmo = GizmoType::Rotate;
+			m_ewr->GetGizmoRenderer().SetSelectedGizmo(m_gizmoControls.selectedGizmo);
+		}
+		else if (keycode == LINAGX_KEY_3 && act == LinaGX::InputAction::Pressed)
+		{
+			m_gizmoControls.selectedGizmo = GizmoType::Scale;
+			m_ewr->GetGizmoRenderer().SetSelectedGizmo(m_gizmoControls.selectedGizmo);
+		}
+
+		return true;
 	}
 
 	void WorldDisplayer::SelectEntity(Entity* e, bool clearOthers)

@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Editor/Graphics/GizmoRenderer.hpp"
 #include "Editor/CommonEditor.hpp"
 #include "Editor/Editor.hpp"
+#include "Editor/Graphics/MousePickRenderer.hpp"
 #include "Common/Math/Math.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
@@ -80,7 +81,23 @@ namespace Lina::Editor
 
 	void GizmoRenderer::Tick(float delta, DrawCollector& collector)
 	{
+		if (m_lastHoveredAxis != m_hoveredAxis)
+		{
+			m_lastHoveredAxis = m_hoveredAxis;
+
+			const Color xColor = Theme::GetDef().accentPrimary2;
+			const Color yColor = Theme::GetDef().accentSuccess;
+			const Color zColor = Theme::GetDef().accentSecondary;
+			m_gizmoMaterialX->SetProperty("color"_hs, m_hoveredAxis == GizmoAxis::X ? Vector4(xColor.Brighten(0.5f)) : Vector4(xColor));
+			m_gizmoMaterialY->SetProperty("color"_hs, m_hoveredAxis == GizmoAxis::Y ? Vector4(yColor.Brighten(0.5f)) : Vector4(yColor));
+			m_gizmoMaterialZ->SetProperty("color"_hs, m_hoveredAxis == GizmoAxis::Z ? Vector4(zColor.Brighten(0.5f)) : Vector4(zColor));
+			m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
+		}
+
 		if (m_selectedEntities.empty())
+			return;
+
+		if (m_selectedGizmo == GizmoType::Rotate)
 			return;
 
 		const Camera& worldCam	  = m_world->GetWorldCamera();
@@ -108,7 +125,7 @@ namespace Lina::Editor
 				},
 			.entityIdent =
 				{
-					.entityGUID = 100,
+					.entityGUID = GIZMO_GUID_X_AXIS,
 				},
 			.materialID	  = m_gizmoMaterialX->GetID(),
 			.pushEntity	  = true,
@@ -122,7 +139,7 @@ namespace Lina::Editor
 				},
 			.entityIdent =
 				{
-					.entityGUID = 101,
+					.entityGUID = GIZMO_GUID_Y_AXIS,
 				},
 			.materialID	  = m_gizmoMaterialY->GetID(),
 			.pushEntity	  = true,
@@ -135,13 +152,14 @@ namespace Lina::Editor
 				},
 			.entityIdent =
 				{
-					.entityGUID = 102,
+					.entityGUID = GIZMO_GUID_Z_AXIS,
 				},
 			.materialID	  = m_gizmoMaterialZ->GetID(),
 			.pushEntity	  = true,
 			.pushMaterial = true,
 		};
-		Model*				   model	  = m_translateModel;
+
+		Model*				   model	  = m_selectedGizmo == GizmoType::Move ? m_translateModel : m_scaleModel;
 		const PrimitiveStatic& prim		  = model->GetAllMeshes().at(0).primitivesStatic.at(0);
 		const uint32		   baseVertex = prim._vertexOffset;
 		const uint32		   baseIndex  = prim._indexOffset;

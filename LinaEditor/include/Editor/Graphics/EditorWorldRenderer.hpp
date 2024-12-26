@@ -88,9 +88,15 @@ namespace Lina::Editor
 		{
 			return m_pfd[frameIndex].signalSemaphore;
 		};
+
 		inline MousePickRenderer& GetMousePick()
 		{
 			return m_mousePickRenderer;
+		}
+
+		inline GizmoRenderer& GetGizmoRenderer()
+		{
+			return m_gizmoRenderer;
 		}
 
 		inline Texture* GetRenderTarget(uint32 frameIndex) const

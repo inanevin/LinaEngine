@@ -59,7 +59,7 @@ void main()
    float distance = abs(cubeViewPos.z); // Distance from camera in view space (z-axis)
 
    // Desired size in normalized device coordinates (NDC)
-   float desiredSizeNDC = 0.1; // Adjust this for screen size of the cube
+   float desiredSizeNDC = 0.2; // Adjust this for screen size of the cube
 
    // Calculate the scale factor to counteract perspective
    float scale = desiredSizeNDC * distance;
