@@ -67,15 +67,6 @@ namespace Lina::Editor
 		m_world	 = m_wr->GetWorld();
 		m_lgx	 = editor->GetApp()->GetLGX();
 
-	} // namespace Lina::Editor
-
-	MousePickRenderer::~MousePickRenderer()
-	{
-	}
-
-	void MousePickRenderer::Initialize()
-	{
-		m_init			 = true;
 		m_pipelineLayout = m_lgx->CreatePipelineLayout(EditorGfxHelpers::GetPipelineLayoutDescriptionEntityBufferPass());
 		m_entityBufferPass.Create(EditorGfxHelpers::GetEntityBufferPassDescription());
 
@@ -103,10 +94,9 @@ namespace Lina::Editor
 			});
 		}
 
-		CreateSizeRelativeResources();
-	}
+	} // namespace Lina::Editor
 
-	void MousePickRenderer::Shutdown()
+	MousePickRenderer::~MousePickRenderer()
 	{
 		DestroySizeRelativeResources();
 		m_lgx->DestroyPipelineLayout(m_pipelineLayout);
@@ -256,7 +246,7 @@ namespace Lina::Editor
 			m_entityBufferPass.Begin(stream, viewport, scissors, frameIndex);
 			m_entityBufferPass.BindDescriptors(stream, frameIndex, m_pipelineLayout, 1);
 
-			if (collector.RenderGroupExists("MosuePick"_hs))
+			if (collector.RenderGroupExists("MousePick"_hs))
 				collector.RenderGroup("MousePick"_hs, stream);
 
 			m_entityBufferPass.End(stream);

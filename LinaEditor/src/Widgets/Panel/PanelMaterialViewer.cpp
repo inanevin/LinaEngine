@@ -82,14 +82,7 @@ namespace Lina::Editor
 
 		m_world				  = new EntityWorld(0, "");
 		m_worldRenderer		  = new WorldRenderer(&m_editor->GetApp()->GetGfxContext(), &m_editor->GetApp()->GetResourceManager(), m_world, Vector2ui(4, 4), "WorldRenderer: " + m_resource->GetName() + " :");
-		m_editorWorldRenderer = new EditorWorldRenderer(m_editor,
-														m_editor->GetApp()->GetLGX(),
-														m_worldRenderer,
-														{
-															.disableSelection = true,
-															.disableGizmos	  = true,
-															.disableShapes	  = true,
-														});
+		m_editorWorldRenderer = new EditorWorldRenderer(m_editor, m_editor->GetApp()->GetLGX(), m_worldRenderer);
 
 		m_editor->GetApp()->JoinRender();
 

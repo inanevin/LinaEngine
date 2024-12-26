@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
+#include "Editor/PayloadListener.hpp"
 #include "Core/World/EntityWorld.hpp"
 
 namespace Lina
@@ -43,8 +44,9 @@ namespace Lina::Editor
 	class EditorCamera;
 	class OrbitCamera;
 	class EditorWorldRenderer;
+	class Editor;
 
-	class WorldDisplayer : public Widget, public EntityWorldListener
+	class WorldDisplayer : public Widget, public EntityWorldListener, public EditorPayloadListener
 	{
 	public:
 		enum class WorldCameraType
@@ -55,7 +57,8 @@ namespace Lina::Editor
 
 		struct Properties
 		{
-			String noWorldText = "";
+			String noWorldText		 = "";
+			bool   enableDragAndDrop = false;
 		};
 
 		WorldDisplayer() : Widget(WF_CONTROLLABLE){};
@@ -67,12 +70,19 @@ namespace Lina::Editor
 		virtual void PreTick() override;
 		virtual void Tick(float dt) override;
 		virtual void Draw() override;
-
-		void DisplayWorld(WorldRenderer* renderer, EditorWorldRenderer* ewr, WorldCameraType cameraType);
-		bool OnMouse(uint32 button, LinaGX::InputAction act) override;
+		virtual void OnPayloadStarted(PayloadType type, Widget* payload) override;
+		virtual void OnPayloadEnded(PayloadType type, Widget* payload) override;
+		virtual bool OnPayloadDropped(PayloadType type, Widget* payload) override;
+		void		 DisplayWorld(WorldRenderer* renderer, EditorWorldRenderer* ewr, WorldCameraType cameraType);
+		bool		 OnMouse(uint32 button, LinaGX::InputAction act) override;
 
 		// World
 		virtual void OnWorldTick(float delta, PlayMode playmode) override;
+		ResourceID	 GetWorldID();
+		void		 SelectEntity(Entity* e, bool clearOthers);
+		void		 SelectEntity(EntityID guid, bool clearOthers);
+		void		 OnEntitySelectionChanged();
+		void		 OnActionEntitySelection(const Vector<EntityID>& selection);
 
 		inline EditorCamera* GetWorldCamera()
 		{
@@ -89,11 +99,12 @@ namespace Lina::Editor
 		void DrawAxis(const Vector3& targetAxis, const Color& baseColor, const String& axis);
 
 	private:
+		Vector<Entity*>		 m_selectedEntities;
+		Editor*				 m_editor		 = nullptr;
 		EditorWorldRenderer* m_ewr			 = nullptr;
 		Properties			 m_props		 = {};
 		Text*				 m_noWorldText	 = nullptr;
 		WorldRenderer*		 m_worldRenderer = nullptr;
-		bool				 m_mouseConfined = false;
 		EditorCamera*		 m_camera		 = nullptr;
 		Font*				 m_gizmoFont	 = nullptr;
 	};

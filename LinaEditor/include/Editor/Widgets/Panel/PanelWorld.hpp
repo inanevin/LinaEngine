@@ -29,7 +29,6 @@ SOFTWARE.
 #pragma once
 
 #include "Editor/Widgets/Panel/Panel.hpp"
-#include "Editor/PayloadListener.hpp"
 #include "Core/World/CommonWorld.hpp"
 
 namespace Lina
@@ -45,7 +44,7 @@ namespace Lina::Editor
 	class WorldDisplayer;
 	class EditorWorldRenderer;
 
-	class PanelWorld : public Panel, public EditorPayloadListener
+	class PanelWorld : public Panel
 	{
 	public:
 		PanelWorld() : Panel(PanelType::World){};
@@ -53,21 +52,9 @@ namespace Lina::Editor
 
 		virtual void Construct() override;
 		virtual void Destruct() override;
-		virtual void Tick(float delta) override;
 
 		void CreateWorld(const String& resourcePath);
 		void DestroyWorld();
-
-		void SelectEntity(Entity* e, bool clearOthers);
-		void SelectEntity(EntityID guid, bool clearOthers);
-		void ChangeSelectionByAction(const Vector<EntityID>& selection);
-		void OnEntitySelectionChanged();
-
-		virtual void OnPayloadStarted(PayloadType type, Widget* payload) override;
-		virtual void OnPayloadEnded(PayloadType type, Widget* payload) override;
-		virtual bool OnPayloadDropped(PayloadType type, Widget* payload) override;
-
-		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
 		virtual LinaGX::Window* OnPayloadGetWindow()
 		{

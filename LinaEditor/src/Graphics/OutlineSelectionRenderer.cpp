@@ -69,29 +69,19 @@ namespace Lina::Editor
 		m_world	 = m_wr->GetWorld();
 		m_lgx	 = m_editor->GetApp()->GetLGX();
 
-		m_fullscreenShader = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_ID);
-
-	} // namespace Lina::Editor
-
-	OutlineSelectionRenderer::~OutlineSelectionRenderer()
-	{
-	}
-
-	void OutlineSelectionRenderer::Initialize()
-	{
+		m_fullscreenShader	 = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_ID);
 		m_fullscreenMaterial = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Outline Fullscreen Material");
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 
 		m_fullscreenMaterial->SetShader(m_fullscreenShader);
-		m_fullscreenMaterial->SetProperty("color"_hs, Vector4(1.0f, 0.5f, 0.0f, 1.0f));
-		m_fullscreenMaterial->SetProperty("thickness"_hs, 1.0f);
+		m_fullscreenMaterial->SetProperty("color"_hs, Theme::GetDef().accentPrimary2);
+		m_fullscreenMaterial->SetProperty("thickness"_hs, 2.0f);
 
 		m_pipelineLayout = m_lgx->CreatePipelineLayout(EditorGfxHelpers::GetPipelineLayoutDescriptionEntityBufferPass());
 		m_outlinePass.Create(EditorGfxHelpers::GetEntityBufferPassDescription());
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
-
 			const uint16 set = m_outlinePass.GetDescriptorSet(i);
 
 			m_lgx->DescriptorUpdateBuffer({
@@ -113,10 +103,9 @@ namespace Lina::Editor
 			});
 		}
 
-		CreateSizeRelativeResources();
-	}
+	} // namespace Lina::Editor
 
-	void OutlineSelectionRenderer::Shutdown()
+	OutlineSelectionRenderer::~OutlineSelectionRenderer()
 	{
 		DestroySizeRelativeResources();
 		m_lgx->DestroyPipelineLayout(m_pipelineLayout);
@@ -222,6 +211,8 @@ namespace Lina::Editor
 
 	void OutlineSelectionRenderer::Render(uint32 frameIndex, LinaGX::CommandStream* stream, DrawCollector& collector)
 	{
+		if (!collector.RenderGroupExists("Outline"_hs))
+			return;
 
 		PerFrameData& pfd = m_pfd[frameIndex];
 
@@ -259,8 +250,7 @@ namespace Lina::Editor
 			m_outlinePass.Begin(stream, viewport, scissors, frameIndex);
 			m_outlinePass.BindDescriptors(stream, frameIndex, m_pipelineLayout, 1);
 
-			if (collector.RenderGroupExists("Outline"_hs))
-				collector.RenderGroup("Outline"_hs, stream);
+			collector.RenderGroup("Outline"_hs, stream);
 
 			m_outlinePass.End(stream);
 

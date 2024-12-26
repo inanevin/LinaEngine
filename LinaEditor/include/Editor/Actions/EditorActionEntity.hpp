@@ -47,12 +47,13 @@ namespace Lina::Editor
 		EditorActionEntitySelection()		   = default;
 		virtual ~EditorActionEntitySelection() = default;
 
-		static EditorActionEntitySelection* Create(Editor* editor, const Vector<Entity*>& previousSelection, const Vector<Entity*>& currentSelection);
+		static EditorActionEntitySelection* Create(Editor* editor, uint64 m_worldId, const Vector<Entity*>& previousSelection, const Vector<Entity*>& currentSelection);
 		virtual void						Execute(Editor* editor, ExecType type) override;
 
 	private:
 		Vector<EntityID> m_prevSelected = {};
 		Vector<EntityID> m_selected		= {};
+		uint64			 m_worldId		= 0;
 	};
 
 } // namespace Lina::Editor

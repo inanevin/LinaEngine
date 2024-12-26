@@ -30,8 +30,13 @@ SOFTWARE.
 #include "Editor/Editor.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
+#include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
+#include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
 #include "Editor/Graphics/EditorWorldRenderer.hpp"
 #include "Editor/World/EditorCamera.hpp"
+#include "Editor/World/WorldUtility.hpp"
+#include "Editor/Actions/EditorActionEntity.hpp"
+
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
@@ -45,9 +50,10 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-
 	void WorldDisplayer::Construct()
 	{
+		m_editor = Editor::Get();
+
 		GetFlags().Set(WF_KEY_PASSTHRU | WF_MOUSE_PASSTHRU);
 		GetWidgetProps().outlineThickness = Theme::GetDef().baseOutlineThickness;
 		GetWidgetProps().rounding		  = 0.0f;
@@ -64,6 +70,7 @@ namespace Lina::Editor
 		AddChild(m_noWorldText);
 
 		m_gizmoFont = Editor::Get()->GetApp()->GetResourceManager().GetResource<Font>(EDITOR_FONT_PLAY_ID);
+		m_editor->GetWindowPanelManager().AddPayloadListener(this);
 	}
 
 	void WorldDisplayer::Initialize()
@@ -73,6 +80,8 @@ namespace Lina::Editor
 
 	void WorldDisplayer::Destruct()
 	{
+		m_editor->GetWindowPanelManager().RemovePayloadListener(this);
+
 		if (m_worldRenderer)
 			m_worldRenderer->GetWorld()->RemoveListener(this);
 
@@ -101,13 +110,6 @@ namespace Lina::Editor
 
 	void WorldDisplayer::PreTick()
 	{
-		if (m_mouseConfined && !m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_1))
-		{
-			// m_lgxWindow->FreeMouse();
-			// m_lgxWindow->SetMouseVisible(true);
-			m_mouseConfined = false;
-		}
-
 		if (m_worldRenderer == nullptr)
 			return;
 
@@ -156,16 +158,66 @@ namespace Lina::Editor
 		DrawAxis(Vector3::Right, Theme::GetDef().accentError, "X");
 	}
 
+	void WorldDisplayer::OnPayloadStarted(PayloadType type, Widget* payload)
+	{
+		if (!m_props.enableDragAndDrop || type != PayloadType::Resource || m_worldRenderer == nullptr)
+			return;
+	}
+
+	void WorldDisplayer::OnPayloadEnded(PayloadType type, Widget* payload)
+	{
+		if (!m_props.enableDragAndDrop || type != PayloadType::Resource || m_worldRenderer == nullptr)
+			return;
+	}
+
+	bool WorldDisplayer::OnPayloadDropped(PayloadType type, Widget* payload)
+	{
+		if (!m_props.enableDragAndDrop || type != PayloadType::Resource || m_worldRenderer == nullptr)
+			return false;
+		if (!m_isHovered)
+			return false;
+
+		Panel* panel = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::ResourceBrowser, 0);
+
+		if (panel == nullptr)
+			return false;
+
+		const Vector<ResourceDirectory*>& payloadItems = static_cast<PanelResourceBrowser*>(panel)->GetBrowser()->GetPayloadItems();
+
+		HashSet<ResourceID> resources;
+
+		Entity* last = nullptr;
+
+		EntityWorld* world = m_worldRenderer->GetWorld();
+
+		for (ResourceDirectory* dir : payloadItems)
+		{
+			if (dir->resourceTID == GetTypeID<Model>())
+			{
+				WorldUtility::LoadModelAndMaterials(m_editor, dir->resourceID, world->GetID());
+
+				Model*	model  = m_resourceManager->GetResource<Model>(dir->resourceID);
+				Entity* entity = WorldUtility::AddModelToWorld(world, model, model->GetMeta().materials);
+				world->LoadMissingResources(*m_resourceManager, m_editor->GetProjectManager().GetProjectData(), {}, world->GetID());
+
+				const Vector2 mp	= m_lgxWindow->GetMousePosition() - GetStartFromMargins();
+				const Vector2 size	= GetEndFromMargins() - GetStartFromMargins();
+				const Vector3 point = Camera::ScreenToWorld(world->GetWorldCamera(), mp, size, 0.97f);
+				entity->SetPosition(point);
+
+				last = entity;
+			}
+		}
+
+		SelectEntity(last, true);
+		return true;
+	}
+
 	bool WorldDisplayer::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
 		if (m_isHovered && button == LINAGX_MOUSE_1 && (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated))
 		{
 			m_manager->GrabControls(this);
-
-			// const LinaGX::LGXVector2ui center = {static_cast<uint32>(m_lgxWindow->GetMousePosition().x), // static_cast<uint32>(m_lgxWindow->GetMousePosition().y)};
-			// m_lgxWindow->ConfineMouseToPoint(center);
-			// m_lgxWindow->SetMouseVisible(false);
-			m_mouseConfined = true;
 			return true;
 		};
 
@@ -180,6 +232,44 @@ namespace Lina::Editor
 		}
 
 		return false;
+	}
+
+	void WorldDisplayer::SelectEntity(Entity* e, bool clearOthers)
+	{
+		const Vector<Entity*> prev = m_selectedEntities;
+
+		if (clearOthers)
+			m_selectedEntities.clear();
+
+		if (e != nullptr)
+			m_selectedEntities.push_back(e);
+
+		EditorActionEntitySelection::Create(m_editor, m_worldRenderer->GetWorld()->GetID(), prev, m_selectedEntities);
+
+		OnEntitySelectionChanged();
+	}
+
+	void WorldDisplayer::SelectEntity(EntityID guid, bool clearOthers)
+	{
+		SelectEntity(m_worldRenderer->GetWorld()->GetEntity(guid), clearOthers);
+	}
+
+	void WorldDisplayer::OnActionEntitySelection(const Vector<EntityID>& selection)
+	{
+		m_selectedEntities.clear();
+		for (EntityID guid : selection)
+			m_selectedEntities.push_back(m_worldRenderer->GetWorld()->GetEntity(guid));
+		OnEntitySelectionChanged();
+	}
+
+	void WorldDisplayer::OnEntitySelectionChanged()
+	{
+		m_ewr->SetSelectedEntities(m_selectedEntities);
+	}
+
+	ResourceID WorldDisplayer::GetWorldID()
+	{
+		return m_worldRenderer == nullptr ? 0 : m_worldRenderer->GetWorld()->GetID();
 	}
 
 	void WorldDisplayer::DestroyCamera()

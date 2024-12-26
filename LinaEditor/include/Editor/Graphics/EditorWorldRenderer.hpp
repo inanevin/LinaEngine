@@ -70,15 +70,8 @@ namespace Lina::Editor
 		};
 
 	public:
-		struct Properties
-		{
-			bool disableSelection = false;
-			bool disableGizmos	  = false;
-			bool disableShapes	  = false;
-		};
-
 	public:
-		EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr, const Properties& props);
+		EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr);
 		virtual ~EditorWorldRenderer();
 
 		void Tick(float delta);
@@ -106,7 +99,6 @@ namespace Lina::Editor
 		}
 
 	private:
-		Properties				 m_props;
 		Vector<Entity*>			 m_selectedEntities;
 		EntityWorld*			 m_world = nullptr;
 		RenderPass				 m_pass;

@@ -28,18 +28,19 @@ SOFTWARE.
 
 #include "Editor/Actions/EditorActionEntity.hpp"
 #include "Editor/Editor.hpp"
-#include "Editor/Widgets/Panel/PanelWorld.hpp"
+#include "Editor/Widgets/World/WorldDisplayer.hpp"
 #include "Core/World/Entity.hpp"
 
 namespace Lina::Editor
 {
 
-	EditorActionEntitySelection* EditorActionEntitySelection::Create(Editor* editor, const Vector<Entity*>& previousSelection, const Vector<Entity*>& currentSelection)
+	EditorActionEntitySelection* EditorActionEntitySelection::Create(Editor* editor, uint64 m_worldId, const Vector<Entity*>& previousSelection, const Vector<Entity*>& currentSelection)
 	{
 		EditorActionEntitySelection* action = new EditorActionEntitySelection();
 
 		action->m_prevSelected.reserve(previousSelection.size());
 		action->m_selected.reserve(currentSelection.size());
+		action->m_worldId = m_worldId;
 
 		for (Entity* prev : previousSelection)
 			action->m_prevSelected.push_back(prev->GetGUID());
@@ -53,19 +54,17 @@ namespace Lina::Editor
 
 	void EditorActionEntitySelection::Execute(Editor* editor, ExecType type)
 	{
-		Panel* panel = editor->GetWindowPanelManager().FindPanelOfType(PanelType::World, 0);
-		if (!panel)
+		WorldDisplayer* displayer = editor->GetWorldManager().FindWorldDisplayer(m_worldId);
+		if (!displayer)
 			return;
-
-		PanelWorld* panelWorld = static_cast<PanelWorld*>(panel);
 
 		if (type == ExecType::Undo)
 		{
-			panelWorld->ChangeSelectionByAction(m_prevSelected);
+			displayer->OnActionEntitySelection(m_prevSelected);
 		}
 		else if (type == ExecType::Redo)
 		{
-			panelWorld->ChangeSelectionByAction(m_selected);
+			displayer->OnActionEntitySelection(m_selected);
 		}
 	}
 

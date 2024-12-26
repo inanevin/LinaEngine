@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Editor/Widgets/Panel/PanelWorld.hpp"
+#include "Editor/Widgets/World/WorldDisplayer.hpp"
 #include "Core/Application.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
@@ -48,6 +49,24 @@ namespace Lina::Editor
 	{
 	}
 
+	void EditorWorldManager::AddWorldDisplayer(WorldDisplayer* owner)
+	{
+		m_worldDisplayers.push_back(owner);
+	}
+
+	void EditorWorldManager::RemoveWorldDisplayer(WorldDisplayer* owner)
+	{
+		m_worldDisplayers.erase(linatl::find(m_worldDisplayers.begin(), m_worldDisplayers.end(), owner));
+	}
+
+	WorldDisplayer* EditorWorldManager::FindWorldDisplayer(uint64 id)
+	{
+		auto tl = linatl::find_if(m_worldDisplayers.begin(), m_worldDisplayers.end(), [id](WorldDisplayer* disp) -> bool { return disp->GetWorldID() == id; });
+		if (tl == m_worldDisplayers.end())
+			return nullptr;
+		return *tl;
+	}
+
 	void EditorWorldManager::OpenWorld(ResourceID id)
 	{
 		const String resourcePath = m_editor->GetProjectManager().GetProjectData()->GetResourcePath(id);
@@ -63,7 +82,7 @@ namespace Lina::Editor
 		panel->CreateWorld(resourcePath);
 
 		/*
-		Widget* lockRoot = m_editor->GetWindowPanelManager().LockAllForegrounds(panel->GetWindow(), [](Widget* owner) -> Widget* { return CommonWidgets::BuildSimpleForegroundLockText(owner, Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow)); });
+		Widget* lockRoot = m_editor->GetWindowPanelManager().LockAllForegrounds(panel->GetWindow(), [](Widget* disp) -> Widget* { return CommonWidgets::BuildSimpleForegroundLockText(disp, Locale::GetStr(LocaleStr::WorkInProgressInAnotherWindow)); });
 		Vector<CommonWidgets::GenericPopupButton> buttons = {
 			{
 				.title = Locale::GetStr(LocaleStr::Yes),

@@ -28,6 +28,7 @@ SOFTWARE.
 
 #pragma once
 #include "Core/Resources/CommonResources.hpp"
+#include "Core/World/CommonWorld.hpp"
 
 namespace Lina
 {
@@ -38,16 +39,22 @@ namespace Lina
 namespace Lina::Editor
 {
 	class Editor;
+	class WorldDisplayer;
+
 	class EditorWorldManager
 	{
 	public:
-		void Initialize(Editor* editor);
-		void Shutdown();
+		void			Initialize(Editor* editor);
+		void			Shutdown();
+		void			AddWorldDisplayer(WorldDisplayer* owner);
+		void			RemoveWorldDisplayer(WorldDisplayer* owner);
+		WorldDisplayer* FindWorldDisplayer(uint64 id);
 
 		void OpenWorld(ResourceID id);
 
 	private:
-		Editor* m_editor = nullptr;
+		Editor*					m_editor = nullptr;
+		Vector<WorldDisplayer*> m_worldDisplayers;
 	};
 
 } // namespace Lina::Editor

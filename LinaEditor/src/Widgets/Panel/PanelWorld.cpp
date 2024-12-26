@@ -34,8 +34,6 @@ SOFTWARE.
 #include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Editor/Graphics/EditorWorldRenderer.hpp"
-#include "Editor/World/WorldUtility.hpp"
-#include "Editor/Actions/EditorActionEntity.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Serialization/Serialization.hpp"
@@ -60,27 +58,12 @@ namespace Lina::Editor
 		m_worldDisplayer->SetAlignedSize(Vector2::One);
 		m_worldDisplayer->GetProps().noWorldText = Locale::GetStr(LocaleStr::NoWorldInstalled);
 
-		m_editor->GetWindowPanelManager().AddPayloadListener(this);
 		AddChild(m_worldDisplayer);
 	}
 
 	void PanelWorld::Destruct()
 	{
-		m_editor->GetWindowPanelManager().RemovePayloadListener(this);
 		DestroyWorld();
-	}
-
-	void PanelWorld::Tick(float delta)
-	{
-		// m_world = m_wm->GetMainWorld();
-		// if (!m_world)
-		// 	return;
-		//
-		// if (m_worldRenderer == nullptr)
-		// 	m_worldRenderer = Editor::Get()->GetWorldRenderer(m_world);
-		//
-		// const Vector2ui size = Vector2ui(static_cast<uint32>(Math::CeilToInt(GetSizeX())), static_cast<uint32>(Math::CeilToInt(GetSizeY())));
-		// m_worldRenderer->Resize(size);
 	}
 
 	void PanelWorld::CreateWorld(const String& resourcePath)
@@ -90,9 +73,9 @@ namespace Lina::Editor
 		m_world = new EntityWorld(0, "");
 		m_editor->GetApp()->GetWorldProcessor().AddWorld(m_world);
 		m_worldRenderer		  = new WorldRenderer(&m_editor->GetApp()->GetGfxContext(), &m_editor->GetApp()->GetResourceManager(), m_world, Vector2ui(4, 4), "WorldRenderer: " + m_world->GetName());
-		m_editorWorldRenderer = new EditorWorldRenderer(m_editor, m_editor->GetApp()->GetLGX(), m_worldRenderer, {});
-
+		m_editorWorldRenderer = new EditorWorldRenderer(m_editor, m_editor->GetApp()->GetLGX(), m_worldRenderer);
 		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer, m_editorWorldRenderer);
+
 		IStream stream = Serialization::LoadFromFile(resourcePath.c_str());
 		m_world->LoadFromStream(stream);
 		stream.Destroy();
@@ -128,121 +111,6 @@ namespace Lina::Editor
 		m_worldDisplayer->DisplayWorld(nullptr, nullptr, WorldDisplayer::WorldCameraType::FreeMove);
 
 		m_editor->GetApp()->GetResourceManager().UnloadResourceSpace(space);
-	}
-
-	void PanelWorld::SelectEntity(Entity* e, bool clearOthers)
-	{
-		const Vector<Entity*> prev = m_selectedEntities;
-
-		if (clearOthers)
-			m_selectedEntities.clear();
-
-		if (e != nullptr)
-			m_selectedEntities.push_back(e);
-
-		EditorActionEntitySelection::Create(m_editor, prev, m_selectedEntities);
-
-		OnEntitySelectionChanged();
-	}
-
-	void PanelWorld::SelectEntity(EntityID guid, bool clearOthers)
-	{
-		SelectEntity(m_world->GetEntity(guid), clearOthers);
-	}
-
-	void PanelWorld::ChangeSelectionByAction(const Vector<EntityID>& selection)
-	{
-		m_selectedEntities.clear();
-		for (EntityID guid : selection)
-			m_selectedEntities.push_back(m_world->GetEntity(guid));
-
-		OnEntitySelectionChanged();
-	}
-
-	void PanelWorld::OnEntitySelectionChanged()
-	{
-		m_editorWorldRenderer->SetSelectedEntities(m_selectedEntities);
-	}
-
-	void PanelWorld::OnPayloadStarted(PayloadType type, Widget* payload)
-	{
-		if (type != PayloadType::Resource)
-			return;
-
-		if (m_world == nullptr)
-			return;
-
-		m_worldDisplayer->GetWidgetProps().colorOutline = Theme::GetDef().accentPrimary0;
-	}
-
-	void PanelWorld::OnPayloadEnded(PayloadType type, Widget* payload)
-	{
-		if (type != PayloadType::Resource)
-			return;
-
-		if (m_world == nullptr)
-			return;
-
-		m_worldDisplayer->GetWidgetProps().colorOutline = Theme::GetDef().outlineColorBase;
-	}
-
-	bool PanelWorld::OnPayloadDropped(PayloadType type, Widget* payload)
-	{
-		if (type != PayloadType::Resource)
-			return false;
-
-		if (m_world == nullptr)
-			return false;
-
-		if (!m_worldDisplayer->GetIsHovered())
-			return false;
-
-		Panel* panel = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::ResourceBrowser, 0);
-
-		if (panel == nullptr)
-			return false;
-
-		const Vector<ResourceDirectory*>& payloadItems = static_cast<PanelResourceBrowser*>(panel)->GetBrowser()->GetPayloadItems();
-
-		HashSet<ResourceID> resources;
-
-		Entity* last = nullptr;
-
-		for (ResourceDirectory* dir : payloadItems)
-		{
-			if (dir->resourceTID == GetTypeID<Model>())
-			{
-				WorldUtility::LoadModelAndMaterials(m_editor, dir->resourceID, m_world->GetID());
-
-				Model*	model  = m_resourceManager->GetResource<Model>(dir->resourceID);
-				Entity* entity = WorldUtility::AddModelToWorld(m_world, model, model->GetMeta().materials);
-				m_world->LoadMissingResources(*m_resourceManager, m_editor->GetProjectManager().GetProjectData(), {}, m_world->GetID());
-
-				const Vector2 mp	= m_lgxWindow->GetMousePosition() - m_worldDisplayer->GetStartFromMargins();
-				const Vector2 size	= m_worldDisplayer->GetEndFromMargins() - m_worldDisplayer->GetStartFromMargins();
-				const Vector3 point = Camera::ScreenToWorld(m_world->GetWorldCamera(), mp, size, 0.97f);
-				entity->SetPosition(point);
-
-				last = entity;
-			}
-		}
-
-		SelectEntity(last, true);
-
-		return true;
-	}
-
-	bool PanelWorld::OnMouse(uint32 button, LinaGX::InputAction act)
-	{
-		if (!m_worldDisplayer->GetIsHovered())
-			return false;
-
-		if (button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Pressed)
-		{
-			if (m_editorWorldRenderer)
-				SelectEntity(m_editorWorldRenderer->GetMousePick().GetLastHoveredEntity(), true);
-		}
-		return false;
 	}
 
 } // namespace Lina::Editor

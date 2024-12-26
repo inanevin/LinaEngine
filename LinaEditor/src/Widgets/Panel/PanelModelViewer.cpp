@@ -74,19 +74,11 @@ namespace Lina::Editor
 
 		m_world				  = new EntityWorld(0, "");
 		m_worldRenderer		  = new WorldRenderer(&m_editor->GetApp()->GetGfxContext(), &m_editor->GetApp()->GetResourceManager(), m_world, Vector2ui(4, 4), "WorldRenderer: " + m_resource->GetName() + " :");
-		m_editorWorldRenderer = new EditorWorldRenderer(m_editor,
-														m_editor->GetApp()->GetLGX(),
-														m_worldRenderer,
-														{
-															.disableSelection = true,
-															.disableGizmos	  = true,
-															.disableShapes	  = true,
-														});
+		m_editorWorldRenderer = new EditorWorldRenderer(m_editor, m_editor->GetApp()->GetLGX(), m_worldRenderer);
 
 		m_editor->GetApp()->JoinRender();
 		m_editor->GetApp()->GetWorldProcessor().AddWorld(m_world);
 		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer, m_editorWorldRenderer);
-
 		m_worldDisplayer->DisplayWorld(m_worldRenderer, m_editorWorldRenderer, WorldDisplayer::WorldCameraType::Orbit);
 
 		m_world->GetGfxSettings().lightingMaterial = EDITOR_MATERIAL_DEFAULT_LIGHTING_ID;
@@ -133,6 +125,7 @@ namespace Lina::Editor
 
 	void PanelModelViewer::Destruct()
 	{
+
 		PanelResourceViewer::Destruct();
 
 		m_previousStream.Destroy();

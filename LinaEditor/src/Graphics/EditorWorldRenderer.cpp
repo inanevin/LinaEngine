@@ -58,9 +58,8 @@ namespace Lina::Editor
 #define DEBUG_LABEL_END(Stream)
 #endif
 
-	EditorWorldRenderer::EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr, const Properties& props) : m_gizmoRenderer(editor, wr), m_mousePickRenderer(editor, wr), m_outlineRenderer(editor, wr)
+	EditorWorldRenderer::EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr) : m_gizmoRenderer(editor, wr), m_mousePickRenderer(editor, wr), m_outlineRenderer(editor, wr)
 	{
-		m_props	 = props;
 		m_editor = editor;
 		m_lgx	 = lgx;
 		m_rm	 = &m_editor->GetApp()->GetResourceManager();
@@ -124,51 +123,30 @@ namespace Lina::Editor
 			.mipLodBias = 0.0f,
 		});
 
-		if (!m_props.disableSelection)
-		{
-			m_mousePickRenderer.Initialize();
-			m_outlineRenderer.Initialize();
+		m_outlineSelectionSampler = m_rm->CreateResource<TextureSampler>(m_rm->ConsumeResourceID(), "EWR: Outline Sampler");
+		m_outlineSelectionSampler->GenerateHW(LinaGX::SamplerDesc{
+			.minFilter	= LinaGX::Filter::Anisotropic,
+			.magFilter	= LinaGX::Filter::Anisotropic,
+			.mode		= LinaGX::SamplerAddressMode::ClampToBorder,
+			.mipmapMode = LinaGX::MipmapMode::Linear,
+			.anisotropy = 0,
+			.minLod		= 0.0f,
+			.maxLod		= 10.0f,
+			.mipLodBias = 0.0f,
+		});
 
-			m_outlineSelectionSampler = m_rm->CreateResource<TextureSampler>(m_rm->ConsumeResourceID(), "EWR: Outline Sampler");
-			m_outlineSelectionSampler->GenerateHW(LinaGX::SamplerDesc{
-				.minFilter	= LinaGX::Filter::Anisotropic,
-				.magFilter	= LinaGX::Filter::Anisotropic,
-				.mode		= LinaGX::SamplerAddressMode::ClampToBorder,
-				.mipmapMode = LinaGX::MipmapMode::Linear,
-				.anisotropy = 0,
-				.minLod		= 0.0f,
-				.maxLod		= 10.0f,
-				.mipLodBias = 0.0f,
-			});
-		}
-
-		if (!m_props.disableGizmos)
-			m_gizmoRenderer.Initialize();
-
+		OnWorldRendererCreateSizeRelative();
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 	}
 
 	EditorWorldRenderer::~EditorWorldRenderer()
 	{
-		if (!m_props.disableSelection)
-		{
-			m_mousePickRenderer.Shutdown();
-			m_outlineRenderer.Shutdown();
-		}
-
-		if (!m_props.disableGizmos)
-			m_gizmoRenderer.Shutdown();
-
-		if (!m_props.disableSelection)
-		{
-			m_outlineSelectionSampler->DestroyHW();
-			m_rm->DestroyResource(m_outlineSelectionSampler);
-		}
-
+		m_outlineSelectionSampler->DestroyHW();
+		m_rm->DestroyResource(m_outlineSelectionSampler);
 		m_worldSampler->DestroyHW();
 		m_rm->DestroyResource(m_worldSampler);
-
 		m_rm->DestroyResource(m_gridMaterial);
+
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 
 		m_pass.Destroy();
@@ -218,23 +196,15 @@ namespace Lina::Editor
 			drawCollector.AddCustomDrawRaw("EditorWorld"_hs, gridInstance, m_gridShader->GetID(), 0, 0, 6);
 		}
 
-		// if (!m_props.disableGizmos)
-		// 	m_gizmoRenderer.Tick(delta, drawCollector);
-		//
-		// if (!m_props.disableSelection)
-		// {
-		// 	m_mousePickRenderer.Tick(delta, drawCollector);
-		// 	m_outlineRenderer.Tick(delta, drawCollector);
-		// }
+		m_gizmoRenderer.Tick(delta, drawCollector);
+		m_mousePickRenderer.Tick(delta, drawCollector);
+		m_outlineRenderer.Tick(delta, drawCollector);
 	}
 
 	void EditorWorldRenderer::SyncRender()
 	{
-		if (!m_props.disableSelection)
-		{
-			m_mousePickRenderer.SyncRender();
-			m_outlineRenderer.SyncRender();
-		}
+		m_mousePickRenderer.SyncRender();
+		m_outlineRenderer.SyncRender();
 	}
 
 	void EditorWorldRenderer::UpdateBuffers(uint32 frameIndex)
@@ -251,33 +221,25 @@ namespace Lina::Editor
 					.proj = worldCam.GetProjection(),
 			};
 
-			const Vector2ui& size	   = m_wr->GetSize();
-			const Vector3&	 camPos	   = worldCam.GetPosition();
-			const Vector3&	 camDir	   = worldCam.GetRotation().GetForward();
-			view.viewProj			   = view.proj * view.view;
-			view.cameraPositionAndNear = Vector4(camPos.x, camPos.y, camPos.z, worldCam.GetZNear());
-			view.cameraDirectionAndFar = Vector4(camDir.x, camDir.y, camDir.z, worldCam.GetZFar());
-			view.size				   = Vector2(static_cast<float>(size.x), static_cast<float>(size.y));
-			view.mouse				   = m_world->GetInput().GetMousePositionRatio();
-
-			if (!m_props.disableSelection)
-			{
-				view.outlineSelectionTextureIndex = m_outlineRenderer.GetRenderTarget(frameIndex)->GetBindlessIndex();
-				view.outlineSelectionSamplerIndex = m_outlineSelectionSampler->GetBindlessIndex();
-			}
-
-			view.worldTextureIndex		= m_wr->GetLightingPassOutput(frameIndex)->GetBindlessIndex();
-			view.worldDepthTextureIndex = m_wr->GetGBufDepth(frameIndex)->GetBindlessIndex();
-			view.worldSamplerIndex		= m_worldSampler->GetBindlessIndex();
+			const Vector2ui& size			  = m_wr->GetSize();
+			const Vector3&	 camPos			  = worldCam.GetPosition();
+			const Vector3&	 camDir			  = worldCam.GetRotation().GetForward();
+			view.viewProj					  = view.proj * view.view;
+			view.cameraPositionAndNear		  = Vector4(camPos.x, camPos.y, camPos.z, worldCam.GetZNear());
+			view.cameraDirectionAndFar		  = Vector4(camDir.x, camDir.y, camDir.z, worldCam.GetZFar());
+			view.size						  = Vector2(static_cast<float>(size.x), static_cast<float>(size.y));
+			view.mouse						  = m_world->GetInput().GetMousePositionRatio();
+			view.outlineSelectionTextureIndex = m_outlineRenderer.GetRenderTarget(frameIndex)->GetBindlessIndex();
+			view.outlineSelectionSamplerIndex = m_outlineSelectionSampler->GetBindlessIndex();
+			view.worldTextureIndex			  = m_wr->GetLightingPassOutput(frameIndex)->GetBindlessIndex();
+			view.worldDepthTextureIndex		  = m_wr->GetGBufDepth(frameIndex)->GetBindlessIndex();
+			view.worldSamplerIndex			  = m_worldSampler->GetBindlessIndex();
 
 			m_pass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(EditorWorldPassViewData));
 		}
 
-		if (!m_props.disableSelection)
-		{
-			m_mousePickRenderer.AddBuffersToUploadQueue(frameIndex, queue);
-			m_outlineRenderer.AddBuffersToUploadQueue(frameIndex, queue);
-		}
+		m_mousePickRenderer.AddBuffersToUploadQueue(frameIndex, queue);
+		m_outlineRenderer.AddBuffersToUploadQueue(frameIndex, queue);
 
 		m_pass.AddBuffersToUploadQueue(frameIndex, queue);
 	}
@@ -306,8 +268,7 @@ namespace Lina::Editor
 			.height = size.y,
 		};
 
-		// if (!m_props.disableSelection)
-		// 	m_outlineRenderer.Render(frameIndex, gfxStream, drawCollector);
+		m_outlineRenderer.Render(frameIndex, gfxStream, drawCollector);
 
 		DEBUG_LABEL_BEGIN(gfxStream, "Editor World Pass");
 
@@ -327,12 +288,9 @@ namespace Lina::Editor
 		if (drawCollector.RenderGroupExists("EditorWorld"_hs))
 			drawCollector.RenderGroup("EditorWorld"_hs, gfxStream);
 
-		//
-		// if (!m_props.disableSelection)
-		// 	m_outlineRenderer.RenderFullscreen(drawCollector, gfxStream);
-		//
-		// if (!m_props.disableGizmos)
-		// 	m_gizmoRenderer.Render(drawCollector, gfxStream);
+		m_outlineRenderer.RenderFullscreen(drawCollector, gfxStream);
+
+		m_gizmoRenderer.Render(drawCollector, gfxStream);
 
 		m_pass.End(gfxStream);
 
@@ -347,8 +305,7 @@ namespace Lina::Editor
 
 		DEBUG_LABEL_END(gfxStream);
 
-		// if (!m_props.disableSelection)
-		//	m_mousePickRenderer.Render(frameIndex, gfxStream, drawCollector);
+		m_mousePickRenderer.Render(frameIndex, gfxStream, drawCollector);
 	}
 
 	void EditorWorldRenderer::OnWorldRendererCreateSizeRelative()
@@ -418,11 +375,8 @@ namespace Lina::Editor
 										  });
 		}
 
-		if (!m_props.disableSelection)
-		{
-			m_mousePickRenderer.CreateSizeRelativeResources();
-			m_outlineRenderer.CreateSizeRelativeResources();
-		}
+		m_mousePickRenderer.CreateSizeRelativeResources();
+		m_outlineRenderer.CreateSizeRelativeResources();
 	}
 
 	void EditorWorldRenderer::OnWorldRendererDestroySizeRelative()
@@ -443,11 +397,8 @@ namespace Lina::Editor
 			pfd.depthTarget = pfd.renderTargetMSAA = pfd.renderTargetResolve = nullptr;
 		}
 
-		if (!m_props.disableSelection)
-		{
-			m_mousePickRenderer.DestroySizeRelativeResources();
-			m_outlineRenderer.DestroySizeRelativeResources();
-		}
+		m_mousePickRenderer.DestroySizeRelativeResources();
+		m_outlineRenderer.DestroySizeRelativeResources();
 	}
 
 	void EditorWorldRenderer::SetSelectedEntities(const Vector<Entity*>& selected)
