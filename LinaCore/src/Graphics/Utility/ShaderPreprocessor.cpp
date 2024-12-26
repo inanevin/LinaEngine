@@ -373,73 +373,6 @@ namespace Lina
 		return ProcessMaterialData(input, outProperties);
 	}
 
-	void ShaderPreprocessor::InjectRenderPassInputs(String& input, RenderPassType type)
-	{
-		const String globalHeader = "#include \"Resources/Core/Shaders/Common/GlobalData.linashader\"\n";
-
-		input.insert(input.length(), globalHeader);
-
-		if (type == RenderPassType::RENDER_PASS_DEFERRED)
-		{
-			const String header = "#include \"Resources/Core/Shaders/Common/RenderPass_Deferred.linashader\"\n";
-			input.insert(input.length(), header.c_str());
-			return;
-		}
-
-		if (type == RenderPassType::RENDER_PASS_FORWARD)
-		{
-			const String header = "#include \"Resources/Core/Shaders/Common/RenderPass_Forward.linashader\"\n";
-			input.insert(input.length(), header.c_str());
-			return;
-		}
-	}
-
-	void ShaderPreprocessor::InjectVertexMain(String& input, ShaderType type)
-	{
-		String path = "";
-
-		if (type == ShaderType::DeferredSurface || type == ShaderType::ForwardSurface)
-			path = "Resources/Core/Shaders/Common/MainVertexStatic.linashader";
-		else if (type == ShaderType::Sky)
-			path = "Resources/Core/Shaders/Common/MainVertex_Sky.linashader";
-		else if (type == ShaderType::Lighting)
-			path = "Resources/Core/Shaders/Common/MainVertexSimple.linashader";
-		else
-		{
-			LINA_ASSERT(false, "");
-		}
-
-		String str = FileSystem::ReadFileContentsAsString(path);
-		input.insert(input.length(), str);
-	}
-
-	void ShaderPreprocessor::InjectSkinnedVertexMain(String& input)
-	{
-		String str = FileSystem::ReadFileContentsAsString("Resources/Core/Shaders/Common/MainVertexStatic.linashader");
-		input.insert(input.length(), str);
-	}
-
-	void ShaderPreprocessor::InjectFragMain(String& input, ShaderType type)
-	{
-		String path = "";
-
-		if (type == ShaderType::DeferredSurface)
-			path = "Resources/Core/Shaders/Common/MainFrag_Deferred.linashader";
-		else if (type == ShaderType::ForwardSurface)
-			path = "Resources/Core/Shaders/Common/MainFrag_Forward.linashader";
-		else if (type == ShaderType::Sky)
-			path = "Resources/Core/Shaders/Common/MainFrag_Sky.linashader";
-		else if (type == ShaderType::Lighting)
-			path = "Resources/Core/Shaders/Common/MainFrag_Lighting.linashader";
-		else
-		{
-			LINA_ASSERT(false, "");
-		}
-
-		String str = FileSystem::ReadFileContentsAsString(path);
-		input.insert(input.length(), str);
-	}
-
 	void ShaderPreprocessor::InjectUserShader(String& input, const String& shader)
 	{
 		static String ident = "//##user_shader_injected_here";
@@ -535,25 +468,218 @@ namespace Lina
 		switch (depth)
 		{
 		case DepthTesting::None:
-			variant.depthTest  = false;
-			variant.depthWrite = false;
+			variant.depthTest = false;
 			break;
-		case DepthTesting::TestWrite:
+		case DepthTesting::Equal:
 			variant.depthTest		  = true;
-			variant.depthWrite		  = true;
 			variant.depthBiasEnable	  = true;
 			variant.depthBiasConstant = 5.0f;
+			variant.depthOp			  = LinaGX::CompareOp::Equal;
 			break;
-		case DepthTesting::Test:
-			variant.depthTest		  = true;
-			variant.depthWrite		  = false;
-			variant.depthBiasEnable	  = true;
-			variant.depthBiasConstant = 5.0f;
+		case DepthTesting::Less:
+			variant.depthTest = true;
+			variant.depthOp	  = LinaGX::CompareOp::Less;
 			break;
-		case DepthTesting::Write:
-			variant.depthTest  = false;
-			variant.depthWrite = true;
+		case DepthTesting::Always:
+			variant.depthTest = true;
+			variant.depthOp	  = LinaGX::CompareOp::Always;
 			break;
+		}
+	}
+
+	BlendMode ShaderPreprocessor::GetBlendModeFromStr(const String& str)
+	{
+		if (str.compare("LINA_BLEND_NONE") == 0)
+			return BlendMode::Opaque;
+
+		if (str.compare("LINA_BLEND_ALPHA") == 0)
+			return BlendMode::AlphaBlend;
+
+		return BlendMode::Opaque;
+	}
+
+	DepthTesting ShaderPreprocessor::GetDepthTestingFromStr(const String& str)
+	{
+		if (str.compare("LINA_DEPTH_NONE") == 0)
+			return DepthTesting::None;
+
+		if (str.compare("LINA_DEPTH_ALWAYS") == 0)
+			return DepthTesting::Always;
+
+		if (str.compare("LINA_DEPTH_LESS") == 0)
+			return DepthTesting::Less;
+
+		if (str.compare("LINA_DEPTH_EQUAL") == 0)
+			return DepthTesting::Equal;
+
+		return DepthTesting::None;
+	}
+
+	LinaGX::Format ShaderPreprocessor::GetTargetFromStr(const String& str)
+	{
+		if (str.compare("LINA_TARGET_RGBA8") == 0)
+			return LinaGX::Format::R8G8B8A8_SRGB;
+
+		if (str.compare("LINA_TARGET_HDR") == 0)
+			return DEFAULT_RT_FORMAT_HDR;
+
+		if (str.compare("LINA_TARGET_SWAPCHAIN") == 0)
+			return DEFAULT_SWAPCHAIN_FORMAT;
+
+		if (str.compare("LINA_TARGET_R32U") == 0)
+			return LinaGX::Format::R32_UINT;
+
+		return LinaGX::Format::UNDEFINED;
+	}
+
+	LinaGX::CullMode ShaderPreprocessor::GetCullFromStr(const String& str)
+	{
+		if (str.compare("LINA_CULL_BACK") == 0)
+			return LinaGX::CullMode::Back;
+
+		if (str.compare("LINA_CULL_FRONT") == 0)
+			return LinaGX::CullMode::Front;
+
+		return LinaGX::CullMode::None;
+	}
+
+	LinaGX::FrontFace ShaderPreprocessor::GetFaceFromStr(const String& str)
+	{
+		if (str.compare("LINA_FACE_CW") == 0)
+			return LinaGX::FrontFace::CW;
+
+		return LinaGX::FrontFace::CCW;
+	}
+
+	void ShaderPreprocessor::ExtractVariants(const String& input, Vector<ShaderVariant>& variants)
+	{
+		std::istringstream f(input.c_str());
+		std::string		   line = "";
+
+		bool parsingVariant = false;
+		bool commentBlock	= false;
+
+		ShaderVariant variant = {
+			._outLayout			 = {},
+			.name				 = "",
+			.blendDisable		 = false,
+			.blendSrcFactor		 = LinaGX::BlendFactor::SrcAlpha,
+			.blendDstFactor		 = LinaGX::BlendFactor::OneMinusSrcAlpha,
+			.blendColorOp		 = LinaGX::BlendOp::Add,
+			.blendSrcAlphaFactor = LinaGX::BlendFactor::One,
+			.blendDstAlphaFactor = LinaGX::BlendFactor::Zero,
+			.blendAlphaOp		 = LinaGX::BlendOp::Add,
+			.depthTest			 = true,
+			.depthWrite			 = true,
+			.depthFormat		 = LinaGX::Format::D32_SFLOAT,
+			.targets			 = {},
+			.depthOp			 = LinaGX::CompareOp::Less,
+			.cullMode			 = LinaGX::CullMode::Back,
+			.frontFace			 = LinaGX::FrontFace::CCW,
+			.topology			 = LinaGX::Topology::TriangleList,
+			.depthBiasEnable	 = false,
+			.depthBiasConstant	 = 0.0f,
+			.depthBiasClamp		 = 0.0f,
+			.depthBiasSlope		 = 0.0f,
+			.enableSampleShading = false,
+			.msaaSamples		 = 1,
+		};
+
+		while (std::getline(f, line))
+		{
+			const String lineTrimmed = FileSystem::RemoveWhitespaces(line);
+
+			if (commentBlock)
+			{
+				if (lineTrimmed.length() >= 2 && lineTrimmed.substr(0, 2).compare("*/") == 0)
+					commentBlock = false;
+				continue;
+			}
+
+			if (lineTrimmed.length() >= 2 && lineTrimmed.substr(0, 2).compare("//") == 0)
+				continue;
+
+			if (lineTrimmed.length() >= 2 && lineTrimmed.substr(0, 2).compare("/*") == 0)
+			{
+				commentBlock = true;
+				continue;
+			}
+
+			if (parsingVariant)
+			{
+				const size_t colonPos = lineTrimmed.find(":");
+				if (line.find("#") == String::npos || colonPos == String::npos)
+					continue;
+
+				String lineValue = "";
+
+				lineValue = lineTrimmed.substr(colonPos, lineTrimmed.length() - colonPos);
+
+				if (line.find("#lina_end") != String::npos)
+				{
+					parsingVariant = false;
+					variants.push_back(variant);
+					continue;
+				}
+
+				if (line.find("#name") != String::npos)
+				{
+					variant.name = lineValue;
+					continue;
+				}
+
+				if (line.find("#blend") != String::npos)
+				{
+					ApplyBlending(variant, GetBlendModeFromStr(lineValue));
+				}
+
+				if (line.find("#depth") != String::npos)
+				{
+					ApplyDepth(variant, GetDepthTestingFromStr(lineValue));
+				}
+
+				if (line.find("#target") != String::npos)
+				{
+					const Vector<String> targets = FileSystem::Split(lineValue, ',');
+					for (const String& target : targets)
+					{
+						variant.targets.push_back({
+							.format = GetTargetFromStr(target),
+						});
+					}
+				}
+
+				if (line.find("#cull") != String::npos)
+				{
+					variant.cullMode = GetCullFromStr(lineValue);
+				}
+
+				if (line.find("#face") != String::npos)
+				{
+					variant.frontFace = GetFaceFromStr(lineValue);
+				}
+
+				if (line.find("#vertex") != String::npos)
+					variant.vertexWrap = lineValue;
+
+				if (line.find("#frag") != String::npos)
+					variant.fragWrap = lineValue;
+
+				if (line.find("#pass") != String::npos)
+				{
+					variant.renderPass	   = lineValue;
+					const size_t us		   = lineTrimmed.find_last_of("_");
+					const size_t dot	   = lineTrimmed.find_first_of(".");
+					variant.renderPassName = lineTrimmed.substr(us, dot - us);
+				}
+			}
+
+			if (line.find("#lina_variant") != String::npos)
+			{
+				parsingVariant = true;
+				variant		   = {};
+				continue;
+			}
 		}
 	}
 

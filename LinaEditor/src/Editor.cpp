@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Editor/Editor.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Resources/EditorResources.hpp"
+#include "Editor/Resources/ShaderImport.hpp"
 #include "Editor/Widgets/EditorRoot.hpp"
 #include "Editor/Graphics/SurfaceRenderer.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
@@ -100,6 +101,7 @@ namespace Lina::Editor
 		Theme::GetDef().iconCheckbox	 = ICON_CHECK;
 		Theme::GetDef().iconCircleFilled = ICON_CIRCLE_FILLED;
 		Theme::GetDef().iconSliderHandle = ICON_CIRCLE_FILLED;
+		Shader::SetVariantInjectionCallback(ShaderImport::InjectShaderVariant);
 
 		ExtensionSupport::AddTypeInfoToReflection();
 		m_atlasManager.Initialize(this);

@@ -318,6 +318,11 @@ namespace Lina
 			return m_pfd[frameIndex].boneBuffer;
 		}
 
+		inline ShapeCollector& GetShapeCollector()
+		{
+			return m_shapeCollector;
+		}
+
 	private:
 		void CalculateSkinning(const Vector<CompModel*>& comps);
 		bool DrawEntityExists(uint32& outIndex, const EntityIdent& ident);

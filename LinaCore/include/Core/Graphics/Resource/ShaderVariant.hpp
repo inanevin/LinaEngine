@@ -55,9 +55,12 @@ namespace Lina
 	{
 		StringID id = 0;
 
-		LinaGX::ShaderLayout _outLayout = {};
-
+		LinaGX::ShaderLayout	   _outLayout		   = {};
 		String					   name				   = "";
+		String					   vertexWrap		   = "";
+		String					   fragWrap			   = "";
+		String					   renderPass		   = "";
+		String					   renderPassName	   = "";
 		bool					   blendDisable		   = false;
 		LinaGX::BlendFactor		   blendSrcFactor	   = LinaGX::BlendFactor::SrcAlpha;
 		LinaGX::BlendFactor		   blendDstFactor	   = LinaGX::BlendFactor::OneMinusSrcAlpha;

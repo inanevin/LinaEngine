@@ -56,7 +56,31 @@ struct LinaFragOutput
 
 */
 
-#lina_shader_deferred
+#lina_variant
+
+#name : "Static"
+#vertex: "Resources/Core/Shaders/Common/MainVertexStatic.linashader"
+#frag: "Resources/Core/Shaders/Common/MainFragDeferred.linashader"
+#pass: "Resources/Core/Shaders/Common/RenderPass_Deferred.linashader"
+#blend: LINA_BLEND_NONE
+#depth: LINA_DEPTH_LESS
+#target: LINA_TARGET_HDR
+#cull: LINA_CULL_BACK
+#lina_end
+
+#lina_variant
+
+#name : "Skinned"
+#vertex: "Resources/Core/Shaders/Common/MainVertexSkinned.linashader"
+#frag: "Resources/Core/Shaders/Common/MainFragDeferred.linashader"
+#pass: "Resources/Core/Shaders/Common/RenderPass_Deferred.linashader"
+#blend: LINA_BLEND_NONE
+#depth: LINA_DEPTH_LESS
+#target: LINA_TARGET_HDR,LINA_TARGET_HDR,LINA_TARGET_HDR
+#cull: LINA_CULL_BACK
+
+#lina_end
+
 
 #lina_vs
 

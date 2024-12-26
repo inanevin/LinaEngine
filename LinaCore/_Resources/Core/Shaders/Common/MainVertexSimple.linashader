@@ -26,6 +26,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#lina_vs
+
 struct LinaVertexOutput
 {
    vec4 clipPosition;
@@ -44,3 +46,5 @@ void main()
    LINA_VERTEX_MAIN(vertexOutput);
    gl_Position = vertexOutput.clipPosition;
 }
+
+#lina_end

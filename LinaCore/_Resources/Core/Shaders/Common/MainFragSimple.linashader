@@ -26,6 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#lina_fs
 
 layout (location = 0) out vec4 outFragColor;
 
@@ -45,3 +46,5 @@ void main()
    LINA_FRAG_MAIN(fragOutput);
    outFragColor = fragOutput.color;
 }
+
+#lina_end

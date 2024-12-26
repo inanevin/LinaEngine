@@ -71,6 +71,10 @@ namespace Lina::Editor
 
 		m_gizmoFont = Editor::Get()->GetApp()->GetResourceManager().GetResource<Font>(EDITOR_FONT_PLAY_ID);
 		m_editor->GetWindowPanelManager().AddPayloadListener(this);
+
+		m_gizmoControls.selectedGizmo = static_cast<GizmoType>(m_editor->GetSettings().GetParams().GetParamUint8("GizmoType"_hs, 0));
+		m_gizmoControls.gizmoLocality = static_cast<GizmoLocality>(m_editor->GetSettings().GetParams().GetParamUint8("GizmoLocality"_hs, 0));
+		m_gizmoControls.gizmoSnapping = static_cast<GizmoSnapping>(m_editor->GetSettings().GetParams().GetParamUint8("GizmoSnapping"_hs, 0));
 	}
 
 	void WorldDisplayer::Initialize()
@@ -113,23 +117,6 @@ namespace Lina::Editor
 		if (m_worldRenderer == nullptr)
 			return;
 
-		{
-			const EntityID hovered	   = m_ewr->GetMousePick().GetLastHoveredEntity();
-			GizmoAxis	   hoveredAxis = GizmoAxis::None;
-
-			if (hovered == GIZMO_GUID_X_AXIS)
-				hoveredAxis = GizmoAxis::X;
-			else if (hovered == GIZMO_GUID_Y_AXIS)
-				hoveredAxis = GizmoAxis::Y;
-			else if (hovered == GIZMO_GUID_Z_AXIS)
-				hoveredAxis = GizmoAxis::Z;
-			else
-				hoveredAxis == GizmoAxis::None;
-
-			m_ewr->GetGizmoRenderer().SetHoveredAxis(hoveredAxis);
-			m_gizmoControls.hoveredAxis = hoveredAxis;
-		}
-
 		// Input setup
 		const bool worldHasFocus = m_manager->GetControlsOwner() == this && m_lgxWindow->HasFocus();
 		m_worldRenderer->GetWorld()->GetInput().SetIsActive(worldHasFocus);
@@ -152,6 +139,8 @@ namespace Lina::Editor
 			m_worldRenderer->Resize(displayerSize);
 			sc.SetRenderSize(displayerSize);
 		}
+
+		HandleGizmoControls();
 	}
 
 	void WorldDisplayer::Tick(float dt)
@@ -248,7 +237,22 @@ namespace Lina::Editor
 
 		if (m_isHovered && button == LINAGX_MOUSE_0 && (act == LinaGX::InputAction::Pressed))
 		{
-			SelectEntity(m_ewr->GetMousePick().GetLastHoveredEntity(), true);
+			const EntityID lastHovered = m_ewr->GetMousePick().GetLastHoveredEntity();
+
+			if (lastHovered == GIZMO_GUID_X_AXIS)
+			{
+				m_gizmoControls.pressedAxis = GizmoAxis::X;
+			}
+			else if (lastHovered == GIZMO_GUID_Y_AXIS)
+			{
+				m_gizmoControls.pressedAxis = GizmoAxis::Y;
+			}
+			else if (lastHovered == GIZMO_GUID_Z_AXIS)
+			{
+				m_gizmoControls.pressedAxis = GizmoAxis::Z;
+			}
+			else
+				SelectEntity(lastHovered, true);
 		}
 
 		return false;
@@ -264,18 +268,38 @@ namespace Lina::Editor
 
 		if (keycode == LINAGX_KEY_1 && act == LinaGX::InputAction::Pressed)
 		{
-			m_gizmoControls.selectedGizmo = GizmoType::Move;
-			m_ewr->GetGizmoRenderer().SetSelectedGizmo(m_gizmoControls.selectedGizmo);
+			SelectGizmo(GizmoType::Move);
+			return true;
 		}
-		else if (keycode == LINAGX_KEY_2 && act == LinaGX::InputAction::Pressed)
+
+		if (keycode == LINAGX_KEY_2 && act == LinaGX::InputAction::Pressed)
 		{
-			m_gizmoControls.selectedGizmo = GizmoType::Rotate;
-			m_ewr->GetGizmoRenderer().SetSelectedGizmo(m_gizmoControls.selectedGizmo);
+			SelectGizmo(GizmoType::Rotate);
+			return true;
 		}
-		else if (keycode == LINAGX_KEY_3 && act == LinaGX::InputAction::Pressed)
+
+		if (keycode == LINAGX_KEY_3 && act == LinaGX::InputAction::Pressed)
 		{
-			m_gizmoControls.selectedGizmo = GizmoType::Scale;
-			m_ewr->GetGizmoRenderer().SetSelectedGizmo(m_gizmoControls.selectedGizmo);
+			SelectGizmo(GizmoType::Scale);
+			return true;
+		}
+
+		if (keycode == LINAGX_KEY_4 && act == LinaGX::InputAction::Pressed)
+		{
+			if (m_gizmoControls.gizmoLocality == GizmoLocality::Local)
+				SelectGizmoLocality(GizmoLocality::World);
+			else
+				SelectGizmoLocality(GizmoLocality::Local);
+
+			return true;
+		}
+
+		if (keycode == LINAGX_KEY_5 && act == LinaGX::InputAction::Pressed)
+		{
+			const uint8 current = static_cast<uint8>(m_gizmoControls.gizmoSnapping);
+			const uint8 target	= (current + 1) % 3;
+			SelectGizmoSnap(static_cast<GizmoSnapping>(target));
+			return true;
 		}
 
 		return true;
@@ -309,14 +333,74 @@ namespace Lina::Editor
 		OnEntitySelectionChanged();
 	}
 
+	void WorldDisplayer::SelectGizmo(GizmoType gizmo)
+	{
+		m_gizmoControls.selectedGizmo = gizmo;
+		m_ewr->GetGizmoRenderer().SetSelectedGizmo(gizmo);
+		m_editor->GetSettings().GetParams().SetParamUint8("GizmoType"_hs, static_cast<uint8>(gizmo));
+		m_editor->SaveSettings();
+	}
+
+	void WorldDisplayer::SelectGizmoLocality(GizmoLocality locality)
+	{
+		// Can't on multiselect
+		if (locality == GizmoLocality::Local && m_selectedEntities.size() > 1)
+			locality = GizmoLocality::World;
+
+		m_gizmoControls.gizmoLocality = locality;
+		m_ewr->GetGizmoRenderer().SetGizmoLocality(locality);
+		m_editor->GetSettings().GetParams().SetParamUint8("GizmoLocality"_hs, static_cast<uint8>(locality));
+		m_editor->SaveSettings();
+	}
+
+	void WorldDisplayer::SelectGizmoSnap(GizmoSnapping snapping)
+	{
+		m_gizmoControls.gizmoSnapping = snapping;
+		m_editor->GetSettings().GetParams().SetParamUint8("GizmoSnapping"_hs, static_cast<uint8>(snapping));
+		m_editor->SaveSettings();
+	}
+
 	void WorldDisplayer::OnEntitySelectionChanged()
 	{
 		m_ewr->SetSelectedEntities(m_selectedEntities);
+
+		if (m_selectedEntities.size() > 1)
+		{
+			SelectGizmoLocality(GizmoLocality::World);
+		}
 	}
 
 	ResourceID WorldDisplayer::GetWorldID()
 	{
 		return m_worldRenderer == nullptr ? 0 : m_worldRenderer->GetWorld()->GetID();
+	}
+
+	void WorldDisplayer::HandleGizmoControls()
+	{
+		if (m_gizmoControls.pressedAxis != GizmoAxis::None && !m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_0))
+			m_gizmoControls.pressedAxis = GizmoAxis::None;
+
+		// Hovered state.
+		{
+			const EntityID hovered	   = m_ewr->GetMousePick().GetLastHoveredEntity();
+			GizmoAxis	   hoveredAxis = GizmoAxis::None;
+
+			if (m_gizmoControls.pressedAxis != GizmoAxis::None)
+				hoveredAxis = m_gizmoControls.pressedAxis;
+			else if (hovered == GIZMO_GUID_X_AXIS)
+				hoveredAxis = GizmoAxis::X;
+			else if (hovered == GIZMO_GUID_Y_AXIS)
+				hoveredAxis = GizmoAxis::Y;
+			else if (hovered == GIZMO_GUID_Z_AXIS)
+				hoveredAxis = GizmoAxis::Z;
+			else
+				hoveredAxis == GizmoAxis::None;
+
+			m_ewr->GetGizmoRenderer().SetHoveredAxis(hoveredAxis);
+			m_gizmoControls.hoveredAxis = hoveredAxis;
+		}
+
+		m_ewr->GetGizmoRenderer().SetPressedAxis(m_gizmoControls.pressedAxis);
 	}
 
 	void WorldDisplayer::DestroyCamera()

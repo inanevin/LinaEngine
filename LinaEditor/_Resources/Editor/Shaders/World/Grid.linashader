@@ -22,15 +22,22 @@ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-        const DrawCollector::CustomDrawInstance lightingDrawInstance = {
-        .
-        };
-        m_drawCollector.AddCustomDrawRaw("Forward"_hs, lightingDrawInstance, lightingMaterial->GetShader(), 0, 0, 3);
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#lina_shader_custom
+#lina_variant
+
+#name : "Default"
+#vertex: ""
+#frag: ""
+#pass: ""
+#blend: LINA_BLEND_ALPHA
+#depth: LINA_DEPTH_LESS
+#target: LINA_TARGET_RGBA8
+#cull: LINA_CULL_NONE
+
+#lina_end
 
 #lina_vs
 

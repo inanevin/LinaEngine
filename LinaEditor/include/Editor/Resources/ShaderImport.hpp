@@ -40,6 +40,6 @@ namespace Lina::Editor
 	class ShaderImport
 	{
 	public:
-		static bool ImportShader(Shader* shader, const String& rawPath);
+		static void InjectShaderVariant(Shader* shader);
 	};
 } // namespace Lina::Editor

@@ -26,6 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#lina_fs
 
 layout (location = 10) flat in uint inEntityID;
 layout (location = 0) out uint outFragColor;
@@ -44,3 +45,5 @@ void main()
 {
    outFragColor = inEntityID + 1;
 }
+
+#lina_end

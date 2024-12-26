@@ -50,6 +50,7 @@ namespace Lina::Editor
 		m_worldRenderer = wr;
 		m_rm			= &m_editor->GetApp()->GetResourceManager();
 		m_gizmoShader	= m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_GIZMO_ID);
+		m_line3DShader	= m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_LINE3D_ID);
 		m_world			= m_worldRenderer->GetWorld();
 
 		m_gizmoMaterialX = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material X");
@@ -83,8 +84,7 @@ namespace Lina::Editor
 	{
 		if (m_lastHoveredAxis != m_hoveredAxis)
 		{
-			m_lastHoveredAxis = m_hoveredAxis;
-
+			m_lastHoveredAxis  = m_hoveredAxis;
 			const Color xColor = Theme::GetDef().accentPrimary2;
 			const Color yColor = Theme::GetDef().accentSuccess;
 			const Color zColor = Theme::GetDef().accentSecondary;
@@ -97,23 +97,42 @@ namespace Lina::Editor
 		if (m_selectedEntities.empty())
 			return;
 
-		if (m_selectedGizmo == GizmoType::Rotate)
-			return;
-
-		const Camera& worldCam	  = m_world->GetWorldCamera();
-		Vector3		  avgPosition = Vector3::Zero;
+		Vector3 avgPosition = Vector3::Zero;
 
 		for (Entity* e : m_selectedEntities)
 			avgPosition += e->GetPosition();
 
 		avgPosition /= static_cast<float>(m_selectedEntities.size());
 
-		const Vector3& cameraPos = worldCam.GetPosition();
-		const float	   distance	 = cameraPos.Distance(avgPosition);
+		if (m_selectedGizmo != GizmoType::Rotate)
+			ProduceGizmoMeshes(avgPosition);
+		else
+		{
+			ProduceRotateGizmo(avgPosition);
+		}
 
-		const float distRatio = Math::Remap(distance, 0.0f, worldCam.GetZFar(), 0.0f, 1.0f);
-		const float distScale = 1.0f;
-		// Math::Clamp(distRatio * 40.0f, 0.2f, worldCam.GetZFar());
+		if (m_pressedAxis != GizmoAxis::None)
+		{
+			ProduceGizmoAxisLine(avgPosition, m_pressedAxis, m_gizmoLocality);
+		}
+	}
+
+	void GizmoRenderer::Render(DrawCollector& collector, LinaGX::CommandStream* stream)
+	{
+		if (collector.RenderGroupExists("Gizmo"_hs))
+			collector.RenderGroup("Gizmo"_hs, stream);
+
+		if (collector.RenderGroupExists("GizmoLines"_hs))
+			collector.RenderGroup("GizmoLines"_hs, stream);
+	}
+
+	void GizmoRenderer::ProduceGizmoMeshes(const Vector3& avgPosition)
+	{
+		const Camera&  worldCam	 = m_world->GetWorldCamera();
+		DrawCollector& collector = m_worldRenderer->GetDrawCollector();
+
+		const Vector3& cameraPos = worldCam.GetPosition();
+		const float	   scale	 = 1.0f;
 
 		Buffer* vtx = &m_editor->GetApp()->GetGfxContext().GetMeshManagerDefault().GetVtxBufferStatic();
 		Buffer* idx = &m_editor->GetApp()->GetGfxContext().GetMeshManagerDefault().GetIdxBufferStatic();
@@ -121,7 +140,7 @@ namespace Lina::Editor
 		const DrawCollector::CustomDrawInstance inst0 = {
 			.entity =
 				{
-					.model = Matrix4::TransformMatrix(avgPosition, Quaternion::AngleAxis(90, Vector3::Forward), Vector3(distScale)),
+					.model = Matrix4::TransformMatrix(avgPosition, Quaternion::AngleAxis(90, Vector3::Forward), Vector3(scale)),
 				},
 			.entityIdent =
 				{
@@ -135,7 +154,7 @@ namespace Lina::Editor
 		const DrawCollector::CustomDrawInstance inst1 = {
 			.entity =
 				{
-					.model = Matrix4::TransformMatrix(avgPosition, Quaternion::Identity(), Vector3(distScale)),
+					.model = Matrix4::TransformMatrix(avgPosition, Quaternion::Identity(), Vector3(scale)),
 				},
 			.entityIdent =
 				{
@@ -148,7 +167,7 @@ namespace Lina::Editor
 		const DrawCollector::CustomDrawInstance inst2 = {
 			.entity =
 				{
-					.model = Matrix4::TransformMatrix(avgPosition, Quaternion::AngleAxis(90, Vector3::Right), Vector3(distScale)),
+					.model = Matrix4::TransformMatrix(avgPosition, Quaternion::AngleAxis(90, Vector3::Right), Vector3(scale)),
 				},
 			.entityIdent =
 				{
@@ -170,10 +189,50 @@ namespace Lina::Editor
 		collector.AddCustomDraw("Gizmo"_hs, inst2, m_gizmoShader->GetID(), 0, vtx, idx, sizeof(VertexStatic), baseVertex, indexCount, baseIndex);
 	}
 
-	void GizmoRenderer::Render(DrawCollector& collector, LinaGX::CommandStream* stream)
+	void GizmoRenderer::ProduceRotateGizmo(const Vector3& pos)
 	{
-		if (collector.RenderGroupExists("Gizmo"_hs))
-			collector.RenderGroup("Gizmo"_hs, stream);
+	}
+
+	void GizmoRenderer::ProduceGizmoAxisLine(const Vector3& pos, GizmoAxis axis, GizmoLocality locality)
+	{
+		DrawCollector& collector = m_worldRenderer->GetDrawCollector();
+		collector.CreateGroup("GizmoLines");
+
+		const float lineThickness = 0.2f;
+		const float lineExtent	  = 20.0f;
+
+		ShapeCollector& shapeCollector = collector.GetShapeCollector();
+		shapeCollector.Start3DBatch("GizmoLines"_hs, m_line3DShader);
+
+		Vector3	  startPos = Vector3::Zero;
+		Vector3	  endPos   = Vector3::Zero;
+		ColorGrad color	   = Color::White;
+
+		if (locality == GizmoLocality::World)
+		{
+			if (axis == GizmoAxis::X)
+			{
+				startPos = pos + Vector3::Right * lineExtent;
+				endPos	 = pos - Vector3::Right * lineExtent;
+				color	 = Theme::GetDef().accentPrimary2;
+			}
+			else if (axis == GizmoAxis::Y)
+			{
+				startPos = pos + Vector3::Up * lineExtent;
+				endPos	 = pos - Vector3::Up * lineExtent;
+				color	 = Theme::GetDef().accentSuccess;
+			}
+			else if (axis == GizmoAxis::Z)
+			{
+				startPos = pos + Vector3::Forward * lineExtent;
+				endPos	 = pos - Vector3::Forward * lineExtent;
+				color	 = Theme::GetDef().accentSecondary;
+			}
+		}
+
+		shapeCollector.DrawLine3D(startPos, endPos, lineThickness, color);
+
+		shapeCollector.End3DBatch();
 	}
 
 } // namespace Lina::Editor

@@ -45,13 +45,13 @@ namespace Lina::Editor
 		Scale
 	};
 
-	enum class GizmoLoclity
+	enum class GizmoLocality
 	{
 		World,
 		Local,
 	};
 
-	enum class Snapping
+	enum class GizmoSnapping
 	{
 		Free,
 		Step,

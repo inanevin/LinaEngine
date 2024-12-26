@@ -52,8 +52,11 @@ namespace Lina::Editor
 	private:
 		struct GizmoControls
 		{
-			GizmoType selectedGizmo = GizmoType::Move;
-			GizmoAxis hoveredAxis	= GizmoAxis::None;
+			GizmoType	  selectedGizmo = GizmoType::Move;
+			GizmoAxis	  hoveredAxis	= GizmoAxis::None;
+			GizmoAxis	  pressedAxis	= GizmoAxis::None;
+			GizmoLocality gizmoLocality = GizmoLocality::World;
+			GizmoSnapping gizmoSnapping = GizmoSnapping::Free;
 		};
 
 	public:
@@ -91,6 +94,11 @@ namespace Lina::Editor
 		void		 OnEntitySelectionChanged();
 		void		 OnActionEntitySelection(const Vector<EntityID>& selection);
 
+		// Gizmos
+		void SelectGizmo(GizmoType gizmo);
+		void SelectGizmoLocality(GizmoLocality locality);
+		void SelectGizmoSnap(GizmoSnapping snapping);
+
 		inline EditorCamera* GetWorldCamera()
 		{
 			return m_camera;
@@ -102,6 +110,7 @@ namespace Lina::Editor
 		}
 
 	private:
+		void HandleGizmoControls();
 		void DestroyCamera();
 		void DrawAxis(const Vector3& targetAxis, const Color& baseColor, const String& axis);
 

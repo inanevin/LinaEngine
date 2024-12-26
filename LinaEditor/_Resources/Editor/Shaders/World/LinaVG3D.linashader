@@ -26,7 +26,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#lina_shader_custom
+#lina_variant
+
+#name : "Default"
+#vertex: ""
+#frag: ""
+#pass: ""
+#blend: LINA_BLEND_ALPHA
+#depth: LINA_DEPTH_LESS
+#target: LINA_TARGET_RGBA8
+#cull: LINA_CULL_NONE
+
+#lina_end
 
 #lina_vs
 

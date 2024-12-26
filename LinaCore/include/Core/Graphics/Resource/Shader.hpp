@@ -120,10 +120,19 @@ namespace Lina
 			return m_meta.shaderType;
 		}
 
+		static inline void SetVariantInjectionCallback(Delegate<void(Shader*)> cb)
+		{
+			s_variantInjection = cb;
+		}
+
+	private:
+		void ClearVariantCompileData();
+
 	private:
 		ALLOCATOR_BUCKET_MEM;
 		LINA_REFLECTION_ACCESS(Shader);
 
+		static Delegate<void(Shader*)> s_variantInjection;
 		Vector<Pair<StringID, uint32>> m_gpuHandles;
 		Metadata					   m_meta = {};
 	};

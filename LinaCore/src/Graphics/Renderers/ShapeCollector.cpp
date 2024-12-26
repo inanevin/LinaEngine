@@ -73,6 +73,8 @@ namespace Lina
 
 		pfd.lvgVtxBuffer.BufferData(0, (uint8*)m_gpuData.lvgVertices.data(), sizeof(LinaVG::Vertex) * m_gpuData.lvgVertices.size());
 		pfd.lvgIdxBuffer.BufferData(0, (uint8*)m_gpuData.lvgIndices.data(), sizeof(LinaVG::Index) * m_gpuData.lvgIndices.size());
+		pfd.line3DIdxBuffer.BufferData(0, (uint8*)m_gpuData.line3DIndices.data(), sizeof(uint16) * m_gpuData.line3DIndices.size());
+		pfd.line3DVtxBuffer.BufferData(0, (uint8*)m_gpuData.line3DVertices.data(), sizeof(Line3DVertex) * m_gpuData.line3DVertices.size());
 
 		queue.AddBufferRequest(&pfd.line3DVtxBuffer);
 		queue.AddBufferRequest(&pfd.line3DIdxBuffer);
@@ -85,6 +87,8 @@ namespace Lina
 		m_gpuData = m_cpuData;
 		m_cpuData.lvgIndices.resize(0);
 		m_cpuData.lvgVertices.resize(0);
+		m_cpuData.line3DIndices.resize(0);
+		m_cpuData.line3DVertices.resize(0);
 	}
 
 	void ShapeCollector::StartLVGBatch(StringID groupId, Shader* shader, const GPUEntity& entity, uint64 entityGUID)
@@ -172,7 +176,7 @@ namespace Lina
 		m_drawCollector->AddCustomDraw(m_current3DGroup, inst, m_current3DShader->GetID(), 0, &m_pfd[bufferIndex].line3DVtxBuffer, &m_pfd[bufferIndex].line3DIdxBuffer, sizeof(Line3DVertex), m_current3DBaseVertex, indexCount, m_current3DBaseIndex);
 	}
 
-	void ShapeCollector::DrawLine3D(StringID groupId, const Vector3& p1, const Vector3& p2, float thickness, const ColorGrad& color)
+	void ShapeCollector::DrawLine3D(const Vector3& p1, const Vector3& p2, float thickness, const ColorGrad& color)
 	{
 		const uint16 sz = static_cast<uint16>(m_cpuData.line3DVertices.size());
 

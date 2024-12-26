@@ -81,15 +81,33 @@ namespace Lina::Editor
 			m_selectedGizmo = gizmo;
 		}
 
+		inline void SetPressedAxis(GizmoAxis axis)
+		{
+			m_pressedAxis = axis;
+		}
+
+		inline void SetGizmoLocality(GizmoLocality locality)
+		{
+			m_gizmoLocality = locality;
+		}
+
 	private:
-		GizmoType		   m_selectedGizmo	 = GizmoType::Move;
-		GizmoAxis		   m_hoveredAxis	 = GizmoAxis::None;
-		GizmoAxis		   m_lastHoveredAxis = GizmoAxis::None;
-		MousePickRenderer* m_mpr			 = nullptr;
-		Editor*			   m_editor			 = nullptr;
-		WorldRenderer*	   m_worldRenderer	 = nullptr;
-		ResourceManagerV2* m_rm				 = nullptr;
-		EntityWorld*	   m_world			 = nullptr;
+		void ProduceGizmoMeshes(const Vector3& pos);
+		void ProduceRotateGizmo(const Vector3& pos);
+		void ProduceGizmoAxisLine(const Vector3& pos, GizmoAxis axis, GizmoLocality locality);
+
+	private:
+		GizmoType	  m_selectedGizmo	= GizmoType::Move;
+		GizmoAxis	  m_hoveredAxis		= GizmoAxis::None;
+		GizmoAxis	  m_lastHoveredAxis = GizmoAxis::None;
+		GizmoAxis	  m_pressedAxis		= GizmoAxis::None;
+		GizmoLocality m_gizmoLocality	= GizmoLocality::World;
+
+		MousePickRenderer* m_mpr		   = nullptr;
+		Editor*			   m_editor		   = nullptr;
+		WorldRenderer*	   m_worldRenderer = nullptr;
+		ResourceManagerV2* m_rm			   = nullptr;
+		EntityWorld*	   m_world		   = nullptr;
 
 		Model* m_translateModel = nullptr;
 		Model* m_scaleModel		= nullptr;
@@ -100,5 +118,6 @@ namespace Lina::Editor
 		Material*		m_gizmoMaterialY   = nullptr;
 		Material*		m_gizmoMaterialZ   = nullptr;
 		Shader*			m_gizmoShader	   = nullptr;
+		Shader*			m_line3DShader	   = nullptr;
 	};
 } // namespace Lina::Editor

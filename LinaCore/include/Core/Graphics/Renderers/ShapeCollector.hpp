@@ -86,7 +86,7 @@ namespace Lina
 
 		void Start3DBatch(StringID groupId, Shader* shader);
 		void End3DBatch();
-		void DrawLine3D(StringID groupId, const Vector3& p1, const Vector3& p2, float thickness, const ColorGrad& color);
+		void DrawLine3D(const Vector3& p1, const Vector3& p2, float thickness, const ColorGrad& color);
 
 	private:
 		LinaGX::Instance* m_lgx = nullptr;

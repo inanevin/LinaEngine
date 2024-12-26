@@ -26,29 +26,50 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-layout (location = 0) out vec4 outAlbedo;
-layout (location = 1) out vec4 outPosition;
-layout (location = 2) out vec4 outNormal;
+#lina_vs
 
-struct LinaFragOutput
+layout (location = 0) in vec3 inPos;
+layout (location = 1) in vec3 inNormal;
+layout (location = 2) in vec2 inUV;
+
+struct LinaVertexInput
 {
-   vec4 color;
+   vec4 pos;
    vec3 normal;
-   vec3 worldPos;
-   uint isUnlit;
+   vec2 uv;
+   DrawArguments drawArguments;
+};
+
+struct LinaVertexOutput
+{
+   vec4 clipPosition;
 };
 
 //##user_shader_injected_here
 
+layout( push_constant ) uniform constants
+{
+	uint baseInstanceIndex;
+} PushConstants;
+
+layout (location = 10) flat out uint outEntityID;
+
 void main()
 {
-   LinaFragOutput fragOutput;
-   LINA_FRAG_MAIN(fragOutput);
+    DrawArguments drawArguments = LINA_DRAW_ARGUMENTS.data[PushConstants.baseInstanceIndex + gl_InstanceIndex];
 
-   if(fragOutput.color.a < 0.99f)
-      discard;
+    LinaVertexInput vertexInput;
+    vertexInput.pos = vec4(inPos, 1.0);
+    vertexInput.normal = inNormal;
+    vertexInput.uv =  vec2(inUV.x, 1.0 - inUV.y);
+    vertexInput.drawArguments = drawArguments;
 
-   outAlbedo = vec4(fragOutput.color.rgb, fragOutput.isUnlit);
-   outPosition = vec4(fragOutput.worldPos, 0.0);
-   outNormal = vec4(fragOutput.normal, 0.0);
+    LinaVertexOutput vertexOutput;
+    LINA_VERTEX_MAIN(vertexInput, vertexOutput);
+
+   gl_Position = vertexOutput.clipPosition;
+
+   outEntityID = drawArguments.entityIndex;
 }
+
+#lina_end

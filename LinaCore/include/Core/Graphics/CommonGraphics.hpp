@@ -173,9 +173,9 @@ namespace Lina
 	enum class DepthTesting
 	{
 		None,
-		TestWrite,
-		Test,
-		Write,
+		Always,
+		Less,
+		Equal,
 	};
 
 	struct ShaderPropertyDefinition
