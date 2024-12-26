@@ -81,8 +81,7 @@ namespace Lina::Editor
 		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer, m_editorWorldRenderer);
 		m_worldDisplayer->DisplayWorld(m_worldRenderer, m_editorWorldRenderer, WorldCameraType::Orbit);
 
-		m_world->GetGfxSettings().lightingMaterial = EDITOR_MATERIAL_DEFAULT_LIGHTING_ID;
-		m_world->GetGfxSettings().skyModel		   = EDITOR_MODEL_SKYSPHERE_ID;
+		m_world->GetGfxSettings().skyModel = EDITOR_MODEL_SKYSPHERE_ID;
 
 		HashSet<ResourceID> initialResources = {
 			EDITOR_MODEL_CUBE_ID,

@@ -130,13 +130,13 @@ namespace Lina
 
 	struct GPUForwardPassData
 	{
-		uint32 gBufAlbedo				 = 0;
-		uint32 gBufPositionMetallic		 = 0;
-		uint32 gBufNormalRoughness		 = 0;
-		uint32 gBufSampler				 = 0;
-		uint32 lightingMaterialByteIndex = 0;
-		uint32 skyMaterialByteIndex		 = 0;
-		uint32 pad3						 = 0;
-		uint32 pad4						 = 0;
+		uint32 gBufAlbedo			= 0;
+		uint32 gBufPositionMetallic = 0;
+		uint32 gBufNormalRoughness	= 0;
+		uint32 gBufSampler			= 0;
+		uint32 pad0					= 0;
+		uint32 skyMaterialByteIndex = 0;
+		uint32 pad3					= 0;
+		uint32 pad4					= 0;
 	};
 } // namespace Lina

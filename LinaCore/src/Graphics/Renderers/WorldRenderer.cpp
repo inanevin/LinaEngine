@@ -86,9 +86,10 @@ namespace Lina
 		m_snapshotBuffer   = snapshotBuffers;
 		m_world			   = world;
 		m_world->AddListener(this);
-		m_size				= viewSize;
-		m_resourceManagerV2 = rm;
-		m_gBufSampler		= m_resourceManagerV2->CreateResource<TextureSampler>(m_resourceManagerV2->ConsumeResourceID(), name + " Sampler");
+		m_size					 = viewSize;
+		m_resourceManagerV2		 = rm;
+		m_gBufSampler			 = m_resourceManagerV2->CreateResource<TextureSampler>(m_resourceManagerV2->ConsumeResourceID(), name + " Sampler");
+		m_deferredLightingShader = m_resourceManagerV2->GetResource<Shader>(ENGINE_SHADER_LIGHTING_QUAD_ID);
 
 		LinaGX::SamplerDesc gBufSampler = {
 			.anisotropy = 1,
@@ -191,21 +192,21 @@ namespace Lina
 	void WorldRenderer::CreateSizeRelativeResources()
 	{
 		LinaGX::TextureDesc rtDesc = {
-			.format = DEFAULT_RT_FORMAT,
+			.format = SystemInfo::GetHDRFormat(),
 			.flags	= LinaGX::TF_ColorAttachment | LinaGX::TF_Sampled,
 			.width	= m_size.x,
 			.height = m_size.y,
 		};
 
 		LinaGX::TextureDesc rtDescLighting = {
-			.format = DEFAULT_RT_FORMAT,
+			.format = SystemInfo::GetHDRFormat(),
 			.flags	= LinaGX::TF_ColorAttachment | LinaGX::TF_Sampled,
 			.width	= m_size.x,
 			.height = m_size.y,
 		};
 
 		LinaGX::TextureDesc depthDesc = {
-			.format					  = LinaGX::Format::D32_SFLOAT,
+			.format					  = SystemInfo::GetDepthFormat(),
 			.depthStencilSampleFormat = LinaGX::Format::R32_SFLOAT,
 			.flags					  = LinaGX::TF_DepthTexture | LinaGX::TF_Sampled,
 			.width					  = m_size.x,
@@ -334,11 +335,10 @@ namespace Lina
 		m_drawCollector.CreateGroup("Forward");
 
 		m_drawCollector.CollectCompModels("Deferred"_hs, cameraView, ShaderType::DeferredSurface);
-		m_drawCollector.CollectCompModels("Forward"_hs, cameraView, ShaderType::ForwardSurface);
+		// m_drawCollector.CollectCompModels("Forward"_hs, cameraView, ShaderType::Custom);
 
-		m_cpuRenderData.lightingMaterial = m_world->GetGfxSettings().lightingMaterial;
-		m_cpuRenderData.skyMaterial		 = m_world->GetGfxSettings().skyMaterial;
-		m_cpuRenderData.skyModel		 = m_world->GetGfxSettings().skyModel;
+		m_cpuRenderData.skyMaterial = m_world->GetGfxSettings().skyMaterial;
+		m_cpuRenderData.skyModel	= m_world->GetGfxSettings().skyModel;
 	}
 
 	void WorldRenderer::SyncRender()
@@ -381,24 +381,21 @@ namespace Lina
 		// Forward pass specific.
 		{
 
-			Material* lightingMaterial = m_resourceManagerV2->GetIfExists<Material>(m_world->GetGfxSettings().lightingMaterial);
-			Material* skyMaterial	   = m_resourceManagerV2->GetIfExists<Material>(m_world->GetGfxSettings().skyMaterial);
+			Material* skyMaterial = m_resourceManagerV2->GetIfExists<Material>(m_world->GetGfxSettings().skyMaterial);
 
 			GPUForwardPassData renderPassData = {
 				.gBufAlbedo			  = currentFrame.gBufAlbedo->GetBindlessIndex(),
 				.gBufPositionMetallic = currentFrame.gBufPosition->GetBindlessIndex(),
 				.gBufNormalRoughness  = currentFrame.gBufNormal->GetBindlessIndex(),
 				// .gBufDepth             = currentFrame.gBufDepth->GetBindlessIndex(),
-				.gBufSampler			   = m_gBufSampler->GetBindlessIndex(),
-				.lightingMaterialByteIndex = lightingMaterial == nullptr ? UINT32_MAX : lightingMaterial->GetBindlessIndex() / 4,
-				.skyMaterialByteIndex	   = skyMaterial == nullptr ? UINT32_MAX : skyMaterial->GetBindlessIndex() / 4,
+				.gBufSampler		  = m_gBufSampler->GetBindlessIndex(),
+				.skyMaterialByteIndex = skyMaterial == nullptr ? UINT32_MAX : skyMaterial->GetBindlessIndex() / 4,
 			};
 
 			m_forwardPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&renderPassData, sizeof(GPUForwardPassData));
 		}
 
 		m_drawCollector.PrepareGPUData(frameIndex, m_uploadQueue);
-
 		m_deferredPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
 		m_forwardPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
 	}
@@ -494,11 +491,8 @@ namespace Lina
 
 			// Lighting quad
 			{
-				Material* lightingMaterial = m_resourceManagerV2->GetResource<Material>(m_gpuRenderData.lightingMaterial);
-				Shader*	  lightingShader   = m_resourceManagerV2->GetResource<Shader>(lightingMaterial->GetShader());
-
 				LinaGX::CMDBindPipeline* bind = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindPipeline>();
-				bind->shader				  = lightingShader->GetGPUHandle();
+				bind->shader				  = m_deferredLightingShader->GetGPUHandle();
 
 				LinaGX::CMDDrawInstanced* lightingDraw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawInstanced>();
 				lightingDraw->instanceCount			   = 1;
@@ -512,18 +506,25 @@ namespace Lina
 				Material* skyMaterial = m_resourceManagerV2->GetResource<Material>(m_gpuRenderData.skyMaterial);
 				Shader*	  skyShader	  = m_resourceManagerV2->GetResource<Shader>(skyMaterial->GetShader());
 				Model*	  skyModel	  = m_resourceManagerV2->GetIfExists<Model>(m_gpuRenderData.skyModel);
-				if (skyModel == nullptr)
-					return;
+				if (skyModel != nullptr)
+				{
+					const Mesh&				 mesh = skyModel->GetAllMeshes().at(0);
+					LinaGX::CMDBindPipeline* bind = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindPipeline>();
+					bind->shader				  = skyShader->GetGPUHandle();
 
-				const Mesh&				 mesh			 = skyModel->GetAllMeshes().at(0);
-				LinaGX::CMDBindPipeline* bind			 = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindPipeline>();
-				bind->shader							 = skyShader->GetGPUHandle();
-				LinaGX::CMDDrawIndexedInstanced* skyDraw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
-				skyDraw->baseVertexLocation				 = mesh.primitivesStatic.at(0)._vertexOffset;
-				skyDraw->indexCountPerInstance			 = static_cast<uint32>(mesh.primitivesStatic.at(0).indices.size());
-				skyDraw->instanceCount					 = 1;
-				skyDraw->startIndexLocation				 = mesh.primitivesStatic.at(0)._indexOffset;
-				skyDraw->startInstanceLocation			 = 0;
+					LinaGX::CMDBindConstants* constant = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindConstants>();
+					constant->data					   = currentFrame.gfxStream->EmplaceAuxMemory<uint32>(skyMaterial->GetBindlessIndex() / static_cast<uint32>(sizeof(uint32)));
+					constant->size					   = sizeof(uint32);
+					constant->stages				   = currentFrame.gfxStream->EmplaceAuxMemory<LinaGX::ShaderStage>(LinaGX::ShaderStage::Vertex);
+					constant->stagesSize			   = 1;
+
+					LinaGX::CMDDrawIndexedInstanced* skyDraw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
+					skyDraw->baseVertexLocation				 = mesh.primitivesStatic.at(0)._vertexOffset;
+					skyDraw->indexCountPerInstance			 = static_cast<uint32>(mesh.primitivesStatic.at(0).indices.size());
+					skyDraw->instanceCount					 = 1;
+					skyDraw->startIndexLocation				 = mesh.primitivesStatic.at(0)._indexOffset;
+					skyDraw->startInstanceLocation			 = 0;
+				}
 			}
 
 			if (m_drawCollector.RenderGroupExists("Forward"_hs))

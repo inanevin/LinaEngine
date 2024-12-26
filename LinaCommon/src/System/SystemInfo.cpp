@@ -30,27 +30,33 @@ SOFTWARE.
 #include "Common/Math/Math.hpp"
 #include "Common/Data/Array.hpp"
 #include "Common/Data/CommonData.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
 
 namespace Lina
 {
 #define IDEAL_DT 16667
 
-	bool   SystemInfo::s_appHasFocus					= true;
-	int64  SystemInfo::s_currentSystemTimeMicroseconds	= 0;
-	int64  SystemInfo::s_appTimeMicroseconds			= 0;
-	int64  SystemInfo::s_appStartMicroseconds			= 0;
-	int64  SystemInfo::s_appStartSystemTimeMicroseconds = 0;
-	int64  SystemInfo::s_smoothedDeltaMicroseconds		= 0;
-	double SystemInfo::s_smoothedDeltaSeconds			= 0;
-	int64  SystemInfo::s_deltaTimeMicroseconds			= 0;
-	int64  SystemInfo::s_appStartCycles					= 0;
-	uint64 SystemInfo::s_frames							= 0;
-	uint32 SystemInfo::s_measuredFPS					= 0;
-	size_t SystemInfo::s_mainThreadID					= 0;
-	double SystemInfo::s_appTime						= 0.0;
-	double SystemInfo::s_deltaTimeSeconds				= 0.0;
-	double SystemInfo::s_timescale						= 1.0;
-	uint32 SystemInfo::s_rendererBehindFrames			= 0;
+	bool		   SystemInfo::s_appHasFocus					= true;
+	int64		   SystemInfo::s_currentSystemTimeMicroseconds	= 0;
+	int64		   SystemInfo::s_appTimeMicroseconds			= 0;
+	int64		   SystemInfo::s_appStartMicroseconds			= 0;
+	int64		   SystemInfo::s_appStartSystemTimeMicroseconds = 0;
+	int64		   SystemInfo::s_smoothedDeltaMicroseconds		= 0;
+	double		   SystemInfo::s_smoothedDeltaSeconds			= 0;
+	int64		   SystemInfo::s_deltaTimeMicroseconds			= 0;
+	int64		   SystemInfo::s_appStartCycles					= 0;
+	uint64		   SystemInfo::s_frames							= 0;
+	uint32		   SystemInfo::s_measuredFPS					= 0;
+	size_t		   SystemInfo::s_mainThreadID					= 0;
+	double		   SystemInfo::s_appTime						= 0.0;
+	double		   SystemInfo::s_deltaTimeSeconds				= 0.0;
+	double		   SystemInfo::s_timescale						= 1.0;
+	uint32		   SystemInfo::s_rendererBehindFrames			= 0;
+	LinaGX::Format SystemInfo::s_swapchainFormat				= LinaGX::Format::UNDEFINED;
+	LinaGX::Format SystemInfo::s_hdrFormat						= LinaGX::Format::UNDEFINED;
+	LinaGX::Format SystemInfo::s_ldrFormat						= LinaGX::Format::UNDEFINED;
+	LinaGX::Format SystemInfo::s_depthFormat					= LinaGX::Format::UNDEFINED;
+	uint32		   SystemInfo::s_allowedMSAA					= 1;
 
 	double SystemInfo::CalculateRunningAverageDT(int64 deltaMicroseconds)
 	{

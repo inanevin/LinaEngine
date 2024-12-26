@@ -116,8 +116,7 @@ namespace Lina
 		LinaGX::Config.logLevel		 = LinaGX::LogLevel::Verbose;
 		LinaGX::Config.errorCallback = LinaGX_ErrorCallback;
 		LinaGX::Config.infoCallback	 = LinaGX_LogCallback;
-		LinaGX::BackendAPI api		 = LinaGX::BackendAPI::DX12;
-
+		LinaGX::BackendAPI api		 = LinaGX::BackendAPI::Vulkan;
 #ifdef LINA_PLATFORM_APPLE
 		api = LinaGX::BackendAPI::Metal;
 #endif
@@ -137,6 +136,7 @@ namespace Lina
 #endif
 
 		lgx->Initialize();
+
 		return lgx;
 	}
 

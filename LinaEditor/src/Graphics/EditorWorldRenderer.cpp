@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Editor/Graphics/EditorGfxHelpers.hpp"
 #include "Editor/CommonEditor.hpp"
 #include "Editor/Editor.hpp"
+#include "Common/System/SystemInfo.hpp"
 #include "Core/Application.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
@@ -195,7 +196,7 @@ namespace Lina::Editor
 				.pushMaterial  = true,
 				.pushBoneIndex = false,
 			};
-			drawCollector.AddCustomDrawRaw("EditorWorld"_hs, gridInstance, m_gridShader->GetID(), 0, 0, 6);
+			// drawCollector.AddCustomDrawRaw("EditorWorld"_hs, gridInstance, m_gridShader->GetID(), 0, 0, 6);
 		}
 
 		m_gizmoRenderer.Tick(delta, drawCollector);
@@ -315,7 +316,7 @@ namespace Lina::Editor
 		m_size = m_wr->GetSize();
 
 		const LinaGX::TextureDesc colorMSAA = {
-			.format	   = LinaGX::Format::R8G8B8A8_SRGB,
+			.format	   = SystemInfo::GetLDRFormat(),
 			.flags	   = LinaGX::TF_ColorAttachment,
 			.width	   = m_size.x,
 			.height	   = m_size.y,
@@ -324,7 +325,7 @@ namespace Lina::Editor
 		};
 
 		const LinaGX::TextureDesc color = {
-			.format	   = LinaGX::Format::R8G8B8A8_SRGB,
+			.format	   = SystemInfo::GetLDRFormat(),
 			.flags	   = LinaGX::TF_ColorAttachment | LinaGX::TF_Sampled,
 			.width	   = m_size.x,
 			.height	   = m_size.y,
@@ -333,7 +334,7 @@ namespace Lina::Editor
 		};
 
 		const LinaGX::TextureDesc depthMSAA = {
-			.format					  = LinaGX::Format::D32_SFLOAT,
+			.format					  = SystemInfo::GetDepthFormat(),
 			.depthStencilSampleFormat = LinaGX::Format::R32_SFLOAT,
 			.flags					  = LinaGX::TF_DepthTexture,
 			.width					  = m_size.x,

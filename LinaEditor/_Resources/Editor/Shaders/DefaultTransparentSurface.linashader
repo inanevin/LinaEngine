@@ -58,10 +58,10 @@ struct LinaFragOutput
 
 #lina_variant
 
-#name : "Static"
-#vertex: "Resources/Core/Shaders/Common/MainVertexStatic.linashader"
-#frag: "Resources/Core/Shaders/Common/MainFragSimple.linashader"
-#pass: "Resources/Core/Shaders/Common/RenderPass_Forward.linashader"
+#name : Static
+#vertex: Resources/Core/Shaders/Common/MainVertexStatic.linashader
+#frag: Resources/Core/Shaders/Common/MainFragSimple.linashader
+#pass: Resources/Core/Shaders/Common/RenderPass_Forward.linashader
 #blend: LINA_BLEND_ALPHA
 #depth: LINA_DEPTH_LESS
 #target: LINA_TARGET_HDR
@@ -71,10 +71,10 @@ struct LinaFragOutput
 
 #lina_variant
 
-#name : "Skinned"
-#vertex: "Resources/Core/Shaders/Common/MainVertexSkinned.linashader"
-#frag: "Resources/Core/Shaders/Common/MainFragSimple.linashader"
-#pass: "Resources/Core/Shaders/Common/RenderPass_Forward.linashader"
+#name : Skinned
+#vertex: Resources/Core/Shaders/Common/MainVertexSkinned.linashader
+#frag: Resources/Core/Shaders/Common/MainFragSimple.linashader
+#pass: Resources/Core/Shaders/Common/RenderPass_Forward.linashader
 #blend: LINA_BLEND_ALPHA
 #depth: LINA_DEPTH_LESS
 #target: LINA_TARGET_HDR

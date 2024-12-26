@@ -318,7 +318,6 @@ namespace Lina
 			pair.cache->ForEach([&](Component* c) { c->CollectReferences(outResources); });
 		}
 
-		outResources.insert(m_gfxSettings.lightingMaterial);
 		outResources.insert(m_gfxSettings.skyMaterial);
 		outResources.insert(m_gfxSettings.skyModel);
 	}

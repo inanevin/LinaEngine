@@ -141,8 +141,6 @@ namespace Lina
 	enum class ShaderType
 	{
 		DeferredSurface,
-		ForwardSurface,
-		Sky,
 		Custom
 	};
 

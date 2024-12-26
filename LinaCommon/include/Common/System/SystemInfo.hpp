@@ -31,6 +31,11 @@ SOFTWARE.
 #include "Common/Common.hpp"
 #include <thread>
 
+namespace LinaGX
+{
+	enum class Format;
+}
+
 namespace Lina
 {
 	class Application;
@@ -136,6 +141,31 @@ namespace Lina
 			return s_rendererBehindFrames;
 		}
 
+		static inline LinaGX::Format GetSwapchainFormat()
+		{
+			return s_swapchainFormat;
+		}
+
+		static inline LinaGX::Format GetHDRFormat()
+		{
+			return s_hdrFormat;
+		}
+
+		static inline LinaGX::Format GetLDRFormat()
+		{
+			return s_ldrFormat;
+		}
+
+		static inline LinaGX::Format GetDepthFormat()
+		{
+			return s_depthFormat;
+		}
+
+		static inline uint32 GetAllowedMSAASamples()
+		{
+			return s_allowedMSAA;
+		}
+
 	private:
 		friend class Application;
 		friend class Engine;
@@ -209,22 +239,52 @@ namespace Lina
 			s_rendererBehindFrames = frames;
 		}
 
+		static inline void SetSwapchainFormat(LinaGX::Format format)
+		{
+			s_swapchainFormat = format;
+		}
+
+		static inline void SetHDRFormat(LinaGX::Format format)
+		{
+			s_hdrFormat = format;
+		}
+
+		static inline void SetLDRFormat(LinaGX::Format format)
+		{
+			s_ldrFormat = format;
+		}
+
+		static inline void SetDepthFormat(LinaGX::Format format)
+		{
+			s_depthFormat = format;
+		}
+
+		static inline void SetAllowedMSAASamples(uint32 samples)
+		{
+			s_allowedMSAA = samples;
+		}
+
 	private:
-		static double s_appTime;
-		static double s_deltaTimeSeconds;
-		static double s_timescale;
-		static bool	  s_appHasFocus;
-		static int64  s_currentSystemTimeMicroseconds;
-		static int64  s_appTimeMicroseconds;
-		static int64  s_appStartMicroseconds;
-		static int64  s_appStartSystemTimeMicroseconds;
-		static int64  s_smoothedDeltaMicroseconds;
-		static double s_smoothedDeltaSeconds;
-		static int64  s_deltaTimeMicroseconds;
-		static int64  s_appStartCycles;
-		static uint64 s_frames;
-		static uint32 s_measuredFPS;
-		static size_t s_mainThreadID;
-		static uint32 s_rendererBehindFrames;
+		static double		  s_appTime;
+		static double		  s_deltaTimeSeconds;
+		static double		  s_timescale;
+		static bool			  s_appHasFocus;
+		static int64		  s_currentSystemTimeMicroseconds;
+		static int64		  s_appTimeMicroseconds;
+		static int64		  s_appStartMicroseconds;
+		static int64		  s_appStartSystemTimeMicroseconds;
+		static int64		  s_smoothedDeltaMicroseconds;
+		static double		  s_smoothedDeltaSeconds;
+		static int64		  s_deltaTimeMicroseconds;
+		static int64		  s_appStartCycles;
+		static uint64		  s_frames;
+		static uint32		  s_measuredFPS;
+		static size_t		  s_mainThreadID;
+		static uint32		  s_rendererBehindFrames;
+		static LinaGX::Format s_swapchainFormat;
+		static LinaGX::Format s_hdrFormat;
+		static LinaGX::Format s_ldrFormat;
+		static LinaGX::Format s_depthFormat;
+		static uint32		  s_allowedMSAA;
 	};
 } // namespace Lina

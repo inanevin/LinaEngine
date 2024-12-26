@@ -53,14 +53,14 @@ struct LinaFragOutput
 
 #lina_variant
 
-#name : "Default"
-#vertex: "Resources/Core/Shaders/Common/MainVertexStatic.linashader"
-#frag: "Resources/Core/Shaders/Common/MainFragSimple.linashader"
-#pass: "Resources/Core/Shaders/Common/RenderPass_Forward.linashader"
+#name : Default
+#vertex: Resources/Core/Shaders/Common/MainVertexStatic.linashader
+#frag: Resources/Core/Shaders/Common/MainFragSimple.linashader
+#pass: Resources/Core/Shaders/Common/RenderPass_Forward.linashader
 #blend: LINA_BLEND_NONE
 #depth: LINA_DEPTH_EQUAL
 #target: LINA_TARGET_HDR
-#cull: LINA_CULL_BACK
+#cull: LINA_CULL_FRONT
 
 #lina_end
 
@@ -79,7 +79,7 @@ void LINA_VERTEX_MAIN(in LinaVertexInput inVertex, out LinaVertexOutput outVerte
    outUV = inVertex.uv;
    outNormal = inVertex.normal;
    outWorldPos = inVertex.pos.xyz;
-   outMaterialIndex = LINA_PASS.skyMaterialByteIndex;
+   outMaterialIndex = PushConstants.pushConstantValue0;
 }
 
 #lina_end

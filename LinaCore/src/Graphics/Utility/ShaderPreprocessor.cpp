@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Core/Graphics/Utility/ShaderPreprocessor.hpp"
 #include "Common/FileSystem//FileSystem.hpp"
 #include "Common/Data/HashMap.hpp"
+#include "Common/System/SystemInfo.hpp"
 
 namespace Lina
 {
@@ -331,21 +332,11 @@ namespace Lina
 		outVertex = ExtractBlock(input, "#lina_vs", "#lina_end");
 		outFrag	  = ExtractBlock(input, "#lina_fs", "#lina_end");
 
-		if (outVertex.empty())
-		{
-			LINA_ERR("Vertex block could not be found, double check #lina_vs and #lina_end directives.");
-			return false;
-		}
+		if (!outVertex.empty())
+			outVertex.erase(linatl::remove(outVertex.begin(), outVertex.end(), '\r'), outVertex.end());
 
-		if (outFrag.empty())
-		{
-			LINA_ERR("Frag block could not be found, double check #lina_fs and #lina_end directives.");
-			return false;
-		}
-
-		// Normalize line endings.
-		outVertex.erase(linatl::remove(outVertex.begin(), outVertex.end(), '\r'), outVertex.end());
-		outFrag.erase(linatl::remove(outFrag.begin(), outFrag.end(), '\r'), outFrag.end());
+		if (!outFrag.empty())
+			outFrag.erase(linatl::remove(outFrag.begin(), outFrag.end(), '\r'), outFrag.end());
 
 		return true;
 	}
@@ -455,7 +446,8 @@ namespace Lina
 			variant.blendDstFactor		= LinaGX::BlendFactor::OneMinusSrcAlpha;
 			variant.blendColorOp		= LinaGX::BlendOp::Add;
 			variant.blendSrcAlphaFactor = LinaGX::BlendFactor::One;
-			variant.blendDstAlphaFactor = LinaGX::BlendFactor::OneMinusSrcAlpha;
+			// variant.blendDstAlphaFactor = LinaGX::BlendFactor::OneMinusSrcAlpha;
+			variant.blendDstAlphaFactor = LinaGX::BlendFactor::Zero;
 			variant.blendAlphaOp		= LinaGX::BlendOp::Add;
 			break;
 		default:
@@ -515,16 +507,28 @@ namespace Lina
 		return DepthTesting::None;
 	}
 
-	LinaGX::Format ShaderPreprocessor::GetTargetFromStr(const String& str)
+	LinaGX::Format ShaderPreprocessor::GetTargetFromStr(const String& str, bool& isMSAA)
 	{
-		if (str.compare("LINA_TARGET_RGBA8") == 0)
+		if (str.compare("LINA_TARGET_LDR") == 0)
 			return LinaGX::Format::R8G8B8A8_SRGB;
 
+		if (str.compare("LINA_TARGET_LDR_MS") == 0)
+		{
+			isMSAA = true;
+			return LinaGX::Format::R8G8B8A8_SRGB;
+		}
+
 		if (str.compare("LINA_TARGET_HDR") == 0)
-			return DEFAULT_RT_FORMAT_HDR;
+			return SystemInfo::GetHDRFormat();
+
+		if (str.compare("LINA_TARGET_HDR_MS") == 0)
+		{
+			isMSAA = true;
+			return SystemInfo::GetHDRFormat();
+		}
 
 		if (str.compare("LINA_TARGET_SWAPCHAIN") == 0)
-			return DEFAULT_SWAPCHAIN_FORMAT;
+			return SystemInfo::GetSwapchainFormat();
 
 		if (str.compare("LINA_TARGET_R32U") == 0)
 			return LinaGX::Format::R32_UINT;
@@ -571,7 +575,7 @@ namespace Lina
 			.blendAlphaOp		 = LinaGX::BlendOp::Add,
 			.depthTest			 = true,
 			.depthWrite			 = true,
-			.depthFormat		 = LinaGX::Format::D32_SFLOAT,
+			.depthFormat		 = SystemInfo::GetDepthFormat(),
 			.targets			 = {},
 			.depthOp			 = LinaGX::CompareOp::Less,
 			.cullMode			 = LinaGX::CullMode::Back,
@@ -587,6 +591,9 @@ namespace Lina
 
 		while (std::getline(f, line))
 		{
+			if (line.empty())
+				continue;
+
 			const String lineTrimmed = FileSystem::RemoveWhitespaces(line);
 
 			if (commentBlock)
@@ -608,12 +615,10 @@ namespace Lina
 			if (parsingVariant)
 			{
 				const size_t colonPos = lineTrimmed.find(":");
-				if (line.find("#") == String::npos || colonPos == String::npos)
-					continue;
 
 				String lineValue = "";
 
-				lineValue = lineTrimmed.substr(colonPos, lineTrimmed.length() - colonPos);
+				lineValue = lineTrimmed.substr(colonPos + 1, lineTrimmed.length() - colonPos + 1);
 
 				if (line.find("#lina_end") != String::npos)
 				{
@@ -621,6 +626,9 @@ namespace Lina
 					variants.push_back(variant);
 					continue;
 				}
+
+				if (line.find("#") == String::npos || colonPos == String::npos)
+					continue;
 
 				if (line.find("#name") != String::npos)
 				{
@@ -643,8 +651,14 @@ namespace Lina
 					const Vector<String> targets = FileSystem::Split(lineValue, ',');
 					for (const String& target : targets)
 					{
+						bool				 isMSAA = false;
+						const LinaGX::Format fmt	= GetTargetFromStr(target, isMSAA);
+
+						if (isMSAA)
+							variant.msaaSamples = SystemInfo::GetAllowedMSAASamples();
+
 						variant.targets.push_back({
-							.format = GetTargetFromStr(target),
+							.format = fmt,
 						});
 					}
 				}
@@ -659,6 +673,9 @@ namespace Lina
 					variant.frontFace = GetFaceFromStr(lineValue);
 				}
 
+				if (lineValue.empty() || lineValue.compare("\"\"") == 0)
+					continue;
+
 				if (line.find("#vertex") != String::npos)
 					variant.vertexWrap = lineValue;
 
@@ -667,10 +684,11 @@ namespace Lina
 
 				if (line.find("#pass") != String::npos)
 				{
-					variant.renderPass	   = lineValue;
+					variant.renderPass = lineValue;
+
 					const size_t us		   = lineTrimmed.find_last_of("_");
 					const size_t dot	   = lineTrimmed.find_first_of(".");
-					variant.renderPassName = lineTrimmed.substr(us, dot - us);
+					variant.renderPassName = lineTrimmed.substr(us + 1, dot - us - 1);
 				}
 			}
 

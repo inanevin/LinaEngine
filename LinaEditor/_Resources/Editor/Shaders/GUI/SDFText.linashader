@@ -27,17 +27,12 @@ SOFTWARE.
 */
 
 #lina_variant
-
-#name : "Default"
-#vertex: ""
-#frag: ""
-#pass: ""
+#name : Default
 #blend: LINA_BLEND_ALPHA
 #depth: LINA_DEPTH_NONE
 #target: LINA_TARGET_SWAPCHAIN
 #cull: LINA_CULL_NONE
 #face: LINA_FACE_CCW
-
 #lina_end
 
 #lina_vs

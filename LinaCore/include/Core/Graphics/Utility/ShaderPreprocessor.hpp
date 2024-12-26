@@ -50,7 +50,7 @@ namespace Lina
 	public:
 		static BlendMode		 GetBlendModeFromStr(const String& str);
 		static DepthTesting		 GetDepthTestingFromStr(const String& str);
-		static LinaGX::Format	 GetTargetFromStr(const String& str);
+		static LinaGX::Format	 GetTargetFromStr(const String& str, bool& isMSAA);
 		static LinaGX::CullMode	 GetCullFromStr(const String& str);
 		static LinaGX::FrontFace GetFaceFromStr(const String& str);
 		static void				 ExtractVariants(const String& input, Vector<ShaderVariant>& variants);

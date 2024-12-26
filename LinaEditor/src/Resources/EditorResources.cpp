@@ -41,24 +41,6 @@ namespace Lina::Editor
 
 	bool EditorResources::LoadPriorityResources(ResourceManagerV2& manager)
 	{
-		/* GUI STUFF
-		variant = ShaderVariant{
-			.id					 = "Swapchain"_hs,
-			.blendDisable		 = false,
-			.blendSrcFactor		 = LinaGX::BlendFactor::SrcAlpha,
-			.blendDstFactor		 = LinaGX::BlendFactor::OneMinusSrcAlpha,
-			.blendColorOp		 = LinaGX::BlendOp::Add,
-			.blendSrcAlphaFactor = LinaGX::BlendFactor::One,
-			.blendDstAlphaFactor = LinaGX::BlendFactor::Zero,
-			.blendAlphaOp		 = LinaGX::BlendOp::Add,
-			.depthTest			 = false,
-			.depthWrite			 = false,
-			.depthFormat		 = LinaGX::Format::UNDEFINED,
-			.targets			 = {{.format = DEFAULT_SWAPCHAIN_FORMAT}},
-			.cullMode			 = LinaGX::CullMode::None,
-			.frontFace			 = LinaGX::FrontFace::CCW,
-		};
-		 */
 		Font::Metadata fontMeta1 = {
 			.points = {{.size = 32, .dpiLimit = 10.0f}},
 			.isSDF	= true,
@@ -143,11 +125,6 @@ namespace Lina::Editor
 			{
 				.id	  = EDITOR_SHADER_WORLD_GRID_ID,
 				.name = EDITOR_SHADER_WORLD_GRID_PATH,
-				.tid  = GetTypeID<Shader>(),
-			},
-			{
-				.id	  = EDITOR_SHADER_WORLD_ENTITYID_ID,
-				.name = EDITOR_SHADER_WORLD_ENTITYID_PATH,
 				.tid  = GetTypeID<Shader>(),
 			},
 			{

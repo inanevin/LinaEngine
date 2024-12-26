@@ -137,7 +137,7 @@ namespace Lina
 		LINA_REFLECTION_ACCESS(Material);
 
 		ResourceID				  m_shader	   = 0;
-		ShaderType				  m_shaderType = ShaderType::DeferredSurface;
+		ShaderType				  m_shaderType = ShaderType::Custom;
 		Vector<MaterialProperty*> m_properties;
 	};
 

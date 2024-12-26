@@ -28,13 +28,10 @@ SOFTWARE.
 
 #lina_variant
 
-#name : "Default"
-#vertex: ""
-#frag: ""
-#pass: ""
+#name : Default
 #blend: LINA_BLEND_NONE
 #depth: LINA_DEPTH_NONE
-#target: LINA_TARGET_RGBA8
+#target: LINA_TARGET_LDR_MS
 #cull: LINA_CULL_NONE
 
 #lina_end
@@ -48,7 +45,7 @@ layout (location = 0) out vec2 outUV;
 
 layout( push_constant ) uniform constants
 {
-	uint baseInstanceIndex;
+	uint pushConstantValue0;
 } PushConstants;
 
 void main()

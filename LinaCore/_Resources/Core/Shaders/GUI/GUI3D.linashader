@@ -41,12 +41,12 @@ layout (location = 2) flat out uint outDrawID;
 
 layout( push_constant ) uniform constants
 {
-	uint baseInstanceIndex;
+	uint pushConstantValue0;
 } PushConstants;
 
 void main()
 {
-   DrawArguments argBuffer = LINA_DRAW_ARGUMENTS.data[PushConstants.baseInstanceIndex + gl_InstanceIndex];
+   DrawArguments argBuffer = LINA_DRAW_ARGUMENTS.data[PushConstants.pushConstantValue0 + gl_InstanceIndex];
    uint entityID = argBuffer.entityID;
    Object object = LINA_OBJECTS.data[entityID];
 

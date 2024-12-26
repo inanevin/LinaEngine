@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Editor/Resources/ShaderImport.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
+#include "Common/System/SystemInfo.hpp"
 #include "Core/Graphics/Utility/ShaderPreprocessor.hpp"
 
 namespace Lina::Editor
@@ -36,45 +37,58 @@ namespace Lina::Editor
 	void ShaderImport::InjectShaderVariant(Shader* shader)
 	{
 		bool injectEditorVariants = false;
-		for (const ShaderVariant& var : shader->GetMeta().variants)
+		for (ShaderVariant& var : shader->GetMeta().variants)
 		{
 			if (var.renderPassName.compare("Deferred") == 0 || var.renderPass.compare("Forward") == 0)
-			{
 				injectEditorVariants = true;
-				break;
-			}
 		}
 
 		if (injectEditorVariants)
 		{
-			ShaderVariant outlineStatic = {};
-			outlineStatic.vertexWrap	= "Resources/Core/Shaders/Common/MainVertexStatic.linashader";
-			outlineStatic.fragWrap		= "Resources/Editor/Shaders/Common/MainFragOutline.linashader";
-			outlineStatic.targets		= {{LinaGX::Format::R8G8B8A8_SRGB}};
+			ShaderVariant outlineStatic	 = {};
+			outlineStatic.vertexWrap	 = "Resources/Core/Shaders/Common/MainVertexStatic.linashader";
+			outlineStatic.fragWrap		 = "Resources/Editor/Shaders/Common/MainFragOutline.linashader";
+			outlineStatic.name			 = "StaticOutline";
+			outlineStatic.renderPassName = "Outline";
+			outlineStatic.renderPass	 = "Resources/Editor/Shaders/Common/RenderPass_Outline.linashader";
+			outlineStatic.targets		 = {{
+					   .format = SystemInfo::GetLDRFormat(),
+			   }};
 			ShaderPreprocessor::ApplyBlending(outlineStatic, BlendMode::Opaque);
 			ShaderPreprocessor::ApplyDepth(outlineStatic, DepthTesting::Less);
 			shader->GetMeta().variants.push_back(outlineStatic);
 
-			ShaderVariant outlineSkinned = {};
-			outlineSkinned.vertexWrap	 = "Resources/Core/Shaders/Common/MainVertexSkinned.linashader";
-			outlineSkinned.fragWrap		 = "Resources/Editor/Shaders/Common/MainFragOutline.linashader";
-			outlineSkinned.targets		 = {{LinaGX::Format::R8G8B8A8_SRGB}};
+			ShaderVariant outlineSkinned  = {};
+			outlineSkinned.vertexWrap	  = "Resources/Core/Shaders/Common/MainVertexSkinned.linashader";
+			outlineSkinned.fragWrap		  = "Resources/Editor/Shaders/Common/MainFragOutline.linashader";
+			outlineSkinned.name			  = "SkinnedOutline";
+			outlineSkinned.renderPassName = "Outline";
+			outlineSkinned.renderPass	  = "Resources/Editor/Shaders/Common/RenderPass_Outline.linashader";
+			outlineSkinned.targets		  = {{
+					   .format = SystemInfo::GetLDRFormat(),
+			   }};
 			ShaderPreprocessor::ApplyBlending(outlineSkinned, BlendMode::Opaque);
 			ShaderPreprocessor::ApplyDepth(outlineSkinned, DepthTesting::Less);
 			shader->GetMeta().variants.push_back(outlineSkinned);
 
-			ShaderVariant entityIDStatic = {};
-			entityIDStatic.vertexWrap	 = "Resources/Editor/Shaders/Common/MainVertexStaticEntityID.linashader";
-			entityIDStatic.fragWrap		 = "Resources/Editor/Shaders/Common/MainFragEntityID.linashader";
-			entityIDStatic.targets		 = {{LinaGX::Format::R32_UINT}};
+			ShaderVariant entityIDStatic  = {};
+			entityIDStatic.vertexWrap	  = "Resources/Editor/Shaders/Common/MainVertexStaticEntityID.linashader";
+			entityIDStatic.fragWrap		  = "Resources/Editor/Shaders/Common/MainFragEntityID.linashader";
+			entityIDStatic.renderPass	  = "Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader";
+			entityIDStatic.name			  = "StaticEntityID";
+			entityIDStatic.renderPassName = "EntityID";
+			entityIDStatic.targets		  = {{LinaGX::Format::R32_UINT}};
 			ShaderPreprocessor::ApplyBlending(entityIDStatic, BlendMode::Opaque);
 			ShaderPreprocessor::ApplyDepth(entityIDStatic, DepthTesting::Less);
 			shader->GetMeta().variants.push_back(entityIDStatic);
 
-			ShaderVariant entityIDSkinned = {};
-			entityIDSkinned.vertexWrap	  = "Resources/Editor/Shaders/Common/MainVertexSkinnedEntityID.linashader";
-			entityIDSkinned.fragWrap	  = "Resources/Editor/Shaders/Common/MainFragEntityID.linashader";
-			entityIDSkinned.targets		  = {{LinaGX::Format::R32_UINT}};
+			ShaderVariant entityIDSkinned  = {};
+			entityIDSkinned.vertexWrap	   = "Resources/Editor/Shaders/Common/MainVertexSkinnedEntityID.linashader";
+			entityIDSkinned.fragWrap	   = "Resources/Editor/Shaders/Common/MainFragEntityID.linashader";
+			entityIDSkinned.targets		   = {{LinaGX::Format::R32_UINT}};
+			entityIDSkinned.renderPass	   = "Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader";
+			entityIDSkinned.name		   = "SkinnedEntityID";
+			entityIDSkinned.renderPassName = "EntityID";
 			ShaderPreprocessor::ApplyBlending(entityIDSkinned, BlendMode::Opaque);
 			ShaderPreprocessor::ApplyDepth(entityIDSkinned, DepthTesting::Less);
 			shader->GetMeta().variants.push_back(entityIDSkinned);

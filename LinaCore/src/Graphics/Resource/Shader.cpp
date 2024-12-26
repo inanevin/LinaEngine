@@ -101,9 +101,6 @@ namespace Lina
 		if (!ShaderPreprocessor::VerifyFullShader(txt))
 			return false;
 
-		const ShaderType shaderType = ShaderPreprocessor::GetShaderType(txt);
-		m_meta.shaderType			= shaderType;
-
 		String vertexBlock = "", fragBlock = "";
 		if (!ShaderPreprocessor::ExtractVertexFrag(txt, vertexBlock, fragBlock))
 			return false;
@@ -135,8 +132,15 @@ namespace Lina
 		if (s_variantInjection)
 			s_variantInjection(this);
 
+		m_meta.shaderType = ShaderType::Custom;
+
 		for (ShaderVariant& variant : m_meta.variants)
 		{
+			variant.id = TO_SID(variant.name);
+
+			if (variant.renderPassName.compare("Deferred") == 0)
+				m_meta.shaderType = ShaderType::DeferredSurface;
+
 			String vertexShader = "", fragShader = "";
 
 			if (variant.vertexWrap.empty())
@@ -145,20 +149,22 @@ namespace Lina
 			}
 			else
 			{
-				if (FileSystem::FileOrPathExists(variant.vertexWrap))
+				if (!FileSystem::FileOrPathExists(variant.vertexWrap))
 				{
-					LINA_ERR("Variant vertex wrapped does not exist!");
+					LINA_ERR("Variant vertex wrapped does not exist! {0}", variant.vertexWrap);
 					return false;
 				}
 
 				const String vertexWrap = FileSystem::ReadFileContentsAsString(variant.vertexWrap);
-				String		 outVtxWrap = "", outFragWrap = "";
-				ShaderPreprocessor::ExtractVertexFrag(vertexWrap, outVtxWrap, outFragWrap);
+				String		 outWrap = "", outDummyWrap = "";
+				ShaderPreprocessor::ExtractVertexFrag(vertexWrap, outWrap, outDummyWrap);
 				const String rpInclude0 = "#include \"Resources/Core/Shaders/Common/GlobalData.linashader\"\n";
 				const String rpInclude1 = "#include \"" + variant.renderPass + "\"\n";
-				outVtxWrap.insert(0, rpInclude0);
-				outVtxWrap.insert(rpInclude0.length(), rpInclude1);
-				ShaderPreprocessor::InjectUserShader(outVtxWrap, vertexBlock);
+				outWrap.insert(0, rpInclude0);
+				outWrap.insert(rpInclude0.length(), rpInclude1);
+				ShaderPreprocessor::InjectUserShader(outWrap, vertexBlock);
+
+				vertexShader = outWrap;
 			}
 
 			if (variant.fragWrap.empty())
@@ -167,13 +173,13 @@ namespace Lina
 			}
 			else
 			{
-				if (FileSystem::FileOrPathExists(variant.fragWrap))
+				if (!FileSystem::FileOrPathExists(variant.fragWrap))
 				{
 					LINA_ERR("Variant frag wrapped does not exist!");
 					return false;
 				}
 
-				const String wrap	 = FileSystem::ReadFileContentsAsString(variant.vertexWrap);
+				const String wrap	 = FileSystem::ReadFileContentsAsString(variant.fragWrap);
 				String		 outWrap = "", outDummyWrap = "";
 				ShaderPreprocessor::ExtractVertexFrag(wrap, outDummyWrap, outWrap);
 				const String rpInclude0 = "#include \"Resources/Core/Shaders/Common/GlobalData.linashader\"\n";
@@ -181,8 +187,9 @@ namespace Lina
 				outWrap.insert(0, rpInclude0);
 				outWrap.insert(rpInclude0.length(), rpInclude1);
 				ShaderPreprocessor::InjectUserShader(outWrap, fragBlock);
-			}
 
+				fragShader = outWrap;
+			}
 			ShaderPreprocessor::InjectVersionAndExtensions(vertexShader, true);
 			ShaderPreprocessor::InjectVersionAndExtensions(fragShader, true);
 

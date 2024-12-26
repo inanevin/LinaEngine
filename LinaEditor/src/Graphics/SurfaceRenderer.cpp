@@ -90,7 +90,7 @@ namespace Lina::Editor
 		const auto monitorSize = window->GetMonitorSize();
 		const auto windowSize  = window->GetSize();
 		m_swapchain			   = m_lgx->CreateSwapchain({
-					   .format		 = DEFAULT_SWAPCHAIN_FORMAT,
+					   .format		 = SystemInfo::GetSwapchainFormat(),
 					   .x			 = 0,
 					   .y			 = 0,
 					   .width		 = windowSize.x,

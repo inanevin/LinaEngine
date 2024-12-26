@@ -247,10 +247,6 @@ namespace Lina::Editor
 					.id	  = EDITOR_SHADER_DEFAULT_SKY_ID,
 				},
 				{
-					.path = EDITOR_SHADER_DEFAULT_LIGHTING_PATH,
-					.id	  = EDITOR_SHADER_DEFAULT_LIGHTING_ID,
-				},
-				{
 					.path = EDITOR_MODEL_CUBE_PATH,
 					.id	  = EDITOR_MODEL_CUBE_ID,
 				},
@@ -358,15 +354,6 @@ namespace Lina::Editor
 			{
 				task->progressText	   = EDITOR_MATERIAL_DEFAULT_SKY_PATH;
 				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, EDITOR_MATERIAL_DEFAULT_SKY_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_SKY_ID, EDITOR_SHADER_DEFAULT_SKY_ID);
-
-				if (dir)
-					dir->userData.directoryType = static_cast<uint32>(ResourceDirectoryType::EngineResource);
-			}
-
-			if (root->FindResourceDirectory(EDITOR_MATERIAL_DEFAULT_LIGHTING_ID) == nullptr)
-			{
-				task->progressText	   = EDITOR_MATERIAL_DEFAULT_LIGHTING_PATH;
-				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, EDITOR_MATERIAL_DEFAULT_LIGHTING_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_LIGHTING_ID, EDITOR_SHADER_DEFAULT_LIGHTING_ID);
 
 				if (dir)
 					dir->userData.directoryType = static_cast<uint32>(ResourceDirectoryType::EngineResource);

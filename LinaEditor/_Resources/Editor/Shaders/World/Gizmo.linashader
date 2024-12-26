@@ -28,23 +28,23 @@ SOFTWARE.
 
 #lina_variant
 
-#name : "Default"
-#vertex: "Resources/Core/Shaders/Common/MainVertexStatic.linashader"
-#frag: "Resources/Core/Shaders/Common/MainFragForward.linashader"
-#pass: "Resources/Editor/Shaders/Common/RenderPass_World.linashader"
+#name : Default
+#vertex: Resources/Core/Shaders/Common/MainVertexStatic.linashader
+#frag: Resources/Core/Shaders/Common/MainFragSimple.linashader
+#pass: Resources/Editor/Shaders/Common/RenderPass_World.linashader
 #blend: LINA_BLEND_ALPHA
 #depth: LINA_DEPTH_NONE
-#target: LINA_TARGET_RGBA8
+#target: LINA_TARGET_LDR_MS
 #cull: LINA_CULL_BACK
 
 #lina_end
 
 #lina_variant
 
-#name : "EntityID"
-#vertex: "Resources/Core/Shaders/Common/MainVertexStaticEntityID.linashader"
-#frag: "Resources/Editor/Shaders/Common/MainFragEntityID.linashader"
-#pass: "Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader"
+#name : StaticEntityID
+#vertex: Resources/Editor/Shaders/Common/MainVertexStaticEntityID.linashader
+#frag: Resources/Editor/Shaders/Common/MainFragEntityID.linashader
+#pass: Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader
 #blend: LINA_BLEND_NONE
 #depth: LINA_DEPTH_NONE
 #target: LINA_TARGET_R32U
@@ -58,12 +58,10 @@ layout (location = 0) out flat uint outMaterialIndex;
 
 void LINA_VERTEX_MAIN(in LinaVertexInput inVertex, out LinaVertexOutput outVertex)
 {
-   // Retrieve draw arguments and entity data
-   DrawArguments drawArguments = LINA_DRAW_ARGUMENTS.data[PushConstants.baseInstanceIndex + gl_InstanceIndex];
-   LinaEntity entity = LINA_GET_ENTITY(drawArguments.entityIndex);
+   LinaEntity entity = LINA_GET_ENTITY(inVertex.drawArguments.entityIndex);
    
    // Compute world position of the cube's vertex
-   vec4 worldPos4 = entity.modelMatrix * vec4(inVertex.pos, 1.0);
+   vec4 worldPos4 = entity.modelMatrix * inVertex.pos;
    vec3 worldPos = vec3(worldPos4);
 
    // Transform cube's world position to view space
@@ -77,7 +75,7 @@ void LINA_VERTEX_MAIN(in LinaVertexInput inVertex, out LinaVertexOutput outVerte
    float scale = desiredSizeNDC * distance;
 
    // Scale vertex positions relative to cube center
-   vec3 scaledVertexPos = inPos * scale;
+   vec3 scaledVertexPos = inVertex.pos.xyz * scale;
 
    // Transform scaled vertex positions back to world space
    vec4 finalWorldPos = entity.modelMatrix * vec4(scaledVertexPos, 1.0);
@@ -86,7 +84,7 @@ void LINA_VERTEX_MAIN(in LinaVertexInput inVertex, out LinaVertexOutput outVerte
    outVertex.clipPosition = LINA_VIEW.viewProj * finalWorldPos;
 
    // Pass the material index to the fragment shader
-   outMaterialIndex = drawArguments.materialIndex;
+   outMaterialIndex = inVertex.drawArguments.materialIndex;
 }
 
 #lina_end

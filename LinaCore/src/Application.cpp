@@ -68,6 +68,11 @@ namespace Lina
 		GfxHelpers::InitializeLinaVG();
 		s_lgx = GfxHelpers::InitializeLinaGX();
 
+		SystemInfo::SetSwapchainFormat(LinaGX::Format::B8G8R8A8_SRGB);
+		SystemInfo::SetHDRFormat(LinaGX::Format::R16G16B16A16_SFLOAT);
+		SystemInfo::SetLDRFormat(LinaGX::Format::R8G8B8A8_SRGB);
+		SystemInfo::SetDepthFormat(LinaGX::Format::D32_SFLOAT);
+		SystemInfo::SetAllowedMSAASamples(4);
 		m_renderJoinPossible = true;
 		m_gfxContext.Initialize(this);
 		m_guiBackend.Initialize(&m_resourceManager);

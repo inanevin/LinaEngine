@@ -54,6 +54,7 @@ namespace Lina::Editor
 		Plane,
 		Capsule,
 		Cylinder,
+		Skybox,
 	};
 
 	class PanelMaterialViewer : public PanelResourceViewer, public PanelColorWheelListener

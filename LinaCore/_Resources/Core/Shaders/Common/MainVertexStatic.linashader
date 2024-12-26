@@ -45,16 +45,16 @@ struct LinaVertexOutput
    vec4 clipPosition;
 };
 
-//##user_shader_injected_here
-
 layout( push_constant ) uniform constants
 {
-	uint baseInstanceIndex;
+	uint pushConstantValue0;
 } PushConstants;
+
+//##user_shader_injected_here
 
 void main()
 {
-    DrawArguments drawArguments = LINA_DRAW_ARGUMENTS.data[PushConstants.baseInstanceIndex + gl_InstanceIndex];
+    DrawArguments drawArguments = LINA_DRAW_ARGUMENTS.data[PushConstants.pushConstantValue0 + gl_InstanceIndex];
 
     LinaVertexInput vertexInput;
     vertexInput.pos = vec4(inPos, 1.0);

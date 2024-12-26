@@ -77,6 +77,8 @@ namespace Lina::Editor
 
 	bool Editor::PreInitialize()
 	{
+		Shader::SetVariantInjectionCallback(ShaderImport::InjectShaderVariant);
+
 		if (!m_editorResources.LoadPriorityResources(m_app->GetResourceManager()))
 		{
 			LINA_ERR("Loading priority editor resources went bad, aborting!");
@@ -101,7 +103,6 @@ namespace Lina::Editor
 		Theme::GetDef().iconCheckbox	 = ICON_CHECK;
 		Theme::GetDef().iconCircleFilled = ICON_CIRCLE_FILLED;
 		Theme::GetDef().iconSliderHandle = ICON_CIRCLE_FILLED;
-		Shader::SetVariantInjectionCallback(ShaderImport::InjectShaderVariant);
 
 		ExtensionSupport::AddTypeInfoToReflection();
 		m_atlasManager.Initialize(this);

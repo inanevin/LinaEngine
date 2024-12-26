@@ -92,9 +92,7 @@ namespace Lina::Editor
 		m_worldDisplayer->DisplayWorld(m_worldRenderer, m_editorWorldRenderer, WorldCameraType::Orbit);
 
 		// Resource set up.
-		m_world->GetGfxSettings().lightingMaterial = EDITOR_MATERIAL_DEFAULT_LIGHTING_ID;
-		m_world->GetGfxSettings().skyModel		   = EDITOR_MODEL_SKYSPHERE_ID;
-		m_world->GetGfxSettings().skyMaterial	   = EDITOR_MATERIAL_DEFAULT_SKY_ID;
+		m_world->GetGfxSettings().skyModel = EDITOR_MODEL_SKYSPHERE_ID;
 
 		const HashSet<ResourceID> initialResources = {
 			EDITOR_MODEL_CUBE_ID,
@@ -108,13 +106,10 @@ namespace Lina::Editor
 		};
 
 		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), initialResources, m_resourceSpace);
-
-		if (!m_defaultSky)
-		{
-			m_defaultSky = m_resourceManager->CreateResource<Material>(m_resourceManager->ConsumeResourceID(), "MaterialViewerSkyMaterial", m_resourceSpace);
-			WorldUtility::SetupDefaultSkyMaterial(m_defaultSky, m_resourceManager);
-			m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
-		}
+		m_defaultSky = m_resourceManager->CreateResource<Material>(m_resourceManager->ConsumeResourceID(), "MaterialViewerSkyMaterial");
+		WorldUtility::SetupDefaultSkyMaterial(m_defaultSky, m_resourceManager);
+		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
+		m_world->GetGfxSettings().skyMaterial = m_defaultSky->GetID();
 
 		m_world->Initialize(m_resourceManager);
 		SetupWorld();
@@ -142,6 +137,9 @@ namespace Lina::Editor
 			m_worldRenderer = nullptr;
 			m_world			= nullptr;
 		}
+
+		if (m_defaultSky)
+			m_resourceManager->DestroyResource(m_defaultSky);
 	}
 
 	void PanelMaterialViewer::StoreShaderID()
@@ -165,10 +163,6 @@ namespace Lina::Editor
 
 		if (mat->GetShaderType() == ShaderType::DeferredSurface)
 			m_shaderTypeStr = "Opaque Surface";
-		else if (mat->GetShaderType() == ShaderType::ForwardSurface)
-			m_shaderTypeStr = "Transparent Surface";
-		else if (mat->GetShaderType() == ShaderType::Sky)
-			m_shaderTypeStr = "Sky";
 		else
 			m_shaderTypeStr = "Custom";
 
@@ -193,21 +187,10 @@ namespace Lina::Editor
 
 		Material*		 mat		= static_cast<Material*>(m_resource);
 		const ShaderType shaderType = mat->GetShaderType();
+		// m_world->GetGfxSettings().skyMaterial = mat->GetID();
+		m_world->GetGfxSettings().skyMaterial = m_defaultSky->GetID();
 
-		if (shaderType == ShaderType::Sky)
-		{
-			m_world->GetGfxSettings().skyMaterial = mat->GetID();
-		}
-		else if (shaderType == ShaderType::Lighting)
-		{
-			m_world->GetGfxSettings().lightingMaterial = mat->GetID();
-		}
-		else
-		{
-			m_world->GetGfxSettings().skyMaterial = m_defaultSky->GetID();
-		}
-
-		const ResourceID displayMaterial = shaderType == ShaderType::Sky ? EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID : m_resource->GetID();
+		const ResourceID displayMaterial = m_resource->GetID();
 
 		if (m_displayType == MaterialViewerDisplayType::Cube)
 			m_displayEntity = WorldUtility::AddModelToWorld(m_world, rm.GetResource<Model>(EDITOR_MODEL_CUBE_ID), {displayMaterial});
@@ -226,7 +209,14 @@ namespace Lina::Editor
 		m_inspector->DeallocAllChildren();
 		m_inspector->RemoveAllChildren();
 
-		CommonWidgets::BuildClassReflection(m_inspector, this, ReflectionSystem::Get().Resolve<PanelMaterialViewer>(), [this](MetaType* meta, FieldBase* field) { SetupWorld(); });
+		CommonWidgets::BuildClassReflection(m_inspector, this, ReflectionSystem::Get().Resolve<PanelMaterialViewer>(), [this](MetaType* meta, FieldBase* field) {
+			if (m_displayType == MaterialViewerDisplayType::Skybox && m_shaderType != ShaderType::Custom)
+			{
+				LINA_WARN("Can not display this shader type as a skybox.");
+				m_displayType = MaterialViewerDisplayType::Cube;
+			}
+			SetupWorld();
+		});
 		Material* mat = static_cast<Material*>(m_resource);
 
 		Widget* shaderField			= CommonWidgets::BuildFieldLayoutWithRightSide(m_inspector, 0, Locale::GetStr(LocaleStr::Shader), false, nullptr, 0.6f);

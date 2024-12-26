@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Editor/Editor.hpp"
 #include "Editor/Graphics/EditorGfxHelpers.hpp"
 #include "Common/Math/Math.hpp"
+#include "Common/System/SystemInfo.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
@@ -42,7 +43,6 @@ SOFTWARE.
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/World/Entity.hpp"
 #include "Core/World/EntityWorld.hpp"
-
 namespace Lina::Editor
 {
 
@@ -137,14 +137,14 @@ namespace Lina::Editor
 		m_size = m_wr->GetSize();
 
 		const LinaGX::TextureDesc rtDesc = {
-			.format = LinaGX::Format::R8G8B8A8_SRGB,
+			.format = SystemInfo::GetLDRFormat(),
 			.flags	= LinaGX::TF_ColorAttachment | LinaGX::TF_Sampled | LinaGX::TF_CopySource,
 			.width	= m_size.x,
 			.height = m_size.y,
 		};
 
 		const LinaGX::TextureDesc depthDesc = {
-			.format					  = LinaGX::Format::D32_SFLOAT,
+			.format					  = SystemInfo::GetDepthFormat(),
 			.depthStencilSampleFormat = LinaGX::Format::R32_SFLOAT,
 			.flags					  = LinaGX::TF_DepthTexture | LinaGX::TF_Sampled,
 			.width					  = m_size.x,

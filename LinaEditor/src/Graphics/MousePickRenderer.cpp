@@ -40,6 +40,7 @@ SOFTWARE.
 #include "Core/Graphics/Pipeline/View.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
+#include "Common/System/SystemInfo.hpp"
 
 namespace Lina::Editor
 {
@@ -135,7 +136,7 @@ namespace Lina::Editor
 		};
 
 		const LinaGX::TextureDesc depthDesc = {
-			.format					  = LinaGX::Format::D32_SFLOAT,
+			.format					  = SystemInfo::GetDepthFormat(),
 			.depthStencilSampleFormat = LinaGX::Format::R32_SFLOAT,
 			.flags					  = LinaGX::TF_DepthTexture | LinaGX::TF_Sampled,
 			.width					  = m_size.x,
@@ -204,7 +205,7 @@ namespace Lina::Editor
 
 		if (collector.GroupExists("Gizmo"_hs))
 		{
-			group.ShaderOverride(collector.GetGroup("Gizmo"_hs), EDITOR_SHADER_WORLD_ENTITYID_ID, 0);
+			group.VariantOverride(collector.GetGroup("Gizmo"_hs), "StaticEntityID"_hs, 0);
 		}
 	}
 

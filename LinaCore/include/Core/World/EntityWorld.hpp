@@ -61,17 +61,16 @@ namespace Lina
 		struct GfxSettings
 		{
 			ResourceID skyMaterial;
-			ResourceID lightingMaterial;
 			ResourceID skyModel;
 
 			void SaveToStream(OStream& stream) const
 			{
-				stream << skyMaterial << lightingMaterial << skyModel;
+				stream << skyMaterial << skyModel;
 			}
 
 			void LoadFromStream(IStream& stream)
 			{
-				stream >> skyMaterial >> lightingMaterial >> skyModel;
+				stream >> skyMaterial >> skyModel;
 			}
 		};
 

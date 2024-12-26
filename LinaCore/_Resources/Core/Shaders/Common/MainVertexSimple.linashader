@@ -33,12 +33,12 @@ struct LinaVertexOutput
    vec4 clipPosition;
 };
 
-//##user_shader_injected_here
-
 layout( push_constant ) uniform constants
 {
-	uint baseInstanceIndex;
+	uint pushConstantValue0;
 } PushConstants;
+
+//##user_shader_injected_here
 
 void main()
 {

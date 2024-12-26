@@ -73,7 +73,6 @@ namespace Lina
 
 		struct RenderData
 		{
-			ResourceID lightingMaterial;
 			ResourceID skyMaterial;
 			ResourceID skyModel;
 		};

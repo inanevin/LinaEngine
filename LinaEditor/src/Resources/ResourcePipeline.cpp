@@ -199,9 +199,8 @@ namespace Lina::Editor
 		{
 			EntityWorld world(id, name);
 			world.SetPath(path);
-			world.GetGfxSettings().lightingMaterial = EDITOR_MATERIAL_DEFAULT_LIGHTING_ID;
-			world.GetGfxSettings().skyMaterial		= EDITOR_MATERIAL_DEFAULT_SKY_ID;
-			world.GetGfxSettings().skyModel			= EDITOR_MODEL_SKYSPHERE_ID;
+			world.GetGfxSettings().skyMaterial = EDITOR_MATERIAL_DEFAULT_SKY_ID;
+			world.GetGfxSettings().skyModel	   = EDITOR_MODEL_SKYSPHERE_ID;
 			world.SaveToFileAsBinary(path);
 		}
 		else
