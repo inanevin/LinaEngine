@@ -67,30 +67,12 @@ namespace Lina::Editor
 			Buffer				   guiIndexBuffer  = {};
 		};
 
-		struct DrawRequest
-		{
-			Shader*	   shader		  = nullptr;
-			uint32	   startVertex	  = 0;
-			uint32	   startIndex	  = 0;
-			uint32	   vertexCount	  = 0;
-			uint32	   indexCount	  = 0;
-			size_t	   materialOffset = 0;
-			Recti	   clip			  = {};
-			ResourceID textureID	  = 0;
-			size_t	   texturePadding = 0;
-
-			bool _invalid = false;
-		};
-
 		struct Draw
 		{
-			Span<uint8>			guiVertexBuffer		  = {};
-			Span<uint8>			guiIndexBuffer		  = {};
-			Span<uint8>			materialBuffer		  = {};
-			uint32				vertexCounter		  = 0;
-			uint32				indexCounter		  = 0;
-			size_t				materialBufferCounter = 0;
-			Vector<DrawRequest> requests;
+			Vector<LinaVG::Vertex> guiVertices;
+			Vector<LinaVG::Index>  guiIndices;
+			Span<uint8>			   materialBuffer		 = {};
+			size_t				   materialBufferCounter = 0;
 		};
 
 	public:
@@ -100,7 +82,6 @@ namespace Lina::Editor
 		void				   PreTick();
 		void				   Tick(float delta);
 		void				   SyncRender();
-		void				   DropRenderFrame();
 		LinaGX::CommandStream* Render(uint32 frameIndex);
 		void				   OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& newSize);
 		bool				   CheckVisibility();
@@ -149,8 +130,6 @@ namespace Lina::Editor
 		LinaVG::Drawer m_lvgDrawer;
 		WidgetManager  m_widgetManager;
 
-		Vector<DrawRequest> m_drawRequests;
-
 		Shader* m_guiDefault	   = nullptr;
 		Shader* m_guiGlitch		   = nullptr;
 		Shader* m_guiColorWheel	   = nullptr;
@@ -159,12 +138,8 @@ namespace Lina::Editor
 		Shader* m_guiSDF		   = nullptr;
 		Shader* m_guiDisplayTarget = nullptr;
 
-		uint32 m_frameVertexCounter			= 0;
-		uint32 m_frameIndexCounter			= 0;
-		size_t m_frameMaterialBufferCounter = 0;
-
-		Draw m_cpuDraw	  = {};
-		Draw m_renderDraw = {};
+		Draw m_cpuDraw = {};
+		Draw m_gpuDraw = {};
 	};
 
 } // namespace Lina::Editor

@@ -85,7 +85,7 @@ namespace Lina
 			uint32	instanceCount = 0;
 			uint32	baseInstance  = 0;
 			uint32	pushConstant  = 0;
-			Rectui	clip		  = {};
+			Recti	clip		  = {};
 			bool	useScissors	  = false;
 		};
 
@@ -107,6 +107,8 @@ namespace Lina
 		void BindDescriptors(LinaGX::CommandStream* stream, uint32 frameIndex, uint16 pipelineLayout, uint32 firstSet);
 		void Begin(LinaGX::CommandStream* stream, const LinaGX::Viewport& vp, const LinaGX::ScissorsRect& scissors, uint32 frameIndex);
 		void End(LinaGX::CommandStream* stream);
+
+		void AddDrawCall(const InstancedDraw& draw);
 
 		bool CopyBuffers(uint32 frameIndex, LinaGX::CommandStream* copyStream);
 		void SyncRender();
@@ -136,12 +138,11 @@ namespace Lina
 		}
 
 	private:
-		LinaGX::Window*			  m_window		= nullptr;
-		View					  m_view		= {};
-		DrawData				  m_cpuDrawData = {};
-		DrawData				  m_gpuDrawData = {};
+		LinaGX::Window*			  m_window = nullptr;
+		View					  m_view   = {};
 		PerFrameData			  m_pfd[FRAMES_IN_FLIGHT];
 		HashMap<StringID, uint32> m_bufferIndices;
 		RenderingData			  m_renderingData = {};
+		RenderingData			  m_cpuData		  = {};
 	};
 } // namespace Lina

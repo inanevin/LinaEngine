@@ -118,16 +118,16 @@ namespace Lina
 		LinaGX::CMDEndRenderPass* end = stream->AddCommand<LinaGX::CMDEndRenderPass>();
 	}
 
+	void RenderPass::AddDrawCall(const InstancedDraw& draw)
+	{
+		m_cpuData.drawCalls.push_back(draw);
+	}
+
 	void RenderPass::Prepare(uint32 frameIndex, ResourceUploadQueue& queue)
 	{
 		auto& pfd = m_pfd[frameIndex];
 		for (auto& buffer : pfd.buffers)
 			queue.AddBufferRequest(&buffer);
-
-		m_renderingData.drawCalls.resize(0);
-
-		// go through calls in gpu data
-		// for every call, for every instance, push a draw argument.
 	}
 
 	void RenderPass::Render(uint32 frameIndex, LinaGX::CommandStream* stream)
@@ -173,10 +173,10 @@ namespace Lina
 			if (draw.useScissors)
 			{
 				LinaGX::CMDSetScissors* sc = stream->AddCommand<LinaGX::CMDSetScissors>();
-				sc->x					   = draw.clip.pos.x < 0 ? 0 : draw.clip.pos.x;
-				sc->y					   = draw.clip.pos.y < 0 ? 0 : draw.clip.pos.y;
-				sc->width				   = draw.clip.size.x <= 0 ? static_cast<uint32>(m_window->GetSize().x) : draw.clip.size.x;
-				sc->height				   = draw.clip.size.y <= 0 ? static_cast<uint32>(m_window->GetSize().y) : draw.clip.size.y;
+				sc->x					   = draw.clip.pos.x < 0 ? 0 : static_cast<uint32>(draw.clip.pos.x);
+				sc->y					   = draw.clip.pos.y < 0 ? 0 : static_cast<uint32>(draw.clip.pos.y);
+				sc->width				   = draw.clip.size.x <= 0 ? static_cast<uint32>(m_window->GetSize().x) : static_cast<uint32>(draw.clip.size.x);
+				sc->height				   = draw.clip.size.y <= 0 ? static_cast<uint32>(m_window->GetSize().y) : static_cast<uint32>(draw.clip.size.y);
 				scissorsWasSet			   = true;
 			}
 			else if (scissorsWasSet)
@@ -232,8 +232,8 @@ namespace Lina
 
 	void RenderPass::SyncRender()
 	{
-		m_gpuDrawData = m_cpuDrawData;
-		m_cpuDrawData = {};
+		m_renderingData = m_cpuData;
+		m_cpuData.drawCalls.resize(0);
 	}
 
 } // namespace Lina

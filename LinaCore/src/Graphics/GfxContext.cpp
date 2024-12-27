@@ -172,9 +172,9 @@ namespace Lina
 		if (!pfd.bindlessDirty)
 			return;
 
-		const size_t matSize = m_nextTextureUpdates.size();
+		const size_t matSize = m_nextMaterialUpdates.size();
 		const size_t smpSize = m_nextSamplerUpdates.size();
-		const size_t txtSize = m_nextMaterialUpdates.size();
+		const size_t txtSize = m_nextTextureUpdates.size();
 
 		pfd.globalTexturesDesc.textures.resize(txtSize);
 		pfd.globalSamplersDesc.samplers.resize(smpSize);
@@ -182,8 +182,14 @@ namespace Lina
 		for (size_t i = 0; i < txtSize; i++)
 			pfd.globalTexturesDesc.textures[i] = m_nextTextureUpdates[i]->GetGPUHandle();
 
-		for (size_t i = 0; i < txtSize; i++)
+		if (!pfd.globalTexturesDesc.textures.empty())
+			m_lgx->DescriptorUpdateImage(pfd.globalTexturesDesc);
+
+		for (size_t i = 0; i < smpSize; i++)
 			pfd.globalSamplersDesc.samplers[i] = m_nextSamplerUpdates[i]->GetGPUHandle();
+
+		if (!pfd.globalSamplersDesc.samplers.empty())
+			m_lgx->DescriptorUpdateImage(pfd.globalSamplersDesc);
 
 		size_t padding = 0;
 
