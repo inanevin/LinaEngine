@@ -124,6 +124,7 @@ namespace Lina
 
 		if (!injectMaterials(vertexBlock, fragBlock))
 			return false;
+		m_meta.shaderType = ShaderPreprocessor::GetShaderType(txt);
 
 		ClearVariantCompileData();
 		m_meta.variants.clear();
@@ -132,14 +133,9 @@ namespace Lina
 		if (s_variantInjection)
 			s_variantInjection(this);
 
-		m_meta.shaderType = ShaderType::Custom;
-
 		for (ShaderVariant& variant : m_meta.variants)
 		{
 			variant.id = TO_SID(variant.name);
-
-			if (variant.renderPassName.compare("Deferred") == 0)
-				m_meta.shaderType = ShaderType::DeferredSurface;
 
 			String vertexShader = "", fragShader = "";
 
@@ -241,7 +237,7 @@ namespace Lina
 				.srcAlphaBlendFactor = variant.blendSrcAlphaFactor,
 				.dstAlphaBlendFactor = variant.blendDstAlphaFactor,
 				.alphaBlendOp		 = variant.blendAlphaOp,
-				.componentFlags		 = {LinaGX::ColorComponentFlags::R, LinaGX::ColorComponentFlags::G, LinaGX::ColorComponentFlags::B, LinaGX::ColorComponentFlags::A},
+				.componentFlags		 = variant.componentFlags,
 			};
 
 			LINAGX_VEC<LinaGX::ShaderColorAttachment> colorAttachments;

@@ -69,7 +69,7 @@ namespace Lina::Editor
 		m_lgx	 = editor->GetApp()->GetLGX();
 
 		m_pipelineLayout = m_lgx->CreatePipelineLayout(EditorGfxHelpers::GetPipelineLayoutDescriptionEntityBufferPass());
-		m_entityBufferPass.Create(EditorGfxHelpers::GetEntityBufferPassDescription());
+		m_entityBufferPass.Create(EditorGfxHelpers::GetEntityBufferPassDescription(), nullptr);
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -189,7 +189,7 @@ namespace Lina::Editor
 		else if (entityIndex - 1 < m_lastEntityIDs.size())
 			m_lastHoveredEntityGPU = m_lastEntityIDs[entityIndex - 1];
 
-		m_entityBufferPass.AddBuffersToUploadQueue(frameIndex, queue);
+		m_entityBufferPass.Prepare(frameIndex, queue);
 	}
 
 	void MousePickRenderer::Tick(float delta, DrawCollector& collector)
@@ -202,7 +202,6 @@ namespace Lina::Editor
 
 		group.VariantOverride(deferredObjects, "StaticEntityID"_hs, "SkinnedEntityID"_hs);
 		group.VariantOverride(forwardObjects, "StaticEntityID"_hs, "SkinnedEntityID"_hs);
-
 		if (collector.GroupExists("Gizmo"_hs))
 		{
 			group.VariantOverride(collector.GetGroup("Gizmo"_hs), "StaticEntityID"_hs, 0);

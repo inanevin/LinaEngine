@@ -141,6 +141,8 @@ namespace Lina
 	enum class ShaderType
 	{
 		DeferredSurface,
+		ForwardSurface,
+		Sky,
 		Custom
 	};
 
@@ -164,6 +166,7 @@ namespace Lina
 	{
 		Opaque,
 		AlphaBlend,
+		TransparentBlend,
 	};
 
 	enum class DepthTesting

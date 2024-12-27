@@ -56,8 +56,9 @@ struct LinaFragOutput
 
 */
 
-#lina_variant
+#lina_shader_deferred
 
+#lina_variant
 #name : Static
 #vertex: Resources/Core/Shaders/Common/MainVertexStatic.linashader
 #frag: Resources/Core/Shaders/Common/MainFragDeferred.linashader

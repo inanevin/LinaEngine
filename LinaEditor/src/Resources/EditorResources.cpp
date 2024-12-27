@@ -88,6 +88,11 @@ namespace Lina::Editor
 				.tid  = GetTypeID<Shader>(),
 			},
 			{
+				.id	  = EDITOR_SHADER_GUI_DISPLAYTARGET_ID,
+				.name = EDITOR_SHADER_GUI_DISPLAYTARGET_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
+			{
 				.id	  = EDITOR_SHADER_GUI_GLITCH_ID,
 				.name = EDITOR_SHADER_GUI_GLITCH_PATH,
 				.tid  = GetTypeID<Shader>(),
@@ -229,176 +234,6 @@ namespace Lina::Editor
 			.points = {{.size = 32, .dpiLimit = 1.0f}, {.size = 36, .dpiLimit = 1.8f}, {.size = 38, .dpiLimit = 10.0f}},
 			.isSDF	= false,
 		};
-
-		/*
-		shaderWorldGrid->GetMeta().variants.push_back({
-			ShaderVariant{
-				.id					 = "Default"_hs,
-				.name				 = "Default",
-				.blendDisable		 = false,
-				.blendSrcFactor		 = LinaGX::BlendFactor::SrcAlpha,
-				.blendDstFactor		 = LinaGX::BlendFactor::OneMinusSrcAlpha,
-				.blendColorOp		 = LinaGX::BlendOp::Add,
-				.blendSrcAlphaFactor = LinaGX::BlendFactor::One,
-				.blendDstAlphaFactor = LinaGX::BlendFactor::OneMinusSrcAlpha,
-				.blendAlphaOp		 = LinaGX::BlendOp::Add,
-				.depthTest			 = true,
-				.depthWrite			 = true,
-				.depthFormat		 = LinaGX::Format::D32_SFLOAT,
-				.targets			 = {{LinaGX::Format::R8G8B8A8_SRGB}},
-				.depthOp			 = LinaGX::CompareOp::Less,
-				.cullMode			 = LinaGX::CullMode::None,
-				.frontFace			 = LinaGX::FrontFace::CCW,
-				.topology			 = LinaGX::Topology::TriangleList,
-				.msaaSamples		 = EDITOR_WORLD_MSAA_SAMPLES,
-			},
-		} // namespace Lina::Editor
-		);
-
-		gizmo->GetMeta().variants.push_back({
-			ShaderVariant{
-				.id			  = "Default"_hs,
-				.name		  = "Default",
-				.blendDisable = true,
-				.depthTest	  = false,
-				.depthWrite	  = false,
-				.depthFormat  = LinaGX::Format::D32_SFLOAT,
-				.targets	  = {{LinaGX::Format::R8G8B8A8_SRGB}},
-				.cullMode	  = LinaGX::CullMode::None,
-				.frontFace	  = LinaGX::FrontFace::CCW,
-				.topology	  = LinaGX::Topology::TriangleList,
-				.msaaSamples  = EDITOR_WORLD_MSAA_SAMPLES,
-			},
-		});
-
-		line3D->GetMeta().variants.push_back({
-			ShaderVariant{
-				.id			  = "Default"_hs,
-				.name		  = "Default",
-				.blendDisable = true,
-				.depthTest	  = false,
-				.depthWrite	  = false,
-				.depthFormat  = LinaGX::Format::D32_SFLOAT,
-				.targets	  = {{LinaGX::Format::R8G8B8A8_SRGB}},
-				.cullMode	  = LinaGX::CullMode::None,
-				.frontFace	  = LinaGX::FrontFace::CW,
-				.topology	  = LinaGX::Topology::TriangleList,
-				.msaaSamples  = EDITOR_WORLD_MSAA_SAMPLES,
-			},
-		});
-
-		shaderWorldEntityID->GetMeta().variants.push_back({
-			ShaderVariant{
-				.id				   = "Default"_hs,
-				.name			   = "Default",
-				.blendDisable	   = true,
-				.depthTest		   = false,
-				.depthWrite		   = false,
-				.depthFormat	   = LinaGX::Format::D32_SFLOAT,
-				.targets		   = {{LinaGX::Format::R32_UINT}},
-				.depthOp		   = LinaGX::CompareOp::Less,
-				.cullMode		   = LinaGX::CullMode::Back,
-				.frontFace		   = LinaGX::FrontFace::CCW,
-				.topology		   = LinaGX::Topology::TriangleList,
-				.depthBiasEnable   = false,
-				.depthBiasConstant = 0.0f,
-				.depthBiasClamp	   = 0.0f,
-				.depthBiasSlope	   = 0.0f,
-			},
-		});
-
-		shaderLinaVG3D->GetMeta().variants.push_back({
-			ShaderVariant{
-				.id					 = "Default"_hs,
-				.name				 = "Default",
-				.blendDisable		 = false,
-				.blendSrcFactor		 = LinaGX::BlendFactor::SrcAlpha,
-				.blendDstFactor		 = LinaGX::BlendFactor::OneMinusSrcAlpha,
-				.blendColorOp		 = LinaGX::BlendOp::Add,
-				.blendSrcAlphaFactor = LinaGX::BlendFactor::One,
-				.blendDstAlphaFactor = LinaGX::BlendFactor::OneMinusSrcAlpha,
-				.blendAlphaOp		 = LinaGX::BlendOp::Add,
-				.depthTest			 = true,
-				.depthWrite			 = true,
-				.depthFormat		 = LinaGX::Format::D32_SFLOAT,
-				.targets			 = {{LinaGX::Format::R8G8B8A8_SRGB}},
-				.depthOp			 = LinaGX::CompareOp::Less,
-				.cullMode			 = LinaGX::CullMode::None,
-				.frontFace			 = LinaGX::FrontFace::CCW,
-				.topology			 = LinaGX::Topology::TriangleList,
-				.msaaSamples		 = EDITOR_WORLD_MSAA_SAMPLES,
-			},
-		});
-
-		outlineFullscreen->GetMeta().variants.push_back({
-			ShaderVariant{
-				.id					 = "Default"_hs,
-				.name				 = "Default",
-				.blendDisable		 = false,
-				.blendSrcFactor		 = LinaGX::BlendFactor::SrcAlpha,
-				.blendDstFactor		 = LinaGX::BlendFactor::OneMinusSrcAlpha,
-				.blendColorOp		 = LinaGX::BlendOp::Add,
-				.blendSrcAlphaFactor = LinaGX::BlendFactor::One,
-				.blendDstAlphaFactor = LinaGX::BlendFactor::OneMinusSrcAlpha,
-				.blendAlphaOp		 = LinaGX::BlendOp::Add,
-				.depthTest			 = false,
-				.depthWrite			 = false,
-				.depthFormat		 = LinaGX::Format::D32_SFLOAT,
-				.targets			 = {{LinaGX::Format::R8G8B8A8_SRGB}},
-				.cullMode			 = LinaGX::CullMode::None,
-				.frontFace			 = LinaGX::FrontFace::CCW,
-				.topology			 = LinaGX::Topology::TriangleList,
-				.msaaSamples		 = EDITOR_WORLD_MSAA_SAMPLES,
-			},
-		} // namespace Lina::Editor
-		);
-
-		shaderWorldSample->GetMeta().variants.push_back({
-			ShaderVariant{
-				.id					 = "Default"_hs,
-				.name				 = "Default",
-				.blendDisable		 = false,
-				.blendSrcFactor		 = LinaGX::BlendFactor::SrcAlpha,
-				.blendDstFactor		 = LinaGX::BlendFactor::OneMinusSrcAlpha,
-				.blendColorOp		 = LinaGX::BlendOp::Add,
-				.blendSrcAlphaFactor = LinaGX::BlendFactor::One,
-				.blendDstAlphaFactor = LinaGX::BlendFactor::OneMinusSrcAlpha,
-				.blendAlphaOp		 = LinaGX::BlendOp::Add,
-				.depthTest			 = false,
-				.depthWrite			 = false,
-				.depthFormat		 = LinaGX::Format::D32_SFLOAT,
-				.targets			 = {{LinaGX::Format::R8G8B8A8_SRGB}},
-				.cullMode			 = LinaGX::CullMode::None,
-				.frontFace			 = LinaGX::FrontFace::CCW,
-				.topology			 = LinaGX::Topology::TriangleList,
-				.msaaSamples		 = EDITOR_WORLD_MSAA_SAMPLES,
-			},
-		} // namespace Lina::Editor
-		);
-		shaderWorldDepthSample->GetMeta().variants.push_back({
-			ShaderVariant{
-				.id					 = "Default"_hs,
-				.name				 = "Default",
-				.blendDisable		 = false,
-				.blendSrcFactor		 = LinaGX::BlendFactor::SrcAlpha,
-				.blendDstFactor		 = LinaGX::BlendFactor::OneMinusSrcAlpha,
-				.blendColorOp		 = LinaGX::BlendOp::Add,
-				.blendSrcAlphaFactor = LinaGX::BlendFactor::One,
-				.blendDstAlphaFactor = LinaGX::BlendFactor::OneMinusSrcAlpha,
-				.blendAlphaOp		 = LinaGX::BlendOp::Add,
-				.depthTest			 = true,
-				.depthWrite			 = true,
-				.depthFormat		 = LinaGX::Format::D32_SFLOAT,
-				.targets			 = {},
-				.depthOp			 = LinaGX::CompareOp::Always,
-				.cullMode			 = LinaGX::CullMode::None,
-				.frontFace			 = LinaGX::FrontFace::CCW,
-				.topology			 = LinaGX::Topology::TriangleList,
-				.msaaSamples		 = EDITOR_WORLD_MSAA_SAMPLES,
-			},
-		} // namespace Lina::Editor
-		);
-		*/
 
 		for (Resource* r : m_createdResources)
 			r->SetPath(r->GetName());

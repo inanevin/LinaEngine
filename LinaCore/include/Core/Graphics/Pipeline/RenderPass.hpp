@@ -30,7 +30,9 @@ SOFTWARE.
 
 #include "Core/Graphics/Data/RenderData.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
+#include "Core/Graphics/Pipeline/View.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
+#include "Common/Math/Rect.hpp"
 #include "Common/Data/Vector.hpp"
 #include "Buffer.hpp"
 
@@ -58,6 +60,40 @@ namespace Lina
 	class RenderPass
 	{
 	public:
+		struct DrawInstance
+		{
+		};
+
+		struct DrawRequest
+		{
+		};
+
+		struct DrawData
+		{
+		};
+
+		struct InstancedDraw
+		{
+			Buffer* vertexBuffers[FRAMES_IN_FLIGHT];
+			Buffer* indexBuffers[FRAMES_IN_FLIGHT];
+			size_t	vertexSize	  = 0;
+			uint32	shaderHandle  = 0;
+			uint32	baseVertex	  = 0;
+			uint32	vertexCount	  = 0;
+			uint32	baseIndex	  = 0;
+			uint32	indexCount	  = 0;
+			uint32	instanceCount = 0;
+			uint32	baseInstance  = 0;
+			uint32	pushConstant  = 0;
+			Rectui	clip		  = {};
+			bool	useScissors	  = false;
+		};
+
+		struct RenderingData
+		{
+			Vector<InstancedDraw> drawCalls;
+		};
+
 		struct PerFrameData
 		{
 			uint16									  descriptorSet	   = 0;
@@ -66,14 +102,16 @@ namespace Lina
 			LinaGX::RenderPassDepthStencilAttachment  depthStencil;
 		};
 
-		void Create(const RenderPassDescription& desc);
+		void Create(const RenderPassDescription& desc, LinaGX::Window* window);
 		void Destroy();
 		void BindDescriptors(LinaGX::CommandStream* stream, uint32 frameIndex, uint16 pipelineLayout, uint32 firstSet);
 		void Begin(LinaGX::CommandStream* stream, const LinaGX::Viewport& vp, const LinaGX::ScissorsRect& scissors, uint32 frameIndex);
 		void End(LinaGX::CommandStream* stream);
 
 		bool CopyBuffers(uint32 frameIndex, LinaGX::CommandStream* copyStream);
-		void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue);
+		void SyncRender();
+		void Prepare(uint32 frameIndex, ResourceUploadQueue& queue);
+		void Render(uint32 frameIndex, LinaGX::CommandStream* stream);
 
 		void SetColorAttachment(uint32 frameIndex, uint32 index, const LinaGX::RenderPassColorAttachment& att);
 
@@ -92,8 +130,18 @@ namespace Lina
 			return m_pfd[frameIndex].buffers[m_bufferIndices[sid]];
 		}
 
+		inline View& GetView()
+		{
+			return m_view;
+		}
+
 	private:
+		LinaGX::Window*			  m_window		= nullptr;
+		View					  m_view		= {};
+		DrawData				  m_cpuDrawData = {};
+		DrawData				  m_gpuDrawData = {};
 		PerFrameData			  m_pfd[FRAMES_IN_FLIGHT];
 		HashMap<StringID, uint32> m_bufferIndices;
+		RenderingData			  m_renderingData = {};
 	};
 } // namespace Lina

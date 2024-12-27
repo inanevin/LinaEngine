@@ -446,8 +446,16 @@ namespace Lina
 			variant.blendDstFactor		= LinaGX::BlendFactor::OneMinusSrcAlpha;
 			variant.blendColorOp		= LinaGX::BlendOp::Add;
 			variant.blendSrcAlphaFactor = LinaGX::BlendFactor::One;
-			// variant.blendDstAlphaFactor = LinaGX::BlendFactor::OneMinusSrcAlpha;
 			variant.blendDstAlphaFactor = LinaGX::BlendFactor::Zero;
+			variant.blendAlphaOp		= LinaGX::BlendOp::Add;
+			break;
+		case BlendMode::TransparentBlend:
+			variant.blendDisable		= false;
+			variant.blendSrcFactor		= LinaGX::BlendFactor::SrcAlpha;
+			variant.blendDstFactor		= LinaGX::BlendFactor::OneMinusSrcAlpha;
+			variant.blendColorOp		= LinaGX::BlendOp::Add;
+			variant.blendSrcAlphaFactor = LinaGX::BlendFactor::One;
+			variant.blendDstAlphaFactor = LinaGX::BlendFactor::OneMinusSrcAlpha;
 			variant.blendAlphaOp		= LinaGX::BlendOp::Add;
 			break;
 		default:
@@ -460,23 +468,41 @@ namespace Lina
 		switch (depth)
 		{
 		case DepthTesting::None:
-			variant.depthTest = false;
+			variant.depthTest  = false;
+			variant.depthWrite = false;
 			break;
 		case DepthTesting::Equal:
 			variant.depthTest		  = true;
+			variant.depthWrite		  = true;
 			variant.depthBiasEnable	  = true;
 			variant.depthBiasConstant = 5.0f;
 			variant.depthOp			  = LinaGX::CompareOp::Equal;
 			break;
 		case DepthTesting::Less:
-			variant.depthTest = true;
-			variant.depthOp	  = LinaGX::CompareOp::Less;
+			variant.depthTest  = true;
+			variant.depthWrite = true;
+			variant.depthOp	   = LinaGX::CompareOp::Less;
 			break;
 		case DepthTesting::Always:
-			variant.depthTest = true;
-			variant.depthOp	  = LinaGX::CompareOp::Always;
+			variant.depthTest  = true;
+			variant.depthWrite = true;
+			variant.depthOp	   = LinaGX::CompareOp::Always;
 			break;
 		}
+	}
+
+	ShaderType ShaderPreprocessor::GetShaderType(const String& str)
+	{
+		if (str.find("#lina_shader_deferred") != String::npos)
+			return ShaderType::DeferredSurface;
+
+		if (str.find("#lina_shader_sky") != String::npos)
+			return ShaderType::Sky;
+
+		if (str.find("#lina_shader_forward") != String::npos)
+			return ShaderType::ForwardSurface;
+
+		return ShaderType::Custom;
 	}
 
 	BlendMode ShaderPreprocessor::GetBlendModeFromStr(const String& str)
@@ -486,6 +512,9 @@ namespace Lina
 
 		if (str.compare("LINA_BLEND_ALPHA") == 0)
 			return BlendMode::AlphaBlend;
+
+		if (str.compare("LINA_BLEND_TRANSPARENT") == 0)
+			return BlendMode::TransparentBlend;
 
 		return BlendMode::Opaque;
 	}
@@ -579,7 +608,7 @@ namespace Lina
 			.targets			 = {},
 			.depthOp			 = LinaGX::CompareOp::Less,
 			.cullMode			 = LinaGX::CullMode::Back,
-			.frontFace			 = LinaGX::FrontFace::CCW,
+			.frontFace			 = LinaGX::FrontFace::CW,
 			.topology			 = LinaGX::Topology::TriangleList,
 			.depthBiasEnable	 = false,
 			.depthBiasConstant	 = 0.0f,

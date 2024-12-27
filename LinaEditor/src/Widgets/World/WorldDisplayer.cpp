@@ -37,6 +37,8 @@ SOFTWARE.
 #include "Editor/World/WorldUtility.hpp"
 #include "Editor/Actions/EditorActionEntity.hpp"
 
+#include "Core/GUI/Widgets/Layout/Popup.hpp"
+#include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
@@ -59,6 +61,7 @@ namespace Lina::Editor
 		GetWidgetProps().rounding		  = 0.0f;
 		GetWidgetProps().drawBackground	  = true;
 		GetWidgetProps().colorBackground  = Theme::GetDef().background0;
+		GetWidgetProps().childMargins	  = TBLR::Eq(Theme::GetDef().baseIndent);
 
 		m_noWorldText = m_manager->Allocate<Text>("NoWorld");
 		m_noWorldText->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
@@ -68,6 +71,41 @@ namespace Lina::Editor
 		m_noWorldText->GetProps().font	= Theme::GetDef().altBigFont;
 		m_noWorldText->GetProps().color = Theme::GetDef().silent2;
 		AddChild(m_noWorldText);
+
+		DirectionalLayout* topToolbar = m_manager->Allocate<DirectionalLayout>("TopToolbar");
+		topToolbar->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_X_TOTAL_CHILDREN | WF_USE_FIXED_SIZE_Y);
+		topToolbar->SetAlignedPos(Vector2::Zero);
+		topToolbar->SetAlignedSizeX(1.0f);
+		topToolbar->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		topToolbar->SetFixedSizeX(Theme::GetDef().baseItemHeight);
+		topToolbar->GetWidgetProps().childPadding		= Theme::GetDef().baseIndent;
+		topToolbar->GetWidgetProps().drawOrderIncrement = 1;
+
+		AddChild(topToolbar);
+
+		m_displayTextureDropdown = m_manager->Allocate<Dropdown>("DisplayTextureDD");
+		m_displayTextureDropdown->GetFlags().Set(WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_SIZE_ALIGN_Y);
+		m_displayTextureDropdown->SetAlignedPosY(0.0f);
+		m_displayTextureDropdown->SetAlignedSizeY(1.0f);
+		m_displayTextureDropdown->SetFixedSizeX(Theme::GetDef().baseItemHeight * 4);
+		topToolbar->AddChild(m_displayTextureDropdown);
+
+		SetDisplayTextureTitle();
+		m_displayTextureDropdown->GetProps().onAddItems = [this](Popup* popup) {
+			popup->AddToggleItem("World", m_currentDisplayTexture == DisplayTexture::WorldResult, 0);
+			popup->AddToggleItem("GBuf0", m_currentDisplayTexture == DisplayTexture::WorldGBuf0, 1);
+			popup->AddToggleItem("GBuf1", m_currentDisplayTexture == DisplayTexture::WorldGBuf1, 2);
+			popup->AddToggleItem("GBuf2", m_currentDisplayTexture == DisplayTexture::WorldGBuf2, 3);
+			popup->AddToggleItem("GBufDepth", m_currentDisplayTexture == DisplayTexture::WorldDepth, 4);
+			popup->AddToggleItem("Outline", m_currentDisplayTexture == DisplayTexture::OutlinePass, 5);
+			popup->AddToggleItem("EntityID", m_currentDisplayTexture == DisplayTexture::EntityIDPass, 6);
+		};
+
+		m_displayTextureDropdown->GetProps().onSelected = [this](int32 idx, String& outTitle) -> bool {
+			m_currentDisplayTexture = static_cast<DisplayTexture>(idx);
+			SetDisplayTextureTitle();
+			return false;
+		};
 
 		m_gizmoFont = Editor::Get()->GetApp()->GetResourceManager().GetResource<Font>(EDITOR_FONT_PLAY_ID);
 		m_editor->GetWindowPanelManager().AddPayloadListener(this);
@@ -102,7 +140,8 @@ namespace Lina::Editor
 
 		m_worldRenderer = renderer;
 		m_worldRenderer->GetWorld()->AddListener(this);
-		m_ewr = ewr;
+		m_ewr						 = ewr;
+		GetWidgetProps().lvgUserData = renderer == nullptr ? nullptr : &m_guiUserData;
 
 		if (cameraType == WorldCameraType::Orbit)
 			m_camera = new OrbitCamera(m_worldRenderer->GetWorld());
@@ -148,9 +187,25 @@ namespace Lina::Editor
 		if (m_worldRenderer == nullptr)
 			return;
 
-		const uint32 frameIndex		= Application::GetLGX()->GetCurrentFrameIndex();
-		const uint32 txtFrameIndex	= (frameIndex + SystemInfo::GetRendererBehindFrames()) % 2;
-		Texture*	 target			= m_ewr->GetRenderTarget(txtFrameIndex); // 1 frame behind renderer
+		const uint32 frameIndex	   = Application::GetLGX()->GetCurrentFrameIndex();
+		const uint32 txtFrameIndex = (frameIndex + SystemInfo::GetRendererBehindFrames()) % 2;
+		Texture*	 target		   = nullptr;
+
+		if (m_currentDisplayTexture == DisplayTexture::WorldResult)
+			target = m_ewr->GetRenderTarget(txtFrameIndex);
+		else if (m_currentDisplayTexture == DisplayTexture::WorldGBuf0)
+			target = m_worldRenderer->GetGBufAlbedo(txtFrameIndex);
+		else if (m_currentDisplayTexture == DisplayTexture::WorldGBuf1)
+			target = m_worldRenderer->GetGBufPosition(txtFrameIndex);
+		else if (m_currentDisplayTexture == DisplayTexture::WorldGBuf2)
+			target = m_worldRenderer->GetGBufNormal(txtFrameIndex);
+		else if (m_currentDisplayTexture == DisplayTexture::WorldDepth)
+			target = m_worldRenderer->GetGBufDepth(txtFrameIndex);
+		else if (m_currentDisplayTexture == DisplayTexture::OutlinePass)
+			target = m_ewr->GetOutlineRenderer().GetRenderTarget(txtFrameIndex);
+		else if (m_currentDisplayTexture == DisplayTexture::EntityIDPass)
+			target = m_ewr->GetMousePick().GetRenderTarget(txtFrameIndex);
+
 		GetWidgetProps().rawTexture = target;
 	}
 
@@ -373,6 +428,24 @@ namespace Lina::Editor
 	ResourceID WorldDisplayer::GetWorldID()
 	{
 		return m_worldRenderer == nullptr ? 0 : m_worldRenderer->GetWorld()->GetID();
+	}
+
+	void WorldDisplayer::SetDisplayTextureTitle()
+	{
+		if (m_currentDisplayTexture == DisplayTexture::WorldResult)
+			m_displayTextureDropdown->GetText()->UpdateTextAndCalcSize("World");
+		else if (m_currentDisplayTexture == DisplayTexture::WorldGBuf0)
+			m_displayTextureDropdown->GetText()->UpdateTextAndCalcSize("GBuf0");
+		else if (m_currentDisplayTexture == DisplayTexture::WorldGBuf1)
+			m_displayTextureDropdown->GetText()->UpdateTextAndCalcSize("GBuf1");
+		else if (m_currentDisplayTexture == DisplayTexture::WorldGBuf2)
+			m_displayTextureDropdown->GetText()->UpdateTextAndCalcSize("GBuf2");
+		else if (m_currentDisplayTexture == DisplayTexture::WorldDepth)
+			m_displayTextureDropdown->GetText()->UpdateTextAndCalcSize("GBufDepth");
+		else if (m_currentDisplayTexture == DisplayTexture::OutlinePass)
+			m_displayTextureDropdown->GetText()->UpdateTextAndCalcSize("Outline");
+		else if (m_currentDisplayTexture == DisplayTexture::EntityIDPass)
+			m_displayTextureDropdown->GetText()->UpdateTextAndCalcSize("EntityID");
 	}
 
 	void WorldDisplayer::HandleGizmoControls()

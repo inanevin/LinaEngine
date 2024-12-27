@@ -151,12 +151,13 @@ namespace Lina::Editor
 
 		Vector<DrawRequest> m_drawRequests;
 
-		Shader* m_guiDefault	= nullptr;
-		Shader* m_guiGlitch		= nullptr;
-		Shader* m_guiColorWheel = nullptr;
-		Shader* m_guiHue		= nullptr;
-		Shader* m_guiText		= nullptr;
-		Shader* m_guiSDF		= nullptr;
+		Shader* m_guiDefault	   = nullptr;
+		Shader* m_guiGlitch		   = nullptr;
+		Shader* m_guiColorWheel	   = nullptr;
+		Shader* m_guiHue		   = nullptr;
+		Shader* m_guiText		   = nullptr;
+		Shader* m_guiSDF		   = nullptr;
+		Shader* m_guiDisplayTarget = nullptr;
 
 		uint32 m_frameVertexCounter			= 0;
 		uint32 m_frameIndexCounter			= 0;

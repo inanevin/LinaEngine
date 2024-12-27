@@ -44,26 +44,29 @@ struct LinaFragOutput
 */
 
 #lina_variant
-
 #name : Default
-#vertex: Resources/Core/Shaders/Common/MainVertexSimple.linashader
-#frag: Resources/Core/Shaders/Common/MainFragSimple.linashader
-#pass: Resources/Core/Shaders/Common/RenderPass_Forward.linashader
 #blend: LINA_BLEND_NONE
-#depth: LINA_DEPTH_EQUAL
+#depth: LINA_DEPTH_NONE
 #target: LINA_TARGET_HDR
 #cull: LINA_CULL_NONE
-
 #lina_end
 
 #lina_vs
 
+#include "Resources/Core/Shaders/Common/GlobalData.linashader"
+#include "Resources/Core/Shaders/Common/RenderPass_Forward.linashader"
+
 layout(location = 0) out vec2 outUV;
 
-void LINA_VERTEX_MAIN(out LinaVertexOutput outVertex)
+layout( push_constant ) uniform constants
+{
+	uint pushConstantValue0;
+} PushConstants;
+
+void main()
 {
    outUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
-   outVertex.clipPosition =  vec4(outUV * 2.0f + -1.0f, 0.0f, 1.0f);
+   gl_Position =  vec4(outUV * 2.0f + -1.0f, 0.0f, 1.0f);
    outUV.y = 1.0f - outUV.y;
 }
 
@@ -71,15 +74,19 @@ void LINA_VERTEX_MAIN(out LinaVertexOutput outVertex)
 
 #lina_fs
 
-layout (location = 0) in vec2 inUV;
+#include "Resources/Core/Shaders/Common/GlobalData.linashader"
+#include "Resources/Core/Shaders/Common/RenderPass_Forward.linashader"
 
-void LINA_FRAG_MAIN(out LinaFragOutput outFrag)
+layout (location = 0) in vec2 inUV;
+layout (location = 0) out vec4 outFragColor;
+
+void main()
 {
    vec4 albedo = texture(sampler2D(LINA_TEXTURES[LINA_PASS.gBufColorMaterialID], LINA_SAMPLERS[LINA_PASS.gBufSampler]), inUV);
    vec4 normals = texture(sampler2D(LINA_TEXTURES[LINA_PASS.gBufNormal], LINA_SAMPLERS[LINA_PASS.gBufSampler]), inUV);
    vec4 worldPos = texture(sampler2D(LINA_TEXTURES[LINA_PASS.gBufPosition], LINA_SAMPLERS[LINA_PASS.gBufSampler]), inUV);
    vec3 finalColor = albedo.xyz;
-   outFrag.color = vec4(finalColor.rgb, 1.0);
+   outFragColor = vec4(finalColor.rgb, 1.0);
 }
 
 #lina_end

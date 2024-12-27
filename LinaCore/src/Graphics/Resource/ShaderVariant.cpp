@@ -50,6 +50,7 @@ namespace Lina
 		stream << enableSampleShading;
 		stream << msaaSamples;
 		stream << vertexWrap << fragWrap << renderPass << renderPassName;
+		stream << componentFlags;
 
 		const uint32 size = static_cast<uint32>(_compileData.size());
 		stream << size;
@@ -75,6 +76,7 @@ namespace Lina
 		stream >> enableSampleShading;
 		stream >> msaaSamples;
 		stream >> vertexWrap >> fragWrap >> renderPass >> renderPassName;
+		stream >> componentFlags;
 
 		uint32 size = 0;
 		stream >> size;

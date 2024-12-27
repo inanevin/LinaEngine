@@ -80,6 +80,7 @@ namespace Lina::Editor
 		m_guiText			= m_editor->GetApp()->GetResourceManager().GetResource<Shader>(EDITOR_SHADER_GUI_TEXT_ID);
 		m_guiSDF			= m_editor->GetApp()->GetResourceManager().GetResource<Shader>(EDITOR_SHADER_GUI_SDF_TEXT_ID);
 		m_guiGlitch			= m_editor->GetApp()->GetResourceManager().GetResource<Shader>(EDITOR_SHADER_GUI_GLITCH_ID);
+		m_guiDisplayTarget	= m_editor->GetApp()->GetResourceManager().GetResource<Shader>(EDITOR_SHADER_GUI_DISPLAYTARGET_ID);
 
 		const LinaGX::VSyncStyle vsync = {
 			.vulkanVsync = VSYNC_VK,
@@ -125,7 +126,7 @@ namespace Lina::Editor
 		m_renderDraw.materialBuffer	 = {new uint8[10000], 10000};
 
 		// RP
-		m_guiPass.Create(EditorGfxHelpers::GetGUIPassDescription());
+		m_guiPass.Create(EditorGfxHelpers::GetGUIPassDescription(), m_window);
 		m_widgetManager.Initialize(&m_editor->GetApp()->GetResourceManager(), m_window, &m_lvgDrawer);
 		m_lvgDrawer.GetCallbacks().draw = BIND(&SurfaceRenderer::DrawDefault, this, std::placeholders::_1);
 	}
@@ -222,11 +223,6 @@ namespace Lina::Editor
 		// Update vertex / index buffers.
 		const uint32 vtxSize = static_cast<uint32>(buf->vertexBuffer.m_size);
 		const uint32 idxSize = static_cast<uint32>(buf->indexBuffer.m_size);
-		MEMCPY(m_cpuDraw.guiVertexBuffer.data() + m_cpuDraw.vertexCounter * sizeof(LinaVG::Vertex), (uint8*)buf->vertexBuffer.m_data, vtxSize * sizeof(LinaVG::Vertex));
-		MEMCPY(m_cpuDraw.guiIndexBuffer.data() + m_cpuDraw.indexCounter * sizeof(LinaVG::Index), (uint8*)buf->indexBuffer.m_data, idxSize * sizeof(LinaVG::Index));
-
-		// pfd.guiVertexBuffer.BufferData(m_frameVertexCounter * sizeof(LinaVG::Vertex), (uint8*)buf->vertexBuffer.m_data, vtxSize * sizeof(LinaVG::Vertex));
-		// pfd.guiIndexBuffer.BufferData(m_frameIndexCounter * sizeof(LinaVG::Index), (uint8*)buf->indexBuffer.m_data, idxSize * sizeof(LinaVG::Index));
 
 		DrawRequest drawRequest = DrawRequest{
 			.startVertex	= m_cpuDraw.vertexCounter,
@@ -239,7 +235,12 @@ namespace Lina::Editor
 
 		GUIUserData* guiUserData = nullptr;
 		if (buf->userData != nullptr)
+		{
 			guiUserData = static_cast<GUIUserData*>(buf->userData);
+
+			if (guiUserData->specialType == GUISpecialType::DisplayTarget && buf->textureHandle == nullptr)
+				guiUserData = nullptr;
+		}
 
 		ResourceManagerV2& rm		  = m_editor->GetApp()->GetResourceManager();
 		GUIBackend&		   guiBackend = m_editor->GetApp()->GetGUIBackend();
@@ -295,8 +296,31 @@ namespace Lina::Editor
 							},
 					};
 
+					drawRequest.textureID	   = texture != nullptr ? texture->GetID() : 0;
+					drawRequest.texturePadding = m_cpuDraw.materialBufferCounter + offsetof(GPUMaterialGUIGlitch, diffuse);
+
 					MEMCPY(m_cpuDraw.materialBuffer.data() + m_cpuDraw.materialBufferCounter, (uint8*)&material, sizeof(GPUMaterialGUIGlitch));
 					m_cpuDraw.materialBufferCounter += sizeof(GPUMaterialGUIGlitch);
+				}
+				else if (guiUserData->specialType == GUISpecialType::DisplayTarget)
+				{
+					drawRequest.shader = m_guiDisplayTarget;
+					Texture* texture   = buf->textureHandle == nullptr ? nullptr : static_cast<Texture*>(buf->textureHandle);
+
+					GPUMaterialGUIDisplayTarget material = {
+						.uvTilingAndOffset = buf->textureUV,
+						.diffuse =
+							{
+								.textureIndex = texture != nullptr ? texture->GetBindlessIndex() : 0,
+								.samplerIndex = texture != nullptr ? m_editor->GetEditorRenderer().GetGUISampler()->GetBindlessIndex() : 0,
+							},
+					};
+
+					drawRequest.textureID	   = texture != nullptr ? texture->GetID() : 0;
+					drawRequest.texturePadding = m_cpuDraw.materialBufferCounter + offsetof(GPUMaterialGUIDisplayTarget, diffuse);
+
+					MEMCPY(m_cpuDraw.materialBuffer.data() + m_cpuDraw.materialBufferCounter, (uint8*)&material, sizeof(GPUMaterialGUIDisplayTarget));
+					m_cpuDraw.materialBufferCounter += sizeof(GPUMaterialGUIDisplayTarget);
 				}
 				else if (guiUserData->specialType == GUISpecialType::ColorWheel)
 				{
@@ -417,6 +441,12 @@ namespace Lina::Editor
 			// m_frameMaterialBufferCounter += sizeof(GPUMaterialGUISDFText);
 		}
 
+		if (drawRequest._invalid)
+			return;
+
+		MEMCPY(m_cpuDraw.guiVertexBuffer.data() + m_cpuDraw.vertexCounter * sizeof(LinaVG::Vertex), (uint8*)buf->vertexBuffer.m_data, vtxSize * sizeof(LinaVG::Vertex));
+		MEMCPY(m_cpuDraw.guiIndexBuffer.data() + m_cpuDraw.indexCounter * sizeof(LinaVG::Index), (uint8*)buf->indexBuffer.m_data, idxSize * sizeof(LinaVG::Index));
+
 		m_cpuDraw.requests.emplace_back(drawRequest);
 
 		m_cpuDraw.vertexCounter += vtxSize;
@@ -465,7 +495,7 @@ namespace Lina::Editor
 		materialBuffer.BufferData(0, m_renderDraw.materialBuffer.data(), m_renderDraw.materialBufferCounter);
 		m_uploadQueue.AddBufferRequest(&currentFrame.guiIndexBuffer);
 		m_uploadQueue.AddBufferRequest(&currentFrame.guiVertexBuffer);
-		m_guiPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+		m_guiPass.Prepare(frameIndex, m_uploadQueue);
 
 		if (m_uploadQueue.FlushAll(currentFrame.copyStream))
 		{
@@ -558,49 +588,51 @@ namespace Lina::Editor
 		// Begin render pass
 		m_guiPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
 
-		currentFrame.guiVertexBuffer.BindVertex(currentFrame.gfxStream, static_cast<uint32>(sizeof(LinaVG::Vertex)));
-		currentFrame.guiIndexBuffer.BindIndex(currentFrame.gfxStream, LinaGX::IndexType::Uint16);
+		m_guiPass.Render(frameIndex, currentFrame.gfxStream);
 
-		Shader* lastBound = nullptr;
+		// currentFrame.guiVertexBuffer.BindVertex(currentFrame.gfxStream, static_cast<uint32>(sizeof(LinaVG::Vertex)));
+		// currentFrame.guiIndexBuffer.BindIndex(currentFrame.gfxStream, LinaGX::IndexType::Uint16);
 
-		GPUEditorGUIPushConstants constants = {};
-
-		for (const DrawRequest& request : m_renderDraw.requests)
-		{
-			if (request._invalid)
-				continue;
-
-			constants.materialIndex = static_cast<uint32>(request.materialOffset / sizeof(uint32));
-
-			if (lastBound != request.shader)
-			{
-				lastBound = request.shader;
-				lastBound->Bind(currentFrame.gfxStream, lastBound->GetGPUHandle());
-			}
-
-			LinaGX::CMDSetScissors* sc = currentFrame.gfxStream->AddCommand<LinaGX::CMDSetScissors>();
-			sc->x					   = request.clip.pos.x < 0 ? 0 : static_cast<uint32>(request.clip.pos.x);
-			sc->y					   = request.clip.pos.y < 0 ? 0 : static_cast<uint32>(request.clip.pos.y);
-			sc->width				   = request.clip.size.x <= 0 ? static_cast<uint32>(m_window->GetSize().x) : static_cast<uint32>(request.clip.size.x);
-			sc->height				   = request.clip.size.y <= 0 ? static_cast<uint32>(m_window->GetSize().y) : static_cast<uint32>(request.clip.size.y);
-
-			LinaGX::CMDBindConstants* pc = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindConstants>();
-			pc->size					 = static_cast<uint32>(sizeof(GPUEditorGUIPushConstants));
-			pc->stagesSize				 = 1;
-			pc->stages					 = currentFrame.gfxStream->EmplaceAuxMemory(LinaGX::ShaderStage::Fragment);
-			pc->data					 = currentFrame.gfxStream->EmplaceAuxMemory<GPUEditorGUIPushConstants>((uint8*)&constants, sizeof(GPUEditorGUIPushConstants));
-
-			LinaGX::CMDDrawIndexedInstanced* draw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
-			draw->instanceCount					  = 1;
-			draw->indexCountPerInstance			  = request.indexCount;
-			draw->startInstanceLocation			  = 0;
-			draw->startIndexLocation			  = request.startIndex;
-			draw->baseVertexLocation			  = request.startVertex;
-
-#ifdef LINA_DEBUG
-			// PROFILER_ADD_DRAWCALL(request.indexCount / 3, "Surface Renderer", 0);
-#endif
-		}
+		//		Shader* lastBound = nullptr;
+		//
+		//		GPUEditorGUIPushConstants constants = {};
+		//
+		//		for (const DrawRequest& request : m_renderDraw.requests)
+		//		{
+		//			if (request._invalid)
+		//				continue;
+		//
+		//			constants.materialIndex = static_cast<uint32>(request.materialOffset / sizeof(uint32));
+		//
+		//			if (lastBound != request.shader)
+		//			{
+		//				lastBound = request.shader;
+		//				lastBound->Bind(currentFrame.gfxStream, lastBound->GetGPUHandle());
+		//			}
+		//
+		//			LinaGX::CMDSetScissors* sc = currentFrame.gfxStream->AddCommand<LinaGX::CMDSetScissors>();
+		//			sc->x					   = request.clip.pos.x < 0 ? 0 : static_cast<uint32>(request.clip.pos.x);
+		//			sc->y					   = request.clip.pos.y < 0 ? 0 : static_cast<uint32>(request.clip.pos.y);
+		//			sc->width				   = request.clip.size.x <= 0 ? static_cast<uint32>(m_window->GetSize().x) : static_cast<uint32>(request.clip.size.x);
+		//			sc->height				   = request.clip.size.y <= 0 ? static_cast<uint32>(m_window->GetSize().y) : static_cast<uint32>(request.clip.size.y);
+		//
+		//			LinaGX::CMDBindConstants* pc = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindConstants>();
+		//			pc->size					 = static_cast<uint32>(sizeof(GPUEditorGUIPushConstants));
+		//			pc->stagesSize				 = 1;
+		//			pc->stages					 = currentFrame.gfxStream->EmplaceAuxMemory(LinaGX::ShaderStage::Fragment);
+		//			pc->data					 = currentFrame.gfxStream->EmplaceAuxMemory<GPUEditorGUIPushConstants>((uint8*)&constants, sizeof(GPUEditorGUIPushConstants));
+		//
+		//			LinaGX::CMDDrawIndexedInstanced* draw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
+		//			draw->instanceCount					  = 1;
+		//			draw->indexCountPerInstance			  = request.indexCount;
+		//			draw->startInstanceLocation			  = 0;
+		//			draw->startIndexLocation			  = request.startIndex;
+		//			draw->baseVertexLocation			  = request.startVertex;
+		//
+		// #ifdef LINA_DEBUG
+		//			// PROFILER_ADD_DRAWCALL(request.indexCount / 3, "Surface Renderer", 0);
+		// #endif
+		//		}
 
 		// End render pass
 		m_guiPass.End(currentFrame.gfxStream);

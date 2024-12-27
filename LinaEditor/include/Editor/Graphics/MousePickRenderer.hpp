@@ -77,6 +77,11 @@ namespace Lina::Editor
 			return m_lastHoveredEntityCPU;
 		}
 
+		inline Texture* GetRenderTarget(uint32 frameIndex) const
+		{
+			return m_pfd[frameIndex].renderTarget;
+		}
+
 	private:
 		LinaGX::Instance*  m_lgx	= nullptr;
 		Editor*			   m_editor = nullptr;

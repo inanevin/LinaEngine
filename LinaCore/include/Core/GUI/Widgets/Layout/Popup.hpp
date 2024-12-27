@@ -75,8 +75,8 @@ namespace Lina
 		virtual void Tick(float delta) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
-		void AddTitleItem(const String& title, float heightMultiplier = 1.5f);
-		void AddToggleItem(const String& title, bool isSelected, int32 outIndex, void* userData = nullptr, float heightMultiplier = 1.5f);
+		void AddTitleItem(const String& title, float heightMultiplier = 1.25f);
+		void AddToggleItem(const String& title, bool isSelected, int32 outIndex, void* userData = nullptr, float heightMultiplier = 1.25f);
 		void AddCustomItem(Widget* w);
 		void ScrollToItem(void* userData);
 		void SwitchToggleItem(int32 item, bool on);

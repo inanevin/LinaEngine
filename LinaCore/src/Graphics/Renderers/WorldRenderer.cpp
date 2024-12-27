@@ -109,8 +109,8 @@ namespace Lina
 			data.copySemaphore			= SemaphoreData(m_lgx->CreateUserSemaphore());
 		}
 
-		m_deferredPass.Create(GfxHelpers::GetRenderPassDescription(RenderPassType::RENDER_PASS_DEFERRED));
-		m_forwardPass.Create(GfxHelpers::GetRenderPassDescription(RenderPassType::RENDER_PASS_FORWARD));
+		m_deferredPass.Create(GfxHelpers::GetRenderPassDescription(RenderPassType::RENDER_PASS_DEFERRED), nullptr);
+		m_forwardPass.Create(GfxHelpers::GetRenderPassDescription(RenderPassType::RENDER_PASS_FORWARD), nullptr);
 
 		m_drawCollector.Initialize(m_lgx, m_world, m_resourceManagerV2, m_gfxContext, &m_executor);
 
@@ -335,7 +335,7 @@ namespace Lina
 		m_drawCollector.CreateGroup("Forward");
 
 		m_drawCollector.CollectCompModels("Deferred"_hs, cameraView, ShaderType::DeferredSurface);
-		// m_drawCollector.CollectCompModels("Forward"_hs, cameraView, ShaderType::Custom);
+		m_drawCollector.CollectCompModels("Forward"_hs, cameraView, ShaderType::ForwardSurface);
 
 		m_cpuRenderData.skyMaterial = m_world->GetGfxSettings().skyMaterial;
 		m_cpuRenderData.skyModel	= m_world->GetGfxSettings().skyModel;
@@ -343,8 +343,10 @@ namespace Lina
 
 	void WorldRenderer::SyncRender()
 	{
-		m_drawCollector.SyncRender();
+		m_deferredPass.SyncRender();
+		m_forwardPass.SyncRender();
 
+		m_drawCollector.SyncRender();
 		m_gpuRenderData = m_cpuRenderData;
 		m_cpuRenderData = {};
 	}
@@ -361,10 +363,13 @@ namespace Lina
 
 		// View data.
 		{
-			Camera&		worldCam = m_world->GetWorldCamera();
-			GPUDataView view	 = {
-					.view = worldCam.GetView(),
-					.proj = worldCam.GetProjection(),
+			Camera& worldCam = m_world->GetWorldCamera();
+			// const Vector2ui sz		 = m_world->GetScreen().GetRenderSize();
+			// 	worldCam.Calculate(m_size);
+
+			GPUDataView view = {
+				.view = worldCam.GetView(),
+				.proj = worldCam.GetProjection(),
 			};
 
 			const Vector3& camPos	   = worldCam.GetPosition();
@@ -396,8 +401,8 @@ namespace Lina
 		}
 
 		m_drawCollector.PrepareGPUData(frameIndex, m_uploadQueue);
-		m_deferredPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
-		m_forwardPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+		m_deferredPass.Prepare(frameIndex, m_uploadQueue);
+		m_forwardPass.Prepare(frameIndex, m_uploadQueue);
 	}
 
 	void WorldRenderer::FlushTransfers(uint32 frameIndex)
@@ -460,9 +465,7 @@ namespace Lina
 
 			m_deferredPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
 			m_deferredPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxContext->GetPipelineLayoutPersistent(RenderPassType::RENDER_PASS_DEFERRED), 1);
-
-			if (m_drawCollector.RenderGroupExists("Deferred"_hs))
-				m_drawCollector.RenderGroup("Deferred"_hs, currentFrame.gfxStream);
+			m_deferredPass.Render(frameIndex, currentFrame.gfxStream);
 			m_deferredPass.End(currentFrame.gfxStream);
 
 			DEBUG_LABEL_END(currentFrame.gfxStream);
@@ -486,14 +489,12 @@ namespace Lina
 
 			m_forwardPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
 			m_forwardPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxContext->GetPipelineLayoutPersistent(RenderPassType::RENDER_PASS_FORWARD), 1);
-
 			m_gfxContext->GetMeshManagerDefault().BindStatic(currentFrame.gfxStream);
 
 			// Lighting quad
 			{
-				LinaGX::CMDBindPipeline* bind = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindPipeline>();
-				bind->shader				  = m_deferredLightingShader->GetGPUHandle();
-
+				LinaGX::CMDBindPipeline* bind		   = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindPipeline>();
+				bind->shader						   = m_deferredLightingShader->GetGPUHandle();
 				LinaGX::CMDDrawInstanced* lightingDraw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawInstanced>();
 				lightingDraw->instanceCount			   = 1;
 				lightingDraw->startInstanceLocation	   = 0;
@@ -506,7 +507,7 @@ namespace Lina
 				Material* skyMaterial = m_resourceManagerV2->GetResource<Material>(m_gpuRenderData.skyMaterial);
 				Shader*	  skyShader	  = m_resourceManagerV2->GetResource<Shader>(skyMaterial->GetShader());
 				Model*	  skyModel	  = m_resourceManagerV2->GetIfExists<Model>(m_gpuRenderData.skyModel);
-				if (skyModel != nullptr)
+				if (skyModel != nullptr && skyShader->GetShaderType() == ShaderType::Sky)
 				{
 					const Mesh&				 mesh = skyModel->GetAllMeshes().at(0);
 					LinaGX::CMDBindPipeline* bind = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindPipeline>();
@@ -527,9 +528,7 @@ namespace Lina
 				}
 			}
 
-			if (m_drawCollector.RenderGroupExists("Forward"_hs))
-				m_drawCollector.RenderGroup("Forward"_hs, currentFrame.gfxStream);
-
+			m_forwardPass.Render(frameIndex, currentFrame.gfxStream);
 			m_forwardPass.End(currentFrame.gfxStream);
 
 			DEBUG_LABEL_END(currentFrame.gfxStream);
@@ -580,7 +579,6 @@ namespace Lina
 			waitSemaphoresVec.push_back(currentFrame.copySemaphore.GetSemaphore());
 			waitValuesVec.push_back(currentFrame.copySemaphore.GetValue());
 		}
-
 		currentFrame.signalSemaphore.Increment();
 		m_lgx->SubmitCommandStreams({
 			.targetQueue		  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Graphics),

@@ -164,9 +164,22 @@ namespace Lina
 	{
 	}
 
-	size_t Material::BufferDataInto(Buffer& buf, size_t padding, ResourceManagerV2* rm, GfxContext* context)
+	size_t Material::GetBufferSize()
 	{
 		size_t totalSize = 0;
+
+		for (MaterialProperty* prop : m_properties)
+		{
+			if (prop->propDef.type == ShaderPropertyType::Texture2D)
+				totalSize += sizeof(LinaTexture2DBinding);
+			else
+				totalSize += prop->data.size();
+		}
+		return totalSize;
+	}
+
+	void Material::BufferDataInto(Buffer& buf, size_t padding, ResourceManagerV2* rm, GfxContext* context)
+	{
 		for (MaterialProperty* prop : m_properties)
 		{
 			if (prop->propDef.type == ShaderPropertyType::Texture2D)
@@ -185,18 +198,14 @@ namespace Lina
 
 				buf.BufferData(padding, (uint8*)&binding, sizeof(LinaTexture2D));
 				padding += sizeof(LinaTexture2DBinding);
-				totalSize += sizeof(LinaTexture2DBinding);
 			}
 			else
 			{
 
 				buf.BufferData(padding, prop->data.data(), prop->data.size());
 				padding += prop->data.size();
-				totalSize += prop->data.size();
 			}
 		}
-
-		return totalSize;
 	}
 
 	void Material::CopyPropertiesFrom(Material* mat)

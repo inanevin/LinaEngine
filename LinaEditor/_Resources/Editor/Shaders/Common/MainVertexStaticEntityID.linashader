@@ -56,16 +56,16 @@ layout (location = 10) flat out uint outEntityID;
 
 void main()
 {
-    DrawArguments drawArguments = LINA_DRAW_ARGUMENTS.data[PushConstants.pushConstantValue0 + gl_InstanceIndex];
+   DrawArguments drawArguments = LINA_DRAW_ARGUMENTS.data[PushConstants.pushConstantValue0 + gl_InstanceIndex];
 
-    LinaVertexInput vertexInput;
-    vertexInput.pos = vec4(inPos, 1.0);
-    vertexInput.normal = inNormal;
-    vertexInput.uv =  vec2(inUV.x, 1.0 - inUV.y);
-    vertexInput.drawArguments = drawArguments;
+   LinaVertexInput vertexInput;
+   vertexInput.pos = vec4(inPos , 1.0);
+   vertexInput.normal = inNormal;
+   vertexInput.uv =  vec2(inUV.x, 1.0 - inUV.y);
+   vertexInput.drawArguments = drawArguments;
 
-    LinaVertexOutput vertexOutput;
-    LINA_VERTEX_MAIN(vertexInput, vertexOutput);
+   LinaVertexOutput vertexOutput;
+   LINA_VERTEX_MAIN(vertexInput, vertexOutput);
 
    gl_Position = vertexOutput.clipPosition;
 

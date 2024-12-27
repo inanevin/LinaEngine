@@ -75,6 +75,7 @@ namespace Lina
 		void Shutdown();
 		void PollUploads(uint32 frameIndex);
 		void UpdateBindless(uint32 frameIndex);
+		void PrepareBindless();
 
 		virtual void OnResourceManagerPreDestroyHW(const HashSet<Resource*>& resources) override;
 		virtual void OnResourceManagerGeneratedHW(const HashSet<Resource*>& resources) override;
@@ -106,7 +107,6 @@ namespace Lina
 		}
 
 	private:
-	private:
 		Application*		m_app		 = nullptr;
 		ResourceManagerV2*	m_rm		 = nullptr;
 		LinaGX::Instance*	m_lgx		 = nullptr;
@@ -117,5 +117,10 @@ namespace Lina
 		Vector<uint16>		m_pipelineLayoutPersistent;
 
 		MeshManager m_meshManagerDefault;
+
+		Vector<Texture*>		m_nextTextureUpdates;
+		Vector<TextureSampler*> m_nextSamplerUpdates;
+		Vector<Material*>		m_nextMaterialUpdates;
+		bool					m_bindlessDirty = false;
 	};
 } // namespace Lina

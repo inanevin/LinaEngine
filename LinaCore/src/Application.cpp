@@ -132,6 +132,8 @@ namespace Lina
 		m_resourceManager.SetLocked(true);
 		m_joinedRender = false;
 
+		m_gfxContext.PrepareBindless();
+
 		if (singleThreadRenderer)
 		{
 			m_worldProcessor.Tick(static_cast<float>(delta));

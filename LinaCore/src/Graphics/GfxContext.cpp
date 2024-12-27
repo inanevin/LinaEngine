@@ -115,6 +115,56 @@ namespace Lina
 		}
 	}
 
+	void GfxContext::MarkBindlessDirty()
+	{
+		m_bindlessDirty = true;
+	}
+
+	void GfxContext::PrepareBindless()
+	{
+		if (!m_bindlessDirty)
+			return;
+
+		m_bindlessDirty = false;
+
+		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+			m_pfd[i].bindlessDirty = true;
+
+		m_nextMaterialUpdates.resize(0);
+		m_nextSamplerUpdates.resize(0);
+		m_nextTextureUpdates.resize(0);
+
+		// Textures
+		ResourceCache<Texture>* cacheTxt = m_rm->GetCache<Texture>();
+		cacheTxt->View([&](Texture* txt, uint32 index) -> bool {
+			if (txt->GetIsMSAA())
+				return false;
+
+			const uint32 idx = static_cast<uint32>(m_nextTextureUpdates.size());
+			txt->SetBindlessIndex(idx);
+			m_nextTextureUpdates.push_back(txt);
+			return false;
+		});
+
+		// Samplers
+		ResourceCache<TextureSampler>* cacheSmp = m_rm->GetCache<TextureSampler>();
+		cacheSmp->View([&](TextureSampler* smp, uint32 index) -> bool {
+			m_nextSamplerUpdates.push_back(smp);
+			smp->SetBindlessIndex(index);
+			return false;
+		});
+
+		// Materials
+		ResourceCache<Material>* cacheMat = m_rm->GetCache<Material>();
+		size_t					 padding  = 0;
+		cacheMat->View([&](Material* mat, uint32 index) -> bool {
+			m_nextMaterialUpdates.push_back(mat);
+			mat->SetBindlessIndex(static_cast<uint32>(padding));
+			padding += mat->GetSize();
+			return false;
+		});
+	}
+
 	void GfxContext::UpdateBindless(uint32 frameIndex)
 	{
 		auto& pfd = m_pfd[frameIndex];
@@ -122,60 +172,49 @@ namespace Lina
 		if (!pfd.bindlessDirty)
 			return;
 
-		// Textures.
-		ResourceCache<Texture>* cacheTxt = m_rm->GetCache<Texture>();
-		// const size_t			txtCacheSize = static_cast<size_t>(cacheTxt->GetActiveItemCount());
-		// pfd.globalTexturesDesc.textures.resize(txtCacheSize);
-		pfd.globalTexturesDesc.textures.resize(0);
-		cacheTxt->View([&](Texture* txt, uint32 index) -> bool {
-			if (txt->GetIsMSAA())
-				return false;
+		const size_t matSize = m_nextTextureUpdates.size();
+		const size_t smpSize = m_nextSamplerUpdates.size();
+		const size_t txtSize = m_nextMaterialUpdates.size();
 
-			const uint32 idx = static_cast<uint32>(pfd.globalTexturesDesc.textures.size());
-			pfd.globalTexturesDesc.textures.push_back(txt->GetGPUHandle());
-			txt->SetBindlessIndex(idx);
-			return false;
-		});
+		pfd.globalTexturesDesc.textures.resize(txtSize);
+		pfd.globalSamplersDesc.samplers.resize(smpSize);
 
-		if (!pfd.globalTexturesDesc.textures.empty())
-			m_lgx->DescriptorUpdateImage(pfd.globalTexturesDesc);
+		for (size_t i = 0; i < txtSize; i++)
+			pfd.globalTexturesDesc.textures[i] = m_nextTextureUpdates[i]->GetGPUHandle();
 
-		// Samplers
-		ResourceCache<TextureSampler>* cacheSmp = m_rm->GetCache<TextureSampler>();
-		pfd.globalSamplersDesc.samplers.resize(static_cast<size_t>(cacheSmp->GetActiveItemCount()));
-		cacheSmp->View([&](TextureSampler* smp, uint32 index) -> bool {
-			pfd.globalSamplersDesc.samplers[index] = smp->GetGPUHandle();
-			smp->SetBindlessIndex(index);
-			return false;
-		});
+		for (size_t i = 0; i < txtSize; i++)
+			pfd.globalSamplersDesc.samplers[i] = m_nextSamplerUpdates[i]->GetGPUHandle();
 
-		if (!pfd.globalSamplersDesc.samplers.empty())
-			m_lgx->DescriptorUpdateImage(pfd.globalSamplersDesc);
+		size_t padding = 0;
 
-		ResourceCache<Material>* cacheMat = m_rm->GetCache<Material>();
-		size_t					 padding  = 0;
-		cacheMat->View([&](Material* mat, uint32 index) -> bool {
-			mat->SetBindlessIndex(static_cast<uint32>(padding));
-			padding += mat->BufferDataInto(pfd.globalMaterialsBuffer, padding, m_rm, this);
+		for (size_t i = 0; i < matSize; i++)
+		{
+			Material* mat = m_nextMaterialUpdates.at(i);
+			mat->BufferDataInto(pfd.globalMaterialsBuffer, padding, m_rm, this);
+			padding += mat->GetBufferSize();
+		}
+
+		if (matSize != 0)
+		{
 			pfd.globalMaterialsBuffer.MarkDirty();
-			return false;
-		});
-
-		if (padding != 0)
 			m_uploadQueue.AddBufferRequest(&pfd.globalMaterialsBuffer);
+		}
 
 		pfd.bindlessDirty = false;
-	}
-
-	void GfxContext::MarkBindlessDirty()
-	{
-		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-			m_pfd[i].bindlessDirty = true;
 	}
 
 	void GfxContext::PollUploads(uint32 frameIndex)
 	{
 		PerFrameData& pfd = m_pfd[frameIndex];
+
+		// Update global data.
+		{
+			const auto&			 mp			= m_lgx->GetInput().GetMousePositionAbs();
+			GPUDataEngineGlobals globalData = {};
+			globalData.mouse				= Vector4(static_cast<float>(mp.x), static_cast<float>(mp.y), 0.0f, 0.0f);
+			globalData.deltaElapsed			= Vector4(static_cast<float>(SystemInfo::GetDeltaTime()), SystemInfo::GetAppTimeF(), 0.0f, 0.0f);
+			pfd.globalDataBuffer.BufferData(0, (uint8*)&globalData, sizeof(GPUDataEngineGlobals));
+		}
 
 		if (m_uploadQueue.FlushAll(pfd.copyStream))
 		{
@@ -193,15 +232,6 @@ namespace Lina
 				.signalValues	  = pfd.copySemaphore.GetValuePtr(),
 			});
 			m_lgx->WaitForUserSemaphore(pfd.copySemaphore.GetSemaphore(), pfd.copySemaphore.GetValue());
-		}
-
-		// Update global data.
-		{
-			const auto&			 mp			= m_lgx->GetInput().GetMousePositionAbs();
-			GPUDataEngineGlobals globalData = {};
-			globalData.mouse				= Vector4(static_cast<float>(mp.x), static_cast<float>(mp.y), 0.0f, 0.0f);
-			globalData.deltaElapsed			= Vector4(static_cast<float>(SystemInfo::GetDeltaTime()), SystemInfo::GetAppTimeF(), 0.0f, 0.0f);
-			pfd.globalDataBuffer.BufferData(0, (uint8*)&globalData, sizeof(GPUDataEngineGlobals));
 		}
 	}
 

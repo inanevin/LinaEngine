@@ -52,9 +52,9 @@ namespace Lina::Editor
 		worldCamera.SetFar(m_props.zFar);
 		worldCamera.SetPosition(m_absPosition);
 		worldCamera.SetRotation(m_absRotation);
-
 		worldCamera.Calculate(sz);
 	}
+
 	/*
 	void EditorCamera::HandleFreeMovement(float delta)
 	{

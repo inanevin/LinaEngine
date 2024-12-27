@@ -48,6 +48,7 @@ namespace Lina
 	class ShaderPreprocessor
 	{
 	public:
+		static ShaderType		 GetShaderType(const String& str);
 		static BlendMode		 GetBlendModeFromStr(const String& str);
 		static DepthTesting		 GetDepthTestingFromStr(const String& str);
 		static LinaGX::Format	 GetTargetFromStr(const String& str, bool& isMSAA);

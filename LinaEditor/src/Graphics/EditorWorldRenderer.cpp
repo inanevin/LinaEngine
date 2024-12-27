@@ -68,7 +68,7 @@ namespace Lina::Editor
 		m_world	 = m_wr->GetWorld();
 
 		m_wr->AddListener(this);
-		m_pass.Create(EditorGfxHelpers::GetEditorWorldPassDescription());
+		m_pass.Create(EditorGfxHelpers::GetEditorWorldPassDescription(), nullptr);
 		m_pipelineLayout = m_lgx->CreatePipelineLayout(EditorGfxHelpers::GetPipelineLayoutDescriptionEditorWorldPass());
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
@@ -196,9 +196,8 @@ namespace Lina::Editor
 				.pushMaterial  = true,
 				.pushBoneIndex = false,
 			};
-			// drawCollector.AddCustomDrawRaw("EditorWorld"_hs, gridInstance, m_gridShader->GetID(), 0, 0, 6);
+			drawCollector.AddCustomDrawRaw("EditorWorld"_hs, gridInstance, m_gridShader->GetID(), 0, 0, 6);
 		}
-
 		m_gizmoRenderer.Tick(delta, drawCollector);
 		m_mousePickRenderer.Tick(delta, drawCollector);
 		m_outlineRenderer.Tick(delta, drawCollector);
@@ -244,7 +243,7 @@ namespace Lina::Editor
 		m_mousePickRenderer.AddBuffersToUploadQueue(frameIndex, queue);
 		m_outlineRenderer.AddBuffersToUploadQueue(frameIndex, queue);
 
-		m_pass.AddBuffersToUploadQueue(frameIndex, queue);
+		m_pass.Prepare(frameIndex, queue);
 	}
 
 	void EditorWorldRenderer::Render(uint32 frameIndex)

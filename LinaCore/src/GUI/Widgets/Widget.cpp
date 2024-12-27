@@ -344,7 +344,9 @@ namespace Lina
 				m_lvg->DrawRect(Vector2((m_rect.GetEnd().x + GetPos().x) * 0.5f, GetPos().y).AsLVG(), m_rect.GetEnd().AsLVG(), style2, 0.0f, m_drawOrder);
 			}
 			else
+			{
 				m_lvg->DrawRect(min.AsLVG(), max.AsLVG(), opts, 0.0f, m_drawOrder);
+			}
 		}
 	}
 

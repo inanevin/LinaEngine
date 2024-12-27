@@ -104,6 +104,11 @@ namespace Lina::Editor
 			return m_pfd[frameIndex].renderTargetResolve;
 		}
 
+		inline OutlineSelectionRenderer& GetOutlineRenderer()
+		{
+			return m_outlineRenderer;
+		}
+
 	private:
 		Vector<Entity*>			 m_selectedEntities;
 		EntityWorld*			 m_world = nullptr;

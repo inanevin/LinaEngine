@@ -39,7 +39,6 @@ SOFTWARE.
 
 namespace Lina
 {
-
 	void Dropdown::Construct()
 	{
 		GetWidgetProps().childMargins.left	= Theme::GetDef().baseIndent;

@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Editor/PayloadListener.hpp"
 #include "Editor/World/CommonEditorWorld.hpp"
+#include "Editor/Graphics/EditorGfxHelpers.hpp"
 #include "Core/World/EntityWorld.hpp"
 
 namespace Lina
@@ -38,6 +39,7 @@ namespace Lina
 	class WorldRenderer;
 	class Font;
 	class Text;
+	class Dropdown;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -57,6 +59,17 @@ namespace Lina::Editor
 			GizmoAxis	  pressedAxis	= GizmoAxis::None;
 			GizmoLocality gizmoLocality = GizmoLocality::World;
 			GizmoSnapping gizmoSnapping = GizmoSnapping::Free;
+		};
+
+		enum class DisplayTexture
+		{
+			WorldResult,
+			WorldGBuf0,
+			WorldGBuf1,
+			WorldGBuf2,
+			WorldDepth,
+			OutlinePass,
+			EntityIDPass,
 		};
 
 	public:
@@ -110,12 +123,16 @@ namespace Lina::Editor
 		}
 
 	private:
+		void SetDisplayTextureTitle();
 		void HandleGizmoControls();
 		void DestroyCamera();
 		void DrawAxis(const Vector3& targetAxis, const Color& baseColor, const String& axis);
 
 	private:
 		GizmoControls m_gizmoControls;
+
+		Dropdown*	   m_displayTextureDropdown = nullptr;
+		DisplayTexture m_currentDisplayTexture	= DisplayTexture::WorldResult;
 
 		Vector<Entity*>		 m_selectedEntities;
 		Editor*				 m_editor		 = nullptr;
@@ -125,6 +142,10 @@ namespace Lina::Editor
 		WorldRenderer*		 m_worldRenderer = nullptr;
 		EditorCamera*		 m_camera		 = nullptr;
 		Font*				 m_gizmoFont	 = nullptr;
+		GUIUserData			 m_guiUserData	 = {
+					   .specialType = GUISpecialType::DisplayTarget,
+					   .mipLevel	= 15,
+		   };
 	};
 	LINA_WIDGET_BEGIN(WorldDisplayer, Hidden)
 	LINA_CLASS_END(WorldDisplayer)

@@ -78,7 +78,7 @@ namespace Lina::Editor
 		m_fullscreenMaterial->SetProperty("thickness"_hs, 2.0f);
 
 		m_pipelineLayout = m_lgx->CreatePipelineLayout(EditorGfxHelpers::GetPipelineLayoutDescriptionEntityBufferPass());
-		m_outlinePass.Create(EditorGfxHelpers::GetEntityBufferPassDescription());
+		m_outlinePass.Create(EditorGfxHelpers::GetEntityBufferPassDescription(), nullptr);
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -186,7 +186,7 @@ namespace Lina::Editor
 			m_outlinePass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
 		}
 
-		m_outlinePass.AddBuffersToUploadQueue(frameIndex, queue);
+		m_outlinePass.Prepare(frameIndex, queue);
 	}
 
 	void OutlineSelectionRenderer::Tick(float delta, DrawCollector& collector)

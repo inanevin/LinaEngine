@@ -112,6 +112,7 @@ namespace Lina
 
 				Material* targetMaterial = prim.materialIndex >= materials.size() ? nullptr : materials[prim.materialIndex];
 				LINA_ASSERT(targetMaterial, "");
+
 				if (!skipShaderType && targetMaterial->GetShaderType() != shaderType)
 					continue;
 				Shader* targetShader = m_rm->GetResource<Shader>(targetMaterial->GetShader());

@@ -33,8 +33,10 @@ SOFTWARE.
 
 namespace Lina
 {
-	void RenderPass::Create(const RenderPassDescription& desc)
+	void RenderPass::Create(const RenderPassDescription& desc, LinaGX::Window* window)
 	{
+		m_window = window;
+
 		for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data		   = m_pfd[i];
@@ -116,11 +118,101 @@ namespace Lina
 		LinaGX::CMDEndRenderPass* end = stream->AddCommand<LinaGX::CMDEndRenderPass>();
 	}
 
-	void RenderPass::AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue)
+	void RenderPass::Prepare(uint32 frameIndex, ResourceUploadQueue& queue)
 	{
 		auto& pfd = m_pfd[frameIndex];
 		for (auto& buffer : pfd.buffers)
 			queue.AddBufferRequest(&buffer);
+
+		m_renderingData.drawCalls.resize(0);
+
+		// go through calls in gpu data
+		// for every call, for every instance, push a draw argument.
+	}
+
+	void RenderPass::Render(uint32 frameIndex, LinaGX::CommandStream* stream)
+	{
+		uint16	bound		   = 0;
+		bool	isBound		   = false;
+		Buffer* boundVtxBuffer = nullptr;
+
+		auto checkPipeline = [&](uint32 handle) {
+			if (!isBound || bound != handle)
+			{
+				LinaGX::CMDBindPipeline* pipeline = stream->AddCommand<LinaGX::CMDBindPipeline>();
+				pipeline->shader				  = handle;
+				isBound							  = true;
+				bound							  = handle;
+			}
+		};
+
+		auto checkBuffers = [&](Buffer* vtxBuffer, Buffer* idxBuffer, size_t vtxSize) {
+			if (boundVtxBuffer == nullptr || boundVtxBuffer != vtxBuffer)
+			{
+				vtxBuffer->BindVertex(stream, static_cast<uint32>(vtxSize));
+				idxBuffer->BindIndex(stream, LinaGX::IndexType::Uint16);
+				boundVtxBuffer = vtxBuffer;
+			}
+		};
+
+		bool scissorsWasSet = false;
+
+		for (const InstancedDraw& draw : m_renderingData.drawCalls)
+		{
+			checkPipeline(draw.shaderHandle);
+
+			bool	indexedInstanced = false;
+			Buffer* indexBuffer		 = draw.indexBuffers[frameIndex];
+			Buffer* vertexBuffer	 = draw.vertexBuffers[frameIndex];
+			if (indexBuffer != nullptr && vertexBuffer != nullptr)
+			{
+				checkBuffers(vertexBuffer, indexBuffer, draw.vertexSize);
+				indexedInstanced = true;
+			}
+
+			if (draw.useScissors)
+			{
+				LinaGX::CMDSetScissors* sc = stream->AddCommand<LinaGX::CMDSetScissors>();
+				sc->x					   = draw.clip.pos.x < 0 ? 0 : draw.clip.pos.x;
+				sc->y					   = draw.clip.pos.y < 0 ? 0 : draw.clip.pos.y;
+				sc->width				   = draw.clip.size.x <= 0 ? static_cast<uint32>(m_window->GetSize().x) : draw.clip.size.x;
+				sc->height				   = draw.clip.size.y <= 0 ? static_cast<uint32>(m_window->GetSize().y) : draw.clip.size.y;
+				scissorsWasSet			   = true;
+			}
+			else if (scissorsWasSet)
+			{
+				LinaGX::CMDSetScissors* sc = stream->AddCommand<LinaGX::CMDSetScissors>();
+				sc->x					   = 0;
+				sc->y					   = 0;
+				sc->width				   = m_window->GetSize().x;
+				sc->height				   = m_window->GetSize().y;
+			}
+
+			LinaGX::CMDBindConstants* pushConstants = stream->AddCommand<LinaGX::CMDBindConstants>();
+			pushConstants->data						= stream->EmplaceAuxMemory<uint32>(draw.pushConstant);
+			pushConstants->size						= sizeof(uint32);
+			pushConstants->stagesSize				= 1;
+			pushConstants->stages					= stream->EmplaceAuxMemory<LinaGX::ShaderStage>(LinaGX::ShaderStage::Vertex);
+
+			if (indexedInstanced)
+			{
+				LinaGX::CMDDrawIndexedInstanced* d = stream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
+				d->baseVertexLocation			   = draw.baseVertex;
+				d->indexCountPerInstance		   = draw.indexCount;
+				d->instanceCount				   = draw.instanceCount;
+				d->startIndexLocation			   = draw.baseIndex;
+				d->startInstanceLocation		   = draw.baseInstance;
+			}
+			else
+			{
+
+				LinaGX::CMDDrawInstanced* d = stream->AddCommand<LinaGX::CMDDrawInstanced>();
+				d->instanceCount			= draw.instanceCount;
+				d->startInstanceLocation	= draw.baseInstance;
+				d->startVertexLocation		= draw.baseVertex;
+				d->vertexCountPerInstance	= draw.vertexCount;
+			}
+		}
 	}
 
 	bool RenderPass::CopyBuffers(uint32 frameIndex, LinaGX::CommandStream* copyStream)
@@ -136,6 +228,12 @@ namespace Lina
 		}
 
 		return copyExists;
+	}
+
+	void RenderPass::SyncRender()
+	{
+		m_gpuDrawData = m_cpuDrawData;
+		m_cpuDrawData = {};
 	}
 
 } // namespace Lina

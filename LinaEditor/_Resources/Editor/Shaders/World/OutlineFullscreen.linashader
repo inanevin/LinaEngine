@@ -29,7 +29,7 @@ SOFTWARE.
 #lina_variant
 
 #name : Default
-#blend: LINA_BLEND_NONE
+#blend: LINA_BLEND_TRANSPARENT
 #depth: LINA_DEPTH_NONE
 #target: LINA_TARGET_LDR_MS
 #cull: LINA_CULL_NONE

@@ -36,14 +36,7 @@ namespace Lina::Editor
 {
 	void ShaderImport::InjectShaderVariant(Shader* shader)
 	{
-		bool injectEditorVariants = false;
-		for (ShaderVariant& var : shader->GetMeta().variants)
-		{
-			if (var.renderPassName.compare("Deferred") == 0 || var.renderPass.compare("Forward") == 0)
-				injectEditorVariants = true;
-		}
-
-		if (injectEditorVariants)
+		if (shader->GetShaderType() == ShaderType::DeferredSurface || shader->GetShaderType() == ShaderType::ForwardSurface)
 		{
 			ShaderVariant outlineStatic	 = {};
 			outlineStatic.vertexWrap	 = "Resources/Core/Shaders/Common/MainVertexStatic.linashader";
