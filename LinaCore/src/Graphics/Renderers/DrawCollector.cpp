@@ -36,7 +36,7 @@ SOFTWARE.
 
 namespace Lina
 {
-	void DrawCollector::CollectCompModels(const Vector<CompModel*>& components, RenderPass& pass, ResourceManagerV2* rm, WorldRenderer* renderer, GfxContext* gfxContext, const CompModelFilter& filter)
+	void DrawCollector::CollectCompModels(const Vector<CompModel*>& components, RenderPass& pass, ResourceManagerV2* rm, WorldRenderer* renderer, GfxContext* gfxContext, const CollectionFilter& filter)
 	{
 		struct Instance
 		{

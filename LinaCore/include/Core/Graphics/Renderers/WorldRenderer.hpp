@@ -234,6 +234,11 @@ namespace Lina
 			return m_pfd[frameIndex].boneBuffer;
 		}
 
+		inline const Vector<CompModel*>& GetCompModels() const
+		{
+			return m_compModels;
+		}
+
 	private:
 		void CalculateSkinning(const Vector<CompModel*>& comps);
 

@@ -42,7 +42,9 @@ SOFTWARE.
 #include "Resources/Editor/Shaders/Common/RenderPass_World.linashader"
 
 layout (location = 0) out vec2 outUV;
-layout (location = 1) flat out uint outargument1;
+layout (location = 1) flat out uint outMaterialIndex;
+layout (location = 2) flat out uint outTextureIndex;
+layout (location = 3) flat out uint outSamplerIndex;
 
 layout( push_constant ) uniform constants
 {
@@ -54,7 +56,10 @@ void main()
    outUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
    gl_Position =  vec4(outUV * 2.0f + -1.0f, 0.0f, 1.0f);
    outUV.y = 1.0f - outUV.y;
-   outargument1 = LINA_DRAW_ARGUMENTS.data[PushConstants.value0 + gl_InstanceIndex].argument1;
+   DrawArguments drawArguments = LINA_DRAW_ARGUMENTS.data[PushConstants.value0];
+   outMaterialIndex = drawArguments.argument1;
+   outTextureIndex = drawArguments.argument2;
+   outSamplerIndex = drawArguments.argument3;
 }
 
 #lina_end
@@ -62,7 +67,9 @@ void main()
 #lina_fs
 
 layout(location = 0) in vec2 inUV;
-layout(location = 1) flat in uint inargument1;
+layout(location = 1) flat in uint inMaterialIndex;
+layout (location = 2) flat in uint inTextureIndex;
+layout (location = 3) flat in uint inSamplerIndex;
 layout(location = 0) out vec4 outFragColor;
 
 #include "Resources/Core/Shaders/Common/GlobalData.linashader"
@@ -78,9 +85,9 @@ vec4 outline(vec2 texCoord, vec2 pixelSize, float thickness)
 {
 	vec2 uv;
 	vec2 diffUV = pixelSize.xy * vec2(thickness, thickness);
-   LinaTexture2D outlineTxt;
-   outlineTxt.txt = LINA_VIEW.outlineSelectionTextureIndex;
-   outlineTxt.smp = LINA_VIEW.outlineSelectionSamplerIndex;
+   	LinaTexture2D outlineTxt;
+   	outlineTxt.txt = inTextureIndex;
+   	outlineTxt.smp = inSamplerIndex;
  
 	uv.x = texCoord.x - diffUV.x;
 	uv.y = texCoord.y;
@@ -99,12 +106,11 @@ vec4 outline(vec2 texCoord, vec2 pixelSize, float thickness)
 
 void main()
 {
-    LinaMaterial material = LINA_GET_MATERIAL(inargument1);
-
+    LinaMaterial material = LINA_GET_MATERIAL(inMaterialIndex);
     vec2 texelSize = vec2(1.0 / LINA_VIEW.size.x, 1.0 / LINA_VIEW.size.y);
     vec4 v = outline(inUV, texelSize, material.thickness);
     outFragColor = material.color;
-	 outFragColor.w = v.x;
+	outFragColor.w = v.x;
 }
 
 #lina_end

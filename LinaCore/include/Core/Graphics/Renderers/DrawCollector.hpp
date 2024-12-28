@@ -43,7 +43,7 @@ namespace Lina
 	class DrawCollector
 	{
 	public:
-		struct CompModelFilter
+		struct CollectionFilter
 		{
 			bool	   useShaderOverride	  = false;
 			bool	   useVariantOverride	  = false;
@@ -56,6 +56,6 @@ namespace Lina
 			Vector<ShaderType> allowedShaderTypes = {};
 		};
 
-		static void CollectCompModels(const Vector<CompModel*>& components, RenderPass& pass, ResourceManagerV2* rm, WorldRenderer* renderer, GfxContext* gfxContext, const CompModelFilter& filter);
+		static void CollectCompModels(const Vector<CompModel*>& components, RenderPass& pass, ResourceManagerV2* rm, WorldRenderer* renderer, GfxContext* gfxContext, const CollectionFilter& filter);
 	};
 } // namespace Lina

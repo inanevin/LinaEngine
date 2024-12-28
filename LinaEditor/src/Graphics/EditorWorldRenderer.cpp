@@ -59,7 +59,7 @@ namespace Lina::Editor
 #define DEBUG_LABEL_END(Stream)
 #endif
 
-	EditorWorldRenderer::EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr) : m_gizmoRenderer(editor, wr, &m_pass), m_mousePickRenderer(editor, wr), m_outlineRenderer(editor, wr)
+	EditorWorldRenderer::EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr) : m_gizmoRenderer(editor, wr, &m_pass), m_mousePickRenderer(editor, wr), m_outlineRenderer(editor, wr, &m_pass)
 	{
 		m_editor = editor;
 		m_lgx	 = lgx;
@@ -124,18 +124,6 @@ namespace Lina::Editor
 			.mipLodBias = 0.0f,
 		});
 
-		m_outlineSelectionSampler = m_rm->CreateResource<TextureSampler>(m_rm->ConsumeResourceID(), "EWR: Outline Sampler");
-		m_outlineSelectionSampler->GenerateHW(LinaGX::SamplerDesc{
-			.minFilter	= LinaGX::Filter::Anisotropic,
-			.magFilter	= LinaGX::Filter::Anisotropic,
-			.mode		= LinaGX::SamplerAddressMode::ClampToBorder,
-			.mipmapMode = LinaGX::MipmapMode::Linear,
-			.anisotropy = 0,
-			.minLod		= 0.0f,
-			.maxLod		= 10.0f,
-			.mipLodBias = 0.0f,
-		});
-
 		m_gizmoRenderer.SetMousePickRenderer(&m_mousePickRenderer);
 
 		OnWorldRendererCreateSizeRelative();
@@ -144,8 +132,7 @@ namespace Lina::Editor
 
 	EditorWorldRenderer::~EditorWorldRenderer()
 	{
-		m_outlineSelectionSampler->DestroyHW();
-		m_rm->DestroyResource(m_outlineSelectionSampler);
+
 		m_worldSampler->DestroyHW();
 		m_rm->DestroyResource(m_worldSampler);
 		m_rm->DestroyResource(m_gridMaterial);
@@ -217,6 +204,7 @@ namespace Lina::Editor
 			m_pass.AddDrawCall(grid);
 		}
 
+		m_outlineRenderer.Tick(delta);
 		m_gizmoRenderer.Tick(delta);
 
 		// drawCollector.CreateGroup("EditorWorld");
@@ -253,13 +241,13 @@ namespace Lina::Editor
 		// 	drawCollector.AddCustomDrawRaw("EditorWorld"_hs, gridInstance, m_gridShader->GetID(), 0, 0, 6);
 		// }
 		// m_mousePickRenderer.Tick(delta, drawCollector);
-		// m_outlineRenderer.Tick(delta, drawCollector);
+		//
 	}
 
 	void EditorWorldRenderer::SyncRender()
 	{
+		m_outlineRenderer.SyncRender();
 		// m_mousePickRenderer.SyncRender();
-		// m_outlineRenderer.SyncRender();
 		m_pass.SyncRender();
 	}
 
@@ -290,7 +278,7 @@ namespace Lina::Editor
 		}
 
 		// m_mousePickRenderer.AddBuffersToUploadQueue(frameIndex, queue);
-		// m_outlineRenderer.AddBuffersToUploadQueue(frameIndex, queue);
+		m_outlineRenderer.AddBuffersToUploadQueue(frameIndex, queue);
 
 		m_pass.AddBuffersToUploadQueue(frameIndex, queue);
 	}
@@ -318,7 +306,7 @@ namespace Lina::Editor
 			.height = size.y,
 		};
 
-		// m_outlineRenderer.Render(frameIndex, gfxStream, drawCollector);
+		m_outlineRenderer.Render(frameIndex, gfxStream);
 
 		DEBUG_LABEL_BEGIN(gfxStream, "Editor World Pass");
 

@@ -39,8 +39,9 @@ namespace Lina
 	class EntityWorld;
 	class ResourceManagerV2;
 	class Material;
-	class DrawCollector;
+	class RenderPass;
 	class Texture;
+	class TextureSampler;
 } // namespace Lina
 
 namespace LinaGX
@@ -61,16 +62,20 @@ namespace Lina::Editor
 			Texture* renderTarget = nullptr;
 		};
 
+		struct DrawData
+		{
+			bool drawValid = false;
+		};
+
 	public:
-		OutlineSelectionRenderer(Editor* editor, WorldRenderer* wr);
+		OutlineSelectionRenderer(Editor* editor, WorldRenderer* wr, RenderPass* targetPass);
 		virtual ~OutlineSelectionRenderer();
 
 		void DestroySizeRelativeResources();
 		void CreateSizeRelativeResources();
 		void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue);
-		void Tick(float delta, DrawCollector& collector);
-		void Render(uint32 frameIndex, LinaGX::CommandStream* stream, DrawCollector& collector);
-		void RenderFullscreen(DrawCollector& collector, LinaGX::CommandStream* stream);
+		void Tick(float delta);
+		void Render(uint32 frameIndex, LinaGX::CommandStream* stream);
 		void SyncRender();
 
 		inline void SetSelectedEntities(const Vector<Entity*>& entities)
@@ -94,10 +99,14 @@ namespace Lina::Editor
 		Material*		m_fullscreenMaterial = nullptr;
 		Shader*			m_fullscreenShader	 = nullptr;
 
-		uint16	   m_pipelineLayout = 0;
-		RenderPass m_outlinePass;
-		Vector2ui  m_size = Vector2ui::Zero;
+		uint16			m_pipelineLayout = 0;
+		RenderPass		m_outlinePass;
+		Vector2ui		m_size			 = Vector2ui::Zero;
+		TextureSampler* m_outlineSampler = nullptr;
 
 		PerFrameData m_pfd[FRAMES_IN_FLIGHT];
+		RenderPass*	 m_fullscreenPass = nullptr;
+		DrawData	 m_cpuData		  = {};
+		DrawData	 m_gpuData		  = {};
 	};
 } // namespace Lina::Editor

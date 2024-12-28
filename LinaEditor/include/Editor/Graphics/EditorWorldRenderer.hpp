@@ -123,12 +123,11 @@ namespace Lina::Editor
 		MousePickRenderer		 m_mousePickRenderer;
 		OutlineSelectionRenderer m_outlineRenderer;
 
-		Shader*			m_gridShader			  = nullptr;
-		Shader*			m_worldSampleShader		  = nullptr;
-		Shader*			m_worldDepthSampleShader  = nullptr;
-		Material*		m_gridMaterial			  = nullptr;
-		TextureSampler* m_outlineSelectionSampler = nullptr;
-		TextureSampler* m_worldSampler			  = nullptr;
-		Vector2ui		m_size					  = Vector2ui::Zero;
+		Shader*			m_gridShader			 = nullptr;
+		Shader*			m_worldSampleShader		 = nullptr;
+		Shader*			m_worldDepthSampleShader = nullptr;
+		Material*		m_gridMaterial			 = nullptr;
+		TextureSampler* m_worldSampler			 = nullptr;
+		Vector2ui		m_size					 = Vector2ui::Zero;
 	};
 } // namespace Lina::Editor

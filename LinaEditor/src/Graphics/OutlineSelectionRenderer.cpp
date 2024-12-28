@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
+#include "Core/Graphics/Resource/TextureSampler.hpp"
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
 #include "Core/Application.hpp"
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
@@ -43,6 +44,7 @@ SOFTWARE.
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/World/Entity.hpp"
 #include "Core/World/EntityWorld.hpp"
+#include "Core/World/Components/CompModel.hpp"
 namespace Lina::Editor
 {
 
@@ -61,13 +63,14 @@ namespace Lina::Editor
 #define DEBUG_LABEL_END(Stream)
 #endif
 
-	OutlineSelectionRenderer::OutlineSelectionRenderer(Editor* editor, WorldRenderer* wr)
+	OutlineSelectionRenderer::OutlineSelectionRenderer(Editor* editor, WorldRenderer* wr, RenderPass* pass)
 	{
-		m_editor = editor;
-		m_wr	 = wr;
-		m_rm	 = &m_editor->GetApp()->GetResourceManager();
-		m_world	 = m_wr->GetWorld();
-		m_lgx	 = m_editor->GetApp()->GetLGX();
+		m_fullscreenPass = pass;
+		m_editor		 = editor;
+		m_wr			 = wr;
+		m_rm			 = &m_editor->GetApp()->GetResourceManager();
+		m_world			 = m_wr->GetWorld();
+		m_lgx			 = m_editor->GetApp()->GetLGX();
 
 		m_fullscreenShader	 = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_ID);
 		m_fullscreenMaterial = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Outline Fullscreen Material");
@@ -102,10 +105,25 @@ namespace Lina::Editor
 			});
 		}
 
+		m_outlineSampler = m_rm->CreateResource<TextureSampler>(m_rm->ConsumeResourceID(), "EWR: Outline Sampler");
+		m_outlineSampler->GenerateHW(LinaGX::SamplerDesc{
+			.minFilter	= LinaGX::Filter::Anisotropic,
+			.magFilter	= LinaGX::Filter::Anisotropic,
+			.mode		= LinaGX::SamplerAddressMode::ClampToBorder,
+			.mipmapMode = LinaGX::MipmapMode::Linear,
+			.anisotropy = 0,
+			.minLod		= 0.0f,
+			.maxLod		= 10.0f,
+			.mipLodBias = 0.0f,
+		});
+
 	} // namespace Lina::Editor
 
 	OutlineSelectionRenderer::~OutlineSelectionRenderer()
 	{
+		m_outlineSampler->DestroyHW();
+		m_rm->DestroyResource(m_outlineSampler);
+
 		DestroySizeRelativeResources();
 		m_lgx->DestroyPipelineLayout(m_pipelineLayout);
 		m_outlinePass.Destroy();
@@ -149,7 +167,6 @@ namespace Lina::Editor
 			.width					  = m_size.x,
 			.height					  = m_size.y,
 		};
-
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			PerFrameData& data = m_pfd[i];
@@ -188,30 +205,43 @@ namespace Lina::Editor
 		m_outlinePass.AddBuffersToUploadQueue(frameIndex, queue);
 	}
 
-	void OutlineSelectionRenderer::Tick(float delta, DrawCollector& collector)
+	void OutlineSelectionRenderer::Tick(float delta)
 	{
+		m_cpuData.drawValid = !m_selectedEntities.empty();
 		if (m_selectedEntities.empty())
 			return;
 
-		// collector.CreateGroup("Outline");
-		// collector.CreateGroup("OutlineFullscreen");
-		//
-		// for (Entity* e : m_selectedEntities)
-		// 	collector.CollectEntity(e, "Outline"_hs, "StaticOutline"_hs, "SkinnedOutline"_hs);
-		//
-		// const DrawCollector::CustomDrawInstance fullscreenInstance = {
-		// 	.materialID	   = m_fullscreenMaterial->GetID(),
-		// 	.pushEntity	   = false,
-		// 	.pushMaterial  = true,
-		// 	.pushBoneIndex = false,
-		// };
-		// collector.AddCustomDrawRaw("OutlineFullscreen"_hs, fullscreenInstance, m_fullscreenShader->GetID(), 0, 0, 3);
+		const Vector<CompModel*>& compModels = m_wr->GetCompModels();
+		Vector<CompModel*>		  compModelsToCollect;
+		compModelsToCollect.reserve(compModels.size());
+		for (Entity* e : m_selectedEntities)
+		{
+			auto it = linatl::find_if(compModels.begin(), compModels.end(), [e](CompModel* c) -> bool { return c->GetEntity() == e; });
+			if (it != compModels.end())
+				compModelsToCollect.push_back(*it);
+		}
+
+		DrawCollector::CollectCompModels(compModelsToCollect, m_outlinePass, m_rm, m_wr, &m_editor->GetApp()->GetGfxContext(), {.useVariantOverride = true, .staticVariantOverride = "StaticOutline"_hs, .skinnedVariantOverride = "SkinnedOutline"_hs});
+
+		const uint32 frameIndex	   = Application::GetLGX()->GetCurrentFrameIndex();
+		const uint32 txtFrameIndex = (frameIndex + SystemInfo::GetRendererBehindFrames()) % 2;
+		// Fullscreen draw in editor world pass.
+		m_fullscreenPass->AddDrawCall({
+			.shaderHandle  = m_fullscreenShader->GetGPUHandle(),
+			.vertexCount   = 3,
+			.instanceCount = 1,
+			.pushConstant  = m_wr->PushArgument({
+				 .constant1 = m_fullscreenMaterial->GetBindlessIndex(),
+				 .constant2 = m_pfd[frameIndex].renderTarget->GetBindlessIndex(),
+				 .constant3 = m_outlineSampler->GetBindlessIndex(),
+			 }),
+		});
 	}
 
-	void OutlineSelectionRenderer::Render(uint32 frameIndex, LinaGX::CommandStream* stream, DrawCollector& collector)
+	void OutlineSelectionRenderer::Render(uint32 frameIndex, LinaGX::CommandStream* stream)
 	{
-		// if (!collector.RenderGroupExists("Outline"_hs))
-		// 	return;
+		if (!m_gpuData.drawValid)
+			return;
 
 		PerFrameData& pfd = m_pfd[frameIndex];
 
@@ -248,9 +278,7 @@ namespace Lina::Editor
 
 			m_outlinePass.Begin(stream, viewport, scissors, frameIndex);
 			m_outlinePass.BindDescriptors(stream, frameIndex, m_pipelineLayout, 1);
-
-			// collector.RenderGroup("Outline"_hs, stream);
-
+			m_outlinePass.Render(frameIndex, stream);
 			m_outlinePass.End(stream);
 
 			// To shader read
@@ -268,14 +296,11 @@ namespace Lina::Editor
 		}
 	}
 
-	void OutlineSelectionRenderer::RenderFullscreen(DrawCollector& collector, LinaGX::CommandStream* stream)
-	{
-		// if (collector.RenderGroupExists("OutlineFullscreen"_hs))
-		// 	collector.RenderGroup("OutlineFullscreen"_hs, stream);
-	}
-
 	void OutlineSelectionRenderer::SyncRender()
 	{
+		m_gpuData = m_cpuData;
+		m_cpuData = {};
+		m_outlinePass.SyncRender();
 	}
 
 } // namespace Lina::Editor
