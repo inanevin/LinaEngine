@@ -65,7 +65,6 @@ namespace Lina
 		virtual void Render(uint32 frameIndex){};
 		virtual void SyncRender(){};
 		virtual void PreShutdown(){};
-		virtual void DropRenderFrame(){};
 		virtual void Shutdown(){};
 		virtual void OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size){};
 

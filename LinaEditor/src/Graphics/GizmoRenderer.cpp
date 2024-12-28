@@ -44,7 +44,7 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-	GizmoRenderer::GizmoRenderer(Editor* editor, WorldRenderer* wr)
+	GizmoRenderer::GizmoRenderer(Editor* editor, WorldRenderer* wr, RenderPass* pass)
 	{
 		m_editor		= editor;
 		m_worldRenderer = wr;
@@ -52,6 +52,7 @@ namespace Lina::Editor
 		m_gizmoShader	= m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_GIZMO_ID);
 		m_line3DShader	= m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_LINE3D_ID);
 		m_world			= m_worldRenderer->GetWorld();
+		m_targetPass	= pass;
 
 		m_gizmoMaterialX = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material X");
 		m_gizmoMaterialY = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material Y");
@@ -80,7 +81,7 @@ namespace Lina::Editor
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 	}
 
-	void GizmoRenderer::Tick(float delta, DrawCollector& collector)
+	void GizmoRenderer::Tick(float delta)
 	{
 		if (m_lastHoveredAxis != m_hoveredAxis)
 		{
@@ -105,90 +106,78 @@ namespace Lina::Editor
 		avgPosition /= static_cast<float>(m_selectedEntities.size());
 
 		if (m_selectedGizmo != GizmoType::Rotate)
-			ProduceGizmoMeshes(avgPosition);
+			DrawGizmoMoveScale(avgPosition);
 		else
 		{
-			ProduceRotateGizmo(avgPosition);
+			DrawGizmoRotate(avgPosition);
 		}
 
 		if (m_pressedAxis != GizmoAxis::None)
 		{
-			ProduceGizmoAxisLine(avgPosition, m_pressedAxis, m_gizmoLocality);
+			DrawGizmoAxisLine(avgPosition, m_pressedAxis, m_gizmoLocality);
 		}
 	}
 
-	void GizmoRenderer::Render(DrawCollector& collector, LinaGX::CommandStream* stream)
+	void GizmoRenderer::DrawGizmoMoveScale(const Vector3& avgPosition)
+	{
+		Model*				   model	  = m_selectedGizmo == GizmoType::Move ? m_translateModel : m_scaleModel;
+		const PrimitiveStatic& prim		  = model->GetAllMeshes().at(0).primitivesStatic.at(0);
+		const uint32		   baseVertex = prim._vertexOffset;
+		const uint32		   baseIndex  = prim._indexOffset;
+		const uint32		   indexCount = static_cast<uint32>(prim.indices.size());
+
+		const GPUEntity axisX = {
+			.model = Matrix4::TransformMatrix(avgPosition, Quaternion::AngleAxis(90, Vector3::Forward), Vector3::One),
+		};
+
+		const GPUEntity axisY = {
+			.model = Matrix4::TransformMatrix(avgPosition, Quaternion::Identity(), Vector3::One),
+		};
+
+		const GPUEntity axisZ = {
+			.model = Matrix4::TransformMatrix(avgPosition, Quaternion::AngleAxis(90, Vector3::Right), Vector3::One),
+		};
+
+		const GPUDrawArguments argsX = {
+			.constant0 = m_worldRenderer->PushEntity(axisX, {.entityGUID = GIZMO_GUID_X_AXIS}),
+			.constant1 = m_gizmoMaterialX->GetBindlessIndex(),
+		};
+
+		const GPUDrawArguments argsY = {
+			.constant0 = m_worldRenderer->PushEntity(axisY, {.entityGUID = GIZMO_GUID_Y_AXIS}),
+			.constant1 = m_gizmoMaterialY->GetBindlessIndex(),
+		};
+
+		const GPUDrawArguments argsZ = {
+			.constant0 = m_worldRenderer->PushEntity(axisZ, {.entityGUID = GIZMO_GUID_Z_AXIS}),
+			.constant1 = m_gizmoMaterialZ->GetBindlessIndex(),
+		};
+
+		const uint32 pc = m_worldRenderer->PushArgument(argsX);
+		m_worldRenderer->PushArgument(argsY);
+		m_worldRenderer->PushArgument(argsZ);
+
+		Buffer*							vtx	 = &m_editor->GetApp()->GetGfxContext().GetMeshManagerDefault().GetVtxBufferStatic();
+		Buffer*							idx	 = &m_editor->GetApp()->GetGfxContext().GetMeshManagerDefault().GetIdxBufferStatic();
+		const RenderPass::InstancedDraw draw = {
+			.vertexBuffers = {vtx, vtx},
+			.indexBuffers  = {idx, idx},
+			.vertexSize	   = sizeof(VertexStatic),
+			.shaderHandle  = m_gizmoShader->GetGPUHandle(),
+			.baseVertex	   = baseVertex,
+			.baseIndex	   = baseIndex,
+			.indexCount	   = indexCount,
+			.instanceCount = 3,
+			.pushConstant  = pc,
+		};
+		m_targetPass->AddDrawCall(draw);
+	}
+
+	void GizmoRenderer::DrawGizmoRotate(const Vector3& pos)
 	{
 	}
 
-	void GizmoRenderer::ProduceGizmoMeshes(const Vector3& avgPosition)
-	{
-		// const Camera&  worldCam	 = m_world->GetWorldCamera();
-		// DrawCollector& collector = m_worldRenderer->GetDrawCollector();
-		//
-		// const Vector3& cameraPos = worldCam.GetPosition();
-		// const float	   scale	 = 1.0f;
-		//
-		// Buffer* vtx = &m_editor->GetApp()->GetGfxContext().GetMeshManagerDefault().GetVtxBufferStatic();
-		// Buffer* idx = &m_editor->GetApp()->GetGfxContext().GetMeshManagerDefault().GetIdxBufferStatic();
-		//
-		// const DrawCollector::CustomDrawInstance inst0 = {
-		// 	.entity =
-		// 		{
-		// 			.model = Matrix4::TransformMatrix(avgPosition, Quaternion::AngleAxis(90, Vector3::Forward), Vector3(scale)),
-		// 		},
-		// 	.entityIdent =
-		// 		{
-		// 			.entityGUID = GIZMO_GUID_X_AXIS,
-		// 		},
-		// 	.materialID	  = m_gizmoMaterialX->GetID(),
-		// 	.pushEntity	  = true,
-		// 	.pushMaterial = true,
-		// };
-		//
-		// const DrawCollector::CustomDrawInstance inst1 = {
-		// 	.entity =
-		// 		{
-		// 			.model = Matrix4::TransformMatrix(avgPosition, Quaternion::Identity(), Vector3(scale)),
-		// 		},
-		// 	.entityIdent =
-		// 		{
-		// 			.entityGUID = GIZMO_GUID_Y_AXIS,
-		// 		},
-		// 	.materialID	  = m_gizmoMaterialY->GetID(),
-		// 	.pushEntity	  = true,
-		// 	.pushMaterial = true,
-		// };
-		// const DrawCollector::CustomDrawInstance inst2 = {
-		// 	.entity =
-		// 		{
-		// 			.model = Matrix4::TransformMatrix(avgPosition, Quaternion::AngleAxis(90, Vector3::Right), Vector3(scale)),
-		// 		},
-		// 	.entityIdent =
-		// 		{
-		// 			.entityGUID = GIZMO_GUID_Z_AXIS,
-		// 		},
-		// 	.materialID	  = m_gizmoMaterialZ->GetID(),
-		// 	.pushEntity	  = true,
-		// 	.pushMaterial = true,
-		// };
-		//
-		// Model*				   model	  = m_selectedGizmo == GizmoType::Move ? m_translateModel : m_scaleModel;
-		// const PrimitiveStatic& prim		  = model->GetAllMeshes().at(0).primitivesStatic.at(0);
-		// const uint32		   baseVertex = prim._vertexOffset;
-		// const uint32		   baseIndex  = prim._indexOffset;
-		// const uint32		   indexCount = static_cast<uint32>(prim.indices.size());
-		// collector.CreateGroup("Gizmo");
-		// collector.AddCustomDraw("Gizmo"_hs, inst0, m_gizmoShader->GetID(), 0, vtx, idx, sizeof(VertexStatic), baseVertex, indexCount, baseIndex);
-		// collector.AddCustomDraw("Gizmo"_hs, inst1, m_gizmoShader->GetID(), 0, vtx, idx, sizeof(VertexStatic), baseVertex, indexCount, baseIndex);
-		// collector.AddCustomDraw("Gizmo"_hs, inst2, m_gizmoShader->GetID(), 0, vtx, idx, sizeof(VertexStatic), baseVertex, indexCount, baseIndex);
-	}
-
-	void GizmoRenderer::ProduceRotateGizmo(const Vector3& pos)
-	{
-	}
-
-	void GizmoRenderer::ProduceGizmoAxisLine(const Vector3& pos, GizmoAxis axis, GizmoLocality locality)
+	void GizmoRenderer::DrawGizmoAxisLine(const Vector3& pos, GizmoAxis axis, GizmoLocality locality)
 	{
 		// DrawCollector& collector = m_worldRenderer->GetDrawCollector();
 		// collector.CreateGroup("GizmoLines");

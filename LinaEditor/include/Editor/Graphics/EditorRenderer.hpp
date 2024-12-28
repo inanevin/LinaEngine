@@ -66,7 +66,6 @@ namespace Lina::Editor
 		void Tick(float delta);
 
 		void SyncRender();
-		void DropRenderFrame();
 		void Render(uint32 frameIndex);
 		void AddWorldRenderer(WorldRenderer* wr, EditorWorldRenderer* ewr);
 		void RemoveWorldRenderer(WorldRenderer* wr);

@@ -72,6 +72,11 @@ namespace Lina
 			Buffer entityBuffer	   = {};
 			Buffer argumentsBuffer = {};
 			Buffer boneBuffer	   = {};
+
+			Buffer lvgVtxBuffer;
+			Buffer lvgIdxBuffer;
+			Buffer line3DVtxBuffer;
+			Buffer line3DIdxBuffer;
 		};
 
 	public:
@@ -99,6 +104,10 @@ namespace Lina
 			Vector<DrawEntity>		 entities;
 			Vector<GPUDrawArguments> arguments;
 			Vector<Matrix4>			 bones;
+			Vector<Line3DVertex>	 line3DVertices;
+			Vector<uint16>			 line3DIndices;
+			Vector<LinaVG::Vertex>	 lvgVertices;
+			Vector<LinaVG::Index>	 lvgIndices;
 		};
 
 	public:
@@ -112,7 +121,6 @@ namespace Lina
 		void CloseAndSend(uint32 frameIndex);
 		void Resize(const Vector2ui& newSize);
 		void SyncRender();
-		void DropRenderFrame();
 
 		virtual void OnComponentAdded(Component* c) override;
 		virtual void OnComponentRemoved(Component* c) override;
@@ -124,6 +132,14 @@ namespace Lina
 		uint32 GetArgumentCount();
 		uint32 PushEntity(const GPUEntity& e, const EntityIdent& ident);
 		uint32 PushArgument(const GPUDrawArguments& args);
+
+		void StartLine3DBatch();
+		void DrawLine3D(const Vector3& p1, const Vector3& p2, float thickness, const ColorGrad& color);
+		void EndLine3DBatch(RenderPass& pass, uint32 pushConstantValue, uint32 shaderHandle);
+
+		void StartLinaVGBatch();
+		void EndLinaVGBatch(RenderPass& pass, uint32 pushConstantValue, uint32 shaderHandle);
+		void OnLinaVGDraw(LinaVG::DrawBuffer* buffer);
 
 		inline SemaphoreData GetSubmitSemaphore(uint32 frameIndex)
 		{
@@ -228,7 +244,6 @@ namespace Lina
 		bool   DrawEntityExists(uint32& outIndex, const EntityIdent& ident);
 
 	private:
-		Vector<CompModel*>			   m_compModels;
 		Vector<WorldRendererListener*> m_listeners;
 		GUIBackend					   m_guiBackend;
 		ResourceManagerV2*			   m_resourceManagerV2 = nullptr;
@@ -246,9 +261,18 @@ namespace Lina
 		GfxContext*					   m_gfxContext;
 		String						   m_name = "";
 		JobExecutor					   m_executor;
+		Vector<CompModel*>			   m_compModels;
 		DrawData					   m_cpuDrawData = {};
 		DrawData					   m_gpuDrawData = {};
 		Vector<CompModel*>			   m_skinnedModels;
+
+		LinaVG::Drawer m_lvgDrawer;
+
+		uint32 m_currentLine3DStartVertex = 0;
+		uint32 m_currentLine3DStartIndex  = 0;
+
+		uint32 m_currentLvgStartVertex = 0;
+		uint32 m_currentLvgStartIndex  = 0;
 	};
 
 } // namespace Lina

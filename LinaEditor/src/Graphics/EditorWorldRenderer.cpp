@@ -59,7 +59,7 @@ namespace Lina::Editor
 #define DEBUG_LABEL_END(Stream)
 #endif
 
-	EditorWorldRenderer::EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr) : m_gizmoRenderer(editor, wr), m_mousePickRenderer(editor, wr), m_outlineRenderer(editor, wr)
+	EditorWorldRenderer::EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr) : m_gizmoRenderer(editor, wr, &m_pass), m_mousePickRenderer(editor, wr), m_outlineRenderer(editor, wr)
 	{
 		m_editor = editor;
 		m_lgx	 = lgx;
@@ -217,6 +217,8 @@ namespace Lina::Editor
 			m_pass.AddDrawCall(grid);
 		}
 
+		m_gizmoRenderer.Tick(delta);
+
 		// drawCollector.CreateGroup("EditorWorld");
 		//
 		// drawCollector.AddCustomDrawRaw("EditorWorld"_hs,
@@ -250,7 +252,6 @@ namespace Lina::Editor
 		// 	};
 		// 	drawCollector.AddCustomDrawRaw("EditorWorld"_hs, gridInstance, m_gridShader->GetID(), 0, 0, 6);
 		// }
-		// m_gizmoRenderer.Tick(delta, drawCollector);
 		// m_mousePickRenderer.Tick(delta, drawCollector);
 		// m_outlineRenderer.Tick(delta, drawCollector);
 	}

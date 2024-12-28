@@ -36,10 +36,10 @@ namespace Lina
 	class Entity;
 	class ResourceManagerV2;
 	class WorldRenderer;
-	class DrawCollector;
 	class EntityWorld;
 	class Material;
 	class Model;
+	class RenderPass;
 } // namespace Lina
 
 namespace LinaGX
@@ -55,11 +55,10 @@ namespace Lina::Editor
 	class GizmoRenderer
 	{
 	public:
-		GizmoRenderer(Editor* editor, WorldRenderer* wr);
+		GizmoRenderer(Editor* editor, WorldRenderer* wr, RenderPass* targetPass);
 		virtual ~GizmoRenderer();
 
-		void Tick(float delta, DrawCollector& collector);
-		void Render(DrawCollector& collector, LinaGX::CommandStream* stream);
+		void Tick(float delta);
 
 		inline void SetMousePickRenderer(MousePickRenderer* mpr)
 		{
@@ -92,9 +91,9 @@ namespace Lina::Editor
 		}
 
 	private:
-		void ProduceGizmoMeshes(const Vector3& pos);
-		void ProduceRotateGizmo(const Vector3& pos);
-		void ProduceGizmoAxisLine(const Vector3& pos, GizmoAxis axis, GizmoLocality locality);
+		void DrawGizmoMoveScale(const Vector3& pos);
+		void DrawGizmoRotate(const Vector3& pos);
+		void DrawGizmoAxisLine(const Vector3& pos, GizmoAxis axis, GizmoLocality locality);
 
 	private:
 		GizmoType	  m_selectedGizmo	= GizmoType::Move;
@@ -119,5 +118,6 @@ namespace Lina::Editor
 		Material*		m_gizmoMaterialZ   = nullptr;
 		Shader*			m_gizmoShader	   = nullptr;
 		Shader*			m_line3DShader	   = nullptr;
+		RenderPass*		m_targetPass	   = nullptr;
 	};
 } // namespace Lina::Editor

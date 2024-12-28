@@ -140,4 +140,12 @@ namespace Lina
 		uint32 pad4					= 0;
 	};
 
+	struct Line3DVertex
+	{
+		Vector3 position;
+		Vector3 nextPosition;
+		Vector4 color;
+		float	direction;
+	};
+
 } // namespace Lina

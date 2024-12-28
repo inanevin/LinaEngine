@@ -146,10 +146,6 @@ namespace Lina::Editor
 		}
 	}
 
-	void EditorRenderer::DropRenderFrame()
-	{
-	}
-
 	void EditorRenderer::SyncRender()
 	{
 		if (!m_worldRenderers.empty())

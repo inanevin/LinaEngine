@@ -98,6 +98,11 @@ namespace Lina
 		m_gBufSampler->GenerateHW(gBufSampler);
 		m_lgx = Application::GetLGX();
 
+		m_deferredPass.Create(GfxHelpers::GetRenderPassDescription(RenderPassType::RENDER_PASS_DEFERRED), nullptr);
+		m_forwardPass.Create(GfxHelpers::GetRenderPassDescription(RenderPassType::RENDER_PASS_FORWARD), nullptr);
+
+		m_lvgDrawer.GetCallbacks().draw = BIND(&WorldRenderer::OnLinaVGDraw, this, std::placeholders::_1);
+
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data = m_pfd[i];
@@ -112,14 +117,11 @@ namespace Lina
 			data.argumentsBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUDrawArguments) * 1000, m_name + " InstanceDataBuffer");
 			data.entityBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUEntity) * 1000, m_name + " EntityBuffer");
 			data.boneBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(Matrix4) * 1000, m_name + " BoneBuffer");
-		}
 
-		m_deferredPass.Create(GfxHelpers::GetRenderPassDescription(RenderPassType::RENDER_PASS_DEFERRED), nullptr);
-		m_forwardPass.Create(GfxHelpers::GetRenderPassDescription(RenderPassType::RENDER_PASS_FORWARD), nullptr);
-
-		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-		{
-			auto& data = m_pfd[i];
+			data.line3DVtxBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, sizeof(Line3DVertex) * 1000, m_name + " Line3DVertexBuffer");
+			data.lvgVtxBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, sizeof(LinaVG::Vertex) * 2000, m_name + " LVGVertexBuffer");
+			data.line3DIdxBuffer.Create(LinaGX::ResourceTypeHint::TH_IndexBuffer, sizeof(uint16) * 1000, m_name + " Line3DIndexBuffer");
+			data.lvgIdxBuffer.Create(LinaGX::ResourceTypeHint::TH_IndexBuffer, sizeof(LinaVG::Index) * 5000, m_name + "LVGIndexBuffer");
 
 			const uint16 setDf = m_deferredPass.GetDescriptorSet(i);
 			const uint16 setFw = m_forwardPass.GetDescriptorSet(i);
@@ -185,6 +187,11 @@ namespace Lina
 			data.argumentsBuffer.Destroy();
 			data.entityBuffer.Destroy();
 			data.boneBuffer.Destroy();
+
+			data.line3DVtxBuffer.Destroy();
+			data.line3DIdxBuffer.Destroy();
+			data.lvgVtxBuffer.Destroy();
+			data.lvgIdxBuffer.Destroy();
 		}
 
 		m_deferredPass.Destroy();
@@ -398,6 +405,111 @@ namespace Lina
 		return idx;
 	}
 
+	void WorldRenderer::StartLine3DBatch()
+	{
+		m_currentLine3DStartIndex  = static_cast<uint32>(m_cpuDrawData.line3DIndices.size());
+		m_currentLine3DStartVertex = static_cast<uint32>(m_cpuDrawData.line3DVertices.size());
+	}
+
+	void WorldRenderer::DrawLine3D(const Vector3& p1, const Vector3& p2, float thickness, const ColorGrad& color)
+	{
+		const uint16 sz = static_cast<uint16>(m_cpuDrawData.line3DVertices.size());
+
+		m_cpuDrawData.line3DVertices.push_back({
+			.position	  = p1,
+			.nextPosition = p2,
+			.color		  = color.start,
+			.direction	  = 1.0f * thickness,
+		});
+
+		m_cpuDrawData.line3DVertices.push_back({
+			.position	  = p1,
+			.nextPosition = p2,
+			.color		  = color.start,
+			.direction	  = -1.0f * thickness,
+		});
+
+		m_cpuDrawData.line3DVertices.push_back({
+			.position	  = p2,
+			.nextPosition = p1,
+			.color		  = color.end,
+			.direction	  = 1.0f * thickness,
+		});
+
+		m_cpuDrawData.line3DVertices.push_back({
+			.position	  = p2,
+			.nextPosition = p1,
+			.color		  = color.end,
+			.direction	  = -1.0f * thickness,
+		});
+
+		m_cpuDrawData.line3DIndices.push_back(sz + 0);
+		m_cpuDrawData.line3DIndices.push_back(sz + 1);
+		m_cpuDrawData.line3DIndices.push_back(sz + 2);
+		m_cpuDrawData.line3DIndices.push_back(sz + 2);
+		m_cpuDrawData.line3DIndices.push_back(sz + 3);
+		m_cpuDrawData.line3DIndices.push_back(sz);
+	}
+
+	void WorldRenderer::EndLine3DBatch(RenderPass& pass, uint32 pushConstantValue, uint32 shaderHandle)
+	{
+		const RenderPass::InstancedDraw draw = {
+			.vertexBuffers = {&m_pfd[0].line3DVtxBuffer, &m_pfd[1].line3DVtxBuffer},
+			.indexBuffers  = {&m_pfd[0].line3DIdxBuffer, &m_pfd[1].line3DIdxBuffer},
+			.vertexSize	   = sizeof(Line3DVertex),
+			.shaderHandle  = shaderHandle,
+			.baseVertex	   = m_currentLine3DStartVertex,
+			.baseIndex	   = m_currentLine3DStartIndex,
+			.indexCount	   = static_cast<uint32>(m_cpuDrawData.line3DIndices.size()) - m_currentLine3DStartIndex,
+			.instanceCount = 1,
+			.pushConstant  = pushConstantValue,
+		};
+
+		pass.AddDrawCall(draw);
+	}
+
+	void WorldRenderer::StartLinaVGBatch()
+	{
+		m_currentLvgStartIndex	= static_cast<uint32>(m_cpuDrawData.lvgIndices.size());
+		m_currentLvgStartVertex = static_cast<uint32>(m_cpuDrawData.lvgVertices.size());
+	}
+
+	void WorldRenderer::EndLinaVGBatch(RenderPass& pass, uint32 pushConstantValue, uint32 shaderHandle)
+	{
+		m_lvgDrawer.FlushBuffers();
+		m_lvgDrawer.ResetFrame();
+
+		const RenderPass::InstancedDraw draw = {
+			.vertexBuffers = {&m_pfd[0].line3DVtxBuffer, &m_pfd[1].line3DVtxBuffer},
+			.indexBuffers  = {&m_pfd[0].line3DIdxBuffer, &m_pfd[1].line3DIdxBuffer},
+			.vertexSize	   = sizeof(Line3DVertex),
+			.shaderHandle  = shaderHandle,
+			.baseVertex	   = m_currentLine3DStartVertex,
+			.baseIndex	   = m_currentLine3DStartIndex,
+			.indexCount	   = static_cast<uint32>(m_cpuDrawData.line3DIndices.size()) - m_currentLine3DStartIndex,
+			.instanceCount = 1,
+			.pushConstant  = pushConstantValue,
+		};
+
+		pass.AddDrawCall(draw);
+	}
+
+	void WorldRenderer::OnLinaVGDraw(LinaVG::DrawBuffer* buffer)
+	{
+		const uint32 baseVertex = static_cast<uint32>(m_cpuDrawData.lvgVertices.size());
+		const uint32 indexCount = static_cast<uint32>(buffer->indexBuffer.m_size);
+		const uint32 startIndex = static_cast<uint32>(m_cpuDrawData.lvgIndices.size());
+
+		const size_t currentVtx = m_cpuDrawData.lvgVertices.size();
+		const size_t currentIdx = m_cpuDrawData.lvgIndices.size();
+
+		m_cpuDrawData.lvgVertices.resize(currentVtx + buffer->vertexBuffer.m_size);
+		m_cpuDrawData.lvgIndices.resize(currentIdx + buffer->indexBuffer.m_size);
+
+		MEMCPY(m_cpuDrawData.lvgVertices.data() + currentVtx, buffer->vertexBuffer.m_data, buffer->vertexBuffer.m_size * sizeof(LinaVG::Vertex));
+		MEMCPY(m_cpuDrawData.lvgIndices.data() + currentIdx, buffer->indexBuffer.m_data, buffer->indexBuffer.m_size * sizeof(LinaVG::Index));
+	}
+
 	void WorldRenderer::Resize(const Vector2ui& newSize)
 	{
 		if (m_size.Equals(newSize))
@@ -495,13 +607,13 @@ namespace Lina
 		m_cpuDrawData.arguments.resize(0);
 		m_cpuDrawData.bones.resize(0);
 		m_cpuDrawData.entities.resize(0);
+		m_cpuDrawData.lvgIndices.resize(0);
+		m_cpuDrawData.lvgVertices.resize(0);
+		m_cpuDrawData.line3DIndices.resize(0);
+		m_cpuDrawData.line3DVertices.resize(0);
 
 		m_deferredPass.SyncRender();
 		m_forwardPass.SyncRender();
-	}
-
-	void WorldRenderer::DropRenderFrame()
-	{
 	}
 
 	void WorldRenderer::UpdateBuffers(uint32 frameIndex)
@@ -555,6 +667,16 @@ namespace Lina
 
 		currentFrame.argumentsBuffer.BufferData(0, (uint8*)m_gpuDrawData.arguments.data(), sizeof(GPUDrawArguments) * m_gpuDrawData.arguments.size());
 		currentFrame.boneBuffer.BufferData(0, (uint8*)m_gpuDrawData.bones.data(), sizeof(Matrix4) * m_gpuDrawData.bones.size());
+
+		currentFrame.lvgVtxBuffer.BufferData(0, (uint8*)m_gpuDrawData.lvgVertices.data(), sizeof(LinaVG::Vertex) * m_gpuDrawData.lvgVertices.size());
+		currentFrame.lvgIdxBuffer.BufferData(0, (uint8*)m_gpuDrawData.lvgIndices.data(), sizeof(LinaVG::Index) * m_gpuDrawData.lvgIndices.size());
+		currentFrame.line3DIdxBuffer.BufferData(0, (uint8*)m_gpuDrawData.line3DIndices.data(), sizeof(uint16) * m_gpuDrawData.line3DIndices.size());
+		currentFrame.line3DVtxBuffer.BufferData(0, (uint8*)m_gpuDrawData.line3DVertices.data(), sizeof(Line3DVertex) * m_gpuDrawData.line3DVertices.size());
+
+		m_uploadQueue.AddBufferRequest(&currentFrame.line3DVtxBuffer);
+		m_uploadQueue.AddBufferRequest(&currentFrame.line3DIdxBuffer);
+		m_uploadQueue.AddBufferRequest(&currentFrame.lvgVtxBuffer);
+		m_uploadQueue.AddBufferRequest(&currentFrame.lvgIdxBuffer);
 
 		m_uploadQueue.AddBufferRequest(&currentFrame.argumentsBuffer);
 		m_uploadQueue.AddBufferRequest(&currentFrame.boneBuffer);

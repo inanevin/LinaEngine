@@ -56,7 +56,6 @@ src/Graphics/Resource/GUIWidget.cpp
 src/Graphics/Resource/Font.cpp
 src/Graphics/Renderers/WorldRenderer.cpp
 src/Graphics/Renderers/DrawCollector.cpp
-src/Graphics/Renderers/ShapeCollector.cpp
 src/Graphics/Pipeline/Buffer.cpp
 src/Graphics/Pipeline/RenderPass.cpp
 src/Graphics/Pipeline/DescriptorSet.cpp
@@ -185,7 +184,6 @@ include/Core/Graphics/Resource/Font.hpp
 include/Core/Graphics/Renderers/WorldRenderer.hpp
 include/Core/Graphics/Renderers/WorldRendererListener.hpp
 include/Core/Graphics/Renderers/DrawCollector.hpp
-include/Core/Graphics/Renderers/ShapeCollector.hpp
 include/Core/Graphics/Pipeline/Buffer.hpp
 include/Core/Graphics/Pipeline/RenderPass.hpp
 include/Core/Graphics/Pipeline/DescriptorSet.hpp
