@@ -80,13 +80,13 @@ namespace Lina::Editor
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = set,
 				.binding   = 1,
-				.buffers   = {m_wr->GetDrawCollector().GetInstanceDataBuffer(i).GetGPUResource()},
+				.buffers   = {m_wr->GetInstanceDataBuffer(i).GetGPUResource()},
 			});
 
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = set,
 				.binding   = 2,
-				.buffers   = {m_wr->GetDrawCollector().GetEntityDataBuffer(i).GetGPUResource()},
+				.buffers   = {m_wr->GetEntityDataBuffer(i).GetGPUResource()},
 			});
 		}
 
@@ -163,50 +163,103 @@ namespace Lina::Editor
 
 	void EditorWorldRenderer::Tick(float delta)
 	{
-		DrawCollector& drawCollector = m_wr->GetDrawCollector();
+		const uint32 rtIndex = (m_lgx->GetCurrentFrameIndex() + SystemInfo::GetRendererBehindFrames()) % 2;
 
-		drawCollector.CreateGroup("EditorWorld");
+		// Sample world
+		{
+			const GPUDrawArguments arg = {
+				.constant0 = m_wr->GetLightingPassOutput(rtIndex)->GetBindlessIndex(),
+				.constant1 = m_worldSampler->GetBindlessIndex(),
+			};
+			const uint32 argIndex = m_wr->PushArgument(arg);
 
-		drawCollector.AddCustomDrawRaw("EditorWorld"_hs,
-									   {
-										   .pushEntity	  = false,
-										   .pushMaterial  = false,
-										   .pushBoneIndex = false,
-									   },
-									   m_worldSampleShader->GetID(),
-									   0,
-									   0,
-									   3);
-		drawCollector.AddCustomDrawRaw("EditorWorld"_hs,
-									   {
-										   .pushEntity	  = false,
-										   .pushMaterial  = false,
-										   .pushBoneIndex = false,
-									   },
-									   m_worldDepthSampleShader->GetID(),
-									   0,
-									   0,
-									   3);
+			const RenderPass::InstancedDraw sampleWorldTexture = {
+				.shaderHandle  = m_worldSampleShader->GetGPUHandle(),
+				.vertexCount   = 3,
+				.instanceCount = 1,
+				.pushConstant  = argIndex,
+			};
+			m_pass.AddDrawCall(sampleWorldTexture);
+		}
+
+		// Sample world depth
+		{
+			const GPUDrawArguments arg = {
+				.constant0 = m_wr->GetGBufDepth(rtIndex)->GetBindlessIndex(),
+				.constant1 = m_worldSampler->GetBindlessIndex(),
+			};
+			const uint32 argIndex = m_wr->PushArgument(arg);
+
+			const RenderPass::InstancedDraw sampleWorldDepth = {
+				.shaderHandle  = m_worldDepthSampleShader->GetGPUHandle(),
+				.vertexCount   = 3,
+				.instanceCount = 1,
+				.pushConstant  = argIndex,
+			};
+			m_pass.AddDrawCall(sampleWorldDepth);
+		}
 
 		// Grid
 		{
-			const DrawCollector::CustomDrawInstance gridInstance = {
-				.materialID	   = m_gridMaterial->GetID(),
-				.pushEntity	   = false,
-				.pushMaterial  = true,
-				.pushBoneIndex = false,
+			const GPUDrawArguments arg = {
+				.constant0 = 0,
+				.constant1 = m_gridMaterial->GetBindlessIndex(),
 			};
-			drawCollector.AddCustomDrawRaw("EditorWorld"_hs, gridInstance, m_gridShader->GetID(), 0, 0, 6);
+			const uint32 argIndex = m_wr->PushArgument(arg);
+
+			const RenderPass::InstancedDraw grid = {
+				.shaderHandle  = m_gridShader->GetGPUHandle(),
+				.vertexCount   = 6,
+				.instanceCount = 1,
+				.pushConstant  = argIndex,
+			};
+
+			m_pass.AddDrawCall(grid);
 		}
-		m_gizmoRenderer.Tick(delta, drawCollector);
-		m_mousePickRenderer.Tick(delta, drawCollector);
-		m_outlineRenderer.Tick(delta, drawCollector);
+
+		// drawCollector.CreateGroup("EditorWorld");
+		//
+		// drawCollector.AddCustomDrawRaw("EditorWorld"_hs,
+		// 							   {
+		// 								   .pushEntity	  = false,
+		// 								   .pushMaterial  = false,
+		// 								   .pushBoneIndex = false,
+		// 							   },
+		// 							   m_worldSampleShader->GetID(),
+		// 							   0,
+		// 							   0,
+		// 							   3);
+		// drawCollector.AddCustomDrawRaw("EditorWorld"_hs,
+		// 							   {
+		// 								   .pushEntity	  = false,
+		// 								   .pushMaterial  = false,
+		// 								   .pushBoneIndex = false,
+		// 							   },
+		// 							   m_worldDepthSampleShader->GetID(),
+		// 							   0,
+		// 							   0,
+		// 							   3);
+		//
+		// // Grid
+		// {
+		// 	const DrawCollector::CustomDrawInstance gridInstance = {
+		// 		.materialID	   = m_gridMaterial->GetID(),
+		// 		.pushEntity	   = false,
+		// 		.pushMaterial  = true,
+		// 		.pushBoneIndex = false,
+		// 	};
+		// 	drawCollector.AddCustomDrawRaw("EditorWorld"_hs, gridInstance, m_gridShader->GetID(), 0, 0, 6);
+		// }
+		// m_gizmoRenderer.Tick(delta, drawCollector);
+		// m_mousePickRenderer.Tick(delta, drawCollector);
+		// m_outlineRenderer.Tick(delta, drawCollector);
 	}
 
 	void EditorWorldRenderer::SyncRender()
 	{
-		m_mousePickRenderer.SyncRender();
-		m_outlineRenderer.SyncRender();
+		// m_mousePickRenderer.SyncRender();
+		// m_outlineRenderer.SyncRender();
+		m_pass.SyncRender();
 	}
 
 	void EditorWorldRenderer::UpdateBuffers(uint32 frameIndex)
@@ -223,34 +276,28 @@ namespace Lina::Editor
 					.proj = worldCam.GetProjection(),
 			};
 
-			const Vector2ui& size			  = m_wr->GetSize();
-			const Vector3&	 camPos			  = worldCam.GetPosition();
-			const Vector3&	 camDir			  = worldCam.GetRotation().GetForward();
-			view.viewProj					  = view.proj * view.view;
-			view.cameraPositionAndNear		  = Vector4(camPos.x, camPos.y, camPos.z, worldCam.GetZNear());
-			view.cameraDirectionAndFar		  = Vector4(camDir.x, camDir.y, camDir.z, worldCam.GetZFar());
-			view.size						  = Vector2(static_cast<float>(size.x), static_cast<float>(size.y));
-			view.mouse						  = m_world->GetInput().GetMousePositionRatio();
-			view.outlineSelectionTextureIndex = m_outlineRenderer.GetRenderTarget(frameIndex)->GetBindlessIndex();
-			view.outlineSelectionSamplerIndex = m_outlineSelectionSampler->GetBindlessIndex();
-			view.worldTextureIndex			  = m_wr->GetLightingPassOutput(frameIndex)->GetBindlessIndex();
-			view.worldDepthTextureIndex		  = m_wr->GetGBufDepth(frameIndex)->GetBindlessIndex();
-			view.worldSamplerIndex			  = m_worldSampler->GetBindlessIndex();
+			const Vector2ui& size	   = m_wr->GetSize();
+			const Vector3&	 camPos	   = worldCam.GetPosition();
+			const Vector3&	 camDir	   = worldCam.GetRotation().GetForward();
+			view.viewProj			   = view.proj * view.view;
+			view.cameraPositionAndNear = Vector4(camPos.x, camPos.y, camPos.z, worldCam.GetZNear());
+			view.cameraDirectionAndFar = Vector4(camDir.x, camDir.y, camDir.z, worldCam.GetZFar());
+			view.size				   = Vector2(static_cast<float>(size.x), static_cast<float>(size.y));
+			view.mouse				   = m_world->GetInput().GetMousePositionRatio();
 
 			m_pass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(EditorWorldPassViewData));
 		}
 
-		m_mousePickRenderer.AddBuffersToUploadQueue(frameIndex, queue);
-		m_outlineRenderer.AddBuffersToUploadQueue(frameIndex, queue);
+		// m_mousePickRenderer.AddBuffersToUploadQueue(frameIndex, queue);
+		// m_outlineRenderer.AddBuffersToUploadQueue(frameIndex, queue);
 
-		m_pass.Prepare(frameIndex, queue);
+		m_pass.AddBuffersToUploadQueue(frameIndex, queue);
 	}
 
 	void EditorWorldRenderer::Render(uint32 frameIndex)
 	{
-		PerFrameData&		   pfd			 = m_pfd[frameIndex];
-		LinaGX::CommandStream* gfxStream	 = m_wr->GetGfxStream(frameIndex);
-		DrawCollector&		   drawCollector = m_wr->GetDrawCollector();
+		PerFrameData&		   pfd		 = m_pfd[frameIndex];
+		LinaGX::CommandStream* gfxStream = m_wr->GetGfxStream(frameIndex);
 
 		const Vector2ui& size = m_wr->GetSize();
 
@@ -270,7 +317,7 @@ namespace Lina::Editor
 			.height = size.y,
 		};
 
-		m_outlineRenderer.Render(frameIndex, gfxStream, drawCollector);
+		// m_outlineRenderer.Render(frameIndex, gfxStream, drawCollector);
 
 		DEBUG_LABEL_BEGIN(gfxStream, "Editor World Pass");
 
@@ -286,13 +333,14 @@ namespace Lina::Editor
 
 		m_pass.Begin(gfxStream, viewport, scissors, frameIndex);
 		m_pass.BindDescriptors(gfxStream, frameIndex, m_pipelineLayout, 1);
+		m_pass.Render(frameIndex, gfxStream);
 
-		if (drawCollector.RenderGroupExists("EditorWorld"_hs))
-			drawCollector.RenderGroup("EditorWorld"_hs, gfxStream);
+		// if (drawCollector.RenderGroupExists("EditorWorld"_hs))
+		// 	drawCollector.RenderGroup("EditorWorld"_hs, gfxStream);
 
-		m_outlineRenderer.RenderFullscreen(drawCollector, gfxStream);
+		// m_outlineRenderer.RenderFullscreen(drawCollector, gfxStream);
 
-		m_gizmoRenderer.Render(drawCollector, gfxStream);
+		// m_gizmoRenderer.Render(drawCollector, gfxStream);
 
 		m_pass.End(gfxStream);
 
@@ -307,7 +355,7 @@ namespace Lina::Editor
 
 		DEBUG_LABEL_END(gfxStream);
 
-		m_mousePickRenderer.Render(frameIndex, gfxStream, drawCollector);
+		// m_mousePickRenderer.Render(frameIndex, gfxStream, drawCollector);
 	}
 
 	void EditorWorldRenderer::OnWorldRendererCreateSizeRelative()

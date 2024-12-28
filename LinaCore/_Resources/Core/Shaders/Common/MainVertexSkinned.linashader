@@ -49,21 +49,21 @@ struct LinaVertexOutput
 
 layout( push_constant ) uniform constants
 {
-	uint pushConstantValue0;
+	uint value0;
 } PushConstants;
 
 //##user_shader_injected_here
 
 void main()
 {
-   DrawArguments drawArguments = LINA_DRAW_ARGUMENTS.data[PushConstants.pushConstantValue0 + gl_InstanceIndex];
+   DrawArguments drawArguments = LINA_DRAW_ARGUMENTS.data[PushConstants.value0 + gl_InstanceIndex];
 
    vec4 skinnedPosition = vec4(0.0);
    for(int i = 0; i < 4; ++i)
    {
-       int boneIndex = int(inBoneIndices[i]);
+       int argument2 = int(inBoneIndices[i]);
        float boneWeight = inBoneWeights[i];
-       mat4 boneMatrix = LINA_BONES.data[drawArguments.boneIndex + boneIndex];
+       mat4 boneMatrix = LINA_BONES.data[drawArguments.argument2 + argument2];
        skinnedPosition += boneMatrix * vec4(inPos, 1.0) * boneWeight;
    }
 

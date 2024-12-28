@@ -28,10 +28,10 @@ SOFTWARE.
 
 struct DrawArguments
 {
-	uint entityIndex;
-	uint materialIndex;
-	uint boneIndex;
-	uint drawArgument3;
+	uint argument0;
+	uint argument1;
+	uint argument2;
+	uint argument3;
 };
 
 struct LinaEntity

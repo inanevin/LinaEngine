@@ -41,7 +41,7 @@ struct LinaVertexInput
    vec3 pos;
    vec3 normal;
    vec2 uv;
-   uint materialIndex;
+   uint argument1;
    LinaEntity entity;
 };
 
@@ -70,7 +70,7 @@ struct LinaVertexToFrag
 // do not modify
 struct LinaFragInput
 {
-   uint materialIndex;
+   uint argument1;
    LinaVertexToFrag fromVertex;
 };
 

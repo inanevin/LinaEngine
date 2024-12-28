@@ -136,11 +136,11 @@ namespace Lina::Editor
 		Vector4 cameraDirectionAndFar;
 		Vector2 size;
 		Vector2 mouse;
-		uint32	outlineSelectionTextureIndex;
-		uint32	outlineSelectionSamplerIndex;
-		uint32	worldTextureIndex;
-		uint32	worldDepthTextureIndex;
-		uint32	worldSamplerIndex;
+		uint32	deprecated0;
+		uint32	deprecated1;
+		uint32	deprecated2;
+		uint32	deprecated3;
+		uint32	deprecated4;
 		uint32	padding0;
 		uint32	padding1;
 		uint32	padding2;

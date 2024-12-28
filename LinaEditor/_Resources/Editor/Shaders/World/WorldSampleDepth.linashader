@@ -42,10 +42,12 @@ SOFTWARE.
 #include "Resources/Editor/Shaders/Common/RenderPass_World.linashader"
 
 layout (location = 0) out vec2 outUV;
+layout (location = 1) flat out uint outTextureIndex;
+layout (location = 2) flat out uint outSamplerIndex;
 
 layout( push_constant ) uniform constants
 {
-	uint pushConstantValue0;
+	uint value0;
 } PushConstants;
 
 void main()
@@ -53,6 +55,10 @@ void main()
    outUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
    gl_Position =  vec4(outUV * 2.0f + -1.0f, 0.0f, 1.0f);
    outUV.y = 1.0f - outUV.y;
+
+    DrawArguments args = LINA_DRAW_ARGUMENTS.data[PushConstants.value0];
+   	outTextureIndex = args.argument0;
+   	outSamplerIndex = args.argument1;
 }
 
 #lina_end
@@ -60,6 +66,8 @@ void main()
 #lina_fs
 
 layout(location = 0) in vec2 inUV;
+layout (location = 1) flat in uint inTextureIndex;
+layout (location = 2) flat in uint inSamplerIndex;
 
 #include "Resources/Core/Shaders/Common/GlobalData.linashader"
 #include "Resources/Editor/Shaders/Common/RenderPass_World.linashader"
@@ -67,8 +75,8 @@ layout(location = 0) in vec2 inUV;
 void main()
 {
    	LinaTexture2D txt;
-   	txt.txt = LINA_VIEW.worldDepthTextureIndex;
-   	txt.smp = LINA_VIEW.worldSamplerIndex;
+  	txt.txt = inTextureIndex;
+   	txt.smp = inSamplerIndex;
 	vec4 depth = LINA_SAMPLE_TEXTURE(txt, inUV);
 	gl_FragDepth = depth.r;
 }

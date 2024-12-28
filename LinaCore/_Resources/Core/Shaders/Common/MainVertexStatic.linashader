@@ -47,14 +47,14 @@ struct LinaVertexOutput
 
 layout( push_constant ) uniform constants
 {
-	uint pushConstantValue0;
+	uint value0;
 } PushConstants;
 
 //##user_shader_injected_here
 
 void main()
 {
-    DrawArguments drawArguments = LINA_DRAW_ARGUMENTS.data[PushConstants.pushConstantValue0 + gl_InstanceIndex];
+    DrawArguments drawArguments = LINA_DRAW_ARGUMENTS.data[PushConstants.value0 + gl_InstanceIndex];
 
     LinaVertexInput vertexInput;
     vertexInput.pos = vec4(inPos, 1.0);

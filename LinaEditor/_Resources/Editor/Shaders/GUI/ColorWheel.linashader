@@ -83,7 +83,7 @@ struct LinaGUIMaterial
 
 layout( push_constant ) uniform constants
 {
-	uint materialIndex;
+	uint argument1;
 } PushConstants;
 
 LinaGUIMaterial GetMaterial(uint index)
@@ -97,7 +97,7 @@ LinaGUIMaterial GetMaterial(uint index)
 
 void main()
 {
-   LinaGUIMaterial material = GetMaterial(PushConstants.materialIndex);
+   LinaGUIMaterial material = GetMaterial(PushConstants.argument1);
 
     vec2 position = inUV - vec2(0.5, 0.5);
     float d = length(position);

@@ -40,7 +40,6 @@ namespace LinaGX
 }
 namespace Lina
 {
-	class DrawCollector;
 	class ResourceUploadQueue;
 	class Shader;
 
@@ -72,7 +71,7 @@ namespace Lina
 		};
 
 	public:
-		void Initialize(DrawCollector* dc, LinaGX::Instance* lgx);
+		void Initialize(LinaGX::Instance* lgx);
 		void Shutdown();
 
 		void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue);
@@ -91,7 +90,6 @@ namespace Lina
 	private:
 		LinaGX::Instance* m_lgx = nullptr;
 		PerFrameData	  m_pfd[FRAMES_IN_FLIGHT];
-		DrawCollector*	  m_drawCollector;
 		LinaVG::Drawer	  m_lvgDrawer;
 		RenderData		  m_cpuData;
 		RenderData		  m_gpuData;

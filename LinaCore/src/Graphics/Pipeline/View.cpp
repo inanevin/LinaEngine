@@ -30,7 +30,8 @@ SOFTWARE.
 
 namespace Lina
 {
-	void View::CalculateVisibility()
+	bool View::CalculateVisibility(const AABB& aabb)
 	{
+		return true;
 	}
 } // namespace Lina

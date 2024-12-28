@@ -70,7 +70,6 @@ namespace Lina::Editor
 		};
 
 	public:
-	public:
 		EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr);
 		virtual ~EditorWorldRenderer();
 
@@ -109,6 +108,7 @@ namespace Lina::Editor
 			return m_outlineRenderer;
 		}
 
+	private:
 	private:
 		Vector<Entity*>			 m_selectedEntities;
 		EntityWorld*			 m_world = nullptr;

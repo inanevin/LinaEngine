@@ -35,7 +35,6 @@ SOFTWARE.
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Graphics/MeshManager.hpp"
 #include "Core/Graphics/GUI/GUIBackend.hpp"
-#include "Core/Graphics/Renderers/DrawCollector.hpp"
 
 namespace LinaGX
 {
@@ -69,12 +68,37 @@ namespace Lina
 			Texture* gBufNormal			= nullptr;
 			Texture* gBufDepth			= nullptr;
 			Texture* lightingPassOutput = nullptr;
+
+			Buffer entityBuffer	   = {};
+			Buffer argumentsBuffer = {};
+			Buffer boneBuffer	   = {};
 		};
 
-		struct RenderData
+	public:
+		struct EntityIdent
 		{
-			ResourceID skyMaterial;
-			ResourceID skyModel;
+			EntityID entityGUID = 0;
+			uint32	 uniqueID2	= 0;
+			uint32	 uniqueID3	= 0;
+			uint32	 uniqueID4	= 0;
+
+			bool operator==(const EntityIdent& other) const
+			{
+				return entityGUID == other.entityGUID && uniqueID2 == other.uniqueID2 && uniqueID3 == other.uniqueID3 && uniqueID4 == other.uniqueID4;
+			}
+		};
+
+		struct DrawEntity
+		{
+			GPUEntity	entity;
+			EntityIdent ident;
+		};
+
+		struct DrawData
+		{
+			Vector<DrawEntity>		 entities;
+			Vector<GPUDrawArguments> arguments;
+			Vector<Matrix4>			 bones;
 		};
 
 	public:
@@ -95,6 +119,11 @@ namespace Lina
 
 		void AddListener(WorldRendererListener* listener);
 		void RemoveListener(WorldRendererListener* listener);
+
+		uint32 GetBoneIndex(CompModel* comp);
+		uint32 GetArgumentCount();
+		uint32 PushEntity(const GPUEntity& e, const EntityIdent& ident);
+		uint32 PushArgument(const GPUDrawArguments& args);
 
 		inline SemaphoreData GetSubmitSemaphore(uint32 frameIndex)
 		{
@@ -149,11 +178,6 @@ namespace Lina
 			return m_name;
 		}
 
-		inline DrawCollector& GetDrawCollector()
-		{
-			return m_drawCollector;
-		}
-
 		inline SemaphoreData& GetSignalSemaphoreData(uint32 frameIndex)
 		{
 			return m_pfd[frameIndex].signalSemaphore;
@@ -179,12 +203,32 @@ namespace Lina
 			return m_executor;
 		}
 
+		inline Buffer& GetEntityDataBuffer(uint32 frameIndex)
+		{
+			return m_pfd[frameIndex].entityBuffer;
+		}
+
+		inline Buffer& GetInstanceDataBuffer(uint32 frameIndex)
+		{
+			return m_pfd[frameIndex].argumentsBuffer;
+		}
+
+		inline Buffer& GetBoneBuffer(uint32 frameIndex)
+		{
+			return m_pfd[frameIndex].boneBuffer;
+		}
+
+	private:
+		void CalculateSkinning(const Vector<CompModel*>& comps);
+
 	private:
 		void   CreateSizeRelativeResources();
 		void   DestroySizeRelativeResources();
 		uint64 BumpAndSendTransfers(uint32 frameIndex);
+		bool   DrawEntityExists(uint32& outIndex, const EntityIdent& ident);
 
 	private:
+		Vector<CompModel*>			   m_compModels;
 		Vector<WorldRendererListener*> m_listeners;
 		GUIBackend					   m_guiBackend;
 		ResourceManagerV2*			   m_resourceManagerV2 = nullptr;
@@ -202,10 +246,9 @@ namespace Lina
 		GfxContext*					   m_gfxContext;
 		String						   m_name = "";
 		JobExecutor					   m_executor;
-		DrawCollector				   m_drawCollector;
-
-		RenderData m_cpuRenderData = {};
-		RenderData m_gpuRenderData = {};
+		DrawData					   m_cpuDrawData = {};
+		DrawData					   m_gpuDrawData = {};
+		Vector<CompModel*>			   m_skinnedModels;
 	};
 
 } // namespace Lina

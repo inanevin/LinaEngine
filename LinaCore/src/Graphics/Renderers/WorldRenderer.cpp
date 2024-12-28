@@ -53,6 +53,7 @@ SOFTWARE.
 #include <glm/gtc/quaternion.hpp>
 #include <Common/Math/Math.hpp>
 #include <LinaGX/Core/InputMappings.hpp>
+#include "Core/Graphics/Renderers/DrawCollector.hpp"
 
 namespace Lina
 {
@@ -107,12 +108,14 @@ namespace Lina
 			data.copyStream				= m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, MAX_COPY_COMMANDS, 4000, 4096, 32, cmdStreamName2.c_str()});
 			data.signalSemaphore		= SemaphoreData(m_lgx->CreateUserSemaphore());
 			data.copySemaphore			= SemaphoreData(m_lgx->CreateUserSemaphore());
+
+			data.argumentsBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUDrawArguments) * 1000, m_name + " InstanceDataBuffer");
+			data.entityBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUEntity) * 1000, m_name + " EntityBuffer");
+			data.boneBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(Matrix4) * 1000, m_name + " BoneBuffer");
 		}
 
 		m_deferredPass.Create(GfxHelpers::GetRenderPassDescription(RenderPassType::RENDER_PASS_DEFERRED), nullptr);
 		m_forwardPass.Create(GfxHelpers::GetRenderPassDescription(RenderPassType::RENDER_PASS_FORWARD), nullptr);
-
-		m_drawCollector.Initialize(m_lgx, m_world, m_resourceManagerV2, m_gfxContext, &m_executor);
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -124,38 +127,38 @@ namespace Lina
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = setDf,
 				.binding   = 1,
-				.buffers   = {m_drawCollector.GetInstanceDataBuffer(i).GetGPUResource()},
+				.buffers   = {data.argumentsBuffer.GetGPUResource()},
 			});
 
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = setDf,
 				.binding   = 2,
-				.buffers   = {m_drawCollector.GetEntityDataBuffer(i).GetGPUResource()},
+				.buffers   = {data.entityBuffer.GetGPUResource()},
 			});
 
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = setDf,
 				.binding   = 3,
-				.buffers   = {m_drawCollector.GetBoneBuffer(i).GetGPUResource()},
+				.buffers   = {data.boneBuffer.GetGPUResource()},
 			});
 
 			// FW
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = setFw,
 				.binding   = 2,
-				.buffers   = {m_drawCollector.GetInstanceDataBuffer(i).GetGPUResource()},
+				.buffers   = {data.argumentsBuffer.GetGPUResource()},
 			});
 
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = setFw,
 				.binding   = 3,
-				.buffers   = {m_drawCollector.GetEntityDataBuffer(i).GetGPUResource()},
+				.buffers   = {data.entityBuffer.GetGPUResource()},
 			});
 
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = setFw,
 				.binding   = 4,
-				.buffers   = {m_drawCollector.GetBoneBuffer(i).GetGPUResource()},
+				.buffers   = {data.boneBuffer.GetGPUResource()},
 			});
 		}
 
@@ -165,8 +168,6 @@ namespace Lina
 
 	WorldRenderer::~WorldRenderer()
 	{
-		m_drawCollector.Shutdown();
-
 		m_gBufSampler->DestroyHW();
 		m_resourceManagerV2->DestroyResource(m_gBufSampler);
 
@@ -180,6 +181,10 @@ namespace Lina
 
 			m_lgx->DestroyUserSemaphore(data.signalSemaphore.GetSemaphore());
 			m_lgx->DestroyUserSemaphore(data.copySemaphore.GetSemaphore());
+
+			data.argumentsBuffer.Destroy();
+			data.entityBuffer.Destroy();
+			data.boneBuffer.Destroy();
 		}
 
 		m_deferredPass.Destroy();
@@ -187,6 +192,45 @@ namespace Lina
 
 		DestroySizeRelativeResources();
 		m_world->RemoveListener(this);
+	}
+
+	void WorldRenderer::CalculateSkinning(const Vector<CompModel*>& comps)
+	{
+		Vector<uint32> boneIDs;
+		uint32		   boneIdxCounter = 0;
+		for (CompModel* comp : comps)
+		{
+			const Vector<ModelSkin>& skins = comp->GetModelPtr()->GetAllSkins();
+			boneIDs.push_back(boneIdxCounter);
+			for (const ModelSkin& skin : skins)
+				boneIdxCounter += static_cast<uint32>(skin.jointIndices.size());
+		}
+
+		m_cpuDrawData.bones.resize(boneIdxCounter);
+
+		Taskflow tf;
+		tf.for_each_index(0, static_cast<int>(comps.size()), 1, [&](int i) {
+			CompModel*				 comp  = comps.at(i);
+			const Vector<ModelSkin>& skins = comp->GetModelPtr()->GetAllSkins();
+			Vector<CompModelNode>&	 nodes = comp->GetNodes();
+
+			uint32 boneID = boneIDs.at(i);
+
+			for (const ModelSkin& skin : skins)
+			{
+				const Matrix4 rootGlobal		= skin.rootJointIndex != -1 ? comp->CalculateGlobalMatrix(skin.rootJointIndex) : comp->GetEntity()->GetTransform().ToMatrix();
+				const Matrix4 rootGlobalInverse = rootGlobal.Inverse();
+
+				uint32 idx = 0;
+				for (uint32 jointIndex : skin.jointIndices)
+				{
+					const Matrix4 global			  = comp->CalculateGlobalMatrix(jointIndex);
+					m_cpuDrawData.bones[boneID + idx] = rootGlobalInverse * global * nodes.at(jointIndex).inverseBindTransform;
+					idx++;
+				}
+			}
+		});
+		m_executor.RunAndWait(tf);
 	}
 
 	void WorldRenderer::CreateSizeRelativeResources()
@@ -286,14 +330,17 @@ namespace Lina
 		m_gfxContext->MarkBindlessDirty();
 	}
 
-	void WorldRenderer::OnComponentAdded(Component* c)
+	void WorldRenderer::OnComponentAdded(Component* comp)
 	{
-		m_drawCollector.OnComponentAdded(c);
+		if (comp->GetTID() == GetTypeID<CompModel>())
+			m_compModels.push_back(static_cast<CompModel*>(comp));
 	}
 
 	void WorldRenderer::OnComponentRemoved(Component* comp)
 	{
-		m_drawCollector.OnComponentRemoved(comp);
+		auto it = linatl::find_if(m_compModels.begin(), m_compModels.end(), [comp](CompModel* c) -> bool { return c == comp; });
+		if (it != m_compModels.end())
+			m_compModels.erase(it);
 	}
 
 	void WorldRenderer::AddListener(WorldRendererListener* listener)
@@ -305,6 +352,50 @@ namespace Lina
 	{
 		auto it = linatl::find_if(m_listeners.begin(), m_listeners.end(), [listener](WorldRendererListener* l) -> bool { return l == listener; });
 		m_listeners.erase(it);
+	}
+
+	uint32 WorldRenderer::GetBoneIndex(CompModel* comp)
+	{
+		uint32 ctr = 0;
+
+		for (CompModel* c : m_skinnedModels)
+		{
+			if (comp == c)
+				return ctr;
+
+			const Vector<ModelSkin>& skins = c->GetModelPtr()->GetAllSkins();
+			for (const ModelSkin& skin : skins)
+				ctr += static_cast<uint32>(skin.jointIndices.size());
+		}
+
+		return 0;
+	}
+
+	uint32 WorldRenderer::GetArgumentCount()
+	{
+		return static_cast<uint32>(m_cpuDrawData.arguments.size());
+	}
+
+	uint32 WorldRenderer::PushEntity(const GPUEntity& e, const EntityIdent& ident)
+	{
+		uint32 idx = 0;
+		if (!DrawEntityExists(idx, ident))
+		{
+			idx = static_cast<uint32>(m_cpuDrawData.entities.size());
+			m_cpuDrawData.entities.push_back({
+				.entity = e,
+				.ident	= ident,
+			});
+		}
+
+		return idx;
+	}
+
+	uint32 WorldRenderer::PushArgument(const GPUDrawArguments& args)
+	{
+		const uint32 idx = static_cast<uint32>(m_cpuDrawData.arguments.size());
+		m_cpuDrawData.arguments.push_back(args);
+		return idx;
 	}
 
 	void WorldRenderer::Resize(const Vector2ui& newSize)
@@ -319,36 +410,94 @@ namespace Lina
 
 	void WorldRenderer::Tick(float delta)
 	{
-		// We populate views here.
-		// 1 View for main world camera.
-		// Then a view per light.
+		// View production.
+		{
+			const Camera& camera = m_world->GetWorldCamera();
+			View		  cameraView;
+			m_forwardPass.GetView().SetView(camera.GetView());
+			m_deferredPass.GetView().SetView(camera.GetView());
+		}
 
-		// Then calculate visibility for each view.
-		// For each renderable component, we pass it to a particular view to calculate it's visibility for that view.
+		// Skinning
+		{
+			m_skinnedModels.resize(0);
+			for (CompModel* model : m_compModels)
+			{
+				if (!model->GetEntity()->GetVisible())
+					continue;
 
-		const Camera& camera = m_world->GetWorldCamera();
-		View		  cameraView;
-		cameraView.SetView(camera.GetView());
-		cameraView.CalculateVisibility();
+				// Maybe some view culling, e.g. skip if not visible in any of the produces views.
 
-		m_drawCollector.CreateGroup("Deferred");
-		m_drawCollector.CreateGroup("Forward");
+				if (!model->GetModelPtr()->GetAllSkins().empty())
+					m_skinnedModels.push_back(model);
+			}
+			CalculateSkinning(m_skinnedModels);
+		}
 
-		m_drawCollector.CollectCompModels("Deferred"_hs, cameraView, ShaderType::DeferredSurface);
-		m_drawCollector.CollectCompModels("Forward"_hs, cameraView, ShaderType::ForwardSurface);
+		DrawCollector::CollectCompModels(m_compModels, m_deferredPass, m_resourceManagerV2, this, m_gfxContext, {.allowedShaderTypes = {ShaderType::DeferredSurface}});
+		DrawCollector::CollectCompModels(m_compModels, m_forwardPass, m_resourceManagerV2, this, m_gfxContext, {.allowedShaderTypes = {ShaderType::ForwardSurface}});
 
-		m_cpuRenderData.skyMaterial = m_world->GetGfxSettings().skyMaterial;
-		m_cpuRenderData.skyModel	= m_world->GetGfxSettings().skyModel;
+		// Lighting Quad
+		{
+			const RenderPass::InstancedDraw lightingQuad = {
+				.shaderHandle  = m_deferredLightingShader->GetGPUHandle(),
+				.vertexCount   = 3,
+				.instanceCount = 1,
+			};
+			m_forwardPass.AddDrawCall(lightingQuad);
+		}
+
+		// Skybox.
+		{
+			Material*			   skyMaterial = m_resourceManagerV2->GetResource<Material>(m_world->GetGfxSettings().skyMaterial);
+			Shader*				   skyShader   = m_resourceManagerV2->GetResource<Shader>(skyMaterial->GetShader());
+			Model*				   skyModel	   = m_resourceManagerV2->GetIfExists<Model>(m_world->GetGfxSettings().skyModel);
+			const PrimitiveStatic& prim		   = skyModel->GetAllMeshes().at(0).primitivesStatic.at(0);
+
+			if (skyShader->GetShaderType() == ShaderType::Sky)
+			{
+				const GPUDrawArguments args = {
+					.constant1 = skyMaterial->GetBindlessIndex(),
+				};
+
+				const uint32 argIndex = PushArgument(args);
+
+				const RenderPass::InstancedDraw skyDraw = {
+					.vertexBuffers =
+						{
+							&m_gfxContext->GetMeshManagerDefault().GetVtxBufferStatic(),
+							&m_gfxContext->GetMeshManagerDefault().GetVtxBufferStatic(),
+						},
+					.indexBuffers =
+						{
+							&m_gfxContext->GetMeshManagerDefault().GetIdxBufferStatic(),
+							&m_gfxContext->GetMeshManagerDefault().GetIdxBufferStatic(),
+						},
+					.vertexSize	   = sizeof(VertexStatic),
+					.shaderHandle  = skyShader->GetGPUHandle(),
+					.baseVertex	   = prim._vertexOffset,
+					.vertexCount   = static_cast<uint32>(prim.vertices.size()),
+					.baseIndex	   = prim._indexOffset,
+					.indexCount	   = static_cast<uint32>(prim.indices.size()),
+					.instanceCount = 1,
+					.baseInstance  = 0,
+					.pushConstant  = argIndex,
+				};
+
+				m_forwardPass.AddDrawCall(skyDraw);
+			}
+		}
 	}
 
 	void WorldRenderer::SyncRender()
 	{
+		m_gpuDrawData = m_cpuDrawData;
+		m_cpuDrawData.arguments.resize(0);
+		m_cpuDrawData.bones.resize(0);
+		m_cpuDrawData.entities.resize(0);
+
 		m_deferredPass.SyncRender();
 		m_forwardPass.SyncRender();
-
-		m_drawCollector.SyncRender();
-		m_gpuRenderData = m_cpuRenderData;
-		m_cpuRenderData = {};
 	}
 
 	void WorldRenderer::DropRenderFrame()
@@ -386,23 +535,33 @@ namespace Lina
 		// Forward pass specific.
 		{
 
-			Material* skyMaterial = m_resourceManagerV2->GetIfExists<Material>(m_world->GetGfxSettings().skyMaterial);
-
 			GPUForwardPassData renderPassData = {
 				.gBufAlbedo			  = currentFrame.gBufAlbedo->GetBindlessIndex(),
 				.gBufPositionMetallic = currentFrame.gBufPosition->GetBindlessIndex(),
 				.gBufNormalRoughness  = currentFrame.gBufNormal->GetBindlessIndex(),
 				// .gBufDepth             = currentFrame.gBufDepth->GetBindlessIndex(),
-				.gBufSampler		  = m_gBufSampler->GetBindlessIndex(),
-				.skyMaterialByteIndex = skyMaterial == nullptr ? UINT32_MAX : skyMaterial->GetBindlessIndex() / 4,
+				.gBufSampler = m_gBufSampler->GetBindlessIndex(),
 			};
 
 			m_forwardPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&renderPassData, sizeof(GPUForwardPassData));
 		}
 
-		m_drawCollector.PrepareGPUData(frameIndex, m_uploadQueue);
-		m_deferredPass.Prepare(frameIndex, m_uploadQueue);
-		m_forwardPass.Prepare(frameIndex, m_uploadQueue);
+		size_t entityIdx = 0;
+		for (const DrawEntity& de : m_gpuDrawData.entities)
+		{
+			currentFrame.entityBuffer.BufferData(entityIdx * sizeof(GPUEntity), (uint8*)&de.entity, sizeof(GPUEntity));
+			entityIdx++;
+		}
+
+		currentFrame.argumentsBuffer.BufferData(0, (uint8*)m_gpuDrawData.arguments.data(), sizeof(GPUDrawArguments) * m_gpuDrawData.arguments.size());
+		currentFrame.boneBuffer.BufferData(0, (uint8*)m_gpuDrawData.bones.data(), sizeof(Matrix4) * m_gpuDrawData.bones.size());
+
+		m_uploadQueue.AddBufferRequest(&currentFrame.argumentsBuffer);
+		m_uploadQueue.AddBufferRequest(&currentFrame.boneBuffer);
+		m_uploadQueue.AddBufferRequest(&currentFrame.entityBuffer);
+
+		m_deferredPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+		m_forwardPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
 	}
 
 	void WorldRenderer::FlushTransfers(uint32 frameIndex)
@@ -415,7 +574,6 @@ namespace Lina
 
 	void WorldRenderer::Render(uint32 frameIndex)
 	{
-
 		auto& currentFrame = m_pfd[frameIndex];
 
 		const LinaGX::Viewport viewport = {
@@ -489,45 +647,6 @@ namespace Lina
 
 			m_forwardPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
 			m_forwardPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxContext->GetPipelineLayoutPersistent(RenderPassType::RENDER_PASS_FORWARD), 1);
-			m_gfxContext->GetMeshManagerDefault().BindStatic(currentFrame.gfxStream);
-
-			// Lighting quad
-			{
-				LinaGX::CMDBindPipeline* bind		   = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindPipeline>();
-				bind->shader						   = m_deferredLightingShader->GetGPUHandle();
-				LinaGX::CMDDrawInstanced* lightingDraw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawInstanced>();
-				lightingDraw->instanceCount			   = 1;
-				lightingDraw->startInstanceLocation	   = 0;
-				lightingDraw->startVertexLocation	   = 0;
-				lightingDraw->vertexCountPerInstance   = 3;
-			}
-
-			// Skybox
-			{
-				Material* skyMaterial = m_resourceManagerV2->GetResource<Material>(m_gpuRenderData.skyMaterial);
-				Shader*	  skyShader	  = m_resourceManagerV2->GetResource<Shader>(skyMaterial->GetShader());
-				Model*	  skyModel	  = m_resourceManagerV2->GetIfExists<Model>(m_gpuRenderData.skyModel);
-				if (skyModel != nullptr && skyShader->GetShaderType() == ShaderType::Sky)
-				{
-					const Mesh&				 mesh = skyModel->GetAllMeshes().at(0);
-					LinaGX::CMDBindPipeline* bind = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindPipeline>();
-					bind->shader				  = skyShader->GetGPUHandle();
-
-					LinaGX::CMDBindConstants* constant = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindConstants>();
-					constant->data					   = currentFrame.gfxStream->EmplaceAuxMemory<uint32>(skyMaterial->GetBindlessIndex() / static_cast<uint32>(sizeof(uint32)));
-					constant->size					   = sizeof(uint32);
-					constant->stages				   = currentFrame.gfxStream->EmplaceAuxMemory<LinaGX::ShaderStage>(LinaGX::ShaderStage::Vertex);
-					constant->stagesSize			   = 1;
-
-					LinaGX::CMDDrawIndexedInstanced* skyDraw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
-					skyDraw->baseVertexLocation				 = mesh.primitivesStatic.at(0)._vertexOffset;
-					skyDraw->indexCountPerInstance			 = static_cast<uint32>(mesh.primitivesStatic.at(0).indices.size());
-					skyDraw->instanceCount					 = 1;
-					skyDraw->startIndexLocation				 = mesh.primitivesStatic.at(0)._indexOffset;
-					skyDraw->startInstanceLocation			 = 0;
-				}
-			}
-
 			m_forwardPass.Render(frameIndex, currentFrame.gfxStream);
 			m_forwardPass.End(currentFrame.gfxStream);
 
@@ -640,6 +759,25 @@ namespace Lina
 			.standaloneSubmission = m_standaloneSubmit,
 		});
 		return currentFrame.copySemaphore.GetValue();
+	}
+
+	bool WorldRenderer::DrawEntityExists(uint32& outIndex, const EntityIdent& ident)
+	{
+		const uint32 entitiesSize = static_cast<uint32>(m_cpuDrawData.entities.size());
+		for (uint32 i = 0; i < entitiesSize; i++)
+		{
+			const DrawEntity& de = m_cpuDrawData.entities.at(i);
+
+			if (de.ident.entityGUID == 0 && de.ident.entityGUID == de.ident.uniqueID2 == de.ident.uniqueID3 == de.ident.uniqueID4)
+				continue;
+
+			if (de.ident == ident)
+			{
+				outIndex = i;
+				return true;
+			}
+		}
+		return false;
 	}
 
 } // namespace Lina

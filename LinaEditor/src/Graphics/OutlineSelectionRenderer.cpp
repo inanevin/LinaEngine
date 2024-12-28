@@ -79,7 +79,6 @@ namespace Lina::Editor
 
 		m_pipelineLayout = m_lgx->CreatePipelineLayout(EditorGfxHelpers::GetPipelineLayoutDescriptionEntityBufferPass());
 		m_outlinePass.Create(EditorGfxHelpers::GetEntityBufferPassDescription(), nullptr);
-
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			const uint16 set = m_outlinePass.GetDescriptorSet(i);
@@ -87,19 +86,19 @@ namespace Lina::Editor
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = set,
 				.binding   = 1,
-				.buffers   = {m_wr->GetDrawCollector().GetInstanceDataBuffer(i).GetGPUResource()},
+				.buffers   = {m_wr->GetInstanceDataBuffer(i).GetGPUResource()},
 			});
 
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = set,
 				.binding   = 2,
-				.buffers   = {m_wr->GetDrawCollector().GetEntityDataBuffer(i).GetGPUResource()},
+				.buffers   = {m_wr->GetEntityDataBuffer(i).GetGPUResource()},
 			});
 
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = set,
 				.binding   = 3,
-				.buffers   = {m_wr->GetDrawCollector().GetBoneBuffer(i).GetGPUResource()},
+				.buffers   = {m_wr->GetBoneBuffer(i).GetGPUResource()},
 			});
 		}
 
@@ -186,7 +185,7 @@ namespace Lina::Editor
 			m_outlinePass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
 		}
 
-		m_outlinePass.Prepare(frameIndex, queue);
+		m_outlinePass.AddBuffersToUploadQueue(frameIndex, queue);
 	}
 
 	void OutlineSelectionRenderer::Tick(float delta, DrawCollector& collector)
@@ -194,25 +193,25 @@ namespace Lina::Editor
 		if (m_selectedEntities.empty())
 			return;
 
-		collector.CreateGroup("Outline");
-		collector.CreateGroup("OutlineFullscreen");
-
-		for (Entity* e : m_selectedEntities)
-			collector.CollectEntity(e, "Outline"_hs, "StaticOutline"_hs, "SkinnedOutline"_hs);
-
-		const DrawCollector::CustomDrawInstance fullscreenInstance = {
-			.materialID	   = m_fullscreenMaterial->GetID(),
-			.pushEntity	   = false,
-			.pushMaterial  = true,
-			.pushBoneIndex = false,
-		};
-		collector.AddCustomDrawRaw("OutlineFullscreen"_hs, fullscreenInstance, m_fullscreenShader->GetID(), 0, 0, 3);
+		// collector.CreateGroup("Outline");
+		// collector.CreateGroup("OutlineFullscreen");
+		//
+		// for (Entity* e : m_selectedEntities)
+		// 	collector.CollectEntity(e, "Outline"_hs, "StaticOutline"_hs, "SkinnedOutline"_hs);
+		//
+		// const DrawCollector::CustomDrawInstance fullscreenInstance = {
+		// 	.materialID	   = m_fullscreenMaterial->GetID(),
+		// 	.pushEntity	   = false,
+		// 	.pushMaterial  = true,
+		// 	.pushBoneIndex = false,
+		// };
+		// collector.AddCustomDrawRaw("OutlineFullscreen"_hs, fullscreenInstance, m_fullscreenShader->GetID(), 0, 0, 3);
 	}
 
 	void OutlineSelectionRenderer::Render(uint32 frameIndex, LinaGX::CommandStream* stream, DrawCollector& collector)
 	{
-		if (!collector.RenderGroupExists("Outline"_hs))
-			return;
+		// if (!collector.RenderGroupExists("Outline"_hs))
+		// 	return;
 
 		PerFrameData& pfd = m_pfd[frameIndex];
 
@@ -250,7 +249,7 @@ namespace Lina::Editor
 			m_outlinePass.Begin(stream, viewport, scissors, frameIndex);
 			m_outlinePass.BindDescriptors(stream, frameIndex, m_pipelineLayout, 1);
 
-			collector.RenderGroup("Outline"_hs, stream);
+			// collector.RenderGroup("Outline"_hs, stream);
 
 			m_outlinePass.End(stream);
 
@@ -271,8 +270,8 @@ namespace Lina::Editor
 
 	void OutlineSelectionRenderer::RenderFullscreen(DrawCollector& collector, LinaGX::CommandStream* stream)
 	{
-		if (collector.RenderGroupExists("OutlineFullscreen"_hs))
-			collector.RenderGroup("OutlineFullscreen"_hs, stream);
+		// if (collector.RenderGroupExists("OutlineFullscreen"_hs))
+		// 	collector.RenderGroup("OutlineFullscreen"_hs, stream);
 	}
 
 	void OutlineSelectionRenderer::SyncRender()

@@ -57,7 +57,7 @@ vec3 UnprojectPoint(float x, float y, float z, mat4 view, mat4 projection) {
 
 layout( push_constant ) uniform constants
 {
-	uint pushConstantValue0;
+	uint value0;
 } PushConstants;
 
 void main()
@@ -65,7 +65,7 @@ void main()
     vec3 p = gridPlane[gl_VertexIndex].xyz;
     outNearPoint = UnprojectPoint(p.x, p.y, 0.0, LINA_VIEW.view, LINA_VIEW.proj).xyz; // unprojecting on the near plane
     outFarPoint = UnprojectPoint(p.x, p.y, 1.0, LINA_VIEW.view, LINA_VIEW.proj).xyz; // unprojecting on the far plane
-    outMaterialIndex = LINA_DRAW_ARGUMENTS.data[PushConstants.pushConstantValue0 + gl_InstanceIndex].materialIndex;
+    outMaterialIndex = LINA_DRAW_ARGUMENTS.data[PushConstants.value0 + gl_InstanceIndex].argument1;
     gl_Position = vec4(p, 1.0); // using directly the clipped coordinates
 }
 
@@ -78,7 +78,7 @@ void main()
 
 layout(location = 0) in vec3 nearPoint;
 layout(location = 1) in vec3 farPoint;
-layout(location = 2) flat in uint inMaterialIndex;
+layout(location = 2) flat in uint outMaterialIndex;
 
 layout(location = 0) out vec4 outColor;
 
@@ -123,7 +123,7 @@ struct LinaMaterial
 
 void main() {
     
-    LinaMaterial material = LINA_GET_MATERIAL(inMaterialIndex);
+    LinaMaterial material = LINA_GET_MATERIAL(outMaterialIndex);
     vec3 camPos = LINA_VIEW.cameraPositionAndNear.xyz;
    
     float t = -nearPoint.y / (farPoint.y - nearPoint.y);

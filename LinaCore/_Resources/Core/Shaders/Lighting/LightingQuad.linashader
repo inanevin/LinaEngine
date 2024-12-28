@@ -60,7 +60,7 @@ layout(location = 0) out vec2 outUV;
 
 layout( push_constant ) uniform constants
 {
-	uint pushConstantValue0;
+	uint value0;
 } PushConstants;
 
 void main()

@@ -63,13 +63,13 @@ namespace Lina::Editor
 
 		enum class DisplayTexture
 		{
-			WorldResult,
+			WorldFinal,
 			WorldGBuf0,
 			WorldGBuf1,
 			WorldGBuf2,
 			WorldDepth,
+			WorldResult,
 			OutlinePass,
-			EntityIDPass,
 		};
 
 	public:
@@ -132,7 +132,7 @@ namespace Lina::Editor
 		GizmoControls m_gizmoControls;
 
 		Dropdown*	   m_displayTextureDropdown = nullptr;
-		DisplayTexture m_currentDisplayTexture	= DisplayTexture::WorldResult;
+		DisplayTexture m_currentDisplayTexture	= DisplayTexture::WorldFinal;
 
 		Vector<Entity*>		 m_selectedEntities;
 		Editor*				 m_editor		 = nullptr;
@@ -144,9 +144,10 @@ namespace Lina::Editor
 		Font*				 m_gizmoFont	 = nullptr;
 		GUIUserData			 m_guiUserData	 = {
 					   .specialType = GUISpecialType::DisplayTarget,
-					   .mipLevel	= 15,
+					   .mipLevel	= 0,
 		   };
 	};
+
 	LINA_WIDGET_BEGIN(WorldDisplayer, Hidden)
 	LINA_CLASS_END(WorldDisplayer)
 } // namespace Lina::Editor

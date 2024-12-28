@@ -43,7 +43,7 @@ struct LinaVertexInput
    vec3 pos;
    vec3 normal;
    vec2 uv;
-   uint materialIndex;
+   uint argument1;
 };
 
 // do not modify
@@ -76,7 +76,7 @@ struct LinaVertexToFrag
 // do not modify
 struct LinaFragInput
 {
-   uint materialIndex;
+   uint argument1;
    LinaVertexToFrag fromVertex;
 };
 
@@ -111,7 +111,7 @@ vec4 AddGrid(vec3 col, vec2 p)
 
 void LINA_FRAG_MAIN(in LinaFragInput inFrag, out LinaFragOutput outFrag)
 {
-   LinaMaterial material = LINA_GET_MATERIAL(inFrag.materialIndex);
+   LinaMaterial material = LINA_GET_MATERIAL(inFrag.argument1);
 
    float uTime = LINA_GLOBAL.deltaElapsed.y;
    float sin01 = (1.0+sin(uTime)) / 2.0;

@@ -54,11 +54,11 @@ SOFTWARE.
 
 #lina_vs
 
-layout (location = 0) out flat uint outMaterialIndex;
+layout (location = 0) out flat uint outargument1;
 
 void LINA_VERTEX_MAIN(in LinaVertexInput inVertex, out LinaVertexOutput outVertex)
 {
-   LinaEntity entity = LINA_GET_ENTITY(inVertex.drawArguments.entityIndex);
+   LinaEntity entity = LINA_GET_ENTITY(inVertex.drawArguments.argument0);
    
    // Compute world position of the cube's vertex
    vec4 worldPos4 = entity.modelMatrix * inVertex.pos;
@@ -84,14 +84,14 @@ void LINA_VERTEX_MAIN(in LinaVertexInput inVertex, out LinaVertexOutput outVerte
    outVertex.clipPosition = LINA_VIEW.viewProj * finalWorldPos;
 
    // Pass the material index to the fragment shader
-   outMaterialIndex = inVertex.drawArguments.materialIndex;
+   outargument1 = inVertex.drawArguments.argument1;
 }
 
 #lina_end
 
 #lina_fs
 
-layout(location = 0) flat in uint inMaterialIndex;
+layout(location = 0) flat in uint inargument1;
 
 struct LinaMaterial
 {
@@ -100,7 +100,7 @@ struct LinaMaterial
 
 void LINA_FRAG_MAIN(out LinaFragOutput outFrag)
 {
-    LinaMaterial material = LINA_GET_MATERIAL(inMaterialIndex);
+    LinaMaterial material = LINA_GET_MATERIAL(inargument1);
     outFrag.color = material.color;
 }
 

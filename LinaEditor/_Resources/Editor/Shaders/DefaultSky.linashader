@@ -78,7 +78,7 @@ void LINA_VERTEX_MAIN(in LinaVertexInput inVertex, out LinaVertexOutput outVerte
    outUV = inVertex.uv;
    outNormal = inVertex.normal;
    outWorldPos = inVertex.pos.xyz;
-   outMaterialIndex = PushConstants.pushConstantValue0;
+   outMaterialIndex = inVertex.drawArguments.argument1;
 }
 
 #lina_end

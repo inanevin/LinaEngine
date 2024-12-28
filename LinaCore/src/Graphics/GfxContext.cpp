@@ -159,8 +159,8 @@ namespace Lina
 		size_t					 padding  = 0;
 		cacheMat->View([&](Material* mat, uint32 index) -> bool {
 			m_nextMaterialUpdates.push_back(mat);
-			mat->SetBindlessIndex(static_cast<uint32>(padding));
-			padding += mat->GetSize();
+			mat->SetBindlessIndex(static_cast<uint32>(padding) / static_cast<uint32>(sizeof(uint32)));
+			padding += mat->GetBufferSize();
 			return false;
 		});
 	}

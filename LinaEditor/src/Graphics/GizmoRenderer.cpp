@@ -119,74 +119,69 @@ namespace Lina::Editor
 
 	void GizmoRenderer::Render(DrawCollector& collector, LinaGX::CommandStream* stream)
 	{
-		if (collector.RenderGroupExists("Gizmo"_hs))
-			collector.RenderGroup("Gizmo"_hs, stream);
-
-		if (collector.RenderGroupExists("GizmoLines"_hs))
-			collector.RenderGroup("GizmoLines"_hs, stream);
 	}
 
 	void GizmoRenderer::ProduceGizmoMeshes(const Vector3& avgPosition)
 	{
-		const Camera&  worldCam	 = m_world->GetWorldCamera();
-		DrawCollector& collector = m_worldRenderer->GetDrawCollector();
-
-		const Vector3& cameraPos = worldCam.GetPosition();
-		const float	   scale	 = 1.0f;
-
-		Buffer* vtx = &m_editor->GetApp()->GetGfxContext().GetMeshManagerDefault().GetVtxBufferStatic();
-		Buffer* idx = &m_editor->GetApp()->GetGfxContext().GetMeshManagerDefault().GetIdxBufferStatic();
-
-		const DrawCollector::CustomDrawInstance inst0 = {
-			.entity =
-				{
-					.model = Matrix4::TransformMatrix(avgPosition, Quaternion::AngleAxis(90, Vector3::Forward), Vector3(scale)),
-				},
-			.entityIdent =
-				{
-					.entityGUID = GIZMO_GUID_X_AXIS,
-				},
-			.materialID	  = m_gizmoMaterialX->GetID(),
-			.pushEntity	  = true,
-			.pushMaterial = true,
-		};
-
-		const DrawCollector::CustomDrawInstance inst1 = {
-			.entity =
-				{
-					.model = Matrix4::TransformMatrix(avgPosition, Quaternion::Identity(), Vector3(scale)),
-				},
-			.entityIdent =
-				{
-					.entityGUID = GIZMO_GUID_Y_AXIS,
-				},
-			.materialID	  = m_gizmoMaterialY->GetID(),
-			.pushEntity	  = true,
-			.pushMaterial = true,
-		};
-		const DrawCollector::CustomDrawInstance inst2 = {
-			.entity =
-				{
-					.model = Matrix4::TransformMatrix(avgPosition, Quaternion::AngleAxis(90, Vector3::Right), Vector3(scale)),
-				},
-			.entityIdent =
-				{
-					.entityGUID = GIZMO_GUID_Z_AXIS,
-				},
-			.materialID	  = m_gizmoMaterialZ->GetID(),
-			.pushEntity	  = true,
-			.pushMaterial = true,
-		};
-
-		Model*				   model	  = m_selectedGizmo == GizmoType::Move ? m_translateModel : m_scaleModel;
-		const PrimitiveStatic& prim		  = model->GetAllMeshes().at(0).primitivesStatic.at(0);
-		const uint32		   baseVertex = prim._vertexOffset;
-		const uint32		   baseIndex  = prim._indexOffset;
-		const uint32		   indexCount = static_cast<uint32>(prim.indices.size());
-		collector.CreateGroup("Gizmo");
-		collector.AddCustomDraw("Gizmo"_hs, inst0, m_gizmoShader->GetID(), 0, vtx, idx, sizeof(VertexStatic), baseVertex, indexCount, baseIndex);
-		collector.AddCustomDraw("Gizmo"_hs, inst1, m_gizmoShader->GetID(), 0, vtx, idx, sizeof(VertexStatic), baseVertex, indexCount, baseIndex);
-		collector.AddCustomDraw("Gizmo"_hs, inst2, m_gizmoShader->GetID(), 0, vtx, idx, sizeof(VertexStatic), baseVertex, indexCount, baseIndex);
+		// const Camera&  worldCam	 = m_world->GetWorldCamera();
+		// DrawCollector& collector = m_worldRenderer->GetDrawCollector();
+		//
+		// const Vector3& cameraPos = worldCam.GetPosition();
+		// const float	   scale	 = 1.0f;
+		//
+		// Buffer* vtx = &m_editor->GetApp()->GetGfxContext().GetMeshManagerDefault().GetVtxBufferStatic();
+		// Buffer* idx = &m_editor->GetApp()->GetGfxContext().GetMeshManagerDefault().GetIdxBufferStatic();
+		//
+		// const DrawCollector::CustomDrawInstance inst0 = {
+		// 	.entity =
+		// 		{
+		// 			.model = Matrix4::TransformMatrix(avgPosition, Quaternion::AngleAxis(90, Vector3::Forward), Vector3(scale)),
+		// 		},
+		// 	.entityIdent =
+		// 		{
+		// 			.entityGUID = GIZMO_GUID_X_AXIS,
+		// 		},
+		// 	.materialID	  = m_gizmoMaterialX->GetID(),
+		// 	.pushEntity	  = true,
+		// 	.pushMaterial = true,
+		// };
+		//
+		// const DrawCollector::CustomDrawInstance inst1 = {
+		// 	.entity =
+		// 		{
+		// 			.model = Matrix4::TransformMatrix(avgPosition, Quaternion::Identity(), Vector3(scale)),
+		// 		},
+		// 	.entityIdent =
+		// 		{
+		// 			.entityGUID = GIZMO_GUID_Y_AXIS,
+		// 		},
+		// 	.materialID	  = m_gizmoMaterialY->GetID(),
+		// 	.pushEntity	  = true,
+		// 	.pushMaterial = true,
+		// };
+		// const DrawCollector::CustomDrawInstance inst2 = {
+		// 	.entity =
+		// 		{
+		// 			.model = Matrix4::TransformMatrix(avgPosition, Quaternion::AngleAxis(90, Vector3::Right), Vector3(scale)),
+		// 		},
+		// 	.entityIdent =
+		// 		{
+		// 			.entityGUID = GIZMO_GUID_Z_AXIS,
+		// 		},
+		// 	.materialID	  = m_gizmoMaterialZ->GetID(),
+		// 	.pushEntity	  = true,
+		// 	.pushMaterial = true,
+		// };
+		//
+		// Model*				   model	  = m_selectedGizmo == GizmoType::Move ? m_translateModel : m_scaleModel;
+		// const PrimitiveStatic& prim		  = model->GetAllMeshes().at(0).primitivesStatic.at(0);
+		// const uint32		   baseVertex = prim._vertexOffset;
+		// const uint32		   baseIndex  = prim._indexOffset;
+		// const uint32		   indexCount = static_cast<uint32>(prim.indices.size());
+		// collector.CreateGroup("Gizmo");
+		// collector.AddCustomDraw("Gizmo"_hs, inst0, m_gizmoShader->GetID(), 0, vtx, idx, sizeof(VertexStatic), baseVertex, indexCount, baseIndex);
+		// collector.AddCustomDraw("Gizmo"_hs, inst1, m_gizmoShader->GetID(), 0, vtx, idx, sizeof(VertexStatic), baseVertex, indexCount, baseIndex);
+		// collector.AddCustomDraw("Gizmo"_hs, inst2, m_gizmoShader->GetID(), 0, vtx, idx, sizeof(VertexStatic), baseVertex, indexCount, baseIndex);
 	}
 
 	void GizmoRenderer::ProduceRotateGizmo(const Vector3& pos)
@@ -195,44 +190,44 @@ namespace Lina::Editor
 
 	void GizmoRenderer::ProduceGizmoAxisLine(const Vector3& pos, GizmoAxis axis, GizmoLocality locality)
 	{
-		DrawCollector& collector = m_worldRenderer->GetDrawCollector();
-		collector.CreateGroup("GizmoLines");
-
-		const float lineThickness = 0.2f;
-		const float lineExtent	  = 20.0f;
-
-		ShapeCollector& shapeCollector = collector.GetShapeCollector();
-		shapeCollector.Start3DBatch("GizmoLines"_hs, m_line3DShader);
-
-		Vector3	  startPos = Vector3::Zero;
-		Vector3	  endPos   = Vector3::Zero;
-		ColorGrad color	   = Color::White;
-
-		if (locality == GizmoLocality::World)
-		{
-			if (axis == GizmoAxis::X)
-			{
-				startPos = pos + Vector3::Right * lineExtent;
-				endPos	 = pos - Vector3::Right * lineExtent;
-				color	 = Theme::GetDef().accentPrimary2;
-			}
-			else if (axis == GizmoAxis::Y)
-			{
-				startPos = pos + Vector3::Up * lineExtent;
-				endPos	 = pos - Vector3::Up * lineExtent;
-				color	 = Theme::GetDef().accentSuccess;
-			}
-			else if (axis == GizmoAxis::Z)
-			{
-				startPos = pos + Vector3::Forward * lineExtent;
-				endPos	 = pos - Vector3::Forward * lineExtent;
-				color	 = Theme::GetDef().accentSecondary;
-			}
-		}
-
-		shapeCollector.DrawLine3D(startPos, endPos, lineThickness, color);
-
-		shapeCollector.End3DBatch();
+		// DrawCollector& collector = m_worldRenderer->GetDrawCollector();
+		// collector.CreateGroup("GizmoLines");
+		//
+		// const float lineThickness = 0.2f;
+		// const float lineExtent	  = 20.0f;
+		//
+		// ShapeCollector& shapeCollector = collector.GetShapeCollector();
+		// shapeCollector.Start3DBatch("GizmoLines"_hs, m_line3DShader);
+		//
+		// Vector3	  startPos = Vector3::Zero;
+		// Vector3	  endPos   = Vector3::Zero;
+		// ColorGrad color	   = Color::White;
+		//
+		// if (locality == GizmoLocality::World)
+		// {
+		// 	if (axis == GizmoAxis::X)
+		// 	{
+		// 		startPos = pos + Vector3::Right * lineExtent;
+		// 		endPos	 = pos - Vector3::Right * lineExtent;
+		// 		color	 = Theme::GetDef().accentPrimary2;
+		// 	}
+		// 	else if (axis == GizmoAxis::Y)
+		// 	{
+		// 		startPos = pos + Vector3::Up * lineExtent;
+		// 		endPos	 = pos - Vector3::Up * lineExtent;
+		// 		color	 = Theme::GetDef().accentSuccess;
+		// 	}
+		// 	else if (axis == GizmoAxis::Z)
+		// 	{
+		// 		startPos = pos + Vector3::Forward * lineExtent;
+		// 		endPos	 = pos - Vector3::Forward * lineExtent;
+		// 		color	 = Theme::GetDef().accentSecondary;
+		// 	}
+		// }
+		//
+		// shapeCollector.DrawLine3D(startPos, endPos, lineThickness, color);
+		//
+		// shapeCollector.End3DBatch();
 	}
 
 } // namespace Lina::Editor

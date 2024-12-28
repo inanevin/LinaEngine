@@ -79,19 +79,19 @@ namespace Lina::Editor
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = set,
 				.binding   = 1,
-				.buffers   = {m_wr->GetDrawCollector().GetInstanceDataBuffer(i).GetGPUResource()},
+				.buffers   = {m_wr->GetInstanceDataBuffer(i).GetGPUResource()},
 			});
 
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = set,
 				.binding   = 2,
-				.buffers   = {m_wr->GetDrawCollector().GetEntityDataBuffer(i).GetGPUResource()},
+				.buffers   = {m_wr->GetEntityDataBuffer(i).GetGPUResource()},
 			});
 
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = set,
 				.binding   = 3,
-				.buffers   = {m_wr->GetDrawCollector().GetBoneBuffer(i).GetGPUResource()},
+				.buffers   = {m_wr->GetBoneBuffer(i).GetGPUResource()},
 			});
 		}
 
@@ -189,23 +189,23 @@ namespace Lina::Editor
 		else if (entityIndex - 1 < m_lastEntityIDs.size())
 			m_lastHoveredEntityGPU = m_lastEntityIDs[entityIndex - 1];
 
-		m_entityBufferPass.Prepare(frameIndex, queue);
+		m_entityBufferPass.AddBuffersToUploadQueue(frameIndex, queue);
 	}
 
 	void MousePickRenderer::Tick(float delta, DrawCollector& collector)
 	{
-		collector.CreateGroup("MousePick");
-		DrawCollector::DrawGroup& group = collector.GetGroup("MousePick"_hs);
-
-		const DrawCollector::DrawGroup& deferredObjects = collector.GetGroup("Deferred"_hs);
-		const DrawCollector::DrawGroup& forwardObjects	= collector.GetGroup("Forward"_hs);
-
-		group.VariantOverride(deferredObjects, "StaticEntityID"_hs, "SkinnedEntityID"_hs);
-		group.VariantOverride(forwardObjects, "StaticEntityID"_hs, "SkinnedEntityID"_hs);
-		if (collector.GroupExists("Gizmo"_hs))
-		{
-			group.VariantOverride(collector.GetGroup("Gizmo"_hs), "StaticEntityID"_hs, 0);
-		}
+		// collector.CreateGroup("MousePick");
+		// DrawCollector::DrawGroup& group = collector.GetGroup("MousePick"_hs);
+		//
+		// const DrawCollector::DrawGroup& deferredObjects = collector.GetGroup("Deferred"_hs);
+		// const DrawCollector::DrawGroup& forwardObjects	= collector.GetGroup("Forward"_hs);
+		//
+		// group.VariantOverride(deferredObjects, "StaticEntityID"_hs, "SkinnedEntityID"_hs);
+		// group.VariantOverride(forwardObjects, "StaticEntityID"_hs, "SkinnedEntityID"_hs);
+		// if (collector.GroupExists("Gizmo"_hs))
+		// {
+		// 	group.VariantOverride(collector.GetGroup("Gizmo"_hs), "StaticEntityID"_hs, 0);
+		// }
 	}
 
 	void MousePickRenderer::Render(uint32 frameIndex, LinaGX::CommandStream* stream, DrawCollector& collector)
@@ -246,8 +246,8 @@ namespace Lina::Editor
 			m_entityBufferPass.Begin(stream, viewport, scissors, frameIndex);
 			m_entityBufferPass.BindDescriptors(stream, frameIndex, m_pipelineLayout, 1);
 
-			if (collector.RenderGroupExists("MousePick"_hs))
-				collector.RenderGroup("MousePick"_hs, stream);
+			// if (collector.RenderGroupExists("MousePick"_hs))
+			// 	collector.RenderGroup("MousePick"_hs, stream);
 
 			m_entityBufferPass.End(stream);
 
@@ -274,10 +274,10 @@ namespace Lina::Editor
 			copy->srcMip						   = 0;
 			copy->srcTexture					   = m_pfd[frameIndex].renderTarget->GetGPUHandle();
 
-			const Vector<DrawCollector::DrawEntity>& drawEntities = collector.GetRenderingData().entities;
-			m_lastEntityIDs.resize(drawEntities.size());
-			for (size_t i = 0; i < drawEntities.size(); i++)
-				m_lastEntityIDs[i] = drawEntities.at(i).ident.entityGUID;
+			// const Vector<DrawCollector::DrawEntity>& drawEntities = collector.GetRenderingData().entities;
+			// m_lastEntityIDs.resize(drawEntities.size());
+			// for (size_t i = 0; i < drawEntities.size(); i++)
+			// 	m_lastEntityIDs[i] = drawEntities.at(i).ident.entityGUID;
 
 			// To shader read
 			{

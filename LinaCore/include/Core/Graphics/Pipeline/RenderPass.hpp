@@ -60,18 +60,6 @@ namespace Lina
 	class RenderPass
 	{
 	public:
-		struct DrawInstance
-		{
-		};
-
-		struct DrawRequest
-		{
-		};
-
-		struct DrawData
-		{
-		};
-
 		struct InstancedDraw
 		{
 			Buffer* vertexBuffers[FRAMES_IN_FLIGHT];
@@ -112,7 +100,7 @@ namespace Lina
 
 		bool CopyBuffers(uint32 frameIndex, LinaGX::CommandStream* copyStream);
 		void SyncRender();
-		void Prepare(uint32 frameIndex, ResourceUploadQueue& queue);
+		void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue);
 		void Render(uint32 frameIndex, LinaGX::CommandStream* stream);
 
 		void SetColorAttachment(uint32 frameIndex, uint32 index, const LinaGX::RenderPassColorAttachment& att);
@@ -142,7 +130,7 @@ namespace Lina
 		View					  m_view   = {};
 		PerFrameData			  m_pfd[FRAMES_IN_FLIGHT];
 		HashMap<StringID, uint32> m_bufferIndices;
-		RenderingData			  m_renderingData = {};
-		RenderingData			  m_cpuData		  = {};
+		RenderingData			  m_gpuData = {};
+		RenderingData			  m_cpuData = {};
 	};
 } // namespace Lina

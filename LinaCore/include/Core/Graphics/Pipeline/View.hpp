@@ -33,11 +33,12 @@ SOFTWARE.
 
 namespace Lina
 {
+	class AABB;
 
 	class View
 	{
 	public:
-		void CalculateVisibility();
+		bool CalculateVisibility(const AABB& aabb);
 
 		inline void SetView(const Matrix4& view)
 		{

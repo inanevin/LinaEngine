@@ -430,7 +430,7 @@ namespace Lina::Editor
 
 		m_uploadQueue.AddBufferRequest(&currentFrame.guiIndexBuffer);
 		m_uploadQueue.AddBufferRequest(&currentFrame.guiVertexBuffer);
-		m_guiPass.Prepare(frameIndex, m_uploadQueue);
+		m_guiPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
 
 		if (m_uploadQueue.FlushAll(currentFrame.copyStream))
 		{

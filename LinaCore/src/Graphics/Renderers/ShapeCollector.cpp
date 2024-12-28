@@ -36,10 +36,9 @@ SOFTWARE.
 namespace Lina
 {
 
-	void ShapeCollector::Initialize(DrawCollector* dc, LinaGX::Instance* lgx)
+	void ShapeCollector::Initialize(LinaGX::Instance* lgx)
 	{
-		m_drawCollector = dc;
-		m_lgx			= lgx;
+		m_lgx = lgx;
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -137,18 +136,18 @@ namespace Lina
 		MEMCPY(m_cpuData.lvgVertices.data() + currentVtx, lvg->vertexBuffer.m_data, lvg->vertexBuffer.m_size * sizeof(LinaVG::Vertex));
 		MEMCPY(m_cpuData.lvgIndices.data() + currentIdx, lvg->indexBuffer.m_data, lvg->indexBuffer.m_size * sizeof(LinaVG::Index));
 
-		const DrawCollector::CustomDrawInstance inst = {
-			.entity = m_currentLvgEntity,
-			.entityIdent =
-				{
-					.entityGUID = m_currentLvgEntityGUID,
-				},
-			.pushEntity	  = true,
-			.pushMaterial = false,
-		};
-
-		const uint32 bufferIndex = (m_lgx->GetCurrentFrameIndex() + SystemInfo::GetRendererBehindFrames()) % FRAMES_IN_FLIGHT;
-		m_drawCollector->AddCustomDraw(m_currentLvgGroup, inst, m_currentLvgShader->GetID(), 0, &m_pfd[bufferIndex].lvgVtxBuffer, &m_pfd[bufferIndex].lvgIdxBuffer, sizeof(LinaVG::Vertex), baseVertex, indexCount, startIndex);
+		// const DrawCollector::CustomDrawInstance inst = {
+		// 	.entity = m_currentLvgEntity,
+		// 	.entityIdent =
+		// 		{
+		// 			.entityGUID = m_currentLvgEntityGUID,
+		// 		},
+		// 	.pushEntity	  = true,
+		// 	.pushMaterial = false,
+		// };
+		//
+		// const uint32 bufferIndex = (m_lgx->GetCurrentFrameIndex() + SystemInfo::GetRendererBehindFrames()) % FRAMES_IN_FLIGHT;
+		// m_drawCollector->AddCustomDraw(m_currentLvgGroup, inst, m_currentLvgShader->GetID(), 0, &m_pfd[bufferIndex].lvgVtxBuffer, &m_pfd[bufferIndex].lvgIdxBuffer, sizeof(LinaVG::Vertex), baseVertex, indexCount, startIndex);
 	}
 
 	void ShapeCollector::Start3DBatch(StringID groupId, Shader* shader)
@@ -161,19 +160,19 @@ namespace Lina
 
 	void ShapeCollector::End3DBatch()
 	{
-		const DrawCollector::CustomDrawInstance inst = {
-			.pushEntity	   = false,
-			.pushMaterial  = false,
-			.pushBoneIndex = false,
-		};
-
-		const uint32 indexCount = static_cast<uint32>(m_cpuData.line3DIndices.size()) - m_current3DBaseIndex;
-
-		if (indexCount == 0)
-			return;
-
-		const uint32 bufferIndex = (m_lgx->GetCurrentFrameIndex() + SystemInfo::GetRendererBehindFrames()) % FRAMES_IN_FLIGHT;
-		m_drawCollector->AddCustomDraw(m_current3DGroup, inst, m_current3DShader->GetID(), 0, &m_pfd[bufferIndex].line3DVtxBuffer, &m_pfd[bufferIndex].line3DIdxBuffer, sizeof(Line3DVertex), m_current3DBaseVertex, indexCount, m_current3DBaseIndex);
+		// const DrawCollector::CustomDrawInstance inst = {
+		// 	.pushEntity	   = false,
+		// 	.pushMaterial  = false,
+		// 	.pushBoneIndex = false,
+		// };
+		//
+		// const uint32 indexCount = static_cast<uint32>(m_cpuData.line3DIndices.size()) - m_current3DBaseIndex;
+		//
+		// if (indexCount == 0)
+		// 	return;
+		//
+		// const uint32 bufferIndex = (m_lgx->GetCurrentFrameIndex() + SystemInfo::GetRendererBehindFrames()) % FRAMES_IN_FLIGHT;
+		// m_drawCollector->AddCustomDraw(m_current3DGroup, inst, m_current3DShader->GetID(), 0, &m_pfd[bufferIndex].line3DVtxBuffer, &m_pfd[bufferIndex].line3DIdxBuffer, sizeof(Line3DVertex), m_current3DBaseVertex, indexCount, m_current3DBaseIndex);
 	}
 
 	void ShapeCollector::DrawLine3D(const Vector3& p1, const Vector3& p2, float thickness, const ColorGrad& color)

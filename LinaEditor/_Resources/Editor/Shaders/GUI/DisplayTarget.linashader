@@ -75,7 +75,7 @@ struct LinaGUIMaterial
 
 layout( push_constant ) uniform constants
 {
-	uint materialIndex;
+	uint argument1;
 } PushConstants;
 
 LinaGUIMaterial GetMaterial(uint index)
@@ -93,7 +93,7 @@ LinaGUIMaterial GetMaterial(uint index)
 
 void main()
 {
-   LinaGUIMaterial material = GetMaterial(PushConstants.materialIndex);
+   LinaGUIMaterial material = GetMaterial(PushConstants.argument1);
    vec4 color = inCol;
    vec2 uv = inUV * material.uvTilingAndOffset.rg + material.uvTilingAndOffset.ba;
    outFragColor = texture(sampler2D(LINA_TEXTURES[material.diffuse.txt], LINA_SAMPLERS[material.diffuse.smp]), uv);

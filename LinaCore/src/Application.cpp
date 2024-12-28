@@ -139,14 +139,20 @@ namespace Lina
 			m_worldProcessor.Tick(static_cast<float>(delta));
 			GetAppDelegate()->Tick(static_cast<float>(delta));
 			m_appDelegate->SyncRender();
+
+			s_lgx->StartFrame();
 			Render();
+			s_lgx->EndFrame();
 		}
 		else
 		{
+			s_lgx->StartFrame();
 			auto renderJob = m_executor.Async([this]() { Render(); });
 			m_worldProcessor.Tick(static_cast<float>(delta));
 			GetAppDelegate()->Tick(static_cast<float>(delta));
 			renderJob.get();
+			s_lgx->EndFrame();
+
 			m_appDelegate->SyncRender();
 		}
 
@@ -225,13 +231,10 @@ namespace Lina
 	void Application::Render()
 	{
 		const uint32 frameIndex = s_lgx->GetCurrentFrameIndex();
-		s_lgx->StartFrame();
 
 		m_gfxContext.UpdateBindless(s_lgx->GetCurrentFrameIndex());
 		m_gfxContext.PollUploads(frameIndex);
 		m_appDelegate->Render(frameIndex);
-
-		s_lgx->EndFrame();
 	}
 
 	void Application::CalculateTime()

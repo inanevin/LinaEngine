@@ -87,18 +87,18 @@ namespace Lina::Editor
 		m_displayTextureDropdown->GetFlags().Set(WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_SIZE_ALIGN_Y);
 		m_displayTextureDropdown->SetAlignedPosY(0.0f);
 		m_displayTextureDropdown->SetAlignedSizeY(1.0f);
-		m_displayTextureDropdown->SetFixedSizeX(Theme::GetDef().baseItemHeight * 4);
+		m_displayTextureDropdown->SetFixedSizeX(Theme::GetDef().baseItemHeight * 8);
 		topToolbar->AddChild(m_displayTextureDropdown);
 
 		SetDisplayTextureTitle();
 		m_displayTextureDropdown->GetProps().onAddItems = [this](Popup* popup) {
-			popup->AddToggleItem("World", m_currentDisplayTexture == DisplayTexture::WorldResult, 0);
-			popup->AddToggleItem("GBuf0", m_currentDisplayTexture == DisplayTexture::WorldGBuf0, 1);
-			popup->AddToggleItem("GBuf1", m_currentDisplayTexture == DisplayTexture::WorldGBuf1, 2);
-			popup->AddToggleItem("GBuf2", m_currentDisplayTexture == DisplayTexture::WorldGBuf2, 3);
-			popup->AddToggleItem("GBufDepth", m_currentDisplayTexture == DisplayTexture::WorldDepth, 4);
-			popup->AddToggleItem("Outline", m_currentDisplayTexture == DisplayTexture::OutlinePass, 5);
-			popup->AddToggleItem("EntityID", m_currentDisplayTexture == DisplayTexture::EntityIDPass, 6);
+			popup->AddToggleItem("Final Composition", m_currentDisplayTexture == DisplayTexture::WorldFinal, 0);
+			popup->AddToggleItem("GBuffer 0", m_currentDisplayTexture == DisplayTexture::WorldGBuf0, 1);
+			popup->AddToggleItem("GBuffer 1", m_currentDisplayTexture == DisplayTexture::WorldGBuf1, 2);
+			popup->AddToggleItem("GBuffer 2", m_currentDisplayTexture == DisplayTexture::WorldGBuf2, 3);
+			popup->AddToggleItem("GBuffer 3", m_currentDisplayTexture == DisplayTexture::WorldDepth, 4);
+			popup->AddToggleItem("World Output", m_currentDisplayTexture == DisplayTexture::WorldResult, 5);
+			popup->AddToggleItem("Editor Outline", m_currentDisplayTexture == DisplayTexture::OutlinePass, 6);
 		};
 
 		m_displayTextureDropdown->GetProps().onSelected = [this](int32 idx, String& outTitle) -> bool {
@@ -191,7 +191,7 @@ namespace Lina::Editor
 		const uint32 txtFrameIndex = (frameIndex + SystemInfo::GetRendererBehindFrames()) % 2;
 		Texture*	 target		   = nullptr;
 
-		if (m_currentDisplayTexture == DisplayTexture::WorldResult)
+		if (m_currentDisplayTexture == DisplayTexture::WorldFinal)
 			target = m_ewr->GetRenderTarget(txtFrameIndex);
 		else if (m_currentDisplayTexture == DisplayTexture::WorldGBuf0)
 			target = m_worldRenderer->GetGBufAlbedo(txtFrameIndex);
@@ -201,10 +201,10 @@ namespace Lina::Editor
 			target = m_worldRenderer->GetGBufNormal(txtFrameIndex);
 		else if (m_currentDisplayTexture == DisplayTexture::WorldDepth)
 			target = m_worldRenderer->GetGBufDepth(txtFrameIndex);
+		else if (m_currentDisplayTexture == DisplayTexture::WorldResult)
+			target = m_worldRenderer->GetLightingPassOutput(txtFrameIndex);
 		else if (m_currentDisplayTexture == DisplayTexture::OutlinePass)
 			target = m_ewr->GetOutlineRenderer().GetRenderTarget(txtFrameIndex);
-		else if (m_currentDisplayTexture == DisplayTexture::EntityIDPass)
-			target = m_ewr->GetMousePick().GetRenderTarget(txtFrameIndex);
 
 		GetWidgetProps().rawTexture = target;
 	}
@@ -432,20 +432,20 @@ namespace Lina::Editor
 
 	void WorldDisplayer::SetDisplayTextureTitle()
 	{
-		if (m_currentDisplayTexture == DisplayTexture::WorldResult)
-			m_displayTextureDropdown->GetText()->UpdateTextAndCalcSize("World");
+		if (m_currentDisplayTexture == DisplayTexture::WorldFinal)
+			m_displayTextureDropdown->GetText()->UpdateTextAndCalcSize("Final Composition");
 		else if (m_currentDisplayTexture == DisplayTexture::WorldGBuf0)
-			m_displayTextureDropdown->GetText()->UpdateTextAndCalcSize("GBuf0");
+			m_displayTextureDropdown->GetText()->UpdateTextAndCalcSize("GBuffer 0");
 		else if (m_currentDisplayTexture == DisplayTexture::WorldGBuf1)
-			m_displayTextureDropdown->GetText()->UpdateTextAndCalcSize("GBuf1");
+			m_displayTextureDropdown->GetText()->UpdateTextAndCalcSize("GBuffer 1");
 		else if (m_currentDisplayTexture == DisplayTexture::WorldGBuf2)
-			m_displayTextureDropdown->GetText()->UpdateTextAndCalcSize("GBuf2");
+			m_displayTextureDropdown->GetText()->UpdateTextAndCalcSize("GBuffer 2");
 		else if (m_currentDisplayTexture == DisplayTexture::WorldDepth)
-			m_displayTextureDropdown->GetText()->UpdateTextAndCalcSize("GBufDepth");
+			m_displayTextureDropdown->GetText()->UpdateTextAndCalcSize("GBuffer Depth");
+		else if (m_currentDisplayTexture == DisplayTexture::WorldResult)
+			m_displayTextureDropdown->GetText()->UpdateTextAndCalcSize("World Output");
 		else if (m_currentDisplayTexture == DisplayTexture::OutlinePass)
-			m_displayTextureDropdown->GetText()->UpdateTextAndCalcSize("Outline");
-		else if (m_currentDisplayTexture == DisplayTexture::EntityIDPass)
-			m_displayTextureDropdown->GetText()->UpdateTextAndCalcSize("EntityID");
+			m_displayTextureDropdown->GetText()->UpdateTextAndCalcSize("Editor Outline");
 	}
 
 	void WorldDisplayer::HandleGizmoControls()

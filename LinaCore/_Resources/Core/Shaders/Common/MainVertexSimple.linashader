@@ -35,7 +35,7 @@ struct LinaVertexOutput
 
 layout( push_constant ) uniform constants
 {
-	uint pushConstantValue0;
+	uint value0;
 } PushConstants;
 
 //##user_shader_injected_here

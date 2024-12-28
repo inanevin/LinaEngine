@@ -143,7 +143,7 @@ namespace Lina
 		DeferredSurface,
 		ForwardSurface,
 		Sky,
-		Custom
+		Custom,
 	};
 
 	enum class ShaderPropertyType
@@ -200,5 +200,7 @@ namespace Lina
 			stream >> name >> sid >> type;
 		}
 	};
+
+	class Texture;
 
 } // namespace Lina

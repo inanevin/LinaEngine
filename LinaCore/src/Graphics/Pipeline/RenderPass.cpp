@@ -123,7 +123,7 @@ namespace Lina
 		m_cpuData.drawCalls.push_back(draw);
 	}
 
-	void RenderPass::Prepare(uint32 frameIndex, ResourceUploadQueue& queue)
+	void RenderPass::AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue)
 	{
 		auto& pfd = m_pfd[frameIndex];
 		for (auto& buffer : pfd.buffers)
@@ -157,7 +157,7 @@ namespace Lina
 
 		bool scissorsWasSet = false;
 
-		for (const InstancedDraw& draw : m_renderingData.drawCalls)
+		for (const InstancedDraw& draw : m_gpuData.drawCalls)
 		{
 			checkPipeline(draw.shaderHandle);
 
@@ -232,7 +232,7 @@ namespace Lina
 
 	void RenderPass::SyncRender()
 	{
-		m_renderingData = m_cpuData;
+		m_gpuData = m_cpuData;
 		m_cpuData.drawCalls.resize(0);
 	}
 
