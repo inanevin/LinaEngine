@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Common/Math/Matrix.hpp"
 #include "Common/Data/CommonData.hpp"
 #include "Core/Resources/CommonResources.hpp"
+#include "Core/World/CommonWorld.hpp"
 
 namespace Lina
 {
@@ -146,6 +147,25 @@ namespace Lina
 		Vector3 nextPosition;
 		Vector4 color;
 		float	direction;
+	};
+
+	struct EntityIdent
+	{
+		EntityID entityGUID = 0;
+		uint32	 uniqueID2	= 0;
+		uint32	 uniqueID3	= 0;
+		uint32	 uniqueID4	= 0;
+
+		bool operator==(const EntityIdent& other) const
+		{
+			return entityGUID == other.entityGUID && uniqueID2 == other.uniqueID2 && uniqueID3 == other.uniqueID3 && uniqueID4 == other.uniqueID4;
+		}
+	};
+
+	struct DrawEntity
+	{
+		GPUEntity	entity;
+		EntityIdent ident;
 	};
 
 } // namespace Lina

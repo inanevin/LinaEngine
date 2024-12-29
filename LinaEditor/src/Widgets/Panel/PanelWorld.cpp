@@ -56,8 +56,7 @@ namespace Lina::Editor
 		m_worldDisplayer->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		m_worldDisplayer->SetAlignedPos(Vector2::Zero);
 		m_worldDisplayer->SetAlignedSize(Vector2::One);
-		m_worldDisplayer->GetProps().noWorldText	   = Locale::GetStr(LocaleStr::NoWorldInstalled);
-		m_worldDisplayer->GetProps().enableDragAndDrop = true;
+		m_worldDisplayer->GetProps().noWorldText = Locale::GetStr(LocaleStr::NoWorldInstalled);
 
 		AddChild(m_worldDisplayer);
 	}

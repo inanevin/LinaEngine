@@ -31,7 +31,7 @@ SOFTWARE.
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Editor/Widgets/Panel/PanelWorld.hpp"
-#include "Editor/Widgets/World/WorldDisplayer.hpp"
+#include "Editor/Widgets/World/WorldController.hpp"
 #include "Core/Application.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
@@ -49,20 +49,20 @@ namespace Lina::Editor
 	{
 	}
 
-	void EditorWorldManager::AddWorldDisplayer(WorldDisplayer* owner)
+	void EditorWorldManager::AddWorldController(WorldController* owner)
 	{
-		m_worldDisplayers.push_back(owner);
+		m_worldControllers.push_back(owner);
 	}
 
-	void EditorWorldManager::RemoveWorldDisplayer(WorldDisplayer* owner)
+	void EditorWorldManager::RemoveWorldController(WorldController* owner)
 	{
-		m_worldDisplayers.erase(linatl::find(m_worldDisplayers.begin(), m_worldDisplayers.end(), owner));
+		m_worldControllers.erase(linatl::find(m_worldControllers.begin(), m_worldControllers.end(), owner));
 	}
 
-	WorldDisplayer* EditorWorldManager::FindWorldDisplayer(uint64 id)
+	WorldController* EditorWorldManager::FindWorldController(uint64 id)
 	{
-		auto tl = linatl::find_if(m_worldDisplayers.begin(), m_worldDisplayers.end(), [id](WorldDisplayer* disp) -> bool { return disp->GetWorldID() == id; });
-		if (tl == m_worldDisplayers.end())
+		auto tl = linatl::find_if(m_worldControllers.begin(), m_worldControllers.end(), [id](WorldController* disp) -> bool { return disp->GetWorldID() == id; });
+		if (tl == m_worldControllers.end())
 			return nullptr;
 		return *tl;
 	}

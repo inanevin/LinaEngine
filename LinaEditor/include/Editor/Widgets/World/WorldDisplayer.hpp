@@ -30,92 +30,39 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Editor/PayloadListener.hpp"
-#include "Editor/World/CommonEditorWorld.hpp"
 #include "Editor/Graphics/EditorGfxHelpers.hpp"
-#include "Core/World/EntityWorld.hpp"
 
 namespace Lina
 {
 	class WorldRenderer;
-	class Font;
 	class Text;
-	class Dropdown;
 } // namespace Lina
 
 namespace Lina::Editor
 {
-	class EditorCamera;
-	class OrbitCamera;
 	class EditorWorldRenderer;
 	class Editor;
+	class WorldController;
+	enum class WorldCameraType;
 
-	class WorldDisplayer : public Widget, public EntityWorldListener, public EditorPayloadListener
+	class WorldDisplayer : public Widget
 	{
-	private:
-		struct GizmoControls
-		{
-			GizmoType	  selectedGizmo = GizmoType::Move;
-			GizmoAxis	  hoveredAxis	= GizmoAxis::None;
-			GizmoAxis	  pressedAxis	= GizmoAxis::None;
-			GizmoLocality gizmoLocality = GizmoLocality::World;
-			GizmoSnapping gizmoSnapping = GizmoSnapping::Free;
-		};
-
-		enum class DisplayTexture
-		{
-			WorldFinal,
-			WorldGBuf0,
-			WorldGBuf1,
-			WorldGBuf2,
-			WorldDepth,
-			WorldResult,
-			OutlinePass,
-		};
 
 	public:
 		struct Properties
 		{
-			String noWorldText		 = "";
-			bool   enableDragAndDrop = false;
+			String noWorldText = "";
 		};
 
 		WorldDisplayer() : Widget(WF_CONTROLLABLE){};
 		virtual ~WorldDisplayer() = default;
 
-		virtual void			Construct() override;
-		virtual void			Initialize() override;
-		virtual void			Destruct() override;
-		virtual void			PreTick() override;
-		virtual void			Tick(float dt) override;
-		virtual void			Draw() override;
-		virtual void			OnPayloadStarted(PayloadType type, Widget* payload) override;
-		virtual void			OnPayloadEnded(PayloadType type, Widget* payload) override;
-		virtual bool			OnPayloadDropped(PayloadType type, Widget* payload) override;
-		virtual LinaGX::Window* OnPayloadGetWindow() override
-		{
-			return m_lgxWindow;
-		}
-		void		 DisplayWorld(WorldRenderer* renderer, EditorWorldRenderer* ewr, WorldCameraType cameraType);
-		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
-		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act) override;
+		virtual void Construct() override;
+		virtual void Initialize() override;
+		virtual void PreTick() override;
+		virtual void Tick(float dt) override;
 
-		// World
-		virtual void OnWorldTick(float delta, PlayMode playmode) override;
-		ResourceID	 GetWorldID();
-		void		 SelectEntity(Entity* e, bool clearOthers);
-		void		 SelectEntity(EntityID guid, bool clearOthers);
-		void		 OnEntitySelectionChanged();
-		void		 OnActionEntitySelection(const Vector<EntityID>& selection);
-
-		// Gizmos
-		void SelectGizmo(GizmoType gizmo);
-		void SelectGizmoLocality(GizmoLocality locality);
-		void SelectGizmoSnap(GizmoSnapping snapping);
-
-		inline EditorCamera* GetWorldCamera()
-		{
-			return m_camera;
-		}
+		void DisplayWorld(WorldRenderer* renderer, EditorWorldRenderer* ewr, WorldCameraType cameraType);
 
 		inline Properties& GetProps()
 		{
@@ -123,29 +70,17 @@ namespace Lina::Editor
 		}
 
 	private:
-		void SetDisplayTextureTitle();
-		void HandleGizmoControls();
-		void DestroyCamera();
-		void DrawAxis(const Vector3& targetAxis, const Color& baseColor, const String& axis);
+		WorldController*	 m_worldController = nullptr;
+		EditorWorldRenderer* m_ewr			   = nullptr;
+		WorldRenderer*		 m_wr			   = nullptr;
 
-	private:
-		GizmoControls m_gizmoControls;
-
-		Dropdown*	   m_displayTextureDropdown = nullptr;
-		DisplayTexture m_currentDisplayTexture	= DisplayTexture::WorldFinal;
-
-		Vector<Entity*>		 m_selectedEntities;
-		Editor*				 m_editor		 = nullptr;
-		EditorWorldRenderer* m_ewr			 = nullptr;
-		Properties			 m_props		 = {};
-		Text*				 m_noWorldText	 = nullptr;
-		WorldRenderer*		 m_worldRenderer = nullptr;
-		EditorCamera*		 m_camera		 = nullptr;
-		Font*				 m_gizmoFont	 = nullptr;
-		GUIUserData			 m_guiUserData	 = {
-					   .specialType = GUISpecialType::DisplayTarget,
-					   .mipLevel	= 0,
-		   };
+		Editor*		m_editor	  = nullptr;
+		Properties	m_props		  = {};
+		Text*		m_noWorldText = nullptr;
+		GUIUserData m_guiUserData = {
+			.specialType = GUISpecialType::DisplayTarget,
+			.mipLevel	 = 0,
+		};
 	};
 
 	LINA_WIDGET_BEGIN(WorldDisplayer, Hidden)

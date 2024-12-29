@@ -59,7 +59,7 @@ namespace Lina::Editor
 #define DEBUG_LABEL_END(Stream)
 #endif
 
-	EditorWorldRenderer::EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr) : m_gizmoRenderer(editor, wr, &m_pass), m_mousePickRenderer(editor, wr), m_outlineRenderer(editor, wr, &m_pass)
+	EditorWorldRenderer::EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr) : m_mousePickRenderer(editor, wr), m_gizmoRenderer(editor, wr, &m_pass, &m_mousePickRenderer), m_outlineRenderer(editor, wr, &m_pass)
 	{
 		m_editor = editor;
 		m_lgx	 = lgx;
@@ -123,8 +123,6 @@ namespace Lina::Editor
 			.maxLod		= 10.0f,
 			.mipLodBias = 0.0f,
 		});
-
-		m_gizmoRenderer.SetMousePickRenderer(&m_mousePickRenderer);
 
 		OnWorldRendererCreateSizeRelative();
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
@@ -205,49 +203,14 @@ namespace Lina::Editor
 		}
 
 		m_outlineRenderer.Tick(delta);
+		m_mousePickRenderer.Tick(delta);
 		m_gizmoRenderer.Tick(delta);
-
-		// drawCollector.CreateGroup("EditorWorld");
-		//
-		// drawCollector.AddCustomDrawRaw("EditorWorld"_hs,
-		// 							   {
-		// 								   .pushEntity	  = false,
-		// 								   .pushMaterial  = false,
-		// 								   .pushBoneIndex = false,
-		// 							   },
-		// 							   m_worldSampleShader->GetID(),
-		// 							   0,
-		// 							   0,
-		// 							   3);
-		// drawCollector.AddCustomDrawRaw("EditorWorld"_hs,
-		// 							   {
-		// 								   .pushEntity	  = false,
-		// 								   .pushMaterial  = false,
-		// 								   .pushBoneIndex = false,
-		// 							   },
-		// 							   m_worldDepthSampleShader->GetID(),
-		// 							   0,
-		// 							   0,
-		// 							   3);
-		//
-		// // Grid
-		// {
-		// 	const DrawCollector::CustomDrawInstance gridInstance = {
-		// 		.materialID	   = m_gridMaterial->GetID(),
-		// 		.pushEntity	   = false,
-		// 		.pushMaterial  = true,
-		// 		.pushBoneIndex = false,
-		// 	};
-		// 	drawCollector.AddCustomDrawRaw("EditorWorld"_hs, gridInstance, m_gridShader->GetID(), 0, 0, 6);
-		// }
-		// m_mousePickRenderer.Tick(delta, drawCollector);
-		//
 	}
 
 	void EditorWorldRenderer::SyncRender()
 	{
 		m_outlineRenderer.SyncRender();
-		// m_mousePickRenderer.SyncRender();
+		m_mousePickRenderer.SyncRender();
 		m_pass.SyncRender();
 	}
 
@@ -277,7 +240,7 @@ namespace Lina::Editor
 			m_pass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(EditorWorldPassViewData));
 		}
 
-		// m_mousePickRenderer.AddBuffersToUploadQueue(frameIndex, queue);
+		m_mousePickRenderer.AddBuffersToUploadQueue(frameIndex, queue);
 		m_outlineRenderer.AddBuffersToUploadQueue(frameIndex, queue);
 
 		m_pass.AddBuffersToUploadQueue(frameIndex, queue);
@@ -324,13 +287,6 @@ namespace Lina::Editor
 		m_pass.BindDescriptors(gfxStream, frameIndex, m_pipelineLayout, 1);
 		m_pass.Render(frameIndex, gfxStream);
 
-		// if (drawCollector.RenderGroupExists("EditorWorld"_hs))
-		// 	drawCollector.RenderGroup("EditorWorld"_hs, gfxStream);
-
-		// m_outlineRenderer.RenderFullscreen(drawCollector, gfxStream);
-
-		// m_gizmoRenderer.Render(drawCollector, gfxStream);
-
 		m_pass.End(gfxStream);
 
 		{
@@ -344,7 +300,7 @@ namespace Lina::Editor
 
 		DEBUG_LABEL_END(gfxStream);
 
-		// m_mousePickRenderer.Render(frameIndex, gfxStream, drawCollector);
+		m_mousePickRenderer.Render(frameIndex, gfxStream);
 	}
 
 	void EditorWorldRenderer::OnWorldRendererCreateSizeRelative()
@@ -443,7 +399,6 @@ namespace Lina::Editor
 	void EditorWorldRenderer::SetSelectedEntities(const Vector<Entity*>& selected)
 	{
 		m_selectedEntities = selected;
-		m_gizmoRenderer.SetSelectedEntities(selected);
 		m_outlineRenderer.SetSelectedEntities(selected);
 	}
 

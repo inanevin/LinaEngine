@@ -40,11 +40,15 @@ namespace Lina
 
 	Vector3 Camera::WorldToScreen(const Camera& camera, const Vector3& point, const Vector2& screenSize)
 	{
-		Vector4 clipSpace		  = camera.GetViewProj() * Vector4(point.x, point.y, point.z, 1.0f);
+		Vector4 clipSpace = camera.GetViewProj() * Vector4(point.x, point.y, point.z, 1.0f);
+
+		// if (clipSpace.w == 0.0f)
+		//	return Vector3(0, 0, 0);
+
 		clipSpace.w				  = Math::Abs(clipSpace.w);
 		const Vector3 ndc		  = Vector3(clipSpace.x / clipSpace.w, clipSpace.y / clipSpace.w, clipSpace.z / clipSpace.w);
 		const Vector3 screenSpace = ndc * 0.5f + Vector3(0.5f);
-		return Vector3(screenSpace.x * screenSize.x, (1.0f - screenSpace.y) * screenSize.y, screenSpace.z);
+		return Vector3(screenSpace.x * screenSize.x, (1.0f - screenSpace.y) * screenSize.y, ndc.z);
 	}
 
 	Vector3 Camera::ScreenToWorld(const Camera& camera, const Vector2& screenPoint, const Vector2& screenSize, float nonLinearDepth)
@@ -58,6 +62,9 @@ namespace Lina
 		// Transform clip space to world space
 		Vector4 worldSpace = camera.GetViewProj().Inverse() * clipSpace;
 
+		if (worldSpace.w == 0.0f)
+			return Vector3(0, 0, 0);
+
 		// Perform perspective divide
 		return Vector3(worldSpace.x, worldSpace.y, worldSpace.z) / worldSpace.w;
 	}
@@ -69,5 +76,6 @@ namespace Lina
 		m_view					  = rot * translation;
 		m_projection			  = Matrix4::Perspective(m_fovDegrees / 2, static_cast<float>(sz.x) / static_cast<float>(sz.y), m_zNear, m_zFar);
 		m_viewProj				  = m_projection * m_view;
+		m_viewProjInv			  = m_viewProj.Inverse();
 	}
 } // namespace Lina

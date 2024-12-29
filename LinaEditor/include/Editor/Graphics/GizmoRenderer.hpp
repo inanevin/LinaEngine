@@ -55,54 +55,35 @@ namespace Lina::Editor
 	class GizmoRenderer
 	{
 	public:
-		GizmoRenderer(Editor* editor, WorldRenderer* wr, RenderPass* targetPass);
+		struct GizmoSettings
+		{
+			bool		  draw				= false;
+			GizmoMode	  type				= GizmoMode::Move;
+			GizmoAxis	  axis				= GizmoAxis::None;
+			GizmoAxis	  hoveredAxis		= GizmoAxis::None;
+			GizmoAxis	  lineVisualizeAxis = GizmoAxis::None;
+			GizmoLocality locality			= GizmoLocality::World;
+			Vector3		  position			= Vector3::Zero;
+			Quaternion	  rotation			= Quaternion::Identity();
+			GizmoSnapping snapping			= GizmoSnapping::Free;
+		};
+
+		GizmoRenderer(Editor* editor, WorldRenderer* wr, RenderPass* targetPass, MousePickRenderer* mpr);
 		virtual ~GizmoRenderer();
 
 		void Tick(float delta);
 
-		inline void SetMousePickRenderer(MousePickRenderer* mpr)
+		inline GizmoSettings& GetSettings()
 		{
-			m_mpr = mpr;
-		}
-
-		inline void SetSelectedEntities(const Vector<Entity*>& entities)
-		{
-			m_selectedEntities = entities;
-		}
-
-		inline void SetHoveredAxis(GizmoAxis hoveredAxis)
-		{
-			m_hoveredAxis = hoveredAxis;
-		}
-
-		inline void SetSelectedGizmo(GizmoType gizmo)
-		{
-			m_selectedGizmo = gizmo;
-		}
-
-		inline void SetPressedAxis(GizmoAxis axis)
-		{
-			m_pressedAxis = axis;
-		}
-
-		inline void SetGizmoLocality(GizmoLocality locality)
-		{
-			m_gizmoLocality = locality;
+			return m_gizmoSettings;
 		}
 
 	private:
-		void DrawGizmoMoveScale(const Vector3& pos);
-		void DrawGizmoRotate(const Vector3& pos);
-		void DrawGizmoAxisLine(const Vector3& pos, GizmoAxis axis, GizmoLocality locality);
+		void DrawGizmoMoveScale(RenderPass* pass, StringID variant, float shaderScale = 1.0f);
+		void DrawGizmoRotate(RenderPass* pass, StringID variant, float shaderScale = 1.0f);
+		void DrawGizmoAxisLine(RenderPass* pass, GizmoAxis axis);
 
 	private:
-		GizmoType	  m_selectedGizmo	= GizmoType::Move;
-		GizmoAxis	  m_hoveredAxis		= GizmoAxis::None;
-		GizmoAxis	  m_lastHoveredAxis = GizmoAxis::None;
-		GizmoAxis	  m_pressedAxis		= GizmoAxis::None;
-		GizmoLocality m_gizmoLocality	= GizmoLocality::World;
-
-		MousePickRenderer* m_mpr		   = nullptr;
 		Editor*			   m_editor		   = nullptr;
 		WorldRenderer*	   m_worldRenderer = nullptr;
 		ResourceManagerV2* m_rm			   = nullptr;
@@ -112,12 +93,14 @@ namespace Lina::Editor
 		Model* m_scaleModel		= nullptr;
 		Model* m_rotateModel	= nullptr;
 
-		Vector<Entity*> m_selectedEntities = {};
-		Material*		m_gizmoMaterialX   = nullptr;
-		Material*		m_gizmoMaterialY   = nullptr;
-		Material*		m_gizmoMaterialZ   = nullptr;
-		Shader*			m_gizmoShader	   = nullptr;
-		Shader*			m_line3DShader	   = nullptr;
-		RenderPass*		m_targetPass	   = nullptr;
+		Material*		   m_gizmoMaterialX	   = nullptr;
+		Material*		   m_gizmoMaterialY	   = nullptr;
+		Material*		   m_gizmoMaterialZ	   = nullptr;
+		Shader*			   m_gizmoShader	   = nullptr;
+		Shader*			   m_line3DShader	   = nullptr;
+		RenderPass*		   m_targetPass		   = nullptr;
+		MousePickRenderer* m_mousePickRenderer = nullptr;
+		GizmoSettings	   m_gizmoSettings	   = {};
+		GizmoAxis		   m_lastHoveredAxis   = GizmoAxis::None;
 	};
 } // namespace Lina::Editor

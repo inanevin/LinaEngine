@@ -207,7 +207,6 @@ namespace Lina::Editor
 
 	void OutlineSelectionRenderer::Tick(float delta)
 	{
-		m_cpuData.drawValid = !m_selectedEntities.empty();
 		if (m_selectedEntities.empty())
 			return;
 
@@ -220,7 +219,6 @@ namespace Lina::Editor
 			if (it != compModels.end())
 				compModelsToCollect.push_back(*it);
 		}
-
 		DrawCollector::CollectCompModels(compModelsToCollect, m_outlinePass, m_rm, m_wr, &m_editor->GetApp()->GetGfxContext(), {.useVariantOverride = true, .staticVariantOverride = "StaticOutline"_hs, .skinnedVariantOverride = "SkinnedOutline"_hs});
 
 		const uint32 frameIndex	   = Application::GetLGX()->GetCurrentFrameIndex();
@@ -240,7 +238,7 @@ namespace Lina::Editor
 
 	void OutlineSelectionRenderer::Render(uint32 frameIndex, LinaGX::CommandStream* stream)
 	{
-		if (!m_gpuData.drawValid)
+		if (m_outlinePass.GetDrawCallsGPU().empty())
 			return;
 
 		PerFrameData& pfd = m_pfd[frameIndex];

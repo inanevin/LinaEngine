@@ -98,6 +98,7 @@ include/Editor/Widgets/FX/ColorWheel.hpp
 include/Editor/Widgets/FX/ProgressCircleFill.hpp
 include/Editor/Widgets/Layout/ItemController.hpp
 include/Editor/Widgets/World/WorldDisplayer.hpp
+include/Editor/Widgets/World/WorldController.hpp
 
 # World
 include/Editor/World/EditorCamera.hpp
@@ -189,6 +190,7 @@ src/Widgets/FX/ColorWheel.cpp
 src/Widgets/FX/ProgressCircleFill.cpp
 src/Widgets/Layout/ItemController.cpp
 src/Widgets/World/WorldDisplayer.cpp
+src/Widgets/World/WorldController.cpp
 
 # World
 src/World/EditorCamera.cpp

@@ -80,25 +80,6 @@ namespace Lina
 		};
 
 	public:
-		struct EntityIdent
-		{
-			EntityID entityGUID = 0;
-			uint32	 uniqueID2	= 0;
-			uint32	 uniqueID3	= 0;
-			uint32	 uniqueID4	= 0;
-
-			bool operator==(const EntityIdent& other) const
-			{
-				return entityGUID == other.entityGUID && uniqueID2 == other.uniqueID2 && uniqueID3 == other.uniqueID3 && uniqueID4 == other.uniqueID4;
-			}
-		};
-
-		struct DrawEntity
-		{
-			GPUEntity	entity;
-			EntityIdent ident;
-		};
-
 		struct DrawData
 		{
 			Vector<DrawEntity>		 entities;
@@ -237,6 +218,11 @@ namespace Lina
 		inline const Vector<CompModel*>& GetCompModels() const
 		{
 			return m_compModels;
+		}
+
+		inline const Vector<DrawEntity>& GetEntitiesGPU() const
+		{
+			return m_gpuDrawData.entities;
 		}
 
 	private:

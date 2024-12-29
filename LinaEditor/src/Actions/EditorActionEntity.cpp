@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Editor/Actions/EditorActionEntity.hpp"
 #include "Editor/Editor.hpp"
-#include "Editor/Widgets/World/WorldDisplayer.hpp"
+#include "Editor/Widgets/World/WorldController.hpp"
 #include "Core/World/Entity.hpp"
 
 namespace Lina::Editor
@@ -54,17 +54,17 @@ namespace Lina::Editor
 
 	void EditorActionEntitySelection::Execute(Editor* editor, ExecType type)
 	{
-		WorldDisplayer* displayer = editor->GetWorldManager().FindWorldDisplayer(m_worldId);
-		if (!displayer)
+		WorldController* controller = editor->GetWorldManager().FindWorldController(m_worldId);
+		if (!controller)
 			return;
 
 		if (type == ExecType::Undo)
 		{
-			displayer->OnActionEntitySelection(m_prevSelected);
+			controller->OnActionEntitySelection(m_prevSelected);
 		}
 		else if (type == ExecType::Redo)
 		{
-			displayer->OnActionEntitySelection(m_selected);
+			controller->OnActionEntitySelection(m_selected);
 		}
 	}
 

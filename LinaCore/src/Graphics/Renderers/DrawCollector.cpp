@@ -204,7 +204,7 @@ namespace Lina
 						 .model = inst.comp->GetEntity()->GetTransform().ToMatrix() * node.transform.ToLocalMatrix(),
 				 };
 
-				const WorldRenderer::EntityIdent ident = {
+				const EntityIdent ident = {
 					.entityGUID = inst.comp->GetEntity()->GetGUID(),
 					.uniqueID2	= static_cast<uint32>(inst.nodeIndex),
 				};

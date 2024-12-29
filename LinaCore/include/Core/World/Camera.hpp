@@ -107,6 +107,11 @@ namespace Lina
 			return m_viewProj;
 		}
 
+		inline const Matrix4& GetInvViewProj() const
+		{
+			return m_viewProjInv;
+		}
+
 	private:
 		Vector3	   m_worldPosition = Vector3::Zero;
 		Quaternion m_worldRotation = Quaternion::Identity();
@@ -116,5 +121,6 @@ namespace Lina
 		Matrix4	   m_projection	   = Matrix4::Identity();
 		Matrix4	   m_view		   = Matrix4::Identity();
 		Matrix4	   m_viewProj	   = Matrix4::Identity();
+		Matrix4	   m_viewProjInv   = Matrix4::Identity();
 	};
 } // namespace Lina

@@ -125,6 +125,11 @@ namespace Lina
 			return m_view;
 		}
 
+		inline const Vector<InstancedDraw>& GetDrawCallsGPU() const
+		{
+			return m_gpuData.drawCalls;
+		}
+
 	private:
 		LinaGX::Window*			  m_window = nullptr;
 		View					  m_view   = {};

@@ -39,22 +39,22 @@ namespace Lina
 namespace Lina::Editor
 {
 	class Editor;
-	class WorldDisplayer;
+	class WorldController;
 
 	class EditorWorldManager
 	{
 	public:
-		void			Initialize(Editor* editor);
-		void			Shutdown();
-		void			AddWorldDisplayer(WorldDisplayer* owner);
-		void			RemoveWorldDisplayer(WorldDisplayer* owner);
-		WorldDisplayer* FindWorldDisplayer(uint64 id);
+		void			 Initialize(Editor* editor);
+		void			 Shutdown();
+		void			 AddWorldController(WorldController* owner);
+		void			 RemoveWorldController(WorldController* owner);
+		WorldController* FindWorldController(uint64 id);
 
 		void OpenWorld(ResourceID id);
 
 	private:
-		Editor*					m_editor = nullptr;
-		Vector<WorldDisplayer*> m_worldDisplayers;
+		Editor*					 m_editor = nullptr;
+		Vector<WorldController*> m_worldControllers;
 	};
 
 } // namespace Lina::Editor

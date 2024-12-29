@@ -64,7 +64,6 @@ namespace Lina::Editor
 
 		struct DrawData
 		{
-			bool drawValid = false;
 		};
 
 	public:

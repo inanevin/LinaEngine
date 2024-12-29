@@ -119,9 +119,9 @@ namespace Lina::Editor
 		Editor*					 m_editor		  = nullptr;
 		uint16					 m_pipelineLayout = 0;
 		PerFrameData			 m_pfd[FRAMES_IN_FLIGHT];
-		GizmoRenderer			 m_gizmoRenderer;
 		MousePickRenderer		 m_mousePickRenderer;
 		OutlineSelectionRenderer m_outlineRenderer;
+		GizmoRenderer			 m_gizmoRenderer;
 
 		Shader*			m_gridShader			 = nullptr;
 		Shader*			m_worldSampleShader		 = nullptr;

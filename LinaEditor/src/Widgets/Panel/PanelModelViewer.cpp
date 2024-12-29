@@ -253,6 +253,7 @@ namespace Lina::Editor
 		m_compModel		= m_world->GetComponent<CompModel>(m_displayEntity);
 		m_compModel->GetAnimationController().SelectAnimation(m_displayAnimation);
 		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {}, m_resourceSpace);
+		m_displayEntity->SetRotationAngles(Vector3(45, 123, 96));
 		//
 		// Entity* caps  = WorldUtility::AddModelToWorld(m_world, rm.GetIfExists<Model>(EDITOR_MODEL_CAPSULE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
 		// Entity* caps2 = WorldUtility::AddModelToWorld(m_world, rm.GetIfExists<Model>(EDITOR_MODEL_CAPSULE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});

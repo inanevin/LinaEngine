@@ -354,6 +354,9 @@ namespace Lina
 
 	Vector2 Vector2::Normalized() const
 	{
+		if (IsZero())
+			return Vector2::Zero;
+
 		glm::vec2 norm = glm::normalize(glm::vec2(*this));
 		return norm;
 	}
@@ -381,6 +384,11 @@ namespace Lina
 	bool Vector2::Equals(const Vector2& other, float epsilon) const
 	{
 		return Math::Equals(x, other.x, epsilon) && Math::Equals(y, other.y, epsilon);
+	}
+
+	bool Vector2::IsZero(float marg) const
+	{
+		return Math::Equals(x, 0.0f, marg) && Math::Equals(x, 0.0f, marg);
 	}
 
 	float Vector2::Dot(const Vector2& other) const

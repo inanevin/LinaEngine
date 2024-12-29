@@ -224,6 +224,7 @@ namespace Lina
 		Vector2 Reflect(const Vector2& normal) const;
 		Vector2 Refract(const Vector2& normal, float indexOfRefraction) const;
 		bool	Equals(const Vector2& other, float epsilon) const;
+		bool	IsZero(float marg = 0.0001f) const;
 		float	Dot(const Vector2& other) const;
 		float	Distance(const Vector2& other) const;
 		float	Magnitude() const;

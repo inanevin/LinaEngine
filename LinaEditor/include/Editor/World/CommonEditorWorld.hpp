@@ -38,11 +38,14 @@ namespace Lina::Editor
 #define GIZMO_GUID_Y_AXIS GIZMO_GUID_START + 2
 #define GIZMO_GUID_Z_AXIS GIZMO_GUID_START + 3
 
-	enum class GizmoType
+	enum class GizmoMode
 	{
 		Move,
+		MoveFocused,
 		Rotate,
-		Scale
+		RotateFocused,
+		Scale,
+		ScaleFocused,
 	};
 
 	enum class GizmoLocality
@@ -70,4 +73,5 @@ namespace Lina::Editor
 		Y,
 		Z
 	};
+
 } // namespace Lina::Editor

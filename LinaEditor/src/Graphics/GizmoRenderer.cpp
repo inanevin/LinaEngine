@@ -44,15 +44,16 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-	GizmoRenderer::GizmoRenderer(Editor* editor, WorldRenderer* wr, RenderPass* pass)
+	GizmoRenderer::GizmoRenderer(Editor* editor, WorldRenderer* wr, RenderPass* pass, MousePickRenderer* mpr)
 	{
-		m_editor		= editor;
-		m_worldRenderer = wr;
-		m_rm			= &m_editor->GetApp()->GetResourceManager();
-		m_gizmoShader	= m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_GIZMO_ID);
-		m_line3DShader	= m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_LINE3D_ID);
-		m_world			= m_worldRenderer->GetWorld();
-		m_targetPass	= pass;
+		m_editor			= editor;
+		m_worldRenderer		= wr;
+		m_rm				= &m_editor->GetApp()->GetResourceManager();
+		m_gizmoShader		= m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_GIZMO_ID);
+		m_line3DShader		= m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_LINE3D_ID);
+		m_world				= m_worldRenderer->GetWorld();
+		m_targetPass		= pass;
+		m_mousePickRenderer = mpr;
 
 		m_gizmoMaterialX = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material X");
 		m_gizmoMaterialY = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material Y");
@@ -83,140 +84,134 @@ namespace Lina::Editor
 
 	void GizmoRenderer::Tick(float delta)
 	{
-		if (m_lastHoveredAxis != m_hoveredAxis)
+		if (!m_gizmoSettings.draw)
+			return;
+
+		if (m_lastHoveredAxis != m_gizmoSettings.hoveredAxis)
 		{
-			m_lastHoveredAxis  = m_hoveredAxis;
+			m_lastHoveredAxis  = m_gizmoSettings.hoveredAxis;
 			const Color xColor = Theme::GetDef().accentPrimary2;
 			const Color yColor = Theme::GetDef().accentSuccess;
 			const Color zColor = Theme::GetDef().accentSecondary;
-			m_gizmoMaterialX->SetProperty("color"_hs, m_hoveredAxis == GizmoAxis::X ? Vector4(xColor.Brighten(0.5f)) : Vector4(xColor));
-			m_gizmoMaterialY->SetProperty("color"_hs, m_hoveredAxis == GizmoAxis::Y ? Vector4(yColor.Brighten(0.5f)) : Vector4(yColor));
-			m_gizmoMaterialZ->SetProperty("color"_hs, m_hoveredAxis == GizmoAxis::Z ? Vector4(zColor.Brighten(0.5f)) : Vector4(zColor));
+			m_gizmoMaterialX->SetProperty("color"_hs, m_gizmoSettings.hoveredAxis == GizmoAxis::X ? Vector4(xColor.Brighten(0.5f)) : Vector4(xColor));
+			m_gizmoMaterialY->SetProperty("color"_hs, m_gizmoSettings.hoveredAxis == GizmoAxis::Y ? Vector4(yColor.Brighten(0.5f)) : Vector4(yColor));
+			m_gizmoMaterialZ->SetProperty("color"_hs, m_gizmoSettings.hoveredAxis == GizmoAxis::Z ? Vector4(zColor.Brighten(0.5f)) : Vector4(zColor));
 			m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 		}
 
-		if (m_selectedEntities.empty())
-			return;
-
-		Vector3 avgPosition = Vector3::Zero;
-
-		for (Entity* e : m_selectedEntities)
-			avgPosition += e->GetPosition();
-
-		avgPosition /= static_cast<float>(m_selectedEntities.size());
-
-		if (m_selectedGizmo != GizmoType::Rotate)
-			DrawGizmoMoveScale(avgPosition);
+		if (m_gizmoSettings.type != GizmoMode::Rotate)
+		{
+			DrawGizmoMoveScale(m_targetPass, 0);
+			DrawGizmoMoveScale(&m_mousePickRenderer->GetRenderPass(), "StaticEntityID"_hs, 2);
+		}
 		else
 		{
-			DrawGizmoRotate(avgPosition);
+			DrawGizmoRotate(m_targetPass, 0);
+			DrawGizmoRotate(&m_mousePickRenderer->GetRenderPass(), "StaticEntityID"_hs, 2);
 		}
 
-		if (m_pressedAxis != GizmoAxis::None)
+		if (m_gizmoSettings.lineVisualizeAxis != GizmoAxis::None)
 		{
-			DrawGizmoAxisLine(avgPosition, m_pressedAxis, m_gizmoLocality);
+			DrawGizmoAxisLine(m_targetPass, m_gizmoSettings.lineVisualizeAxis);
 		}
 	}
 
-	void GizmoRenderer::DrawGizmoMoveScale(const Vector3& avgPosition)
+	void GizmoRenderer::DrawGizmoMoveScale(RenderPass* pass, StringID variant, float shaderScale)
 	{
-		Model*				   model	  = m_selectedGizmo == GizmoType::Move ? m_translateModel : m_scaleModel;
+		Model*				   model	  = m_gizmoSettings.type == GizmoMode::Move ? m_translateModel : m_scaleModel;
 		const PrimitiveStatic& prim		  = model->GetAllMeshes().at(0).primitivesStatic.at(0);
 		const uint32		   baseVertex = prim._vertexOffset;
 		const uint32		   baseIndex  = prim._indexOffset;
 		const uint32		   indexCount = static_cast<uint32>(prim.indices.size());
 
 		const GPUEntity axisX = {
-			.model = Matrix4::TransformMatrix(avgPosition, Quaternion::AngleAxis(90, Vector3::Forward), Vector3::One),
+			.model = Matrix4::TransformMatrix(m_gizmoSettings.position, Quaternion::LookAt(Vector3::Zero, m_gizmoSettings.rotation.GetRight(), m_gizmoSettings.rotation.GetUp()), Vector3::One),
 		};
 
 		const GPUEntity axisY = {
-			.model = Matrix4::TransformMatrix(avgPosition, Quaternion::Identity(), Vector3::One),
+			.model = Matrix4::TransformMatrix(m_gizmoSettings.position, Quaternion::LookAt(Vector3::Zero, m_gizmoSettings.rotation.GetUp(), m_gizmoSettings.rotation.GetForward()), Vector3::One),
 		};
 
 		const GPUEntity axisZ = {
-			.model = Matrix4::TransformMatrix(avgPosition, Quaternion::AngleAxis(90, Vector3::Right), Vector3::One),
+			.model = Matrix4::TransformMatrix(m_gizmoSettings.position, Quaternion::LookAt(Vector3::Zero, m_gizmoSettings.rotation.GetForward(), m_gizmoSettings.rotation.GetUp()), Vector3::One),
 		};
-
 		const GPUDrawArguments argsX = {
 			.constant0 = m_worldRenderer->PushEntity(axisX, {.entityGUID = GIZMO_GUID_X_AXIS}),
 			.constant1 = m_gizmoMaterialX->GetBindlessIndex(),
+			.constant3 = static_cast<uint32>(shaderScale), // scale
 		};
 
 		const GPUDrawArguments argsY = {
 			.constant0 = m_worldRenderer->PushEntity(axisY, {.entityGUID = GIZMO_GUID_Y_AXIS}),
 			.constant1 = m_gizmoMaterialY->GetBindlessIndex(),
+			.constant3 = static_cast<uint32>(shaderScale), // scale
 		};
 
 		const GPUDrawArguments argsZ = {
 			.constant0 = m_worldRenderer->PushEntity(axisZ, {.entityGUID = GIZMO_GUID_Z_AXIS}),
 			.constant1 = m_gizmoMaterialZ->GetBindlessIndex(),
+			.constant3 = static_cast<uint32>(shaderScale), // scale
 		};
 
 		const uint32 pc = m_worldRenderer->PushArgument(argsX);
 		m_worldRenderer->PushArgument(argsY);
 		m_worldRenderer->PushArgument(argsZ);
-
 		Buffer*							vtx	 = &m_editor->GetApp()->GetGfxContext().GetMeshManagerDefault().GetVtxBufferStatic();
 		Buffer*							idx	 = &m_editor->GetApp()->GetGfxContext().GetMeshManagerDefault().GetIdxBufferStatic();
 		const RenderPass::InstancedDraw draw = {
 			.vertexBuffers = {vtx, vtx},
 			.indexBuffers  = {idx, idx},
 			.vertexSize	   = sizeof(VertexStatic),
-			.shaderHandle  = m_gizmoShader->GetGPUHandle(),
+			.shaderHandle  = variant == 0 ? m_gizmoShader->GetGPUHandle() : m_gizmoShader->GetGPUHandle(variant),
 			.baseVertex	   = baseVertex,
 			.baseIndex	   = baseIndex,
 			.indexCount	   = indexCount,
 			.instanceCount = 3,
 			.pushConstant  = pc,
 		};
-		m_targetPass->AddDrawCall(draw);
+		pass->AddDrawCall(draw);
 	}
 
-	void GizmoRenderer::DrawGizmoRotate(const Vector3& pos)
+	void GizmoRenderer::DrawGizmoRotate(RenderPass* pass, StringID variant, float shaderScale)
 	{
 	}
 
-	void GizmoRenderer::DrawGizmoAxisLine(const Vector3& pos, GizmoAxis axis, GizmoLocality locality)
+	void GizmoRenderer::DrawGizmoAxisLine(RenderPass* pass, GizmoAxis axis)
 	{
-		// DrawCollector& collector = m_worldRenderer->GetDrawCollector();
-		// collector.CreateGroup("GizmoLines");
-		//
-		// const float lineThickness = 0.2f;
-		// const float lineExtent	  = 20.0f;
-		//
-		// ShapeCollector& shapeCollector = collector.GetShapeCollector();
-		// shapeCollector.Start3DBatch("GizmoLines"_hs, m_line3DShader);
-		//
-		// Vector3	  startPos = Vector3::Zero;
-		// Vector3	  endPos   = Vector3::Zero;
-		// ColorGrad color	   = Color::White;
-		//
-		// if (locality == GizmoLocality::World)
-		// {
-		// 	if (axis == GizmoAxis::X)
-		// 	{
-		// 		startPos = pos + Vector3::Right * lineExtent;
-		// 		endPos	 = pos - Vector3::Right * lineExtent;
-		// 		color	 = Theme::GetDef().accentPrimary2;
-		// 	}
-		// 	else if (axis == GizmoAxis::Y)
-		// 	{
-		// 		startPos = pos + Vector3::Up * lineExtent;
-		// 		endPos	 = pos - Vector3::Up * lineExtent;
-		// 		color	 = Theme::GetDef().accentSuccess;
-		// 	}
-		// 	else if (axis == GizmoAxis::Z)
-		// 	{
-		// 		startPos = pos + Vector3::Forward * lineExtent;
-		// 		endPos	 = pos - Vector3::Forward * lineExtent;
-		// 		color	 = Theme::GetDef().accentSecondary;
-		// 	}
-		// }
-		//
-		// shapeCollector.DrawLine3D(startPos, endPos, lineThickness, color);
-		//
-		// shapeCollector.End3DBatch();
+		const float lineThickness = 0.2f;
+		const float lineExtent	  = 20.0f;
+
+		Vector3	  startPos = Vector3::Zero;
+		Vector3	  endPos   = Vector3::Zero;
+		ColorGrad color	   = Color::White;
+
+		const Vector3 pos = m_gizmoSettings.position;
+
+		if (m_gizmoSettings.locality == GizmoLocality::World)
+		{
+			if (axis == GizmoAxis::X)
+			{
+				startPos = pos + Vector3::Right * lineExtent;
+				endPos	 = pos - Vector3::Right * lineExtent;
+				color	 = Theme::GetDef().accentPrimary2;
+			}
+			else if (axis == GizmoAxis::Y)
+			{
+				startPos = pos + Vector3::Up * lineExtent;
+				endPos	 = pos - Vector3::Up * lineExtent;
+				color	 = Theme::GetDef().accentSuccess;
+			}
+			else if (axis == GizmoAxis::Z)
+			{
+				startPos = pos + Vector3::Forward * lineExtent;
+				endPos	 = pos - Vector3::Forward * lineExtent;
+				color	 = Theme::GetDef().accentSecondary;
+			}
+		}
+
+		m_worldRenderer->StartLine3DBatch();
+		m_worldRenderer->DrawLine3D(startPos, endPos, lineThickness, color);
+		m_worldRenderer->EndLine3DBatch(*pass, 0, m_line3DShader->GetGPUHandle());
 	}
 
 } // namespace Lina::Editor

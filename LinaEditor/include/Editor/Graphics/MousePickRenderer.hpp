@@ -54,7 +54,12 @@ namespace Lina::Editor
 
 	class MousePickRenderer
 	{
-	public:
+	private:
+		struct DrawData
+		{
+			EntityID lastHoveredEntityID = 0;
+		};
+
 		struct PerFrameData
 		{
 			Texture* depthTarget  = nullptr;
@@ -62,24 +67,30 @@ namespace Lina::Editor
 			Buffer	 snapshotBuffer;
 		};
 
+	public:
 		MousePickRenderer(Editor* editor, WorldRenderer* wr);
 		virtual ~MousePickRenderer();
 
 		void DestroySizeRelativeResources();
 		void CreateSizeRelativeResources();
 		void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue);
-		void Tick(float delta, DrawCollector& collector);
-		void Render(uint32 frameIndex, LinaGX::CommandStream* stream, DrawCollector& collector);
+		void Tick(float delta);
+		void Render(uint32 frameIndex, LinaGX::CommandStream* stream);
 		void SyncRender();
 
 		inline EntityID GetLastHoveredEntity() const
 		{
-			return m_lastHoveredEntityCPU;
+			return m_cpuData.lastHoveredEntityID;
 		}
 
 		inline Texture* GetRenderTarget(uint32 frameIndex) const
 		{
 			return m_pfd[frameIndex].renderTarget;
+		}
+
+		inline RenderPass& GetRenderPass()
+		{
+			return m_entityBufferPass;
 		}
 
 	private:
@@ -91,10 +102,10 @@ namespace Lina::Editor
 
 		RenderPass		 m_entityBufferPass;
 		PerFrameData	 m_pfd[FRAMES_IN_FLIGHT];
-		uint16			 m_pipelineLayout		= 0;
-		Vector2ui		 m_size					= Vector2ui::Zero;
-		EntityID		 m_lastHoveredEntityGPU = 0;
-		EntityID		 m_lastHoveredEntityCPU = 0;
+		uint16			 m_pipelineLayout = 0;
+		Vector2ui		 m_size			  = Vector2ui::Zero;
 		Vector<EntityID> m_lastEntityIDs;
+		DrawData		 m_cpuData = {};
+		DrawData		 m_gpuData = {};
 	};
 } // namespace Lina::Editor

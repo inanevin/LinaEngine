@@ -78,7 +78,7 @@ namespace Lina::Editor
 			Vector3 targetPoint	  = Vector3::Zero;
 			float	startDistance = 5.0f;
 			float	minDistance	  = 1.0f;
-			float	maxDistance	  = 24.0f;
+			float	maxDistance	  = 120.0f;
 		};
 
 		OrbitCamera(EntityWorld* world);
