@@ -70,6 +70,9 @@ namespace Lina::Editor
 			Vector3		  position			= Vector3::Zero;
 			Quaternion	  rotation			= Quaternion::Identity();
 			GizmoSnapping snapping			= GizmoSnapping::Free;
+			Vector3		  rotationAxis		= Vector3::Zero;
+			float		  angle0			= 0.0f;
+			float		  angle1			= 0.0f;
 		};
 
 		GizmoRenderer(Editor* editor, WorldRenderer* wr, RenderPass* targetPass, MousePickRenderer* mpr);
@@ -83,9 +86,11 @@ namespace Lina::Editor
 		}
 
 	private:
-		void DrawGizmoMoveScale(RenderPass* pass, StringID variant, float shaderScale = 1.0f);
-		void DrawGizmoRotate(RenderPass* pass, StringID variant, float shaderScale = 1.0f);
-		void DrawGizmoAxisLine(RenderPass* pass, GizmoAxis axis);
+		Color GetColorFromAxis(GizmoAxis axis);
+		void  DrawGizmoMoveScale(RenderPass* pass, StringID variant, float shaderScale = 1.0f);
+		void  DrawGizmoRotate(RenderPass* pass, StringID variant, float shaderScale = 1.0f);
+		void  DrawGizmoAxisLine(RenderPass* pass, GizmoAxis axis);
+		void  DrawGizmoRotateLVG(RenderPass* pass, float shaderScale = 1.0f);
 
 	private:
 		Editor*			   m_editor		   = nullptr;
@@ -96,14 +101,17 @@ namespace Lina::Editor
 		Model* m_translateModel	 = nullptr;
 		Model* m_scaleModel		 = nullptr;
 		Model* m_rotateModel	 = nullptr;
+		Model* m_rotateFullModel = nullptr;
 		Model* m_centerTranslate = nullptr;
 		Model* m_centerScale	 = nullptr;
 
+		Material*		   m_gizmoRotateMaterial = nullptr;
 		Material*		   m_gizmoMaterialCenter = nullptr;
 		Material*		   m_gizmoMaterialX		 = nullptr;
 		Material*		   m_gizmoMaterialY		 = nullptr;
 		Material*		   m_gizmoMaterialZ		 = nullptr;
 		Shader*			   m_gizmoShader		 = nullptr;
+		Shader*			   m_gizmoRotateShader	 = nullptr;
 		Shader*			   m_line3DShader		 = nullptr;
 		Shader*			   m_lvgShader			 = nullptr;
 		RenderPass*		   m_targetPass			 = nullptr;

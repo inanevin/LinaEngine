@@ -72,6 +72,7 @@ namespace Lina::Editor
 			Vector2				   pressedGizmoPositionScreen = Vector2::Zero;
 			Vector2				   pressedMouseDelta		  = Vector2::Zero;
 			Vector2				   pressedMousePosition		  = Vector2::Zero;
+			Vector2				   currentMousePosition		  = Vector2::Zero;
 			Vector<Transformation> pressedEntityTransforms	  = {};
 
 			Vector3 targetAxisWorld	 = Vector3::Zero;

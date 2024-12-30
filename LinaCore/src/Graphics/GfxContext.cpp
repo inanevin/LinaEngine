@@ -117,7 +117,7 @@ namespace Lina
 
 	void GfxContext::MarkBindlessDirty()
 	{
-		m_bindlessDirty = true;
+		m_bindlessDirty.store(true);
 	}
 
 	void GfxContext::PrepareBindless()
@@ -125,7 +125,7 @@ namespace Lina
 		if (!m_bindlessDirty)
 			return;
 
-		m_bindlessDirty = false;
+		m_bindlessDirty.store(false);
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 			m_pfd[i].bindlessDirty = true;

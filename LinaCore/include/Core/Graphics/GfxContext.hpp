@@ -121,6 +121,6 @@ namespace Lina
 		Vector<Texture*>		m_nextTextureUpdates;
 		Vector<TextureSampler*> m_nextSamplerUpdates;
 		Vector<Material*>		m_nextMaterialUpdates;
-		bool					m_bindlessDirty = false;
+		Atomic<bool>			m_bindlessDirty = false;
 	};
 } // namespace Lina

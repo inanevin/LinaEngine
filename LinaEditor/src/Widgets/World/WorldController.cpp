@@ -280,6 +280,7 @@ namespace Lina::Editor
 				m_gizmoControls.pressedGizmoPositionScreen = GetStartFromMargins() + inScreen.XY();
 				m_gizmoControls.pressedMouseDelta		   = (m_lgxWindow->GetMousePosition() - GetStartFromMargins()) - inScreen.XY();
 				m_gizmoControls.pressedMousePosition	   = m_lgxWindow->GetMousePosition();
+				m_gizmoControls.currentMousePosition	   = m_lgxWindow->GetMousePosition();
 
 				const size_t sz = m_selectedEntities.size();
 				m_gizmoControls.pressedEntityTransforms.resize(sz);
@@ -466,7 +467,6 @@ namespace Lina::Editor
 				hoveredAxis = GizmoAxis::Center;
 			else
 				hoveredAxis == GizmoAxis::None;
-
 			m_gizmoControls.hoveredAxis = hoveredAxis;
 		}
 
@@ -628,15 +628,13 @@ namespace Lina::Editor
 		}
 		else if (m_gizmoControls.type == GizmoMode::Rotate)
 		{
-			const GizmoLocality locality	 = m_selectedEntities.size() > 1 ? GizmoLocality::World : m_gizmoControls.locality;
-			const Camera&		camera		 = m_world->GetWorldCamera();
-			Vector3				hitPoint0	 = Vector3::Zero;
-			bool				rayHit0		 = false;
-			float				hitDistance0 = 0.0f;
+			const GizmoLocality locality = m_selectedEntities.size() > 1 ? GizmoLocality::World : m_gizmoControls.locality;
+			const Camera&		camera	 = m_world->GetWorldCamera();
 
-			const Vector2 pressedDir = m_gizmoControls.pressedMousePosition - m_gizmoControls.pressedGizmoPositionScreen;
-			const Vector2 mouseDir	 = m_lgxWindow->GetMousePosition() - m_gizmoControls.pressedGizmoPositionScreen;
-			float		  deltaAngle = mouseDir.Normalized().Angle(pressedDir.Normalized());
+			const Vector2 pressedDir = (m_gizmoControls.pressedMousePosition - m_gizmoControls.pressedGizmoPositionScreen).Normalized();
+			const Vector2 currentDir = (m_gizmoControls.currentMousePosition - m_gizmoControls.pressedGizmoPositionScreen).Normalized();
+			const Vector2 mouseDir	 = (m_lgxWindow->GetMousePosition() - m_gizmoControls.pressedGizmoPositionScreen).Normalized();
+			float		  deltaAngle = mouseDir.Angle(currentDir);
 			const Vector3 worldDir	 = camera.GetPosition() - m_gizmoControls.averagePosition;
 
 			if (deltaAngle > 90)
@@ -663,7 +661,11 @@ namespace Lina::Editor
 				deltaAngle *= dot > 0.0f ? -1.0f : 1.0f;
 			}
 
-			m_gizmoControls.pressedMousePosition = m_lgxWindow->GetMousePosition();
+			rendererSettings.rotationAxis = axis;
+			rendererSettings.angle0		  = pressedDir.Angle(Vector2(1, 0));
+			rendererSettings.angle1		  = mouseDir.Angle(Vector2(1, 0));
+
+			m_gizmoControls.currentMousePosition = m_lgxWindow->GetMousePosition();
 
 			const size_t sz = m_selectedEntities.size();
 

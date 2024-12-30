@@ -50,6 +50,7 @@ namespace Lina::Editor
 		m_worldRenderer		= wr;
 		m_rm				= &m_editor->GetApp()->GetResourceManager();
 		m_gizmoShader		= m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_GIZMO_ID);
+		m_gizmoRotateShader = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_GIZMO_ROTATE_ID);
 		m_line3DShader		= m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_LINE3D_ID);
 		m_lvgShader			= m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_LVG3D_ID);
 		m_world				= m_worldRenderer->GetWorld();
@@ -60,12 +61,14 @@ namespace Lina::Editor
 		m_gizmoMaterialX	  = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material X");
 		m_gizmoMaterialY	  = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material Y");
 		m_gizmoMaterialZ	  = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material Z");
+		m_gizmoRotateMaterial = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Rotate Material");
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 
 		m_gizmoMaterialCenter->SetShader(m_gizmoShader);
 		m_gizmoMaterialX->SetShader(m_gizmoShader);
 		m_gizmoMaterialY->SetShader(m_gizmoShader);
 		m_gizmoMaterialZ->SetShader(m_gizmoShader);
+		m_gizmoRotateMaterial->SetShader(m_gizmoRotateShader);
 
 		m_gizmoMaterialCenter->SetProperty("color"_hs, Vector4(Theme::GetDef().foreground0));
 		m_gizmoMaterialX->SetProperty("color"_hs, Vector4(Theme::GetDef().accentPrimary2));
@@ -74,6 +77,7 @@ namespace Lina::Editor
 
 		m_translateModel  = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_TRANSLATE_ID);
 		m_rotateModel	  = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_ROTATE_ID);
+		m_rotateFullModel = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_ROTATE_FULL_ID);
 		m_scaleModel	  = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_SCALE_ID);
 		m_centerTranslate = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_TRANSLATE_CENTER_ID);
 		m_centerScale	  = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_SCALE_CENTER_ID);
@@ -115,11 +119,14 @@ namespace Lina::Editor
 		}
 		else
 		{
-
 			if (m_gizmoSettings.focusedAxis == GizmoAxis::None)
 			{
 				DrawGizmoRotate(m_targetPass, 0);
 				DrawGizmoRotate(&m_mousePickRenderer->GetRenderPass(), "StaticEntityID"_hs, 1);
+			}
+			else
+			{
+				DrawGizmoRotateFocus(m_targetPass);
 			}
 		}
 
@@ -127,6 +134,17 @@ namespace Lina::Editor
 		{
 			DrawGizmoAxisLine(m_targetPass, m_gizmoSettings.lineVisualizeAxis);
 		}
+	}
+
+	Color GizmoRenderer::GetColorFromAxis(GizmoAxis axis)
+	{
+		if (axis == GizmoAxis::X)
+			return Theme::GetDef().accentPrimary2.AsLVG4();
+		else if (axis == GizmoAxis::Y)
+			return Theme::GetDef().accentSuccess.AsLVG4();
+		if (axis == GizmoAxis::Z)
+			return Theme::GetDef().accentSecondary.AsLVG4();
+		return Color::White;
 	}
 
 	void GizmoRenderer::DrawGizmoMoveScale(RenderPass* pass, StringID variant, float shaderScale)
@@ -245,7 +263,6 @@ namespace Lina::Editor
 											  Quaternion::LookAt(Vector3::Zero, -m_gizmoSettings.rotation.GetForward() * (dotR > 0.0f ? -1.0f : 1.0f) * (dotU > 0.0f ? 1.0f : -1.0f), m_gizmoSettings.rotation.GetUp() * (dotU > 0.0f ? 1.0f : -1.0f)),
 											  Vector3::One * 2),
 		};
-
 		const GPUDrawArguments argsX = {
 			.constant0 = m_worldRenderer->PushEntity(axisX, {.entityGUID = GIZMO_GUID_X_AXIS}),
 			.constant1 = m_gizmoMaterialX->GetBindlessIndex(),
@@ -320,6 +337,57 @@ namespace Lina::Editor
 		m_worldRenderer->StartLine3DBatch();
 		m_worldRenderer->DrawLine3D(startPos, endPos, lineThickness, color);
 		m_worldRenderer->EndLine3DBatch(*pass, 0, m_line3DShader->GetGPUHandle());
+	}
+
+	void GizmoRenderer::DrawGizmoRotateFocus(RenderPass* pass, float shaderScale)
+	{
+		Camera& cam = m_world->GetWorldCamera();
+
+		{
+			m_worldRenderer->StartLine3DBatch();
+			m_worldRenderer->DrawLine3D(m_gizmoSettings.position + m_gizmoSettings.rotationAxis * -cam.GetZFar() * 0.5f, m_gizmoSettings.position + m_gizmoSettings.rotationAxis * cam.GetZFar() * 0.5f, 0.08f, GetColorFromAxis(m_gizmoSettings.focusedAxis));
+			m_worldRenderer->EndLine3DBatch(*pass, 0, m_line3DShader->GetGPUHandle());
+		}
+
+		m_worldRenderer->StartLinaVGBatch();
+
+		Model*				   model	  = m_rotateFullModel;
+		const PrimitiveStatic& prim		  = model->GetAllMeshes().at(0).primitivesStatic.at(0);
+		const uint32		   baseVertex = prim._vertexOffset;
+		const uint32		   baseIndex  = prim._indexOffset;
+		const uint32		   indexCount = static_cast<uint32>(prim.indices.size());
+
+		const GPUEntity e = {
+			.model = Matrix4::TransformMatrix(m_gizmoSettings.position, Quaternion::Identity(), Vector3(2.0f)),
+		};
+
+		m_gizmoRotateMaterial->SetProperty("color"_hs, Vector4(GetColorFromAxis(m_gizmoSettings.focusedAxis)));
+		m_gizmoRotateMaterial->SetProperty("angle0"_hs, m_gizmoSettings.angle0 * DEG_2_RAD);
+		m_gizmoRotateMaterial->SetProperty("angle1"_hs, m_gizmoSettings.angle1 * DEG_2_RAD);
+		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
+
+		const GPUDrawArguments args = {
+			.constant0 = m_worldRenderer->PushEntity(e, {}),
+			.constant1 = m_gizmoRotateMaterial->GetBindlessIndex(),
+			.constant3 = static_cast<uint32>(shaderScale), // scale
+		};
+		const uint32 pc = m_worldRenderer->PushArgument(args);
+
+		Buffer* vtx = &m_editor->GetApp()->GetGfxContext().GetMeshManagerDefault().GetVtxBufferStatic();
+		Buffer* idx = &m_editor->GetApp()->GetGfxContext().GetMeshManagerDefault().GetIdxBufferStatic();
+
+		const RenderPass::InstancedDraw draw = {
+			.vertexBuffers = {vtx, vtx},
+			.indexBuffers  = {idx, idx},
+			.vertexSize	   = sizeof(VertexStatic),
+			.shaderHandle  = m_gizmoRotateShader->GetGPUHandle(),
+			.baseVertex	   = baseVertex,
+			.baseIndex	   = baseIndex,
+			.indexCount	   = indexCount,
+			.instanceCount = 1,
+			.pushConstant  = pc,
+		};
+		pass->AddDrawCall(draw);
 	}
 
 } // namespace Lina::Editor

@@ -118,7 +118,11 @@ namespace Lina
 		void DrawLine3D(const Vector3& p1, const Vector3& p2, float thickness, const ColorGrad& color);
 		void EndLine3DBatch(RenderPass& pass, uint32 pushConstantValue, uint32 shaderHandle);
 
-		void StartLinaVGBatch();
+		void			StartLinaVGBatch();
+		LinaVG::Drawer* GetLVGDrawer()
+		{
+			return &m_lvgDrawer;
+		}
 		void EndLinaVGBatch(RenderPass& pass, uint32 pushConstantValue, uint32 shaderHandle);
 		void OnLinaVGDraw(LinaVG::DrawBuffer* buffer);
 

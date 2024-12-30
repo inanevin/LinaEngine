@@ -480,13 +480,13 @@ namespace Lina
 		m_lvgDrawer.ResetFrame();
 
 		const RenderPass::InstancedDraw draw = {
-			.vertexBuffers = {&m_pfd[0].line3DVtxBuffer, &m_pfd[1].line3DVtxBuffer},
-			.indexBuffers  = {&m_pfd[0].line3DIdxBuffer, &m_pfd[1].line3DIdxBuffer},
-			.vertexSize	   = sizeof(Line3DVertex),
+			.vertexBuffers = {&m_pfd[0].lvgVtxBuffer, &m_pfd[1].lvgVtxBuffer},
+			.indexBuffers  = {&m_pfd[0].lvgIdxBuffer, &m_pfd[1].lvgIdxBuffer},
+			.vertexSize	   = sizeof(LinaVG::Vertex),
 			.shaderHandle  = shaderHandle,
-			.baseVertex	   = m_currentLine3DStartVertex,
-			.baseIndex	   = m_currentLine3DStartIndex,
-			.indexCount	   = static_cast<uint32>(m_cpuDrawData.line3DIndices.size()) - m_currentLine3DStartIndex,
+			.baseVertex	   = m_currentLvgStartVertex,
+			.baseIndex	   = m_currentLvgStartIndex,
+			.indexCount	   = static_cast<uint32>(m_cpuDrawData.lvgIndices.size()) - m_currentLvgStartIndex,
 			.instanceCount = 1,
 			.pushConstant  = pushConstantValue,
 		};

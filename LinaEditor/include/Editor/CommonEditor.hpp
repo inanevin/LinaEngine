@@ -78,6 +78,7 @@ namespace Lina::Editor
 #define EDITOR_SHADER_WORLD_LVG3D_PATH				   "Resources/Editor/Shaders/World/LinaVG3D.linashader"
 #define EDITOR_SHADER_WORLD_SAMPLE_PATH				   "Resources/Editor/Shaders/World/WorldSample.linashader"
 #define EDITOR_SHADER_WORLD_DEPTH_SAMPLE_PATH		   "Resources/Editor/Shaders/World/WorldSampleDepth.linashader"
+#define EDITOR_SHADER_WORLD_GIZMO_ROTATE_PATH		   "Resources/Editor/Shaders/World/GizmoRotate.linashader"
 
 #define EDITOR_SHADER_GUI_DEFAULT_ID				 RESOURCE_ID_EDITOR_SHADERS
 #define EDITOR_SHADER_GUI_COLOR_WHEEL_ID			 RESOURCE_ID_EDITOR_SHADERS + 1
@@ -99,6 +100,7 @@ namespace Lina::Editor
 #define EDITOR_SHADER_WORLD_LVG3D_ID				 RESOURCE_ID_EDITOR_SHADERS + 17
 #define EDITOR_SHADER_WORLD_SAMPLE_ID				 RESOURCE_ID_EDITOR_SHADERS + 18
 #define EDITOR_SHADER_WORLD_DEPTH_SAMPLE_ID			 RESOURCE_ID_EDITOR_SHADERS + 19
+#define EDITOR_SHADER_WORLD_GIZMO_ROTATE_ID			 RESOURCE_ID_EDITOR_SHADERS + 20
 
 // Textures
 #define EDITOR_TEXTURE_CHECKERED_PATH				 "Resources/Editor/Textures/Checkered.png"
@@ -152,6 +154,7 @@ namespace Lina::Editor
 #define EDITOR_MODEL_GIZMO_SCALE_PATH			 "Resources/Editor/Models/GizmoScale.glb"
 #define EDITOR_MODEL_GIZMO_TRANSLATE_CENTER_PATH "Resources/Editor/Models/Sphere.glb"
 #define EDITOR_MODEL_GIZMO_SCALE_CENTER_PATH	 "Resources/Editor/Models/Cube.glb"
+#define EDITOR_MODEL_GIZMO_ROTATE_FULL_PATH		 "Resources/Editor/Models/GizmoRotateFull.glb"
 
 #define EDITOR_MODEL_CUBE_ID				   RESOURCE_ID_EDITOR_MODELS
 #define EDITOR_MODEL_CYLINDER_ID			   RESOURCE_ID_EDITOR_MODELS + 1
@@ -165,6 +168,7 @@ namespace Lina::Editor
 #define EDITOR_MODEL_GIZMO_SCALE_ID			   RESOURCE_ID_EDITOR_MODELS + 9
 #define EDITOR_MODEL_GIZMO_TRANSLATE_CENTER_ID RESOURCE_ID_EDITOR_MODELS + 10
 #define EDITOR_MODEL_GIZMO_SCALE_CENTER_ID	   RESOURCE_ID_EDITOR_MODELS + 11
+#define EDITOR_MODEL_GIZMO_ROTATE_FULL_ID	   RESOURCE_ID_EDITOR_MODELS + 12
 
 // Icons
 #define ICON_LINA_LOGO			  "\u0041"

@@ -138,6 +138,11 @@ namespace Lina::Editor
 				.tid  = GetTypeID<Shader>(),
 			},
 			{
+				.id	  = EDITOR_SHADER_WORLD_GIZMO_ROTATE_ID,
+				.name = EDITOR_SHADER_WORLD_GIZMO_ROTATE_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
+			{
 				.id	  = EDITOR_TEXTURE_LINA_LOGO_ID,
 				.name = EDITOR_TEXTURE_LINA_LOGO_PATH,
 				.tid  = GetTypeID<Texture>(),
@@ -212,6 +217,7 @@ namespace Lina::Editor
 		Model*	 gizmoScale			  = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_SCALE_ID, EDITOR_MODEL_GIZMO_SCALE_PATH);
 		Model*	 gizmoScaleCenter	  = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_SCALE_CENTER_ID, EDITOR_MODEL_GIZMO_SCALE_CENTER_PATH);
 		Model*	 gizmoTranslateCenter = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_TRANSLATE_CENTER_ID, EDITOR_MODEL_GIZMO_TRANSLATE_CENTER_PATH);
+		Model*	 gizmoRotateFull	  = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_ROTATE_FULL_ID, EDITOR_MODEL_GIZMO_ROTATE_FULL_PATH);
 
 		m_createdResources.insert(txtCheckered);
 		m_createdResources.insert(txtProtoDark);
@@ -223,6 +229,7 @@ namespace Lina::Editor
 		m_createdResources.insert(gizmoScale);
 		m_createdResources.insert(gizmoScaleCenter);
 		m_createdResources.insert(gizmoTranslateCenter);
+		m_createdResources.insert(gizmoRotateFull);
 
 		fontPlay->GetMeta() = {
 			.points = {{.size = 14, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
