@@ -431,6 +431,13 @@ namespace Lina
 		*this = glm::normalize(glm::vec2(*this));
 	}
 
+	float Vector2::Angle(const Vector2& other) const
+	{
+		float angle = RAD_2_DEG * (atan2(other.y, other.x) - atan2(y, x));
+
+		return angle;
+	}
+
 	void Vector2::SaveToStream(OStream& stream) const
 	{
 		stream << x << y;

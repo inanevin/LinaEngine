@@ -42,6 +42,10 @@ namespace Lina
 	class RenderPass;
 } // namespace Lina
 
+namespace LinaVG
+{
+	class Drawer;
+}
 namespace LinaGX
 {
 	class CommandStream;
@@ -58,8 +62,8 @@ namespace Lina::Editor
 		struct GizmoSettings
 		{
 			bool		  draw				= false;
+			GizmoAxis	  focusedAxis		= GizmoAxis::None;
 			GizmoMode	  type				= GizmoMode::Move;
-			GizmoAxis	  axis				= GizmoAxis::None;
 			GizmoAxis	  hoveredAxis		= GizmoAxis::None;
 			GizmoAxis	  lineVisualizeAxis = GizmoAxis::None;
 			GizmoLocality locality			= GizmoLocality::World;
@@ -101,6 +105,7 @@ namespace Lina::Editor
 		Material*		   m_gizmoMaterialZ		 = nullptr;
 		Shader*			   m_gizmoShader		 = nullptr;
 		Shader*			   m_line3DShader		 = nullptr;
+		Shader*			   m_lvgShader			 = nullptr;
 		RenderPass*		   m_targetPass			 = nullptr;
 		MousePickRenderer* m_mousePickRenderer	 = nullptr;
 		GizmoSettings	   m_gizmoSettings		 = {};

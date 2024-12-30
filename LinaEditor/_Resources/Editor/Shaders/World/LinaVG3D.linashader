@@ -37,6 +37,7 @@ SOFTWARE.
 
 #lina_end
 
+
 #lina_vs
 
 #include "Resources/Core/Shaders/Common/GlobalData.linashader"

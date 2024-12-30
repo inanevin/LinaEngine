@@ -51,6 +51,7 @@ namespace Lina::Editor
 		m_rm				= &m_editor->GetApp()->GetResourceManager();
 		m_gizmoShader		= m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_GIZMO_ID);
 		m_line3DShader		= m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_LINE3D_ID);
+		m_lvgShader			= m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_LVG3D_ID);
 		m_world				= m_worldRenderer->GetWorld();
 		m_targetPass		= pass;
 		m_mousePickRenderer = mpr;
@@ -114,8 +115,12 @@ namespace Lina::Editor
 		}
 		else
 		{
-			DrawGizmoRotate(m_targetPass, 0);
-			DrawGizmoRotate(&m_mousePickRenderer->GetRenderPass(), "StaticEntityID"_hs, 2);
+
+			if (m_gizmoSettings.focusedAxis == GizmoAxis::None)
+			{
+				DrawGizmoRotate(m_targetPass, 0);
+				DrawGizmoRotate(&m_mousePickRenderer->GetRenderPass(), "StaticEntityID"_hs, 1);
+			}
 		}
 
 		if (m_gizmoSettings.lineVisualizeAxis != GizmoAxis::None)
@@ -213,6 +218,70 @@ namespace Lina::Editor
 
 	void GizmoRenderer::DrawGizmoRotate(RenderPass* pass, StringID variant, float shaderScale)
 	{
+		Model*				   model	  = m_rotateModel;
+		const PrimitiveStatic& prim		  = model->GetAllMeshes().at(0).primitivesStatic.at(0);
+		const uint32		   baseVertex = prim._vertexOffset;
+		const uint32		   baseIndex  = prim._indexOffset;
+		const uint32		   indexCount = static_cast<uint32>(prim.indices.size());
+
+		Camera&		  cam  = m_world->GetWorldCamera();
+		const Vector3 dir  = (cam.GetPosition() - m_gizmoSettings.position);
+		const float	  dot  = dir.Normalized().Dot(m_gizmoSettings.rotation.GetForward());
+		const float	  dotR = dir.Normalized().Dot(m_gizmoSettings.rotation.GetRight());
+		const float	  dotU = dir.Normalized().Dot(m_gizmoSettings.rotation.GetUp());
+
+		const GPUEntity axisX = {
+			.model = Matrix4::TransformMatrix(
+				m_gizmoSettings.position, Quaternion::LookAt(Vector3::Zero, -m_gizmoSettings.rotation.GetRight() * (dot > 0.0f ? 1.0f : -1.0f) * (dotU > 0.0f ? 1.0f : -1.0f), m_gizmoSettings.rotation.GetUp() * (dotU > 0.0f ? 1.0f : -1.0f)), Vector3::One * 2),
+		};
+
+		const GPUEntity axisY = {
+			.model = Matrix4::TransformMatrix(
+				m_gizmoSettings.position, Quaternion::LookAt(Vector3::Zero, m_gizmoSettings.rotation.GetUp() * (dotR > 0.0f ? -1.0f : 1.0f) * (dot > 0.0f ? 1.0f : -1.0f), m_gizmoSettings.rotation.GetForward() * (dot > 0.0f ? 1.0f : -1.0f)), Vector3::One * 2),
+		};
+
+		const GPUEntity axisZ = {
+			.model = Matrix4::TransformMatrix(m_gizmoSettings.position,
+											  Quaternion::LookAt(Vector3::Zero, -m_gizmoSettings.rotation.GetForward() * (dotR > 0.0f ? -1.0f : 1.0f) * (dotU > 0.0f ? 1.0f : -1.0f), m_gizmoSettings.rotation.GetUp() * (dotU > 0.0f ? 1.0f : -1.0f)),
+											  Vector3::One * 2),
+		};
+
+		const GPUDrawArguments argsX = {
+			.constant0 = m_worldRenderer->PushEntity(axisX, {.entityGUID = GIZMO_GUID_X_AXIS}),
+			.constant1 = m_gizmoMaterialX->GetBindlessIndex(),
+			.constant3 = static_cast<uint32>(shaderScale), // scale
+		};
+
+		const GPUDrawArguments argsY = {
+			.constant0 = m_worldRenderer->PushEntity(axisY, {.entityGUID = GIZMO_GUID_Y_AXIS}),
+			.constant1 = m_gizmoMaterialY->GetBindlessIndex(),
+			.constant3 = static_cast<uint32>(shaderScale), // scale
+		};
+
+		const GPUDrawArguments argsZ = {
+			.constant0 = m_worldRenderer->PushEntity(axisZ, {.entityGUID = GIZMO_GUID_Z_AXIS}),
+			.constant1 = m_gizmoMaterialZ->GetBindlessIndex(),
+			.constant3 = static_cast<uint32>(shaderScale), // scale
+		};
+
+		Buffer* vtx = &m_editor->GetApp()->GetGfxContext().GetMeshManagerDefault().GetVtxBufferStatic();
+		Buffer* idx = &m_editor->GetApp()->GetGfxContext().GetMeshManagerDefault().GetIdxBufferStatic();
+
+		const uint32 pc = m_worldRenderer->PushArgument(argsX);
+		m_worldRenderer->PushArgument(argsY);
+		m_worldRenderer->PushArgument(argsZ);
+		const RenderPass::InstancedDraw draw = {
+			.vertexBuffers = {vtx, vtx},
+			.indexBuffers  = {idx, idx},
+			.vertexSize	   = sizeof(VertexStatic),
+			.shaderHandle  = variant == 0 ? m_gizmoShader->GetGPUHandle() : m_gizmoShader->GetGPUHandle(variant),
+			.baseVertex	   = baseVertex,
+			.baseIndex	   = baseIndex,
+			.indexCount	   = indexCount,
+			.instanceCount = 3,
+			.pushConstant  = pc,
+		};
+		pass->AddDrawCall(draw);
 	}
 
 	void GizmoRenderer::DrawGizmoAxisLine(RenderPass* pass, GizmoAxis axis)

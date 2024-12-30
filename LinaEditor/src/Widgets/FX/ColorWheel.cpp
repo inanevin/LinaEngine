@@ -77,7 +77,7 @@ namespace Lina::Editor
 			}
 
 			if (m_props.hue)
-				*m_props.hue = RAD_2_DEG(angle);
+				*m_props.hue = RAD_2_DEG * angle;
 
 			if (m_props.saturation)
 				*m_props.saturation = saturation;

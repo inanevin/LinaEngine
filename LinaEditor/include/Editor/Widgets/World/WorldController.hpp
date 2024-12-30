@@ -62,16 +62,17 @@ namespace Lina::Editor
 
 		struct GizmoControls
 		{
-			GizmoMode			   type					   = GizmoMode::Move;
-			GizmoAxis			   hoveredAxis			   = GizmoAxis::None;
-			GizmoAxis			   targetAxis			   = GizmoAxis::None;
-			GizmoLocality		   locality				   = GizmoLocality::World;
-			GizmoSnapping		   snapping				   = GizmoSnapping::Free;
-			Vector3				   averagePosition		   = Vector3::Zero;
-			Vector3				   pressedGizmoPosition	   = Vector3::Zero;
-			Vector2				   pressedMouseDelta	   = Vector2::Zero;
-			Vector2				   pressedMousePosition	   = Vector2::Zero;
-			Vector<Transformation> pressedEntityTransforms = {};
+			GizmoMode			   type						  = GizmoMode::Move;
+			GizmoAxis			   hoveredAxis				  = GizmoAxis::None;
+			GizmoAxis			   targetAxis				  = GizmoAxis::None;
+			GizmoLocality		   locality					  = GizmoLocality::World;
+			GizmoSnapping		   snapping					  = GizmoSnapping::Free;
+			Vector3				   averagePosition			  = Vector3::Zero;
+			Vector3				   pressedGizmoPosition		  = Vector3::Zero;
+			Vector2				   pressedGizmoPositionScreen = Vector2::Zero;
+			Vector2				   pressedMouseDelta		  = Vector2::Zero;
+			Vector2				   pressedMousePosition		  = Vector2::Zero;
+			Vector<Transformation> pressedEntityTransforms	  = {};
 
 			Vector3 targetAxisWorld	 = Vector3::Zero;
 			Vector2 targetAxisScreen = Vector2::Zero;

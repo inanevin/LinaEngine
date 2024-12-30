@@ -233,6 +233,7 @@ namespace Lina
 		float	Min() const;
 		float	Avg() const;
 		void	Normalize();
+		float	Angle(const Vector2& other) const;
 
 		Vector2& operator*=(Vector2 const& v)
 		{

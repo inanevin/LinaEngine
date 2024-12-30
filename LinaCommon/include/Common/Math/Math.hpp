@@ -38,7 +38,7 @@ SOFTWARE.
 #include <random>
 
 #define DEG_2_RAD(X) X * 0.0174533f
-#define RAD_2_DEG(X) X / 0.0174533f
+#define RAD_2_DEG	 57.2958f
 
 #define MATH_PI		   3.1415926535897932f
 #define MATH_TWO_PI	   6.28318530717959f
