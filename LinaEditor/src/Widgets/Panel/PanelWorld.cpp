@@ -81,9 +81,7 @@ namespace Lina::Editor
 		stream.Destroy();
 
 		HashSet<ResourceID> defaultResources = {
-			EDITOR_MODEL_GIZMO_TRANSLATE_ID,
-			EDITOR_MODEL_GIZMO_ROTATE_ID,
-			EDITOR_MODEL_GIZMO_SCALE_ID,
+
 		};
 
 		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), defaultResources, m_world->GetID());

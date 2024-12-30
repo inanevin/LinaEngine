@@ -33,10 +33,11 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-#define GIZMO_GUID_START  UINT64_MAX - 100
-#define GIZMO_GUID_X_AXIS GIZMO_GUID_START + 1
-#define GIZMO_GUID_Y_AXIS GIZMO_GUID_START + 2
-#define GIZMO_GUID_Z_AXIS GIZMO_GUID_START + 3
+#define GIZMO_GUID_START	   UINT64_MAX - 100
+#define GIZMO_GUID_X_AXIS	   GIZMO_GUID_START + 1
+#define GIZMO_GUID_Y_AXIS	   GIZMO_GUID_START + 2
+#define GIZMO_GUID_Z_AXIS	   GIZMO_GUID_START + 3
+#define GIZMO_GUID_CENTER_AXIS GIZMO_GUID_START + 4
 
 	enum class GizmoMode
 	{
@@ -68,7 +69,8 @@ namespace Lina::Editor
 		None,
 		X,
 		Y,
-		Z
+		Z,
+		Center,
 	};
 
 } // namespace Lina::Editor

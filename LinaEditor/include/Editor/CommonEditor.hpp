@@ -140,27 +140,31 @@ namespace Lina::Editor
 #define EDITOR_SAMPLER_DEFAULT_ID	RESOURCE_ID_EDITOR_SAMPLERS
 
 // Models
-#define EDITOR_MODEL_CUBE_PATH			  "Resources/Editor/Models/Cube.glb"
-#define EDITOR_MODEL_CYLINDER_PATH		  "Resources/Editor/Models/Cylinder.glb"
-#define EDITOR_MODEL_SPHERE_PATH		  "Resources/Editor/Models/Sphere.glb"
-#define EDITOR_MODEL_SKYCUBE_PATH		  "Resources/Editor/Models/SkyCube.glb"
-#define EDITOR_MODEL_PLANE_PATH			  "Resources/Editor/Models/Plane.glb"
-#define EDITOR_MODEL_SKYSPHERE_PATH		  "Resources/Editor/Models/SkySphere.glb"
-#define EDITOR_MODEL_CAPSULE_PATH		  "Resources/Editor/Models/Capsule.glb"
-#define EDITOR_MODEL_GIZMO_TRANSLATE_PATH "Resources/Editor/Models/GizmoTranslate.glb"
-#define EDITOR_MODEL_GIZMO_ROTATE_PATH	  "Resources/Editor/Models/GizmoRotate.glb"
-#define EDITOR_MODEL_GIZMO_SCALE_PATH	  "Resources/Editor/Models/GizmoScale.glb"
+#define EDITOR_MODEL_CUBE_PATH					 "Resources/Editor/Models/Cube.glb"
+#define EDITOR_MODEL_CYLINDER_PATH				 "Resources/Editor/Models/Cylinder.glb"
+#define EDITOR_MODEL_SPHERE_PATH				 "Resources/Editor/Models/Sphere.glb"
+#define EDITOR_MODEL_SKYCUBE_PATH				 "Resources/Editor/Models/SkyCube.glb"
+#define EDITOR_MODEL_PLANE_PATH					 "Resources/Editor/Models/Plane.glb"
+#define EDITOR_MODEL_SKYSPHERE_PATH				 "Resources/Editor/Models/SkySphere.glb"
+#define EDITOR_MODEL_CAPSULE_PATH				 "Resources/Editor/Models/Capsule.glb"
+#define EDITOR_MODEL_GIZMO_TRANSLATE_PATH		 "Resources/Editor/Models/GizmoTranslate.glb"
+#define EDITOR_MODEL_GIZMO_ROTATE_PATH			 "Resources/Editor/Models/GizmoRotate.glb"
+#define EDITOR_MODEL_GIZMO_SCALE_PATH			 "Resources/Editor/Models/GizmoScale.glb"
+#define EDITOR_MODEL_GIZMO_TRANSLATE_CENTER_PATH "Resources/Editor/Models/Sphere.glb"
+#define EDITOR_MODEL_GIZMO_SCALE_CENTER_PATH	 "Resources/Editor/Models/Cube.glb"
 
-#define EDITOR_MODEL_CUBE_ID			RESOURCE_ID_EDITOR_MODELS
-#define EDITOR_MODEL_CYLINDER_ID		RESOURCE_ID_EDITOR_MODELS + 1
-#define EDITOR_MODEL_SPHERE_ID			RESOURCE_ID_EDITOR_MODELS + 2
-#define EDITOR_MODEL_SKYCUBE_ID			RESOURCE_ID_EDITOR_MODELS + 3
-#define EDITOR_MODEL_PLANE_ID			RESOURCE_ID_EDITOR_MODELS + 4
-#define EDITOR_MODEL_SKYSPHERE_ID		RESOURCE_ID_EDITOR_MODELS + 5
-#define EDITOR_MODEL_CAPSULE_ID			RESOURCE_ID_EDITOR_MODELS + 6
-#define EDITOR_MODEL_GIZMO_TRANSLATE_ID RESOURCE_ID_EDITOR_MODELS + 7
-#define EDITOR_MODEL_GIZMO_ROTATE_ID	RESOURCE_ID_EDITOR_MODELS + 8
-#define EDITOR_MODEL_GIZMO_SCALE_ID		RESOURCE_ID_EDITOR_MODELS + 9
+#define EDITOR_MODEL_CUBE_ID				   RESOURCE_ID_EDITOR_MODELS
+#define EDITOR_MODEL_CYLINDER_ID			   RESOURCE_ID_EDITOR_MODELS + 1
+#define EDITOR_MODEL_SPHERE_ID				   RESOURCE_ID_EDITOR_MODELS + 2
+#define EDITOR_MODEL_SKYCUBE_ID				   RESOURCE_ID_EDITOR_MODELS + 3
+#define EDITOR_MODEL_PLANE_ID				   RESOURCE_ID_EDITOR_MODELS + 4
+#define EDITOR_MODEL_SKYSPHERE_ID			   RESOURCE_ID_EDITOR_MODELS + 5
+#define EDITOR_MODEL_CAPSULE_ID				   RESOURCE_ID_EDITOR_MODELS + 6
+#define EDITOR_MODEL_GIZMO_TRANSLATE_ID		   RESOURCE_ID_EDITOR_MODELS + 7
+#define EDITOR_MODEL_GIZMO_ROTATE_ID		   RESOURCE_ID_EDITOR_MODELS + 8
+#define EDITOR_MODEL_GIZMO_SCALE_ID			   RESOURCE_ID_EDITOR_MODELS + 9
+#define EDITOR_MODEL_GIZMO_TRANSLATE_CENTER_ID RESOURCE_ID_EDITOR_MODELS + 10
+#define EDITOR_MODEL_GIZMO_SCALE_CENTER_ID	   RESOURCE_ID_EDITOR_MODELS + 11
 
 // Icons
 #define ICON_LINA_LOGO			  "\u0041"

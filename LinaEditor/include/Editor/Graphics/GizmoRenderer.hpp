@@ -89,18 +89,21 @@ namespace Lina::Editor
 		ResourceManagerV2* m_rm			   = nullptr;
 		EntityWorld*	   m_world		   = nullptr;
 
-		Model* m_translateModel = nullptr;
-		Model* m_scaleModel		= nullptr;
-		Model* m_rotateModel	= nullptr;
+		Model* m_translateModel	 = nullptr;
+		Model* m_scaleModel		 = nullptr;
+		Model* m_rotateModel	 = nullptr;
+		Model* m_centerTranslate = nullptr;
+		Model* m_centerScale	 = nullptr;
 
-		Material*		   m_gizmoMaterialX	   = nullptr;
-		Material*		   m_gizmoMaterialY	   = nullptr;
-		Material*		   m_gizmoMaterialZ	   = nullptr;
-		Shader*			   m_gizmoShader	   = nullptr;
-		Shader*			   m_line3DShader	   = nullptr;
-		RenderPass*		   m_targetPass		   = nullptr;
-		MousePickRenderer* m_mousePickRenderer = nullptr;
-		GizmoSettings	   m_gizmoSettings	   = {};
-		GizmoAxis		   m_lastHoveredAxis   = GizmoAxis::None;
+		Material*		   m_gizmoMaterialCenter = nullptr;
+		Material*		   m_gizmoMaterialX		 = nullptr;
+		Material*		   m_gizmoMaterialY		 = nullptr;
+		Material*		   m_gizmoMaterialZ		 = nullptr;
+		Shader*			   m_gizmoShader		 = nullptr;
+		Shader*			   m_line3DShader		 = nullptr;
+		RenderPass*		   m_targetPass			 = nullptr;
+		MousePickRenderer* m_mousePickRenderer	 = nullptr;
+		GizmoSettings	   m_gizmoSettings		 = {};
+		GizmoAxis		   m_lastHoveredAxis	 = GizmoAxis::None;
 	};
 } // namespace Lina::Editor

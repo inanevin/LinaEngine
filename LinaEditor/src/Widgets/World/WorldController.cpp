@@ -301,6 +301,11 @@ namespace Lina::Editor
 				m_gizmoControls.targetAxis = GizmoAxis::Z;
 				update();
 			}
+			else if (lastHovered == GIZMO_GUID_CENTER_AXIS)
+			{
+				m_gizmoControls.targetAxis = GizmoAxis::Center;
+				update();
+			}
 			else
 				SelectEntity(m_world->GetEntity(lastHovered), !m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LSHIFT));
 		}
@@ -456,20 +461,21 @@ namespace Lina::Editor
 				hoveredAxis = GizmoAxis::Y;
 			else if (hovered == GIZMO_GUID_Z_AXIS)
 				hoveredAxis = GizmoAxis::Z;
+			else if (hovered == GIZMO_GUID_CENTER_AXIS)
+				hoveredAxis = GizmoAxis::Center;
 			else
 				hoveredAxis == GizmoAxis::None;
 
 			m_gizmoControls.hoveredAxis = hoveredAxis;
 		}
 
-		GizmoLocality locality = m_selectedEntities.size() > 1 ? GizmoLocality::World : m_gizmoControls.locality;
-		if (m_selectedEntities.size() == 1 && m_gizmoControls.type == GizmoMode::Scale)
-			locality = GizmoLocality::Local;
+		if (m_gizmoControls.type == GizmoMode::Scale)
+			rendererSettings.rotation = m_selectedEntities.size() == 1 ? m_selectedEntities.at(0)->GetRotation() : Quaternion::Identity();
+		else
+			rendererSettings.rotation = (m_selectedEntities.size() > 1 || m_gizmoControls.locality == GizmoLocality::World) ? Quaternion::Identity() : m_selectedEntities.at(0)->GetRotation();
 
 		rendererSettings.position	 = m_gizmoControls.averagePosition;
-		rendererSettings.rotation	 = locality == GizmoLocality::World ? Quaternion::Identity() : m_selectedEntities.at(0)->GetRotation();
 		rendererSettings.type		 = m_gizmoControls.type;
-		rendererSettings.locality	 = locality;
 		rendererSettings.hoveredAxis = m_gizmoControls.hoveredAxis;
 
 		m_gizmoControls.visualizeLine  = m_gizmoControls.targetAxis != GizmoAxis::None;
@@ -478,38 +484,9 @@ namespace Lina::Editor
 		if (m_gizmoControls.targetAxis == GizmoAxis::None)
 			return;
 
-		if (m_gizmoControls.type == GizmoMode::Move || m_gizmoControls.type == GizmoMode::Scale)
-		{
-			// rendererSettings.lineVisualizeAxis = m_gizmoControls.targetAxis;
-
+		auto ray = [this](const Vector3& planeNormal, Vector3& hitPoint, float& hitDistance) -> bool {
 			const Camera& camera = m_world->GetWorldCamera();
 			const Vector2 size	 = GetEndFromMargins() - GetStartFromMargins();
-
-			Vector3 targetAxisWorld = Vector3::Zero;
-			Vector3 upAxisWorld		= Vector3::Up;
-
-			Vector3 planeNormal0 = Vector3::Zero;
-			Vector3 planeNormal1 = Vector3::Zero;
-			Vector3 rightAxis	 = Vector3::Zero;
-
-			if (m_gizmoControls.targetAxis == GizmoAxis::X)
-			{
-				targetAxisWorld = locality == GizmoLocality::World ? Vector3::Right : m_selectedEntities.at(0)->GetRotation().GetRight();
-				planeNormal0	= locality == GizmoLocality::World ? Vector3::Forward : targetAxisWorld.Cross(m_selectedEntities.at(0)->GetRotation().GetUp());
-				planeNormal1	= locality == GizmoLocality::World ? Vector3::Up : targetAxisWorld.Cross(m_selectedEntities.at(0)->GetRotation().GetForward());
-			}
-			else if (m_gizmoControls.targetAxis == GizmoAxis::Y)
-			{
-				targetAxisWorld = locality == GizmoLocality::World ? Vector3::Up : m_selectedEntities.at(0)->GetRotation().GetUp();
-				planeNormal0	= locality == GizmoLocality::World ? Vector3::Forward : targetAxisWorld.Cross(m_selectedEntities.at(0)->GetRotation().GetUp());
-				planeNormal1	= locality == GizmoLocality::World ? Vector3::Right : targetAxisWorld.Cross(m_selectedEntities.at(0)->GetRotation().GetForward());
-			}
-			else if (m_gizmoControls.targetAxis == GizmoAxis::Z)
-			{
-				targetAxisWorld = locality == GizmoLocality::World ? Vector3::Forward : m_selectedEntities.at(0)->GetRotation().GetForward();
-				planeNormal0	= locality == GizmoLocality::World ? Vector3::Up : targetAxisWorld.Cross(m_selectedEntities.at(0)->GetRotation().GetUp());
-				planeNormal1	= locality == GizmoLocality::World ? Vector3::Right : targetAxisWorld.Cross(m_selectedEntities.at(0)->GetRotation().GetRight());
-			}
 
 			const Vector2 mp		= m_lgxWindow->GetMousePosition() - GetStartFromMargins() - m_gizmoControls.pressedMouseDelta;
 			Vector4		  mouseNDC	= Vector4((mp.x / size.x) * 2.0f - 1.0f, 1.0f - (mp.y / size.y) * 2.0f, -1.0f, 1.0f);
@@ -521,56 +498,148 @@ namespace Lina::Editor
 			const Vector3 rayDirection = (farPoint.XYZ() - nearPoint.XYZ()).Normalized();
 			const Vector3 rayOrigin	   = nearPoint.XYZ();
 
-			const Vector3 planeOrigin  = m_gizmoControls.averagePosition;
-			float		  hitDistance0 = 0.0f;
-			float		  hitDistance1 = 0.0f;
-			bool		  rayHit0	   = glm::intersectRayPlane(glm::vec3(rayOrigin), glm::vec3(rayDirection), glm::vec3(planeOrigin), glm::vec3(planeNormal0), hitDistance0);
-			bool		  rayHit1	   = glm::intersectRayPlane(glm::vec3(rayOrigin), glm::vec3(rayDirection), glm::vec3(planeOrigin), glm::vec3(planeNormal1), hitDistance1);
+			const Vector3 planeOrigin = m_gizmoControls.averagePosition;
+
+			bool hit = glm::intersectRayPlane(glm::vec3(rayOrigin), glm::vec3(rayDirection), glm::vec3(planeOrigin), glm::vec3(planeNormal), hitDistance);
+			hitPoint = rayOrigin + rayDirection * hitDistance;
+			return hit;
+		};
+
+		if (m_gizmoControls.type == GizmoMode::Move)
+		{
+			Vector3		  targetAxisWorld = Vector3::Zero;
+			const Camera& camera		  = m_world->GetWorldCamera();
+
+			Vector3 hitPoint0 = Vector3::Zero, hitPoint1 = Vector3::Zero;
+			bool	rayHit0 = false, rayHit1 = false;
+			float	hitDistance0 = 0.0f, hitDistance1 = 0.0f;
+
+			const GizmoLocality locality = m_selectedEntities.size() > 1 ? GizmoLocality::World : GizmoLocality::Local;
+
+			bool isCenter = false;
+			if (m_gizmoControls.targetAxis == GizmoAxis::X)
+			{
+				targetAxisWorld		  = locality == GizmoLocality::World ? Vector3::Right : m_selectedEntities.at(0)->GetRotation().GetRight();
+				const Vector3 normal0 = locality == GizmoLocality::World ? Vector3::Forward : targetAxisWorld.Cross(m_selectedEntities.at(0)->GetRotation().GetUp());
+				const Vector3 normal1 = locality == GizmoLocality::World ? Vector3::Up : targetAxisWorld.Cross(m_selectedEntities.at(0)->GetRotation().GetForward());
+				rayHit0				  = ray(normal0, hitPoint0, hitDistance0);
+				rayHit1				  = ray(normal1, hitPoint1, hitDistance1);
+			}
+			else if (m_gizmoControls.targetAxis == GizmoAxis::Y)
+			{
+				targetAxisWorld		  = locality == GizmoLocality::World ? Vector3::Up : m_selectedEntities.at(0)->GetRotation().GetUp();
+				const Vector3 normal0 = locality == GizmoLocality::World ? Vector3::Forward : targetAxisWorld.Cross(m_selectedEntities.at(0)->GetRotation().GetUp());
+				const Vector3 normal1 = locality == GizmoLocality::World ? Vector3::Right : targetAxisWorld.Cross(m_selectedEntities.at(0)->GetRotation().GetForward());
+				rayHit0				  = ray(normal0, hitPoint0, hitDistance0);
+				rayHit1				  = ray(normal1, hitPoint1, hitDistance1);
+			}
+			else if (m_gizmoControls.targetAxis == GizmoAxis::Z)
+			{
+				targetAxisWorld		  = locality == GizmoLocality::World ? Vector3::Forward : m_selectedEntities.at(0)->GetRotation().GetForward();
+				const Vector3 normal0 = locality == GizmoLocality::World ? Vector3::Up : targetAxisWorld.Cross(m_selectedEntities.at(0)->GetRotation().GetUp());
+				const Vector3 normal1 = locality == GizmoLocality::World ? Vector3::Right : targetAxisWorld.Cross(m_selectedEntities.at(0)->GetRotation().GetRight());
+				rayHit0				  = ray(normal0, hitPoint0, hitDistance0);
+				rayHit1				  = ray(normal1, hitPoint1, hitDistance1);
+			}
+			else if (m_gizmoControls.targetAxis == GizmoAxis::Center)
+			{
+				const Vector3 normal0 = (camera.GetPosition() - m_gizmoControls.averagePosition).Normalized();
+				rayHit0				  = ray(normal0, hitPoint0, hitDistance0);
+				isCenter			  = true;
+			}
 
 			Vector3 hitPoint = Vector3::Zero;
 			if (rayHit0 && rayHit1)
-				hitPoint = rayOrigin + rayDirection * (hitDistance0 < hitDistance1 ? hitDistance0 : hitDistance1);
+				hitPoint = hitDistance0 < hitDistance1 ? hitPoint0 : hitPoint1;
 			else if (!rayHit0 && rayHit1)
-				hitPoint = rayOrigin + rayDirection * hitDistance1;
+				hitPoint = hitPoint1;
 			else if (rayHit0 && !rayHit1)
-				hitPoint = rayOrigin + rayDirection * hitDistance0;
+				hitPoint = hitPoint0;
 			else
 			{
 			}
 
-			const Vector3 dir				  = hitPoint - m_gizmoControls.pressedGizmoPosition;
-			const float	  lineT				  = dir.Magnitude() * dir.Normalized().Dot(targetAxisWorld);
-			const Vector3 targetWorldPosition = m_gizmoControls.pressedGizmoPosition + targetAxisWorld * lineT;
+			const Vector3 dir	= hitPoint - m_gizmoControls.pressedGizmoPosition;
+			const float	  lineT = isCenter ? (dir.Magnitude()) : dir.Magnitude() * dir.Normalized().Dot(targetAxisWorld);
+			const size_t  sz	= m_selectedEntities.size();
+			const Vector3 axis	= isCenter ? dir.Normalized() : targetAxisWorld;
+			for (size_t i = 0; i < sz; i++)
+			{
+				Entity*				  e		 = m_selectedEntities.at(i);
+				const Transformation& stored = m_gizmoControls.pressedEntityTransforms.at(i);
+				e->SetPosition(stored.GetPosition() + axis * lineT);
+			}
+		}
+		else if (m_gizmoControls.type == GizmoMode::Scale)
+		{
+			const Camera& camera = m_world->GetWorldCamera();
+
+			Vector3 scaleAxis = Vector3::Zero;
+
+			auto getScaleAmt = [&](const Vector3& targetAxis) -> float {
+				Vector3		  hitPoint0	   = Vector3::Zero;
+				bool		  rayHit0	   = false;
+				float		  hitDistance0 = false;
+				const Vector3 normal0	   = (camera.GetPosition() - m_gizmoControls.averagePosition).Normalized();
+				ray(normal0, hitPoint0, hitDistance0);
+				const Vector3 dir = hitPoint0 - m_gizmoControls.averagePosition;
+				const float	  dot = dir.Normalized().Dot(targetAxis);
+				return dir.Magnitude() * (dot > 0.0f ? 1.0f : -1.0f);
+			};
+
+			float scaleAmt = 0.0f;
+
+			if (m_gizmoControls.targetAxis == GizmoAxis::X)
+			{
+				const Vector3 ta = m_selectedEntities.size() > 1 ? Vector3::Right : m_selectedEntities.at(0)->GetRotation().GetRight();
+				scaleAmt		 = getScaleAmt(ta);
+				scaleAxis		 = Vector3::Right;
+			}
+			else if (m_gizmoControls.targetAxis == GizmoAxis::Y)
+			{
+				const Vector3 ta = m_selectedEntities.size() > 1 ? Vector3::Up : m_selectedEntities.at(0)->GetRotation().GetUp();
+				scaleAmt		 = getScaleAmt(ta);
+				scaleAxis		 = Vector3::Up;
+			}
+			else if (m_gizmoControls.targetAxis == GizmoAxis::Z)
+			{
+				const Vector3 ta = m_selectedEntities.size() > 1 ? Vector3::Forward : m_selectedEntities.at(0)->GetRotation().GetForward();
+				scaleAmt		 = getScaleAmt(ta);
+				scaleAxis		 = Vector3::Forward;
+			}
+			else if (m_gizmoControls.targetAxis == GizmoAxis::Center)
+			{
+				const Vector2 mouseDir = (m_lgxWindow->GetMousePosition() - m_gizmoControls.pressedMousePosition);
+				scaleAmt			   = mouseDir.Normalized().Dot(Vector2(1, -1)) * mouseDir.Magnitude() * 0.005f;
+				scaleAxis			   = Vector3::One;
+			}
 
 			const size_t sz = m_selectedEntities.size();
 
-			if (m_gizmoControls.type == GizmoMode::Move)
+			for (size_t i = 0; i < sz; i++)
 			{
-				for (size_t i = 0; i < sz; i++)
-				{
-					Entity*				  e		 = m_selectedEntities.at(i);
-					const Transformation& stored = m_gizmoControls.pressedEntityTransforms.at(i);
-					e->SetPosition(stored.GetPosition() + targetAxisWorld * lineT);
-				}
+				Entity*				  e		 = m_selectedEntities.at(i);
+				const Transformation& stored = m_gizmoControls.pressedEntityTransforms.at(i);
+				e->SetScale(stored.GetScale() + scaleAxis * scaleAmt);
 			}
-			else if (m_gizmoControls.type == GizmoMode::Scale)
-			{
-				Vector3 scaleAxis = Vector3::Zero;
 
-				if (m_gizmoControls.targetAxis == GizmoAxis::X)
-					scaleAxis = Vector3::Right;
-				else if (m_gizmoControls.targetAxis == GizmoAxis::Y)
-					scaleAxis = Vector3::Up;
-				else if (m_gizmoControls.targetAxis == GizmoAxis::Z)
-					scaleAxis = Vector3::Forward;
-
-				for (size_t i = 0; i < sz; i++)
-				{
-					Entity*				  e		 = m_selectedEntities.at(i);
-					const Transformation& stored = m_gizmoControls.pressedEntityTransforms.at(i);
-					e->SetScale(stored.GetScale() + scaleAxis * lineT);
-				}
-			}
+			// Vector3 scaleAxis = Vector3::Zero;
+			//
+			// if (m_gizmoControls.targetAxis == GizmoAxis::X)
+			// 	scaleAxis = Vector3::Right;
+			// else if (m_gizmoControls.targetAxis == GizmoAxis::Y)
+			// 	scaleAxis = Vector3::Up;
+			// else if (m_gizmoControls.targetAxis == GizmoAxis::Z)
+			// 	scaleAxis = Vector3::Forward;
+			// else if (m_gizmoControls.targetAxis == GizmoAxis::Center)
+			// 	scaleAxis = Vector3::One;
+			//
+			// for (size_t i = 0; i < sz; i++)
+			// {
+			// 	Entity*				  e		 = m_selectedEntities.at(i);
+			// 	const Transformation& stored = m_gizmoControls.pressedEntityTransforms.at(i);
+			// 	e->SetScale(stored.GetScale() + scaleAxis * lineT);
+			// }
 		}
 	}
 

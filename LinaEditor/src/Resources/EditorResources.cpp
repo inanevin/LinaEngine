@@ -202,14 +202,16 @@ namespace Lina::Editor
 
 	void EditorResources::StartLoadCoreResources(ResourceManagerV2& manager)
 	{
-		Texture* txtCheckered	 = manager.CreateResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID, EDITOR_TEXTURE_CHECKERED_PATH);
-		Texture* txtProtoDark	 = manager.CreateResource<Texture>(EDITOR_TEXTURE_PROTOTYPE_DARK_ID, EDITOR_TEXTURE_PROTOTYPE_DARK_PATH);
-		Font*	 fontPlay		 = manager.CreateResource<Font>(EDITOR_FONT_PLAY_ID, EDITOR_FONT_PLAY_PATH);
-		Font*	 fontPlayBold	 = manager.CreateResource<Font>(EDITOR_FONT_PLAY_BOLD_ID, EDITOR_FONT_PLAY_BOLD_PATH);
-		Font*	 fontPlayVeryBig = manager.CreateResource<Font>(EDITOR_FONT_PLAY_VERY_BIG_ID, EDITOR_FONT_PLAY_VERY_BIG_PATH);
-		Model*	 gizmoTranslate	 = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_TRANSLATE_ID, EDITOR_MODEL_GIZMO_TRANSLATE_PATH);
-		Model*	 gizmoRotate	 = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_ROTATE_ID, EDITOR_MODEL_GIZMO_ROTATE_PATH);
-		Model*	 gizmoScale		 = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_SCALE_ID, EDITOR_MODEL_GIZMO_SCALE_PATH);
+		Texture* txtCheckered		  = manager.CreateResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID, EDITOR_TEXTURE_CHECKERED_PATH);
+		Texture* txtProtoDark		  = manager.CreateResource<Texture>(EDITOR_TEXTURE_PROTOTYPE_DARK_ID, EDITOR_TEXTURE_PROTOTYPE_DARK_PATH);
+		Font*	 fontPlay			  = manager.CreateResource<Font>(EDITOR_FONT_PLAY_ID, EDITOR_FONT_PLAY_PATH);
+		Font*	 fontPlayBold		  = manager.CreateResource<Font>(EDITOR_FONT_PLAY_BOLD_ID, EDITOR_FONT_PLAY_BOLD_PATH);
+		Font*	 fontPlayVeryBig	  = manager.CreateResource<Font>(EDITOR_FONT_PLAY_VERY_BIG_ID, EDITOR_FONT_PLAY_VERY_BIG_PATH);
+		Model*	 gizmoTranslate		  = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_TRANSLATE_ID, EDITOR_MODEL_GIZMO_TRANSLATE_PATH);
+		Model*	 gizmoRotate		  = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_ROTATE_ID, EDITOR_MODEL_GIZMO_ROTATE_PATH);
+		Model*	 gizmoScale			  = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_SCALE_ID, EDITOR_MODEL_GIZMO_SCALE_PATH);
+		Model*	 gizmoScaleCenter	  = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_SCALE_CENTER_ID, EDITOR_MODEL_GIZMO_SCALE_CENTER_PATH);
+		Model*	 gizmoTranslateCenter = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_TRANSLATE_CENTER_ID, EDITOR_MODEL_GIZMO_TRANSLATE_CENTER_PATH);
 
 		m_createdResources.insert(txtCheckered);
 		m_createdResources.insert(txtProtoDark);
@@ -219,6 +221,8 @@ namespace Lina::Editor
 		m_createdResources.insert(gizmoTranslate);
 		m_createdResources.insert(gizmoRotate);
 		m_createdResources.insert(gizmoScale);
+		m_createdResources.insert(gizmoScaleCenter);
+		m_createdResources.insert(gizmoTranslateCenter);
 
 		fontPlay->GetMeta() = {
 			.points = {{.size = 14, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
