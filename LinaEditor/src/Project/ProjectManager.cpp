@@ -553,6 +553,7 @@ namespace Lina::Editor
 			if (lastModifiedSID == data.lastModifiedSID)
 				continue;
 			Resource* res = m_editor->GetApp()->GetResourceManager().GetIfExists(data.tid, data.id);
+			res->SetPath(data.path);
 			m_editorResourcesToReimport.push_back(res);
 			data.lastModifiedSID = lastModifiedSID;
 		}

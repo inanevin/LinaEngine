@@ -64,11 +64,12 @@ void LINA_VERTEX_MAIN(in LinaVertexInput inVertex, out LinaVertexOutput outVerte
    vec4 cubeViewPos = LINA_VIEW.view * vec4(entity.modelMatrix[3].xyz, 1.0);
    float distance = abs(cubeViewPos.z); // Distance from camera in view space (z-axis)
 
-   // Desired size in normalized device coordinates (NDC)
-   float desiredSizeNDC = 0.2 * float(inVertex.drawArguments.argument3);
+    // Screen size and aspect ratio adjustments
+    float screenAspectRatio = LINA_VIEW.size.x / LINA_VIEW.size.y;
+    float adjustedDesiredSizeNDC = 180 * float(inVertex.drawArguments.argument3) / LINA_VIEW.size.y;
 
-   // Calculate the scale factor to counteract perspective
-   float scale = desiredSizeNDC * distance;
+    // Calculate the scale factor to counteract perspective
+    float scale = adjustedDesiredSizeNDC * distance;
 
    // Scale vertex positions relative to cube center
    vec3 scaledVertexPos = inVertex.pos.xyz * scale;

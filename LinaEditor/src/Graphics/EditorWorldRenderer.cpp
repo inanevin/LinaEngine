@@ -103,8 +103,8 @@ namespace Lina::Editor
 			m_gridMaterial->SetProperty("colorLOD2"_hs, Vector3(0.95f, 0.95f, 0.95f));
 			m_gridMaterial->SetProperty("colorLOD1"_hs, Vector3(0.7f, 0.7f, 0.7f));
 			m_gridMaterial->SetProperty("colorLOD0"_hs, Vector3(0.2f, 0.2f, 0.2f));
-			m_gridMaterial->SetProperty("xAxisColor"_hs, Vector3(1.0f, 0.0f, 0.0f));
-			m_gridMaterial->SetProperty("zAxisColor"_hs, Vector3(0.0f, 0.0f, 1.0f));
+			m_gridMaterial->SetProperty("xAxisColor"_hs, Vector3(Theme::GetDef().accentPrimary2.x, Theme::GetDef().accentPrimary2.y, Theme::GetDef().accentPrimary2.z));
+			m_gridMaterial->SetProperty("zAxisColor"_hs, Vector3(Theme::GetDef().accentSecondary.x, Theme::GetDef().accentSecondary.y, Theme::GetDef().accentSecondary.z));
 			m_gridMaterial->SetProperty("distLOD0"_hs, 60.0f);
 			m_gridMaterial->SetProperty("distLOD1"_hs, 90.0f);
 		}

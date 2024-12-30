@@ -38,6 +38,7 @@ namespace Lina
 {
 	class Dropdown;
 	class WorldRenderer;
+	class Font;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -61,25 +62,32 @@ namespace Lina::Editor
 
 		struct GizmoControls
 		{
-			GizmoMode		type				   = GizmoMode::Move;
-			GizmoAxis		hoveredAxis			   = GizmoAxis::None;
-			GizmoAxis		targetAxis			   = GizmoAxis::None;
-			GizmoLocality	locality			   = GizmoLocality::World;
-			GizmoSnapping	snapping			   = GizmoSnapping::Free;
-			Vector3			worldPosition		   = Vector3::Zero;
-			Vector3			pressedGizmoPosition   = Vector3::Zero;
-			Vector2			pressedMouseDelta	   = Vector2::Zero;
-			Vector<Vector3> pressedEntityPositions = {};
+			GizmoMode			   type					   = GizmoMode::Move;
+			GizmoAxis			   hoveredAxis			   = GizmoAxis::None;
+			GizmoAxis			   targetAxis			   = GizmoAxis::None;
+			GizmoLocality		   locality				   = GizmoLocality::World;
+			GizmoSnapping		   snapping				   = GizmoSnapping::Free;
+			Vector3				   averagePosition		   = Vector3::Zero;
+			Vector3				   pressedGizmoPosition	   = Vector3::Zero;
+			Vector2				   pressedMouseDelta	   = Vector2::Zero;
+			Vector2				   pressedMousePosition	   = Vector2::Zero;
+			Vector<Transformation> pressedEntityTransforms = {};
 
 			Vector3 targetAxisWorld	 = Vector3::Zero;
 			Vector2 targetAxisScreen = Vector2::Zero;
+
+			bool	visualizeLine	  = false;
+			Vector2 visualizeLineP0	  = Vector2::Zero;
+			Vector2 visualizeLineP1	  = Vector2::Zero;
+			float	visualizeDistance = 0.0f;
+			float	visualizeAlpha	  = 0.0f;
 		};
 
 	public:
 		struct Properties
 		{
 			String noWorldText		 = "";
-			bool   enableDragAndDrop = false;
+			bool   enableDragAndDrop = true;
 		};
 
 		WorldController() : Widget(WF_CONTROLLABLE){};
@@ -146,8 +154,9 @@ namespace Lina::Editor
 		DisplayTexture m_currentDisplayTexture	= DisplayTexture::WorldFinal;
 
 		Vector<Entity*> m_selectedEntities;
-		Editor*			m_editor = nullptr;
-		Properties		m_props	 = {};
+		Editor*			m_editor	= nullptr;
+		Properties		m_props		= {};
+		Font*			m_worldFont = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(WorldController, Hidden)

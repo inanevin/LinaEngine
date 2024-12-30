@@ -41,11 +41,8 @@ namespace Lina::Editor
 	enum class GizmoMode
 	{
 		Move,
-		MoveFocused,
 		Rotate,
-		RotateFocused,
 		Scale,
-		ScaleFocused,
 	};
 
 	enum class GizmoLocality

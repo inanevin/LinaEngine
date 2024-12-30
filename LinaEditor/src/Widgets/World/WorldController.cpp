@@ -57,6 +57,8 @@ namespace Lina::Editor
 	{
 		m_editor = Editor::Get();
 
+		m_worldFont = m_editor->GetApp()->GetResourceManager().GetResource<Font>(EDITOR_FONT_PLAY_BIG_ID);
+
 		DirectionalLayout* topToolbar = m_manager->Allocate<DirectionalLayout>("TopToolbar");
 		topToolbar->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_X_TOTAL_CHILDREN | WF_USE_FIXED_SIZE_Y);
 		topToolbar->SetAlignedPos(Vector2::Zero);
@@ -115,7 +117,7 @@ namespace Lina::Editor
 		DestroyCamera();
 		m_worldRenderer = renderer;
 		m_ewr			= ewr;
-		m_world			= m_worldRenderer->GetWorld();
+		m_world			= renderer ? m_worldRenderer->GetWorld() : nullptr;
 
 		if (m_worldRenderer)
 		{
@@ -151,6 +153,48 @@ namespace Lina::Editor
 	{
 		if (m_worldRenderer == nullptr)
 			return;
+
+		if (m_gizmoControls.type == GizmoMode::Move)
+		{
+			LinaVG::StyleOptions style;
+			style.thickness = 1.0f;
+			style.aaEnabled = true;
+
+			const Vector2 point = Camera::WorldToScreen(m_world->GetWorldCamera(), m_gizmoControls.averagePosition, GetEndFromMargins() - GetStartFromMargins()).XY();
+			// m_lvg->DrawCircle((GetStartFromMargins() + point).AsLVG(), 8.0f, style, 64, 0.0f, 0.0f, 360.0f, m_drawOrder + 1);
+		}
+
+		if (m_gizmoControls.visualizeLine)
+		{
+			LinaVG::StyleOptions style;
+			style.thickness		= 2.0f;
+			style.aaMultiplier	= 1.0f;
+			style.aaEnabled		= true;
+			style.color.start.w = style.color.end.w = m_gizmoControls.visualizeAlpha;
+
+			if (m_gizmoControls.targetAxis == GizmoAxis::X)
+				style.color = Theme::GetDef().accentPrimary2.AsLVG4();
+			else if (m_gizmoControls.targetAxis == GizmoAxis::Y)
+				style.color = Theme::GetDef().accentSuccess.AsLVG4();
+			else if (m_gizmoControls.targetAxis == GizmoAxis::Z)
+				style.color = Theme::GetDef().accentSecondary.AsLVG4();
+
+			const Vector2 l0	  = GetStartFromMargins() + m_gizmoControls.visualizeLineP0;
+			const Vector2 l1	  = GetStartFromMargins() + m_gizmoControls.visualizeLineP1;
+			const Vector2 dir	  = (l1 - l0).Normalized();
+			const Vector2 rotated = Vector2(dir.y, -dir.x);
+
+			const Vector2 l01 = l0 + rotated * 100;
+
+			// m_lvg->DrawLine(l0.AsLVG(), l1.AsLVG(), style, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder + 1);
+
+			// LinaVG::TextOptions txt;
+			// txt.font		  = m_worldFont->GetFont(m_lgxWindow->GetDPIScale());
+			// txt.color		  = Theme::GetDef().foreground0.AsLVG4();
+			// txt.color.start.w = txt.color.end.w = m_gizmoControls.visualizeAlpha;
+			// const String str					= UtilStr::FloatToString(m_gizmoControls.visualizeDistance, 3);
+			// m_lvg->DrawTextDefault(str.c_str(), ((l0 + l1) * 0.5f).AsLVG(), txt, 0.0f, m_drawOrder + 1, true);
+		}
 	}
 
 	void WorldController::OnPayloadStarted(PayloadType type, Widget* payload)
@@ -231,13 +275,15 @@ namespace Lina::Editor
 			auto update = [&]() {
 				CalculateAverageGizmoPosition();
 
-				m_gizmoControls.pressedGizmoPosition = m_gizmoControls.worldPosition;
+				m_gizmoControls.pressedGizmoPosition = m_gizmoControls.averagePosition;
 				const Vector3 inScreen				 = Camera::WorldToScreen(m_world->GetWorldCamera(), m_gizmoControls.pressedGizmoPosition, GetEndFromMargins() - GetStartFromMargins());
 				m_gizmoControls.pressedMouseDelta	 = (m_lgxWindow->GetMousePosition() - GetStartFromMargins()) - inScreen.XY();
+				m_gizmoControls.pressedMousePosition = m_lgxWindow->GetMousePosition();
 
-				m_gizmoControls.pressedEntityPositions.reserve(m_selectedEntities.size());
-				for (Entity* e : m_selectedEntities)
-					m_gizmoControls.pressedEntityPositions.push_back(e->GetPosition());
+				const size_t sz = m_selectedEntities.size();
+				m_gizmoControls.pressedEntityTransforms.resize(sz);
+				for (size_t i = 0; i < sz; i++)
+					m_gizmoControls.pressedEntityTransforms[i] = m_selectedEntities.at(i)->GetTransform();
 			};
 
 			if (lastHovered == GIZMO_GUID_X_AXIS)
@@ -256,7 +302,7 @@ namespace Lina::Editor
 				update();
 			}
 			else
-				SelectEntity(m_world->GetEntity(lastHovered), true);
+				SelectEntity(m_world->GetEntity(lastHovered), !m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LSHIFT));
 		}
 
 		return false;
@@ -416,26 +462,35 @@ namespace Lina::Editor
 			m_gizmoControls.hoveredAxis = hoveredAxis;
 		}
 
-		const GizmoLocality locality = m_selectedEntities.size() > 1 ? GizmoLocality::World : m_gizmoControls.locality;
-		rendererSettings.position	 = m_gizmoControls.worldPosition;
+		GizmoLocality locality = m_selectedEntities.size() > 1 ? GizmoLocality::World : m_gizmoControls.locality;
+		if (m_selectedEntities.size() == 1 && m_gizmoControls.type == GizmoMode::Scale)
+			locality = GizmoLocality::Local;
+
+		rendererSettings.position	 = m_gizmoControls.averagePosition;
 		rendererSettings.rotation	 = locality == GizmoLocality::World ? Quaternion::Identity() : m_selectedEntities.at(0)->GetRotation();
 		rendererSettings.type		 = m_gizmoControls.type;
 		rendererSettings.locality	 = locality;
 		rendererSettings.hoveredAxis = m_gizmoControls.hoveredAxis;
 
-		if (m_gizmoControls.targetAxis != GizmoAxis::None)
+		m_gizmoControls.visualizeLine  = m_gizmoControls.targetAxis != GizmoAxis::None;
+		m_gizmoControls.visualizeAlpha = Math::Lerp(m_gizmoControls.visualizeAlpha, m_gizmoControls.visualizeLine ? 1.0f : 0.0f, SystemInfo::GetDeltaTime() * 10.0f);
+
+		if (m_gizmoControls.targetAxis == GizmoAxis::None)
+			return;
+
+		if (m_gizmoControls.type == GizmoMode::Move || m_gizmoControls.type == GizmoMode::Scale)
 		{
-			rendererSettings.lineVisualizeAxis = m_gizmoControls.targetAxis;
+			// rendererSettings.lineVisualizeAxis = m_gizmoControls.targetAxis;
 
 			const Camera& camera = m_world->GetWorldCamera();
 			const Vector2 size	 = GetEndFromMargins() - GetStartFromMargins();
-			const Vector3 pos	 = m_selectedEntities.at(0)->GetPosition();
 
 			Vector3 targetAxisWorld = Vector3::Zero;
 			Vector3 upAxisWorld		= Vector3::Up;
 
 			Vector3 planeNormal0 = Vector3::Zero;
 			Vector3 planeNormal1 = Vector3::Zero;
+			Vector3 rightAxis	 = Vector3::Zero;
 
 			if (m_gizmoControls.targetAxis == GizmoAxis::X)
 			{
@@ -446,12 +501,14 @@ namespace Lina::Editor
 			else if (m_gizmoControls.targetAxis == GizmoAxis::Y)
 			{
 				targetAxisWorld = locality == GizmoLocality::World ? Vector3::Up : m_selectedEntities.at(0)->GetRotation().GetUp();
-				upAxisWorld		= locality == GizmoLocality::World ? Vector3::Right : m_selectedEntities.at(0)->GetRotation().GetRight();
+				planeNormal0	= locality == GizmoLocality::World ? Vector3::Forward : targetAxisWorld.Cross(m_selectedEntities.at(0)->GetRotation().GetUp());
+				planeNormal1	= locality == GizmoLocality::World ? Vector3::Right : targetAxisWorld.Cross(m_selectedEntities.at(0)->GetRotation().GetForward());
 			}
 			else if (m_gizmoControls.targetAxis == GizmoAxis::Z)
 			{
 				targetAxisWorld = locality == GizmoLocality::World ? Vector3::Forward : m_selectedEntities.at(0)->GetRotation().GetForward();
-				upAxisWorld		= locality == GizmoLocality::World ? Vector3::Up : m_selectedEntities.at(0)->GetRotation().GetUp();
+				planeNormal0	= locality == GizmoLocality::World ? Vector3::Up : targetAxisWorld.Cross(m_selectedEntities.at(0)->GetRotation().GetUp());
+				planeNormal1	= locality == GizmoLocality::World ? Vector3::Right : targetAxisWorld.Cross(m_selectedEntities.at(0)->GetRotation().GetRight());
 			}
 
 			const Vector2 mp		= m_lgxWindow->GetMousePosition() - GetStartFromMargins() - m_gizmoControls.pressedMouseDelta;
@@ -464,7 +521,7 @@ namespace Lina::Editor
 			const Vector3 rayDirection = (farPoint.XYZ() - nearPoint.XYZ()).Normalized();
 			const Vector3 rayOrigin	   = nearPoint.XYZ();
 
-			const Vector3 planeOrigin  = m_gizmoControls.worldPosition;
+			const Vector3 planeOrigin  = m_gizmoControls.averagePosition;
 			float		  hitDistance0 = 0.0f;
 			float		  hitDistance1 = 0.0f;
 			bool		  rayHit0	   = glm::intersectRayPlane(glm::vec3(rayOrigin), glm::vec3(rayDirection), glm::vec3(planeOrigin), glm::vec3(planeNormal0), hitDistance0);
@@ -479,186 +536,41 @@ namespace Lina::Editor
 				hitPoint = rayOrigin + rayDirection * hitDistance0;
 			else
 			{
-				// ups.
-				int a = 5;
 			}
 
-			LINA_TRACE("{0}, {1}, {2}, {3}", rayHit0, hitDistance0, rayHit1, hitDistance1);
 			const Vector3 dir				  = hitPoint - m_gizmoControls.pressedGizmoPosition;
 			const float	  lineT				  = dir.Magnitude() * dir.Normalized().Dot(targetAxisWorld);
 			const Vector3 targetWorldPosition = m_gizmoControls.pressedGizmoPosition + targetAxisWorld * lineT;
 
-			for (Entity* e : m_selectedEntities)
-				e->SetPosition(targetWorldPosition);
+			const size_t sz = m_selectedEntities.size();
 
-			// const Vector3 gizmoPosScreen		 = Camera::WorldToScreen(camera, m_gizmoControls.worldPosition, size);
-			// const Vector3 gizmoPosWorldExtended	 = m_gizmoControls.worldPosition + targetAxisWorld;
-			// const Vector3 gizmoPosExtendedScreen = Camera::WorldToScreen(camera, gizmoPosWorldExtended, size);
-			// Vector3		  targetAxisScreen		 = (gizmoPosExtendedScreen - gizmoPosScreen);
-			//
-			// const Vector2 mp			   = m_lgxWindow->GetMousePosition();
-			// const Vector2 screenDelta	   = (mp - m_gizmoControls.pressPosition);
-			// const float	  dot			   = screenDelta.Normalized().Dot(targetAxisScreen.Normalized().XY());
-			// const float	  movementInScreen = dot * screenDelta.Magnitude();
-			//
-			// const Vector2 targetPointInScreen = gizmoPosScreen.XY() + targetAxisScreen.XY().Normalized() * movementInScreen;
-			//
-			// const Vector3 planeOrigin = m_gizmoControls.worldPosition;
-			// const Vector3 planeNormal = targetAxisWorld.Cross(-upAxisWorld);
-			//
-			// const Vector2 mouseScreen = m_lgxWindow->GetMousePosition() - GetStartFromMargins();
-			// // const Vector2 mouseScreen = targetPointInScreen;
-			//
-			// Vector4 mouseNDC = Vector4((mouseScreen.x / size.x) * 2.0f - 1.0f, 1.0f - (mouseScreen.y / size.y) * 2.0f, -1.0f, 1.0f);
-			//
-			// Vector4 nearPoint = camera.GetInvViewProj() * mouseNDC;
-			// nearPoint /= nearPoint.w;
-			//
-			// Vector4 farPoint = camera.GetInvViewProj() * glm::vec4(mouseNDC.x, mouseNDC.y, 1.0f, 1.0f);
-			// farPoint /= farPoint.w;
-			//
-			// Vector3 rayDirection = (farPoint.XYZ() - nearPoint.XYZ()).Normalized();
-			//
-			// float t	  = 0.0f;
-			// bool  hit = glm::intersectRayPlane(glm::vec3(nearPoint), glm::vec3(rayDirection), glm::vec3(planeOrigin), glm::vec3(planeNormal), t);
-			//
-			// Vector3 hp = nearPoint.XYZ() + t * rayDirection;
-			//
-			// const Vector3 dir		  = hp - m_gizmoControls.pressedWorldPosition;
-			// const float	  lineT		  = dir.Magnitude() * dir.Normalized().Dot(targetAxisWorld);
-			// rendererSettings.position = m_gizmoControls.pressedWorldPosition + targetAxisWorld * lineT;
-			//
-			// LINA_TRACE("{0}, {1}, {2}", lineT, hp.y, hp.z);
-			//
-			// //
-			// const Vector3 screenHit = Camera::WorldToScreen(camera, rendererSettings.position, size);
-			//
-			// LinaVG::StyleOptions debug;
-			// debug.color = Color::Yellow.AsLVG4();
-			// m_lvg->DrawLine((m_rect.GetCenter()).AsLVG(), (targetPointInScreen).AsLVG(), debug, LinaVG::LineCapDirection::None, 0.0f, 1000);
-
-			// glm::vec3 rayOrigin	   = glm::vec3(nearPoint);
-			// glm::vec3 rayDirection = glm::normalize(glm::vec3(farPoint) - rayOrigin);
-			//
-			// // Plane intersection
-			// float	  t					= glm::dot(glm::vec3(m_gizmoControls.pressedWorldPosition) - rayOrigin, glm::vec3(targetAxisWorld)) / glm::dot(rayDirection, glm::vec3(targetAxisWorld));
-			// glm::vec3 intersectionPoint = rayOrigin + t * rayDirection;
-			//
-			// // Projection onto axis
-			// glm::vec3 closestPointOnAxis = glm::vec3(m_gizmoControls.pressedWorldPosition) + glm::dot(intersectionPoint - glm::vec3(m_gizmoControls.pressedWorldPosition), glm::vec3(targetAxisWorld)) * glm::vec3(targetAxisWorld);
-			// Vector3	  aq				 = closestPointOnAxis;
-			// rendererSettings.position	 = m_gizmoControls.pressedWorldPosition + aq;
-			// const Vector3 gizmoPosScreen		 = Camera::WorldToScreen(camera, m_gizmoControls.worldPosition, size);
-			// const Vector3 gizmoPosWorldExtended	 = m_gizmoControls.worldPosition + targetAxisWorld;
-			// const Vector3 gizmoPosExtendedScreen = Camera::WorldToScreen(camera, gizmoPosWorldExtended, size);
-			// Vector3		  targetAxisScreen		 = (gizmoPosExtendedScreen - gizmoPosScreen);
-			// Vector3		  ratio					 = targetAxisWorld / targetAxisScreen;
-			// // const float	  ratio					 = targetAxisWorld.Magnitude() / targetAxisScreen.Magnitude();
-			//
-			// const Vector2 mp			   = m_lgxWindow->GetMousePosition();
-			// const Vector2 screenDelta	   = (mp - m_gizmoControls.pressPosition);
-			// const float	  dot			   = screenDelta.Normalized().Dot(targetAxisScreen.Normalized().XY());
-			// const float	  movementInScreen = dot * screenDelta.Magnitude();
-			// rendererSettings.position	   = m_gizmoControls.pressedWorldPosition + targetAxisWorld * movementInScreen * ratio.Magnitude();
-			//
-			// {
-			// 	glm::vec2 ndcDelta = glm::vec2(2.0f * screenDelta.x / size.x, -2.0f * screenDelta.y / size.y);
-			// 	glm::vec4 clipPos  = camera.GetProjection() * camera.GetView() * glm::vec4(m_gizmoControls.pressedWorldPosition, 1.0f);
-			// 	clipPos /= clipPos.w;
-			// 	clipPos.x += ndcDelta.x;
-			// 	clipPos.y += ndcDelta.y;
-			//
-			// 	Vector4 worldPos = camera.GetInvViewProj() * clipPos;
-			// 	worldPos /= worldPos.w;
-			//
-			// 	Vector3 worldDelta = worldPos.XYZ() - m_gizmoControls.pressedWorldPosition;
-			//
-			// 	// Project world delta onto the axis
-			// 	Vector3 movement		  = worldDelta.Dot(targetAxisWorld) * targetAxisWorld;
-			// 	//rendererSettings.position = m_gizmoControls.pressedWorldPosition + movement;
-			// }
-
-			// const float	  dot			   = mouseDirScreen.Normalized().Dot(targetAxisScreen.Normalized().XY());
-			// const float	  movementInScreen = dot * mouseDirScreen.Magnitude();
-			//
-			// const Vector3 aq = Camera::ScreenToWorld(camera, Vector2(movementInScreen, 0), size, 1.0f);
-			//
-			// const float movementInWorld = movementInScreen * ratio;
-			// rendererSettings.position	= m_gizmoControls.pressedWorldPosition + targetAxisWorld * movementInWorld;
-
-			// for (Entity* e : m_selectedEntities)
-			// {
-			// 	// e->SetPosition(m_gizmoControls.gizmoPositionWorld + targetAxisWorld * movementInWorld * (dot > 0.0f ? 1.0f : -1.0f));
-			// 	// e->SetPosition(e->GetPosition() + targetAxisWorld * movementInWorld * (dot > 0.0f ? 1.0f : -1.0f));
-			// 	e->SetPosition(m_gizmoControls.worldPosition + targetAxisWorld * movementInWorld * (dot > 0.0f ? 1.0f : -1.0f));
-			// }
-			// m_gizmoControls.gizmoPositionWorld = gizmoPosInWorld;
-			//  m_gizmoControls.pressPosition	   = mp;
-
-			// m_ewr->GetGizmoRenderer().SetGizmoControls(m_gizmoControls);
-
-			// LinaVG::StyleOptions debug;
-			// debug.color = Color::Yellow.AsLVG4();
-			// m_lvg->DrawLine((GetStartFromMargins() + gizmoPosScreen.XY()).AsLVG(), (GetStartFromMargins() + gizmoPosExtendedScreen.XY()).AsLVG(), debug, LinaVG::LineCapDirection::None, 0.0f, 1000);
-			// debug.color = Color::Green.AsLVG4();
-			// m_lvg->DrawLine((GetStartFromMargins() + gizmoPosScreen.XY()).AsLVG(), (GetStartFromMargins() + gizmoPosScreen.XY() + mouseDirScreen).AsLVG(), debug, LinaVG::LineCapDirection::None, 0.0f, 1000);
-			// debug.color = Color::Cyan.AsLVG4();
-			// m_lvg->DrawLine((GetStartFromMargins() + gizmoPosScreen.XY()).AsLVG(), (GetStartFromMargins() + gizmoPosScreen.XY() + targetAxisScreen.XY().Normalized() * movementInScreen).AsLVG(), debug, LinaVG::LineCapDirection::None, 0.0f, 1000);
-
-			// const Vector3 posScreen1 = Camera::WorldToScreen(camera, pos + targetAxisWorld, size);
-			// const Vector3 posBack	 = Camera::ScreenToWorld(camera, posScreen.XY(), size, posScreen.z);
-			//
-			//
-			//
-			// const Vector3 pressPosInWorld = Camera::ScreenToWorld(camera, m_gizmoControls.pressPosition, size, posScreen.z);
-			// const Vector3 mouseInWorld	  = Camera::ScreenToWorld(camera, mp, size, posScreen.z);
-			// const Vector3 mouseDirInWorld = mouseInWorld - pressPosInWorld;
-			// const float	  mouseMagInWorld = mouseDirInWorld.Magnitude();
-			//
-			// const Vector2 mouseDirInScreen = mp - m_gizmoControls.pressPosition;
-			// const Vector2 targetAxisScreen = (posScreen1 - posScreen).XY().Normalized();
-			// const float	  dot			   = mouseDirInScreen.Normalized().Dot(targetAxisScreen);
-			// const float	  mag			   = mouseDirInScreen.Magnitude();
-			// const float	  movementInScreen = mag * (dot);
-			// const Vector3 movementInWorld = Camera::ScreenToWorld(camera, Vector2(movementInScreen, 0), size, posScreen.z);
-			// const float	  movementInWorldMag  = movementInWorld.Magnitude();
-
-			// LINA_TRACE("movement mag in screen {0} - dot {1} - mag {2} - movement in world {3}", movementInScreen, dot, mag, movementInWorldMag);
-
-			for (Entity* e : m_selectedEntities)
+			if (m_gizmoControls.type == GizmoMode::Move)
 			{
-				// e->SetPosition(e->GetPosition()  + targetAxisWorld * movementInWorld);
-				//	e->SetPosition(e->GetPosition() + targetAxisWorld * mouseDirInWorld.Magnitude());
+				for (size_t i = 0; i < sz; i++)
+				{
+					Entity*				  e		 = m_selectedEntities.at(i);
+					const Transformation& stored = m_gizmoControls.pressedEntityTransforms.at(i);
+					e->SetPosition(stored.GetPosition() + targetAxisWorld * lineT);
+				}
 			}
-			// const Vector2 mouseDir			   = (mp - m_gizmoControls.pressPosition);
-			// const Vector3 alignmentScreenSpace = Camera::WorldToScreen(, alignment, size).Normalized();
-			// float		  movement			   = mouseDir.Dot(alignmentScreenSpace.XY());
+			else if (m_gizmoControls.type == GizmoMode::Scale)
+			{
+				Vector3 scaleAxis = Vector3::Zero;
 
-			//	LINA_TRACE("pos back {0} {1} {2}", posBack.x, posBack.y, posBack.z);
+				if (m_gizmoControls.targetAxis == GizmoAxis::X)
+					scaleAxis = Vector3::Right;
+				else if (m_gizmoControls.targetAxis == GizmoAxis::Y)
+					scaleAxis = Vector3::Up;
+				else if (m_gizmoControls.targetAxis == GizmoAxis::Z)
+					scaleAxis = Vector3::Forward;
 
-			// const Vector3 screenSpace0	 = Camera::WorldToScreen(m_world->GetWorldCamera(), pos, size);
-			// const Vector3 screenSpace1	 = Camera::WorldToScreen(m_world->GetWorldCamera(), pos + alignment, size);
-			// const Vector2 screenSpaceDir = (screenSpace1 - screenSpace0).XY().Normalized();
-			//
-			// const Vector3 wp = Camera::ScreenToWorld(m_world->GetWorldCamera(), screenSpaceDir, size, 0.9f);
-			//
-			// const float	  dot		  = mouseDir.Dot(screenSpaceDir);
-			// const Vector3 movementDir = alignment * (dot < 0.0f ? -1.0f : 1.0f) * wp.XY().Magnitude();
-			//
-			// if (m_gizmoControls.selectedGizmo == GizmoType::Move)
-			// {
-			// 	for (Entity* e : m_selectedEntities)
-			// 	{
-			// 		const Vector3 epos = e->GetPosition();
-			// 		const Vector3 p	   = epos + movementDir;
-			//
-			// 		if (!p.Equals(epos, 0.0001f))
-			// 		{
-			// 			int a = 5;
-			// 		}
-			// 		e->SetPosition(p);
-			// 	}
-			// }
+				for (size_t i = 0; i < sz; i++)
+				{
+					Entity*				  e		 = m_selectedEntities.at(i);
+					const Transformation& stored = m_gizmoControls.pressedEntityTransforms.at(i);
+					e->SetScale(stored.GetScale() + scaleAxis * lineT);
+				}
+			}
 		}
 	}
 
@@ -674,10 +586,10 @@ namespace Lina::Editor
 	{
 		if (!m_selectedEntities.empty())
 		{
-			m_gizmoControls.worldPosition = Vector3::Zero;
+			m_gizmoControls.averagePosition = Vector3::Zero;
 			for (Entity* e : m_selectedEntities)
-				m_gizmoControls.worldPosition += e->GetPosition();
-			m_gizmoControls.worldPosition /= static_cast<float>(m_selectedEntities.size());
+				m_gizmoControls.averagePosition += e->GetPosition();
+			m_gizmoControls.averagePosition /= static_cast<float>(m_selectedEntities.size());
 		}
 	}
 
