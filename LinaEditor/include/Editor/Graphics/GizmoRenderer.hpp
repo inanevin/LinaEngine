@@ -61,18 +61,18 @@ namespace Lina::Editor
 	public:
 		struct GizmoSettings
 		{
-			bool		  draw				= false;
-			GizmoAxis	  focusedAxis		= GizmoAxis::None;
-			GizmoMode	  type				= GizmoMode::Move;
-			GizmoAxis	  hoveredAxis		= GizmoAxis::None;
-			GizmoAxis	  lineVisualizeAxis = GizmoAxis::None;
-			GizmoLocality locality			= GizmoLocality::World;
-			Vector3		  position			= Vector3::Zero;
-			Quaternion	  rotation			= Quaternion::Identity();
-			GizmoSnapping snapping			= GizmoSnapping::Free;
-			Vector3		  rotationAxis		= Vector3::Zero;
-			float		  angle0			= 0.0f;
-			float		  angle1			= 0.0f;
+			bool		  draw			= false;
+			bool		  visualizeAxis = false;
+			GizmoAxis	  focusedAxis	= GizmoAxis::None;
+			GizmoMode	  type			= GizmoMode::Move;
+			GizmoAxis	  hoveredAxis	= GizmoAxis::None;
+			GizmoLocality locality		= GizmoLocality::World;
+			Vector3		  position		= Vector3::Zero;
+			Quaternion	  rotation		= Quaternion::Identity();
+			GizmoSnapping snapping		= GizmoSnapping::Free;
+			Vector3		  worldAxis		= Vector3::Zero;
+			float		  angle0		= 0.0f;
+			float		  angle1		= 0.0f;
 		};
 
 		GizmoRenderer(Editor* editor, WorldRenderer* wr, RenderPass* targetPass, MousePickRenderer* mpr);
@@ -90,7 +90,7 @@ namespace Lina::Editor
 		void  DrawGizmoMoveScale(RenderPass* pass, StringID variant, float shaderScale = 1.0f);
 		void  DrawGizmoRotate(RenderPass* pass, StringID variant, float shaderScale = 1.0f);
 		void  DrawGizmoAxisLine(RenderPass* pass, GizmoAxis axis);
-		void  DrawGizmoRotateLVG(RenderPass* pass, float shaderScale = 1.0f);
+		void  DrawGizmoRotateFocus(RenderPass* pass, float shaderScale = 1.0f);
 
 	private:
 		Editor*			   m_editor		   = nullptr;

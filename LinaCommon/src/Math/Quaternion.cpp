@@ -181,4 +181,8 @@ namespace Lina
 	{
 		return glm::quat_identity<float, glm::defaultp>();
 	}
+	Quaternion Quaternion::Rotation(const Vector3& forward, const Vector3& axis)
+	{
+		return glm::rotation(forward, axis);
+	}
 } // namespace Lina

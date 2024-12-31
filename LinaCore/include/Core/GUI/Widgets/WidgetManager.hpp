@@ -32,7 +32,6 @@ SOFTWARE.
 #include "Core/GUI/CommonGUI.hpp"
 #include "Core/GUI/Theme.hpp"
 #include "WidgetCache.hpp"
-#include <LinaGX/Core/WindowListener.hpp>
 
 namespace LinaGX
 {
@@ -55,7 +54,7 @@ namespace Lina
 	class Font;
 	class ScrollArea;
 
-	class WidgetManager : public LinaGX::WindowListener
+	class WidgetManager
 	{
 	public:
 		WidgetManager()			 = default;
@@ -88,6 +87,13 @@ namespace Lina
 		Widget* LockForeground();
 		void	UnlockForeground();
 		void	SetDisabledRecursively(Widget* root, bool disabled);
+		void	OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction inputAction);
+		void	OnMouse(uint32 button, LinaGX::InputAction inputAction);
+		void	OnMouseWheel(float amt);
+		void	OnMouseMove(const LinaGX::LGXVector2&);
+		void	OnFocus(bool gainedFocus);
+		void	OnHoverBegin();
+		void	OnHoverEnd();
 
 		inline Widget* GetRoot() const
 		{
@@ -154,15 +160,6 @@ namespace Lina
 		{
 			m_cursorOverride = cursor;
 		}
-
-	protected:
-		virtual void OnWindowKey(LinaGX::Window* window, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction) override;
-		virtual void OnWindowMouse(LinaGX::Window* window, uint32 button, LinaGX::InputAction inputAction) override;
-		virtual void OnWindowMouseWheel(LinaGX::Window* window, float amt) override;
-		virtual void OnWindowMouseMove(LinaGX::Window* window, const LinaGX::LGXVector2&) override;
-		virtual void OnWindowFocus(LinaGX::Window* window, bool gainedFocus) override;
-		virtual void OnWindowHoverBegin(LinaGX::Window* window) override;
-		virtual void OnWindowHoverEnd(LinaGX::Window* window) override;
 
 		bool		PassMousePos(Widget* widget, const Vector2& pos);
 		void		PassCalculateSize(Widget* w, float delta);

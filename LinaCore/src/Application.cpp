@@ -91,7 +91,6 @@ namespace Lina
 		// Main window
 		auto window = CreateApplicationWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, Vector2i::Zero, Vector2ui(initInfo.windowWidth, initInfo.windowHeight), static_cast<uint32>(initInfo.windowStyle));
 		window->CenterPositionToCurrentMonitor();
-		window->AddListener(this);
 		window->SetVisible(true);
 
 		// Initialization
@@ -196,22 +195,10 @@ namespace Lina
 		delete m_appDelegate;
 	}
 
-	void Application::OnWindowClose(LinaGX::Window* window)
-	{
-		if (window->GetSID() == LINA_MAIN_SWAPCHAIN)
-			m_exitRequested = true;
-	}
-
-	void Application::OnWindowSizeChanged(LinaGX::Window* window, const LinaGX::LGXVector2ui& sz)
-	{
-		GetAppDelegate()->OnWindowSizeChanged(window, sz);
-	}
-
 	LinaGX::Window* Application::CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, uint32 style, LinaGX::Window* parentWindow)
 	{
 		JoinRender();
 		auto window = s_lgx->GetWindowManager().CreateApplicationWindow(sid, title, pos.x, pos.y, size.x, size.y, static_cast<LinaGX::WindowStyle>(style), parentWindow);
-		window->AddListener(this);
 		return window;
 	}
 
@@ -219,7 +206,6 @@ namespace Lina
 	{
 		JoinRender();
 		auto* window = s_lgx->GetWindowManager().GetWindow(sid);
-		window->RemoveListener(this);
 		s_lgx->GetWindowManager().DestroyApplicationWindow(sid);
 	}
 

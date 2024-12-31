@@ -63,7 +63,7 @@ namespace Lina::Editor
 	class DockArea;
 	class WorldRendererExtEditor;
 
-	class Editor : public ApplicationDelegate
+	class Editor : public ApplicationDelegate, public LinaGX::WindowListener
 	{
 
 	private:
@@ -76,14 +76,24 @@ namespace Lina::Editor
 		}
 
 		// Application delegate
-		virtual bool PreInitialize() override;
-		virtual bool Initialize() override;
-		virtual void PreTick() override;
-		virtual void Tick(float delta) override;
-		virtual void PreShutdown() override;
-		virtual void SyncRender() override;
-		virtual void Render(uint32 frameIndex) override;
-		virtual void OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size) override;
+		virtual bool	PreInitialize() override;
+		virtual bool	Initialize() override;
+		virtual void	PreTick() override;
+		virtual void	Tick(float delta) override;
+		virtual void	PreShutdown() override;
+		virtual void	SyncRender() override;
+		virtual void	Render(uint32 frameIndex) override;
+		virtual void	OnWindowClose(LinaGX::Window* window) override;
+		virtual void	OnWindowSizeChanged(LinaGX::Window* window, const LinaGX::LGXVector2ui&) override;
+		virtual void	OnWindowKey(LinaGX::Window* window, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction) override;
+		virtual void	OnWindowMouse(LinaGX::Window* window, uint32 button, LinaGX::InputAction inputAction) override;
+		virtual void	OnWindowMouseWheel(LinaGX::Window* window, float amt) override;
+		virtual void	OnWindowMouseMove(LinaGX::Window* window, const LinaGX::LGXVector2&) override;
+		virtual void	OnWindowFocus(LinaGX::Window* window, bool gainedFocus) override;
+		virtual void	OnWindowHoverBegin(LinaGX::Window* window) override;
+		virtual void	OnWindowHoverEnd(LinaGX::Window* window) override;
+		LinaGX::Window* CreateEditorWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, uint32 style, LinaGX::Window* parentWindow);
+		void			DestroyEditorWindow(LinaGX::Window* window);
 
 		// Misc
 		void SaveSettings();

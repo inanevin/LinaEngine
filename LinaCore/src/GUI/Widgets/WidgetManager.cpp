@@ -47,10 +47,9 @@ namespace Lina
 {
 	void WidgetManager::Initialize(ResourceManagerV2* resourceManager, LinaGX::Window* window, LinaVG::Drawer* drawer)
 	{
-		m_resourceManagerV2 = resourceManager;
-		m_lvg				= drawer;
-		m_window			= window;
-		m_window->AddListener(this);
+		m_resourceManagerV2							 = resourceManager;
+		m_lvg										 = drawer;
+		m_window									 = window;
 		m_rootWidget								 = Allocate<Widget>();
 		m_rootWidget->GetWidgetProps().debugName	 = "Root";
 		m_foregroundRoot							 = Allocate<Widget>();
@@ -220,8 +219,6 @@ namespace Lina
 		m_rootWidget	 = nullptr;
 		m_foregroundRoot = nullptr;
 
-		m_window->RemoveListener(this);
-
 		for (const WidgetCachePair& pair : m_widgetCaches)
 			delete pair.cache;
 
@@ -255,7 +252,7 @@ namespace Lina
 		return t;
 	}
 
-	void WidgetManager::OnWindowKey(LinaGX::Window* window, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
+	void WidgetManager::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
 	{
 
 		if (keycode == LINAGX_KEY_ESCAPE && inputAction != LinaGX::InputAction::Released)
@@ -298,7 +295,7 @@ namespace Lina
 		PassKey(m_rootWidget, keycode, scancode, inputAction);
 	}
 
-	void WidgetManager::OnWindowMouse(LinaGX::Window* window, uint32 button, LinaGX::InputAction inputAction)
+	void WidgetManager::OnMouse(uint32 button, LinaGX::InputAction inputAction)
 	{
 		// If we have some items in the foreground
 		// check if any was clicked, if not, then remove the non-blocker ones
@@ -345,30 +342,30 @@ namespace Lina
 		PassMouse(m_rootWidget, button, inputAction);
 	}
 
-	void WidgetManager::OnWindowMouseWheel(LinaGX::Window* window, float amt)
+	void WidgetManager::OnMouseWheel(float amt)
 	{
 		if (PassMouseWheel(m_foregroundRoot, amt))
 			return;
 		PassMouseWheel(m_rootWidget, amt);
 	}
 
-	void WidgetManager::OnWindowMouseMove(LinaGX::Window* window, const LinaGX::LGXVector2& pos)
+	void WidgetManager::OnMouseMove(const LinaGX::LGXVector2& pos)
 	{
 		if (PassMousePos(m_foregroundRoot, pos))
 			return;
 		PassMousePos(m_rootWidget, pos);
 	}
 
-	void WidgetManager::OnWindowFocus(LinaGX::Window* window, bool gainedFocus)
+	void WidgetManager::OnFocus(bool gainedFocus)
 	{
 	}
 
-	void WidgetManager::OnWindowHoverBegin(LinaGX::Window* window)
+	void WidgetManager::OnHoverBegin()
 	{
 		m_isMouseHoveringWindow = true;
 	}
 
-	void WidgetManager::OnWindowHoverEnd(LinaGX::Window* window)
+	void WidgetManager::OnHoverEnd()
 	{
 		m_isMouseHoveringWindow = false;
 	}

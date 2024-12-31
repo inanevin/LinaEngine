@@ -47,14 +47,14 @@ namespace Lina::Editor
 {
 	void WindowPanelManager::Initialize(Editor* editor)
 	{
-		m_editor		= editor;
-		m_mainWindow	= m_editor->GetApp()->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
-		m_payloadWindow = m_editor->GetApp()->CreateApplicationWindow(PAYLOAD_WINDOW_SID, "Transparent", Vector2i(0, 0), Vector2(500, 500), (uint32)LinaGX::WindowStyle::BorderlessAlpha, m_mainWindow);
-
+		m_editor	 = editor;
+		m_mainWindow = m_editor->GetApp()->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
 		CreateSurfaceRendererForWindow(m_editor->GetApp()->GetApplicationWindow(LINA_MAIN_SWAPCHAIN));
-		m_primaryWidgetManager = &GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
 
+		m_payloadWindow = m_editor->CreateEditorWindow(PAYLOAD_WINDOW_SID, "Transparent", Vector2i(0, 0), Vector2(500, 500), (uint32)LinaGX::WindowStyle::BorderlessAlpha, m_mainWindow);
 		CreateSurfaceRendererForWindow(m_payloadWindow);
+
+		m_primaryWidgetManager = &GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
 		m_payloadWindow->SetVisible(false);
 	}
 
@@ -63,12 +63,12 @@ namespace Lina::Editor
 		for (auto* w : m_subWindows)
 		{
 			DestroySurfaceRenderer(w);
-			m_editor->GetApp()->DestroyApplicationWindow(static_cast<StringID>(w->GetSID()));
+			m_editor->DestroyEditorWindow(w);
 		}
 
 		m_subWindows.clear();
 		DestroySurfaceRenderer(m_payloadWindow);
-		m_editor->GetApp()->DestroyApplicationWindow(static_cast<StringID>(m_payloadWindow->GetSID()));
+		m_editor->DestroyEditorWindow(m_payloadWindow);
 		DestroySurfaceRenderer(m_mainWindow);
 	}
 
@@ -124,7 +124,7 @@ namespace Lina::Editor
 
 				LinaGX::Window* window = m_editor->GetApp()->GetApplicationWindow(sid);
 				DestroySurfaceRenderer(window);
-				m_editor->GetApp()->DestroyApplicationWindow(sid);
+				m_editor->DestroyEditorWindow(window);
 				LinaGX::Window* top = Application::GetLGX()->GetWindowManager().GetTopWindow();
 				if (top->GetSID() == PAYLOAD_WINDOW_SID)
 				{
@@ -406,7 +406,7 @@ namespace Lina::Editor
 	{
 		const String	title	 = "Lina Editor " + TO_STRING(m_subWindowCounter);
 		const Vector2	usedSize = size.Clamp(m_editor->GetEditorRoot()->GetMonitorSize() * 0.1f, m_editor->GetEditorRoot()->GetMonitorSize());
-		LinaGX::Window* window	 = m_editor->GetApp()->CreateApplicationWindow(m_subWindowCounter, title.c_str(), pos, usedSize, (uint32)LinaGX::WindowStyle::BorderlessApplication, m_mainWindow);
+		LinaGX::Window* window	 = m_editor->CreateEditorWindow(m_subWindowCounter, title.c_str(), pos, usedSize, (uint32)LinaGX::WindowStyle::BorderlessApplication, m_mainWindow);
 		CreateSurfaceRendererForWindow(window);
 
 		m_subWindows.push_back(window);
@@ -471,18 +471,6 @@ namespace Lina::Editor
 	SurfaceRenderer* WindowPanelManager::GetSurfaceRenderer(StringID sid)
 	{
 		return m_surfaceRenderers.at(m_editor->GetApp()->GetApplicationWindow(sid));
-	}
-
-	void WindowPanelManager::OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size)
-	{
-		for (Pair<LinaGX::Window*, SurfaceRenderer*> pair : m_surfaceRenderers)
-		{
-			if (pair.first == window)
-			{
-				pair.second->OnWindowSizeChanged(window, size);
-				break;
-			}
-		}
 	}
 
 	Widget* WindowPanelManager::LockAllForegrounds(LinaGX::Window* srcWindow, Delegate<Widget*(Widget* owner)> otherWindowContents)

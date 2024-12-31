@@ -130,9 +130,12 @@ namespace Lina::Editor
 			}
 		}
 
-		if (m_gizmoSettings.lineVisualizeAxis != GizmoAxis::None)
+		if (m_gizmoSettings.visualizeAxis)
 		{
-			DrawGizmoAxisLine(m_targetPass, m_gizmoSettings.lineVisualizeAxis);
+			Camera& cam = m_world->GetWorldCamera();
+			m_worldRenderer->StartLine3DBatch();
+			m_worldRenderer->DrawLine3D(m_gizmoSettings.position + m_gizmoSettings.worldAxis * -cam.GetZFar() * 0.5f, m_gizmoSettings.position + m_gizmoSettings.worldAxis * cam.GetZFar() * 0.5f, 0.08f, GetColorFromAxis(m_gizmoSettings.focusedAxis));
+			m_worldRenderer->EndLine3DBatch(*m_targetPass, 0, m_line3DShader->GetGPUHandle());
 		}
 	}
 
@@ -301,53 +304,9 @@ namespace Lina::Editor
 		pass->AddDrawCall(draw);
 	}
 
-	void GizmoRenderer::DrawGizmoAxisLine(RenderPass* pass, GizmoAxis axis)
-	{
-		const float lineThickness = 0.2f;
-		const float lineExtent	  = 20.0f;
-
-		Vector3	  startPos = Vector3::Zero;
-		Vector3	  endPos   = Vector3::Zero;
-		ColorGrad color	   = Color::White;
-
-		const Vector3 pos = m_gizmoSettings.position;
-
-		if (m_gizmoSettings.locality == GizmoLocality::World)
-		{
-			if (axis == GizmoAxis::X)
-			{
-				startPos = pos + Vector3::Right * lineExtent;
-				endPos	 = pos - Vector3::Right * lineExtent;
-				color	 = Theme::GetDef().accentPrimary2;
-			}
-			else if (axis == GizmoAxis::Y)
-			{
-				startPos = pos + Vector3::Up * lineExtent;
-				endPos	 = pos - Vector3::Up * lineExtent;
-				color	 = Theme::GetDef().accentSuccess;
-			}
-			else if (axis == GizmoAxis::Z)
-			{
-				startPos = pos + Vector3::Forward * lineExtent;
-				endPos	 = pos - Vector3::Forward * lineExtent;
-				color	 = Theme::GetDef().accentSecondary;
-			}
-		}
-
-		m_worldRenderer->StartLine3DBatch();
-		m_worldRenderer->DrawLine3D(startPos, endPos, lineThickness, color);
-		m_worldRenderer->EndLine3DBatch(*pass, 0, m_line3DShader->GetGPUHandle());
-	}
-
 	void GizmoRenderer::DrawGizmoRotateFocus(RenderPass* pass, float shaderScale)
 	{
 		Camera& cam = m_world->GetWorldCamera();
-
-		{
-			m_worldRenderer->StartLine3DBatch();
-			m_worldRenderer->DrawLine3D(m_gizmoSettings.position + m_gizmoSettings.rotationAxis * -cam.GetZFar() * 0.5f, m_gizmoSettings.position + m_gizmoSettings.rotationAxis * cam.GetZFar() * 0.5f, 0.08f, GetColorFromAxis(m_gizmoSettings.focusedAxis));
-			m_worldRenderer->EndLine3DBatch(*pass, 0, m_line3DShader->GetGPUHandle());
-		}
 
 		m_worldRenderer->StartLinaVGBatch();
 
@@ -358,12 +317,15 @@ namespace Lina::Editor
 		const uint32		   indexCount = static_cast<uint32>(prim.indices.size());
 
 		const GPUEntity e = {
-			.model = Matrix4::TransformMatrix(m_gizmoSettings.position, Quaternion::Identity(), Vector3(2.0f)),
+			.model = Matrix4::TransformMatrix(m_gizmoSettings.position, Quaternion::Rotation(Vector3::Forward, m_gizmoSettings.worldAxis), Vector3(2.0f)),
 		};
 
-		m_gizmoRotateMaterial->SetProperty("color"_hs, Vector4(GetColorFromAxis(m_gizmoSettings.focusedAxis)));
-		m_gizmoRotateMaterial->SetProperty("angle0"_hs, m_gizmoSettings.angle0 * DEG_2_RAD);
-		m_gizmoRotateMaterial->SetProperty("angle1"_hs, m_gizmoSettings.angle1 * DEG_2_RAD);
+		Color col = Vector4(GetColorFromAxis(m_gizmoSettings.focusedAxis));
+		col.w	  = 0.5f;
+
+		m_gizmoRotateMaterial->SetProperty("color"_hs, col);
+		m_gizmoRotateMaterial->SetProperty("angle0"_hs, m_gizmoSettings.angle0);
+		m_gizmoRotateMaterial->SetProperty("angle1"_hs, m_gizmoSettings.angle1);
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 
 		const GPUDrawArguments args = {

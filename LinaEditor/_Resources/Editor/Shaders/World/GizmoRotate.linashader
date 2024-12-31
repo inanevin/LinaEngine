@@ -35,7 +35,7 @@ SOFTWARE.
 #blend: LINA_BLEND_ALPHA
 #depth: LINA_DEPTH_ALWAYS
 #target: LINA_TARGET_LDR_MS
-#cull: LINA_CULL_BACK
+#cull: LINA_CULL_NONE
 
 #lina_end
 
@@ -99,10 +99,17 @@ void LINA_FRAG_MAIN(out LinaFragOutput outFrag)
     angle = mod(angle + 6.28318530718, 6.28318530718);
 
    float alpha = 1.0;
-    // Check if the angle is outside the range
-    if (angle < material.angle0 || angle > material.angle1)
-    {
-       alpha = 0.5; 
+   // Check if the angle is between angle0 and angle1
+    if (material.angle0 < material.angle1) {
+        // Normal case
+        if (angle < material.angle0 || angle > material.angle1) {
+            alpha = 0.1;
+        }
+    } else {
+        // Wrap-around case (angle0 > angle1)
+        if (angle > material.angle1 && angle < material.angle0) {
+         alpha = 0.1;
+        }
     }
 
     // Assign the material color

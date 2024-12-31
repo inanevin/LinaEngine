@@ -56,4 +56,20 @@ namespace Lina::Editor
 		uint64			 m_worldId		= 0;
 	};
 
+	class EditorActionEntityTransform : public EditorAction
+	{
+	public:
+		EditorActionEntityTransform()		   = default;
+		virtual ~EditorActionEntityTransform() = default;
+
+		static EditorActionEntityTransform* Create(Editor* editor, uint64 m_worldId, const Vector<Entity*>& entities, const Vector<Transformation>& previousTransforms);
+		virtual void						Execute(Editor* editor, ExecType type) override;
+
+	private:
+		Vector<EntityID>	   m_entities = {};
+		Vector<Transformation> m_prevTransforms;
+		Vector<Transformation> m_currentTransforms;
+		uint64				   m_worldId = 0;
+	};
+
 } // namespace Lina::Editor

@@ -62,21 +62,20 @@ namespace Lina::Editor
 
 		struct GizmoControls
 		{
-			GizmoMode			   type						  = GizmoMode::Move;
-			GizmoAxis			   hoveredAxis				  = GizmoAxis::None;
-			GizmoAxis			   targetAxis				  = GizmoAxis::None;
-			GizmoLocality		   locality					  = GizmoLocality::World;
-			GizmoSnapping		   snapping					  = GizmoSnapping::Free;
-			Vector3				   averagePosition			  = Vector3::Zero;
-			Vector3				   pressedGizmoPosition		  = Vector3::Zero;
-			Vector2				   pressedGizmoPositionScreen = Vector2::Zero;
-			Vector2				   pressedMouseDelta		  = Vector2::Zero;
-			Vector2				   pressedMousePosition		  = Vector2::Zero;
-			Vector2				   currentMousePosition		  = Vector2::Zero;
-			Vector<Transformation> pressedEntityTransforms	  = {};
-
-			Vector3 targetAxisWorld	 = Vector3::Zero;
-			Vector2 targetAxisScreen = Vector2::Zero;
+			String				   valueStr				   = "";
+			float				   value				   = 0.0f;
+			GizmoMotion			   gizmoMotion			   = GizmoMotion::None;
+			GizmoMode			   type					   = GizmoMode::Move;
+			GizmoAxis			   motionAxis			   = GizmoAxis::None;
+			GizmoLocality		   locality				   = GizmoLocality::World;
+			GizmoSnapping		   snapping				   = GizmoSnapping::Free;
+			Vector3				   averagePosition		   = Vector3::Zero;
+			Vector3				   motionStartAvgPos	   = Vector3::Zero;
+			Vector2				   motionStartAvgPosScreen = Vector2::Zero;
+			Vector2				   motionStartMouseDelta   = Vector2::Zero;
+			Vector2				   motionStartMousePos	   = Vector2::Zero;
+			Vector2				   motionCurrentMousePos   = Vector2::Zero;
+			Vector<Transformation> motionStartTransforms   = {};
 
 			bool	visualizeLine	  = false;
 			Vector2 visualizeLineP0	  = Vector2::Zero;
@@ -116,6 +115,7 @@ namespace Lina::Editor
 		ResourceID	 GetWorldID();
 		void		 SelectEntity(Entity* e, bool clearOthers);
 		void		 OnActionEntitySelection(const Vector<EntityID>& selection);
+		void		 OnActionEntityTransforms(const Vector<EntityID>& entities, const Vector<Transformation>& transforms);
 		void		 OnEntitySelectionChanged();
 
 		// Gizmos
@@ -143,6 +143,9 @@ namespace Lina::Editor
 		void HandleGizmoControls();
 		void DestroyCamera();
 		void CalculateAverageGizmoPosition();
+
+		void StartGizmoMotion(GizmoMotion motion, GizmoAxis axis);
+		void StopGizmoMotion();
 
 	private:
 		WorldRenderer*		 m_worldRenderer = nullptr;

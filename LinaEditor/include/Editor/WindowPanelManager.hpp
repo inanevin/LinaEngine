@@ -77,7 +77,6 @@ namespace Lina::Editor
 		Widget*						 PrepareNewWindowToDock(const Vector2& pos, const Vector2& size);
 		void						 CloseWindow(StringID sid);
 		void						 CloseAllSubwindows();
-		void						 OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size);
 		void						 OnPanelDestruct(Panel* panel);
 		Panel*						 FindPanelOfType(PanelType type, ResourceID subData, DockArea*& owningArea);
 		Panel*						 FindPanelOfType(PanelType type, ResourceID subData);

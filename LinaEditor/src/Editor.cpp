@@ -93,7 +93,9 @@ namespace Lina::Editor
 
 	bool Editor::Initialize()
 	{
-		s_editor						 = this;
+		s_editor = this;
+		m_app->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->AddListener(this);
+
 		Theme::GetDef().iconFont		 = EDITOR_FONT_ICON_ID;
 		Theme::GetDef().defaultFont		 = EDITOR_FONT_ROBOTO_ID;
 		Theme::GetDef().defaultBoldFont	 = EDITOR_FONT_ROBOTO_BOLD_ID;
@@ -170,24 +172,89 @@ namespace Lina::Editor
 		return true;
 	}
 
-	void Editor::OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size)
+	void Editor::OnWindowKey(LinaGX::Window* window, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
+	{
+		SurfaceRenderer* rend = m_windowPanelManager.GetSurfaceRenderer(window->GetSID());
+
+		LinaGX::Input& lgxInput = m_app->GetLGX()->GetInput();
+		if (keycode == LINAGX_KEY_Z && inputAction != LinaGX::InputAction::Released && lgxInput.GetKey(LINAGX_KEY_LCTRL))
+		{
+			m_editorActionManager.Undo();
+			return;
+		}
+
+		if (keycode == LINAGX_KEY_Y && inputAction != LinaGX::InputAction::Released && lgxInput.GetKey(LINAGX_KEY_LCTRL))
+		{
+			m_editorActionManager.Redo();
+			return;
+		}
+
+		rend->GetWidgetManager().OnKey(keycode, scancode, inputAction);
+	}
+
+	void Editor::OnWindowMouse(LinaGX::Window* window, uint32 button, LinaGX::InputAction inputAction)
+	{
+		SurfaceRenderer* rend = m_windowPanelManager.GetSurfaceRenderer(window->GetSID());
+		rend->GetWidgetManager().OnMouse(button, inputAction);
+	}
+
+	void Editor::OnWindowMouseWheel(LinaGX::Window* window, float amt)
+	{
+		SurfaceRenderer* rend = m_windowPanelManager.GetSurfaceRenderer(window->GetSID());
+		rend->GetWidgetManager().OnMouseWheel(amt);
+	}
+
+	void Editor::OnWindowMouseMove(LinaGX::Window* window, const LinaGX::LGXVector2& pos)
+	{
+		SurfaceRenderer* rend = m_windowPanelManager.GetSurfaceRenderer(window->GetSID());
+		rend->GetWidgetManager().OnMouseMove(pos);
+	}
+
+	void Editor::OnWindowFocus(LinaGX::Window* window, bool gainedFocus)
+	{
+		SurfaceRenderer* rend = m_windowPanelManager.GetSurfaceRenderer(window->GetSID());
+		rend->GetWidgetManager().OnFocus(gainedFocus);
+	}
+
+	void Editor::OnWindowHoverBegin(LinaGX::Window* window)
+	{
+		SurfaceRenderer* rend = m_windowPanelManager.GetSurfaceRenderer(window->GetSID());
+		rend->GetWidgetManager().OnHoverBegin();
+		;
+	}
+
+	void Editor::OnWindowHoverEnd(LinaGX::Window* window)
+	{
+		SurfaceRenderer* rend = m_windowPanelManager.GetSurfaceRenderer(window->GetSID());
+		rend->GetWidgetManager().OnHoverEnd();
+	}
+
+	LinaGX::Window* Editor::CreateEditorWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, uint32 style, LinaGX::Window* parentWindow)
+	{
+		LinaGX::Window* w = m_app->CreateApplicationWindow(sid, title, pos, size, style, parentWindow);
+		w->AddListener(this);
+		return w;
+	}
+
+	void Editor::DestroyEditorWindow(LinaGX::Window* window)
+	{
+		window->RemoveListener(this);
+		m_app->DestroyApplicationWindow(window->GetSID());
+	}
+
+	void Editor::OnWindowClose(LinaGX::Window* window)
+	{
+		m_app->Quit();
+	}
+
+	void Editor::OnWindowSizeChanged(LinaGX::Window* window, const LinaGX::LGXVector2ui& size)
 	{
 		m_app->JoinRender();
-		m_windowPanelManager.OnWindowSizeChanged(window, size);
+		m_windowPanelManager.GetSurfaceRenderer(window->GetSID())->OnWindowSizeChanged(window, size);
 	}
 
 	void Editor::PreTick()
 	{
-		LinaGX::Input& lgxInput = m_app->GetLGX()->GetInput();
-		if (lgxInput.GetKeyDown(LINAGX_KEY_Z) && lgxInput.GetKey(LINAGX_KEY_LCTRL))
-		{
-			m_editorActionManager.Undo();
-		}
-		if (lgxInput.GetKeyDown(LINAGX_KEY_Y) && lgxInput.GetKey(LINAGX_KEY_LCTRL))
-		{
-			m_editorActionManager.Redo();
-		}
-
 		m_projectManager.PreTick();
 		m_taskManager.PreTick();
 		m_windowPanelManager.PreTick();
@@ -217,6 +284,8 @@ namespace Lina::Editor
 		m_atlasManager.Shutdown();
 		m_windowPanelManager.Shutdown();
 		m_projectManager.Shutdown();
+
+		m_app->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->RemoveListener(this);
 	}
 
 	void Editor::RequestExit()

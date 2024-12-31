@@ -68,4 +68,37 @@ namespace Lina::Editor
 		}
 	}
 
+	EditorActionEntityTransform* EditorActionEntityTransform::Create(Editor* editor, uint64 m_worldId, const Vector<Entity*>& entities, const Vector<Transformation>& previousTransforms)
+	{
+		EditorActionEntityTransform* action = new EditorActionEntityTransform();
+
+		for (Entity* e : entities)
+		{
+			action->m_entities.push_back(e->GetGUID());
+			action->m_currentTransforms.push_back(e->GetTransform());
+		}
+
+		action->m_prevTransforms = previousTransforms;
+		action->m_worldId		 = m_worldId;
+
+		editor->GetEditorActionManager().AddToStack(action);
+		return action;
+	}
+
+	void EditorActionEntityTransform::Execute(Editor* editor, ExecType type)
+	{
+		WorldController* controller = editor->GetWorldManager().FindWorldController(m_worldId);
+		if (!controller)
+			return;
+
+		if (type == ExecType::Undo)
+		{
+			controller->OnActionEntityTransforms(m_entities, m_prevTransforms);
+		}
+		else if (type == ExecType::Redo)
+		{
+			controller->OnActionEntityTransforms(m_entities, m_currentTransforms);
+		}
+	}
+
 } // namespace Lina::Editor

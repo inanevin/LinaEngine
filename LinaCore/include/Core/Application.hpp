@@ -33,7 +33,6 @@ SOFTWARE.
 #include "Core/Graphics/GfxContext.hpp"
 #include "Core/Graphics/GUI/GUIBackend.hpp"
 #include "Core/World/WorldProcessor.hpp"
-#include <LinaGX/Core/Window.hpp>
 
 namespace LinaGX
 {
@@ -47,18 +46,16 @@ namespace Lina
 	class CoreResourcesRegistry;
 	class ApplicationDelegate;
 
-	class Application : public LinaGX::WindowListener
+	class Application
 	{
 	public:
 		Application() : m_executor(2){};
 		~Application(){};
 
-		bool		 Initialize(const SystemInitializationInfo& initInfo);
-		void		 Tick();
-		void		 JoinRender();
-		void		 Shutdown();
-		virtual void OnWindowClose(LinaGX::Window* window) override;
-		virtual void OnWindowSizeChanged(LinaGX::Window* window, const LinaGX::LGXVector2ui&) override;
+		bool Initialize(const SystemInitializationInfo& initInfo);
+		void Tick();
+		void JoinRender();
+		void Shutdown();
 
 		void			DestroyApplicationWindow(StringID sid);
 		LinaGX::Window* CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, uint32 style, LinaGX::Window* parentWindow = nullptr);

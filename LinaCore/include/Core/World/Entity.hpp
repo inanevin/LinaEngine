@@ -49,6 +49,7 @@ namespace Lina
 		void RemoveFromParent();
 		void SetTransformation(const Matrix4& mat, bool omitScale = false);
 		void SetLocalTransformation(const Matrix4& mat, bool omitScale = false);
+		void SetTransform(const Transformation& transform);
 		void AddRotation(const Vector3& angles);
 		void AddLocalRotation(const Vector3& angles);
 		void AddPosition(const Vector3& loc);

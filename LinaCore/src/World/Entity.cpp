@@ -86,6 +86,13 @@ namespace Lina
 			SetLocalScale(scale);
 	}
 
+	void Entity::SetTransform(const Transformation& transform)
+	{
+		m_transform = transform;
+		m_transform.UpdateGlobalMatrix();
+		m_transform.UpdateLocalMatrix();
+	}
+
 	void Entity::AddRotation(const Vector3& angles)
 	{
 		SetRotationAngles(GetRotationAngles() + angles);

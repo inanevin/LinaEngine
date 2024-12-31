@@ -73,4 +73,11 @@ namespace Lina::Editor
 		Center,
 	};
 
+	enum class GizmoMotion
+	{
+		None,
+		Mouse,
+		Key
+	};
+
 } // namespace Lina::Editor

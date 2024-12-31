@@ -129,6 +129,7 @@ namespace Lina
 		Vector4	   ToVector() const;
 
 		static Quaternion Identity();
+		static Quaternion Rotation(const Vector3& forward, const Vector3& axis);
 		static Quaternion FromVector(const Vector3& rot);
 		static Quaternion ShortMix(const Quaternion& q1, const Quaternion& q2, float alpha);
 		static Quaternion Lerp(const Quaternion& q1, const Quaternion& q2, float alpha);
