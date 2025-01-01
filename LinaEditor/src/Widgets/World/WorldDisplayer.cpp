@@ -110,7 +110,7 @@ namespace Lina::Editor
 			return;
 
 		const uint32 frameIndex	   = Application::GetLGX()->GetCurrentFrameIndex();
-		const uint32 txtFrameIndex = (frameIndex + SystemInfo::GetRendererBehindFrames()) % 2;
+		const uint32 txtFrameIndex = (frameIndex + SystemInfo::GetRendererBehindFrames()) % FRAMES_IN_FLIGHT;
 		Texture*	 target		   = nullptr;
 
 		const WorldController::DisplayTexture dp = m_worldController->GetCurrentDisplayTexture();

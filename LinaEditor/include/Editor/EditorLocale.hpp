@@ -192,6 +192,12 @@ namespace Lina::Editor
 		Tris,
 		DPIScale,
 		PreviewAnimation,
+		Move,
+		Scale,
+		Rotate,
+		VisibilityOn,
+		VisibilityOff,
+		Snapping,
 	};
 
 	class Locale

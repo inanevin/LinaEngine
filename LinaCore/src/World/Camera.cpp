@@ -75,10 +75,7 @@ namespace Lina
 		const Matrix4 translation = Matrix4::Translate(-m_worldPosition);
 		m_view					  = rot * translation;
 		m_projection			  = Matrix4::Perspective(m_fovDegrees / 2, static_cast<float>(sz.x) / static_cast<float>(sz.y), m_zNear, m_zFar);
-		m_projection			  = Matrix4::Orthographic(0, 1.0f, 0.0f, 1.0f, 0.5f, 50.0f);
-
-		const float aspectRatio = sz.x / sz.y;
-		m_projection			= glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 10.0f);
+		// m_projection			= glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.5f, 100.0f);
 
 		m_viewProj	  = m_projection * m_view;
 		m_viewProjInv = m_viewProj.Inverse();

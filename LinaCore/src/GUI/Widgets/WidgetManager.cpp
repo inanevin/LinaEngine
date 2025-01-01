@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Core/CommonCore.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Data/CommonData.hpp"
+#include "Common/Tween/Tween.hpp"
 
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
@@ -748,6 +749,14 @@ namespace Lina
 			w->SetSizeY(max * w->GetAlignedSizeY() + w->GetWidgetProps().childMargins.top + w->GetWidgetProps().childMargins.bottom);
 		}
 
+		if (w->GetWidgetProps().useSizeTween)
+		{
+			Tween& tw = w->GetWidgetProps().sizeTween;
+			tw.Tick(delta);
+
+			w->SetSizeX(w->GetSizeX() * tw.GetValue());
+			w->SetSizeY(w->GetSizeY() * tw.GetValue());
+		}
 		w->CalculateSize(delta);
 
 		if (!expandingChildren.empty())

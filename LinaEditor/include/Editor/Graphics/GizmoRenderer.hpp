@@ -63,30 +63,25 @@ namespace Lina::Editor
 	public:
 		struct GizmoSettings
 		{
-			bool		  draw			= false;
-			bool		  visualizeAxis = false;
-			GizmoAxis	  focusedAxis	= GizmoAxis::None;
-			GizmoMode	  type			= GizmoMode::Move;
-			GizmoAxis	  hoveredAxis	= GizmoAxis::None;
-			GizmoLocality locality		= GizmoLocality::World;
-			Vector3		  position		= Vector3::Zero;
-			Quaternion	  rotation		= Quaternion::Identity();
-			GizmoSnapping snapping		= GizmoSnapping::Free;
-			Vector3		  worldAxis		= Vector3::Zero;
-			float		  angle0		= 0.0f;
-			float		  angle1		= 0.0f;
-		};
-
-		struct PerFrameData
-		{
-			Texture* gizmoOrientationPassRT = nullptr;
+			bool		  draw			  = false;
+			bool		  visualizeAxis	  = false;
+			EntityID	  hoveredEntityID = 0;
+			GizmoAxis	  focusedAxis	  = GizmoAxis::None;
+			GizmoMode	  type			  = GizmoMode::Move;
+			GizmoAxis	  hoveredAxis	  = GizmoAxis::None;
+			GizmoLocality locality		  = GizmoLocality::World;
+			Vector3		  position		  = Vector3::Zero;
+			Quaternion	  rotation		  = Quaternion::Identity();
+			GizmoSnapping snapping		  = GizmoSnapping::Free;
+			Vector3		  worldAxis		  = Vector3::Zero;
+			float		  angle0		  = 0.0f;
+			float		  angle1		  = 0.0f;
 		};
 
 		GizmoRenderer(Editor* editor, WorldRenderer* wr, RenderPass* targetPass, MousePickRenderer* mpr);
 		virtual ~GizmoRenderer();
 
 		void Tick(float delta);
-		void Render(uint32 frameIndex, LinaGX::CommandStream* stream);
 
 		inline GizmoSettings& GetSettings()
 		{
@@ -112,6 +107,7 @@ namespace Lina::Editor
 		Model* m_rotateFullModel = nullptr;
 		Model* m_centerTranslate = nullptr;
 		Model* m_centerScale	 = nullptr;
+		Model* m_orientGizmo	 = nullptr;
 
 		Material*		   m_gizmoRotateMaterial = nullptr;
 		Material*		   m_gizmoMaterialCenter = nullptr;
@@ -126,9 +122,5 @@ namespace Lina::Editor
 		RenderPass*		   m_targetPass			 = nullptr;
 		MousePickRenderer* m_mousePickRenderer	 = nullptr;
 		GizmoSettings	   m_gizmoSettings		 = {};
-		GizmoAxis		   m_lastHoveredAxis	 = GizmoAxis::None;
-		RenderPass		   m_orientationGizmoPass;
-		uint16			   m_pipelineLayoutOrientationGizmoPass = 0;
-		PerFrameData	   m_pfd[FRAMES_IN_FLIGHT];
 	};
 } // namespace Lina::Editor

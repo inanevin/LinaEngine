@@ -41,6 +41,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
+#include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
@@ -53,6 +54,10 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+
+#define SELECTION_CIRCLE_DUR		0.3f
+#define SELECTION_CIRCLE_BUTTON_DUR 0.1f
+
 	void WorldController::Construct()
 	{
 		m_editor = Editor::Get();
@@ -99,6 +104,58 @@ namespace Lina::Editor
 		m_gizmoControls.type	 = static_cast<GizmoMode>(m_editor->GetSettings().GetParams().GetParamUint8("GizmoType"_hs, 0));
 		m_gizmoControls.locality = static_cast<GizmoLocality>(m_editor->GetSettings().GetParams().GetParamUint8("GizmoLocality"_hs, 0));
 		m_gizmoControls.snapping = static_cast<GizmoSnapping>(m_editor->GetSettings().GetParams().GetParamUint8("GizmoSnapping"_hs, 0));
+
+		Button* buttonMove = m_manager->Allocate<Button>("Move");
+		buttonMove->RemoveText();
+		buttonMove->CreateIcon(ICON_MOVE);
+		buttonMove->GetProps().onClicked = [this]() { SelectGizmo(GizmoMode::Move); };
+		AddChild(buttonMove);
+
+		Button* buttonRotate = m_manager->Allocate<Button>("Rotate");
+		buttonRotate->RemoveText();
+		buttonRotate->CreateIcon(ICON_ROTATE);
+		buttonRotate->GetProps().onClicked = [this]() { SelectGizmo(GizmoMode::Rotate); };
+		AddChild(buttonRotate);
+
+		Button* buttonScale = m_manager->Allocate<Button>("Scale");
+		buttonScale->RemoveText();
+		buttonScale->CreateIcon(ICON_SCALE);
+		buttonScale->GetProps().onClicked = [this]() { SelectGizmo(GizmoMode::Scale); };
+		AddChild(buttonScale);
+
+		Button* buttonLocality = m_manager->Allocate<Button>("Locality");
+		buttonLocality->RemoveText();
+		buttonLocality->CreateIcon(ICON_GLOBE);
+		buttonLocality->GetProps().onClicked = [this]() {
+			if (m_gizmoControls.locality == GizmoLocality::Local)
+				SelectGizmoLocality(GizmoLocality::World);
+			else
+				SelectGizmoLocality(GizmoLocality::Local);
+		};
+		AddChild(buttonLocality);
+
+		Button* buttonSnap = m_manager->Allocate<Button>("Snap");
+		buttonSnap->RemoveText();
+		buttonSnap->CreateIcon(ICON_MAGNET);
+		AddChild(buttonSnap);
+
+		m_selectionCircle.buttons.push_back({.widget = buttonMove, .angle = 320.0f});
+		m_selectionCircle.buttons.push_back({.widget = buttonRotate, .angle = 340.0f});
+		m_selectionCircle.buttons.push_back({.widget = buttonScale, .angle = 360.0f});
+		m_selectionCircle.buttons.push_back({.widget = buttonLocality, .angle = 25.0f});
+		m_selectionCircle.buttons.push_back({.widget = buttonSnap, .angle = 45.0f});
+
+		for (SelectionCircleButton& but : m_selectionCircle.buttons)
+		{
+			but.widget->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_USE_FIXED_SIZE_Y | WF_HIDE);
+			but.widget->SetFixedSize(Vector2(Theme::GetDef().baseItemHeight * 1.25f));
+			but.widget->GetWidgetProps().rounding			= Theme::GetDef().baseRounding;
+			but.widget->GetWidgetProps().colorHovered		= Theme::GetDef().accentSecondary;
+			but.widget->GetWidgetProps().drawOrderIncrement = 2;
+			but.widget->GetWidgetProps().useSizeTween		= true;
+			but.icon										= but.widget->GetIcon();
+			but.icon->GetProps().dynamicSizeScale			= 0.9f;
+		}
 	}
 
 	void WorldController::Destruct()
@@ -141,12 +198,31 @@ namespace Lina::Editor
 		m_world->GetInput().SetWheelActive(m_isHovered && m_lgxWindow->HasFocus());
 
 		HandleGizmoControls();
+
+		const Vector2 sz						   = GetEndFromMargins() - GetStartFromMargins();
+		Camera&		  cam						   = m_world->GetWorldCamera();
+		m_gizmoControls.averagePositionScreenSpace = GetStartFromMargins() + Camera::WorldToScreen(cam, m_gizmoControls.averagePosition, sz).XY();
+		m_selectionCircle._radius				   = Math::Max(sz.x, sz.y) * m_selectionCircle.radiusPerc;
+
+		for (const SelectionCircleButton& but : m_selectionCircle.buttons)
+		{
+			const Vector2 point	 = Vector2(Math::Cos(DEG_2_RAD * but.angle), Math::Sin(DEG_2_RAD * but.angle)) * m_selectionCircle._radius;
+			const Vector2 target = m_gizmoControls.averagePositionScreenSpace + point;
+			but.widget->SetPos(target - but.widget->GetHalfSize());
+		}
+
+		m_selectionCircle.buttons[0].widget->GetWidgetProps().colorBackground = m_gizmoControls.type == GizmoMode::Move ? Theme::GetDef().accentSecondary : Theme::GetDef().background0;
+		m_selectionCircle.buttons[1].widget->GetWidgetProps().colorBackground = m_gizmoControls.type == GizmoMode::Rotate ? Theme::GetDef().accentSecondary : Theme::GetDef().background0;
+		m_selectionCircle.buttons[2].widget->GetWidgetProps().colorBackground = m_gizmoControls.type == GizmoMode::Scale ? Theme::GetDef().accentSecondary : Theme::GetDef().background0;
+		m_selectionCircle.buttons[3].widget->GetIcon()->GetProps().icon		  = m_gizmoControls.usedLocality == GizmoLocality::World ? ICON_GLOBE : ICON_CUBE;
 	}
 
 	void WorldController::Tick(float dt)
 	{
 		if (m_worldRenderer == nullptr)
 			return;
+
+		m_selectionCircle.circleTween.Tick(dt);
 	}
 
 	void WorldController::Draw()
@@ -154,6 +230,7 @@ namespace Lina::Editor
 		if (m_worldRenderer == nullptr)
 			return;
 
+		const int32 baseDO = m_drawOrder + 1;
 		if (m_gizmoControls.gizmoMotion == GizmoMotion::Key)
 		{
 			LinaVG::StyleOptions style;
@@ -167,9 +244,33 @@ namespace Lina::Editor
 			opts.color		   = Theme::GetDef().foreground0.AsLVG4();
 			opts.color.start.w = opts.color.end.w = m_gizmoControls.visualizeAlpha;
 
-			const Vector2 pos	= m_lgxWindow->GetMousePosition();
+			const Vector2 pos	= m_gizmoControls.averagePositionScreenSpace + Vector2(0.0f, m_selectionCircle._radius);
 			const String  value = UtilStr::FloatToString(m_gizmoControls.visualizeDistance, 3);
-			m_lvg->DrawTextDefault(value.c_str(), pos.AsLVG(), opts, 0.0f, m_drawOrder + 1);
+
+			const Vector2 txtSize = m_lvg->CalculateTextSize(value.c_str(), opts);
+			m_lvg->DrawTextDefault(value.c_str(), (pos - Vector2(txtSize.x * 0.5f, txtSize.y * 0.5f)).AsLVG(), opts, 0.0f, baseDO);
+		}
+
+		if (m_selectionCircle.visible)
+		{
+			LinaVG::StyleOptions style;
+			style.color						   = ColorGrad(Theme::GetDef().accentSecondary, Theme::GetDef().accentPrimary0).AsLVG();
+			style.color						   = Theme::GetDef().foreground0.AsLVG4();
+			style.color.gradientType		   = LinaVG::GradientType::Vertical;
+			style.isFilled					   = false;
+			style.aaEnabled					   = true;
+			style.thickness					   = 2.0f;
+			style.outlineOptions.thickness	   = 0.5f;
+			style.outlineOptions.drawDirection = LinaVG::OutlineDrawDirection::Both;
+			style.outlineOptions.color		   = Theme::GetDef().background0.AsLVG4();
+			style.color.start.w = style.color.end.w = 0.75f;
+
+			const float startAngle = 300.0f;
+			const float endAngle   = 420.0f;
+			const float actualEnd  = startAngle + (endAngle - startAngle) * m_selectionCircle.circleTween.GetValue();
+
+			if (!Math::Equals(startAngle, actualEnd, 0.1f))
+				m_lvg->DrawCircle(m_gizmoControls.averagePositionScreenSpace.AsLVG(), m_selectionCircle._radius, style, 72, 0.0f, startAngle, actualEnd, baseDO);
 		}
 	}
 
@@ -263,6 +364,9 @@ namespace Lina::Editor
 			else if (lastHovered == GIZMO_GUID_CENTER_AXIS)
 			{
 				StartGizmoMotion(GizmoMotion::Mouse, GizmoAxis::Center);
+			}
+			else if (lastHovered == GIZMO_ORIENTATION_X || lastHovered == GIZMO_ORIENTATION_Y || lastHovered == GIZMO_ORIENTATION_Z)
+			{
 			}
 			else
 			{
@@ -423,6 +527,28 @@ namespace Lina::Editor
 	void WorldController::OnEntitySelectionChanged()
 	{
 		m_ewr->SetSelectedEntities(m_selectedEntities);
+		const bool selectionCircleVisible = !m_selectedEntities.empty();
+		if (!m_selectionCircle.visible && selectionCircleVisible)
+			m_selectionCircle.circleTween = Tween(0.0f, 1.0f, SELECTION_CIRCLE_DUR, TweenType::EaseIn);
+
+		m_selectionCircle.visible = selectionCircleVisible;
+
+		float delay = 0.0f;
+		for (const SelectionCircleButton& but : m_selectionCircle.buttons)
+		{
+			const bool hidden	= but.widget->GetFlags().IsSet(WF_HIDE);
+			const bool willHide = !m_selectionCircle.visible;
+
+			if (hidden && !willHide)
+			{
+				but.widget->GetWidgetProps().sizeTween = Tween(0.0f, 1.0f, SELECTION_CIRCLE_BUTTON_DUR, TweenType::Bounce);
+				but.widget->GetWidgetProps().sizeTween.SetDelay(delay);
+				delay += 0.08f;
+			}
+
+			but.widget->GetFlags().Set(WF_HIDE, willHide);
+		}
+		SelectGizmo(m_gizmoControls.type);
 	}
 
 	void WorldController::SelectGizmo(GizmoMode gizmo)
@@ -480,35 +606,29 @@ namespace Lina::Editor
 		rendererSettings.hoveredAxis				   = GizmoAxis::None;
 		rendererSettings.draw						   = false;
 
+		// Hovered state.
+		{
+			const EntityID hovered = m_ewr->GetMousePick().GetLastHoveredEntity();
+
+			if (m_gizmoControls.motionAxis == GizmoAxis::X)
+				rendererSettings.hoveredEntityID = GIZMO_GUID_X_AXIS;
+			else if (m_gizmoControls.motionAxis == GizmoAxis::Y)
+				rendererSettings.hoveredEntityID = GIZMO_GUID_Y_AXIS;
+			else if (m_gizmoControls.motionAxis == GizmoAxis::Z)
+				rendererSettings.hoveredEntityID = GIZMO_GUID_Z_AXIS;
+			else if (m_gizmoControls.motionAxis == GizmoAxis::Center)
+				rendererSettings.hoveredEntityID = GIZMO_GUID_CENTER_AXIS;
+			else
+				rendererSettings.hoveredEntityID = hovered;
+		}
+
 		if (m_selectedEntities.empty())
 			return;
 
 		if (m_gizmoControls.gizmoMotion == GizmoMotion::Mouse && !m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_0))
-		{
 			StopGizmoMotion();
-		}
 
 		CalculateAverageGizmoPosition();
-
-		// Hovered state.
-		{
-			const EntityID hovered	   = m_ewr->GetMousePick().GetLastHoveredEntity();
-			GizmoAxis	   hoveredAxis = GizmoAxis::None;
-
-			if (m_gizmoControls.motionAxis != GizmoAxis::None)
-				hoveredAxis = m_gizmoControls.motionAxis;
-			else if (hovered == GIZMO_GUID_X_AXIS)
-				hoveredAxis = GizmoAxis::X;
-			else if (hovered == GIZMO_GUID_Y_AXIS)
-				hoveredAxis = GizmoAxis::Y;
-			else if (hovered == GIZMO_GUID_Z_AXIS)
-				hoveredAxis = GizmoAxis::Z;
-			else if (hovered == GIZMO_GUID_CENTER_AXIS)
-				hoveredAxis = GizmoAxis::Center;
-			else
-				hoveredAxis == GizmoAxis::None;
-			rendererSettings.hoveredAxis = hoveredAxis;
-		}
 
 		rendererSettings.draw		   = true;
 		rendererSettings.visualizeAxis = false;
@@ -520,6 +640,13 @@ namespace Lina::Editor
 			rendererSettings.rotation = m_selectedEntities.size() == 1 ? m_selectedEntities.at(0)->GetRotation() : Quaternion::Identity();
 		else
 			rendererSettings.rotation = (m_selectedEntities.size() > 1 || m_gizmoControls.locality == GizmoLocality::World) ? Quaternion::Identity() : m_selectedEntities.at(0)->GetRotation();
+
+		m_gizmoControls.usedLocality = m_gizmoControls.locality;
+
+		if (m_gizmoControls.type == GizmoMode::Scale)
+			m_gizmoControls.usedLocality = GizmoLocality::Local;
+		else if (m_selectedEntities.size() > 1)
+			m_gizmoControls.usedLocality = GizmoLocality::World;
 
 		m_gizmoControls.visualizeAlpha = Math::Lerp(m_gizmoControls.visualizeAlpha, m_gizmoControls.gizmoMotion == GizmoMotion::Key ? 1.0f : 0.0f, SystemInfo::GetDeltaTime() * 10.0f);
 

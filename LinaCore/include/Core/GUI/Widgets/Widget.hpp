@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Core/GUI/CommonGUI.hpp"
 #include "Core/GUI/Theme.hpp"
 #include "Common/Data/Bitmask.hpp"
+#include "Common/Tween/Tween.hpp"
 #include "Core/Reflection/WidgetReflection.hpp"
 
 // Common inputs.
@@ -164,6 +165,8 @@ namespace Lina
 		ColorGrad			 _interpolatedColor			 = Color();
 		DropshadowProps		 dropshadow;
 		bool				 altColorsToggled = false;
+		bool				 useSizeTween	  = false;
+		Tween				 sizeTween		  = Tween(1.0f, 1.0f, 0.1f);
 
 		virtual void SaveToStream(OStream& stream) const;
 		virtual void LoadFromStream(IStream& stream);

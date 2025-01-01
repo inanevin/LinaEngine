@@ -189,6 +189,12 @@ namespace Lina::Editor
 		{LocaleStr::Tris, "Tris"},
 		{LocaleStr::DPIScale, "DPI Scale"},
 		{LocaleStr::PreviewAnimation, "Preview Animation"},
+		{LocaleStr::Move, "Move"},
+		{LocaleStr::Rotate, "Rotate"},
+		{LocaleStr::Scale, "Scale"},
+		{LocaleStr::Snapping, "Snapping"},
+		{LocaleStr::VisibilityOn, "Visibility (On)"},
+		{LocaleStr::VisibilityOff, "Visibility (Off)"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

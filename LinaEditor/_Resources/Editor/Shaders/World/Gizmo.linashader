@@ -55,6 +55,7 @@ SOFTWARE.
 #lina_vs
 
 layout (location = 0) out flat uint outMaterialIndex;
+layout (location = 1) out flat uint outHovered;
 
 void LINA_VERTEX_MAIN(in LinaVertexInput inVertex, out LinaVertexOutput outVertex)
 {
@@ -82,6 +83,7 @@ void LINA_VERTEX_MAIN(in LinaVertexInput inVertex, out LinaVertexOutput outVerte
 
    // Pass the material index to the fragment shader
    outMaterialIndex = inVertex.drawArguments.argument1;
+   outHovered = inVertex.drawArguments.argument2;
 }
 
 #lina_end
@@ -89,6 +91,7 @@ void LINA_VERTEX_MAIN(in LinaVertexInput inVertex, out LinaVertexOutput outVerte
 #lina_fs
 
 layout(location = 0) flat in uint inMaterialIndex;
+layout(location = 1) flat in uint inHovered;
 
 struct LinaMaterial
 {
@@ -98,7 +101,7 @@ struct LinaMaterial
 void LINA_FRAG_MAIN(out LinaFragOutput outFrag)
 {
     LinaMaterial material = LINA_GET_MATERIAL(inMaterialIndex);
-    outFrag.color = material.color;
+    outFrag.color = material.color + vec4(0.5) * float(inHovered);
 }
 
 #lina_end

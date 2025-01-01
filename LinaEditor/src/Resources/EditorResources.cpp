@@ -98,56 +98,6 @@ namespace Lina::Editor
 				.tid  = GetTypeID<Shader>(),
 			},
 			{
-				.id	  = EDITOR_SHADER_WORLD_GIZMO_ID,
-				.name = EDITOR_SHADER_WORLD_GIZMO_PATH,
-				.tid  = GetTypeID<Shader>(),
-			},
-			{
-				.id	  = EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_ID,
-				.name = EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_PATH,
-				.tid  = GetTypeID<Shader>(),
-			},
-			{
-				.id	  = EDITOR_SHADER_WORLD_LINE3D_ID,
-				.name = EDITOR_SHADER_WORLD_LINE3D_PATH,
-				.tid  = GetTypeID<Shader>(),
-			},
-			{
-				.id	  = EDITOR_SHADER_WORLD_LVG3D_ID,
-				.name = EDITOR_SHADER_WORLD_LVG3D_PATH,
-				.tid  = GetTypeID<Shader>(),
-			},
-			{
-				.id	  = EDITOR_SHADER_WORLD_SAMPLE_ID,
-				.name = EDITOR_SHADER_WORLD_SAMPLE_PATH,
-				.tid  = GetTypeID<Shader>(),
-			},
-			{
-				.id	  = EDITOR_SHADER_WORLD_DEPTH_SAMPLE_ID,
-				.name = EDITOR_SHADER_WORLD_DEPTH_SAMPLE_PATH,
-				.tid  = GetTypeID<Shader>(),
-			},
-			{
-				.id	  = EDITOR_SHADER_WORLD_GRID_ID,
-				.name = EDITOR_SHADER_WORLD_GRID_PATH,
-				.tid  = GetTypeID<Shader>(),
-			},
-			{
-				.id	  = ENGINE_SHADER_LIGHTING_QUAD_ID,
-				.name = ENGINE_SHADER_LIGHTING_QUAD_PATH,
-				.tid  = GetTypeID<Shader>(),
-			},
-			{
-				.id	  = EDITOR_SHADER_WORLD_GIZMO_ROTATE_ID,
-				.name = EDITOR_SHADER_WORLD_GIZMO_ROTATE_PATH,
-				.tid  = GetTypeID<Shader>(),
-			},
-			{
-				.id	  = EDITOR_SHADER_WORLD_ORIENT_GIZMO_ID,
-				.name = EDITOR_SHADER_WORLD_ORIENT_GIZMO_PATH,
-				.tid  = GetTypeID<Shader>(),
-			},
-			{
 				.id	  = EDITOR_TEXTURE_LINA_LOGO_ID,
 				.name = EDITOR_TEXTURE_LINA_LOGO_PATH,
 				.tid  = GetTypeID<Texture>(),
@@ -212,29 +162,114 @@ namespace Lina::Editor
 
 	void EditorResources::StartLoadCoreResources(ResourceManagerV2& manager)
 	{
-		Texture* txtCheckered		  = manager.CreateResource<Texture>(EDITOR_TEXTURE_CHECKERED_ID, EDITOR_TEXTURE_CHECKERED_PATH);
-		Texture* txtProtoDark		  = manager.CreateResource<Texture>(EDITOR_TEXTURE_PROTOTYPE_DARK_ID, EDITOR_TEXTURE_PROTOTYPE_DARK_PATH);
-		Font*	 fontPlay			  = manager.CreateResource<Font>(EDITOR_FONT_PLAY_ID, EDITOR_FONT_PLAY_PATH);
-		Font*	 fontPlayBold		  = manager.CreateResource<Font>(EDITOR_FONT_PLAY_BOLD_ID, EDITOR_FONT_PLAY_BOLD_PATH);
-		Font*	 fontPlayVeryBig	  = manager.CreateResource<Font>(EDITOR_FONT_PLAY_VERY_BIG_ID, EDITOR_FONT_PLAY_VERY_BIG_PATH);
-		Model*	 gizmoTranslate		  = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_TRANSLATE_ID, EDITOR_MODEL_GIZMO_TRANSLATE_PATH);
-		Model*	 gizmoRotate		  = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_ROTATE_ID, EDITOR_MODEL_GIZMO_ROTATE_PATH);
-		Model*	 gizmoScale			  = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_SCALE_ID, EDITOR_MODEL_GIZMO_SCALE_PATH);
-		Model*	 gizmoScaleCenter	  = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_SCALE_CENTER_ID, EDITOR_MODEL_GIZMO_SCALE_CENTER_PATH);
-		Model*	 gizmoTranslateCenter = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_TRANSLATE_CENTER_ID, EDITOR_MODEL_GIZMO_TRANSLATE_CENTER_PATH);
-		Model*	 gizmoRotateFull	  = manager.CreateResource<Model>(EDITOR_MODEL_GIZMO_ROTATE_FULL_ID, EDITOR_MODEL_GIZMO_ROTATE_FULL_PATH);
 
-		m_createdResources.insert(txtCheckered);
-		m_createdResources.insert(txtProtoDark);
+		ResourceDefinitionList defs = {
+			{
+				.id	  = EDITOR_SHADER_WORLD_GIZMO_ID,
+				.name = EDITOR_SHADER_WORLD_GIZMO_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
+			{
+				.id	  = EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_ID,
+				.name = EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
+			{
+				.id	  = EDITOR_SHADER_WORLD_LINE3D_ID,
+				.name = EDITOR_SHADER_WORLD_LINE3D_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
+			{
+				.id	  = EDITOR_SHADER_WORLD_LVG3D_ID,
+				.name = EDITOR_SHADER_WORLD_LVG3D_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
+			{
+				.id	  = EDITOR_SHADER_WORLD_SAMPLE_ID,
+				.name = EDITOR_SHADER_WORLD_SAMPLE_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
+			{
+				.id	  = EDITOR_SHADER_WORLD_DEPTH_SAMPLE_ID,
+				.name = EDITOR_SHADER_WORLD_DEPTH_SAMPLE_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
+			{
+				.id	  = EDITOR_SHADER_WORLD_GRID_ID,
+				.name = EDITOR_SHADER_WORLD_GRID_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
+			{
+				.id	  = ENGINE_SHADER_LIGHTING_QUAD_ID,
+				.name = ENGINE_SHADER_LIGHTING_QUAD_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
+			{
+				.id	  = EDITOR_SHADER_WORLD_GIZMO_ROTATE_ID,
+				.name = EDITOR_SHADER_WORLD_GIZMO_ROTATE_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
+			{
+				.id	  = EDITOR_SHADER_WORLD_ORIENT_GIZMO_ID,
+				.name = EDITOR_SHADER_WORLD_ORIENT_GIZMO_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
+			{
+				.id	  = EDITOR_TEXTURE_CHECKERED_ID,
+				.name = EDITOR_TEXTURE_CHECKERED_PATH,
+				.tid  = GetTypeID<Texture>(),
+			},
+			{
+				.id	  = EDITOR_TEXTURE_PROTOTYPE_DARK_ID,
+				.name = EDITOR_TEXTURE_PROTOTYPE_DARK_PATH,
+				.tid  = GetTypeID<Texture>(),
+			},
+			{
+				.id	  = EDITOR_MODEL_GIZMO_TRANSLATE_ID,
+				.name = EDITOR_MODEL_GIZMO_TRANSLATE_PATH,
+				.tid  = GetTypeID<Model>(),
+			},
+			{
+				.id	  = EDITOR_MODEL_GIZMO_ROTATE_ID,
+				.name = EDITOR_MODEL_GIZMO_ROTATE_PATH,
+				.tid  = GetTypeID<Model>(),
+			},
+			{
+				.id	  = EDITOR_MODEL_GIZMO_SCALE_ID,
+				.name = EDITOR_MODEL_GIZMO_SCALE_PATH,
+				.tid  = GetTypeID<Model>(),
+			},
+			{
+				.id	  = EDITOR_MODEL_GIZMO_TRANSLATE_CENTER_ID,
+				.name = EDITOR_MODEL_GIZMO_TRANSLATE_CENTER_PATH,
+				.tid  = GetTypeID<Model>(),
+			},
+			{
+				.id	  = EDITOR_MODEL_GIZMO_SCALE_CENTER_ID,
+				.name = EDITOR_MODEL_GIZMO_SCALE_CENTER_PATH,
+				.tid  = GetTypeID<Model>(),
+			},
+			{
+				.id	  = EDITOR_MODEL_GIZMO_ROTATE_FULL_ID,
+				.name = EDITOR_MODEL_GIZMO_ROTATE_FULL_PATH,
+				.tid  = GetTypeID<Model>(),
+			},
+			{
+				.id	  = EDITOR_MODEL_GIZMO_ORIENTATION_ID,
+				.name = EDITOR_MODEL_GIZMO_ORIENTATION_PATH,
+				.tid  = GetTypeID<Model>(),
+			},
+		};
+
+		for (const ResourceDef& def : defs)
+			m_createdResources.insert(manager.CreateResource(def.id, def.tid, def.name));
+
+		Font* fontPlay		  = manager.CreateResource<Font>(EDITOR_FONT_PLAY_ID, EDITOR_FONT_PLAY_PATH);
+		Font* fontPlayBold	  = manager.CreateResource<Font>(EDITOR_FONT_PLAY_BOLD_ID, EDITOR_FONT_PLAY_BOLD_PATH);
+		Font* fontPlayVeryBig = manager.CreateResource<Font>(EDITOR_FONT_PLAY_VERY_BIG_ID, EDITOR_FONT_PLAY_VERY_BIG_PATH);
 		m_createdResources.insert(fontPlay);
 		m_createdResources.insert(fontPlayBold);
 		m_createdResources.insert(fontPlayVeryBig);
-		m_createdResources.insert(gizmoTranslate);
-		m_createdResources.insert(gizmoRotate);
-		m_createdResources.insert(gizmoScale);
-		m_createdResources.insert(gizmoScaleCenter);
-		m_createdResources.insert(gizmoTranslateCenter);
-		m_createdResources.insert(gizmoRotateFull);
 
 		fontPlay->GetMeta() = {
 			.points = {{.size = 14, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},

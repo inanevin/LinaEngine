@@ -33,12 +33,15 @@ SOFTWARE.
 #include "Editor/World/CommonEditorWorld.hpp"
 #include "Editor/Graphics/EditorGfxHelpers.hpp"
 #include "Core/World/EntityWorld.hpp"
+#include "Common/Tween/Tween.hpp"
 
 namespace Lina
 {
 	class Dropdown;
 	class WorldRenderer;
 	class Font;
+	class Icon;
+	class Button;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -62,23 +65,42 @@ namespace Lina::Editor
 
 		struct GizmoControls
 		{
-			String				   valueStr				   = "";
-			GizmoMotion			   gizmoMotion			   = GizmoMotion::None;
-			GizmoMode			   type					   = GizmoMode::Move;
-			GizmoAxis			   motionAxis			   = GizmoAxis::None;
-			GizmoLocality		   locality				   = GizmoLocality::World;
-			GizmoSnapping		   snapping				   = GizmoSnapping::Free;
-			Vector3				   averagePosition		   = Vector3::Zero;
-			Vector3				   motionStartAvgPos	   = Vector3::Zero;
-			Vector2				   motionStartAvgPosScreen = Vector2::Zero;
-			Vector2				   motionStartMouseDelta   = Vector2::Zero;
-			Vector2				   motionStartMousePos	   = Vector2::Zero;
-			Vector2				   motionCurrentMousePos   = Vector2::Zero;
-			Vector<Transformation> motionStartTransforms   = {};
+			String				   valueStr					  = "";
+			GizmoMotion			   gizmoMotion				  = GizmoMotion::None;
+			GizmoMode			   type						  = GizmoMode::Move;
+			GizmoAxis			   motionAxis				  = GizmoAxis::None;
+			GizmoLocality		   locality					  = GizmoLocality::World;
+			GizmoLocality		   usedLocality				  = GizmoLocality::World;
+			GizmoSnapping		   snapping					  = GizmoSnapping::Free;
+			Vector3				   averagePosition			  = Vector3::Zero;
+			Vector3				   motionStartAvgPos		  = Vector3::Zero;
+			Vector2				   motionStartAvgPosScreen	  = Vector2::Zero;
+			Vector2				   motionStartMouseDelta	  = Vector2::Zero;
+			Vector2				   motionStartMousePos		  = Vector2::Zero;
+			Vector2				   motionCurrentMousePos	  = Vector2::Zero;
+			Vector2				   averagePositionScreenSpace = Vector2::Zero;
+			Vector<Transformation> motionStartTransforms	  = {};
 
 			float value				= 0.0f;
 			float visualizeDistance = 0.0f;
 			float visualizeAlpha	= 0.0f;
+		};
+
+		struct SelectionCircleButton
+		{
+			Button* widget = nullptr;
+			Icon*	icon   = nullptr;
+			float	angle  = 0.0f;
+		};
+
+		struct SelectionCircle
+		{
+			Tween						  circleTween = {};
+			float						  endAngle	  = 0.0f;
+			bool						  visible	  = false;
+			Vector<SelectionCircleButton> buttons;
+			float						  radiusPerc = 0.05f;
+			float						  _radius	 = 0.0f;
 		};
 
 	public:
@@ -156,9 +178,10 @@ namespace Lina::Editor
 		DisplayTexture m_currentDisplayTexture	= DisplayTexture::WorldFinal;
 
 		Vector<Entity*> m_selectedEntities;
-		Editor*			m_editor	= nullptr;
-		Properties		m_props		= {};
-		Font*			m_worldFont = nullptr;
+		Editor*			m_editor		  = nullptr;
+		Properties		m_props			  = {};
+		Font*			m_worldFont		  = nullptr;
+		SelectionCircle m_selectionCircle = {};
 	};
 
 	LINA_WIDGET_BEGIN(WorldController, Hidden)

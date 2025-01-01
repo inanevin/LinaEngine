@@ -103,52 +103,13 @@ namespace Lina::Editor
 		m_scaleModel	  = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_SCALE_ID);
 		m_centerTranslate = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_TRANSLATE_CENTER_ID);
 		m_centerScale	  = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_SCALE_CENTER_ID);
+		m_orientGizmo	  = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_ORIENTATION_ID);
 
-		m_orientationGizmoPass.Create(EditorGfxHelpers::GetGizmoOrientationPassDescription(), nullptr);
-		m_pipelineLayoutOrientationGizmoPass = m_editor->GetApp()->GetLGX()->CreatePipelineLayout(EditorGfxHelpers::GetPipelineLayoutDescriptionGizmoOrientationPass());
-
-		const LinaGX::TextureDesc rtDesc = {
-			.format = SystemInfo::GetLDRFormat(),
-			.flags	= LinaGX::TF_ColorAttachment | LinaGX::TF_Sampled | LinaGX::TF_CopySource,
-			.width	= ORIENTATION_PASS_SIZE,
-			.height = ORIENTATION_PASS_SIZE,
-		};
-
-		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-		{
-			const uint16 set = m_orientationGizmoPass.GetDescriptorSet(i);
-
-			m_editor->GetApp()->GetLGX()->DescriptorUpdateBuffer({
-				.setHandle = set,
-				.binding   = 0,
-				.buffers   = {m_worldRenderer->GetInstanceDataBuffer(i).GetGPUResource()},
-			});
-
-			m_editor->GetApp()->GetLGX()->DescriptorUpdateBuffer({
-				.setHandle = set,
-				.binding   = 1,
-				.buffers   = {m_worldRenderer->GetEntityDataBuffer(i).GetGPUResource()},
-			});
-
-			PerFrameData& pfd		   = m_pfd[i];
-			pfd.gizmoOrientationPassRT = m_rm->CreateResource<Texture>(m_rm->ConsumeResourceID(), "GizmoOrientationPassRT");
-			pfd.gizmoOrientationPassRT->GenerateHWFromDesc(rtDesc);
-			m_orientationGizmoPass.SetColorAttachment(i, 0, {.clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = pfd.gizmoOrientationPassRT->GetGPUHandle(), .isSwapchain = false});
-		}
 	} // namespace Lina::Editor
 
 	GizmoRenderer::~GizmoRenderer()
 	{
-		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-		{
-			PerFrameData& pfd = m_pfd[i];
-			pfd.gizmoOrientationPassRT->DestroyHW();
-			m_rm->DestroyResource(pfd.gizmoOrientationPassRT);
-		}
 
-		m_editor->GetApp()->GetLGX()->DestroyPipelineLayout(m_pipelineLayoutOrientationGizmoPass);
-		m_orientationGizmoPass.Destroy();
-		m_rm->DestroyResource(m_gizmoMaterialCenter);
 		m_rm->DestroyResource(m_gizmoMaterialX);
 		m_rm->DestroyResource(m_gizmoMaterialY);
 		m_rm->DestroyResource(m_gizmoMaterialZ);
@@ -162,20 +123,6 @@ namespace Lina::Editor
 
 		if (!m_gizmoSettings.draw)
 			return;
-
-		if (m_lastHoveredAxis != m_gizmoSettings.hoveredAxis)
-		{
-			m_lastHoveredAxis		= m_gizmoSettings.hoveredAxis;
-			const Color centerColor = Theme::GetDef().foreground0;
-			const Color xColor		= Theme::GetDef().accentPrimary2;
-			const Color yColor		= Theme::GetDef().accentSuccess;
-			const Color zColor		= Theme::GetDef().accentSecondary;
-			m_gizmoMaterialCenter->SetProperty("color"_hs, m_gizmoSettings.hoveredAxis == GizmoAxis::Center ? Vector4(Color::White) : Vector4(centerColor));
-			m_gizmoMaterialX->SetProperty("color"_hs, m_gizmoSettings.hoveredAxis == GizmoAxis::X ? Vector4(xColor.Brighten(0.5f)) : Vector4(xColor));
-			m_gizmoMaterialY->SetProperty("color"_hs, m_gizmoSettings.hoveredAxis == GizmoAxis::Y ? Vector4(yColor.Brighten(0.5f)) : Vector4(yColor));
-			m_gizmoMaterialZ->SetProperty("color"_hs, m_gizmoSettings.hoveredAxis == GizmoAxis::Z ? Vector4(zColor.Brighten(0.5f)) : Vector4(zColor));
-			m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
-		}
 
 		if (m_gizmoSettings.type != GizmoMode::Rotate)
 		{
@@ -201,62 +148,6 @@ namespace Lina::Editor
 			m_worldRenderer->StartLine3DBatch();
 			m_worldRenderer->DrawLine3D(m_gizmoSettings.position + m_gizmoSettings.worldAxis * -cam.GetZFar() * 0.5f, m_gizmoSettings.position + m_gizmoSettings.worldAxis * cam.GetZFar() * 0.5f, 0.08f, GetColorFromAxis(m_gizmoSettings.focusedAxis));
 			m_worldRenderer->EndLine3DBatch(*m_targetPass, 0, m_line3DShader->GetGPUHandle());
-		}
-	}
-
-	void GizmoRenderer::Render(uint32 frameIndex, LinaGX::CommandStream* stream)
-	{
-		if (m_orientationGizmoPass.GetDrawCallsGPU().empty())
-			return;
-
-		PerFrameData& pfd = m_pfd[frameIndex];
-
-		const LinaGX::Viewport viewport = {
-			.x		  = 0,
-			.y		  = 0,
-			.width	  = ORIENTATION_PASS_SIZE,
-			.height	  = ORIENTATION_PASS_SIZE,
-			.minDepth = 0.0f,
-			.maxDepth = 1.0f,
-		};
-
-		const LinaGX::ScissorsRect scissors = {
-			.x		= 0,
-			.y		= 0,
-			.width	= ORIENTATION_PASS_SIZE,
-			.height = ORIENTATION_PASS_SIZE,
-		};
-
-		// PASS
-		{
-			DEBUG_LABEL_BEGIN(stream, "Editor: Outline Pass");
-
-			// Barrier to Attachment
-			{
-				LinaGX::CMDBarrier* barrierToAttachment	 = stream->AddCommand<LinaGX::CMDBarrier>();
-				barrierToAttachment->srcStageFlags		 = LinaGX::PSF_TopOfPipe;
-				barrierToAttachment->dstStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
-				barrierToAttachment->textureBarrierCount = 2;
-				barrierToAttachment->textureBarriers	 = stream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 1);
-				barrierToAttachment->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorRead2Att(pfd.gizmoOrientationPassRT->GetGPUHandle());
-			}
-
-			m_orientationGizmoPass.Begin(stream, viewport, scissors, frameIndex);
-			m_orientationGizmoPass.BindDescriptors(stream, frameIndex, m_pipelineLayoutOrientationGizmoPass, 1);
-			m_orientationGizmoPass.Render(frameIndex, stream);
-			m_orientationGizmoPass.End(stream);
-
-			// To shader read
-			{
-				LinaGX::CMDBarrier* barrier	 = stream->AddCommand<LinaGX::CMDBarrier>();
-				barrier->srcStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
-				barrier->dstStageFlags		 = LinaGX::PSF_FragmentShader;
-				barrier->textureBarrierCount = 2;
-				barrier->textureBarriers	 = stream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 1);
-				barrier->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(pfd.gizmoOrientationPassRT->GetGPUHandle());
-			}
-
-			DEBUG_LABEL_END(stream);
 		}
 	}
 
@@ -298,24 +189,28 @@ namespace Lina::Editor
 		const GPUDrawArguments argsCenter = {
 			.constant0 = m_worldRenderer->PushEntity(axisCenter, {.entityGUID = GIZMO_GUID_CENTER_AXIS}),
 			.constant1 = m_gizmoMaterialCenter->GetBindlessIndex(),
+			.constant2 = m_gizmoSettings.hoveredEntityID == GIZMO_GUID_CENTER_AXIS,
 			.constant3 = static_cast<uint32>(shaderScale), // scale
 		};
 
 		const GPUDrawArguments argsX = {
 			.constant0 = m_worldRenderer->PushEntity(axisX, {.entityGUID = GIZMO_GUID_X_AXIS}),
 			.constant1 = m_gizmoMaterialX->GetBindlessIndex(),
+			.constant2 = m_gizmoSettings.hoveredEntityID == GIZMO_GUID_X_AXIS,
 			.constant3 = static_cast<uint32>(shaderScale), // scale
 		};
 
 		const GPUDrawArguments argsY = {
 			.constant0 = m_worldRenderer->PushEntity(axisY, {.entityGUID = GIZMO_GUID_Y_AXIS}),
 			.constant1 = m_gizmoMaterialY->GetBindlessIndex(),
+			.constant2 = m_gizmoSettings.hoveredEntityID == GIZMO_GUID_Y_AXIS,
 			.constant3 = static_cast<uint32>(shaderScale), // scale
 		};
 
 		const GPUDrawArguments argsZ = {
 			.constant0 = m_worldRenderer->PushEntity(axisZ, {.entityGUID = GIZMO_GUID_Z_AXIS}),
 			.constant1 = m_gizmoMaterialZ->GetBindlessIndex(),
+			.constant2 = m_gizmoSettings.hoveredEntityID == GIZMO_GUID_Z_AXIS,
 			.constant3 = static_cast<uint32>(shaderScale), // scale
 		};
 
@@ -390,18 +285,21 @@ namespace Lina::Editor
 		const GPUDrawArguments argsX = {
 			.constant0 = m_worldRenderer->PushEntity(axisX, {.entityGUID = GIZMO_GUID_X_AXIS}),
 			.constant1 = m_gizmoMaterialX->GetBindlessIndex(),
+			.constant2 = m_gizmoSettings.hoveredEntityID == GIZMO_GUID_X_AXIS,
 			.constant3 = static_cast<uint32>(shaderScale), // scale
 		};
 
 		const GPUDrawArguments argsY = {
 			.constant0 = m_worldRenderer->PushEntity(axisY, {.entityGUID = GIZMO_GUID_Y_AXIS}),
 			.constant1 = m_gizmoMaterialY->GetBindlessIndex(),
+			.constant2 = m_gizmoSettings.hoveredEntityID == GIZMO_GUID_Y_AXIS,
 			.constant3 = static_cast<uint32>(shaderScale), // scale
 		};
 
 		const GPUDrawArguments argsZ = {
 			.constant0 = m_worldRenderer->PushEntity(axisZ, {.entityGUID = GIZMO_GUID_Z_AXIS}),
 			.constant1 = m_gizmoMaterialZ->GetBindlessIndex(),
+			.constant2 = m_gizmoSettings.hoveredEntityID == GIZMO_GUID_Z_AXIS,
 			.constant3 = static_cast<uint32>(shaderScale), // scale
 		};
 
@@ -475,80 +373,55 @@ namespace Lina::Editor
 
 	void GizmoRenderer::DrawOrientationGizmos(RenderPass* pass, StringID variant, float shaderScale)
 	{
-		return;
 		Camera& cam = m_world->GetWorldCamera();
 
-		Model*				   model	  = m_translateModel;
+		Model*				   model	  = m_orientGizmo;
 		const PrimitiveStatic& prim		  = model->GetAllMeshes().at(0).primitivesStatic.at(0);
 		const uint32		   baseVertex = prim._vertexOffset;
 		const uint32		   baseIndex  = prim._indexOffset;
 		const uint32		   indexCount = static_cast<uint32>(prim.indices.size());
 
-		// glm::vec3 arrowForward	 = glm::vec3(0, 0, 1);
-		// glm::quat rotation		 = glm::rotation(arrowForward, Vector3::Forward);
-		// auto	  q				 = glm::quatLookAt(glm::vec3(Vector3::Forward), glm::vec3(Vector3::Up));
-		// glm::mat4 rotationMatrix = glm::toMat4(q);
-
-		// Quaternion rotation = Quaternion::LookAt(cam.GetPosition(), Vector3::Forward * (cam.GetPosition().Magnitude() * 2), Vector3::Up);
-
-		// glm::mat4 modelMat	 = glm::mat4(1.0f);
-		// modelMat			 = glm::translate(modelMat, glm::vec3(0, 0, 0.0f));					   // Screen space position
-		// modelMat			 = glm::mat4(glm::quatLookAt(glm::vec3(0, 0, 1), glm::vec3(0, 1, 0))); // Rotation around Z-axis
-		// modelMat			 = glm::scale(modelMat, glm::vec3(1, 1, 1.0f));						   // Uniform or non-uniform scaling
-		// glm::mat4 projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.0f, 1.0f);				   // NDC orthographic projection
-
-		// const Vector3 w = Camera::ScreenToWorld(cam, Vector2(100, m_world->GetScreen().GetDisplaySize().y - 100), m_world->GetScreen().GetDisplaySize(), 0.9f);
-		Vector3 w		  = cam.GetPosition() + cam.GetRotation().GetForward() * 1;
-		Matrix4 modelMatX = Matrix4::TransformMatrix(Vector3::Zero, Quaternion::LookAt(Vector3::Zero, Vector3::Right, Vector3::Up), Vector3::One * 1.1f);
-		Matrix4 modelMatY = Matrix4::TransformMatrix(w, Quaternion::LookAt(Vector3::Zero, Vector3::Up, Vector3::Forward), Vector3::One * 0.25f);
-		Matrix4 modelMatZ = Matrix4::TransformMatrix(w, Quaternion::LookAt(Vector3::Zero, Vector3::Forward, Vector3::Up), Vector3::One * 0.25f);
-
-		// glm::vec3 screenPosition	= glm::vec3(0.0f, 0.0f, 0.0f); // Example: center of screen
-		// glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), screenPosition);
-		// glm::mat4 transform			= translationMatrix * rotationMatrix;
-		glm::mat4 viewMatrix = cam.GetView();
-
-		glm::mat4 gizmoRotation = glm::mat4(glm::mat3(viewMatrix));
-		// Scale and position the gizmo
-		// glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.8f, 0.8f, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
-		glm::vec3 gizmoScreenPosition(100, 100, 0.0f);
-		glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), gizmoScreenPosition);
+		Matrix4 modelMatX = Matrix4::TransformMatrix(Vector3::Zero, Quaternion::LookAt(Vector3::Zero, Vector3::Right, Vector3::Up), Vector3::One * 0.5f);
+		Matrix4 modelMatY = Matrix4::TransformMatrix(Vector3::Zero, Quaternion::LookAt(Vector3::Zero, Vector3::Up, Vector3::Forward), Vector3::One * 0.5f);
+		Matrix4 modelMatZ = Matrix4::TransformMatrix(Vector3::Zero, Quaternion::LookAt(Vector3::Zero, Vector3::Forward, Vector3::Up), Vector3::One * 0.5f);
 
 		const Vector2 sz		  = m_world->GetScreen().GetRenderSize();
-		Matrix4		  projection  = Matrix4::Perspective(45, sz.x / sz.y, 0.01, 10.0f);
-		projection				  = Matrix4::Orthographic(0, sz.x, 0, sz.y, 0.0f, 2.0f);
-		const Vector3 camPosition = -cam.GetRotation().GetForward();
+		const float	  aspect	  = sz.x / sz.y;
+		const Matrix4 projection  = glm::ortho(-(1.0f * aspect), 1.0f * aspect, -1.0f, 1.0f, 0.1f, 10.0f);
 		const Matrix4 rot		  = cam.GetRotation().Inverse();
-		const Matrix4 translation = Matrix4::Translate(-camPosition);
-		Matrix4		  view		  = rot * translation;
+		const Matrix4 translation = Matrix4::Translate(cam.GetRotation().GetForward());
+		const Matrix4 view		  = rot * translation;
 
 		const GPUEntity ex = {
 			.model = projection * view * modelMatX,
 		};
 		const GPUEntity ey = {
-			.model = cam.GetViewProj() * modelMatY,
+			.model = projection * view * modelMatY,
 		};
 
 		const GPUEntity ez = {
-			.model = cam.GetViewProj() * modelMatZ,
+			.model = projection * view * modelMatZ,
 		};
 
 		const GPUDrawArguments argsX = {
 			.constant0 = m_worldRenderer->PushEntity(ex, {.entityGUID = GIZMO_ORIENTATION_X}),
 			.constant1 = m_gizmoMaterialX->GetBindlessIndex(),
-			.constant3 = 1,
+			.constant2 = m_gizmoSettings.hoveredEntityID == GIZMO_ORIENTATION_X,
+			.constant3 = static_cast<uint32>(shaderScale), // scale
 		};
 
 		const GPUDrawArguments argsY = {
 			.constant0 = m_worldRenderer->PushEntity(ey, {.entityGUID = GIZMO_ORIENTATION_Y}),
 			.constant1 = m_gizmoMaterialY->GetBindlessIndex(),
-			.constant3 = 1,
+			.constant2 = m_gizmoSettings.hoveredEntityID == GIZMO_ORIENTATION_Y,
+			.constant3 = static_cast<uint32>(shaderScale), // scale
 		};
 
 		const GPUDrawArguments argsZ = {
 			.constant0 = m_worldRenderer->PushEntity(ez, {.entityGUID = GIZMO_ORIENTATION_Z}),
 			.constant1 = m_gizmoMaterialZ->GetBindlessIndex(),
-			.constant3 = 1,
+			.constant2 = m_gizmoSettings.hoveredEntityID == GIZMO_ORIENTATION_Z,
+			.constant3 = static_cast<uint32>(shaderScale), // scale
 		};
 
 		const uint32 pc = m_worldRenderer->PushArgument(argsX);
@@ -566,7 +439,7 @@ namespace Lina::Editor
 			.baseVertex	   = baseVertex,
 			.baseIndex	   = baseIndex,
 			.indexCount	   = indexCount,
-			.instanceCount = 1,
+			.instanceCount = 3,
 			.pushConstant  = pc,
 		};
 

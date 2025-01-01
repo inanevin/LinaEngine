@@ -157,6 +157,7 @@ namespace Lina::Editor
 #define EDITOR_MODEL_GIZMO_TRANSLATE_CENTER_PATH "Resources/Editor/Models/Sphere.glb"
 #define EDITOR_MODEL_GIZMO_SCALE_CENTER_PATH	 "Resources/Editor/Models/Cube.glb"
 #define EDITOR_MODEL_GIZMO_ROTATE_FULL_PATH		 "Resources/Editor/Models/GizmoRotateFull.glb"
+#define EDITOR_MODEL_GIZMO_ORIENTATION_PATH		 "Resources/Editor/Models/GizmoOrientation.glb"
 
 #define EDITOR_MODEL_CUBE_ID				   RESOURCE_ID_EDITOR_MODELS
 #define EDITOR_MODEL_CYLINDER_ID			   RESOURCE_ID_EDITOR_MODELS + 1
@@ -171,6 +172,7 @@ namespace Lina::Editor
 #define EDITOR_MODEL_GIZMO_TRANSLATE_CENTER_ID RESOURCE_ID_EDITOR_MODELS + 10
 #define EDITOR_MODEL_GIZMO_SCALE_CENTER_ID	   RESOURCE_ID_EDITOR_MODELS + 11
 #define EDITOR_MODEL_GIZMO_ROTATE_FULL_ID	   RESOURCE_ID_EDITOR_MODELS + 12
+#define EDITOR_MODEL_GIZMO_ORIENTATION_ID	   RESOURCE_ID_EDITOR_MODELS + 13
 
 // Icons
 #define ICON_LINA_LOGO			  "\u0041"
@@ -234,6 +236,12 @@ namespace Lina::Editor
 #define ICON_CUBE				  "\u007F"
 #define ICON_GAUGE				  "\u0020"
 #define ICON_MEMORY				  "\u0021"
+#define ICON_MOVE				  "\u0022"
+#define ICON_SCALE				  "\u0023"
+#define ICON_MAGNET				  "\u0024"
+#define ICON_EYE				  "\u0025"
+#define ICON_EYE_SLASH			  "\u0026"
+#define ICON_MAGNET_SLASH		  "\u0028"
 
 #define DOCK_DEFAULT_PERCENTAGE	  0.4f
 #define DOCKED_MIN_SIZE			  300.0f

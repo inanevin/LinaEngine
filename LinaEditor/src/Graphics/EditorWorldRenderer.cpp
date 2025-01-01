@@ -148,7 +148,7 @@ namespace Lina::Editor
 
 	void EditorWorldRenderer::Tick(float delta)
 	{
-		const uint32 rtIndex = (m_lgx->GetCurrentFrameIndex() + SystemInfo::GetRendererBehindFrames()) % 2;
+		const uint32 rtIndex = (m_lgx->GetCurrentFrameIndex() + SystemInfo::GetRendererBehindFrames()) % FRAMES_IN_FLIGHT;
 
 		// Sample world
 		{
@@ -199,7 +199,7 @@ namespace Lina::Editor
 				.pushConstant  = argIndex,
 			};
 
-			// m_pass.AddDrawCall(grid);
+			m_pass.AddDrawCall(grid);
 		}
 
 		m_outlineRenderer.Tick(delta);

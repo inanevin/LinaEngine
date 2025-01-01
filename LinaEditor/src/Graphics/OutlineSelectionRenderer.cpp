@@ -222,7 +222,7 @@ namespace Lina::Editor
 		DrawCollector::CollectCompModels(compModelsToCollect, m_outlinePass, m_rm, m_wr, &m_editor->GetApp()->GetGfxContext(), {.useVariantOverride = true, .staticVariantOverride = "StaticOutline"_hs, .skinnedVariantOverride = "SkinnedOutline"_hs});
 
 		const uint32 frameIndex	   = Application::GetLGX()->GetCurrentFrameIndex();
-		const uint32 txtFrameIndex = (frameIndex + SystemInfo::GetRendererBehindFrames()) % 2;
+		const uint32 txtFrameIndex = (frameIndex + SystemInfo::GetRendererBehindFrames()) % FRAMES_IN_FLIGHT;
 		// Fullscreen draw in editor world pass.
 		m_fullscreenPass->AddDrawCall({
 			.shaderHandle  = m_fullscreenShader->GetGPUHandle(),
