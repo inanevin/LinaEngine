@@ -64,8 +64,7 @@ namespace Lina::Editor
 		samplerData.magFilter = LinaGX::Filter::Anisotropic;
 		m_guiTextSampler->GenerateHW(samplerData);
 
-		m_pipelineLayoutGlobal = m_lgx->CreatePipelineLayout(EditorGfxHelpers::GetPipelineLayoutDescriptionGlobal());
-		m_pipelineLayoutGUI	   = m_lgx->CreatePipelineLayout(EditorGfxHelpers::GetPipelineLayoutDescriptionGUI());
+		m_pipelineLayoutGUI = m_lgx->CreatePipelineLayout(EditorGfxHelpers::GetPipelineLayoutDescriptionGUI());
 	}
 
 	void EditorRenderer::Shutdown()
@@ -75,7 +74,6 @@ namespace Lina::Editor
 		m_resourceManagerV2->DestroyResource(m_guiSampler);
 		m_resourceManagerV2->DestroyResource(m_guiTextSampler);
 		m_lgx->DestroyPipelineLayout(m_pipelineLayoutGUI);
-		m_lgx->DestroyPipelineLayout(m_pipelineLayoutGlobal);
 	}
 
 	void EditorRenderer::PreTick()

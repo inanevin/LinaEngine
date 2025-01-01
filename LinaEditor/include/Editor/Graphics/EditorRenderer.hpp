@@ -88,11 +88,6 @@ namespace Lina::Editor
 			return m_pipelineLayoutGUI;
 		}
 
-		inline uint16 GetPipelineLayoutGlobal()
-		{
-			return m_pipelineLayoutGlobal;
-		}
-
 		inline const Vector<WorldRendererPair>& GetWorldRenderers()
 		{
 			return m_worldRenderers;
@@ -101,8 +96,7 @@ namespace Lina::Editor
 	private:
 		JobExecutor				  m_executor;
 		Vector<Texture*>		  m_dynamicTextures;
-		uint16					  m_pipelineLayoutGUI	 = 0;
-		uint16					  m_pipelineLayoutGlobal = 0;
+		uint16					  m_pipelineLayoutGUI = 0;
 		Vector<SurfaceRenderer*>  m_validSurfaceRenderers;
 		TextureSampler*			  m_guiSampler		  = nullptr;
 		TextureSampler*			  m_guiTextSampler	  = nullptr;

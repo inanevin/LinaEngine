@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Editor/World/CommonEditorWorld.hpp"
+#include "Core/Graphics/Pipeline/RenderPass.hpp"
 
 namespace Lina
 {
@@ -40,6 +41,7 @@ namespace Lina
 	class Material;
 	class Model;
 	class RenderPass;
+	class Texture;
 } // namespace Lina
 
 namespace LinaVG
@@ -75,10 +77,16 @@ namespace Lina::Editor
 			float		  angle1		= 0.0f;
 		};
 
+		struct PerFrameData
+		{
+			Texture* gizmoOrientationPassRT = nullptr;
+		};
+
 		GizmoRenderer(Editor* editor, WorldRenderer* wr, RenderPass* targetPass, MousePickRenderer* mpr);
 		virtual ~GizmoRenderer();
 
 		void Tick(float delta);
+		void Render(uint32 frameIndex, LinaGX::CommandStream* stream);
 
 		inline GizmoSettings& GetSettings()
 		{
@@ -89,8 +97,8 @@ namespace Lina::Editor
 		Color GetColorFromAxis(GizmoAxis axis);
 		void  DrawGizmoMoveScale(RenderPass* pass, StringID variant, float shaderScale = 1.0f);
 		void  DrawGizmoRotate(RenderPass* pass, StringID variant, float shaderScale = 1.0f);
-		void  DrawGizmoAxisLine(RenderPass* pass, GizmoAxis axis);
 		void  DrawGizmoRotateFocus(RenderPass* pass, float shaderScale = 1.0f);
+		void  DrawOrientationGizmos(RenderPass* pass, StringID variant, float shaderScale = 1.0f);
 
 	private:
 		Editor*			   m_editor		   = nullptr;
@@ -114,9 +122,13 @@ namespace Lina::Editor
 		Shader*			   m_gizmoRotateShader	 = nullptr;
 		Shader*			   m_line3DShader		 = nullptr;
 		Shader*			   m_lvgShader			 = nullptr;
+		Shader*			   m_orientGizmoShader	 = nullptr;
 		RenderPass*		   m_targetPass			 = nullptr;
 		MousePickRenderer* m_mousePickRenderer	 = nullptr;
 		GizmoSettings	   m_gizmoSettings		 = {};
 		GizmoAxis		   m_lastHoveredAxis	 = GizmoAxis::None;
+		RenderPass		   m_orientationGizmoPass;
+		uint16			   m_pipelineLayoutOrientationGizmoPass = 0;
+		PerFrameData	   m_pfd[FRAMES_IN_FLIGHT];
 	};
 } // namespace Lina::Editor

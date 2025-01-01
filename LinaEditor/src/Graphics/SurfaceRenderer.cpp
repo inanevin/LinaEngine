@@ -492,7 +492,7 @@ namespace Lina::Editor
 		bindGlobal->firstSet					  = 0;
 		bindGlobal->setCount					  = 1;
 		bindGlobal->layoutSource				  = LinaGX::DescriptorSetsLayoutSource::CustomLayout;
-		bindGlobal->customLayout				  = m_editor->GetEditorRenderer().GetPipelineLayoutGlobal();
+		bindGlobal->customLayout				  = m_editor->GetApp()->GetGfxContext().GetPipelineLayoutGlobal();
 
 		// Barrier to Color Attachment
 		LinaGX::CMDBarrier* barrierToColor	= currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();

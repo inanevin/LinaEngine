@@ -63,7 +63,6 @@ namespace Lina::Editor
 		struct GizmoControls
 		{
 			String				   valueStr				   = "";
-			float				   value				   = 0.0f;
 			GizmoMotion			   gizmoMotion			   = GizmoMotion::None;
 			GizmoMode			   type					   = GizmoMode::Move;
 			GizmoAxis			   motionAxis			   = GizmoAxis::None;
@@ -77,11 +76,9 @@ namespace Lina::Editor
 			Vector2				   motionCurrentMousePos   = Vector2::Zero;
 			Vector<Transformation> motionStartTransforms   = {};
 
-			bool	visualizeLine	  = false;
-			Vector2 visualizeLineP0	  = Vector2::Zero;
-			Vector2 visualizeLineP1	  = Vector2::Zero;
-			float	visualizeDistance = 0.0f;
-			float	visualizeAlpha	  = 0.0f;
+			float value				= 0.0f;
+			float visualizeDistance = 0.0f;
+			float visualizeAlpha	= 0.0f;
 		};
 
 	public:

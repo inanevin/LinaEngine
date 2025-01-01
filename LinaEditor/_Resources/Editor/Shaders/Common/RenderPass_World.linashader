@@ -48,11 +48,11 @@ layout(set = 1, binding = 0) uniform ViewData
 	vec4 cameraDirectionAndFar;
 	vec2 size;
 	vec2 mouse;
-	uint outlineSelectionTextureIndex;
-	uint outlineSelectionSamplerIndex;
-	uint worldTextureIndex;
-	uint worldDepthTextureIndex;
-	uint worldSamplerIndex;
+	uint deprecated0;
+	uint deprecated1;
+	uint deprecated2;
+	uint deprecated3;
+	uint deprecated4;
 	uint padding0;
 	uint padding1;
 	uint padding2;

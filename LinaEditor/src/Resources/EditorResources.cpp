@@ -143,6 +143,11 @@ namespace Lina::Editor
 				.tid  = GetTypeID<Shader>(),
 			},
 			{
+				.id	  = EDITOR_SHADER_WORLD_ORIENT_GIZMO_ID,
+				.name = EDITOR_SHADER_WORLD_ORIENT_GIZMO_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
+			{
 				.id	  = EDITOR_TEXTURE_LINA_LOGO_ID,
 				.name = EDITOR_TEXTURE_LINA_LOGO_PATH,
 				.tid  = GetTypeID<Texture>(),

@@ -100,6 +100,19 @@ namespace Lina::Editor
 		};
 	}
 
+	RenderPassDescription EditorGfxHelpers::GetGizmoOrientationPassDescription()
+	{
+		LinaGX::DescriptorSetDesc setDesc = GetSetDescriptionGizmoOrientationPass();
+
+		return {
+			.buffers =
+				{
+
+				},
+			.setDescription = setDesc,
+		};
+	}
+
 	LinaGX::DescriptorSetDesc EditorGfxHelpers::GetSetDescriptionGUI()
 	{
 		LinaGX::DescriptorBinding guiBinding0 = {
@@ -160,16 +173,19 @@ namespace Lina::Editor
 		return {.bindings = {binding0, binding1, binding2}};
 	}
 
-	LinaGX::PipelineLayoutDesc EditorGfxHelpers::GetPipelineLayoutDescriptionGlobal()
+	LinaGX::DescriptorSetDesc EditorGfxHelpers::GetSetDescriptionGizmoOrientationPass()
 	{
-		return {
-			.descriptorSetDescriptions = {GfxHelpers::GetSetDescPersistentGlobal()},
-			.constantRanges			   = {{
-						   .stages = {LinaGX::ShaderStage::Fragment},
-						   .size   = static_cast<uint32>(sizeof(GPUEditorGUIPushConstants)),
-			   }},
-			.debugName				   = "GUILayout",
+		LinaGX::DescriptorBinding binding0 = {
+			.type	= LinaGX::DescriptorType::SSBO,
+			.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 		};
+
+		LinaGX::DescriptorBinding binding1 = {
+			.type	= LinaGX::DescriptorType::SSBO,
+			.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+		};
+
+		return {.bindings = {binding0, binding1}};
 	}
 
 	LinaGX::PipelineLayoutDesc EditorGfxHelpers::GetPipelineLayoutDescriptionGUI()
@@ -177,8 +193,8 @@ namespace Lina::Editor
 		return {
 			.descriptorSetDescriptions = {GfxHelpers::GetSetDescPersistentGlobal(), GetSetDescriptionGUI()},
 			.constantRanges			   = {{
-						   .stages = {LinaGX::ShaderStage::Fragment},
-						   .size   = static_cast<uint32>(sizeof(GPUEditorGUIPushConstants)),
+						   .stages = {LinaGX::ShaderStage::Vertex},
+						   .size   = static_cast<uint32>(sizeof(uint32)),
 			   }},
 			.debugName				   = "GUILayout",
 		};
@@ -198,6 +214,15 @@ namespace Lina::Editor
 		LinaGX::PipelineLayoutDesc desc;
 		desc.descriptorSetDescriptions = {GfxHelpers::GetSetDescPersistentGlobal(), GetSetDescriptionEditorWorldPass()};
 		desc.debugName				   = "PL Editor World Pass";
+		desc.constantRanges.push_back(LinaGX::PipelineLayoutPushConstantRange{.stages = {LinaGX::ShaderStage::Vertex}, .size = sizeof(uint32)});
+		return desc;
+	}
+
+	LinaGX::PipelineLayoutDesc EditorGfxHelpers::GetPipelineLayoutDescriptionGizmoOrientationPass()
+	{
+		LinaGX::PipelineLayoutDesc desc;
+		desc.descriptorSetDescriptions = {GfxHelpers::GetSetDescPersistentGlobal(), GetSetDescriptionGizmoOrientationPass()};
+		desc.debugName				   = "PL Gizmo Orientation Pass";
 		desc.constantRanges.push_back(LinaGX::PipelineLayoutPushConstantRange{.stages = {LinaGX::ShaderStage::Vertex}, .size = sizeof(uint32)});
 		return desc;
 	}

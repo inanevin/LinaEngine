@@ -199,7 +199,7 @@ namespace Lina::Editor
 				.pushConstant  = argIndex,
 			};
 
-			m_pass.AddDrawCall(grid);
+			// m_pass.AddDrawCall(grid);
 		}
 
 		m_outlineRenderer.Tick(delta);

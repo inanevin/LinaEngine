@@ -596,7 +596,7 @@ namespace Lina
 					.pushConstant  = argIndex,
 				};
 
-				m_forwardPass.AddDrawCall(skyDraw);
+				// m_forwardPass.AddDrawCall(skyDraw);
 			}
 		}
 	}

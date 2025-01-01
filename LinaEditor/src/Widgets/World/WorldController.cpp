@@ -154,46 +154,22 @@ namespace Lina::Editor
 		if (m_worldRenderer == nullptr)
 			return;
 
-		if (m_gizmoControls.type == GizmoMode::Move)
+		if (m_gizmoControls.gizmoMotion == GizmoMotion::Key)
 		{
 			LinaVG::StyleOptions style;
 			style.thickness = 1.0f;
 			style.aaEnabled = true;
 
 			const Vector2 point = Camera::WorldToScreen(m_world->GetWorldCamera(), m_gizmoControls.averagePosition, GetEndFromMargins() - GetStartFromMargins()).XY();
-			// m_lvg->DrawCircle((GetStartFromMargins() + point).AsLVG(), 8.0f, style, 64, 0.0f, 0.0f, 360.0f, m_drawOrder + 1);
-		}
 
-		if (m_gizmoControls.visualizeLine)
-		{
-			LinaVG::StyleOptions style;
-			style.thickness		= 2.0f;
-			style.aaMultiplier	= 1.0f;
-			style.aaEnabled		= true;
-			style.color.start.w = style.color.end.w = m_gizmoControls.visualizeAlpha;
+			LinaVG::TextOptions opts;
+			opts.font		   = m_worldFont->GetFont(m_lgxWindow->GetDPIScale());
+			opts.color		   = Theme::GetDef().foreground0.AsLVG4();
+			opts.color.start.w = opts.color.end.w = m_gizmoControls.visualizeAlpha;
 
-			if (m_gizmoControls.motionAxis == GizmoAxis::X)
-				style.color = Theme::GetDef().accentPrimary2.AsLVG4();
-			else if (m_gizmoControls.motionAxis == GizmoAxis::Y)
-				style.color = Theme::GetDef().accentSuccess.AsLVG4();
-			else if (m_gizmoControls.motionAxis == GizmoAxis::Z)
-				style.color = Theme::GetDef().accentSecondary.AsLVG4();
-
-			const Vector2 l0	  = GetStartFromMargins() + m_gizmoControls.visualizeLineP0;
-			const Vector2 l1	  = GetStartFromMargins() + m_gizmoControls.visualizeLineP1;
-			const Vector2 dir	  = (l1 - l0).Normalized();
-			const Vector2 rotated = Vector2(dir.y, -dir.x);
-
-			const Vector2 l01 = l0 + rotated * 100;
-
-			// m_lvg->DrawLine(l0.AsLVG(), l1.AsLVG(), style, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder + 1);
-
-			// LinaVG::TextOptions txt;
-			// txt.font		  = m_worldFont->GetFont(m_lgxWindow->GetDPIScale());
-			// txt.color		  = Theme::GetDef().foreground0.AsLVG4();
-			// txt.color.start.w = txt.color.end.w = m_gizmoControls.visualizeAlpha;
-			// const String str					= UtilStr::FloatToString(m_gizmoControls.visualizeDistance, 3);
-			// m_lvg->DrawTextDefault(str.c_str(), ((l0 + l1) * 0.5f).AsLVG(), txt, 0.0f, m_drawOrder + 1, true);
+			const Vector2 pos	= m_lgxWindow->GetMousePosition();
+			const String  value = UtilStr::FloatToString(m_gizmoControls.visualizeDistance, 3);
+			m_lvg->DrawTextDefault(value.c_str(), pos.AsLVG(), opts, 0.0f, m_drawOrder + 1);
 		}
 	}
 
@@ -545,8 +521,7 @@ namespace Lina::Editor
 		else
 			rendererSettings.rotation = (m_selectedEntities.size() > 1 || m_gizmoControls.locality == GizmoLocality::World) ? Quaternion::Identity() : m_selectedEntities.at(0)->GetRotation();
 
-		m_gizmoControls.visualizeLine  = m_gizmoControls.motionAxis != GizmoAxis::None;
-		m_gizmoControls.visualizeAlpha = Math::Lerp(m_gizmoControls.visualizeAlpha, m_gizmoControls.visualizeLine ? 1.0f : 0.0f, SystemInfo::GetDeltaTime() * 10.0f);
+		m_gizmoControls.visualizeAlpha = Math::Lerp(m_gizmoControls.visualizeAlpha, m_gizmoControls.gizmoMotion == GizmoMotion::Key ? 1.0f : 0.0f, SystemInfo::GetDeltaTime() * 10.0f);
 
 		if (m_gizmoControls.motionAxis == GizmoAxis::None)
 			return;
@@ -637,6 +612,7 @@ namespace Lina::Editor
 			if (m_gizmoControls.gizmoMotion == GizmoMotion::Key && !m_gizmoControls.valueStr.empty())
 				lineT = m_gizmoControls.value;
 
+			m_gizmoControls.visualizeDistance = lineT;
 			for (size_t i = 0; i < sz; i++)
 			{
 				Entity*				  e		 = m_selectedEntities.at(i);
@@ -702,6 +678,7 @@ namespace Lina::Editor
 
 			if (m_gizmoControls.gizmoMotion == GizmoMotion::Key && !m_gizmoControls.valueStr.empty())
 				scaleAmt = m_gizmoControls.value;
+			m_gizmoControls.visualizeDistance = scaleAmt;
 
 			for (size_t i = 0; i < sz; i++)
 			{
@@ -776,6 +753,8 @@ namespace Lina::Editor
 
 			if (isKeyMode)
 				deltaAngle = m_gizmoControls.value;
+
+			m_gizmoControls.visualizeDistance = deltaAngle;
 
 			for (size_t i = 0; i < sz; i++)
 			{
