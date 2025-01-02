@@ -200,7 +200,9 @@ namespace Lina::Editor
 		VisibilityOff,
 		LocalityWorld,
 		LocalityLocal,
-		Snapping,
+		NoSnapping,
+		GridSnapping,
+		Parenting,
 	};
 
 	class Locale

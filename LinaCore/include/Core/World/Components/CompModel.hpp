@@ -49,8 +49,9 @@ namespace Lina
 	public:
 		CompModel() : Component(GetTypeID<CompModel>(), 0), m_animationController(this){};
 
-		void	SetModel(Model* model);
-		Matrix4 CalculateGlobalMatrix(int32 nodeIndex);
+		void		 SetModel(Model* model);
+		Matrix4		 CalculateGlobalMatrix(int32 nodeIndex);
+		virtual void StoreReferences() override;
 
 		virtual void CollectReferences(HashSet<ResourceID>& refs) override
 		{

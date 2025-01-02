@@ -44,27 +44,28 @@ namespace Lina
 	class Entity final
 	{
 	public:
-		void AddChild(Entity* e);
-		void RemoveChild(Entity* e);
-		void RemoveFromParent();
-		void SetTransformation(const Matrix4& mat, bool omitScale = false);
-		void SetLocalTransformation(const Matrix4& mat, bool omitScale = false);
-		void SetTransform(const Transformation& transform);
-		void AddRotation(const Vector3& angles);
-		void AddLocalRotation(const Vector3& angles);
-		void AddPosition(const Vector3& loc);
-		void AddLocalPosition(const Vector3& loc);
-		void SetLocalPosition(const Vector3& loc);
-		void SetPosition(const Vector3& loc);
-		void SetLocalRotation(const Quaternion& rot, bool isThisPivot = true);
-		void SetLocalRotationAngles(const Vector3& angles, bool isThisPivot = true);
-		void SetRotation(const Quaternion& rot, bool isThisPivot = true);
-		void SetRotationAngles(const Vector3& angles, bool isThisPivot = true);
-		void SetLocalScale(const Vector3& scale, bool isThisPivot = true);
-		void SetScale(const Vector3& scale, bool isThisPivot = true);
-		bool HasChildInTree(Entity* other) const;
-		void AddAABB(const AABB& aabb);
-		void RemoveAABB(const AABB& aabb);
+		void	AddChild(Entity* e);
+		void	RemoveChild(Entity* e);
+		void	RemoveFromParent();
+		void	SetTransformation(const Matrix4& mat, bool omitScale = false);
+		void	SetLocalTransformation(const Matrix4& mat, bool omitScale = false);
+		void	SetTransform(const Transformation& transform);
+		void	AddRotation(const Vector3& angles);
+		void	AddLocalRotation(const Vector3& angles);
+		void	AddPosition(const Vector3& loc);
+		void	AddLocalPosition(const Vector3& loc);
+		void	SetLocalPosition(const Vector3& loc);
+		void	SetPosition(const Vector3& loc);
+		void	SetLocalRotation(const Quaternion& rot, bool isThisPivot = true);
+		void	SetLocalRotationAngles(const Vector3& angles, bool isThisPivot = true);
+		void	SetRotation(const Quaternion& rot, bool isThisPivot = true);
+		void	SetRotationAngles(const Vector3& angles, bool isThisPivot = true);
+		void	SetLocalScale(const Vector3& scale, bool isThisPivot = true);
+		void	SetScale(const Vector3& scale, bool isThisPivot = true);
+		bool	HasChildInTree(Entity* other) const;
+		void	AddAABB(const AABB& aabb);
+		void	RemoveAABB(const AABB& aabb);
+		Entity* FindInChildHierarchy(EntityID id);
 
 		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);
@@ -145,6 +146,16 @@ namespace Lina
 			return m_guid;
 		}
 
+		inline Vector<EntityID>& GetChildrenIDs()
+		{
+			return m_childrenIDs;
+		}
+
+		inline void SetGUID(EntityID id)
+		{
+			m_guid = id;
+		}
+
 	private:
 		void UpdateGlobalPosition();
 		void UpdateLocalPosition();
@@ -165,14 +176,15 @@ namespace Lina
 		ALLOCATOR_BUCKET_MEM;
 		ALLOCATOR_BUCKET_GET;
 
-		EntityID		m_guid	 = 0;
-		EntityWorld*	m_world	 = nullptr;
-		Entity*			m_parent = nullptr;
-		String			m_name	 = "";
-		Vector<Entity*> m_children;
-		Transformation	m_transform;
-		Bitmask32		m_mask;
-		AABB			m_totalAABB;
+		EntityID		 m_guid	  = 0;
+		EntityWorld*	 m_world  = nullptr;
+		Entity*			 m_parent = nullptr;
+		String			 m_name	  = "";
+		Vector<Entity*>	 m_children;
+		Vector<EntityID> m_childrenIDs;
+		Transformation	 m_transform;
+		Bitmask32		 m_mask;
+		AABB			 m_totalAABB;
 	};
 
 } // namespace Lina

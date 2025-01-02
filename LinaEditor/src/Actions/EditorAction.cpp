@@ -27,8 +27,37 @@ SOFTWARE.
 */
 
 #include "Editor/Actions/EditorAction.hpp"
+#include "Editor/Editor.hpp"
 
 namespace Lina::Editor
 {
+	EditorActionCollective::~EditorActionCollective()
+	{
+		for (EditorAction* act : m_actions)
+			delete act;
+		m_actions.clear();
+	}
 
+	EditorActionCollective* EditorActionCollective::Create(Editor* editor, uint32 lastActions)
+	{
+		EditorActionCollective* collective = new EditorActionCollective();
+		editor->GetEditorActionManager().PopLastActions(lastActions, collective->m_actions);
+		editor->GetEditorActionManager().AddToStack(collective);
+		return collective;
+	}
+
+	void EditorActionCollective::Execute(Editor* editor, ExecType type)
+	{
+		if (type == ExecType::Undo)
+		{
+			for (EditorAction* act : m_actions)
+				act->Execute(editor, ExecType::Undo);
+		}
+		else if (type == ExecType::Redo)
+		{
+			const int32 sz = static_cast<int32>(m_actions.size());
+			for (int32 i = sz - 1; i > -1; i--)
+				m_actions.at(i)->Execute(editor, ExecType::Redo);
+		}
+	}
 } // namespace Lina::Editor

@@ -29,25 +29,31 @@ SOFTWARE.
 #include "Editor/Actions/EditorActionEntity.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/Widgets/World/WorldController.hpp"
+#include "Editor/World/WorldUtility.hpp"
 #include "Core/World/Entity.hpp"
 #include "Core/World/Component.hpp"
 
 namespace Lina::Editor
 {
 
-	EditorActionEntitySelection* EditorActionEntitySelection::Create(Editor* editor, uint64 worldId, const Vector<Entity*>& previousSelection, const Vector<Entity*>& currentSelection)
+	EditorActionEntitySelection* EditorActionEntitySelection::Create(Editor* editor, uint64 worldId, const Vector<Entity*>& entities, bool select, bool clearOthers)
 	{
 		EditorActionEntitySelection* action = new EditorActionEntitySelection();
 
-		action->m_prevSelected.reserve(previousSelection.size());
-		action->m_selected.reserve(currentSelection.size());
+		action->m_select = select;
+		action->m_entities.reserve(entities.size());
 		action->m_worldId = worldId;
+		action->m_clear	  = clearOthers;
 
-		for (Entity* prev : previousSelection)
-			action->m_prevSelected.push_back(prev->GetGUID());
+		for (Entity* e : entities)
+		{
+			if (e != nullptr)
+				action->m_entities.push_back(e->GetGUID());
+		}
 
-		for (Entity* prev : currentSelection)
-			action->m_selected.push_back(prev->GetGUID());
+		EditorWorldManager::WorldData& wd = editor->GetWorldManager().GetWorldData(editor->GetWorldManager().GetWorld(worldId));
+		for (Entity* e : wd.selectedEntities)
+			action->m_selection.push_back(e->GetGUID());
 
 		editor->GetEditorActionManager().AddToStack(action);
 		return action;
@@ -55,14 +61,49 @@ namespace Lina::Editor
 
 	void EditorActionEntitySelection::Execute(Editor* editor, ExecType type)
 	{
+		EntityWorld* world = editor->GetWorldManager().GetWorld(m_worldId);
+		if (!world)
+			return;
+
+		EditorWorldManager::WorldData& wd = editor->GetWorldManager().GetWorldData(world);
+
 		if (type == ExecType::Undo)
 		{
-			editor->GetWorldManager().OnActionEntitySelection(m_worldId, m_prevSelected);
+			wd.selectedEntities.resize(0);
+			for (EntityID id : m_selection)
+			{
+				Entity* e = world->GetEntity(id);
+				wd.selectedEntities.push_back(e);
+			}
 		}
-		else if (type == ExecType::Redo)
+		else if (type == ExecType::Redo || type == ExecType::Create)
 		{
-			editor->GetWorldManager().OnActionEntitySelection(m_worldId, m_selected);
+			if (m_clear)
+				wd.selectedEntities.resize(0);
+
+			for (EntityID id : m_entities)
+			{
+				Entity* e = world->GetEntity(id);
+
+				if (e == nullptr)
+					continue;
+
+				if (m_select)
+				{
+					auto it = linatl::find_if(wd.selectedEntities.begin(), wd.selectedEntities.end(), [e](Entity* ent) -> bool { return ent == e; });
+					if (it == wd.selectedEntities.end())
+						wd.selectedEntities.push_back(e);
+				}
+				else
+				{
+					auto it = linatl::find_if(wd.selectedEntities.begin(), wd.selectedEntities.end(), [e](Entity* ent) -> bool { return ent == e; });
+					if (it != wd.selectedEntities.end())
+						wd.selectedEntities.erase(it);
+				}
+			}
 		}
+
+		editor->GetWorldManager().BroadcastEntitySelectionChanged(world, wd.selectedEntities);
 	}
 
 	EditorActionEntityTransform* EditorActionEntityTransform::Create(Editor* editor, uint64 worldId, const Vector<Entity*>& entities, const Vector<Transformation>& previousTransforms)
@@ -84,13 +125,29 @@ namespace Lina::Editor
 
 	void EditorActionEntityTransform::Execute(Editor* editor, ExecType type)
 	{
+		EntityWorld* world = editor->GetWorldManager().GetWorld(m_worldId);
+		if (world == nullptr)
+			return;
+
 		if (type == ExecType::Undo)
 		{
-			editor->GetWorldManager().OnActionEntityTransform(m_worldId, m_entities, m_prevTransforms);
+			size_t i = 0;
+			for (EntityID id : m_entities)
+			{
+				Entity* e = world->GetEntity(id);
+				e->SetTransform(m_prevTransforms.at(i));
+				i++;
+			}
 		}
 		else if (type == ExecType::Redo)
 		{
-			editor->GetWorldManager().OnActionEntityTransform(m_worldId, m_entities, m_currentTransforms);
+			size_t i = 0;
+			for (EntityID id : m_entities)
+			{
+				Entity* e = world->GetEntity(id);
+				e->SetTransform(m_currentTransforms.at(i));
+				i++;
+			}
 		}
 	}
 
@@ -98,29 +155,10 @@ namespace Lina::Editor
 	{
 		EditorActionEntitiesCreated* action = new EditorActionEntitiesCreated();
 		action->m_worldId					= world->GetID();
-
-		const uint32 sz = static_cast<uint32>(entities.size());
-		action->m_entityStream << sz;
-
-		Vector<Component*> comps;
 		for (Entity* e : entities)
-		{
 			action->m_guids.push_back(e->GetGUID());
 
-			e->SaveToStream(action->m_entityStream);
-			comps.resize(0);
-			world->GetComponents(e, comps);
-
-			const uint32 csz = static_cast<uint32>(comps.size());
-			action->m_entityStream << csz;
-
-			for (Component* c : comps)
-			{
-				action->m_entityStream << c->GetTID();
-				c->SaveToStream(action->m_entityStream);
-			}
-		}
-
+		WorldUtility::SaveEntitiesToStream(action->m_stream, world, entities);
 		editor->GetEditorActionManager().AddToStack(action);
 		return action;
 	}
@@ -133,38 +171,119 @@ namespace Lina::Editor
 
 		if (type == ExecType::Undo)
 		{
-			editor->GetWorldManager().OnActionDeletingEntities(m_worldId, m_guids);
-
-			for (EntityID e : m_guids)
-				world->DestroyEntity(world->GetEntity(e));
+			for (EntityID id : m_guids)
+			{
+				Entity* e = world->GetEntity(id);
+				world->DestroyEntity(e);
+			}
 		}
 		else if (type == ExecType::Redo)
 		{
-			IStream stream;
-			stream.Create(m_entityStream.GetDataRaw(), m_entityStream.GetCurrentSize());
-
-			uint32 sz = 0;
-			stream >> sz;
-
-			for (uint32 i = 0; i < sz; i++)
-			{
-				Entity* e = world->CreateEntity("");
-				e->LoadFromStream(stream);
-
-				uint32 compsSize = 0;
-				stream >> compsSize;
-
-				for (uint32 j = 0; j < compsSize; j++)
-				{
-					TypeID tid = 0;
-					stream >> tid;
-
-					Component* c = world->AddComponent(e, tid);
-					c->LoadFromStream(stream);
-				}
-			}
-
+			Vector<Entity*> entities;
+			IStream			stream;
+			stream.Create(m_stream.GetDataRaw(), m_stream.GetCurrentSize());
+			WorldUtility::LoadEntitiesFromStream(stream, world, entities);
 			stream.Destroy();
+		}
+	}
+
+	EditorActionEntityDelete* EditorActionEntityDelete::Create(Editor* editor, EntityWorld* world, const Vector<Entity*>& entities)
+	{
+		EditorActionEntityDelete* action = new EditorActionEntityDelete();
+		action->m_worldId				 = world->GetID();
+
+		for (Entity* e : entities)
+			action->m_guids.push_back(e->GetGUID());
+		WorldUtility::SaveEntitiesToStream(action->m_stream, world, entities);
+		editor->GetEditorActionManager().AddToStack(action);
+		return action;
+	}
+
+	void EditorActionEntityDelete::Execute(Editor* editor, ExecType type)
+	{
+		EntityWorld* world = editor->GetWorldManager().GetWorld(m_worldId);
+		if (!world)
+			return;
+
+		if (type == ExecType::Redo || type == ExecType::Create)
+		{
+			for (EntityID id : m_guids)
+			{
+				Entity* e = world->GetEntity(id);
+				world->DestroyEntity(e);
+			}
+		}
+		else if (type == ExecType::Undo)
+		{
+			Vector<Entity*> entities;
+			IStream			stream;
+			stream.Create(m_stream.GetDataRaw(), m_stream.GetCurrentSize());
+			WorldUtility::LoadEntitiesFromStream(stream, world, entities);
+			stream.Destroy();
+		}
+	}
+
+	EditorActionEntityParenting* EditorActionEntityParenting::Create(Editor* editor, EntityWorld* world, const Vector<Entity*>& entities, Entity* newParent)
+	{
+		EditorActionEntityParenting* action = new EditorActionEntityParenting();
+		action->m_worldId					= world->GetID();
+		for (Entity* e : entities)
+		{
+			action->m_guids.push_back(e->GetGUID());
+			action->m_oldParentGUIDs.push_back(e->GetParent() ? e->GetParent()->GetGUID() : 0);
+		}
+
+		action->m_newParentGUID = newParent ? newParent->GetGUID() : 0;
+
+		editor->GetEditorActionManager().AddToStack(action);
+		return action;
+	}
+
+	void EditorActionEntityParenting::Execute(Editor* editor, ExecType type)
+	{
+		EntityWorld* world = editor->GetWorldManager().GetWorld(m_worldId);
+		if (!world)
+			return;
+
+		Vector<Entity*> entities;
+		entities.reserve(m_guids.size());
+
+		for (EntityID id : m_guids)
+			entities.push_back(world->GetEntity(id));
+
+		if (type == ExecType::Redo || type == ExecType::Create)
+		{
+			Entity* parent = world->GetEntity(m_newParentGUID);
+
+			for (Entity* e : entities)
+			{
+				if (parent)
+				{
+					Entity* isAlreadyChild = e->FindInChildHierarchy(parent->GetGUID());
+
+					if (!isAlreadyChild)
+						parent->AddChild(e);
+					else
+						e->RemoveFromParent();
+				}
+				else
+					e->RemoveFromParent();
+			}
+		}
+		else if (type == ExecType::Undo)
+		{
+			size_t i = 0;
+			for (Entity* e : entities)
+			{
+				Entity* oldParent = world->GetEntity(m_oldParentGUIDs.at(i));
+
+				if (oldParent)
+					oldParent->AddChild(e);
+				else
+					e->RemoveFromParent();
+
+				i++;
+			}
 		}
 	}
 

@@ -48,13 +48,15 @@ namespace Lina::Editor
 		EditorActionEntitySelection()		   = default;
 		virtual ~EditorActionEntitySelection() = default;
 
-		static EditorActionEntitySelection* Create(Editor* editor, uint64 worldId, const Vector<Entity*>& previousSelection, const Vector<Entity*>& currentSelection);
+		static EditorActionEntitySelection* Create(Editor* editor, uint64 worldId, const Vector<Entity*>& entities, bool select, bool clearOthers);
 		virtual void						Execute(Editor* editor, ExecType type) override;
 
 	private:
-		Vector<EntityID> m_prevSelected = {};
-		Vector<EntityID> m_selected		= {};
-		uint64			 m_worldId		= 0;
+		Vector<EntityID> m_entities	 = {};
+		Vector<EntityID> m_selection = {};
+		uint64			 m_worldId	 = 0;
+		bool			 m_select	 = false;
+		bool			 m_clear	 = false;
 	};
 
 	class EditorActionEntityTransform : public EditorAction
@@ -83,9 +85,40 @@ namespace Lina::Editor
 		virtual void						Execute(Editor* editor, ExecType type) override;
 
 	private:
-		OStream			 m_entityStream = {};
-		uint64			 m_worldId		= 0;
+		OStream			 m_stream  = {};
+		uint64			 m_worldId = 0;
 		Vector<EntityID> m_guids;
+	};
+
+	class EditorActionEntityDelete : public EditorAction
+	{
+	public:
+		EditorActionEntityDelete()			= default;
+		virtual ~EditorActionEntityDelete() = default;
+
+		static EditorActionEntityDelete* Create(Editor* editor, EntityWorld* world, const Vector<Entity*>& entities);
+		virtual void					 Execute(Editor* editor, ExecType type) override;
+
+	private:
+		Vector<EntityID> m_guids;
+		OStream			 m_stream  = {};
+		uint64			 m_worldId = 0;
+	};
+
+	class EditorActionEntityParenting : public EditorAction
+	{
+	public:
+		EditorActionEntityParenting()		   = default;
+		virtual ~EditorActionEntityParenting() = default;
+
+		static EditorActionEntityParenting* Create(Editor* editor, EntityWorld* world, const Vector<Entity*>& entities, Entity* newParent);
+		virtual void						Execute(Editor* editor, ExecType type) override;
+
+	private:
+		Vector<EntityID> m_guids;
+		Vector<EntityID> m_oldParentGUIDs;
+		EntityID		 m_newParentGUID = 0;
+		uint64			 m_worldId		 = 0;
 	};
 
 } // namespace Lina::Editor

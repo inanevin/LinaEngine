@@ -47,6 +47,7 @@ namespace Lina
 	class Component
 	{
 	public:
+		virtual void StoreReferences(){};
 		virtual void CollectReferences(HashSet<ResourceID>& refs){};
 		virtual void LoadFromStream(IStream& stream){};
 		virtual void SaveToStream(OStream& stream) const {};

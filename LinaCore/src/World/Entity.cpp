@@ -41,16 +41,38 @@ namespace Lina
 	void Entity::RemoveAABB(const AABB& aabb)
 	{
 	}
+
+	Entity* Entity::FindInChildHierarchy(EntityID id)
+	{
+		for (Entity* c : m_children)
+		{
+			if (c->GetGUID() == id)
+				return c;
+
+			Entity* found = FindInChildHierarchy(id);
+
+			if (found)
+				return found;
+		}
+
+		return nullptr;
+	}
+
 	void Entity::AddChild(Entity* e)
 	{
 		e->RemoveFromParent();
 		m_children.push_back(e);
+		m_childrenIDs.push_back(e->GetGUID());
 		e->m_parent = this;
+		e->UpdateLocalPosition();
+		e->UpdateLocalRotation();
+		e->UpdateLocalScale();
 	}
 
 	void Entity::RemoveChild(Entity* e)
 	{
 		m_children.erase(linatl::find_if(m_children.begin(), m_children.end(), [e](Entity* c) { return e == c; }));
+		m_childrenIDs.erase(linatl::find_if(m_childrenIDs.begin(), m_childrenIDs.end(), [e](EntityID id) { return e->GetGUID() == id; }));
 		e->m_parent = nullptr;
 	}
 
@@ -58,6 +80,10 @@ namespace Lina
 	{
 		if (m_parent != nullptr)
 			m_parent->RemoveChild(this);
+
+		UpdateLocalPosition();
+		UpdateLocalRotation();
+		UpdateLocalScale();
 	}
 
 	void Entity::SetTransformation(const Matrix4& mat, bool omitScale)
@@ -88,9 +114,11 @@ namespace Lina
 
 	void Entity::SetTransform(const Transformation& transform)
 	{
-		m_transform = transform;
-		m_transform.UpdateGlobalMatrix();
-		m_transform.UpdateLocalMatrix();
+		const Matrix4 mat = transform.ToMatrix();
+		SetTransformation(mat);
+		// m_transform = transform;
+		// m_transform.UpdateGlobalMatrix();
+		// m_transform.UpdateLocalMatrix();
 	}
 
 	void Entity::AddRotation(const Vector3& angles)
@@ -307,12 +335,12 @@ namespace Lina
 
 	void Entity::SaveToStream(OStream& stream) const
 	{
-		stream << m_mask << m_transform << m_name;
+		stream << m_mask << m_transform << m_name << m_childrenIDs << m_guid;
 	}
 
 	void Entity::LoadFromStream(IStream& stream)
 	{
-		stream >> m_mask >> m_transform >> m_name;
+		stream >> m_mask >> m_transform >> m_name >> m_childrenIDs >> m_guid;
 	}
 
 	void Entity::UpdateLocalRotation()

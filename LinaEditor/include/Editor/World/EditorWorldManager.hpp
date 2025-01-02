@@ -56,7 +56,7 @@ namespace Lina::Editor
 
 	class EditorWorldManager
 	{
-	private:
+	public:
 		struct WorldData
 		{
 			EntityWorld*		 world				 = nullptr;
@@ -73,22 +73,14 @@ namespace Lina::Editor
 		void AddListener(EditorWorldManagerListener* listener);
 		void RemoveListener(EditorWorldManagerListener* listener);
 
-		void SelectEntity(EntityWorld* world, Entity* e, bool clearOthers);
-		void AddResourcesToWorld(EntityWorld* world, const Vector<ResourceDirectory*>& dirs, const Vector3& pos);
-
 		EditorWorldRenderer* OpenWorld(ResourceID id);
 		void				 CloseWorld(EntityWorld* world);
 
-		void OnActionDeletingEntities(ResourceID world, const Vector<EntityID>& entities);
-		void OnActionEntitySelection(ResourceID world, const Vector<EntityID>& entities);
-		void OnActionEntityTransform(ResourceID world, const Vector<EntityID>& entities, const Vector<Transformation>& transforms);
-
 		EntityWorld* GetWorld(ResourceID id);
+		WorldData&	 GetWorldData(EntityWorld* world);
+		void		 BroadcastEntitySelectionChanged(EntityWorld* world, const Vector<Entity*>& selection);
 
 	private:
-		void	   BroadcastEntitySelectionChanged(EntityWorld* world, const Vector<Entity*>& selection);
-		WorldData& GetWorldData(EntityWorld* world);
-
 	private:
 		JobExecutor							m_executor;
 		Vector<WorldData>					m_worlds;

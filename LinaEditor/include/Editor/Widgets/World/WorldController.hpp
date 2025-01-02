@@ -84,6 +84,8 @@ namespace Lina::Editor
 			float value				= 0.0f;
 			float visualizeDistance = 0.0f;
 			float visualizeAlpha	= 0.0f;
+
+			Button* buttonGizmoType = nullptr;
 		};
 
 		struct SelectionCircleButton
@@ -95,6 +97,7 @@ namespace Lina::Editor
 
 		struct SelectionCircle
 		{
+			bool						  isParenting = false;
 			Tween						  circleTween = {};
 			float						  endAngle	  = 0.0f;
 			bool						  visible	  = false;
@@ -103,6 +106,7 @@ namespace Lina::Editor
 			float						  _radius	 = 0.0f;
 
 			Widget* snappingOptions	 = nullptr;
+			Button* parentButton	 = nullptr;
 			bool	snapInForeground = false;
 		};
 
@@ -158,6 +162,8 @@ namespace Lina::Editor
 		}
 
 	private:
+		void StartSelectionParenting();
+		void EndSelectionParenting(bool apply);
 		void SetDisplayTextureTitle();
 		void HandleGizmoControls();
 		void DestroyCamera();

@@ -59,7 +59,7 @@ namespace Lina::Editor
 #define DEBUG_LABEL_END(Stream)
 #endif
 
-	EditorWorldRenderer::EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr) : m_mousePickRenderer(editor, wr), m_gizmoRenderer(editor, wr, &m_pass, &m_mousePickRenderer), m_outlineRenderer(editor, wr, &m_pass)
+	EditorWorldRenderer::EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr) : m_mousePickRenderer(editor, wr), m_gizmoRenderer(editor, wr, &m_pass, &m_mousePickRenderer), m_outlineRenderer(editor, wr, &m_pass, &m_mousePickRenderer)
 	{
 		m_editor = editor;
 		m_lgx	 = lgx;

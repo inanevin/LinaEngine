@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Core/World/Components/CompModel.hpp"
 #include "Core/Graphics/Data/ModelNode.hpp"
+#include "Core/Resources/ResourceManager.hpp"
 
 namespace Lina
 {
@@ -58,5 +59,11 @@ namespace Lina
 		if (node.parentIndex != -1)
 			return CalculateGlobalMatrix(node.parentIndex) * node.transform.GetLocalMatrix();
 		return GetEntity()->GetTransform().GetMatrix() * node.transform.GetLocalMatrix();
+	}
+
+	void CompModel::StoreReferences()
+	{
+		m_modelPtr = m_resourceManager->GetResource<Model>(m_model);
+		SetModel(m_modelPtr);
 	}
 } // namespace Lina

@@ -29,6 +29,8 @@ SOFTWARE.
 #pragma once
 
 #include "Core/Resources/CommonResources.hpp"
+#include "Core/World/CommonWorld.hpp"
+#include "Common/Math/Vector.hpp"
 
 namespace Lina
 {
@@ -37,6 +39,7 @@ namespace Lina
 	class Model;
 	class Entity;
 	class EntityWorld;
+	struct ResourceDirectory;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -46,8 +49,14 @@ namespace Lina::Editor
 	class WorldUtility
 	{
 	public:
-		static void	   SetupDefaultSkyMaterial(Material* mat, ResourceManagerV2* rm);
-		static Entity* AddModelToWorld(EntityWorld* world, Model* model, const Vector<ResourceID>& materials);
-		static void	   LoadModelAndMaterials(Editor* editor, ResourceID model, ResourceID resourceSpace);
+		static void			   SetupDefaultSkyMaterial(Material* mat, ResourceManagerV2* rm);
+		static Entity*		   AddModelToWorld(EntityID guid, EntityWorld* world, Model* model, const Vector<ResourceID>& materials);
+		static void			   LoadModelAndMaterials(Editor* editor, ResourceID model, ResourceID resourceSpace);
+		static Vector<Entity*> AddResourcesToWorld(Editor* editor, EntityWorld* world, const Vector<ResourceDirectory*>& dirs, const Vector3& pos);
+
+		static void FixEntityIDsToNew(EntityWorld* world, const Vector<Entity*>& entities);
+		static void SaveEntitiesToStream(OStream& stream, EntityWorld* world, const Vector<Entity*>& entities);
+		static void LoadEntitiesFromStream(IStream& stream, EntityWorld* world, Vector<Entity*>& outEntities);
+		static void DuplicateEntities(Editor* editor, EntityWorld* world, const Vector<Entity*>& srcEntities, Vector<Entity*>& outEntities);
 	};
 } // namespace Lina::Editor

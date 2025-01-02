@@ -73,6 +73,15 @@ namespace Lina::Editor
 		m_undoStack.push(action);
 	}
 
+	void EditorActionManager::PopLastActions(uint32 count, Vector<EditorAction*>& outActions)
+	{
+		for (uint32 i = 0; i < count; i++)
+		{
+			outActions.push_back(m_undoStack.top());
+			m_undoStack.pop();
+		}
+	}
+
 	void EditorActionManager::ClearUndoStack()
 	{
 		while (!m_undoStack.empty())

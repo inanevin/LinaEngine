@@ -48,4 +48,18 @@ namespace Lina::Editor
 		virtual void Execute(Editor* editor, ExecType type) = 0;
 	};
 
+	class EditorActionCollective : public EditorAction
+	{
+	public:
+		EditorActionCollective() = default;
+		virtual ~EditorActionCollective();
+
+		static EditorActionCollective* Create(Editor* editor, uint32 lastActions);
+
+		virtual void Execute(Editor* editor, ExecType type) override;
+
+	private:
+		Vector<EditorAction*> m_actions;
+	};
+
 } // namespace Lina::Editor

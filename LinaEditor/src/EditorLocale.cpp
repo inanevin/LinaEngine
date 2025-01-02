@@ -193,11 +193,13 @@ namespace Lina::Editor
 		{LocaleStr::Move, "Move"},
 		{LocaleStr::Rotate, "Rotate"},
 		{LocaleStr::Scale, "Scale"},
-		{LocaleStr::Snapping, "Snapping"},
+		{LocaleStr::NoSnapping, "No Snapping"},
+		{LocaleStr::GridSnapping, "Grid Snapping"},
 		{LocaleStr::VisibilityOn, "Visibility (On)"},
 		{LocaleStr::VisibilityOff, "Visibility (Off)"},
 		{LocaleStr::LocalityWorld, "World"},
 		{LocaleStr::LocalityLocal, "Local"},
+		{LocaleStr::Parenting, "Click once and drag to re-parent"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

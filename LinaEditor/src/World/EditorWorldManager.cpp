@@ -81,46 +81,6 @@ namespace Lina::Editor
 		m_listeners.erase(linatl::find(m_listeners.begin(), m_listeners.end(), listener));
 	}
 
-	void EditorWorldManager::SelectEntity(EntityWorld* world, Entity* e, bool clearOthers)
-	{
-		WorldData& wd = GetWorldData(world);
-
-		const Vector<Entity*> prev = wd.selectedEntities;
-
-		if (clearOthers)
-			wd.selectedEntities.clear();
-
-		if (e != nullptr)
-			wd.selectedEntities.push_back(e);
-
-		EditorActionEntitySelection::Create(m_editor, wd.world->GetID(), prev, wd.selectedEntities);
-
-		BroadcastEntitySelectionChanged(wd.world, wd.selectedEntities);
-	}
-
-	void EditorWorldManager::AddResourcesToWorld(EntityWorld* world, const Vector<ResourceDirectory*>& dirs, const Vector3& pos)
-	{
-		ResourceManagerV2& rm = m_editor->GetApp()->GetResourceManager();
-
-		Vector<Entity*> entities;
-		entities.reserve(dirs.size());
-		for (ResourceDirectory* dir : dirs)
-		{
-			if (dir->resourceTID == GetTypeID<Model>())
-			{
-				WorldUtility::LoadModelAndMaterials(m_editor, dir->resourceID, world->GetID());
-
-				Model*	model  = rm.GetResource<Model>(dir->resourceID);
-				Entity* entity = WorldUtility::AddModelToWorld(world, model, model->GetMeta().materials);
-				world->LoadMissingResources(rm, m_editor->GetProjectManager().GetProjectData(), {}, world->GetID());
-				entity->SetPosition(pos);
-				entities.push_back(entity);
-			}
-		}
-
-		EditorActionEntitiesCreated::Create(m_editor, world, entities);
-	}
-
 	EditorWorldRenderer* EditorWorldManager::OpenWorld(ResourceID id)
 	{
 		WorldData worldData = {};
@@ -128,6 +88,7 @@ namespace Lina::Editor
 		EntityWorld*		 world				 = new EntityWorld(id, "");
 		WorldRenderer*		 worldRenderer		 = new WorldRenderer(&m_editor->GetApp()->GetGfxContext(), &m_editor->GetApp()->GetResourceManager(), world, Vector2ui(4, 4), "WorldRenderer: " + world->GetName());
 		EditorWorldRenderer* editorWorldRenderer = new EditorWorldRenderer(m_editor, m_editor->GetApp()->GetLGX(), worldRenderer);
+		world->Initialize(&m_editor->GetApp()->GetResourceManager());
 
 		if (id != 0)
 		{
@@ -190,57 +151,6 @@ namespace Lina::Editor
 		delete data.world;
 
 		m_worlds.erase(it);
-	}
-
-	void EditorWorldManager::OnActionDeletingEntities(ResourceID world, const Vector<EntityID>& entities)
-	{
-		auto it = linatl::find_if(m_worlds.begin(), m_worlds.end(), [world](const WorldData& wd) -> bool { return wd.world->GetID() == world; });
-		if (it == m_worlds.end())
-			return;
-		WorldData& wd = *it;
-
-		Vector<Entity*> newSelection;
-		for (EntityID e : entities)
-		{
-			auto contains = linatl::find_if(wd.selectedEntities.begin(), wd.selectedEntities.end(), [e](Entity* ent) -> bool { return ent->GetGUID() == e; });
-		}
-	}
-
-	void EditorWorldManager::OnActionEntitySelection(ResourceID world, const Vector<EntityID>& entities)
-	{
-		auto it = linatl::find_if(m_worlds.begin(), m_worlds.end(), [world](const WorldData& wd) -> bool { return wd.world->GetID() == world; });
-		if (it == m_worlds.end())
-			return;
-		WorldData& wd = *it;
-
-		wd.selectedEntities.resize(0);
-
-		for (EntityID id : entities)
-		{
-			Entity* e = wd.world->GetEntity(id);
-			if (e == nullptr)
-				continue;
-			wd.selectedEntities.push_back(e);
-		}
-
-		BroadcastEntitySelectionChanged(wd.world, wd.selectedEntities);
-	}
-
-	void EditorWorldManager::OnActionEntityTransform(ResourceID world, const Vector<EntityID>& entities, const Vector<Transformation>& transforms)
-	{
-		auto it = linatl::find_if(m_worlds.begin(), m_worlds.end(), [world](const WorldData& wd) -> bool { return wd.world->GetID() == world; });
-		if (it == m_worlds.end())
-			return;
-		WorldData& wd = *it;
-
-		size_t i = 0;
-		for (EntityID id : entities)
-		{
-			Entity* e = wd.world->GetEntity(id);
-			if (e != nullptr)
-				e->SetTransform(transforms.at(i));
-			i++;
-		}
 	}
 
 	EntityWorld* EditorWorldManager::GetWorld(ResourceID id)

@@ -113,13 +113,12 @@ namespace Lina
 	{
 	}
 
-	Entity* EntityWorld::CreateEntity(const String& name)
+	Entity* EntityWorld::CreateEntity(EntityID id, const String& name)
 	{
-		const uint32 id = m_entityBucket.GetActiveItemCount();
-		Entity*		 e	= m_entityBucket.Allocate();
-		e->m_guid		= ConsumeEntityGUID();
-		e->m_world		= this;
-		e->m_name		= name;
+		Entity* e  = m_entityBucket.Allocate();
+		e->m_guid  = id;
+		e->m_world = this;
+		e->m_name  = name;
 		return e;
 	}
 
@@ -141,8 +140,6 @@ namespace Lina
 
 	void EntityWorld::DestroyEntity(Entity* e)
 	{
-		m_freeGUIDs.push_back(e->GetGUID());
-
 		if (e->m_parent != nullptr)
 			e->m_parent->RemoveChild(e);
 		DestroyEntityData(e);
@@ -255,7 +252,7 @@ namespace Lina
 
 		for (uint32 i = 0; i < entitiesSize; i++)
 		{
-			Entity* e = CreateEntity("");
+			Entity* e = CreateEntity(0, "");
 			e->LoadFromStream(stream);
 			tempEntities[i] = e;
 		}
@@ -288,7 +285,10 @@ namespace Lina
 
 			m_componentCaches.push_back({tid, cache});
 
-			cache->ForEach([this](Component* c) { OnCreateComponent(c, c->m_entity); });
+			cache->ForEach([this](Component* c) {
+				OnCreateComponent(c, c->m_entity);
+				c->StoreReferences();
+			});
 		}
 	}
 

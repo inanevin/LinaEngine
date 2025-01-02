@@ -52,6 +52,7 @@ namespace LinaGX
 namespace Lina::Editor
 {
 	class Editor;
+	class MousePickRenderer;
 
 	class OutlineSelectionRenderer
 	{
@@ -67,7 +68,7 @@ namespace Lina::Editor
 		};
 
 	public:
-		OutlineSelectionRenderer(Editor* editor, WorldRenderer* wr, RenderPass* targetPass);
+		OutlineSelectionRenderer(Editor* editor, WorldRenderer* wr, RenderPass* targetPass, MousePickRenderer* mpr);
 		virtual ~OutlineSelectionRenderer();
 
 		void DestroySizeRelativeResources();
@@ -87,12 +88,19 @@ namespace Lina::Editor
 			return m_pfd[frameIndex].renderTarget;
 		}
 
+		inline void SetRenderHovered(bool renderHovered)
+		{
+			m_renderHovered = renderHovered;
+		}
+
 	private:
-		LinaGX::Instance*  m_lgx	= nullptr;
-		Editor*			   m_editor = nullptr;
-		WorldRenderer*	   m_wr		= nullptr;
-		ResourceManagerV2* m_rm		= nullptr;
-		EntityWorld*	   m_world	= nullptr;
+		bool			   m_renderHovered = false;
+		LinaGX::Instance*  m_lgx		   = nullptr;
+		Editor*			   m_editor		   = nullptr;
+		WorldRenderer*	   m_wr			   = nullptr;
+		ResourceManagerV2* m_rm			   = nullptr;
+		EntityWorld*	   m_world		   = nullptr;
+		MousePickRenderer* m_mpr		   = nullptr;
 
 		Vector<Entity*> m_selectedEntities	 = {};
 		Material*		m_fullscreenMaterial = nullptr;

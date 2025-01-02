@@ -186,15 +186,15 @@ namespace Lina::Editor
 		const ResourceID displayMaterial = shaderType == ShaderType::Sky ? EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID : m_resource->GetID();
 
 		if (m_displayType == MaterialViewerDisplayType::Cube)
-			m_displayEntity = WorldUtility::AddModelToWorld(m_world, rm.GetResource<Model>(EDITOR_MODEL_CUBE_ID), {displayMaterial});
+			m_displayEntity = WorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(EDITOR_MODEL_CUBE_ID), {displayMaterial});
 		else if (m_displayType == MaterialViewerDisplayType::Sphere)
-			m_displayEntity = WorldUtility::AddModelToWorld(m_world, rm.GetResource<Model>(EDITOR_MODEL_SPHERE_ID), {displayMaterial});
+			m_displayEntity = WorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(EDITOR_MODEL_SPHERE_ID), {displayMaterial});
 		if (m_displayType == MaterialViewerDisplayType::Cylinder)
-			m_displayEntity = WorldUtility::AddModelToWorld(m_world, rm.GetResource<Model>(EDITOR_MODEL_CYLINDER_ID), {displayMaterial});
+			m_displayEntity = WorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(EDITOR_MODEL_CYLINDER_ID), {displayMaterial});
 		if (m_displayType == MaterialViewerDisplayType::Capsule)
-			m_displayEntity = WorldUtility::AddModelToWorld(m_world, rm.GetResource<Model>(EDITOR_MODEL_CAPSULE_ID), {displayMaterial});
+			m_displayEntity = WorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(EDITOR_MODEL_CAPSULE_ID), {displayMaterial});
 		if (m_displayType == MaterialViewerDisplayType::Plane)
-			m_displayEntity = WorldUtility::AddModelToWorld(m_world, rm.GetResource<Model>(EDITOR_MODEL_PLANE_ID), {displayMaterial});
+			m_displayEntity = WorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(EDITOR_MODEL_PLANE_ID), {displayMaterial});
 	}
 
 	void PanelMaterialViewer::RebuildContents()

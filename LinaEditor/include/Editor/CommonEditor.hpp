@@ -242,6 +242,9 @@ namespace Lina::Editor
 #define ICON_EYE				  "\u0025"
 #define ICON_EYE_SLASH			  "\u0026"
 #define ICON_MAGNET_SLASH		  "\u0028"
+#define ICON_ARROW_LOCATION		  "\u0027"
+#define ICON_GRID				  "\u0029"
+#define ICON_SITEMAP			  "\u002A"
 
 #define DOCK_DEFAULT_PERCENTAGE	  0.4f
 #define DOCKED_MIN_SIZE			  300.0f

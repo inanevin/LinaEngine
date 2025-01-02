@@ -30,6 +30,8 @@ SOFTWARE.
 #include "Editor/CommonEditor.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/Graphics/EditorGfxHelpers.hpp"
+#include "Editor/Graphics/MousePickRenderer.hpp"
+#include "Editor/World/CommonEditorWorld.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/System/SystemInfo.hpp"
 #include "Core/Resources/ResourceManager.hpp"
@@ -63,7 +65,7 @@ namespace Lina::Editor
 #define DEBUG_LABEL_END(Stream)
 #endif
 
-	OutlineSelectionRenderer::OutlineSelectionRenderer(Editor* editor, WorldRenderer* wr, RenderPass* pass)
+	OutlineSelectionRenderer::OutlineSelectionRenderer(Editor* editor, WorldRenderer* wr, RenderPass* pass, MousePickRenderer* mpr)
 	{
 		m_fullscreenPass = pass;
 		m_editor		 = editor;
@@ -71,6 +73,7 @@ namespace Lina::Editor
 		m_rm			 = &m_editor->GetApp()->GetResourceManager();
 		m_world			 = m_wr->GetWorld();
 		m_lgx			 = m_editor->GetApp()->GetLGX();
+		m_mpr			 = mpr;
 
 		m_fullscreenShader	 = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_ID);
 		m_fullscreenMaterial = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Outline Fullscreen Material");
@@ -213,12 +216,28 @@ namespace Lina::Editor
 		const Vector<CompModel*>& compModels = m_wr->GetCompModels();
 		Vector<CompModel*>		  compModelsToCollect;
 		compModelsToCollect.reserve(compModels.size());
+
 		for (Entity* e : m_selectedEntities)
 		{
 			auto it = linatl::find_if(compModels.begin(), compModels.end(), [e](CompModel* c) -> bool { return c->GetEntity() == e; });
 			if (it != compModels.end())
 				compModelsToCollect.push_back(*it);
 		}
+
+		if (m_renderHovered)
+		{
+			const EntityID hovered = m_mpr->GetLastHoveredEntity();
+
+			if (hovered < EDITOR_ENTITY_GUID_START && hovered != 0)
+			{
+				Entity* e = m_world->GetEntity(hovered);
+
+				auto it = linatl::find_if(compModels.begin(), compModels.end(), [e](CompModel* c) -> bool { return c->GetEntity() == e; });
+				if (it != compModels.end())
+					compModelsToCollect.push_back(*it);
+			}
+		}
+
 		DrawCollector::CollectCompModels(compModelsToCollect, m_outlinePass, m_rm, m_wr, &m_editor->GetApp()->GetGfxContext(), {.useVariantOverride = true, .staticVariantOverride = "StaticOutline"_hs, .skinnedVariantOverride = "SkinnedOutline"_hs});
 
 		const uint32 frameIndex	   = Application::GetLGX()->GetCurrentFrameIndex();

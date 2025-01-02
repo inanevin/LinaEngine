@@ -82,7 +82,7 @@ namespace Lina
 		~EntityWorld();
 
 		void			   Initialize(ResourceManagerV2* rm);
-		Entity*			   CreateEntity(const String& name);
+		Entity*			   CreateEntity(EntityID id, const String& name = "");
 		Entity*			   GetEntity(EntityID guid);
 		void			   DestroyEntity(Entity* e);
 		void			   GetComponents(Entity* e, Vector<Component*>& outComponents);
@@ -196,13 +196,6 @@ namespace Lina
 
 		inline EntityID ConsumeEntityGUID()
 		{
-			if (!m_freeGUIDs.empty())
-			{
-				const ResourceID id = m_freeGUIDs.front();
-				m_freeGUIDs.pop_front();
-				return id;
-			}
-
 			return m_entityGUIDCounter++;
 		}
 
@@ -214,6 +207,11 @@ namespace Lina
 		inline SimulationSettings& GetSimSettings()
 		{
 			return m_simulationSettings;
+		}
+
+		inline ResourceManagerV2* GetResourceManager()
+		{
+			return m_rm;
 		}
 
 	private:
@@ -235,7 +233,6 @@ namespace Lina
 
 	private:
 		ALLOCATOR_BUCKET_MEM;
-		Deque<EntityID>				  m_freeGUIDs;
 		AllocatorBucket<Entity, 1000> m_entityBucket;
 		Vector<ComponentCachePair>	  m_componentCaches;
 		EntityID					  m_entityGUIDCounter = 1;

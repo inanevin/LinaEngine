@@ -45,6 +45,8 @@ namespace Lina::Editor
 		void Undo();
 		void Redo();
 
+		void PopLastActions(uint32 count, Vector<EditorAction*>& outActions);
+
 	private:
 		void ClearUndoStack();
 		void ClearRedoStack();
