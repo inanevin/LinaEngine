@@ -53,10 +53,7 @@ namespace Lina
 
 	enum ComponentFlags
 	{
-		CF_NONE				   = 1 << 0,
-		CF_RENDERABLE		   = 1 << 1,
-		CF_RECEIVE_TICK		   = 1 << 2,
-		CF_RECEIVE_EDITOR_TICK = 1 << 3,
+		CF_NONE = 1 << 0,
 	};
 
 	enum WorldFlags

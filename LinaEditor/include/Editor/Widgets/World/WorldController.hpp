@@ -49,7 +49,7 @@ namespace Lina::Editor
 	class EditorCamera;
 	class EditorWorldRenderer;
 
-	class WorldController : public Widget, public EntityWorldListener, public EditorPayloadListener
+	class WorldController : public Widget, public EditorPayloadListener, public EntityWorldListener
 	{
 	public:
 		enum class DisplayTexture
@@ -101,6 +101,9 @@ namespace Lina::Editor
 			Vector<SelectionCircleButton> buttons;
 			float						  radiusPerc = 0.05f;
 			float						  _radius	 = 0.0f;
+
+			Widget* snappingOptions	 = nullptr;
+			bool	snapInForeground = false;
 		};
 
 	public:
@@ -132,10 +135,7 @@ namespace Lina::Editor
 		// World
 		virtual void OnWorldTick(float delta, PlayMode playmode) override;
 		ResourceID	 GetWorldID();
-		void		 SelectEntity(Entity* e, bool clearOthers);
-		void		 OnActionEntitySelection(const Vector<EntityID>& selection);
-		void		 OnActionEntityTransforms(const Vector<EntityID>& entities, const Vector<Transformation>& transforms);
-		void		 OnEntitySelectionChanged();
+		void		 OnEntitySelectionChanged(const Vector<Entity*>& selection);
 
 		// Gizmos
 		void SelectGizmo(GizmoMode gizmo);

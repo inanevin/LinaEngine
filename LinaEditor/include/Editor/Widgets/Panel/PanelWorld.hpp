@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Editor/Widgets/Panel/Panel.hpp"
+#include "Editor/World/EditorWorldManager.hpp"
 #include "Core/World/CommonWorld.hpp"
 
 namespace Lina
@@ -36,6 +37,7 @@ namespace Lina
 	class EntityWorld;
 	class WorldRenderer;
 	class Entity;
+	class EntityWorld;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -44,7 +46,7 @@ namespace Lina::Editor
 	class WorldDisplayer;
 	class EditorWorldRenderer;
 
-	class PanelWorld : public Panel
+	class PanelWorld : public Panel, public EditorWorldManagerListener
 	{
 	public:
 		PanelWorld() : Panel(PanelType::World){};
@@ -53,21 +55,16 @@ namespace Lina::Editor
 		virtual void Construct() override;
 		virtual void Destruct() override;
 
-		void CreateWorld(const String& resourcePath);
-		void DestroyWorld();
-
-		inline EntityWorld* GetWorld() const
-		{
-			return m_world;
-		}
+	protected:
+		virtual void OnWorldManagerOpenedWorld(EditorWorldRenderer* wr) override;
+		virtual void OnWorldManagerClosingWorld(EditorWorldRenderer* wr) override;
+		virtual void OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities) override;
+		virtual void OnWorldManagerEntityTransformChanged(EntityWorld* w, const Vector<Entity*>& entities) override;
 
 	private:
-		Vector<Entity*>		 m_selectedEntities	   = {};
-		Editor*				 m_editor			   = nullptr;
-		EntityWorld*		 m_world			   = nullptr;
-		WorldRenderer*		 m_worldRenderer	   = nullptr;
-		WorldDisplayer*		 m_worldDisplayer	   = nullptr;
-		EditorWorldRenderer* m_editorWorldRenderer = nullptr;
+		Editor*			m_editor		 = nullptr;
+		WorldDisplayer* m_worldDisplayer = nullptr;
+		EntityWorld*	m_world			 = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(PanelWorld, Hidden)

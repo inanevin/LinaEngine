@@ -32,7 +32,6 @@ SOFTWARE.
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/GfxContext.hpp"
 #include "Core/Graphics/GUI/GUIBackend.hpp"
-#include "Core/World/WorldProcessor.hpp"
 
 namespace LinaGX
 {
@@ -107,11 +106,6 @@ namespace Lina
 			return m_gfxContext;
 		}
 
-		inline WorldProcessor& GetWorldProcessor()
-		{
-			return m_worldProcessor;
-		}
-
 		inline const String& GetExitReason() const
 		{
 			return m_exitReason;
@@ -133,7 +127,6 @@ namespace Lina
 		GUIBackend				 m_guiBackend;
 		GfxContext				 m_gfxContext;
 		String					 m_exitReason = "";
-		WorldProcessor			 m_worldProcessor;
 
 		// Time
 		int64 m_frameCapAccumulator = 0;

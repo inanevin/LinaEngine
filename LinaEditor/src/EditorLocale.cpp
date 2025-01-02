@@ -84,6 +84,7 @@ namespace Lina::Editor
 		{LocaleStr::Website, "Website"},
 		{LocaleStr::More, "More"},
 		{LocaleStr::Entities, "Entities"},
+		{LocaleStr::Details, "Details"},
 		{LocaleStr::Resources, "Resources"},
 		{LocaleStr::World, "World"},
 		{LocaleStr::Performance, "Performance"},
@@ -195,6 +196,8 @@ namespace Lina::Editor
 		{LocaleStr::Snapping, "Snapping"},
 		{LocaleStr::VisibilityOn, "Visibility (On)"},
 		{LocaleStr::VisibilityOff, "Visibility (Off)"},
+		{LocaleStr::LocalityWorld, "World"},
+		{LocaleStr::LocalityLocal, "Local"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

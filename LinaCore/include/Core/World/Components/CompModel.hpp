@@ -47,10 +47,9 @@ namespace Lina
 	class CompModel : public Component
 	{
 	public:
-		CompModel() : Component(GetTypeID<CompModel>(), CF_RENDERABLE), m_animationController(this){};
+		CompModel() : Component(GetTypeID<CompModel>(), 0), m_animationController(this){};
 
-		void SetModel(Model* model);
-
+		void	SetModel(Model* model);
 		Matrix4 CalculateGlobalMatrix(int32 nodeIndex);
 
 		virtual void CollectReferences(HashSet<ResourceID>& refs) override
@@ -118,7 +117,7 @@ namespace Lina
 		Model*				  m_modelPtr = nullptr;
 		AnimationController	  m_animationController;
 		Vector<CompModelNode> m_nodes;
-		ResourceID			  m_model;
+		ResourceID			  m_model = 0;
 		Vector<ResourceID>	  m_materials;
 	};
 

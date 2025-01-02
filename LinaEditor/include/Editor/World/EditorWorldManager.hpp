@@ -29,32 +29,71 @@ SOFTWARE.
 #pragma once
 #include "Core/Resources/CommonResources.hpp"
 #include "Core/World/CommonWorld.hpp"
+#include "Common/Math/Vector.hpp"
 
 namespace Lina
 {
 	class EntityWorld;
 	class WorldRenderer;
+	class Entity;
+	struct ResourceDirectory;
 } // namespace Lina
 
 namespace Lina::Editor
 {
 	class Editor;
-	class WorldController;
+	class EditorWorldRenderer;
+
+	class EditorWorldManagerListener
+	{
+	public:
+		virtual void OnWorldManagerOpenedWorld(EditorWorldRenderer* wr){};
+		virtual void OnWorldManagerClosingWorld(EditorWorldRenderer* wr){};
+		virtual void OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities){};
+		virtual void OnWorldManagerEntityTransformChanged(EntityWorld* w, const Vector<Entity*>& entities){};
+		virtual void OnWorldManagerEntitiesChanged(EntityWorld* w){};
+	};
 
 	class EditorWorldManager
 	{
-	public:
-		void			 Initialize(Editor* editor);
-		void			 Shutdown();
-		void			 AddWorldController(WorldController* owner);
-		void			 RemoveWorldController(WorldController* owner);
-		WorldController* FindWorldController(uint64 id);
+	private:
+		struct WorldData
+		{
+			EntityWorld*		 world				 = nullptr;
+			WorldRenderer*		 worldRenderer		 = nullptr;
+			EditorWorldRenderer* editorWorldRenderer = nullptr;
+			Vector<Entity*>		 selectedEntities	 = {};
+		};
 
-		void OpenWorld(ResourceID id);
+	public:
+		void Initialize(Editor* editor);
+		void Shutdown();
+		void Tick(float delta);
+
+		void AddListener(EditorWorldManagerListener* listener);
+		void RemoveListener(EditorWorldManagerListener* listener);
+
+		void SelectEntity(EntityWorld* world, Entity* e, bool clearOthers);
+		void AddResourcesToWorld(EntityWorld* world, const Vector<ResourceDirectory*>& dirs, const Vector3& pos);
+
+		EditorWorldRenderer* OpenWorld(ResourceID id);
+		void				 CloseWorld(EntityWorld* world);
+
+		void OnActionDeletingEntities(ResourceID world, const Vector<EntityID>& entities);
+		void OnActionEntitySelection(ResourceID world, const Vector<EntityID>& entities);
+		void OnActionEntityTransform(ResourceID world, const Vector<EntityID>& entities, const Vector<Transformation>& transforms);
+
+		EntityWorld* GetWorld(ResourceID id);
 
 	private:
-		Editor*					 m_editor = nullptr;
-		Vector<WorldController*> m_worldControllers;
+		void	   BroadcastEntitySelectionChanged(EntityWorld* world, const Vector<Entity*>& selection);
+		WorldData& GetWorldData(EntityWorld* world);
+
+	private:
+		JobExecutor							m_executor;
+		Vector<WorldData>					m_worlds;
+		Editor*								m_editor = nullptr;
+		Vector<EditorWorldManagerListener*> m_listeners;
 	};
 
 } // namespace Lina::Editor

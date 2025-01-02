@@ -120,6 +120,11 @@ namespace Lina
 			return m_isMSAA;
 		}
 
+		inline uint16 GetCreationFlags() const
+		{
+			return m_creationFlags;
+		}
+
 	private:
 		uint32 GetChannels();
 		void   CalculateTotalSize();
@@ -138,6 +143,7 @@ namespace Lina
 		LinaGX::MipmapFilter		  m_generatedMipFilter	 = LinaGX::MipmapFilter::Default;
 		bool						  m_generatedMipPreAlpha = false;
 		bool						  m_isMSAA				 = false;
+		uint16						  m_creationFlags		 = 0;
 	};
 
 	LINA_RESOURCE_BEGIN(Texture);

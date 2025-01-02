@@ -34,6 +34,7 @@ include/Editor/Actions/EditorActionEntity.hpp
 include/Editor/WindowPanelManager.hpp
 include/Editor/World/CommonEditorWorld.hpp
 include/Editor/World/EditorWorldManager.hpp
+include/Editor/World/EditorWorldUserData.hpp
 
 # Project
 include/Editor/Project/ProjectManager.hpp
@@ -67,6 +68,7 @@ include/Editor/Widgets/Compound/Table.hpp
 include/Editor/Widgets/Compound/TabRow.hpp
 include/Editor/Widgets/Compound/IconTabs.hpp
 include/Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp
+include/Editor/Widgets/Compound/EntityBrowser.hpp
 include/Editor/Widgets/Compound/WindowBar.hpp
 include/Editor/Widgets/Docking/DockArea.hpp
 include/Editor/Widgets/Docking/DockBorder.hpp
@@ -81,6 +83,7 @@ include/Editor/Widgets/Panel/PanelWidgetEditor.hpp
 include/Editor/Widgets/Panel/PanelWidgetEditorProperties.hpp
 include/Editor/Widgets/Panel/PanelPerformance.hpp
 include/Editor/Widgets/Panel/PanelEntities.hpp
+include/Editor/Widgets/Panel/PanelDetails.hpp
 include/Editor/Widgets/Panel/PanelTextureViewer.hpp
 include/Editor/Widgets/Panel/PanelFontViewer.hpp
 include/Editor/Widgets/Panel/PanelModelViewer.hpp
@@ -159,6 +162,7 @@ src/Widgets/Compound/Tab.cpp
 src/Widgets/Compound/Table.cpp
 src/Widgets/Compound/IconTabs.cpp
 src/Widgets/Compound/ResourceDirectoryBrowser.cpp
+src/Widgets/Compound/EntityBrowser.cpp
 src/Widgets/Compound/WindowBar.cpp
 src/Widgets/Docking/DockWidget.cpp
 src/Widgets/Docking/DockBorder.cpp
@@ -173,6 +177,7 @@ src/Widgets/Panel/PanelLog.cpp
 src/Widgets/Panel/PanelWidgetEditor.cpp
 src/Widgets/Panel/PanelWidgetEditorProperties.cpp
 src/Widgets/Panel/PanelEntities.cpp
+src/Widgets/Panel/PanelDetails.cpp
 src/Widgets/Panel/PanelTextureViewer.cpp
 src/Widgets/Panel/PanelFontViewer.cpp
 src/Widgets/Panel/PanelModelViewer.cpp
@@ -197,6 +202,7 @@ src/World/EditorCamera.cpp
 src/World/WorldUtility.cpp
 src/World/EditorWorldManager.cpp
 src/World/CommonEditorWorld.cpp
+src/World/EditorWorldUserData.cpp
 
 # Meta
 src/Meta/EditorSettings.cpp

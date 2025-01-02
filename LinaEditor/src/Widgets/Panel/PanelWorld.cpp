@@ -30,13 +30,13 @@ SOFTWARE.
 #include "Editor/Editor.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Widgets/World/WorldDisplayer.hpp"
+#include "Editor/Widgets/World/WorldController.hpp"
 #include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
 #include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Editor/Graphics/EditorWorldRenderer.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Math/Math.hpp"
-#include "Common/Serialization/Serialization.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
@@ -59,56 +59,45 @@ namespace Lina::Editor
 		m_worldDisplayer->GetProps().noWorldText = Locale::GetStr(LocaleStr::NoWorldInstalled);
 
 		AddChild(m_worldDisplayer);
+
+		m_editor->GetWorldManager().AddListener(this);
 	}
 
 	void PanelWorld::Destruct()
 	{
-		DestroyWorld();
+		m_editor->GetWorldManager().CloseWorld(m_world);
+		m_editor->GetWorldManager().RemoveListener(this);
 	}
 
-	void PanelWorld::CreateWorld(const String& resourcePath)
+	void PanelWorld::OnWorldManagerOpenedWorld(EditorWorldRenderer* wr)
 	{
-		LINA_ASSERT(m_world == nullptr, "");
-
-		m_world = new EntityWorld(0, "");
-		m_editor->GetApp()->GetWorldProcessor().AddWorld(m_world);
-		m_worldRenderer		  = new WorldRenderer(&m_editor->GetApp()->GetGfxContext(), &m_editor->GetApp()->GetResourceManager(), m_world, Vector2ui(4, 4), "WorldRenderer: " + m_world->GetName());
-		m_editorWorldRenderer = new EditorWorldRenderer(m_editor, m_editor->GetApp()->GetLGX(), m_worldRenderer);
-		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer, m_editorWorldRenderer);
-
-		IStream stream = Serialization::LoadFromFile(resourcePath.c_str());
-		m_world->LoadFromStream(stream);
-		stream.Destroy();
-
-		HashSet<ResourceID> defaultResources = {
-
-		};
-
-		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), defaultResources, m_world->GetID());
-
-		m_worldDisplayer->DisplayWorld(m_worldRenderer, m_editorWorldRenderer, WorldCameraType::Orbit);
+		EntityWorld* world = wr->GetWorldRenderer()->GetWorld();
+		if (world->GetID() == 0)
+			return;
+		m_world = wr->GetWorldRenderer()->GetWorld();
+		m_worldDisplayer->DisplayWorld(wr, WorldCameraType::FreeMove);
 	}
 
-	void PanelWorld::DestroyWorld()
+	void PanelWorld::OnWorldManagerClosingWorld(EditorWorldRenderer* wr)
 	{
-		if (m_world == nullptr)
+		if (wr->GetWorldRenderer()->GetWorld() != m_world)
+			return;
+		m_world = nullptr;
+		m_worldDisplayer->DisplayWorld(nullptr, WorldCameraType::FreeMove);
+	}
+
+	void PanelWorld::OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities)
+	{
+		if (w != m_world)
 			return;
 
-		const ResourceID space = m_world->GetID();
+		m_worldDisplayer->GetController()->OnEntitySelectionChanged(entities);
+	}
 
-		m_editor->GetEditorRenderer().RemoveWorldRenderer(m_worldRenderer);
-		delete m_worldRenderer;
-		delete m_editorWorldRenderer;
-
-		m_editor->GetApp()->GetWorldProcessor().RemoveWorld(m_world);
-		delete m_world;
-
-		m_world			= nullptr;
-		m_worldRenderer = nullptr;
-
-		m_worldDisplayer->DisplayWorld(nullptr, nullptr, WorldCameraType::FreeMove);
-
-		m_editor->GetApp()->GetResourceManager().UnloadResourceSpace(space);
+	void PanelWorld::OnWorldManagerEntityTransformChanged(EntityWorld* w, const Vector<Entity*>& entities)
+	{
+		if (w != m_world)
+			return;
 	}
 
 } // namespace Lina::Editor

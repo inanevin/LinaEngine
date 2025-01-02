@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/World/Components/CompModel.hpp"
+#include "Core/World/EntityWorld.hpp"
 #include "Core/Resources/ResourceDirectory.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Editor/Graphics/EditorWorldRenderer.hpp"
@@ -72,14 +73,9 @@ namespace Lina::Editor
 		if (m_world)
 			return;
 
-		m_world				  = new EntityWorld(0, "");
-		m_worldRenderer		  = new WorldRenderer(&m_editor->GetApp()->GetGfxContext(), &m_editor->GetApp()->GetResourceManager(), m_world, Vector2ui(4, 4), "WorldRenderer: " + m_resource->GetName() + " :");
-		m_editorWorldRenderer = new EditorWorldRenderer(m_editor, m_editor->GetApp()->GetLGX(), m_worldRenderer);
-
-		m_editor->GetApp()->JoinRender();
-		m_editor->GetApp()->GetWorldProcessor().AddWorld(m_world);
-		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer, m_editorWorldRenderer);
-		m_worldDisplayer->DisplayWorld(m_worldRenderer, m_editorWorldRenderer, WorldCameraType::Orbit);
+		EditorWorldRenderer* ewr = m_editor->GetWorldManager().OpenWorld(0);
+		m_world					 = ewr->GetWorldRenderer()->GetWorld();
+		m_worldDisplayer->DisplayWorld(ewr, WorldCameraType::Orbit);
 
 		m_world->GetGfxSettings().skyModel = EDITOR_MODEL_SKYSPHERE_ID;
 
@@ -130,17 +126,9 @@ namespace Lina::Editor
 		m_previousStream.Destroy();
 
 		if (m_world)
-		{
-			m_editor->GetApp()->JoinRender();
-			m_editor->GetApp()->GetWorldProcessor().RemoveWorld(m_world);
-			m_editor->GetEditorRenderer().RemoveWorldRenderer(m_worldRenderer);
-			delete m_worldRenderer;
-			delete m_world;
-			delete m_editorWorldRenderer;
+			m_editor->GetWorldManager().CloseWorld(m_world);
 
-			m_worldRenderer = nullptr;
-			m_world			= nullptr;
-		}
+		m_world = nullptr;
 	}
 
 	void PanelModelViewer::StoreEditorActionBuffer()
@@ -253,20 +241,6 @@ namespace Lina::Editor
 		m_compModel		= m_world->GetComponent<CompModel>(m_displayEntity);
 		m_compModel->GetAnimationController().SelectAnimation(m_displayAnimation);
 		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {}, m_resourceSpace);
-		//
-		// Entity* caps  = WorldUtility::AddModelToWorld(m_world, rm.GetIfExists<Model>(EDITOR_MODEL_CAPSULE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
-		// Entity* caps2 = WorldUtility::AddModelToWorld(m_world, rm.GetIfExists<Model>(EDITOR_MODEL_CAPSULE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
-		// Entity* caps3 = WorldUtility::AddModelToWorld(m_world, rm.GetIfExists<Model>(EDITOR_MODEL_CAPSULE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
-		// Entity* sph	  = WorldUtility::AddModelToWorld(m_world, rm.GetIfExists<Model>(EDITOR_MODEL_SPHERE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
-		// Entity* sph2  = WorldUtility::AddModelToWorld(m_world, rm.GetIfExists<Model>(EDITOR_MODEL_SPHERE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
-		// Entity* aq	  = WorldUtility::AddModelToWorld(m_world, model, model->GetMeta().materials);
-		//
-		// caps->SetPosition(Vector3(1, 0, 0));
-		// caps2->SetPosition(Vector3(2, 0, 0));
-		// caps3->SetPosition(Vector3(4, 0, 0));
-		// sph->SetPosition(Vector3(-1, 0, 0));
-		// sph2->SetPosition(Vector3(-3, 0, 0));
-		// aq->SetPosition(Vector3(0, -1, 0));
 	}
 
 } // namespace Lina::Editor

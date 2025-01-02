@@ -76,7 +76,6 @@ namespace Lina
 		m_renderJoinPossible = true;
 		m_gfxContext.Initialize(this);
 		m_guiBackend.Initialize(&m_resourceManager);
-		m_worldProcessor.Initialize(this);
 
 		const bool preInitOK = GetAppDelegate()->PreInitialize();
 
@@ -135,7 +134,6 @@ namespace Lina
 
 		if (singleThreadRenderer)
 		{
-			m_worldProcessor.Tick(static_cast<float>(delta));
 			GetAppDelegate()->Tick(static_cast<float>(delta));
 			m_appDelegate->SyncRender();
 
@@ -147,7 +145,6 @@ namespace Lina
 		{
 			s_lgx->StartFrame();
 			auto renderJob = m_executor.Async([this]() { Render(); });
-			m_worldProcessor.Tick(static_cast<float>(delta));
 			GetAppDelegate()->Tick(static_cast<float>(delta));
 			renderJob.get();
 			s_lgx->EndFrame();
@@ -252,7 +249,7 @@ namespace Lina
 			SystemInfo::SetMeasuredFPS(static_cast<uint32>(static_cast<float>((frames - lastFPSFrames)) / measureTime));
 			lastFPSFrames = frames;
 			lastFPSUpdate = gameTime;
-			// LINA_TRACE("FPS: {0} Time: {1}", SystemInfo::GetMeasuredFPS(), static_cast<float>(SystemInfo::GetDeltaTime()) * 1000.0f);
+			LINA_TRACE("FPS: {0} Time: {1}", SystemInfo::GetMeasuredFPS(), static_cast<float>(SystemInfo::GetDeltaTime()) * 1000.0f);
 		}
 	}
 

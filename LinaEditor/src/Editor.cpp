@@ -263,6 +263,7 @@ namespace Lina::Editor
 
 	void Editor::Tick(float delta)
 	{
+		m_worldManager.Tick(delta);
 		m_editorRenderer.Tick(delta);
 	}
 

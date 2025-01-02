@@ -62,11 +62,16 @@ namespace Lina::Editor
 		virtual void PreTick() override;
 		virtual void Tick(float dt) override;
 
-		void DisplayWorld(WorldRenderer* renderer, EditorWorldRenderer* ewr, WorldCameraType cameraType);
+		void DisplayWorld(EditorWorldRenderer* ewr, WorldCameraType cameraType);
 
 		inline Properties& GetProps()
 		{
 			return m_props;
+		}
+
+		WorldController* GetController() const
+		{
+			return m_worldController;
 		}
 
 	private:

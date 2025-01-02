@@ -35,7 +35,8 @@ SOFTWARE.
 namespace Lina
 {
 	class Entity;
-};
+	class EntityWorld;
+}; // namespace Lina
 
 namespace Lina::Editor
 {
@@ -47,7 +48,7 @@ namespace Lina::Editor
 		EditorActionEntitySelection()		   = default;
 		virtual ~EditorActionEntitySelection() = default;
 
-		static EditorActionEntitySelection* Create(Editor* editor, uint64 m_worldId, const Vector<Entity*>& previousSelection, const Vector<Entity*>& currentSelection);
+		static EditorActionEntitySelection* Create(Editor* editor, uint64 worldId, const Vector<Entity*>& previousSelection, const Vector<Entity*>& currentSelection);
 		virtual void						Execute(Editor* editor, ExecType type) override;
 
 	private:
@@ -62,7 +63,7 @@ namespace Lina::Editor
 		EditorActionEntityTransform()		   = default;
 		virtual ~EditorActionEntityTransform() = default;
 
-		static EditorActionEntityTransform* Create(Editor* editor, uint64 m_worldId, const Vector<Entity*>& entities, const Vector<Transformation>& previousTransforms);
+		static EditorActionEntityTransform* Create(Editor* editor, uint64 worldId, const Vector<Entity*>& entities, const Vector<Transformation>& previousTransforms);
 		virtual void						Execute(Editor* editor, ExecType type) override;
 
 	private:
@@ -70,6 +71,21 @@ namespace Lina::Editor
 		Vector<Transformation> m_prevTransforms;
 		Vector<Transformation> m_currentTransforms;
 		uint64				   m_worldId = 0;
+	};
+
+	class EditorActionEntitiesCreated : public EditorAction
+	{
+	public:
+		EditorActionEntitiesCreated()		   = default;
+		virtual ~EditorActionEntitiesCreated() = default;
+
+		static EditorActionEntitiesCreated* Create(Editor* editor, EntityWorld* world, const Vector<Entity*>& entities);
+		virtual void						Execute(Editor* editor, ExecType type) override;
+
+	private:
+		OStream			 m_entityStream = {};
+		uint64			 m_worldId		= 0;
+		Vector<EntityID> m_guids;
 	};
 
 } // namespace Lina::Editor

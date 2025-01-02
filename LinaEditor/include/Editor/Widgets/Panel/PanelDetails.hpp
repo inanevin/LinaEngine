@@ -29,8 +29,8 @@ SOFTWARE.
 #pragma once
 
 #include "Editor/Widgets/Panel/Panel.hpp"
-#include "Editor/World/EditorWorldManager.hpp"
 #include "Core/GUI/Widgets/Compound/FileMenu.hpp"
+#include "Editor/World/EditorWorldManager.hpp"
 
 namespace Lina
 {
@@ -42,13 +42,11 @@ namespace Lina
 namespace Lina::Editor
 {
 	class Editor;
-	class EntityBrowser;
-
-	class PanelEntities : public Panel, public FileMenuListener, public EditorWorldManagerListener
+	class PanelDetails : public Panel, public FileMenuListener, public EditorWorldManagerListener
 	{
 	public:
-		PanelEntities() : Panel(PanelType::Entities){};
-		virtual ~PanelEntities() = default;
+		PanelDetails() : Panel(PanelType::Details){};
+		virtual ~PanelDetails() = default;
 
 		virtual void Construct() override;
 		virtual void Destruct() override;
@@ -63,12 +61,11 @@ namespace Lina::Editor
 		virtual void OnWorldManagerClosingWorld(EditorWorldRenderer* wr) override;
 
 	private:
-		EntityBrowser* m_browser = nullptr;
-		Editor*		   m_editor	 = nullptr;
-		EntityWorld*   m_world	 = nullptr;
+		Editor*		 m_editor = nullptr;
+		EntityWorld* m_world  = nullptr;
 	};
 
-	LINA_WIDGET_BEGIN(PanelEntities, Hidden)
-	LINA_CLASS_END(PanelEntities)
+	LINA_WIDGET_BEGIN(PanelDetails, Hidden)
+	LINA_CLASS_END(PanelDetails)
 
 } // namespace Lina::Editor

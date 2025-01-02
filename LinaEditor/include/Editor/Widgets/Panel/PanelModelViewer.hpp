@@ -71,20 +71,18 @@ namespace Lina::Editor
 	private:
 		LINA_REFLECTION_ACCESS(PanelModelViewer);
 
-		String				 m_modelName			 = "";
-		String				 m_materialDefs			 = "";
-		String				 m_animations			 = "";
-		String				 m_meshes				 = "";
-		float				 m_animationPreviewSpeed = 1.0f;
-		WorldDisplayer*		 m_worldDisplayer		 = nullptr;
-		EntityWorld*		 m_world				 = nullptr;
-		WorldRenderer*		 m_worldRenderer		 = nullptr;
-		Entity*				 m_displayEntity		 = nullptr;
-		int32				 m_displayAnimation		 = -1;
-		CompModel*			 m_compModel			 = nullptr;
-		OStream				 m_previousStream;
-		Material*			 m_skyMaterial		   = nullptr;
-		EditorWorldRenderer* m_editorWorldRenderer = nullptr;
+		String			m_modelName				= "";
+		String			m_materialDefs			= "";
+		String			m_animations			= "";
+		String			m_meshes				= "";
+		float			m_animationPreviewSpeed = 1.0f;
+		WorldDisplayer* m_worldDisplayer		= nullptr;
+		EntityWorld*	m_world					= nullptr;
+		Entity*			m_displayEntity			= nullptr;
+		int32			m_displayAnimation		= -1;
+		CompModel*		m_compModel				= nullptr;
+		OStream			m_previousStream;
+		Material*		m_skyMaterial = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(PanelModelViewer, Hidden)

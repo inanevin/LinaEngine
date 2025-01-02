@@ -258,6 +258,12 @@ namespace Lina::Editor
 			return true;
 		}
 
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::Details)))
+		{
+			Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::Details, 0, this);
+			return true;
+		}
+
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Log)))
 		{
 			Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::Log, 0, this);
@@ -345,6 +351,7 @@ namespace Lina::Editor
 		{
 			outData = {
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Entities)},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Details)},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::World)},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Resources)},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Performance)},

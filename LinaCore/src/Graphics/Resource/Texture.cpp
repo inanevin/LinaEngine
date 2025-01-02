@@ -274,10 +274,11 @@ namespace Lina
 	void Texture::GenerateHWFromDesc(const LinaGX::TextureDesc& desc)
 	{
 		LINA_ASSERT(m_hwValid == false, "");
-		m_gpuHandle = Application::GetLGX()->CreateTexture(desc);
-		m_hwValid	= true;
-		m_size		= Vector2ui(desc.width, desc.height);
-		m_isMSAA	= desc.samples > 1;
+		m_gpuHandle		= Application::GetLGX()->CreateTexture(desc);
+		m_hwValid		= true;
+		m_size			= Vector2ui(desc.width, desc.height);
+		m_isMSAA		= desc.samples > 1;
+		m_creationFlags = desc.flags;
 	}
 
 	void Texture::GenerateHW()
@@ -291,8 +292,9 @@ namespace Lina
 			.mipLevels = static_cast<uint32>(m_allLevels.size()),
 			.debugName = m_name.c_str(),
 		};
-		m_gpuHandle = Application::GetLGX()->CreateTexture(desc);
-		m_hwValid	= true;
+		m_gpuHandle		= Application::GetLGX()->CreateTexture(desc);
+		m_hwValid		= true;
+		m_creationFlags = desc.flags;
 	}
 
 	void Texture::DestroyHW()

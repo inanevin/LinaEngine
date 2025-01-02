@@ -40,6 +40,7 @@ SOFTWARE.
 #include "Core/Graphics/Pipeline/View.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
+#include "Core/World/EntityWorld.hpp"
 #include "Common/System/SystemInfo.hpp"
 
 namespace Lina::Editor

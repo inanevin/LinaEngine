@@ -70,14 +70,14 @@ namespace Lina::Editor
 		m_noWorldText->UpdateTextAndCalcSize(m_props.noWorldText);
 	}
 
-	void WorldDisplayer::DisplayWorld(WorldRenderer* renderer, EditorWorldRenderer* ewr, WorldCameraType cameraType)
+	void WorldDisplayer::DisplayWorld(EditorWorldRenderer* ewr, WorldCameraType cameraType)
 	{
-		m_noWorldText->GetFlags().Set(WF_HIDE, renderer != nullptr);
-		m_wr							 = renderer;
-		m_ewr							 = ewr;
-		GetWidgetProps().lvgUserData	 = renderer == nullptr ? nullptr : &m_guiUserData;
+		m_ewr = ewr;
+		m_wr  = ewr != nullptr ? ewr->GetWorldRenderer() : nullptr;
+		m_noWorldText->GetFlags().Set(WF_HIDE, m_wr != nullptr);
+		GetWidgetProps().lvgUserData	 = m_wr == nullptr ? nullptr : &m_guiUserData;
 		GetWidgetProps().colorBackground = Color::White;
-		m_worldController->SetWorld(renderer, ewr, cameraType);
+		m_worldController->SetWorld(m_wr, m_ewr, cameraType);
 	}
 
 	void WorldDisplayer::PreTick()

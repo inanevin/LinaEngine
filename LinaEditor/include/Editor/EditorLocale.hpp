@@ -87,6 +87,7 @@ namespace Lina::Editor
 		Website,
 		More,
 		Entities,
+		Details,
 		Resources,
 		World,
 		Performance,
@@ -197,6 +198,8 @@ namespace Lina::Editor
 		Rotate,
 		VisibilityOn,
 		VisibilityOff,
+		LocalityWorld,
+		LocalityLocal,
 		Snapping,
 	};
 

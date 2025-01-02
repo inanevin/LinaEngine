@@ -32,7 +32,6 @@ SOFTWARE.
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
 #include "Core/Graphics/ResourceUploadQueue.hpp"
-#include "Core/World/EntityWorld.hpp"
 #include "Core/Graphics/MeshManager.hpp"
 #include "Core/Graphics/GUI/GUIBackend.hpp"
 
@@ -40,8 +39,7 @@ namespace LinaGX
 {
 	class CommandStream;
 	class Instance;
-	struct Camera;
-	class Screen;
+
 } // namespace LinaGX
 
 namespace Lina
@@ -52,8 +50,11 @@ namespace Lina
 	class ResourceManagerV2;
 	class WorldRenderer;
 	class WorldRendererListener;
+	class EntityWorld;
+	class Screen;
+	class GfxContext;
 
-	class WorldRenderer : public EntityWorldListener
+	class WorldRenderer
 	{
 	private:
 		struct PerFrameData
@@ -102,9 +103,6 @@ namespace Lina
 		void CloseAndSend(uint32 frameIndex);
 		void Resize(const Vector2ui& newSize);
 		void SyncRender();
-
-		virtual void OnComponentAdded(Component* c) override;
-		virtual void OnComponentRemoved(Component* c) override;
 
 		void AddListener(WorldRendererListener* listener);
 		void RemoveListener(WorldRendererListener* listener);

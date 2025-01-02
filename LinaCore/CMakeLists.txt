@@ -76,7 +76,6 @@ src/Resources/Data/ResourceMetadata.cpp
 
 # World
 src/World/Entity.cpp
-src/World/WorldProcessor.cpp
 src/World/Component.cpp
 src/World/ComponentCache.cpp
 src/World/Screen.cpp
@@ -194,7 +193,6 @@ include/Core/Meta/ProjectData.hpp
 
 # World
 include/Core/World/Entity.hpp
-include/Core/World/WorldProcessor.hpp
 include/Core/World/Component.hpp
 include/Core/World/ComponentCache.hpp
 include/Core/World/Screen.hpp

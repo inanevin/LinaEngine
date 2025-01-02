@@ -28,47 +28,57 @@ SOFTWARE.
 
 #pragma once
 
-#include "Editor/Widgets/Panel/Panel.hpp"
-#include "Editor/World/EditorWorldManager.hpp"
+#include "Core/GUI/Widgets/Widget.hpp"
 #include "Core/GUI/Widgets/Compound/FileMenu.hpp"
 
 namespace Lina
 {
-	class Entity;
 	class DirectionalLayout;
+	class Entity;
 	class EntityWorld;
 } // namespace Lina
 
 namespace Lina::Editor
 {
 	class Editor;
-	class EntityBrowser;
+	class ItemController;
 
-	class PanelEntities : public Panel, public FileMenuListener, public EditorWorldManagerListener
+	class EntityBrowser : public Widget, public FileMenuListener
 	{
+
 	public:
-		PanelEntities() : Panel(PanelType::Entities){};
-		virtual ~PanelEntities() = default;
+		struct Properties
+		{
+		};
+
+		EntityBrowser() : Widget(){};
+		virtual ~EntityBrowser() = default;
 
 		virtual void Construct() override;
-		virtual void Destruct() override;
-		virtual void PreTick() override;
-		virtual void Tick(float dt) override;
 
+		void RefreshEntities();
+		void SetWorld(EntityWorld* w);
+
+		inline Properties& GetProps()
+		{
+			return m_props;
+		}
+
+	private:
+		void AddItem(Widget* parent, Entity* e, float margin);
+
+	protected:
 		virtual bool OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData) override;
 		virtual void OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
 
-	protected:
-		virtual void OnWorldManagerOpenedWorld(EditorWorldRenderer* wr) override;
-		virtual void OnWorldManagerClosingWorld(EditorWorldRenderer* wr) override;
-
 	private:
-		EntityBrowser* m_browser = nullptr;
-		Editor*		   m_editor	 = nullptr;
-		EntityWorld*   m_world	 = nullptr;
+		EntityWorld*	   m_world		= nullptr;
+		Editor*			   m_editor		= nullptr;
+		ItemController*	   m_controller = nullptr;
+		Properties		   m_props		= {};
+		DirectionalLayout* m_layout		= nullptr;
 	};
 
-	LINA_WIDGET_BEGIN(PanelEntities, Hidden)
-	LINA_CLASS_END(PanelEntities)
-
+	LINA_WIDGET_BEGIN(EntityBrowser, Hidden)
+	LINA_CLASS_END(EntityBrowser)
 } // namespace Lina::Editor

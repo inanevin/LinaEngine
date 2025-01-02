@@ -148,6 +148,7 @@ namespace Lina::Editor
 
 	void EditorWorldRenderer::Tick(float delta)
 	{
+
 		const uint32 rtIndex = (m_lgx->GetCurrentFrameIndex() + SystemInfo::GetRendererBehindFrames()) % FRAMES_IN_FLIGHT;
 
 		// Sample world

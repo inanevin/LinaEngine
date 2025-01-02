@@ -129,7 +129,7 @@ namespace Lina::Editor
 	{
 		void ConvertRGBA16ToRGBA8(const uint16* src, uint8* dst, uint32 width, uint32 height)
 		{
-			for (int i = 0; i < width * height; ++i)
+			for (uint32 i = 0; i < width * height; ++i)
 			{
 				// Extract 16-bit RGBA values
 				uint16_t r16 = src[i * 4 + 0];

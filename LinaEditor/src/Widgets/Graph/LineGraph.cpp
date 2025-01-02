@@ -38,7 +38,6 @@ namespace Lina::Editor
 
 	void LineGraph::Draw()
 	{
-
 		if (m_font == nullptr)
 			m_font = Editor::Get()->GetApp()->GetResourceManager().GetResource<Font>(m_props.font);
 

@@ -134,6 +134,10 @@ namespace Lina
 		LinaGX::Config.enableAPIDebugLayers			   = true;
 		LinaGX::Config.enableShaderDebugInformation	   = true;
 		LinaGX::Config.serializeShaderDebugInformation = true;
+#else
+		LinaGX::Config.enableAPIDebugLayers			   = false;
+		LinaGX::Config.enableShaderDebugInformation	   = false;
+		LinaGX::Config.serializeShaderDebugInformation = false;
 #endif
 
 		lgx->Initialize();
@@ -143,13 +147,16 @@ namespace Lina
 
 	void GfxHelpers::InitializeLinaVG()
 	{
-		LinaVG::Config.globalAAMultiplier = 1.0f;
-		LinaVG::Config.gcCollectInterval  = 5000;
-		LinaVG::Config.textCachingEnabled = true;
-		LinaVG::Config.textCacheReserve	  = 10000;
-		LinaVG::Config.maxFontAtlasSize	  = 2048;
-		LinaVG::Config.errorCallback	  = [](const std::string& err) { LINA_ERR(err.c_str()); };
-		LinaVG::Config.logCallback		  = [](const std::string& log) { LINA_TRACE(log.c_str()); };
+		LinaVG::Config.globalAAMultiplier	   = 1.0f;
+		LinaVG::Config.gcCollectEnabled		   = false;
+		LinaVG::Config.defaultBufferReserve	   = 100;
+		LinaVG::Config.defaultVtxBufferReserve = 2000;
+		LinaVG::Config.defaultIdxBufferReserve = 6000;
+		LinaVG::Config.textCachingEnabled	   = true;
+		LinaVG::Config.textCacheReserve		   = 10000;
+		LinaVG::Config.maxFontAtlasSize		   = 2048;
+		LinaVG::Config.errorCallback		   = [](const std::string& err) { LINA_ERR(err.c_str()); };
+		LinaVG::Config.logCallback			   = [](const std::string& log) { LINA_TRACE(log.c_str()); };
 		LinaVG::InitializeText();
 	}
 

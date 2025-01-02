@@ -26,47 +26,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/World/WorldProcessor.hpp"
-#include "Core/Application.hpp"
-#include "Core/World/EntityWorld.hpp"
-
-namespace Lina
+#include "Editor/World/EditorWorldUserData.hpp"
+namespace Lina::Editor
 {
 
-	void WorldProcessor::Initialize(Application* app)
-	{
-		m_app = app;
-	}
-	void WorldProcessor::Tick(float delta)
-	{
-		if (m_worlds.empty())
-			return;
-
-		if (m_worlds.size() == 1)
-		{
-			Process(m_worlds.at(0), delta);
-		}
-		else
-		{
-			Taskflow tf;
-			tf.for_each_index(0, static_cast<int>(m_worlds.size()), 1, [&](int i) { Process(m_worlds.at(i), delta); });
-			m_app->GetExecutor().RunAndWait(tf);
-		}
-	}
-
-	void WorldProcessor::AddWorld(EntityWorld* world)
-	{
-		m_worlds.push_back(world);
-	}
-
-	void WorldProcessor::RemoveWorld(EntityWorld* world)
-	{
-		auto it = linatl::find_if(m_worlds.begin(), m_worlds.end(), [world](EntityWorld* w) -> bool { return w == world; });
-		m_worlds.erase(it);
-	}
-
-	void WorldProcessor::Process(EntityWorld* world, float delta)
-	{
-		world->Tick(delta);
-	}
-} // namespace Lina
+} // namespace Lina::Editor

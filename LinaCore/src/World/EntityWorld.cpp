@@ -83,7 +83,7 @@ namespace Lina
 		if (m_playMode != PlayMode::None)
 			TickPlay(delta);
 
-		GetCache<CompModel>()->View([delta](CompModel* comp, uint32 idx) -> bool {
+		GetCache<CompModel>()->GetBucket().View([delta](CompModel* comp, uint32 idx) -> bool {
 			comp->GetAnimationController().TickAnimation(delta);
 			return false;
 		});
@@ -102,33 +102,15 @@ namespace Lina
 
 	void EntityWorld::BeginPlay()
 	{
-		for (const ComponentCachePair& pair : m_componentCaches)
-		{
-			pair.cache->ForEach([](Component* c) { c->OnBeginPlay(); });
-		}
 	}
 
 	void EntityWorld::EndPlay()
 	{
 		m_playMode = PlayMode::None;
-
-		for (const ComponentCachePair& pair : m_componentCaches)
-		{
-			pair.cache->ForEach([](Component* c) { c->OnEndPlay(); });
-		}
 	}
 
 	void EntityWorld::TickPlay(float deltaTime)
 	{
-		for (const ComponentCachePair& pair : m_componentCaches)
-		{
-			pair.cache->ForEach([deltaTime](Component* c) { c->OnTick(deltaTime); });
-		}
-
-		for (const ComponentCachePair& pair : m_componentCaches)
-		{
-			pair.cache->ForEach([deltaTime](Component* c) { c->OnPostTick(deltaTime); });
-		}
 	}
 
 	Entity* EntityWorld::CreateEntity(const String& name)
@@ -159,9 +141,35 @@ namespace Lina
 
 	void EntityWorld::DestroyEntity(Entity* e)
 	{
+		m_freeGUIDs.push_back(e->GetGUID());
+
 		if (e->m_parent != nullptr)
 			e->m_parent->RemoveChild(e);
 		DestroyEntityData(e);
+	}
+
+	void EntityWorld::GetComponents(Entity* e, Vector<Component*>& outComponents)
+	{
+		for (const ComponentCachePair& p : m_componentCaches)
+		{
+			Component* c = GetComponent(e, p.tid);
+			if (c != nullptr)
+				outComponents.push_back(c);
+		}
+	}
+
+	Component* EntityWorld::GetComponent(Entity* e, TypeID tid)
+	{
+		auto it = linatl::find_if(m_componentCaches.begin(), m_componentCaches.end(), [tid](const ComponentCachePair& pair) -> bool { return pair.tid == tid; });
+		return it->cache->Get(e);
+	}
+
+	Component* EntityWorld::AddComponent(Entity* e, TypeID tid)
+	{
+		auto	   it = linatl::find_if(m_componentCaches.begin(), m_componentCaches.end(), [tid](const ComponentCachePair& pair) -> bool { return pair.tid == tid; });
+		Component* c  = it->cache->CreateRaw();
+		OnCreateComponent(c, e);
+		return c;
 	}
 
 	void EntityWorld::DestroyEntityData(Entity* e)
@@ -299,14 +307,12 @@ namespace Lina
 		c->m_world			 = this;
 		c->m_entity			 = e;
 		c->m_resourceManager = m_rm;
-		c->OnCreate();
 		for (auto* l : m_listeners)
 			l->OnComponentAdded(c);
 	}
 
 	void EntityWorld::OnDestroyComponent(Component* c, Entity* e)
 	{
-		c->OnDestroy();
 		for (auto* l : m_listeners)
 			l->OnComponentRemoved(c);
 	}
@@ -314,9 +320,7 @@ namespace Lina
 	void EntityWorld::CollectResourceNeeds(HashSet<ResourceID>& outResources)
 	{
 		for (const ComponentCachePair& pair : m_componentCaches)
-		{
 			pair.cache->ForEach([&](Component* c) { c->CollectReferences(outResources); });
-		}
 
 		outResources.insert(m_gfxSettings.skyMaterial);
 		outResources.insert(m_gfxSettings.skyModel);

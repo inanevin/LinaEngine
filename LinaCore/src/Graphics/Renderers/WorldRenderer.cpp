@@ -81,12 +81,11 @@ namespace Lina
 
 	WorldRenderer::WorldRenderer(GfxContext* context, ResourceManagerV2* rm, EntityWorld* world, const Vector2ui& viewSize, const String& name, Buffer* snapshotBuffers, bool standaloneSubmit)
 	{
-		m_name			   = name.empty() ? "WorldRenderer" : name;
-		m_gfxContext	   = context;
-		m_standaloneSubmit = standaloneSubmit;
-		m_snapshotBuffer   = snapshotBuffers;
-		m_world			   = world;
-		m_world->AddListener(this);
+		m_name					 = name.empty() ? "WorldRenderer" : name;
+		m_gfxContext			 = context;
+		m_standaloneSubmit		 = standaloneSubmit;
+		m_snapshotBuffer		 = snapshotBuffers;
+		m_world					 = world;
 		m_size					 = viewSize;
 		m_resourceManagerV2		 = rm;
 		m_gBufSampler			 = m_resourceManagerV2->CreateResource<TextureSampler>(m_resourceManagerV2->ConsumeResourceID(), name + " Sampler");
@@ -198,7 +197,6 @@ namespace Lina
 		m_forwardPass.Destroy();
 
 		DestroySizeRelativeResources();
-		m_world->RemoveListener(this);
 	}
 
 	void WorldRenderer::CalculateSkinning(const Vector<CompModel*>& comps)
@@ -335,19 +333,6 @@ namespace Lina
 		for (WorldRendererListener* l : m_listeners)
 			l->OnWorldRendererDestroySizeRelative();
 		m_gfxContext->MarkBindlessDirty();
-	}
-
-	void WorldRenderer::OnComponentAdded(Component* comp)
-	{
-		if (comp->GetTID() == GetTypeID<CompModel>())
-			m_compModels.push_back(static_cast<CompModel*>(comp));
-	}
-
-	void WorldRenderer::OnComponentRemoved(Component* comp)
-	{
-		auto it = linatl::find_if(m_compModels.begin(), m_compModels.end(), [comp](CompModel* c) -> bool { return c == comp; });
-		if (it != m_compModels.end())
-			m_compModels.erase(it);
 	}
 
 	void WorldRenderer::AddListener(WorldRendererListener* listener)
@@ -530,22 +515,23 @@ namespace Lina
 			m_deferredPass.GetView().SetView(camera.GetView());
 		}
 
-		// Skinning
-		{
-			m_skinnedModels.resize(0);
-			for (CompModel* model : m_compModels)
-			{
-				if (!model->GetEntity()->GetVisible())
-					continue;
+		m_compModels.resize(0);
+		m_skinnedModels.resize(0);
 
-				// Maybe some view culling, e.g. skip if not visible in any of the produces views.
+		m_world->GetCache<CompModel>()->GetBucket().View([&](CompModel* model, uint32 idx) -> bool {
+			if (!model->GetEntity()->GetVisible())
+				return false;
 
-				if (!model->GetModelPtr()->GetAllSkins().empty())
-					m_skinnedModels.push_back(model);
-			}
-			CalculateSkinning(m_skinnedModels);
-		}
+			// Maybe some view culling, e.g. skip if not visible in any of the produces views.
+			m_compModels.push_back(model);
 
+			if (!model->GetModelPtr()->GetAllSkins().empty())
+				m_skinnedModels.push_back(model);
+
+			return false;
+		});
+
+		CalculateSkinning(m_skinnedModels);
 		DrawCollector::CollectCompModels(m_compModels, m_deferredPass, m_resourceManagerV2, this, m_gfxContext, {.allowedShaderTypes = {ShaderType::DeferredSurface}});
 		DrawCollector::CollectCompModels(m_compModels, m_forwardPass, m_resourceManagerV2, this, m_gfxContext, {.allowedShaderTypes = {ShaderType::ForwardSurface}});
 

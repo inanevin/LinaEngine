@@ -296,7 +296,6 @@ namespace Lina
 
 	void Entity::UpdateLocalScale()
 	{
-
 		if (m_parent == nullptr)
 			m_transform.SetLocalScale(m_transform.GetScale());
 		else

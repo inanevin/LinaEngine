@@ -26,61 +26,54 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Editor/Widgets/Panel/PanelEntities.hpp"
+#include "Editor/Widgets/Panel/PanelDetails.hpp"
+#include "Editor/Editor.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Widgets/Compound/EntityBrowser.hpp"
-#include "Editor/Graphics/EditorWorldRenderer.hpp"
-#include "Common/Platform/LinaVGIncl.hpp"
-
-#include "Core/GUI/Widgets/Primitives/InputField.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
-#include "Core/Graphics/Renderers/WorldRenderer.hpp"
-#include "Editor/Editor.hpp"
 
 namespace Lina::Editor
 {
-	void PanelEntities::Construct()
+	void PanelDetails::Construct()
 	{
 		m_editor = Editor::Get();
 
-		m_browser = m_manager->Allocate<EntityBrowser>("EntityBrowser");
-		m_browser->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		m_browser->SetAlignedPos(Vector2::Zero);
-		m_browser->SetAlignedSize(Vector2(1.0f, 1.0f));
-		AddChild(m_browser);
+		DirectionalLayout* vertical = m_manager->Allocate<DirectionalLayout>();
+		vertical->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		vertical->GetProps().direction				   = DirectionOrientation::Vertical;
+		vertical->GetWidgetProps().childPadding		   = Theme::GetDef().baseIndent;
+		vertical->GetWidgetProps().childMargins.top	   = Theme::GetDef().baseIndent;
+		vertical->GetWidgetProps().childMargins.bottom = Theme::GetDef().baseIndent;
+		AddChild(vertical);
 
 		m_editor->GetWorldManager().AddListener(this);
 	}
 
-	void PanelEntities::Destruct()
+	void PanelDetails::Destruct()
 	{
 		m_editor->GetWorldManager().RemoveListener(this);
 	}
 
-	void PanelEntities::PreTick()
+	void PanelDetails::PreTick()
 	{
 	}
 
-	void PanelEntities::Tick(float dt)
+	void PanelDetails::Tick(float dt)
 	{
 	}
 
-	bool PanelEntities::OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData)
+	bool PanelDetails::OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData)
 	{
 		return true;
 	}
 
-	void PanelEntities::OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData)
+	void PanelDetails::OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData)
 	{
 	}
-
-	void PanelEntities::OnWorldManagerOpenedWorld(EditorWorldRenderer* wr)
+	void PanelDetails::OnWorldManagerOpenedWorld(EditorWorldRenderer* wr)
 	{
-		m_browser->SetWorld(wr->GetWorldRenderer()->GetWorld());
 	}
-
-	void PanelEntities::OnWorldManagerClosingWorld(EditorWorldRenderer* wr)
+	void PanelDetails::OnWorldManagerClosingWorld(EditorWorldRenderer* wr)
 	{
-		m_browser->SetWorld(nullptr);
 	}
 } // namespace Lina::Editor

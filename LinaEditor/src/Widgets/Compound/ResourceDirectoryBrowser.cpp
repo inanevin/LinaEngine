@@ -153,6 +153,7 @@ namespace Lina::Editor
 			}
 			else if (item->resourceTID == GetTypeID<EntityWorld>())
 			{
+				m_editor->GetWindowPanelManager().OpenPanel(PanelType::World, 0, this);
 				m_editor->GetWorldManager().OpenWorld(item->resourceID);
 			}
 		};

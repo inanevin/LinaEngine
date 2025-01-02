@@ -42,6 +42,7 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelMaterialViewer.hpp"
 #include "Editor/Widgets/Panel/PanelAudioViewer.hpp"
 #include "Editor/Widgets/Panel/PanelLog.hpp"
+#include "Editor/Widgets/Panel/PanelDetails.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 
 namespace Lina::Editor
@@ -97,6 +98,9 @@ namespace Lina::Editor
 			break;
 		case PanelType::AudioViewer:
 			panel = source->GetWidgetManager()->Allocate<PanelAudioViewer>("Audio");
+			break;
+		case PanelType::Details:
+			panel = source->GetWidgetManager()->Allocate<PanelDetails>("Details");
 			break;
 		default:
 			LINA_ASSERT(false, "");

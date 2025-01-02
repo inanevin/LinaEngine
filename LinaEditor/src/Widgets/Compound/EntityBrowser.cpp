@@ -1,0 +1,168 @@
+/*
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
+
+Author: Inan Evin
+http://www.inanevin.com
+
+Copyright (c) [2018-] [Inan Evin]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+#include "Editor/Widgets/Compound/EntityBrowser.hpp"
+#include "Editor/Widgets/Layout/ItemController.hpp"
+#include "Editor/Editor.hpp"
+#include "Editor/EditorLocale.hpp"
+#include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
+#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
+#include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
+#include "Core/World/EntityWorld.hpp"
+#include "Editor/Widgets/CommonWidgets.hpp"
+#include "Core/GUI/Widgets/Primitives/InputField.hpp"
+
+namespace Lina::Editor
+{
+	void EntityBrowser::Construct()
+	{
+		m_editor = Editor::Get();
+
+		DirectionalLayout* vertical = m_manager->Allocate<DirectionalLayout>("Vertical");
+		vertical->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		vertical->SetAlignedPos(Vector2::Zero);
+		vertical->SetAlignedSize(Vector2::One);
+		vertical->GetProps().direction				   = DirectionOrientation::Vertical;
+		vertical->GetWidgetProps().childPadding		   = Theme::GetDef().baseIndent;
+		vertical->GetWidgetProps().childMargins.top	   = Theme::GetDef().baseIndent;
+		vertical->GetWidgetProps().childMargins.bottom = Theme::GetDef().baseIndent;
+		AddChild(vertical);
+
+		DirectionalLayout* header = m_manager->Allocate<DirectionalLayout>("Header");
+		header->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+		header->SetAlignedPosX(0.0f);
+		header->SetAlignedSizeX(1.0f);
+		header->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		header->GetWidgetProps().childPadding		= Theme::GetDef().baseIndent;
+		header->GetWidgetProps().childMargins.left	= Theme::GetDef().baseIndent;
+		header->GetWidgetProps().childMargins.right = Theme::GetDef().baseIndent;
+		vertical->AddChild(header);
+
+		InputField* searchField = m_manager->Allocate<InputField>("SearchField");
+		searchField->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		searchField->SetAlignedPosY(0.0f);
+		searchField->SetAlignedSize(Vector2(0.0f, 1.0f));
+		searchField->GetProps().usePlaceHolder	= true;
+		searchField->GetProps().placeHolderText = Locale::GetStr(LocaleStr::Search);
+		searchField->GetProps().placeHolderIcon = ICON_SEARCH;
+		header->AddChild(searchField);
+
+		ScrollArea* scroll = m_manager->Allocate<ScrollArea>("Scroll");
+		scroll->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		scroll->SetAlignedPosX(0.0f);
+		scroll->SetAlignedSizeX(1.0f);
+		scroll->SetAlignedSizeY(0.0f);
+		scroll->GetProps().direction = DirectionOrientation::Vertical;
+		vertical->AddChild(scroll);
+
+		ItemController* controller = m_manager->Allocate<ItemController>("Controller");
+		controller->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		controller->SetAlignedPos(Vector2::Zero);
+		controller->SetAlignedSize(Vector2::One);
+		controller->GetWidgetProps().childMargins		  = {.top = Theme::GetDef().baseIndentInner, .bottom = Theme::GetDef().baseIndentInner};
+		controller->GetWidgetProps().drawBackground		  = true;
+		controller->GetWidgetProps().colorBackground	  = Theme::GetDef().background1;
+		controller->GetWidgetProps().outlineThickness	  = 0.0f;
+		controller->GetWidgetProps().dropshadow.enabled	  = true;
+		controller->GetWidgetProps().dropshadow.color	  = Theme::GetDef().background0;
+		controller->GetWidgetProps().dropshadow.steps	  = Theme::GetDef().baseDropShadowSteps;
+		controller->GetWidgetProps().dropshadow.direction = Direction::Top;
+		controller->GetWidgetProps().dropshadow.isInner	  = true;
+		controller->GetContextMenu()->SetListener(this);
+		scroll->AddChild(controller);
+
+		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("VerticalLayout");
+		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		layout->SetAlignedPos(Vector2::Zero);
+		layout->SetAlignedSize(Vector2::One);
+		layout->GetProps().direction		  = DirectionOrientation::Vertical;
+		layout->GetWidgetProps().clipChildren = true;
+		controller->AddChild(layout);
+
+		scroll->SetTarget(layout);
+
+		m_controller = controller;
+		m_layout	 = layout;
+	}
+
+	void EntityBrowser::RefreshEntities()
+	{
+		m_layout->DeallocAllChildren();
+		m_layout->RemoveAllChildren();
+		m_controller->ClearItems();
+
+		if (m_world == nullptr)
+			return;
+
+		Vector<Entity*> roots;
+		roots.reserve(m_world->GetActiveEntityCount());
+		m_world->ViewEntities([&](Entity* e, uint32 idx) -> bool {
+			if (e->GetParent() == nullptr)
+				roots.push_back(e);
+			return false;
+		});
+
+		for (Entity* root : roots)
+		{
+			AddItem(m_layout, root, 0.0f);
+		}
+	}
+
+	void EntityBrowser::SetWorld(EntityWorld* w)
+	{
+		m_world = w;
+		RefreshEntities();
+	}
+
+	void EntityBrowser::AddItem(Widget* parent, Entity* e, float margin)
+	{
+		const CommonWidgets::ResDirItemProperties props = {
+			.chevron	= "",
+			.chevronAlt = "",
+			.typeText	= "",
+			.mainIcon	= "",
+			.title		= e->GetName(),
+			.margin		= margin,
+			.userData	= e,
+		};
+
+		FoldLayout* layout = CommonWidgets::BuildTreeItem(this, props);
+		parent->AddChild(layout);
+	}
+
+	bool EntityBrowser::OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData)
+	{
+		return false;
+	}
+
+	void EntityBrowser::OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData)
+	{
+	}
+
+} // namespace Lina::Editor

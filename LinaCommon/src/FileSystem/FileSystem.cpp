@@ -365,10 +365,12 @@ namespace Lina
 				LINA_ERR("Path doesn't exist! {0}", path);
 			}
 		}
-		catch (std::filesystem::filesystem_error& e)
+		catch (std::filesystem::filesystem_error&)
 		{
 			LINA_ERR("Exception processing path! {0}", path);
 		}
+
+		return "";
 	}
 
 	String FileSystem::GetRelative(const String& src, const String& target)

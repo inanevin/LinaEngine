@@ -140,6 +140,10 @@ namespace Lina
 			if (txt->GetIsMSAA())
 				return false;
 
+			Bitmask16 mask = txt->GetCreationFlags();
+			if (!mask.IsSet(LinaGX::TF_Sampled))
+				return false;
+
 			const uint32 idx = static_cast<uint32>(m_nextTextureUpdates.size());
 			txt->SetBindlessIndex(idx);
 			m_nextTextureUpdates.push_back(txt);

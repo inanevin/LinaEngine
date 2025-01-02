@@ -80,16 +80,9 @@ namespace Lina::Editor
 		if (m_world)
 			return;
 
-		m_world				  = new EntityWorld(0, "");
-		m_worldRenderer		  = new WorldRenderer(&m_editor->GetApp()->GetGfxContext(), &m_editor->GetApp()->GetResourceManager(), m_world, Vector2ui(4, 4), "WorldRenderer: " + m_resource->GetName() + " :");
-		m_editorWorldRenderer = new EditorWorldRenderer(m_editor, m_editor->GetApp()->GetLGX(), m_worldRenderer);
-
-		m_editor->GetApp()->JoinRender();
-
-		m_editor->GetApp()->GetWorldProcessor().AddWorld(m_world);
-		m_editor->GetEditorRenderer().AddWorldRenderer(m_worldRenderer, m_editorWorldRenderer);
-
-		m_worldDisplayer->DisplayWorld(m_worldRenderer, m_editorWorldRenderer, WorldCameraType::Orbit);
+		EditorWorldRenderer* ewr = m_editor->GetWorldManager().OpenWorld(0);
+		m_world					 = ewr->GetWorldRenderer()->GetWorld();
+		m_worldDisplayer->DisplayWorld(ewr, WorldCameraType::Orbit);
 
 		// Resource set up.
 		m_world->GetGfxSettings().skyModel	  = EDITOR_MODEL_SKYSPHERE_ID;
@@ -131,16 +124,8 @@ namespace Lina::Editor
 		m_previousStream.Destroy();
 
 		if (m_world)
-		{
-			m_editor->GetApp()->JoinRender();
-			m_editor->GetApp()->GetWorldProcessor().RemoveWorld(m_world);
-			m_editor->GetEditorRenderer().RemoveWorldRenderer(m_worldRenderer);
-			delete m_worldRenderer;
-			delete m_editorWorldRenderer;
-			delete m_world;
-			m_worldRenderer = nullptr;
-			m_world			= nullptr;
-		}
+			m_editor->GetWorldManager().CloseWorld(m_world);
+		m_world = nullptr;
 	}
 
 	void PanelMaterialViewer::StoreShaderID()

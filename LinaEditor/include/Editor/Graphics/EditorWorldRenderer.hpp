@@ -108,6 +108,11 @@ namespace Lina::Editor
 			return m_outlineRenderer;
 		}
 
+		inline WorldRenderer* GetWorldRenderer() const
+		{
+			return m_wr;
+		}
+
 	private:
 	private:
 		Vector<Entity*>			 m_selectedEntities;

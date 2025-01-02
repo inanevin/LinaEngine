@@ -28,27 +28,12 @@ SOFTWARE.
 
 #pragma once
 
-#include "Common/Data/Vector.hpp"
-
 namespace Lina
 {
 	class EntityWorld;
-	class Application;
+}
 
-	class WorldProcessor
-	{
-	public:
-		void Initialize(Application* app);
-		void Tick(float delta);
-		void AddWorld(EntityWorld* world);
-		void RemoveWorld(EntityWorld* world);
+namespace Lina::Editor
+{
 
-	private:
-		void Process(EntityWorld* world, float delta);
-
-	private:
-		Application*		 m_app = nullptr;
-		Vector<EntityWorld*> m_worlds;
-	};
-
-} // namespace Lina
+} // namespace Lina::Editor

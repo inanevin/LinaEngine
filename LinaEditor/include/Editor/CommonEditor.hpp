@@ -266,6 +266,7 @@ namespace Lina::Editor
 		MaterialViewer,
 		PhysicsMaterialViewer,
 		Log,
+		Details,
 	};
 
 	enum class ResourceDirectoryType

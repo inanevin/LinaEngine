@@ -38,7 +38,6 @@ namespace Lina
 	class EntityWorld;
 	class WorldRenderer;
 	class Entity;
-	class ResourceDirectory;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -88,15 +87,13 @@ namespace Lina::Editor
 	private:
 		LINA_REFLECTION_ACCESS(PanelMaterialViewer);
 
-		Entity*					  m_displayEntity		= nullptr;
-		MaterialViewerDisplayType m_displayType			= MaterialViewerDisplayType::Cube;
-		String					  m_materialName		= "";
-		WorldDisplayer*			  m_worldDisplayer		= nullptr;
-		EntityWorld*			  m_world				= nullptr;
-		WorldRenderer*			  m_worldRenderer		= nullptr;
-		EditorWorldRenderer*	  m_editorWorldRenderer = nullptr;
-		ShaderType				  m_shaderType			= ShaderType::DeferredSurface;
-		String					  m_shaderTypeStr		= "";
+		Entity*					  m_displayEntity  = nullptr;
+		MaterialViewerDisplayType m_displayType	   = MaterialViewerDisplayType::Cube;
+		String					  m_materialName   = "";
+		WorldDisplayer*			  m_worldDisplayer = nullptr;
+		EntityWorld*			  m_world		   = nullptr;
+		ShaderType				  m_shaderType	   = ShaderType::DeferredSurface;
+		String					  m_shaderTypeStr  = "";
 		Vector<uint32>			  m_propertyFoldValues;
 		OStream					  m_previousStream;
 		ResourceID				  m_shaderID			  = 0;

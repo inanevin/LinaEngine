@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Core/World/WorldInput.hpp"
 #include "Common/Memory/MemoryAllocatorPool.hpp"
 #include "Common/ObjectWrapper.hpp"
+#include "Common/Data/Deque.hpp"
 #include "Core/Physics/PhysicsWorld.hpp"
 #include "Core/World/CommonWorld.hpp"
 #include "Core/World/ComponentCache.hpp"
@@ -84,6 +85,9 @@ namespace Lina
 		Entity*			   CreateEntity(const String& name);
 		Entity*			   GetEntity(EntityID guid);
 		void			   DestroyEntity(Entity* e);
+		void			   GetComponents(Entity* e, Vector<Component*>& outComponents);
+		Component*		   GetComponent(Entity* e, TypeID tid);
+		Component*		   AddComponent(Entity* e, TypeID tid);
 		virtual void	   SaveToStream(OStream& stream) const override;
 		virtual void	   LoadFromStream(IStream& stream) override;
 		virtual bool	   LoadFromFile(const String& path) override;
@@ -153,7 +157,7 @@ namespace Lina
 			auto it = linatl::find_if(m_componentCaches.begin(), m_componentCaches.end(), [tid](const ComponentCachePair& pair) -> bool { return tid == pair.tid; });
 			if (it == m_componentCaches.end())
 			{
-				ComponentCache<T>* cache = new ComponentCache<T>(this);
+				ComponentCache<T>* cache = new ComponentCache<T>();
 				m_componentCaches.push_back({tid, cache});
 				return cache;
 			}
@@ -192,6 +196,13 @@ namespace Lina
 
 		inline EntityID ConsumeEntityGUID()
 		{
+			if (!m_freeGUIDs.empty())
+			{
+				const ResourceID id = m_freeGUIDs.front();
+				m_freeGUIDs.pop_front();
+				return id;
+			}
+
 			return m_entityGUIDCounter++;
 		}
 
@@ -224,7 +235,7 @@ namespace Lina
 
 	private:
 		ALLOCATOR_BUCKET_MEM;
-
+		Deque<EntityID>				  m_freeGUIDs;
 		AllocatorBucket<Entity, 1000> m_entityBucket;
 		Vector<ComponentCachePair>	  m_componentCaches;
 		EntityID					  m_entityGUIDCounter = 1;
@@ -237,7 +248,6 @@ namespace Lina
 		Camera						  m_camera			   = {};
 		SimulationSettings			  m_simulationSettings = {};
 		ResourceManagerV2*			  m_rm				   = nullptr;
-		JobExecutor					  m_executor;
 
 		float	 m_elapsedTime		  = 0.0f;
 		float	 m_interpolationAlpha = 0.0f;

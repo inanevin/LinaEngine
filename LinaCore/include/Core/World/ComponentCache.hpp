@@ -53,12 +53,13 @@ namespace Lina
 		virtual void	   Destroy(Entity* e)												= 0;
 		virtual void	   Destroy(Component* c)											= 0;
 		virtual void	   ForEach(Delegate<void(Component* c)>&& cb)						= 0;
+		virtual Component* CreateRaw()														= 0;
 	};
 
 	template <typename T> class ComponentCache : public ComponentCacheBase
 	{
 	public:
-		ComponentCache(EntityWorld* world) : m_world(world)
+		ComponentCache()
 		{
 		}
 
@@ -69,6 +70,12 @@ namespace Lina
 		inline T* Create()
 		{
 			return m_componentBucket.Allocate();
+		}
+
+		virtual Component* CreateRaw()
+		{
+			T* t = m_componentBucket.Allocate();
+			return t;
 		}
 
 		virtual void Destroy(Entity* e) override
@@ -141,6 +148,11 @@ namespace Lina
 			}
 		}
 
+		inline AllocatorBucket<T, COMPONENT_POOL_SIZE>& GetBucket()
+		{
+			return m_componentBucket;
+		}
+
 		virtual void ForEach(Delegate<void(Component* c)>&& cb) override
 		{
 			m_componentBucket.View([&](T* comp, uint32 index) -> bool {
@@ -149,14 +161,8 @@ namespace Lina
 			});
 		}
 
-		void View(Delegate<bool(T* comp, uint32 index)>&& callback)
-		{
-			m_componentBucket.View(std::move(callback));
-		}
-
 	private:
-		EntityWorld*			m_world = nullptr;
-		AllocatorBucket<T, 100> m_componentBucket;
+		AllocatorBucket<T, COMPONENT_POOL_SIZE> m_componentBucket;
 	};
 
 } // namespace Lina

@@ -33,13 +33,11 @@ SOFTWARE.
 
 namespace Lina
 {
-
+	/*
 	class CompCamera : public Component
 	{
 	public:
 		CompCamera() : Component(GetTypeID<CompCamera>()){};
-
-		virtual void OnPostTick(float delta) override;
 
 		virtual void SaveToStream(OStream& stream) const override
 		{
@@ -76,5 +74,5 @@ namespace Lina
 
 	LINA_COMPONENT_BEGIN(CompCamera, "Graphics");
 	LINA_CLASS_END(CompCamera);
-
+	*/
 } // namespace Lina
