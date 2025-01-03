@@ -340,12 +340,16 @@ namespace Lina::Editor
 		{
 			m_selectionControls.rectSelectionPressed = false;
 
-			if ((m_lgxWindow->GetMousePosition() - m_selectionControls.rectSelectionStartPosition).Magnitude() > 20)
+			const Vector2 endPoint	 = m_lgxWindow->GetMousePosition() - GetStartFromMargins();
+			const Vector2 startPoint = m_selectionControls.rectSelectionStartPosition - GetStartFromMargins();
+
+			if ((endPoint - startPoint).Magnitude() > 20)
 			{
-				const Vector2 endPoint							= m_lgxWindow->GetMousePosition() - GetStartFromMargins();
-				m_selectionControls.rectSelectionWaitingResults = true;
-				m_ewr->GetMousePick().SelectRect(Vector2ui(static_cast<uint32>(m_selectionControls.rectSelectionStartPosition.x), static_cast<uint32>(m_selectionControls.rectSelectionStartPosition.y)),
-												 Vector2ui(static_cast<uint32>(endPoint.x), static_cast<uint32>(endPoint.y)));
+				if (endPoint.x > 0.0f && endPoint.y > 0.0f && startPoint.x > 0.0f && endPoint.x > 0.0f)
+				{
+					m_selectionControls.rectSelectionWaitingResults = true;
+					m_ewr->GetMousePick().SelectRect(Vector2ui(static_cast<uint32>(startPoint.x), static_cast<uint32>(startPoint.y)), Vector2ui(static_cast<uint32>(endPoint.x), static_cast<uint32>(endPoint.y)));
+				}
 			}
 		}
 
@@ -458,11 +462,10 @@ namespace Lina::Editor
 		if (m_selectionControls.rectSelectionPressed)
 		{
 			LinaVG::StyleOptions style;
-			style.color				 = ColorGrad(Theme::GetDef().accentPrimary2.AsLVG4(), Theme::GetDef().accentSecondary1.AsLVG4()).AsLVG();
-			style.color.gradientType = LinaVG::GradientType::Horizontal;
-			style.aaEnabled			 = true;
-			style.thickness			 = 2.0f;
-			style.isFilled			 = false;
+			style.color		= Theme::GetDef().foreground0.AsLVG4();
+			style.aaEnabled = true;
+			style.thickness = 2.0f;
+			style.isFilled	= false;
 
 			const Vector2 pointNow = m_lgxWindow->GetMousePosition();
 			m_lvg->DrawRect(m_selectionControls.rectSelectionStartPosition.AsLVG(), pointNow.AsLVG(), style, 0.0f, baseDO);
