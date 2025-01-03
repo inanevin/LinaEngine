@@ -55,7 +55,7 @@ namespace Lina::Editor
 		static Vector<Entity*> AddResourcesToWorld(Editor* editor, EntityWorld* world, const Vector<ResourceDirectory*>& dirs, const Vector3& pos);
 
 		static void FixEntityIDsToNew(EntityWorld* world, const Vector<Entity*>& entities);
-		static void SaveEntitiesToStream(OStream& stream, EntityWorld* world, const Vector<Entity*>& entities);
+		static void SaveEntitiesToStream(OStream& stream, EntityWorld* world, const Vector<Entity*>& entities, Entity* parent = nullptr);
 		static void LoadEntitiesFromStream(IStream& stream, EntityWorld* world, Vector<Entity*>& outEntities);
 		static void DuplicateEntities(Editor* editor, EntityWorld* world, const Vector<Entity*>& srcEntities, Vector<Entity*>& outEntities);
 		static void ExtractRoots(EntityWorld* world, const Vector<Entity*>& entities, Vector<Entity*>& roots);

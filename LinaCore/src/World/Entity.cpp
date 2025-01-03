@@ -62,7 +62,6 @@ namespace Lina
 	{
 		e->RemoveFromParent();
 		m_children.push_back(e);
-		m_childrenIDs.push_back(e->GetGUID());
 		e->m_parent = this;
 		e->UpdateLocalPosition();
 		e->UpdateLocalRotation();
@@ -72,7 +71,6 @@ namespace Lina
 	void Entity::RemoveChild(Entity* e)
 	{
 		m_children.erase(linatl::find_if(m_children.begin(), m_children.end(), [e](Entity* c) { return e == c; }));
-		m_childrenIDs.erase(linatl::find_if(m_childrenIDs.begin(), m_childrenIDs.end(), [e](EntityID id) { return e->GetGUID() == id; }));
 		e->m_parent = nullptr;
 	}
 
@@ -335,12 +333,12 @@ namespace Lina
 
 	void Entity::SaveToStream(OStream& stream) const
 	{
-		stream << m_mask << m_transform << m_name << m_childrenIDs << m_guid;
+		stream << m_mask << m_transform << m_name << m_guid;
 	}
 
 	void Entity::LoadFromStream(IStream& stream)
 	{
-		stream >> m_mask >> m_transform >> m_name >> m_childrenIDs >> m_guid;
+		stream >> m_mask >> m_transform >> m_name >> m_guid;
 	}
 
 	void Entity::UpdateLocalRotation()

@@ -156,10 +156,14 @@ namespace Lina::Editor
 	{
 		EditorActionEntitiesCreated* action = new EditorActionEntitiesCreated();
 		action->m_worldId					= world->GetID();
-		for (Entity* e : entities)
+
+		Vector<Entity*> roots;
+		WorldUtility::ExtractRoots(world, entities, roots);
+		WorldUtility::SaveEntitiesToStream(action->m_stream, world, roots);
+
+		for (Entity* e : roots)
 			action->m_guids.push_back(e->GetGUID());
 
-		WorldUtility::SaveEntitiesToStream(action->m_stream, world, entities);
 		editor->GetEditorActionManager().AddToStack(action);
 		return action;
 	}
@@ -176,14 +180,8 @@ namespace Lina::Editor
 			for (EntityID id : m_guids)
 			{
 				Entity* e = world->GetEntity(id);
-				entities.push_back(e);
-			}
-
-			Vector<Entity*> roots;
-			WorldUtility::ExtractRoots(world, entities, roots);
-
-			for (Entity* e : entities)
 				world->DestroyEntity(e);
+			}
 		}
 		else if (type == ExecType::Redo)
 		{
@@ -202,9 +200,12 @@ namespace Lina::Editor
 		EditorActionEntityDelete* action = new EditorActionEntityDelete();
 		action->m_worldId				 = world->GetID();
 
-		for (Entity* e : entities)
+		Vector<Entity*> roots;
+		WorldUtility::ExtractRoots(world, entities, roots);
+		WorldUtility::SaveEntitiesToStream(action->m_stream, world, roots);
+
+		for (Entity* e : roots)
 			action->m_guids.push_back(e->GetGUID());
-		WorldUtility::SaveEntitiesToStream(action->m_stream, world, entities);
 		editor->GetEditorActionManager().AddToStack(action);
 		return action;
 	}
@@ -222,13 +223,8 @@ namespace Lina::Editor
 			for (EntityID id : m_guids)
 			{
 				Entity* e = world->GetEntity(id);
-				entities.push_back(e);
+				world->DestroyEntity(e);
 			}
-
-			Vector<Entity*> roots;
-			WorldUtility::ExtractRoots(world, entities, roots);
-			for (Entity* root : roots)
-				world->DestroyEntity(root);
 		}
 		else if (type == ExecType::Undo)
 		{

@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Editor/Actions/EditorActionEntity.hpp"
 #include "Editor/World/WorldUtility.hpp"
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
+#include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
@@ -121,6 +122,21 @@ namespace Lina::Editor
 			EditorActionCollective::Create(m_editor, 2);
 		};
 
+		controller->GetProps().payloadType			   = PayloadType::EntitySelectable;
+		controller->GetProps().onCheckCanCreatePayload = [](void* ud) { return true; };
+		controller->GetProps().onCreatePayload		   = [this]() {
+			Widget*			root	 = m_editor->GetWindowPanelManager().GetPayloadRoot();
+			Vector<Entity*> payloads = m_controller->GetSelectedUserData<Entity>();
+
+			Text* t			   = root->GetWidgetManager()->Allocate<Text>();
+			t->GetProps().text = payloads.size() == 1 ? payloads.front()->GetName() : Locale::GetStr(LocaleStr::MultipleItems);
+			t->Initialize();
+
+			m_payloadItems = payloads;
+			Editor::Get()->GetWindowPanelManager().CreatePayload(t, PayloadType::EntitySelectable, t->GetSize());
+		};
+		controller->GetProps().onPayloadAccepted = [this](void* ud) { DropPayload(static_cast<Entity*>(ud)); };
+
 		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("VerticalLayout");
 		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		layout->SetAlignedPos(Vector2::Zero);
@@ -175,6 +191,12 @@ namespace Lina::Editor
 
 		for (Entity* e : entities)
 			m_controller->SelectItem(m_controller->GetItem(e), false, false, true);
+	}
+
+	void EntityBrowser::DropPayload(Entity* e)
+	{
+		EditorActionEntityParenting::Create(m_editor, m_world, m_payloadItems, e);
+		m_payloadItems.clear();
 	}
 
 	void EntityBrowser::AddItem(Widget* parent, Entity* e, float margin)

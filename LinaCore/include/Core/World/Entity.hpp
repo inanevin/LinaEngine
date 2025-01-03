@@ -152,11 +152,6 @@ namespace Lina
 			return m_guid;
 		}
 
-		inline Vector<EntityID>& GetChildrenIDs()
-		{
-			return m_childrenIDs;
-		}
-
 		inline void SetGUID(EntityID id)
 		{
 			m_guid = id;
@@ -192,7 +187,6 @@ namespace Lina
 		Entity*			  m_parent = nullptr;
 		String			  m_name   = "";
 		Vector<Entity*>	  m_children;
-		Vector<EntityID>  m_childrenIDs;
 		Transformation	  m_transform;
 		Bitmask32		  m_mask;
 		AABB			  m_totalAABB;

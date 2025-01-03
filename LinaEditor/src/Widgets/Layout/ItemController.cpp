@@ -70,7 +70,7 @@ namespace Lina::Editor
 			}
 		}
 
-		if (m_props.onCreatePayload && !m_createdPayload && m_isPressed && !m_selectedItems.empty())
+		if (!m_createdPayload && m_props.onCreatePayload && m_isPressed && !m_selectedItems.empty())
 		{
 			bool anyHovered = false;
 			for (Widget* w : m_selectedItems)
@@ -370,25 +370,32 @@ namespace Lina::Editor
 
 	bool ItemController::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
-		if (act == LinaGX::InputAction::Released)
-			return false;
-
 		if (!m_isHovered)
 			return false;
 
 		const bool wasFocused = m_isFocused;
 		SetFocus(true);
 
+		const bool lshift = m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LSHIFT);
+		const bool lctrl  = m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LCTRL);
+
 		// To allow payload drag and drop on multiple items.
-		if (button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Released && m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LCTRL))
+		if (button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Released && m_selectedItems.size() > 1 && !lshift && !lctrl)
 		{
 			for (Widget* item : m_allItems)
 			{
-				if (!item->GetIsHovered() && IsItemSelected(item))
+				int32 idx = 0;
+
+				if (!item->GetIsHovered())
 				{
-					UnselectItem(item);
+					idx++;
+					continue;
 				}
+
+				SelectItem(item, true, true);
 			}
+
+			return true;
 		}
 
 		if (button == LINAGX_MOUSE_0 && (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated))
@@ -401,6 +408,22 @@ namespace Lina::Editor
 				{
 					idx++;
 					continue;
+				}
+
+				if (m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LCTRL))
+				{
+					if (!IsItemSelected(item))
+						SelectItem(item, false, true);
+					else
+						UnselectItem(item);
+
+					return true;
+				}
+
+				if (IsItemSelected(item) && act != LinaGX::InputAction::Repeated)
+				{
+					m_isPressed = true;
+					return true;
 				}
 
 				if (m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LSHIFT))

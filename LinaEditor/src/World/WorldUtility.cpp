@@ -129,34 +129,22 @@ namespace Lina::Editor
 		for (Entity* e : entities)
 		{
 			e->SetGUID(world->ConsumeEntityGUID());
-
 			const Vector<Entity*>& children = e->GetChildren();
 			FixEntityIDsToNew(world, children);
-
-			Vector<EntityID>& childIds = e->GetChildrenIDs();
-			childIds.resize(0);
-
-			for (Entity* c : children)
-				childIds.push_back(c->GetGUID());
 		}
 	}
 
-	void WorldUtility::SaveEntitiesToStream(OStream& stream, EntityWorld* world, const Vector<Entity*>& entities)
+	void WorldUtility::SaveEntitiesToStream(OStream& stream, EntityWorld* world, const Vector<Entity*>& entities, Entity* parent)
 	{
-		Vector<Entity*> roots;
-		ExtractRoots(world, entities, roots);
-
-		const uint32 sz = static_cast<uint32>(roots.size());
+		const uint32 sz = static_cast<uint32>(entities.size());
 		stream << sz;
 
 		Vector<Component*> comps;
-		for (Entity* e : roots)
+		for (Entity* e : entities)
 		{
 			e->SaveToStream(stream);
 
-			Entity* parent = e->GetParent();
-
-			const EntityID parentID = parent ? parent->GetGUID() : 0;
+			const EntityID parentID = parent == nullptr ? (e->GetParent() ? e->GetParent()->GetGUID() : 0) : 0;
 			stream << parentID;
 
 			comps.resize(0);
@@ -172,14 +160,14 @@ namespace Lina::Editor
 			}
 		}
 
-		for (Entity* e : roots)
+		for (Entity* e : entities)
 		{
 			const Vector<Entity*>& children = e->GetChildren();
 			const uint32		   sz		= static_cast<uint32>(children.size());
 			stream << sz;
 
 			if (sz != 0)
-				SaveEntitiesToStream(stream, world, children);
+				SaveEntitiesToStream(stream, world, children, e);
 		}
 	}
 
@@ -194,11 +182,11 @@ namespace Lina::Editor
 			e->LoadFromStream(stream);
 			e->SetTransform(e->GetTransform());
 
-			EntityID parentID = 0;
-			stream >> parentID;
+			EntityID parent = 0;
+			stream >> parent;
 
-			if (parentID != 0)
-				world->GetEntity(parentID)->AddChild(e);
+			if (parent != 0)
+				world->GetEntity(parent)->AddChild(e);
 
 			uint32 csz = 0;
 			stream >> csz;
@@ -247,10 +235,6 @@ namespace Lina::Editor
 		size_t		  i		   = 0;
 		for (Entity* e : outEntities)
 		{
-			Entity* srcParent = roots.at(i)->GetParent();
-			if (srcParent)
-				srcParent->AddChild(e);
-
 			const Vector3 er  = roots.at(i)->GetRotation().GetRight();
 			const float	  dot = er.Dot(camRight);
 			e->SetPosition(roots.at(i)->GetPosition() + er * 0.5f * (dot > 0.0f ? 1.0f : -1.0f)); // todo: aabb this later
