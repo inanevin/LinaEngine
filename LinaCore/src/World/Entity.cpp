@@ -49,7 +49,7 @@ namespace Lina
 			if (c->GetGUID() == id)
 				return c;
 
-			Entity* found = FindInChildHierarchy(id);
+			Entity* found = c->FindInChildHierarchy(id);
 
 			if (found)
 				return found;

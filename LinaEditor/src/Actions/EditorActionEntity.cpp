@@ -36,7 +36,7 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-	EditorActionEntitySelection* EditorActionEntitySelection::Create(Editor* editor, uint64 worldId, const Vector<Entity*>& entities, bool select, bool clearOthers)
+	EditorActionEntitySelection* EditorActionEntitySelection::Create(Editor* editor, uint64 worldId, const Vector<Entity*>& entities, bool select, bool clearOthers, StringID src)
 	{
 		EditorActionEntitySelection* action = new EditorActionEntitySelection();
 
@@ -44,6 +44,7 @@ namespace Lina::Editor
 		action->m_entities.reserve(entities.size());
 		action->m_worldId = worldId;
 		action->m_clear	  = clearOthers;
+		action->m_src	  = src;
 
 		for (Entity* e : entities)
 		{
@@ -103,7 +104,7 @@ namespace Lina::Editor
 			}
 		}
 
-		editor->GetWorldManager().BroadcastEntitySelectionChanged(world, wd.selectedEntities);
+		editor->GetWorldManager().BroadcastEntitySelectionChanged(world, wd.selectedEntities, m_src);
 	}
 
 	EditorActionEntityTransform* EditorActionEntityTransform::Create(Editor* editor, uint64 worldId, const Vector<Entity*>& entities, const Vector<Transformation>& previousTransforms)
@@ -171,11 +172,18 @@ namespace Lina::Editor
 
 		if (type == ExecType::Undo)
 		{
+			Vector<Entity*> entities;
 			for (EntityID id : m_guids)
 			{
 				Entity* e = world->GetEntity(id);
-				world->DestroyEntity(e);
+				entities.push_back(e);
 			}
+
+			Vector<Entity*> roots;
+			WorldUtility::ExtractRoots(world, entities, roots);
+
+			for (Entity* e : entities)
+				world->DestroyEntity(e);
 		}
 		else if (type == ExecType::Redo)
 		{
@@ -209,11 +217,18 @@ namespace Lina::Editor
 
 		if (type == ExecType::Redo || type == ExecType::Create)
 		{
+			Vector<Entity*> entities;
+
 			for (EntityID id : m_guids)
 			{
 				Entity* e = world->GetEntity(id);
-				world->DestroyEntity(e);
+				entities.push_back(e);
 			}
+
+			Vector<Entity*> roots;
+			WorldUtility::ExtractRoots(world, entities, roots);
+			for (Entity* root : roots)
+				world->DestroyEntity(root);
 		}
 		else if (type == ExecType::Undo)
 		{

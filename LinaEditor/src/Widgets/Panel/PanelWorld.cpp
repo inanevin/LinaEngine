@@ -86,13 +86,15 @@ namespace Lina::Editor
 		m_worldDisplayer->DisplayWorld(nullptr, WorldCameraType::FreeMove);
 	}
 
-	void PanelWorld::OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities)
+	void PanelWorld::OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities, StringID source)
 	{
 		if (w != m_world)
 			return;
 
 		m_worldDisplayer->GetController()->OnEntitySelectionChanged(entities);
-		m_worldDisplayer->GetController()->GetBrowser()->SelectEntities(entities);
+
+		if (source == 0)
+			m_worldDisplayer->GetController()->GetBrowser()->OnEntitySelectionChanged(entities);
 	}
 
 	void PanelWorld::OnWorldManagerEntityHierarchyChanged(EntityWorld* w)

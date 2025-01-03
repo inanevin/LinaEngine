@@ -143,13 +143,21 @@ namespace Lina::Editor
 
 	void WorldUtility::SaveEntitiesToStream(OStream& stream, EntityWorld* world, const Vector<Entity*>& entities)
 	{
-		const uint32 sz = static_cast<uint32>(entities.size());
+		Vector<Entity*> roots;
+		ExtractRoots(world, entities, roots);
+
+		const uint32 sz = static_cast<uint32>(roots.size());
 		stream << sz;
 
 		Vector<Component*> comps;
-		for (Entity* e : entities)
+		for (Entity* e : roots)
 		{
 			e->SaveToStream(stream);
+
+			Entity* parent = e->GetParent();
+
+			const EntityID parentID = parent ? parent->GetGUID() : 0;
+			stream << parentID;
 
 			comps.resize(0);
 			world->GetComponents(e, comps);
@@ -164,7 +172,7 @@ namespace Lina::Editor
 			}
 		}
 
-		for (Entity* e : entities)
+		for (Entity* e : roots)
 		{
 			const Vector<Entity*>& children = e->GetChildren();
 			const uint32		   sz		= static_cast<uint32>(children.size());
@@ -174,6 +182,7 @@ namespace Lina::Editor
 				SaveEntitiesToStream(stream, world, children);
 		}
 	}
+
 	void WorldUtility::LoadEntitiesFromStream(IStream& stream, EntityWorld* world, Vector<Entity*>& outEntities)
 	{
 		uint32 sz = 0;
@@ -184,6 +193,12 @@ namespace Lina::Editor
 			Entity* e = world->CreateEntity(0, "");
 			e->LoadFromStream(stream);
 			e->SetTransform(e->GetTransform());
+
+			EntityID parentID = 0;
+			stream >> parentID;
+
+			if (parentID != 0)
+				world->GetEntity(parentID)->AddChild(e);
 
 			uint32 csz = 0;
 			stream >> csz;
@@ -216,8 +231,11 @@ namespace Lina::Editor
 
 	void WorldUtility::DuplicateEntities(Editor* editor, EntityWorld* world, const Vector<Entity*>& srcEntities, Vector<Entity*>& outEntities)
 	{
+		Vector<Entity*> roots;
+		ExtractRoots(world, srcEntities, roots);
+
 		OStream stream;
-		SaveEntitiesToStream(stream, world, srcEntities);
+		SaveEntitiesToStream(stream, world, roots);
 
 		IStream inStream;
 		inStream.Create(stream.GetDataRaw(), stream.GetCurrentSize());
@@ -229,10 +247,34 @@ namespace Lina::Editor
 		size_t		  i		   = 0;
 		for (Entity* e : outEntities)
 		{
-			const Vector3 er  = srcEntities.at(i)->GetRotation().GetRight();
+			Entity* srcParent = roots.at(i)->GetParent();
+			if (srcParent)
+				srcParent->AddChild(e);
+
+			const Vector3 er  = roots.at(i)->GetRotation().GetRight();
 			const float	  dot = er.Dot(camRight);
-			e->SetPosition(srcEntities.at(i)->GetPosition() + er * 0.5f * (dot > 0.0f ? 1.0f : -1.0f)); // todo: aabb this later
+			e->SetPosition(roots.at(i)->GetPosition() + er * 0.5f * (dot > 0.0f ? 1.0f : -1.0f)); // todo: aabb this later
 			i++;
 		}
+	}
+
+	void WorldUtility::ExtractRoots(EntityWorld* world, const Vector<Entity*>& entities, Vector<Entity*>& roots)
+	{
+		roots = entities;
+		HashSet<Entity*> toRemove;
+		for (Entity* e : entities)
+		{
+			for (Entity* s : entities)
+			{
+				if (s == e)
+					continue;
+
+				if (e->FindInChildHierarchy(s->GetGUID()))
+					toRemove.insert(s);
+			}
+		}
+
+		for (Entity* e : toRemove)
+			roots.erase(linatl::find_if(roots.begin(), roots.end(), [e](Entity* ent) -> bool { return ent == e; }));
 	}
 } // namespace Lina::Editor

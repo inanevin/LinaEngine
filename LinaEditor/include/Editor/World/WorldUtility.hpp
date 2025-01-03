@@ -58,5 +58,6 @@ namespace Lina::Editor
 		static void SaveEntitiesToStream(OStream& stream, EntityWorld* world, const Vector<Entity*>& entities);
 		static void LoadEntitiesFromStream(IStream& stream, EntityWorld* world, Vector<Entity*>& outEntities);
 		static void DuplicateEntities(Editor* editor, EntityWorld* world, const Vector<Entity*>& srcEntities, Vector<Entity*>& outEntities);
+		static void ExtractRoots(EntityWorld* world, const Vector<Entity*>& entities, Vector<Entity*>& roots);
 	};
 } // namespace Lina::Editor

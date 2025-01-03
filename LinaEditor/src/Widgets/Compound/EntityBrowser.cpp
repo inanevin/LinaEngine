@@ -30,6 +30,8 @@ SOFTWARE.
 #include "Editor/Widgets/Layout/ItemController.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/EditorLocale.hpp"
+#include "Editor/Actions/EditorActionEntity.hpp"
+#include "Editor/World/WorldUtility.hpp"
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
@@ -97,6 +99,28 @@ namespace Lina::Editor
 		controller->GetContextMenu()->SetListener(this);
 		scroll->AddChild(controller);
 
+		controller->GetProps().onItemSelected = [this](void* ud) {
+			const Vector<Entity*> selection = m_controller->GetSelectedUserData<Entity>();
+			EditorActionEntitySelection::Create(m_editor, m_world->GetID(), selection, true, true, "EntityList"_hs);
+		};
+
+		controller->GetProps().onItemRenamed = [this](void* ud) { Entity* e = static_cast<Entity*>(ud); };
+		controller->GetProps().onDelete		 = [this]() {
+			 const Vector<Entity*> selection = m_controller->GetSelectedUserData<Entity>();
+			 EditorActionEntitySelection::Create(m_editor, m_world->GetID(), selection, false, true);
+			 EditorActionEntityDelete::Create(m_editor, m_world, selection);
+			 EditorActionCollective::Create(m_editor, 2);
+		};
+
+		controller->GetProps().onDuplicate = [this]() {
+			const Vector<Entity*> selection = m_controller->GetSelectedUserData<Entity>();
+			Vector<Entity*>		  entities;
+			WorldUtility::DuplicateEntities(m_editor, m_world, selection, entities);
+			EditorActionEntitiesCreated::Create(m_editor, m_world, entities);
+			EditorActionEntitySelection::Create(m_editor, m_world->GetID(), entities, true, true);
+			EditorActionCollective::Create(m_editor, 2);
+		};
+
 		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("VerticalLayout");
 		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		layout->SetAlignedPos(Vector2::Zero);
@@ -134,6 +158,7 @@ namespace Lina::Editor
 		}
 
 		m_controller->GatherItems(m_layout);
+		OnEntitySelectionChanged(m_selectedEntities);
 	}
 
 	void EntityBrowser::SetWorld(EntityWorld* w)
@@ -142,8 +167,10 @@ namespace Lina::Editor
 		RefreshEntities();
 	}
 
-	void EntityBrowser::SelectEntities(const Vector<Entity*>& entities)
+	void EntityBrowser::OnEntitySelectionChanged(const Vector<Entity*>& entities)
 	{
+		m_selectedEntities = entities;
+
 		m_controller->UnselectAll();
 
 		for (Entity* e : entities)
@@ -160,6 +187,7 @@ namespace Lina::Editor
 			.title		 = e->GetName(),
 			.hasChildren = !children.empty(),
 			.margin		 = margin,
+			.unfoldValue = &e->GetInterfaceUserData().unfolded,
 			.userData	 = e,
 		};
 

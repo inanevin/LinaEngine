@@ -40,6 +40,12 @@ namespace Lina
 {
 	class EntityWorld;
 
+	// Rare editor leaking stuff, saves us a lot of headache
+	struct InterfaceUserData
+	{
+		bool unfolded = false;
+	};
+
 	// Actual game state
 	class Entity final
 	{
@@ -156,6 +162,11 @@ namespace Lina
 			m_guid = id;
 		}
 
+		inline InterfaceUserData& GetInterfaceUserData()
+		{
+			return m_interfaceUserData;
+		}
+
 	private:
 		void UpdateGlobalPosition();
 		void UpdateLocalPosition();
@@ -176,15 +187,16 @@ namespace Lina
 		ALLOCATOR_BUCKET_MEM;
 		ALLOCATOR_BUCKET_GET;
 
-		EntityID		 m_guid	  = 0;
-		EntityWorld*	 m_world  = nullptr;
-		Entity*			 m_parent = nullptr;
-		String			 m_name	  = "";
-		Vector<Entity*>	 m_children;
-		Vector<EntityID> m_childrenIDs;
-		Transformation	 m_transform;
-		Bitmask32		 m_mask;
-		AABB			 m_totalAABB;
+		EntityID		  m_guid   = 0;
+		EntityWorld*	  m_world  = nullptr;
+		Entity*			  m_parent = nullptr;
+		String			  m_name   = "";
+		Vector<Entity*>	  m_children;
+		Vector<EntityID>  m_childrenIDs;
+		Transformation	  m_transform;
+		Bitmask32		  m_mask;
+		AABB			  m_totalAABB;
+		InterfaceUserData m_interfaceUserData = {};
 	};
 
 } // namespace Lina

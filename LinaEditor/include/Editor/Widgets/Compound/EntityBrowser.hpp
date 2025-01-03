@@ -58,7 +58,7 @@ namespace Lina::Editor
 
 		void RefreshEntities();
 		void SetWorld(EntityWorld* w);
-		void SelectEntities(const Vector<Entity*>& entities);
+		void OnEntitySelectionChanged(const Vector<Entity*>& entities);
 
 		inline Properties& GetProps()
 		{
@@ -73,6 +73,7 @@ namespace Lina::Editor
 		virtual void OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
 
 	private:
+		Vector<Entity*>	   m_selectedEntities;
 		EntityWorld*	   m_world		= nullptr;
 		Editor*			   m_editor		= nullptr;
 		ItemController*	   m_controller = nullptr;

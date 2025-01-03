@@ -468,16 +468,11 @@ namespace Lina::Editor
 		if (m_worldRenderer == nullptr)
 			return false;
 
-		bool childrenHovered = false;
-
 		for (Widget* c : m_children)
 		{
-			if (c->GetIsHovered())
-				childrenHovered = true;
+			if (!c->GetFlags().IsSet(WF_HIDE) && c->GetIsHovered())
+				return false;
 		}
-
-		if (childrenHovered)
-			return false;
 
 		if (m_isHovered)
 			m_manager->GrabControls(this);

@@ -161,10 +161,10 @@ namespace Lina::Editor
 		return it->world;
 	}
 
-	void EditorWorldManager::BroadcastEntitySelectionChanged(EntityWorld* world, const Vector<Entity*>& selection)
+	void EditorWorldManager::BroadcastEntitySelectionChanged(EntityWorld* world, const Vector<Entity*>& selection, StringID source)
 	{
 		for (EditorWorldManagerListener* l : m_listeners)
-			l->OnWorldManagerEntitySelectionChanged(world, selection);
+			l->OnWorldManagerEntitySelectionChanged(world, selection, source);
 	}
 
 	void EditorWorldManager::BroadcastEntityHierarchyChanged(EntityWorld* world)

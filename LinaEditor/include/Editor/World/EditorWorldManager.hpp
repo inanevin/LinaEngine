@@ -49,7 +49,7 @@ namespace Lina::Editor
 	public:
 		virtual void OnWorldManagerOpenedWorld(EditorWorldRenderer* wr){};
 		virtual void OnWorldManagerClosingWorld(EditorWorldRenderer* wr){};
-		virtual void OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities){};
+		virtual void OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities, StringID source){};
 		virtual void OnWorldManagerEntityHierarchyChanged(EntityWorld* w){};
 	};
 
@@ -77,7 +77,7 @@ namespace Lina::Editor
 
 		EntityWorld* GetWorld(ResourceID id);
 		WorldData&	 GetWorldData(EntityWorld* world);
-		void		 BroadcastEntitySelectionChanged(EntityWorld* world, const Vector<Entity*>& selection);
+		void		 BroadcastEntitySelectionChanged(EntityWorld* world, const Vector<Entity*>& selection, StringID source);
 		void		 BroadcastEntityHierarchyChanged(EntityWorld* world);
 
 	private:

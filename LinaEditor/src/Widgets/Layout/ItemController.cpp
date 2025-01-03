@@ -376,6 +376,7 @@ namespace Lina::Editor
 		if (!m_isHovered)
 			return false;
 
+		const bool wasFocused = m_isFocused;
 		SetFocus(true);
 
 		// To allow payload drag and drop on multiple items.
@@ -412,7 +413,7 @@ namespace Lina::Editor
 
 					for (int32 i = iStart; i <= iEnd; i++)
 					{
-						SelectItem(m_allItems[i], false, false);
+						SelectItem(m_allItems[i], false, true);
 					}
 
 					return true;
@@ -440,10 +441,13 @@ namespace Lina::Editor
 				return true;
 			}
 
-			UnselectAll();
+			if (wasFocused)
+			{
+				UnselectAll();
 
-			if (m_props.onItemSelected)
-				m_props.onItemSelected(nullptr);
+				if (m_props.onItemSelected)
+					m_props.onItemSelected(nullptr);
+			}
 
 			return true;
 		}
