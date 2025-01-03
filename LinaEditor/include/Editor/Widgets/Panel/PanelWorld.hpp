@@ -59,7 +59,7 @@ namespace Lina::Editor
 		virtual void OnWorldManagerOpenedWorld(EditorWorldRenderer* wr) override;
 		virtual void OnWorldManagerClosingWorld(EditorWorldRenderer* wr) override;
 		virtual void OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities) override;
-		virtual void OnWorldManagerEntityTransformChanged(EntityWorld* w, const Vector<Entity*>& entities) override;
+		virtual void OnWorldManagerEntityHierarchyChanged(EntityWorld* w) override;
 
 	private:
 		Editor*			m_editor		 = nullptr;

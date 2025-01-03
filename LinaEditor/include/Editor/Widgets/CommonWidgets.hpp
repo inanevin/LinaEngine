@@ -121,6 +121,20 @@ namespace Lina::Editor
 
 		static FoldLayout* BuildTreeItem(Widget* src, const ResDirItemProperties& props);
 
+		struct EntityItemProperties
+		{
+			String icon			  = "";
+			Color  iconColor	  = Color::White;
+			String visibilityIcon = "";
+			String title		  = "";
+			bool   hasChildren	  = false;
+			float  margin		  = 0.0f;
+			bool*  unfoldValue	  = nullptr;
+			void*  userData		  = nullptr;
+		};
+
+		static FoldLayout* BuildEntityItem(Widget* src, const EntityItemProperties& props);
+
 	private:
 	};
 } // namespace Lina::Editor

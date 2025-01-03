@@ -31,30 +31,29 @@ SOFTWARE.
 
 #ifdef LINA_PLATFORM_WINDOWS
 
-// GamePlugin* g_plugin = nullptr;
+#include <Windows.h>
 
-/*
-extern "C" GAMEPLUGIN_API Lina::IPlugin* CreatePlugin(Lina::IEngineInterface* engineInterface, const Lina::String& name)
+Lina::GamePlugin* g_plugin = nullptr;
+
+extern "C" GAMEPLUGIN_API Lina::Plugin* CreatePlugin(const Lina::String& name)
 {
-	return new GamePlugin(engineInterface, name);
+	g_plugin = new Lina::GamePlugin(name);
+	return g_plugin;
 }
 
-extern "C" GAMEPLUGIN_API void DestroyPlugin(Lina::IPlugin* plugin)
+extern "C" GAMEPLUGIN_API void DestroyPlugin(Lina::Plugin* plugin)
 {
 	delete plugin;
 }
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL,  // handle to DLL module
-					DWORD     fdwReason, // reason for calling function
-					LPVOID    lpReserved)   // reserved
+BOOL WINAPI DllMain(HINSTANCE hinstDLL,	 // handle to DLL module
+					DWORD	  fdwReason, // reason for calling function
+					LPVOID	  lpReserved)	 // reserved
 {
 	// Perform actions based on the reason for calling.
 	switch (fdwReason)
 	{
 	case DLL_PROCESS_ATTACH: {
-
-		MEMORY_TRACER_SET_LEAK_FILE("gamecode_memory_leaks.txt");
-		PROFILER_SET_FRAMEANALYSIS_FILE("gamecode_frame_analysis.txt");
 
 		break;
 	}
@@ -75,5 +74,5 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL,  // handle to DLL module
 	// https://docs.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-entry-point-function#entry-point-function-return-value
 	return TRUE;
 }
-*/
+
 #endif

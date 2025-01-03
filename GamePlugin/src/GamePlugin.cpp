@@ -28,13 +28,12 @@ SOFTWARE.
 
 #include "GamePlugin.hpp"
 
-using namespace Lina;
-
-// void GamePlugin::OnAttached()
-// {
-// }
-//
-// void GamePlugin::OnDetached()
-// {
-// }
-//
+namespace Lina
+{
+	void GamePlugin::OnAttached()
+	{
+	}
+	void GamePlugin::OnDetached()
+	{
+	}
+} // namespace Lina

@@ -58,6 +58,7 @@ namespace Lina::Editor
 
 		void RefreshEntities();
 		void SetWorld(EntityWorld* w);
+		void SelectEntities(const Vector<Entity*>& entities);
 
 		inline Properties& GetProps()
 		{

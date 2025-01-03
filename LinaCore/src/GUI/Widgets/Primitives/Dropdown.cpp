@@ -97,7 +97,7 @@ namespace Lina
 	{
 
 		Popup* popup = m_manager->Allocate<Popup>("Popup");
-		popup->SetPos(GetPos() + Vector2(0.0f, GetSizeY()));
+		popup->SetPos(GetPos() + Vector2(0.0f, GetSizeY() + Theme::GetDef().baseOutlineThickness));
 		popup->GetProps().selectedIcon	= Theme::GetDef().iconCircleFilled;
 		popup->GetProps().closeOnSelect = m_props.closeOnSelect;
 

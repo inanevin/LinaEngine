@@ -167,6 +167,12 @@ namespace Lina::Editor
 			l->OnWorldManagerEntitySelectionChanged(world, selection);
 	}
 
+	void EditorWorldManager::BroadcastEntityHierarchyChanged(EntityWorld* world)
+	{
+		for (EditorWorldManagerListener* l : m_listeners)
+			l->OnWorldManagerEntityHierarchyChanged(world);
+	}
+
 	EditorWorldManager::WorldData& EditorWorldManager::GetWorldData(EntityWorld* world)
 	{
 		auto it = linatl::find_if(m_worlds.begin(), m_worlds.end(), [world](const WorldData& wd) -> bool { return wd.world == world; });

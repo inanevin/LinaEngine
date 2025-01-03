@@ -88,6 +88,7 @@ namespace Lina::Editor
 			bool			  isBorder	   = false;
 			bool			  isHorizontal = false;
 			Vector<PanelData> panels;
+			uint32			  selectedPanel = 0;
 
 			inline void SaveToStream(OStream& out) const
 			{
@@ -95,6 +96,7 @@ namespace Lina::Editor
 				out << isBorder;
 				out << isHorizontal;
 				out << panels;
+				out << selectedPanel;
 			}
 
 			inline void LoadFromStream(IStream& in)
@@ -103,6 +105,7 @@ namespace Lina::Editor
 				in >> isBorder;
 				in >> isHorizontal;
 				in >> panels;
+				in >> selectedPanel;
 			}
 		};
 

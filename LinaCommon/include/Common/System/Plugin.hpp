@@ -28,21 +28,16 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef IPlugin_HPP
-#define IPlugin_HPP
-
 #include "Common/Event/SystemEventListener.hpp"
 #include "Common/Data/String.hpp"
 
 namespace Lina
 {
-	class IEngineInterface;
-
-	class IPlugin : public SystemEventListener
+	class Plugin
 	{
 	public:
-		IPlugin(IEngineInterface* interface, const String& name) : m_engineInterface(interface), m_name(name){};
-		virtual ~IPlugin() = default;
+		Plugin(const String& name) : m_name(name){};
+		virtual ~Plugin() = default;
 
 		virtual void OnAttached() = 0;
 		virtual void OnDetached() = 0;
@@ -53,10 +48,7 @@ namespace Lina
 		}
 
 	protected:
-		String			  m_name			= "";
-		IEngineInterface* m_engineInterface = nullptr;
+		String m_name = "";
 	};
 
 } // namespace Lina
-
-#endif

@@ -130,8 +130,10 @@ namespace Lina::Editor
 
 		for (Entity* root : roots)
 		{
-			AddItem(m_layout, root, 0.0f);
+			AddItem(m_layout, root, Theme::GetDef().baseIndent);
 		}
+
+		m_controller->GatherItems(m_layout);
 	}
 
 	void EntityBrowser::SetWorld(EntityWorld* w)
@@ -140,20 +142,32 @@ namespace Lina::Editor
 		RefreshEntities();
 	}
 
+	void EntityBrowser::SelectEntities(const Vector<Entity*>& entities)
+	{
+		m_controller->UnselectAll();
+
+		for (Entity* e : entities)
+			m_controller->SelectItem(m_controller->GetItem(e), false, false, true);
+	}
+
 	void EntityBrowser::AddItem(Widget* parent, Entity* e, float margin)
 	{
-		const CommonWidgets::ResDirItemProperties props = {
-			.chevron	= "",
-			.chevronAlt = "",
-			.typeText	= "",
-			.mainIcon	= "",
-			.title		= e->GetName(),
-			.margin		= margin,
-			.userData	= e,
+		const Vector<Entity*>& children = e->GetChildren();
+
+		const CommonWidgets::EntityItemProperties props = {
+			.icon		 = ICON_CUBE,
+			.iconColor	 = Theme::GetDef().foreground0,
+			.title		 = e->GetName(),
+			.hasChildren = !children.empty(),
+			.margin		 = margin,
+			.userData	 = e,
 		};
 
-		FoldLayout* layout = CommonWidgets::BuildTreeItem(this, props);
+		FoldLayout* layout = CommonWidgets::BuildEntityItem(this, props);
 		parent->AddChild(layout);
+
+		for (Entity* c : children)
+			AddItem(layout, c, margin + Theme::GetDef().baseIndent);
 	}
 
 	bool EntityBrowser::OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData)

@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
 #include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
+#include "Editor/Widgets/Compound/EntityBrowser.hpp"
 #include "Editor/Graphics/EditorWorldRenderer.hpp"
 #include "Editor/World/EditorCamera.hpp"
 #include "Editor/World/WorldUtility.hpp"
@@ -73,6 +74,7 @@ namespace Lina::Editor
 		topToolbar->SetFixedSizeX(Theme::GetDef().baseItemHeight);
 		topToolbar->GetWidgetProps().childPadding		= Theme::GetDef().baseIndent;
 		topToolbar->GetWidgetProps().drawOrderIncrement = 1;
+		topToolbar->GetProps().direction				= DirectionOrientation::Horizontal;
 		AddChild(topToolbar);
 
 		m_displayTextureDropdown = m_manager->Allocate<Dropdown>("DisplayTextureDD");
@@ -98,6 +100,18 @@ namespace Lina::Editor
 			SetDisplayTextureTitle();
 			return false;
 		};
+
+		Button* snap = m_manager->Allocate<Button>("SnapOptions");
+		snap->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_X_COPY_Y);
+		snap->SetAlignedPosY(0.0f);
+		snap->SetAlignedSize(Vector2(1.0f, 1.0f));
+		snap->RemoveText();
+		snap->CreateIcon(ICON_MAGNET);
+		snap->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::SnapOptions);
+		snap->GetProps().onClicked	   = []() {
+
+		};
+		topToolbar->AddChild(snap);
 
 		m_editor->GetWindowPanelManager().AddPayloadListener(this);
 
@@ -218,6 +232,42 @@ namespace Lina::Editor
 		snapOptions->GetWidgetProps().rounding		 = 0.05f;
 		snapOptions->GetWidgetProps().useSizeTween	 = true;
 		m_selectionCircle.snappingOptions			 = snapOptions;
+
+		DirectionalLayout* rightLayout = m_manager->Allocate<DirectionalLayout>("RightLayout");
+		rightLayout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		rightLayout->SetAlignedSize(Vector2(0.2f, 1.0f));
+		rightLayout->SetAlignedPos(Vector2(1.0f, 0.0f));
+		rightLayout->SetAnchorX(Anchor::End);
+		rightLayout->GetWidgetProps().drawOrderIncrement = 1;
+		rightLayout->GetWidgetProps().drawBackground	 = true;
+		rightLayout->GetWidgetProps().colorBackground	 = Theme::GetDef().background2;
+		rightLayout->GetProps().direction				 = DirectionOrientation::Vertical;
+		rightLayout->GetProps().mode					 = DirectionalLayout::Mode::Bordered;
+		// rightLayout->GetWidgetProps().rounding = 0.0f;
+		// rightLayout->GetWidgetProps().outlineThickness = 0.0f;
+		// rightLayout->GetWidgetProps().colorOutline = Theme::GetDef().outlineColorBase;
+		AddChild(rightLayout);
+
+		DirectionalLayout* entityListWrapper = m_manager->Allocate<DirectionalLayout>("EntityListWrapper");
+		entityListWrapper->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		entityListWrapper->SetAlignedPos(Vector2(0.0f, 0.0f));
+		entityListWrapper->SetAlignedSize(Vector2(1.0f, 0.7f));
+		entityListWrapper->GetProps().direction = DirectionOrientation::Vertical;
+		rightLayout->AddChild(entityListWrapper);
+
+		DirectionalLayout* entityDetailsWrapper = m_manager->Allocate<DirectionalLayout>("EntityDetailsWrapper");
+		entityDetailsWrapper->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		entityDetailsWrapper->SetAlignedPos(Vector2(0.0f, 0.7f));
+		entityDetailsWrapper->SetAlignedSize(Vector2(1.0f, 0.3f));
+		entityDetailsWrapper->GetProps().direction = DirectionOrientation::Vertical;
+		rightLayout->AddChild(entityDetailsWrapper);
+
+		EntityBrowser* browser = m_manager->Allocate<EntityBrowser>("Browser");
+		browser->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		browser->SetAlignedPos(Vector2::Zero);
+		browser->SetAlignedSize(Vector2::One);
+		entityListWrapper->AddChild(browser);
+		m_entityBrowser = browser;
 	}
 
 	void WorldController::Destruct()
@@ -239,6 +289,7 @@ namespace Lina::Editor
 		m_worldRenderer = renderer;
 		m_ewr			= ewr;
 		m_world			= renderer ? m_worldRenderer->GetWorld() : nullptr;
+		m_entityBrowser->SetWorld(m_world);
 
 		if (m_worldRenderer)
 		{
@@ -417,11 +468,16 @@ namespace Lina::Editor
 		if (m_worldRenderer == nullptr)
 			return false;
 
+		bool childrenHovered = false;
+
 		for (Widget* c : m_children)
 		{
-			if (m_manager->PassMouse(c, button, act))
-				return true;
+			if (c->GetIsHovered())
+				childrenHovered = true;
 		}
+
+		if (childrenHovered)
+			return false;
 
 		if (m_isHovered)
 			m_manager->GrabControls(this);

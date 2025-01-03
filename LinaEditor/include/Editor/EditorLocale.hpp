@@ -203,6 +203,7 @@ namespace Lina::Editor
 		NoSnapping,
 		GridSnapping,
 		Parenting,
+		SnapOptions,
 	};
 
 	class Locale

@@ -417,6 +417,86 @@ namespace Lina::Editor
 		return fold;
 	}
 
+	FoldLayout* CommonWidgets::BuildEntityItem(Widget* src, const EntityItemProperties& props)
+	{
+		WidgetManager* wm = src->GetWidgetManager();
+
+		bool* unfoldValue = props.unfoldValue;
+
+		FoldLayout* fold = wm->Allocate<FoldLayout>("Fold");
+		fold->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X);
+		fold->SetAlignedPosX(0.0f);
+		fold->SetAlignedSizeX(1.0f);
+		fold->GetProps().tweenDuration = 0.25f;
+		fold->GetProps().tweenPower	   = Theme::GetDef().baseIndentInner;
+		fold->SetIsUnfolded(unfoldValue != nullptr ? *unfoldValue : false);
+		fold->SetUserData(props.userData);
+		fold->GetProps().onFoldChanged = [fold, unfoldValue](bool unfolded) {
+			if (unfoldValue)
+				*unfoldValue = unfolded;
+
+			Icon* icon = fold->GetWidgetOfType<Icon>(fold);
+			if (icon)
+			{
+				icon->GetProps().useAltIcon = unfolded;
+				icon->CalculateIconSize();
+			}
+		};
+
+		DirectionalLayout* layout = wm->Allocate<DirectionalLayout>("Layout");
+		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_TREEITEM);
+		layout->SetAlignedPos(Vector2::Zero);
+		layout->SetAlignedSizeX(1.0f);
+		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+
+		layout->GetWidgetProps().childPadding			  = Theme::GetDef().baseIndentInner;
+		layout->GetWidgetProps().childMargins.left		  = props.margin;
+		layout->GetWidgetProps().childMargins.right		  = Theme::GetDef().baseIndent;
+		layout->GetWidgetProps().outlineThickness		  = 0.0f;
+		layout->GetWidgetProps().rounding				  = 0.0f;
+		layout->GetWidgetProps().drawBackground			  = true;
+		layout->GetWidgetProps().colorBackgroundDirection = DirectionOrientation::Vertical;
+		layout->GetWidgetProps().colorBackground		  = Color(0.0f, 0.0f, 0.0f, 0.0f);
+		layout->GetWidgetProps().interpolateColor		  = true;
+		layout->GetWidgetProps().colorInterpolateSpeed	  = 20.0f;
+		layout->SetUserData(props.userData);
+		fold->AddChild(layout);
+
+		Icon* chevron				   = wm->Allocate<Icon>("Chevron");
+		chevron->GetProps().icon	   = ICON_CHEVRON_RIGHT;
+		chevron->GetProps().iconAlt	   = ICON_CHEVRON_DOWN;
+		chevron->GetProps().useAltIcon = unfoldValue ? *unfoldValue : false;
+		chevron->GetFlags().Set(WF_POS_ALIGN_Y);
+		chevron->SetAlignedPosY(0.5f);
+		chevron->SetAnchorY(Anchor::Center);
+		chevron->GetProps().dynamicSizeToParent = true;
+		chevron->GetProps().dynamicSizeScale	= 0.5f;
+		layout->AddChild(chevron);
+
+		if (!props.hasChildren)
+			chevron->GetProps().color.start.w = chevron->GetProps().color.end.w = 0.0f;
+
+		Icon* mainIcon			   = wm->Allocate<Icon>("MainIcon");
+		mainIcon->GetProps().icon  = props.icon;
+		mainIcon->GetProps().color = props.iconColor;
+		mainIcon->GetFlags().Set(WF_POS_ALIGN_Y);
+		mainIcon->SetAlignedPosY(0.5f);
+		mainIcon->SetAnchorY(Anchor::Center);
+		mainIcon->GetProps().dynamicSizeToParent = true;
+		mainIcon->GetProps().dynamicSizeScale	 = 0.7f;
+		layout->AddChild(mainIcon);
+
+		Text* text = wm->Allocate<Text>("Title");
+		text->UpdateTextAndCalcSize(props.title);
+		text->GetProps().color = Theme::GetDef().foreground0;
+		text->GetFlags().Set(WF_POS_ALIGN_Y);
+		text->SetAlignedPosY(0.5f);
+		text->SetAnchorY(Anchor::Center);
+		layout->AddChild(text);
+		fold->Initialize();
+		return fold;
+	}
+
 	Widget* CommonWidgets::BuildThumbnailTooltip(void* thumbnailOwner)
 	{
 		Widget*		   owner = static_cast<Widget*>(thumbnailOwner);

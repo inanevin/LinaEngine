@@ -220,6 +220,7 @@ namespace Lina::Editor
 							stream.Destroy();
 						}
 					}
+					area->SetSelected(area->GetPanels().at(dockWidget.selectedPanel));
 				}
 			}
 
@@ -262,6 +263,7 @@ namespace Lina::Editor
 					dwd.alignedSize	   = area->GetAlignedSize();
 					dwd.isBorder	   = false;
 
+					uint32 idx = 0;
 					for (auto* panel : area->GetPanels())
 					{
 						PanelData pd = {};
@@ -272,6 +274,11 @@ namespace Lina::Editor
 						out.WriteTo(pd.layoutData);
 						out.Destroy();
 						dwd.panels.push_back(pd);
+
+						if (panel == area->GetSelectedPanel())
+							dwd.selectedPanel = idx;
+
+						idx++;
 					}
 
 					wl.dockWidgets.push_back(dwd);

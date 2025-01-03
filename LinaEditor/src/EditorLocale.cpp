@@ -200,6 +200,7 @@ namespace Lina::Editor
 		{LocaleStr::LocalityWorld, "World"},
 		{LocaleStr::LocalityLocal, "Local"},
 		{LocaleStr::Parenting, "Click once and drag to re-parent"},
+		{LocaleStr::SnapOptions, "Snapping settings"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

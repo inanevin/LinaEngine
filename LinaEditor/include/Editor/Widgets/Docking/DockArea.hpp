@@ -74,6 +74,11 @@ namespace Lina::Editor
 			return m_panels;
 		}
 
+		inline Widget* GetSelectedPanel() const
+		{
+			return m_selectedPanel;
+		}
+
 	private:
 		void ExpandWidgetsToMyPlace(const Vector<Widget*>& widgets, Direction directionOfAreas);
 

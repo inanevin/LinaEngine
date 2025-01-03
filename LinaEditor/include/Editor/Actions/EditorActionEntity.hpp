@@ -78,8 +78,12 @@ namespace Lina::Editor
 	class EditorActionEntitiesCreated : public EditorAction
 	{
 	public:
-		EditorActionEntitiesCreated()		   = default;
-		virtual ~EditorActionEntitiesCreated() = default;
+		EditorActionEntitiesCreated() = default;
+		virtual ~EditorActionEntitiesCreated()
+		{
+			if (m_stream.GetCurrentSize() != 0)
+				m_stream.Destroy();
+		}
 
 		static EditorActionEntitiesCreated* Create(Editor* editor, EntityWorld* world, const Vector<Entity*>& entities);
 		virtual void						Execute(Editor* editor, ExecType type) override;
@@ -93,8 +97,12 @@ namespace Lina::Editor
 	class EditorActionEntityDelete : public EditorAction
 	{
 	public:
-		EditorActionEntityDelete()			= default;
-		virtual ~EditorActionEntityDelete() = default;
+		EditorActionEntityDelete() = default;
+		virtual ~EditorActionEntityDelete()
+		{
+			if (m_stream.GetCurrentSize() != 0)
+				m_stream.Destroy();
+		}
 
 		static EditorActionEntityDelete* Create(Editor* editor, EntityWorld* world, const Vector<Entity*>& entities);
 		virtual void					 Execute(Editor* editor, ExecType type) override;

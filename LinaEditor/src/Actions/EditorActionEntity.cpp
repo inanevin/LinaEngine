@@ -185,6 +185,8 @@ namespace Lina::Editor
 			WorldUtility::LoadEntitiesFromStream(stream, world, entities);
 			stream.Destroy();
 		}
+
+		editor->GetWorldManager().BroadcastEntityHierarchyChanged(world);
 	}
 
 	EditorActionEntityDelete* EditorActionEntityDelete::Create(Editor* editor, EntityWorld* world, const Vector<Entity*>& entities)
@@ -221,6 +223,8 @@ namespace Lina::Editor
 			WorldUtility::LoadEntitiesFromStream(stream, world, entities);
 			stream.Destroy();
 		}
+
+		editor->GetWorldManager().BroadcastEntityHierarchyChanged(world);
 	}
 
 	EditorActionEntityParenting* EditorActionEntityParenting::Create(Editor* editor, EntityWorld* world, const Vector<Entity*>& entities, Entity* newParent)
@@ -285,6 +289,8 @@ namespace Lina::Editor
 				i++;
 			}
 		}
+
+		editor->GetWorldManager().BroadcastEntityHierarchyChanged(world);
 	}
 
 } // namespace Lina::Editor

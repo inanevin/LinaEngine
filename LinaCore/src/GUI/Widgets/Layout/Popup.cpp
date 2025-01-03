@@ -69,7 +69,7 @@ namespace Lina
 	void Popup::Initialize()
 	{
 		Widget::Initialize();
-		m_tween = Tween(0.0f, 1.0f, 0.1f, TweenType::Sinusoidal);
+		m_tween = Tween(0.0f, 1.0f, 0.25f, TweenType::EaseOut);
 	}
 
 	void Popup::CalculateSize(float delta)

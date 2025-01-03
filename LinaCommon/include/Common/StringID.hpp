@@ -28,12 +28,10 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef StringId_HPP
-#define StringId_HPP
-
 #include "Common/SizeDefinitions.hpp"
 
 #include <cstddef>
+#include <string>
 
 // Headers here.
 namespace Lina
@@ -132,5 +130,3 @@ namespace Lina
 #define TO_SIDC(X) FnvHash(X)
 
 } // namespace Lina
-
-#endif

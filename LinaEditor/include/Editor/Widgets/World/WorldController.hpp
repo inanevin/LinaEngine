@@ -48,6 +48,7 @@ namespace Lina::Editor
 {
 	class EditorCamera;
 	class EditorWorldRenderer;
+	class EntityBrowser;
 
 	class WorldController : public Widget, public EditorPayloadListener, public EntityWorldListener
 	{
@@ -161,6 +162,11 @@ namespace Lina::Editor
 			return m_currentDisplayTexture;
 		}
 
+		inline EntityBrowser* GetBrowser() const
+		{
+			return m_entityBrowser;
+		}
+
 	private:
 		void StartSelectionParenting();
 		void EndSelectionParenting(bool apply);
@@ -188,6 +194,7 @@ namespace Lina::Editor
 		Properties		m_props			  = {};
 		Font*			m_worldFont		  = nullptr;
 		SelectionCircle m_selectionCircle = {};
+		EntityBrowser*	m_entityBrowser	  = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(WorldController, Hidden)

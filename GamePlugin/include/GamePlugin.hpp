@@ -28,18 +28,19 @@ SOFTWARE.
 
 #pragma once
 
-/*
-#include "System/IPlugin.hpp"
+#include "Common/System/Plugin.hpp"
 
-class GamePlugin : public Lina::IPlugin
+namespace Lina
 {
-public:
-	GamePlugin(Lina::IEngineInterface* interface, const Lina::String& name) : IPlugin(interface, name){};
-	virtual ~GamePlugin() = default;
+	class GamePlugin : public Plugin
+	{
+	public:
+		GamePlugin(const Lina::String& name) : Plugin(name){};
+		virtual ~GamePlugin() = default;
 
-	// Inherited via IPlugin
-	virtual void OnAttached() override;
-	virtual void OnDetached() override;
-};
+		// Inherited via IPlugin
+		virtual void OnAttached() override;
+		virtual void OnDetached() override;
+	};
 
-*/
+} // namespace Lina
