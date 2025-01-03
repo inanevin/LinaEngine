@@ -92,9 +92,7 @@ namespace Lina::Editor
 			return;
 
 		m_worldDisplayer->GetController()->OnEntitySelectionChanged(entities);
-
-		if (source == 0)
-			m_worldDisplayer->GetController()->GetBrowser()->OnEntitySelectionChanged(entities);
+		m_worldDisplayer->GetController()->GetBrowser()->OnEntitySelectionChanged(entities, source == 0);
 	}
 
 	void PanelWorld::OnWorldManagerEntityHierarchyChanged(EntityWorld* w)

@@ -56,11 +56,10 @@ namespace Lina::Editor
 
 		virtual void Construct() override;
 
-		void RefreshEntities();
-		void SetWorld(EntityWorld* w);
-		void OnEntitySelectionChanged(const Vector<Entity*>& entities);
-		void DropPayload(Entity* e);
-
+		void			   RefreshEntities();
+		void			   SetWorld(EntityWorld* w);
+		void			   OnEntitySelectionChanged(const Vector<Entity*>& entities, bool applySelection);
+		void			   DropPayload(Entity* e);
 		inline Properties& GetProps()
 		{
 			return m_props;

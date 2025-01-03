@@ -174,7 +174,7 @@ namespace Lina::Editor
 		}
 
 		m_controller->GatherItems(m_layout);
-		OnEntitySelectionChanged(m_selectedEntities);
+		OnEntitySelectionChanged(m_selectedEntities, true);
 	}
 
 	void EntityBrowser::SetWorld(EntityWorld* w)
@@ -183,12 +183,13 @@ namespace Lina::Editor
 		RefreshEntities();
 	}
 
-	void EntityBrowser::OnEntitySelectionChanged(const Vector<Entity*>& entities)
+	void EntityBrowser::OnEntitySelectionChanged(const Vector<Entity*>& entities, bool applySelection)
 	{
 		m_selectedEntities = entities;
+		if (!applySelection)
+			return;
 
 		m_controller->UnselectAll();
-
 		for (Entity* e : entities)
 			m_controller->SelectItem(m_controller->GetItem(e), false, false, true);
 	}

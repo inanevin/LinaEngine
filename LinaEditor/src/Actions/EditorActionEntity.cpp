@@ -240,6 +240,20 @@ namespace Lina::Editor
 
 	EditorActionEntityParenting* EditorActionEntityParenting::Create(Editor* editor, EntityWorld* world, const Vector<Entity*>& entities, Entity* newParent)
 	{
+		auto it = linatl::find_if(entities.begin(), entities.end(), [newParent](Entity* e) -> bool { return e == newParent; });
+		if (it != entities.end())
+			return nullptr;
+
+		if (newParent != nullptr)
+		{
+			for (Entity* e : entities)
+			{
+				Entity* isAlreadyChild = e->FindInChildHierarchy(newParent->GetGUID());
+				if (isAlreadyChild)
+					return nullptr;
+			}
+		}
+
 		EditorActionEntityParenting* action = new EditorActionEntityParenting();
 		action->m_worldId					= world->GetID();
 		for (Entity* e : entities)
@@ -273,14 +287,7 @@ namespace Lina::Editor
 			for (Entity* e : entities)
 			{
 				if (parent)
-				{
-					Entity* isAlreadyChild = e->FindInChildHierarchy(parent->GetGUID());
-
-					if (!isAlreadyChild)
-						parent->AddChild(e);
-					else
-						e->RemoveFromParent();
-				}
+					parent->AddChild(e);
 				else
 					e->RemoveFromParent();
 			}

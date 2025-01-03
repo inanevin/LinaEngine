@@ -301,6 +301,16 @@ namespace Lina::Editor
 
 		const bool controlsHeld = m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LCTRL);
 
+		if (controlsHeld && key == LINAGX_KEY_A)
+		{
+			m_selectedItems.clear();
+			for (Widget* item : m_allItems)
+				m_selectedItems.push_back(item);
+			if (m_props.onItemSelected)
+				m_props.onItemSelected(m_selectedItems.back());
+			return true;
+		}
+
 		if (controlsHeld && key == LINAGX_KEY_D)
 		{
 			// Duplicate
@@ -422,7 +432,9 @@ namespace Lina::Editor
 
 				if (IsItemSelected(item) && act != LinaGX::InputAction::Repeated)
 				{
-					m_isPressed = true;
+					m_pressedItem	  = item;
+					m_pressedItemPosY = item->GetPosY();
+					m_isPressed		  = true;
 					return true;
 				}
 
