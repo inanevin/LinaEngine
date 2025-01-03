@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/Graphics/Pipeline/Buffer.hpp"
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
 #include "Core/World/CommonWorld.hpp"
+#include "Common/Data/HashSet.hpp"
 
 namespace Lina
 {
@@ -57,7 +58,8 @@ namespace Lina::Editor
 	private:
 		struct DrawData
 		{
-			EntityID lastHoveredEntityID = 0;
+			EntityID		  lastHoveredEntityID = 0;
+			HashSet<EntityID> rectSelectionIDs;
 		};
 
 		struct PerFrameData
@@ -65,6 +67,13 @@ namespace Lina::Editor
 			Texture* depthTarget  = nullptr;
 			Texture* renderTarget = nullptr;
 			Buffer	 snapshotBuffer;
+		};
+
+		struct RectSelectData
+		{
+			Vector2ui start	 = Vector2ui::Zero;
+			Vector2ui end	 = Vector2ui::Zero;
+			bool	  select = false;
 		};
 
 	public:
@@ -77,6 +86,7 @@ namespace Lina::Editor
 		void Tick(float delta);
 		void Render(uint32 frameIndex, LinaGX::CommandStream* stream);
 		void SyncRender();
+		void SelectRect(const Vector2ui& start, const Vector2ui& end);
 
 		inline EntityID GetLastHoveredEntity() const
 		{
@@ -93,6 +103,11 @@ namespace Lina::Editor
 			return m_entityBufferPass;
 		}
 
+		inline const HashSet<EntityID>& GetRectSelectionResults() const
+		{
+			return m_cpuData.rectSelectionIDs;
+		}
+
 	private:
 		LinaGX::Instance*  m_lgx	= nullptr;
 		Editor*			   m_editor = nullptr;
@@ -105,7 +120,8 @@ namespace Lina::Editor
 		uint16			 m_pipelineLayout = 0;
 		Vector2ui		 m_size			  = Vector2ui::Zero;
 		Vector<EntityID> m_lastEntityIDs;
-		DrawData		 m_cpuData = {};
-		DrawData		 m_gpuData = {};
+		DrawData		 m_cpuData		  = {};
+		DrawData		 m_gpuData		  = {};
+		RectSelectData	 m_rectSelectData = {};
 	};
 } // namespace Lina::Editor

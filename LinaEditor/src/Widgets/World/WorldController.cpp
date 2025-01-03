@@ -142,7 +142,7 @@ namespace Lina::Editor
 				SelectGizmoLocality(GizmoLocality::Local);
 		};
 		AddChild(buttonLocality);
-		m_selectionCircle.localityButton = buttonLocality;
+		m_selectionControls.localityButton = buttonLocality;
 
 		Button* buttonSnap = m_manager->Allocate<Button>("Snap");
 		buttonSnap->RemoveText();
@@ -162,9 +162,9 @@ namespace Lina::Editor
 				buttonSnap->GetIcon()->GetProps().icon = ICON_GRID;
 				buttonSnap->GetWidgetProps().tooltip   = Locale::GetStr(LocaleStr::GridSnapping);
 			}
-			m_selectionCircle.snappingOptions->GetWidgetProps().sizeTween = Tween(0.0f, 1.0f, 0.3f, TweenType::Linear);
-			m_selectionCircle.snapInForeground							  = true;
-			m_manager->AddToForeground(m_selectionCircle.snappingOptions);
+			m_selectionControls.snappingOptions->GetWidgetProps().sizeTween = Tween(0.0f, 1.0f, 0.3f, TweenType::Linear);
+			m_selectionControls.snapInForeground							= true;
+			m_manager->AddToForeground(m_selectionControls.snappingOptions);
 		};
 		AddChild(buttonSnap);
 
@@ -192,7 +192,7 @@ namespace Lina::Editor
 			buttonParent->GetWidgetProps().colorBackground = Theme::GetDef().accentPrimary2;
 		};
 		AddChild(buttonParent);
-		m_selectionCircle.parentButton = buttonParent;
+		m_selectionControls.parentButton = buttonParent;
 
 		Button* buttonReset = m_manager->Allocate<Button>("Delete");
 		buttonReset->RemoveText();
@@ -213,15 +213,15 @@ namespace Lina::Editor
 		};
 		AddChild(buttonReset);
 
-		m_selectionCircle.buttons.push_back({.widget = buttonGizmos, .angle = 180});
-		m_selectionCircle.buttons.push_back({.widget = buttonReset, .angle = 200});
-		m_selectionCircle.buttons.push_back({.widget = buttonLocality, .angle = 220.0f});
-		m_selectionCircle.buttons.push_back({.widget = buttonSnap, .angle = 240.0f});
-		m_selectionCircle.buttons.push_back({.widget = buttonDup, .angle = 0.0f});
-		m_selectionCircle.buttons.push_back({.widget = buttonDel, .angle = 20.0f});
-		m_selectionCircle.buttons.push_back({.widget = buttonParent, .angle = 60.0f});
+		m_selectionControls.buttons.push_back({.widget = buttonGizmos, .angle = 180});
+		m_selectionControls.buttons.push_back({.widget = buttonReset, .angle = 200});
+		m_selectionControls.buttons.push_back({.widget = buttonLocality, .angle = 220.0f});
+		m_selectionControls.buttons.push_back({.widget = buttonSnap, .angle = 240.0f});
+		m_selectionControls.buttons.push_back({.widget = buttonDup, .angle = 0.0f});
+		m_selectionControls.buttons.push_back({.widget = buttonDel, .angle = 20.0f});
+		m_selectionControls.buttons.push_back({.widget = buttonParent, .angle = 60.0f});
 
-		for (SelectionCircleButton& but : m_selectionCircle.buttons)
+		for (SelectionCircleButton& but : m_selectionControls.buttons)
 		{
 			but.widget->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_USE_FIXED_SIZE_Y | WF_HIDE);
 			but.widget->SetFixedSize(Vector2(Theme::GetDef().baseItemHeight * 1.5f));
@@ -241,7 +241,7 @@ namespace Lina::Editor
 		snapOptions->GetWidgetProps().drawBackground = true;
 		snapOptions->GetWidgetProps().rounding		 = 0.05f;
 		snapOptions->GetWidgetProps().useSizeTween	 = true;
-		m_selectionCircle.snappingOptions			 = snapOptions;
+		m_selectionControls.snappingOptions			 = snapOptions;
 
 		DirectionalLayout* rightLayout = m_manager->Allocate<DirectionalLayout>("RightLayout");
 		rightLayout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
@@ -282,8 +282,8 @@ namespace Lina::Editor
 
 	void WorldController::Destruct()
 	{
-		if (m_selectionCircle.snapInForeground)
-			m_manager->RemoveFromForeground(m_selectionCircle.snappingOptions);
+		if (m_selectionControls.snapInForeground)
+			m_manager->RemoveFromForeground(m_selectionControls.snappingOptions);
 
 		m_editor->GetWindowPanelManager().RemovePayloadListener(this);
 
@@ -322,24 +322,51 @@ namespace Lina::Editor
 		m_world->GetInput().SetIsActive(worldHasFocus);
 		m_world->GetInput().SetWheelActive(m_isHovered && m_lgxWindow->HasFocus());
 
+		if (m_selectionControls.rectSelectionWaitingResults)
+		{
+			const HashSet<EntityID>& ids					= m_ewr->GetMousePick().GetRectSelectionResults();
+			m_selectionControls.rectSelectionWaitingResults = false;
+
+			Vector<Entity*> selection;
+			selection.reserve(ids.size());
+
+			for (EntityID id : ids)
+				selection.push_back(m_world->GetEntity(id));
+
+			EditorActionEntitySelection::Create(m_editor, m_world->GetID(), selection, true, true);
+		}
+
+		if (m_selectionControls.rectSelectionPressed && !m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_0))
+		{
+			m_selectionControls.rectSelectionPressed = false;
+
+			if ((m_lgxWindow->GetMousePosition() - m_selectionControls.rectSelectionStartPosition).Magnitude() > 20)
+			{
+				const Vector2 endPoint							= m_lgxWindow->GetMousePosition() - GetStartFromMargins();
+				m_selectionControls.rectSelectionWaitingResults = true;
+				m_ewr->GetMousePick().SelectRect(Vector2ui(static_cast<uint32>(m_selectionControls.rectSelectionStartPosition.x), static_cast<uint32>(m_selectionControls.rectSelectionStartPosition.y)),
+												 Vector2ui(static_cast<uint32>(endPoint.x), static_cast<uint32>(endPoint.y)));
+			}
+		}
+
 		HandleGizmoControls();
 
 		const Vector2 sz						   = GetEndFromMargins() - GetStartFromMargins();
 		Camera&		  cam						   = m_world->GetWorldCamera();
 		m_gizmoControls.averagePositionScreenSpace = GetStartFromMargins() + Camera::WorldToScreen(cam, m_gizmoControls.averagePosition, sz).XY();
-		m_selectionCircle._radius				   = Math::Max(sz.x, sz.y) * m_selectionCircle.radiusPerc;
+		m_selectionControls._radius				   = Math::Max(sz.x, sz.y) * m_selectionControls.radiusPerc;
 
-		for (const SelectionCircleButton& but : m_selectionCircle.buttons)
+		for (const SelectionCircleButton& but : m_selectionControls.buttons)
 		{
-			const Vector2 point	 = Vector2(Math::Cos(DEG_2_RAD * but.angle), Math::Sin(DEG_2_RAD * but.angle)) * m_selectionCircle._radius;
+			const Vector2 point	 = Vector2(Math::Cos(DEG_2_RAD * but.angle), Math::Sin(DEG_2_RAD * but.angle)) * m_selectionControls._radius;
 			const Vector2 target = m_gizmoControls.averagePositionScreenSpace + point;
 			but.widget->SetPos(target - but.widget->GetHalfSize());
 		}
 
-		m_selectionCircle.snappingOptions->SetPos(m_selectionCircle.buttons[4].widget->GetRect().GetEnd() + Vector2(10, 0));
+		m_selectionControls.snappingOptions->SetPos(m_selectionControls.buttons[4].widget->GetRect().GetEnd() + Vector2(10, 0));
 
-		m_selectionCircle.localityButton->GetIcon()->GetProps().icon = m_gizmoControls.usedLocality == GizmoLocality::World ? ICON_GLOBE : ICON_CUBE;
-		m_selectionCircle.localityButton->GetWidgetProps().tooltip	 = m_gizmoControls.usedLocality == GizmoLocality::World ? Locale::GetStr(LocaleStr::LocalityWorld) : Locale::GetStr(LocaleStr::LocalityLocal);
+		m_selectionControls.localityButton->GetIcon()->GetProps().icon = m_gizmoControls.usedLocality == GizmoLocality::World ? ICON_GLOBE : ICON_CUBE;
+		m_selectionControls.localityButton->GetWidgetProps().tooltip   = m_gizmoControls.usedLocality == GizmoLocality::World ? Locale::GetStr(LocaleStr::LocalityWorld) : Locale::GetStr(LocaleStr::LocalityLocal);
 	}
 
 	void WorldController::Tick(float dt)
@@ -347,7 +374,7 @@ namespace Lina::Editor
 		if (m_worldRenderer == nullptr)
 			return;
 
-		m_selectionCircle.circleTween.Tick(dt);
+		m_selectionControls.circleTween.Tick(dt);
 	}
 
 	void WorldController::Draw()
@@ -369,14 +396,14 @@ namespace Lina::Editor
 			opts.color		   = Theme::GetDef().foreground0.AsLVG4();
 			opts.color.start.w = opts.color.end.w = m_gizmoControls.visualizeAlpha;
 
-			const Vector2 pos	= m_gizmoControls.averagePositionScreenSpace + Vector2(0.0f, m_selectionCircle._radius);
+			const Vector2 pos	= m_gizmoControls.averagePositionScreenSpace + Vector2(0.0f, m_selectionControls._radius);
 			const String  value = UtilStr::FloatToString(m_gizmoControls.visualizeDistance, 3);
 
 			const Vector2 txtSize = m_lvg->CalculateTextSize(value.c_str(), opts);
 			m_lvg->DrawTextDefault(value.c_str(), (pos - Vector2(txtSize.x * 0.5f, txtSize.y * 0.5f)).AsLVG(), opts, 0.0f, baseDO);
 		}
 
-		if (m_selectionCircle.visible)
+		if (m_selectionControls.visible)
 		{
 			LinaVG::StyleOptions style;
 			style.color				 = ColorGrad(Theme::GetDef().accentSecondary, Theme::GetDef().accentPrimary0).AsLVG();
@@ -395,22 +422,22 @@ namespace Lina::Editor
 			{
 				const float startAngle = 180;
 				const float endAngle   = 270.0f;
-				const float actualEnd  = startAngle + (endAngle - startAngle) * m_selectionCircle.circleTween.GetValue();
+				const float actualEnd  = startAngle + (endAngle - startAngle) * m_selectionControls.circleTween.GetValue();
 				if (!Math::Equals(startAngle, actualEnd, 0.1f))
-					m_lvg->DrawCircle(m_gizmoControls.averagePositionScreenSpace.AsLVG(), m_selectionCircle._radius, style, 72, 0.0f, startAngle, actualEnd, baseDO);
+					m_lvg->DrawCircle(m_gizmoControls.averagePositionScreenSpace.AsLVG(), m_selectionControls._radius, style, 72, 0.0f, startAngle, actualEnd, baseDO);
 			}
 
 			// Circle 2
 			{
 				const float startAngle = 0.0f;
 				const float endAngle   = 90.0f;
-				const float actualEnd  = startAngle + (endAngle - startAngle) * m_selectionCircle.circleTween.GetValue();
+				const float actualEnd  = startAngle + (endAngle - startAngle) * m_selectionControls.circleTween.GetValue();
 				if (!Math::Equals(startAngle, actualEnd, 0.1f))
-					m_lvg->DrawCircle(m_gizmoControls.averagePositionScreenSpace.AsLVG(), m_selectionCircle._radius, style, 72, 0.0f, startAngle, actualEnd, baseDO);
+					m_lvg->DrawCircle(m_gizmoControls.averagePositionScreenSpace.AsLVG(), m_selectionControls._radius, style, 72, 0.0f, startAngle, actualEnd, baseDO);
 			}
 		}
 
-		if (m_selectionCircle.isParenting)
+		if (m_selectionControls.isParenting)
 		{
 			LinaVG::StyleOptions style;
 			style.color				 = ColorGrad(Theme::GetDef().accentPrimary2.AsLVG4(), Theme::GetDef().accentSecondary1.AsLVG4()).AsLVG();
@@ -426,6 +453,19 @@ namespace Lina::Editor
 			const Vector2 p2  = p3 - dir.Normalized() * mag + Vector2(0, 1) * mag;
 
 			m_lvg->DrawBezier(p0.AsLVG(), p1.AsLVG(), p2.AsLVG(), p3.AsLVG(), style, LinaVG::LineCapDirection::None, LinaVG::LineJointType::VtxAverage, baseDO, 250);
+		}
+
+		if (m_selectionControls.rectSelectionPressed)
+		{
+			LinaVG::StyleOptions style;
+			style.color				 = ColorGrad(Theme::GetDef().accentPrimary2.AsLVG4(), Theme::GetDef().accentSecondary1.AsLVG4()).AsLVG();
+			style.color.gradientType = LinaVG::GradientType::Horizontal;
+			style.aaEnabled			 = true;
+			style.thickness			 = 2.0f;
+			style.isFilled			 = false;
+
+			const Vector2 pointNow = m_lgxWindow->GetMousePosition();
+			m_lvg->DrawRect(m_selectionControls.rectSelectionStartPosition.AsLVG(), pointNow.AsLVG(), style, 0.0f, baseDO);
 		}
 	}
 
@@ -489,7 +529,7 @@ namespace Lina::Editor
 		else
 			m_manager->ReleaseControls(this);
 
-		if (m_selectionCircle.isParenting)
+		if (m_selectionControls.isParenting)
 		{
 			EndSelectionParenting(true);
 			return true;
@@ -526,6 +566,9 @@ namespace Lina::Editor
 					StopGizmoMotion(true);
 
 				EditorActionEntitySelection::Create(m_editor, m_world->GetID(), {entity}, true, !m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LSHIFT));
+
+				m_selectionControls.rectSelectionPressed	   = true;
+				m_selectionControls.rectSelectionStartPosition = m_lgxWindow->GetMousePosition();
 			}
 		}
 
@@ -545,7 +588,7 @@ namespace Lina::Editor
 
 		if (keycode == LINAGX_KEY_ESCAPE)
 		{
-			if (m_selectionCircle.isParenting)
+			if (m_selectionControls.isParenting)
 			{
 				EndSelectionParenting(false);
 				return true;
@@ -689,16 +732,16 @@ namespace Lina::Editor
 		m_ewr->SetSelectedEntities(m_selectedEntities);
 
 		const bool selectionCircleVisible = !m_selectedRoots.empty();
-		if (!m_selectionCircle.visible && selectionCircleVisible)
-			m_selectionCircle.circleTween = Tween(0.0f, 1.0f, SELECTION_CIRCLE_DUR, TweenType::EaseIn);
+		if (!m_selectionControls.visible && selectionCircleVisible)
+			m_selectionControls.circleTween = Tween(0.0f, 1.0f, SELECTION_CIRCLE_DUR, TweenType::EaseIn);
 
-		m_selectionCircle.visible = selectionCircleVisible;
+		m_selectionControls.visible = selectionCircleVisible;
 
 		float delay = 0.0f;
-		for (const SelectionCircleButton& but : m_selectionCircle.buttons)
+		for (const SelectionCircleButton& but : m_selectionControls.buttons)
 		{
 			const bool hidden	= but.widget->GetFlags().IsSet(WF_HIDE);
-			const bool willHide = !m_selectionCircle.visible;
+			const bool willHide = !m_selectionControls.visible;
 
 			if (hidden && !willHide)
 			{
@@ -778,15 +821,15 @@ namespace Lina::Editor
 
 	void WorldController::StartSelectionParenting()
 	{
-		m_selectionCircle.isParenting = true;
+		m_selectionControls.isParenting = true;
 		m_ewr->GetOutlineRenderer().SetRenderHovered(true);
 	}
 
 	void WorldController::EndSelectionParenting(bool apply)
 	{
 		m_ewr->GetOutlineRenderer().SetRenderHovered(false);
-		m_selectionCircle.isParenting									 = false;
-		m_selectionCircle.parentButton->GetWidgetProps().colorBackground = Theme::GetDef().background0;
+		m_selectionControls.isParenting									   = false;
+		m_selectionControls.parentButton->GetWidgetProps().colorBackground = Theme::GetDef().background0;
 		if (!apply)
 			return;
 

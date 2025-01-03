@@ -96,7 +96,7 @@ namespace Lina::Editor
 			float	angle  = 0.0f;
 		};
 
-		struct SelectionCircle
+		struct SelectionControls
 		{
 			bool						  isParenting = false;
 			Tween						  circleTween = {};
@@ -106,10 +106,13 @@ namespace Lina::Editor
 			float						  radiusPerc = 0.05f;
 			float						  _radius	 = 0.0f;
 
-			Widget* snappingOptions	 = nullptr;
-			Button* parentButton	 = nullptr;
-			Button* localityButton	 = nullptr;
-			bool	snapInForeground = false;
+			Widget* snappingOptions				= nullptr;
+			Button* parentButton				= nullptr;
+			Button* localityButton				= nullptr;
+			bool	snapInForeground			= false;
+			bool	rectSelectionPressed		= false;
+			bool	rectSelectionWaitingResults = false;
+			Vector2 rectSelectionStartPosition	= Vector2::Zero;
 		};
 
 	public:
@@ -192,13 +195,13 @@ namespace Lina::Editor
 		Dropdown*	   m_displayTextureDropdown = nullptr;
 		DisplayTexture m_currentDisplayTexture	= DisplayTexture::WorldFinal;
 
-		Vector<Entity*> m_selectedEntities;
-		Vector<Entity*> m_selectedRoots;
-		Editor*			m_editor		  = nullptr;
-		Properties		m_props			  = {};
-		Font*			m_worldFont		  = nullptr;
-		SelectionCircle m_selectionCircle = {};
-		EntityBrowser*	m_entityBrowser	  = nullptr;
+		Vector<Entity*>	  m_selectedEntities;
+		Vector<Entity*>	  m_selectedRoots;
+		Editor*			  m_editor			  = nullptr;
+		Properties		  m_props			  = {};
+		Font*			  m_worldFont		  = nullptr;
+		SelectionControls m_selectionControls = {};
+		EntityBrowser*	  m_entityBrowser	  = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(WorldController, Hidden)
