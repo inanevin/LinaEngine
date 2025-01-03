@@ -646,7 +646,11 @@ namespace Lina::Editor
 	{
 		auto it = linatl::find_if(m_selectedItems.begin(), m_selectedItems.end(), [item](Widget* wid) -> bool { return item == wid; });
 		if (it != m_selectedItems.end())
+		{
+			if (m_props.onItemUnselected)
+				m_props.onItemUnselected(*it);
 			m_selectedItems.erase(it);
+		}
 	}
 
 	bool ItemController::IsItemSelected(Widget* w)

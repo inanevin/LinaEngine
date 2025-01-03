@@ -204,6 +204,7 @@ namespace Lina::Editor
 		GridSnapping,
 		Parenting,
 		SnapOptions,
+		ResetTransform,
 	};
 
 	class Locale

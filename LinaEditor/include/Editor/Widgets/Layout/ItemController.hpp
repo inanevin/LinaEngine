@@ -51,6 +51,7 @@ namespace Lina::Editor
 		struct Properties
 		{
 			Delegate<void(void* userData)> onItemSelected;
+			Delegate<void(void* userData)> onItemUnselected;
 			Delegate<void()>			   onDuplicate;
 			Delegate<void()>			   onDelete;
 			Delegate<void()>			   onInteract;

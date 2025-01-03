@@ -142,10 +142,11 @@ namespace Lina::Editor
 				SelectGizmoLocality(GizmoLocality::Local);
 		};
 		AddChild(buttonLocality);
+		m_selectionCircle.localityButton = buttonLocality;
 
 		Button* buttonSnap = m_manager->Allocate<Button>("Snap");
 		buttonSnap->RemoveText();
-		buttonSnap->CreateIcon(ICON_ARROW_LOCATION);
+		buttonSnap->CreateIcon(ICON_MAGNET_SLASH);
 		buttonSnap->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::NoSnapping);
 		buttonSnap->GetProps().onClicked	 = [this, buttonSnap]() {
 			const GizmoSnapping snap = static_cast<GizmoSnapping>((static_cast<uint32>(m_gizmoControls.snapping) + 1) % 2);
@@ -153,7 +154,7 @@ namespace Lina::Editor
 
 			if (snap == GizmoSnapping::Free)
 			{
-				buttonSnap->GetIcon()->GetProps().icon = ICON_ARROW_LOCATION;
+				buttonSnap->GetIcon()->GetProps().icon = ICON_MAGNET_SLASH;
 				buttonSnap->GetWidgetProps().tooltip   = Locale::GetStr(LocaleStr::NoSnapping);
 			}
 			else if (snap == GizmoSnapping::Step)
@@ -171,13 +172,7 @@ namespace Lina::Editor
 		buttonDup->RemoveText();
 		buttonDup->CreateIcon(ICON_COPY);
 		buttonDup->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::Duplicate);
-		buttonDup->GetProps().onClicked		= [this]() {
-			Vector<Entity*> entities;
-			WorldUtility::DuplicateEntities(m_editor, m_world, m_selectedEntities, entities);
-			EditorActionEntitiesCreated::Create(m_editor, m_world, entities);
-			EditorActionEntitySelection::Create(m_editor, m_world->GetID(), entities, true, true);
-			EditorActionCollective::Create(m_editor, 2);
-		};
+		buttonDup->GetProps().onClicked		= [this]() { DuplicateSelection(); };
 		AddChild(buttonDup);
 
 		Button* buttonDel = m_manager->Allocate<Button>("Delete");
@@ -185,12 +180,7 @@ namespace Lina::Editor
 		buttonDel->CreateIcon(ICON_TRASH);
 		buttonDel->GetIcon()->GetProps().color = Theme::GetDef().accentError;
 		buttonDel->GetWidgetProps().tooltip	   = Locale::GetStr(LocaleStr::Delete);
-		buttonDel->GetProps().onClicked		   = [this]() {
-			   const Vector<Entity*> entities = m_selectedEntities;
-			   EditorActionEntitySelection::Create(m_editor, m_world->GetID(), entities, false, true);
-			   EditorActionEntityDelete::Create(m_editor, m_world, entities);
-			   EditorActionCollective::Create(m_editor, 2);
-		};
+		buttonDel->GetProps().onClicked		   = [this]() { DeleteSelection(); };
 		AddChild(buttonDel);
 
 		Button* buttonParent = m_manager->Allocate<Button>("Delete");
@@ -204,12 +194,32 @@ namespace Lina::Editor
 		AddChild(buttonParent);
 		m_selectionCircle.parentButton = buttonParent;
 
-		m_selectionCircle.buttons.push_back({.widget = buttonGizmos, .angle = 200});
-		m_selectionCircle.buttons.push_back({.widget = buttonLocality, .angle = 230.0f});
-		m_selectionCircle.buttons.push_back({.widget = buttonSnap, .angle = 260.0f});
-		m_selectionCircle.buttons.push_back({.widget = buttonDup, .angle = 10.0f});
-		m_selectionCircle.buttons.push_back({.widget = buttonDel, .angle = 40.0f});
-		m_selectionCircle.buttons.push_back({.widget = buttonParent, .angle = 70.0f});
+		Button* buttonReset = m_manager->Allocate<Button>("Delete");
+		buttonReset->RemoveText();
+		buttonReset->CreateIcon(ICON_ROTATE_LEFT);
+		buttonReset->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::ResetTransform);
+		buttonReset->GetProps().onClicked	  = [this]() {
+			Vector<Transformation> previous;
+
+			for (Entity* e : m_selectedRoots)
+			{
+				previous.push_back(e->GetTransform());
+				e->SetLocalPosition(Vector3::Zero);
+				e->SetLocalRotation(Quaternion::Identity());
+				e->SetLocalScale(Vector3::One);
+			}
+
+			EditorActionEntityTransform::Create(m_editor, m_world->GetID(), m_selectedRoots, previous);
+		};
+		AddChild(buttonReset);
+
+		m_selectionCircle.buttons.push_back({.widget = buttonGizmos, .angle = 180});
+		m_selectionCircle.buttons.push_back({.widget = buttonReset, .angle = 200});
+		m_selectionCircle.buttons.push_back({.widget = buttonLocality, .angle = 220.0f});
+		m_selectionCircle.buttons.push_back({.widget = buttonSnap, .angle = 240.0f});
+		m_selectionCircle.buttons.push_back({.widget = buttonDup, .angle = 0.0f});
+		m_selectionCircle.buttons.push_back({.widget = buttonDel, .angle = 20.0f});
+		m_selectionCircle.buttons.push_back({.widget = buttonParent, .angle = 60.0f});
 
 		for (SelectionCircleButton& but : m_selectionCircle.buttons)
 		{
@@ -328,8 +338,8 @@ namespace Lina::Editor
 
 		m_selectionCircle.snappingOptions->SetPos(m_selectionCircle.buttons[4].widget->GetRect().GetEnd() + Vector2(10, 0));
 
-		m_selectionCircle.buttons[1].widget->GetIcon()->GetProps().icon = m_gizmoControls.usedLocality == GizmoLocality::World ? ICON_GLOBE : ICON_CUBE;
-		m_selectionCircle.buttons[1].widget->GetWidgetProps().tooltip	= m_gizmoControls.usedLocality == GizmoLocality::World ? Locale::GetStr(LocaleStr::LocalityWorld) : Locale::GetStr(LocaleStr::LocalityLocal);
+		m_selectionCircle.localityButton->GetIcon()->GetProps().icon = m_gizmoControls.usedLocality == GizmoLocality::World ? ICON_GLOBE : ICON_CUBE;
+		m_selectionCircle.localityButton->GetWidgetProps().tooltip	 = m_gizmoControls.usedLocality == GizmoLocality::World ? Locale::GetStr(LocaleStr::LocalityWorld) : Locale::GetStr(LocaleStr::LocalityLocal);
 	}
 
 	void WorldController::Tick(float dt)
@@ -513,7 +523,7 @@ namespace Lina::Editor
 				Entity* entity = m_world->GetEntity(lastHovered);
 
 				if (m_gizmoControls.gizmoMotion != GizmoMotion::None)
-					StopGizmoMotion();
+					StopGizmoMotion(true);
 
 				EditorActionEntitySelection::Create(m_editor, m_world->GetID(), {entity}, true, !m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LSHIFT));
 			}
@@ -540,6 +550,33 @@ namespace Lina::Editor
 				EndSelectionParenting(false);
 				return true;
 			}
+
+			if (m_gizmoControls.gizmoMotion == GizmoMotion::Key)
+			{
+				StopGizmoMotion(false);
+				return true;
+			}
+		}
+
+		if (keycode == LINAGX_KEY_RETURN)
+		{
+			if (m_gizmoControls.gizmoMotion == GizmoMotion::Key)
+			{
+				StopGizmoMotion(true);
+				return true;
+			}
+		}
+
+		if (keycode == LINAGX_KEY_D && m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LCTRL))
+		{
+			DuplicateSelection();
+			return true;
+		}
+
+		if (keycode == LINAGX_KEY_DELETE)
+		{
+			DeleteSelection();
+			return true;
 		}
 
 		if (keycode == LINAGX_KEY_X && m_gizmoControls.gizmoMotion == GizmoMotion::None)
@@ -563,7 +600,8 @@ namespace Lina::Editor
 		if (keycode == LINAGX_KEY_E)
 		{
 			if (m_gizmoControls.gizmoMotion != GizmoMotion::None)
-				StopGizmoMotion();
+				StopGizmoMotion(true);
+
 			SelectGizmo(GizmoMode::Move);
 			return true;
 		}
@@ -571,7 +609,8 @@ namespace Lina::Editor
 		if (keycode == LINAGX_KEY_R)
 		{
 			if (m_gizmoControls.gizmoMotion != GizmoMotion::None)
-				StopGizmoMotion();
+				StopGizmoMotion(true);
+
 			SelectGizmo(GizmoMode::Rotate);
 			return true;
 		}
@@ -579,7 +618,8 @@ namespace Lina::Editor
 		if (keycode == LINAGX_KEY_T)
 		{
 			if (m_gizmoControls.gizmoMotion != GizmoMotion::None)
-				StopGizmoMotion();
+				StopGizmoMotion(true);
+
 			SelectGizmo(GizmoMode::Scale);
 			return true;
 		}
@@ -640,12 +680,15 @@ namespace Lina::Editor
 		EndSelectionParenting(false);
 
 		if (m_gizmoControls.gizmoMotion != GizmoMotion::None)
-			StopGizmoMotion();
+			StopGizmoMotion(true);
 
 		m_selectedEntities = selection;
+		m_selectedRoots.resize(0);
+		WorldUtility::ExtractRoots(m_world, m_selectedEntities, m_selectedRoots);
+
 		m_ewr->SetSelectedEntities(m_selectedEntities);
 
-		const bool selectionCircleVisible = !m_selectedEntities.empty();
+		const bool selectionCircleVisible = !m_selectedRoots.empty();
 		if (!m_selectionCircle.visible && selectionCircleVisible)
 			m_selectionCircle.circleTween = Tween(0.0f, 1.0f, SELECTION_CIRCLE_DUR, TweenType::EaseIn);
 
@@ -696,7 +739,7 @@ namespace Lina::Editor
 	void WorldController::SelectGizmoLocality(GizmoLocality locality)
 	{
 		// Can't on multiselect
-		if (locality == GizmoLocality::Local && m_selectedEntities.size() > 1)
+		if (locality == GizmoLocality::Local && m_selectedRoots.size() > 1)
 			locality = GizmoLocality::World;
 
 		m_gizmoControls.locality = locality;
@@ -714,6 +757,23 @@ namespace Lina::Editor
 	ResourceID WorldController::GetWorldID()
 	{
 		return m_worldRenderer == nullptr ? 0 : m_world->GetID();
+	}
+
+	void WorldController::DuplicateSelection()
+	{
+		Vector<Entity*> entities;
+		WorldUtility::DuplicateEntities(m_editor, m_world, m_selectedEntities, entities);
+		EditorActionEntitiesCreated::Create(m_editor, m_world, entities);
+		EditorActionEntitySelection::Create(m_editor, m_world->GetID(), entities, true, true);
+		EditorActionCollective::Create(m_editor, 2);
+	}
+
+	void WorldController::DeleteSelection()
+	{
+		Vector<Entity*> entities = m_selectedEntities;
+		EditorActionEntitySelection::Create(m_editor, m_world->GetID(), entities, false, true);
+		EditorActionEntityDelete::Create(m_editor, m_world, entities);
+		EditorActionCollective::Create(m_editor, 2);
 	}
 
 	void WorldController::StartSelectionParenting()
@@ -787,11 +847,13 @@ namespace Lina::Editor
 				rendererSettings.hoveredEntityID = hovered;
 		}
 
-		if (m_selectedEntities.empty())
+		const Vector<Entity*>& selection = m_selectedRoots;
+
+		if (selection.empty())
 			return;
 
 		if (m_gizmoControls.gizmoMotion == GizmoMotion::Mouse && !m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_0))
-			StopGizmoMotion();
+			StopGizmoMotion(true);
 
 		CalculateAverageGizmoPosition();
 
@@ -802,15 +864,15 @@ namespace Lina::Editor
 		rendererSettings.focusedAxis   = m_gizmoControls.motionAxis;
 
 		if (m_gizmoControls.type == GizmoMode::Scale)
-			rendererSettings.rotation = m_selectedEntities.size() == 1 ? m_selectedEntities.at(0)->GetRotation() : Quaternion::Identity();
+			rendererSettings.rotation = selection.size() == 1 ? selection.at(0)->GetRotation() : Quaternion::Identity();
 		else
-			rendererSettings.rotation = (m_selectedEntities.size() > 1 || m_gizmoControls.locality == GizmoLocality::World) ? Quaternion::Identity() : m_selectedEntities.at(0)->GetRotation();
+			rendererSettings.rotation = (selection.size() > 1 || m_gizmoControls.locality == GizmoLocality::World) ? Quaternion::Identity() : selection.at(0)->GetRotation();
 
 		m_gizmoControls.usedLocality = m_gizmoControls.locality;
 
 		if (m_gizmoControls.type == GizmoMode::Scale)
 			m_gizmoControls.usedLocality = GizmoLocality::Local;
-		else if (m_selectedEntities.size() > 1)
+		else if (selection.size() > 1)
 			m_gizmoControls.usedLocality = GizmoLocality::World;
 
 		m_gizmoControls.visualizeAlpha = Math::Lerp(m_gizmoControls.visualizeAlpha, m_gizmoControls.gizmoMotion == GizmoMotion::Key ? 1.0f : 0.0f, SystemInfo::GetDeltaTime() * 10.0f);
@@ -847,31 +909,31 @@ namespace Lina::Editor
 			bool	rayHit0 = false, rayHit1 = false;
 			float	hitDistance0 = 0.0f, hitDistance1 = 0.0f;
 
-			const GizmoLocality locality = m_selectedEntities.size() > 1 ? GizmoLocality::World : m_gizmoControls.locality;
+			const GizmoLocality locality = selection.size() > 1 ? GizmoLocality::World : m_gizmoControls.locality;
 			const Vector2		mp		 = m_lgxWindow->GetMousePosition() - GetStartFromMargins() - m_gizmoControls.motionStartMouseDelta;
 
 			bool isCenter = false;
 			if (m_gizmoControls.motionAxis == GizmoAxis::X)
 			{
-				targetAxisWorld		  = locality == GizmoLocality::World ? Vector3::Right : m_selectedEntities.at(0)->GetRotation().GetRight();
-				const Vector3 normal0 = locality == GizmoLocality::World ? Vector3::Forward : targetAxisWorld.Cross(m_selectedEntities.at(0)->GetRotation().GetUp());
-				const Vector3 normal1 = locality == GizmoLocality::World ? Vector3::Up : targetAxisWorld.Cross(m_selectedEntities.at(0)->GetRotation().GetForward());
+				targetAxisWorld		  = locality == GizmoLocality::World ? Vector3::Right : selection.at(0)->GetRotation().GetRight();
+				const Vector3 normal0 = locality == GizmoLocality::World ? Vector3::Forward : targetAxisWorld.Cross(selection.at(0)->GetRotation().GetUp());
+				const Vector3 normal1 = locality == GizmoLocality::World ? Vector3::Up : targetAxisWorld.Cross(selection.at(0)->GetRotation().GetForward());
 				rayHit0				  = ray(mp, normal0, hitPoint0, hitDistance0);
 				rayHit1				  = ray(mp, normal1, hitPoint1, hitDistance1);
 			}
 			else if (m_gizmoControls.motionAxis == GizmoAxis::Y)
 			{
-				targetAxisWorld		  = locality == GizmoLocality::World ? Vector3::Up : m_selectedEntities.at(0)->GetRotation().GetUp();
-				const Vector3 normal0 = locality == GizmoLocality::World ? Vector3::Forward : targetAxisWorld.Cross(m_selectedEntities.at(0)->GetRotation().GetUp());
-				const Vector3 normal1 = locality == GizmoLocality::World ? Vector3::Right : targetAxisWorld.Cross(m_selectedEntities.at(0)->GetRotation().GetForward());
+				targetAxisWorld		  = locality == GizmoLocality::World ? Vector3::Up : selection.at(0)->GetRotation().GetUp();
+				const Vector3 normal0 = locality == GizmoLocality::World ? Vector3::Forward : targetAxisWorld.Cross(selection.at(0)->GetRotation().GetUp());
+				const Vector3 normal1 = locality == GizmoLocality::World ? Vector3::Right : targetAxisWorld.Cross(selection.at(0)->GetRotation().GetForward());
 				rayHit0				  = ray(mp, normal0, hitPoint0, hitDistance0);
 				rayHit1				  = ray(mp, normal1, hitPoint1, hitDistance1);
 			}
 			else if (m_gizmoControls.motionAxis == GizmoAxis::Z)
 			{
-				targetAxisWorld		  = locality == GizmoLocality::World ? Vector3::Forward : m_selectedEntities.at(0)->GetRotation().GetForward();
-				const Vector3 normal0 = locality == GizmoLocality::World ? Vector3::Up : targetAxisWorld.Cross(m_selectedEntities.at(0)->GetRotation().GetUp());
-				const Vector3 normal1 = locality == GizmoLocality::World ? Vector3::Right : targetAxisWorld.Cross(m_selectedEntities.at(0)->GetRotation().GetRight());
+				targetAxisWorld		  = locality == GizmoLocality::World ? Vector3::Forward : selection.at(0)->GetRotation().GetForward();
+				const Vector3 normal0 = locality == GizmoLocality::World ? Vector3::Up : targetAxisWorld.Cross(selection.at(0)->GetRotation().GetUp());
+				const Vector3 normal1 = locality == GizmoLocality::World ? Vector3::Right : targetAxisWorld.Cross(selection.at(0)->GetRotation().GetRight());
 				rayHit0				  = ray(mp, normal0, hitPoint0, hitDistance0);
 				rayHit1				  = ray(mp, normal1, hitPoint1, hitDistance1);
 			}
@@ -898,7 +960,7 @@ namespace Lina::Editor
 
 			const Vector3 dir	= hitPoint - m_gizmoControls.motionStartAvgPos;
 			float		  lineT = isCenter ? (dir.Magnitude()) : dir.Magnitude() * dir.Normalized().Dot(targetAxisWorld);
-			const size_t  sz	= m_selectedEntities.size();
+			const size_t  sz	= selection.size();
 			const Vector3 axis	= isCenter ? dir.Normalized() : targetAxisWorld;
 
 			if (m_gizmoControls.gizmoMotion == GizmoMotion::Key && !m_gizmoControls.valueStr.empty())
@@ -907,7 +969,7 @@ namespace Lina::Editor
 			m_gizmoControls.visualizeDistance = lineT;
 			for (size_t i = 0; i < sz; i++)
 			{
-				Entity*				  e		 = m_selectedEntities.at(i);
+				Entity*				  e		 = selection.at(i);
 				const Transformation& stored = m_gizmoControls.motionStartTransforms.at(i);
 				e->SetPosition(stored.GetPosition() + axis * lineT);
 			}
@@ -936,7 +998,7 @@ namespace Lina::Editor
 
 			if (m_gizmoControls.motionAxis == GizmoAxis::X)
 			{
-				const Vector3 ta		   = m_selectedEntities.size() > 1 ? Vector3::Right : m_selectedEntities.at(0)->GetRotation().GetRight();
+				const Vector3 ta		   = selection.size() > 1 ? Vector3::Right : selection.at(0)->GetRotation().GetRight();
 				rendererSettings.worldAxis = ta;
 
 				scaleAmt  = getScaleAmt(ta);
@@ -944,7 +1006,7 @@ namespace Lina::Editor
 			}
 			else if (m_gizmoControls.motionAxis == GizmoAxis::Y)
 			{
-				const Vector3 ta		   = m_selectedEntities.size() > 1 ? Vector3::Up : m_selectedEntities.at(0)->GetRotation().GetUp();
+				const Vector3 ta		   = selection.size() > 1 ? Vector3::Up : selection.at(0)->GetRotation().GetUp();
 				rendererSettings.worldAxis = ta;
 
 				scaleAmt  = getScaleAmt(ta);
@@ -952,7 +1014,7 @@ namespace Lina::Editor
 			}
 			else if (m_gizmoControls.motionAxis == GizmoAxis::Z)
 			{
-				const Vector3 ta		   = m_selectedEntities.size() > 1 ? Vector3::Forward : m_selectedEntities.at(0)->GetRotation().GetForward();
+				const Vector3 ta		   = selection.size() > 1 ? Vector3::Forward : selection.at(0)->GetRotation().GetForward();
 				rendererSettings.worldAxis = ta;
 
 				scaleAmt  = getScaleAmt(ta);
@@ -966,7 +1028,7 @@ namespace Lina::Editor
 				rendererSettings.visualizeAxis = false;
 			}
 
-			const size_t sz = m_selectedEntities.size();
+			const size_t sz = selection.size();
 
 			if (m_gizmoControls.gizmoMotion == GizmoMotion::Key && !m_gizmoControls.valueStr.empty())
 				scaleAmt = m_gizmoControls.value;
@@ -974,14 +1036,14 @@ namespace Lina::Editor
 
 			for (size_t i = 0; i < sz; i++)
 			{
-				Entity*				  e		 = m_selectedEntities.at(i);
+				Entity*				  e		 = selection.at(i);
 				const Transformation& stored = m_gizmoControls.motionStartTransforms.at(i);
 				e->SetScale(stored.GetScale() + scaleAxis * scaleAmt);
 			}
 		}
 		else if (m_gizmoControls.type == GizmoMode::Rotate)
 		{
-			const GizmoLocality locality = m_selectedEntities.size() > 1 ? GizmoLocality::World : m_gizmoControls.locality;
+			const GizmoLocality locality = selection.size() > 1 ? GizmoLocality::World : m_gizmoControls.locality;
 			const Camera&		camera	 = m_world->GetWorldCamera();
 
 			const Vector2 pressedDir = (m_gizmoControls.motionStartMousePos - m_gizmoControls.motionStartAvgPosScreen).Normalized();
@@ -997,19 +1059,19 @@ namespace Lina::Editor
 
 			if (m_gizmoControls.motionAxis == GizmoAxis::X)
 			{
-				axis			= locality == GizmoLocality::World ? Vector3::Right : m_selectedEntities.at(0)->GetRotation().GetRight();
+				axis			= locality == GizmoLocality::World ? Vector3::Right : selection.at(0)->GetRotation().GetRight();
 				const float dot = worldDir.Normalized().Dot(rendererSettings.rotation.GetRight());
 				deltaAngle *= dot > 0.0f ? -1.0f : 1.0f;
 			}
 			else if (m_gizmoControls.motionAxis == GizmoAxis::Y)
 			{
-				axis			= locality == GizmoLocality::World ? Vector3::Up : m_selectedEntities.at(0)->GetRotation().GetUp();
+				axis			= locality == GizmoLocality::World ? Vector3::Up : selection.at(0)->GetRotation().GetUp();
 				const float dot = worldDir.Normalized().Dot(rendererSettings.rotation.GetUp());
 				deltaAngle *= dot > 0.0f ? -1.0f : 1.0f;
 			}
 			else if (m_gizmoControls.motionAxis == GizmoAxis::Z)
 			{
-				axis			= locality == GizmoLocality::World ? Vector3::Forward : m_selectedEntities.at(0)->GetRotation().GetForward();
+				axis			= locality == GizmoLocality::World ? Vector3::Forward : selection.at(0)->GetRotation().GetForward();
 				const float dot = worldDir.Normalized().Dot(rendererSettings.rotation.GetForward());
 				deltaAngle *= dot > 0.0f ? -1.0f : 1.0f;
 			}
@@ -1039,7 +1101,7 @@ namespace Lina::Editor
 			rendererSettings.angle1				  = angle1;
 			m_gizmoControls.motionCurrentMousePos = m_lgxWindow->GetMousePosition();
 
-			const size_t sz = m_selectedEntities.size();
+			const size_t sz = selection.size();
 
 			// magic 	Vector3			 local = e->GetRotation().Inverse() * axis;
 
@@ -1050,7 +1112,7 @@ namespace Lina::Editor
 
 			for (size_t i = 0; i < sz; i++)
 			{
-				Entity*			 e	 = m_selectedEntities.at(i);
+				Entity*			 e	 = selection.at(i);
 				const Quaternion rot = Quaternion::AngleAxis(deltaAngle, axis);
 
 				if (isKeyMode)
@@ -1071,12 +1133,12 @@ namespace Lina::Editor
 
 	void WorldController::CalculateAverageGizmoPosition()
 	{
-		if (!m_selectedEntities.empty())
+		if (!m_selectedRoots.empty())
 		{
 			m_gizmoControls.averagePosition = Vector3::Zero;
-			for (Entity* e : m_selectedEntities)
+			for (Entity* e : m_selectedRoots)
 				m_gizmoControls.averagePosition += e->GetPosition();
-			m_gizmoControls.averagePosition /= static_cast<float>(m_selectedEntities.size());
+			m_gizmoControls.averagePosition /= static_cast<float>(m_selectedRoots.size());
 		}
 	}
 
@@ -1095,17 +1157,28 @@ namespace Lina::Editor
 		m_gizmoControls.motionStartMousePos		= m_lgxWindow->GetMousePosition();
 		m_gizmoControls.motionCurrentMousePos	= m_lgxWindow->GetMousePosition();
 
-		const size_t sz = m_selectedEntities.size();
+		const size_t sz = m_selectedRoots.size();
 		m_gizmoControls.motionStartTransforms.resize(sz);
 		for (size_t i = 0; i < sz; i++)
-			m_gizmoControls.motionStartTransforms[i] = m_selectedEntities.at(i)->GetTransform();
+			m_gizmoControls.motionStartTransforms[i] = m_selectedRoots.at(i)->GetTransform();
 	}
 
-	void WorldController::StopGizmoMotion()
+	void WorldController::StopGizmoMotion(bool apply)
 	{
 		m_gizmoControls.motionAxis	= GizmoAxis::None;
 		m_gizmoControls.gizmoMotion = GizmoMotion::None;
-		EditorActionEntityTransform::Create(m_editor, m_world->GetID(), m_selectedEntities, m_gizmoControls.motionStartTransforms);
+
+		if (apply)
+			EditorActionEntityTransform::Create(m_editor, m_world->GetID(), m_selectedRoots, m_gizmoControls.motionStartTransforms);
+		else
+		{
+			const size_t sz = m_selectedRoots.size();
+			for (size_t i = 0; i < sz; i++)
+			{
+				Entity* e = m_selectedRoots.at(i);
+				e->SetTransform(m_gizmoControls.motionStartTransforms.at(i));
+			}
+		}
 	}
 
 	void WorldController::OnWorldTick(float delta, PlayMode playmode)

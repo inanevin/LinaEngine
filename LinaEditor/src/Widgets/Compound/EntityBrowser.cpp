@@ -105,6 +105,11 @@ namespace Lina::Editor
 			EditorActionEntitySelection::Create(m_editor, m_world->GetID(), selection, true, true, "EntityList"_hs);
 		};
 
+		controller->GetProps().onItemUnselected = [this](void* ud) {
+			const Vector<Entity*> selection = m_controller->GetSelectedUserData<Entity>();
+			EditorActionEntitySelection::Create(m_editor, m_world->GetID(), selection, true, true, "EntityList"_hs);
+		};
+
 		controller->GetProps().onItemRenamed = [this](void* ud) { Entity* e = static_cast<Entity*>(ud); };
 		controller->GetProps().onDelete		 = [this]() {
 			 const Vector<Entity*> selection = m_controller->GetSelectedUserData<Entity>();

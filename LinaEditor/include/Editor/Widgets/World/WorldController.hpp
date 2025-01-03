@@ -108,6 +108,7 @@ namespace Lina::Editor
 
 			Widget* snappingOptions	 = nullptr;
 			Button* parentButton	 = nullptr;
+			Button* localityButton	 = nullptr;
 			bool	snapInForeground = false;
 		};
 
@@ -168,6 +169,8 @@ namespace Lina::Editor
 		}
 
 	private:
+		void DuplicateSelection();
+		void DeleteSelection();
 		void StartSelectionParenting();
 		void EndSelectionParenting(bool apply);
 		void SetDisplayTextureTitle();
@@ -176,7 +179,7 @@ namespace Lina::Editor
 		void CalculateAverageGizmoPosition();
 
 		void StartGizmoMotion(GizmoMotion motion, GizmoAxis axis);
-		void StopGizmoMotion();
+		void StopGizmoMotion(bool apply);
 
 	private:
 		WorldRenderer*		 m_worldRenderer = nullptr;
@@ -190,6 +193,7 @@ namespace Lina::Editor
 		DisplayTexture m_currentDisplayTexture	= DisplayTexture::WorldFinal;
 
 		Vector<Entity*> m_selectedEntities;
+		Vector<Entity*> m_selectedRoots;
 		Editor*			m_editor		  = nullptr;
 		Properties		m_props			  = {};
 		Font*			m_worldFont		  = nullptr;

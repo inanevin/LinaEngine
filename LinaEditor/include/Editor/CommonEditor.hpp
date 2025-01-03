@@ -245,6 +245,7 @@ namespace Lina::Editor
 #define ICON_ARROW_LOCATION		  "\u0027"
 #define ICON_GRID				  "\u0029"
 #define ICON_SITEMAP			  "\u002A"
+#define ICON_ROTATE_LEFT		  "\u002B"
 
 #define DOCK_DEFAULT_PERCENTAGE	  0.4f
 #define DOCKED_MIN_SIZE			  300.0f
