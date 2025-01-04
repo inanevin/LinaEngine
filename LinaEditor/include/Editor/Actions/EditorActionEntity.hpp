@@ -76,6 +76,22 @@ namespace Lina::Editor
 		uint64				   m_worldId = 0;
 	};
 
+	class EditorActionEntityNames : public EditorAction
+	{
+	public:
+		EditorActionEntityNames()		   = default;
+		virtual ~EditorActionEntityNames() = default;
+
+		static EditorActionEntityNames* Create(Editor* editor, uint64 worldId, const Vector<Entity*>& entities, const Vector<String>& previousNames);
+		virtual void					Execute(Editor* editor, ExecType type) override;
+
+	private:
+		Vector<EntityID> m_entities = {};
+		Vector<String>	 m_prevNames;
+		Vector<String>	 m_currentNames;
+		uint64			 m_worldId = 0;
+	};
+
 	class EditorActionEntitiesCreated : public EditorAction
 	{
 	public:

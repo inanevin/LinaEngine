@@ -110,12 +110,15 @@ namespace Lina::Editor
 			EditorActionEntitySelection::Create(m_editor, m_world->GetID(), selection, true, true, "EntityList"_hs);
 		};
 
-		controller->GetProps().onItemRenamed = [this](void* ud) { Entity* e = static_cast<Entity*>(ud); };
-		controller->GetProps().onDelete		 = [this]() {
-			 const Vector<Entity*> selection = m_controller->GetSelectedUserData<Entity>();
-			 EditorActionEntitySelection::Create(m_editor, m_world->GetID(), selection, false, true);
-			 EditorActionEntityDelete::Create(m_editor, m_world, selection);
-			 EditorActionCollective::Create(m_editor, 2);
+		controller->GetProps().onItemRenamed = [this](void* ud) {
+			Entity* e = static_cast<Entity*>(ud);
+			RequestRename(e);
+		};
+		controller->GetProps().onDelete = [this]() {
+			const Vector<Entity*> selection = m_controller->GetSelectedUserData<Entity>();
+			EditorActionEntitySelection::Create(m_editor, m_world->GetID(), selection, false, true);
+			EditorActionEntityDelete::Create(m_editor, m_world, selection);
+			EditorActionCollective::Create(m_editor, 2);
 		};
 
 		controller->GetProps().onDuplicate = [this]() {
@@ -224,6 +227,38 @@ namespace Lina::Editor
 
 		for (Entity* c : children)
 			AddItem(layout, c, margin + Theme::GetDef().baseIndent);
+	}
+
+	void EntityBrowser::RequestRename(Entity* e)
+	{
+		Widget* parent = m_controller->GetItem(e);
+		Text*	text   = parent->GetWidgetOfType<Text>(parent);
+
+		InputField* inp = m_manager->Allocate<InputField>();
+		inp->GetFlags().Set(WF_USE_FIXED_SIZE_Y);
+		inp->GetText()->GetProps().text = text->GetProps().text;
+		inp->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		inp->SetSizeX(parent->GetSizeX());
+		inp->SetPos(text->GetParent()->GetPos());
+		inp->SetFixedSizeY(text->GetParent()->GetSizeY());
+		inp->Initialize();
+
+		inp->GetProps().onEditEnd = [text, inp, e, parent, this](const String& str) {
+			text->GetProps().text = str;
+			text->CalculateTextSize();
+			text->GetWidgetManager()->AddToKillList(inp);
+
+			const String stored = e->GetName();
+			e->SetName(str);
+			EditorActionEntityNames::Create(m_editor, m_world->GetID(), {e}, {stored});
+		};
+
+		text->GetWidgetManager()->AddToForeground(inp);
+		inp->StartEditing();
+		inp->SelectAll();
+
+		m_controller->SetFocus(true);
+		m_manager->GrabControls(inp);
 	}
 
 	bool EntityBrowser::OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData)

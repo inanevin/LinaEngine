@@ -29,51 +29,64 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
-#include "Core/GUI/Widgets/Compound/FileMenu.hpp"
+#include "Common/Data/String.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
 
 namespace Lina
 {
 	class DirectionalLayout;
 	class Entity;
 	class EntityWorld;
+	class Text;
 } // namespace Lina
 
 namespace Lina::Editor
 {
 	class Editor;
-	class ItemController;
 
-	class EntityBrowser : public Widget, public FileMenuListener
+	class EntityDetails : public Widget
 	{
+	private:
+		struct DummyDetails
+		{
+			String	name  = "";
+			Vector3 pos	  = Vector3::Zero;
+			Vector3 rot	  = Vector3::Zero;
+			Vector3 scale = Vector3::Zero;
+		};
 
 	public:
-		EntityBrowser() : Widget(){};
-		virtual ~EntityBrowser() = default;
+		EntityDetails()			 = default;
+		virtual ~EntityDetails() = default;
 
 		virtual void Construct() override;
-
-		void RefreshEntities();
-		void SetWorld(EntityWorld* w);
-		void OnEntitySelectionChanged(const Vector<Entity*>& entities, bool applySelection);
-		void DropPayload(Entity* e);
-
-	private:
-		void AddItem(Widget* parent, Entity* e, float margin);
-		void RequestRename(Entity* e);
-
-	protected:
-		virtual bool OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData) override;
-		virtual void OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
+		virtual void PreTick() override;
+		void		 SetWorld(EntityWorld* w);
+		void		 OnEntitySelectionChanged(const Vector<Entity*>& entities);
+		void		 RefreshDetails();
 
 	private:
-		Vector<Entity*>	   m_payloadItems;
-		Vector<Entity*>	   m_selectedEntities;
-		EntityWorld*	   m_world		= nullptr;
-		Editor*			   m_editor		= nullptr;
-		ItemController*	   m_controller = nullptr;
-		DirectionalLayout* m_layout		= nullptr;
+		void UpdateDetails();
+		void UpdateEntities();
+		void StartEditingTransform();
+		void StopEditingTransform();
+
+		void StartEditingName();
+		void StopEditingName();
+
+	private:
+		Editor*				   m_editor = nullptr;
+		DirectionalLayout*	   m_layout = nullptr;
+		Vector<Entity*>		   m_selectedEntities;
+		Vector<Transformation> m_storedTransformations;
+		Vector<String>		   m_storedNames;
+		EntityWorld*		   m_world				 = nullptr;
+		DummyDetails		   m_dummyDetails		 = {};
+		bool				   m_physicsSettingsFold = false;
+		Text*				   m_noDetailsText		 = nullptr;
+		bool				   m_isEditing			 = false;
 	};
 
-	LINA_WIDGET_BEGIN(EntityBrowser, Hidden)
-	LINA_CLASS_END(EntityBrowser)
+	LINA_WIDGET_BEGIN(EntityDetails, Hidden)
+	LINA_CLASS_END(EntityDetails)
 } // namespace Lina::Editor

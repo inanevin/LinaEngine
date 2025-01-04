@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
 #include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
 #include "Editor/Widgets/Compound/EntityBrowser.hpp"
+#include "Editor/Widgets/Compound/EntityDetails.hpp"
 #include "Editor/Graphics/EditorWorldRenderer.hpp"
 #include "Editor/World/EditorCamera.hpp"
 #include "Editor/World/WorldUtility.hpp"
@@ -278,6 +279,13 @@ namespace Lina::Editor
 		browser->SetAlignedSize(Vector2::One);
 		entityListWrapper->AddChild(browser);
 		m_entityBrowser = browser;
+
+		EntityDetails* details = m_manager->Allocate<EntityDetails>("Details");
+		details->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		details->SetAlignedPos(Vector2::Zero);
+		details->SetAlignedSize(Vector2::One);
+		entityDetailsWrapper->AddChild(details);
+		m_entityDetails = details;
 	}
 
 	void WorldController::Destruct()
@@ -300,6 +308,7 @@ namespace Lina::Editor
 		m_ewr			= ewr;
 		m_world			= renderer ? m_worldRenderer->GetWorld() : nullptr;
 		m_entityBrowser->SetWorld(m_world);
+		m_entityDetails->SetWorld(m_world);
 
 		if (m_worldRenderer)
 		{

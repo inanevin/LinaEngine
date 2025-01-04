@@ -502,6 +502,9 @@ namespace Lina
 			if (m_props.valuePtr)
 				m_valueOnMiddlePress = GetValue();
 
+			if (m_props.onEditStarted)
+				m_props.onEditStarted(m_text->GetProps().text);
+
 			m_middlePressed = true;
 			return true;
 		}

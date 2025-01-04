@@ -194,6 +194,8 @@ namespace Lina::Editor
 		DPIScale,
 		PreviewAnimation,
 		Move,
+		Position,
+		Rotation,
 		Scale,
 		Rotate,
 		VisibilityOn,
@@ -205,6 +207,8 @@ namespace Lina::Editor
 		Parenting,
 		SnapOptions,
 		ResetTransform,
+		Physics,
+		NoEntityDetails,
 	};
 
 	class Locale

@@ -192,6 +192,8 @@ namespace Lina::Editor
 		{LocaleStr::PreviewAnimation, "Preview Animation"},
 		{LocaleStr::Move, "Move"},
 		{LocaleStr::Rotate, "Rotate"},
+		{LocaleStr::Position, "Position"},
+		{LocaleStr::Rotation, "Rotation"},
 		{LocaleStr::Scale, "Scale"},
 		{LocaleStr::NoSnapping, "No Snapping"},
 		{LocaleStr::GridSnapping, "Grid Snapping"},
@@ -202,6 +204,8 @@ namespace Lina::Editor
 		{LocaleStr::Parenting, "Click once and drag to re-parent"},
 		{LocaleStr::SnapOptions, "Snapping settings"},
 		{LocaleStr::ResetTransform, "Reset Transform"},
+		{LocaleStr::Physics, "Physics"},
+		{LocaleStr::NoEntityDetails, "No entity selected for details."},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

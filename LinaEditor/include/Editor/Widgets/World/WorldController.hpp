@@ -49,6 +49,7 @@ namespace Lina::Editor
 	class EditorCamera;
 	class EditorWorldRenderer;
 	class EntityBrowser;
+	class EntityDetails;
 
 	class WorldController : public Widget, public EditorPayloadListener, public EntityWorldListener
 	{
@@ -171,6 +172,11 @@ namespace Lina::Editor
 			return m_entityBrowser;
 		}
 
+		inline EntityDetails* GetDetails() const
+		{
+			return m_entityDetails;
+		}
+
 	private:
 		void DuplicateSelection();
 		void DeleteSelection();
@@ -202,6 +208,7 @@ namespace Lina::Editor
 		Font*			  m_worldFont		  = nullptr;
 		SelectionControls m_selectionControls = {};
 		EntityBrowser*	  m_entityBrowser	  = nullptr;
+		EntityDetails*	  m_entityDetails	  = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(WorldController, Hidden)

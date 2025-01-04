@@ -152,6 +152,53 @@ namespace Lina::Editor
 		}
 	}
 
+	EditorActionEntityNames* EditorActionEntityNames::Create(Editor* editor, uint64 worldId, const Vector<Entity*>& entities, const Vector<String>& previousNames)
+	{
+		EditorActionEntityNames* action = new EditorActionEntityNames();
+
+		for (Entity* e : entities)
+		{
+			action->m_entities.push_back(e->GetGUID());
+			action->m_currentNames.push_back(e->GetName());
+		}
+
+		action->m_prevNames = previousNames;
+		action->m_worldId	= worldId;
+
+		editor->GetEditorActionManager().AddToStack(action);
+		return action;
+	}
+
+	void EditorActionEntityNames::Execute(Editor* editor, ExecType type)
+	{
+		EntityWorld* world = editor->GetWorldManager().GetWorld(m_worldId);
+		if (world == nullptr)
+			return;
+
+		if (type == ExecType::Undo)
+		{
+			size_t i = 0;
+			for (EntityID id : m_entities)
+			{
+				Entity* e = world->GetEntity(id);
+				e->SetName(m_prevNames.at(i));
+				i++;
+			}
+		}
+		else if (type == ExecType::Redo)
+		{
+			size_t i = 0;
+			for (EntityID id : m_entities)
+			{
+				Entity* e = world->GetEntity(id);
+				e->SetName(m_currentNames.at(i));
+				i++;
+			}
+		}
+
+		editor->GetWorldManager().BroadcastEntityHierarchyChanged(world);
+	}
+
 	EditorActionEntitiesCreated* EditorActionEntitiesCreated::Create(Editor* editor, EntityWorld* world, const Vector<Entity*>& entities)
 	{
 		EditorActionEntitiesCreated* action = new EditorActionEntitiesCreated();

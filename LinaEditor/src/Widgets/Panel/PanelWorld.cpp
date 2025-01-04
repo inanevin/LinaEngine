@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Editor/Widgets/World/WorldController.hpp"
 #include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
 #include "Editor/Widgets/Compound/EntityBrowser.hpp"
+#include "Editor/Widgets/Compound/EntityDetails.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Editor/Graphics/EditorWorldRenderer.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
@@ -93,6 +94,7 @@ namespace Lina::Editor
 
 		m_worldDisplayer->GetController()->OnEntitySelectionChanged(entities);
 		m_worldDisplayer->GetController()->GetBrowser()->OnEntitySelectionChanged(entities, source == 0);
+		m_worldDisplayer->GetController()->GetDetails()->OnEntitySelectionChanged(entities);
 	}
 
 	void PanelWorld::OnWorldManagerEntityHierarchyChanged(EntityWorld* w)
@@ -101,6 +103,7 @@ namespace Lina::Editor
 			return;
 
 		m_worldDisplayer->GetController()->GetBrowser()->RefreshEntities();
+		m_worldDisplayer->GetController()->GetDetails()->RefreshDetails();
 	}
 
 } // namespace Lina::Editor

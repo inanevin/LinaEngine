@@ -69,6 +69,7 @@ include/Editor/Widgets/Compound/TabRow.hpp
 include/Editor/Widgets/Compound/IconTabs.hpp
 include/Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp
 include/Editor/Widgets/Compound/EntityBrowser.hpp
+include/Editor/Widgets/Compound/EntityDetails.hpp
 include/Editor/Widgets/Compound/WindowBar.hpp
 include/Editor/Widgets/Docking/DockArea.hpp
 include/Editor/Widgets/Docking/DockBorder.hpp
@@ -163,6 +164,7 @@ src/Widgets/Compound/Table.cpp
 src/Widgets/Compound/IconTabs.cpp
 src/Widgets/Compound/ResourceDirectoryBrowser.cpp
 src/Widgets/Compound/EntityBrowser.cpp
+src/Widgets/Compound/EntityDetails.cpp
 src/Widgets/Compound/WindowBar.cpp
 src/Widgets/Docking/DockWidget.cpp
 src/Widgets/Docking/DockBorder.cpp

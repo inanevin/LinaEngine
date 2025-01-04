@@ -277,6 +277,76 @@ namespace Lina::Editor
 		return layout;
 	}
 
+	Widget* CommonWidgets::BuildStringLayout(Widget* src, const String& title, String* str, uint32 dependencies, Delegate<void()> editStarted, Delegate<void()> edited, Delegate<void()> editEnd)
+	{
+		WidgetManager* wm = src->GetWidgetManager();
+
+		Widget* layout = CommonWidgets::BuildFieldLayoutWithRightSide(src, dependencies, title, false, nullptr, 0.6f);
+
+		InputField* field = wm->Allocate<InputField>();
+		field->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		field->SetAlignedSize(Vector2(0.0f, 1.0f));
+		field->SetAlignedPosY(0.0f);
+		field->GetText()->GetProps().text = *str;
+
+		if (editStarted)
+			field->GetProps().onEditStarted = [editStarted](const String& val) { editStarted(); };
+
+		field->GetProps().onEditEnd = [editEnd, str](const String& val) {
+			*str = val;
+			if (editEnd)
+				editEnd();
+		};
+
+		if (edited)
+			field->GetProps().onValueChanged = [edited](float f, bool b) { edited(); };
+
+		Widget::GetWidgetOfType<DirectionalLayout>(layout)->AddChild(field);
+
+		return layout;
+	}
+
+	Widget* CommonWidgets::BuildVector3FLayout(Widget* src, const String& title, float step, uint8* vector, uint32 dependencies, Delegate<void()> editStarted, Delegate<void()> edited, Delegate<void()> editEnd)
+	{
+		WidgetManager* wm = src->GetWidgetManager();
+
+		Widget* layout = CommonWidgets::BuildFieldLayoutWithRightSide(src, 0, title, false, nullptr, 0.6f);
+
+		auto build = [&](uint8* ptr) -> InputField* {
+			InputField* inp = wm->Allocate<InputField>();
+			inp->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+			inp->SetAlignedSize(Vector2(0.0f, 1.0f));
+			inp->SetAlignedPosY(0.0f);
+			inp->GetProps().isNumberField		= true;
+			inp->GetProps().clampNumber			= true;
+			inp->GetProps().disableNumberSlider = true;
+			inp->GetProps().valueMin			= INPF_VALUE_MIN - 1.0f;
+			inp->GetProps().valueMax			= INPF_VALUE_MAX + 1.0f;
+			inp->GetProps().valueStep			= step;
+			inp->GetProps().valuePtr			= ptr;
+			inp->GetProps().valueBits			= 32;
+
+			if (editStarted)
+				inp->GetProps().onEditStarted = [editStarted](const String& val) { editStarted(); };
+
+			if (editEnd)
+				inp->GetProps().onEditEnd = [editEnd](const String& val) { editEnd(); };
+
+			if (edited)
+				inp->GetProps().onValueChanged = [edited](float f, bool b) { edited(); };
+			return inp;
+		};
+
+		InputField* f0 = build(vector);
+		InputField* f1 = build(vector + sizeof(float));
+		InputField* f2 = build(vector + sizeof(float) * 2);
+		Widget::GetWidgetOfType<DirectionalLayout>(layout)->AddChild(f0);
+		Widget::GetWidgetOfType<DirectionalLayout>(layout)->AddChild(f1);
+		Widget::GetWidgetOfType<DirectionalLayout>(layout)->AddChild(f2);
+
+		return layout;
+	}
+
 	FoldLayout* CommonWidgets::BuildTreeItem(Widget* src, const ResDirItemProperties& props)
 	{
 		WidgetManager* wm = src->GetWidgetManager();
