@@ -27,18 +27,13 @@ SOFTWARE.
 */
 
 #include "Editor/Graphics/MousePickRenderer.hpp"
-#include "Editor/CommonEditor.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/Graphics/EditorGfxHelpers.hpp"
 #include "Common/Math/Math.hpp"
 #include "Core/Resources/ResourceManager.hpp"
-#include "Core/Graphics/Resource/Shader.hpp"
-#include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Application.hpp"
-#include "Core/Graphics/Pipeline/RenderPass.hpp"
 #include "Core/Graphics/Renderers/DrawCollector.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
-#include "Core/Graphics/Pipeline/View.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
 #include "Core/World/EntityWorld.hpp"
@@ -198,7 +193,13 @@ namespace Lina::Editor
 
 					const size_t index = static_cast<size_t>(mapping[pixelIndex]);
 					if (index != 0 && index - 1 < m_lastEntityIDs.size())
-						m_gpuData.rectSelectionIDs.insert(m_lastEntityIDs[index - 1]);
+					{
+						const EntityID res = m_lastEntityIDs[index - 1];
+						auto		   it  = linatl::find_if(m_gpuData.rectSelectionIDs.begin(), m_gpuData.rectSelectionIDs.end(), [res](EntityID id) -> bool { return id == res; });
+
+						if (it == m_gpuData.rectSelectionIDs.end())
+							m_gpuData.rectSelectionIDs.push_back(res);
+					}
 				}
 			}
 		}
@@ -308,7 +309,7 @@ namespace Lina::Editor
 		m_cpuData.lastHoveredEntityID = m_gpuData.lastHoveredEntityID;
 		m_cpuData.rectSelectionIDs	  = m_gpuData.rectSelectionIDs;
 		m_gpuData.lastHoveredEntityID = 0;
-		m_gpuData.rectSelectionIDs.clear();
+		m_gpuData.rectSelectionIDs.resize(0);
 		m_entityBufferPass.SyncRender();
 	}
 

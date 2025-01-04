@@ -29,6 +29,9 @@ SOFTWARE.
 #pragma once
 
 #include "Core/Resources/CommonResources.hpp"
+#include "Common/Reflection/ClassReflection.hpp"
+#include "Core/Graphics/Resource/Material.hpp"
+#include "Core/Graphics/Resource/Model.hpp"
 
 namespace Lina::Editor
 {
@@ -83,4 +86,36 @@ namespace Lina::Editor
 		Key
 	};
 
+	struct SnappingOptions
+	{
+		Vector3 directionalSnap = Vector3::Zero;
+		float	angularSnap		= 0.0f;
+	};
+
+	LINA_CLASS_BEGIN(SnappingOptions);
+	LINA_FIELD(SnappingOptions, directionalSnap, "Directional Snap", FieldType::Vector3, 0)
+	LINA_FIELD(SnappingOptions, angularSnap, "Angular Snap", FieldType::Float, 0)
+	LINA_CLASS_END(SnappingOptions);
+
+	struct CameraOptions
+	{
+		float movementSpeed = 0.0f;
+		float angularSpeed	= 0.0f;
+	};
+
+	LINA_CLASS_BEGIN(CameraOptions);
+	LINA_FIELD(CameraOptions, movementSpeed, "Movement Speed", FieldType::Float, 0)
+	LINA_FIELD(CameraOptions, angularSpeed, "Angular Speed", FieldType::Float, 0)
+	LINA_CLASS_END(CameraOptions);
+
+	struct WorldOptions
+	{
+		ResourceID skyMaterial = 0;
+		ResourceID skyModel	   = 0;
+	};
+
+	LINA_CLASS_BEGIN(WorldOptions);
+	LINA_FIELD(WorldOptions, skyMaterial, "Sky Material", FieldType::ResourceID, GetTypeID<Material>())
+	LINA_FIELD(WorldOptions, skyModel, "Sky Model", FieldType::ResourceID, GetTypeID<Model>())
+	LINA_CLASS_END(WorldOptions);
 } // namespace Lina::Editor

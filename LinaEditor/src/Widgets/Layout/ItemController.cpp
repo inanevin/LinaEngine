@@ -384,7 +384,9 @@ namespace Lina::Editor
 			return false;
 
 		const bool wasFocused = m_isFocused;
-		SetFocus(true);
+
+		if (act == LinaGX::InputAction::Pressed)
+			SetFocus(true);
 
 		const bool lshift = m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LSHIFT);
 		const bool lctrl  = m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LCTRL);

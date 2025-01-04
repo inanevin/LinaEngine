@@ -31,7 +31,7 @@ SOFTWARE.
 #include "Core/Graphics/Pipeline/Buffer.hpp"
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
 #include "Core/World/CommonWorld.hpp"
-#include "Common/Data/HashSet.hpp"
+#include "Common/Data/Vector.hpp"
 
 namespace Lina
 {
@@ -58,8 +58,8 @@ namespace Lina::Editor
 	private:
 		struct DrawData
 		{
-			EntityID		  lastHoveredEntityID = 0;
-			HashSet<EntityID> rectSelectionIDs;
+			EntityID		 lastHoveredEntityID = 0;
+			Vector<EntityID> rectSelectionIDs;
 		};
 
 		struct PerFrameData
@@ -103,7 +103,7 @@ namespace Lina::Editor
 			return m_entityBufferPass;
 		}
 
-		inline const HashSet<EntityID>& GetRectSelectionResults() const
+		inline const Vector<EntityID>& GetRectSelectionResults() const
 		{
 			return m_cpuData.rectSelectionIDs;
 		}

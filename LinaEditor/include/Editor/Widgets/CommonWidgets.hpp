@@ -84,7 +84,8 @@ namespace Lina::Editor
 		static Widget* BuildPayloadForPanel(Widget* src, const String& name);
 
 		static Widget* BuildStringLayout(Widget* src, const String& title, String* str, uint32 dependencies = 0, Delegate<void()> editStarted = nullptr, Delegate<void()> edited = nullptr, Delegate<void()> editEnd = nullptr);
-		static Widget* BuildVector3FLayout(Widget* src, const String& title, float step, uint8* vector, uint32 dependencies = 0, Delegate<void()> editStarted = nullptr, Delegate<void()> edited = nullptr, Delegate<void()> editEnd = nullptr);
+		static Widget* BuildVector3FLayout(Widget* src, const String& title, float step, Vector3* vector, uint32 dependencies = 0, Delegate<void()> editStarted = nullptr, Delegate<void()> edited = nullptr, Delegate<void()> editEnd = nullptr);
+		static Widget* BuildFloatLayout(Widget* src, const String& title, float step, float* val, uint32 dependencies = 0, Delegate<void()> editStarted = nullptr, Delegate<void()> edited = nullptr, Delegate<void()> editEnd = nullptr);
 
 		static InputField* BuildFloatField(Widget* src, void* ptr, uint8 bits, bool isInt, bool isUnsigned, bool hasLimits, float minLimit = 0.0f, float maxLimit = 1.0f, float step = 0.1f, bool canSelectThemeValues = false);
 		static Widget*	   BuildTextureField(Widget* src, ProjectData* project, LinaTexture2D* txt, uint32 dependencies, const String& title, bool* foldVal, Delegate<void()> onValueChanged);

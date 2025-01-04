@@ -306,11 +306,10 @@ namespace Lina::Editor
 		return layout;
 	}
 
-	Widget* CommonWidgets::BuildVector3FLayout(Widget* src, const String& title, float step, uint8* vector, uint32 dependencies, Delegate<void()> editStarted, Delegate<void()> edited, Delegate<void()> editEnd)
+	Widget* CommonWidgets::BuildVector3FLayout(Widget* src, const String& title, float step, Vector3* vector, uint32 dependencies, Delegate<void()> editStarted, Delegate<void()> edited, Delegate<void()> editEnd)
 	{
-		WidgetManager* wm = src->GetWidgetManager();
-
-		Widget* layout = CommonWidgets::BuildFieldLayoutWithRightSide(src, 0, title, false, nullptr, 0.6f);
+		WidgetManager* wm	  = src->GetWidgetManager();
+		Widget*		   layout = CommonWidgets::BuildFieldLayoutWithRightSide(src, 0, title, false, nullptr, 0.6f);
 
 		auto build = [&](uint8* ptr) -> InputField* {
 			InputField* inp = wm->Allocate<InputField>();
@@ -337,12 +336,48 @@ namespace Lina::Editor
 			return inp;
 		};
 
-		InputField* f0 = build(vector);
-		InputField* f1 = build(vector + sizeof(float));
-		InputField* f2 = build(vector + sizeof(float) * 2);
+		InputField* f0 = build((uint8*)vector);
+		InputField* f1 = build((uint8*)vector + sizeof(float));
+		InputField* f2 = build((uint8*)vector + sizeof(float) * 2);
 		Widget::GetWidgetOfType<DirectionalLayout>(layout)->AddChild(f0);
 		Widget::GetWidgetOfType<DirectionalLayout>(layout)->AddChild(f1);
 		Widget::GetWidgetOfType<DirectionalLayout>(layout)->AddChild(f2);
+
+		return layout;
+	}
+
+	Widget* CommonWidgets::BuildFloatLayout(Widget* src, const String& title, float step, float* val, uint32 dependencies, Delegate<void()> editStarted, Delegate<void()> edited, Delegate<void()> editEnd)
+	{
+		WidgetManager* wm	  = src->GetWidgetManager();
+		Widget*		   layout = CommonWidgets::BuildFieldLayoutWithRightSide(src, 0, title, false, nullptr, 0.6f);
+
+		auto build = [&](float* ptr) -> InputField* {
+			InputField* inp = wm->Allocate<InputField>();
+			inp->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+			inp->SetAlignedSize(Vector2(0.0f, 1.0f));
+			inp->SetAlignedPosY(0.0f);
+			inp->GetProps().isNumberField		= true;
+			inp->GetProps().clampNumber			= true;
+			inp->GetProps().disableNumberSlider = true;
+			inp->GetProps().valueMin			= INPF_VALUE_MIN - 1.0f;
+			inp->GetProps().valueMax			= INPF_VALUE_MAX + 1.0f;
+			inp->GetProps().valueStep			= step;
+			inp->GetProps().valuePtr			= (uint8*)ptr;
+			inp->GetProps().valueBits			= 32;
+
+			if (editStarted)
+				inp->GetProps().onEditStarted = [editStarted](const String& val) { editStarted(); };
+
+			if (editEnd)
+				inp->GetProps().onEditEnd = [editEnd](const String& val) { editEnd(); };
+
+			if (edited)
+				inp->GetProps().onValueChanged = [edited](float f, bool b) { edited(); };
+			return inp;
+		};
+
+		InputField* f0 = build(val);
+		Widget::GetWidgetOfType<DirectionalLayout>(layout)->AddChild(f0);
 
 		return layout;
 	}

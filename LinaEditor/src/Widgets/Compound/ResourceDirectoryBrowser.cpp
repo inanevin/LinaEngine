@@ -724,7 +724,7 @@ namespace Lina::Editor
 
 		InputField* inp = m_manager->Allocate<InputField>();
 		inp->GetFlags().Set(WF_USE_FIXED_SIZE_Y);
-		inp->GetText()->GetProps().text = text->GetProps().text;
+		inp->GetText()->GetProps().text = dir->name;
 		inp->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		inp->SetSizeX(parent->GetSizeX());
 		inp->SetPos(text->GetParent()->GetPos());

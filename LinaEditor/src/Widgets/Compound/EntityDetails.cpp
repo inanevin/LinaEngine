@@ -101,11 +101,11 @@ namespace Lina::Editor
 		Widget* nameLayout = CommonWidgets::BuildStringLayout(
 			this, Locale::GetStr(LocaleStr::Name), &m_dummyDetails.name, 0, [this]() { StartEditingName(); }, NULL, [this]() { StopEditingName(); });
 		Widget* positionLayout = CommonWidgets::BuildVector3FLayout(
-			this, Locale::GetStr(LocaleStr::Position), 0.1f, (uint8*)&m_dummyDetails.pos, 0, [this]() { StartEditingTransform(); }, [this]() { UpdateEntities(); }, [this]() { StopEditingTransform(); });
+			this, Locale::GetStr(LocaleStr::Position), 0.1f, &m_dummyDetails.pos, 0, [this]() { StartEditingTransform(); }, [this]() { UpdateEntities(); }, [this]() { StopEditingTransform(); });
 		Widget* rotationLayout = CommonWidgets::BuildVector3FLayout(
-			this, Locale::GetStr(LocaleStr::Rotation), 0.1f, (uint8*)&m_dummyDetails.rot, 0, [this]() { StartEditingTransform(); }, [this]() { UpdateEntities(); }, [this]() { StopEditingTransform(); });
+			this, Locale::GetStr(LocaleStr::Rotation), 0.1f, &m_dummyDetails.rot, 0, [this]() { StartEditingTransform(); }, [this]() { UpdateEntities(); }, [this]() { StopEditingTransform(); });
 		Widget* scaleLayout = CommonWidgets::BuildVector3FLayout(
-			this, Locale::GetStr(LocaleStr::Scale), 0.1f, (uint8*)&m_dummyDetails.scale, 0, [this]() { StartEditingTransform(); }, [this]() { UpdateEntities(); }, [this]() { StopEditingTransform(); });
+			this, Locale::GetStr(LocaleStr::Scale), 0.1f, &m_dummyDetails.scale, 0, [this]() { StartEditingTransform(); }, [this]() { UpdateEntities(); }, [this]() { StopEditingTransform(); });
 		FoldLayout* physicsSettings = static_cast<FoldLayout*>(CommonWidgets::BuildFieldLayout(this, 0, Locale::GetStr(LocaleStr::Physics), true, &m_physicsSettingsFold));
 
 		m_layout->AddChild(nameLayout);

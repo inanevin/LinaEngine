@@ -75,44 +75,43 @@ namespace Lina::Editor
 		GetWidgetProps().childMargins.bottom = Theme::GetDef().baseIndent;
 		GetWidgetProps().childMargins.right	 = Theme::GetDef().baseIndent;
 
-		m_overlayWidgets = m_manager->Allocate<Widget>("Overlay");
-		m_overlayWidgets->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		m_overlayWidgets->SetAlignedPos(Vector2::Zero);
-		m_overlayWidgets->SetAlignedSize(Vector2::One);
-		AddChild(m_overlayWidgets);
+		m_overlayControls.baseWidget = m_manager->Allocate<Widget>("Overlay");
+		m_overlayControls.baseWidget->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		m_overlayControls.baseWidget->SetAlignedPos(Vector2::Zero);
+		m_overlayControls.baseWidget->SetAlignedSize(Vector2::One);
+		AddChild(m_overlayControls.baseWidget);
 
-		BuildTopToolbar();
-		BuildPlayToolbar();
-		BuildSelectionOverlay();
+		BuildOverlayItems();
+		BuildSelectionCircle();
 
-		m_overlayWidgets->GetFlags().Set(WF_HIDE);
+		m_overlayControls.baseWidget->GetFlags().Set(WF_HIDE);
 	}
 
-	void WorldController::BuildTopToolbar()
+	void WorldController::BuildOverlayItems()
 	{
-		DirectionalLayout* topToolbar = m_manager->Allocate<DirectionalLayout>("TopToolbar");
-		topToolbar->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_X_TOTAL_CHILDREN | WF_USE_FIXED_SIZE_Y);
-		topToolbar->SetAlignedPos(Vector2::Zero);
-		topToolbar->SetAlignedSizeX(1.0f);
-		topToolbar->SetFixedSizeY(Theme::GetDef().baseItemHeight * 1.5f);
-		topToolbar->GetWidgetProps().childPadding		 = Theme::GetDef().baseIndent;
-		topToolbar->GetWidgetProps().childMargins.top	 = Theme::GetDef().baseIndentInner;
-		topToolbar->GetWidgetProps().childMargins.bottom = Theme::GetDef().baseIndentInner;
-		topToolbar->GetWidgetProps().childMargins.left	 = Theme::GetDef().baseIndent;
-		topToolbar->GetWidgetProps().childMargins.right	 = Theme::GetDef().baseIndent;
-		topToolbar->GetWidgetProps().drawOrderIncrement	 = 1;
-		topToolbar->GetWidgetProps().drawBackground		 = true;
-		topToolbar->GetWidgetProps().colorBackground	 = Theme::GetDef().background2;
-		topToolbar->GetWidgetProps().rounding			 = 0.05f;
-		topToolbar->GetProps().direction				 = DirectionOrientation::Horizontal;
-		m_overlayWidgets->AddChild(topToolbar);
+		m_overlayControls.topToolbar = m_manager->Allocate<DirectionalLayout>("m_overlayControls.topToolbar");
+		m_overlayControls.topToolbar->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_X_TOTAL_CHILDREN | WF_USE_FIXED_SIZE_Y);
+		m_overlayControls.topToolbar->SetAlignedPos(Vector2::Zero);
+		m_overlayControls.topToolbar->SetAlignedSizeX(1.0f);
+		m_overlayControls.topToolbar->SetFixedSizeY(Theme::GetDef().baseItemHeight * 1.5f);
+		m_overlayControls.topToolbar->GetWidgetProps().childPadding		   = Theme::GetDef().baseIndent;
+		m_overlayControls.topToolbar->GetWidgetProps().childMargins.top	   = Theme::GetDef().baseIndentInner;
+		m_overlayControls.topToolbar->GetWidgetProps().childMargins.bottom = Theme::GetDef().baseIndentInner;
+		m_overlayControls.topToolbar->GetWidgetProps().childMargins.left   = Theme::GetDef().baseIndent;
+		m_overlayControls.topToolbar->GetWidgetProps().childMargins.right  = Theme::GetDef().baseIndent;
+		m_overlayControls.topToolbar->GetWidgetProps().drawOrderIncrement  = 1;
+		m_overlayControls.topToolbar->GetWidgetProps().drawBackground	   = true;
+		m_overlayControls.topToolbar->GetWidgetProps().colorBackground	   = Theme::GetDef().background1;
+		m_overlayControls.topToolbar->GetWidgetProps().rounding			   = 0.05f;
+		m_overlayControls.topToolbar->GetProps().direction				   = DirectionOrientation::Horizontal;
+		m_overlayControls.baseWidget->AddChild(m_overlayControls.topToolbar);
 
 		m_displayTextureDropdown = m_manager->Allocate<Dropdown>("DisplayTextureDD");
 		m_displayTextureDropdown->GetFlags().Set(WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_SIZE_ALIGN_Y);
 		m_displayTextureDropdown->SetAlignedPosY(0.0f);
 		m_displayTextureDropdown->SetAlignedSizeY(1.0f);
 		m_displayTextureDropdown->SetFixedSizeX(Theme::GetDef().baseItemHeight * 8);
-		topToolbar->AddChild(m_displayTextureDropdown);
+		m_overlayControls.topToolbar->AddChild(m_displayTextureDropdown);
 
 		SetDisplayTextureTitle();
 		m_displayTextureDropdown->GetProps().onAddItems = [this](Popup* popup) {
@@ -133,24 +132,21 @@ namespace Lina::Editor
 
 		Button* snap				   = CommonWidgets::BuildIconButton(this, ICON_MAGNET);
 		snap->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::SnapOptions);
-		snap->GetProps().onClicked	   = []() {
-
-		};
-		topToolbar->AddChild(snap);
+		snap->GetProps().onClicked	   = [this]() { BuildSnappingOptions(); };
+		m_overlayControls.topToolbar->AddChild(snap);
+		m_overlayControls.buttonSnapOptions = snap;
 
 		Button* world					= CommonWidgets::BuildIconButton(this, ICON_GLOBE);
 		world->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::WorldOptions);
-		world->GetProps().onClicked		= []() {
-
-		};
-		topToolbar->AddChild(world);
+		world->GetProps().onClicked		= [this]() { BuildWorldOptions(); };
+		m_overlayControls.topToolbar->AddChild(world);
+		m_overlayControls.buttonWorldOptions = world;
 
 		Button* camera					 = CommonWidgets::BuildIconButton(this, ICON_VIDEO);
 		camera->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::CameraOptions);
-		camera->GetProps().onClicked	 = []() {
-
-		};
-		topToolbar->AddChild(camera);
+		camera->GetProps().onClicked	 = [this]() { BuildCameraOptions(); };
+		m_overlayControls.topToolbar->AddChild(camera);
+		m_overlayControls.buttonCameraOptions = camera;
 
 		Button* play					  = CommonWidgets::BuildIconButton(this, ICON_PLAY);
 		play->GetWidgetProps().tooltip	  = Locale::GetStr(LocaleStr::Play);
@@ -158,7 +154,7 @@ namespace Lina::Editor
 		play->GetProps().onClicked		  = []() {
 
 		};
-		topToolbar->AddChild(play);
+		m_overlayControls.topToolbar->AddChild(play);
 
 		Button* playPhysics						 = CommonWidgets::BuildIconButton(this, ICON_CUBES_STACKED);
 		playPhysics->GetWidgetProps().tooltip	 = Locale::GetStr(LocaleStr::PlayPhysics);
@@ -167,30 +163,25 @@ namespace Lina::Editor
 		playPhysics->GetProps().onClicked = []() {
 
 		};
-		topToolbar->AddChild(playPhysics);
+		m_overlayControls.topToolbar->AddChild(playPhysics);
 	}
 
-	void WorldController::BuildPlayToolbar()
+	void WorldController::BuildSelectionCircle()
 	{
-	}
 
-	void WorldController::BuildSelectionOverlay()
-	{
 		Button* buttonGizmos = m_manager->Allocate<Button>("Move");
 		buttonGizmos->RemoveText();
-		buttonGizmos->CreateIcon(ICON_MOVE);
 		buttonGizmos->GetProps().onClicked = [this, buttonGizmos]() {
 			const GizmoMode mode = static_cast<GizmoMode>((static_cast<uint32>(m_gizmoControls.type) + 1) % 3);
 			SelectGizmo(mode);
 		};
 		buttonGizmos->GetWidgetProps().colorBackground = Theme::GetDef().accentPrimary2;
 		buttonGizmos->GetWidgetProps().tooltip		   = Locale::GetStr(LocaleStr::Move);
-		m_overlayWidgets->AddChild(buttonGizmos);
+		m_overlayControls.baseWidget->AddChild(buttonGizmos);
 		m_gizmoControls.buttonGizmoType = buttonGizmos;
 
 		Button* buttonLocality = m_manager->Allocate<Button>("Locality");
 		buttonLocality->RemoveText();
-		buttonLocality->CreateIcon(ICON_GLOBE);
 		buttonLocality->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::LocalityWorld);
 		buttonLocality->GetProps().onClicked	 = [this]() {
 			if (m_gizmoControls.locality == GizmoLocality::Local)
@@ -198,12 +189,11 @@ namespace Lina::Editor
 			else
 				SelectGizmoLocality(GizmoLocality::Local);
 		};
-		m_overlayWidgets->AddChild(buttonLocality);
+		m_overlayControls.baseWidget->AddChild(buttonLocality);
 		m_selectionControls.localityButton = buttonLocality;
 
 		Button* buttonSnap = m_manager->Allocate<Button>("Snap");
 		buttonSnap->RemoveText();
-		buttonSnap->CreateIcon(ICON_MAGNET_SLASH);
 		buttonSnap->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::NoSnapping);
 		buttonSnap->GetProps().onClicked	 = [this, buttonSnap]() {
 			const GizmoSnapping snap = static_cast<GizmoSnapping>((static_cast<uint32>(m_gizmoControls.snapping) + 1) % 2);
@@ -216,18 +206,35 @@ namespace Lina::Editor
 			}
 			else if (snap == GizmoSnapping::Step)
 			{
-				buttonSnap->GetIcon()->GetProps().icon = ICON_GRID;
+				buttonSnap->GetIcon()->GetProps().icon = ICON_MAGNET;
 				buttonSnap->GetWidgetProps().tooltip   = Locale::GetStr(LocaleStr::GridSnapping);
 			}
 		};
-		m_overlayWidgets->AddChild(buttonSnap);
+		m_overlayControls.baseWidget->AddChild(buttonSnap);
+
+		if (m_gizmoControls.type == GizmoMode::Move)
+			buttonGizmos->CreateIcon(ICON_MOVE);
+		else if (m_gizmoControls.type == GizmoMode::Rotate)
+			buttonGizmos->CreateIcon(ICON_ROTATE);
+		else
+			buttonGizmos->CreateIcon(ICON_SCALE);
+
+		if (m_gizmoControls.locality == GizmoLocality::Local)
+			buttonLocality->CreateIcon(ICON_CUBE);
+		else
+			buttonLocality->CreateIcon(ICON_GLOBE);
+
+		if (m_gizmoControls.snapping == GizmoSnapping::Free)
+			buttonSnap->CreateIcon(ICON_MAGNET_SLASH);
+		else
+			buttonSnap->CreateIcon(ICON_MAGNET);
 
 		Button* buttonDup = m_manager->Allocate<Button>("Duplicate");
 		buttonDup->RemoveText();
 		buttonDup->CreateIcon(ICON_COPY);
 		buttonDup->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::Duplicate);
 		buttonDup->GetProps().onClicked		= [this]() { DuplicateSelection(); };
-		m_overlayWidgets->AddChild(buttonDup);
+		m_overlayControls.baseWidget->AddChild(buttonDup);
 
 		Button* buttonDel = m_manager->Allocate<Button>("Delete");
 		buttonDel->RemoveText();
@@ -235,7 +242,7 @@ namespace Lina::Editor
 		buttonDel->GetIcon()->GetProps().color = Theme::GetDef().accentError;
 		buttonDel->GetWidgetProps().tooltip	   = Locale::GetStr(LocaleStr::Delete);
 		buttonDel->GetProps().onClicked		   = [this]() { DeleteSelection(); };
-		m_overlayWidgets->AddChild(buttonDel);
+		m_overlayControls.baseWidget->AddChild(buttonDel);
 
 		Button* buttonParent = m_manager->Allocate<Button>("Delete");
 		buttonParent->RemoveText();
@@ -245,7 +252,7 @@ namespace Lina::Editor
 			StartSelectionParenting();
 			buttonParent->GetWidgetProps().colorBackground = Theme::GetDef().accentPrimary2;
 		};
-		m_overlayWidgets->AddChild(buttonParent);
+		m_overlayControls.baseWidget->AddChild(buttonParent);
 		m_selectionControls.parentButton = buttonParent;
 
 		Button* buttonReset = m_manager->Allocate<Button>("Delete");
@@ -265,7 +272,7 @@ namespace Lina::Editor
 
 			EditorActionEntityTransform::Create(m_editor, m_world->GetID(), m_selectedRoots, previous);
 		};
-		m_overlayWidgets->AddChild(buttonReset);
+		m_overlayControls.baseWidget->AddChild(buttonReset);
 
 		m_selectionControls.buttons.push_back({.widget = buttonGizmos, .angle = 180});
 		m_selectionControls.buttons.push_back({.widget = buttonReset, .angle = 200});
@@ -288,6 +295,72 @@ namespace Lina::Editor
 		}
 	}
 
+	void WorldController::BuildSnappingOptions()
+	{
+		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
+		layout->GetFlags().Set(WF_SIZE_Y_TOTAL_CHILDREN);
+		layout->SetAlignedSizeY(1.0f);
+		layout->GetWidgetProps().childMargins	  = TBLR::Eq(Theme::GetDef().baseIndent);
+		layout->GetWidgetProps().childPadding	  = Theme::GetDef().baseIndent;
+		layout->GetWidgetProps().drawBackground	  = true;
+		layout->GetWidgetProps().colorBackground  = Theme::GetDef().background1;
+		layout->GetWidgetProps().outlineThickness = 0.0f;
+		layout->GetWidgetProps().rounding		  = 0.05f;
+		layout->GetProps().direction			  = DirectionOrientation::Vertical;
+
+		CommonWidgets::BuildClassReflection(layout, &m_overlayControls.snappingOptions, ReflectionSystem::Get().Meta<SnappingOptions>(), [](MetaType* meta, FieldBase* field) {
+
+		});
+		m_manager->AddToForeground(layout);
+		const float startY = m_overlayControls.topToolbar->GetPosY() + m_overlayControls.topToolbar->GetSizeY() + m_overlayControls.topToolbar->GetWidgetProps().outlineThickness + Theme::GetDef().baseIndentInner * 0.5f;
+		layout->SetPos(Vector2(m_overlayControls.topToolbar->GetPosX(), startY));
+		layout->SetSizeX(m_overlayControls.topToolbar->GetSizeX());
+	}
+
+	void WorldController::BuildCameraOptions()
+	{
+		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
+		layout->GetFlags().Set(WF_SIZE_Y_TOTAL_CHILDREN);
+		layout->SetAlignedSizeY(1.0f);
+		layout->GetWidgetProps().childMargins	  = TBLR::Eq(Theme::GetDef().baseIndent);
+		layout->GetWidgetProps().childPadding	  = Theme::GetDef().baseIndent;
+		layout->GetWidgetProps().drawBackground	  = true;
+		layout->GetWidgetProps().colorBackground  = Theme::GetDef().background1;
+		layout->GetWidgetProps().outlineThickness = 0.0f;
+		layout->GetWidgetProps().rounding		  = 0.05f;
+		layout->GetProps().direction			  = DirectionOrientation::Vertical;
+
+		CommonWidgets::BuildClassReflection(layout, &m_overlayControls.cameraOptions, ReflectionSystem::Get().Meta<CameraOptions>(), [](MetaType* meta, FieldBase* field) {
+
+		});
+		m_manager->AddToForeground(layout);
+		const float startY = m_overlayControls.topToolbar->GetPosY() + m_overlayControls.topToolbar->GetSizeY() + m_overlayControls.topToolbar->GetWidgetProps().outlineThickness + Theme::GetDef().baseIndentInner * 0.5f;
+		layout->SetPos(Vector2(m_overlayControls.topToolbar->GetPosX(), startY));
+		layout->SetSizeX(m_overlayControls.topToolbar->GetSizeX());
+	}
+
+	void WorldController::BuildWorldOptions()
+	{
+		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
+		layout->GetFlags().Set(WF_SIZE_Y_TOTAL_CHILDREN);
+		layout->SetAlignedSizeY(1.0f);
+		layout->GetWidgetProps().childMargins	  = TBLR::Eq(Theme::GetDef().baseIndent);
+		layout->GetWidgetProps().childPadding	  = Theme::GetDef().baseIndent;
+		layout->GetWidgetProps().drawBackground	  = true;
+		layout->GetWidgetProps().colorBackground  = Theme::GetDef().background1;
+		layout->GetWidgetProps().outlineThickness = 0.0f;
+		layout->GetWidgetProps().rounding		  = 0.05f;
+		layout->GetProps().direction			  = DirectionOrientation::Vertical;
+
+		CommonWidgets::BuildClassReflection(layout, &m_overlayControls.worldOptions, ReflectionSystem::Get().Meta<WorldOptions>(), [](MetaType* meta, FieldBase* field) {
+
+		});
+		m_manager->AddToForeground(layout);
+		const float startY = m_overlayControls.topToolbar->GetPosY() + m_overlayControls.topToolbar->GetSizeY() + m_overlayControls.topToolbar->GetWidgetProps().outlineThickness + Theme::GetDef().baseIndentInner * 0.5f;
+		layout->SetPos(Vector2(m_overlayControls.topToolbar->GetPosX(), startY));
+		layout->SetSizeX(m_overlayControls.topToolbar->GetSizeX());
+	}
+
 	void WorldController::Destruct()
 	{
 		m_editor->GetWindowPanelManager().RemovePayloadListener(this);
@@ -304,7 +377,7 @@ namespace Lina::Editor
 		m_worldRenderer = renderer;
 		m_ewr			= ewr;
 		m_world			= renderer ? m_worldRenderer->GetWorld() : nullptr;
-		m_overlayWidgets->GetFlags().Set(WF_HIDE, m_world == nullptr);
+		m_overlayControls.baseWidget->GetFlags().Set(WF_HIDE, m_world == nullptr);
 
 		if (m_worldRenderer)
 		{
@@ -329,7 +402,7 @@ namespace Lina::Editor
 
 		if (m_selectionControls.rectSelectionWaitingResults)
 		{
-			const HashSet<EntityID>& ids					= m_ewr->GetMousePick().GetRectSelectionResults();
+			const Vector<EntityID>& ids						= m_ewr->GetMousePick().GetRectSelectionResults();
 			m_selectionControls.rectSelectionWaitingResults = false;
 
 			Vector<Entity*> selection;
@@ -524,7 +597,7 @@ namespace Lina::Editor
 		if (m_worldRenderer == nullptr)
 			return false;
 
-		for (Widget* c : m_overlayWidgets->GetChildren())
+		for (Widget* c : m_overlayControls.baseWidget->GetChildren())
 		{
 			if (!c->GetFlags().IsSet(WF_HIDE) && c->GetIsHovered())
 				return false;
@@ -961,7 +1034,9 @@ namespace Lina::Editor
 			const GizmoLocality locality = selection.size() > 1 ? GizmoLocality::World : m_gizmoControls.locality;
 			const Vector2		mp		 = m_lgxWindow->GetMousePosition() - GetStartFromMargins() - m_gizmoControls.motionStartMouseDelta;
 
-			bool isCenter = false;
+			bool  isCenter	= false;
+			float snapValue = 0.0f;
+
 			if (m_gizmoControls.motionAxis == GizmoAxis::X)
 			{
 				targetAxisWorld		  = locality == GizmoLocality::World ? Vector3::Right : selection.at(0)->GetRotation().GetRight();
@@ -969,6 +1044,7 @@ namespace Lina::Editor
 				const Vector3 normal1 = locality == GizmoLocality::World ? Vector3::Up : targetAxisWorld.Cross(selection.at(0)->GetRotation().GetForward());
 				rayHit0				  = ray(mp, normal0, hitPoint0, hitDistance0);
 				rayHit1				  = ray(mp, normal1, hitPoint1, hitDistance1);
+				snapValue			  = m_overlayControls.snappingOptions.directionalSnap.x;
 			}
 			else if (m_gizmoControls.motionAxis == GizmoAxis::Y)
 			{
@@ -977,6 +1053,7 @@ namespace Lina::Editor
 				const Vector3 normal1 = locality == GizmoLocality::World ? Vector3::Right : targetAxisWorld.Cross(selection.at(0)->GetRotation().GetForward());
 				rayHit0				  = ray(mp, normal0, hitPoint0, hitDistance0);
 				rayHit1				  = ray(mp, normal1, hitPoint1, hitDistance1);
+				snapValue			  = m_overlayControls.snappingOptions.directionalSnap.y;
 			}
 			else if (m_gizmoControls.motionAxis == GizmoAxis::Z)
 			{
@@ -985,6 +1062,7 @@ namespace Lina::Editor
 				const Vector3 normal1 = locality == GizmoLocality::World ? Vector3::Right : targetAxisWorld.Cross(selection.at(0)->GetRotation().GetRight());
 				rayHit0				  = ray(mp, normal0, hitPoint0, hitDistance0);
 				rayHit1				  = ray(mp, normal1, hitPoint1, hitDistance1);
+				snapValue			  = m_overlayControls.snappingOptions.directionalSnap.z;
 			}
 			else if (m_gizmoControls.motionAxis == GizmoAxis::Center)
 			{
@@ -1011,6 +1089,9 @@ namespace Lina::Editor
 			float		  lineT = isCenter ? (dir.Magnitude()) : dir.Magnitude() * dir.Normalized().Dot(targetAxisWorld);
 			const size_t  sz	= selection.size();
 			const Vector3 axis	= isCenter ? dir.Normalized() : targetAxisWorld;
+
+			if (m_gizmoControls.snapping == GizmoSnapping::Step && !Math::Equals(snapValue, 0.0f, 0.0001f))
+				lineT = Math::RoundToFloat(lineT / snapValue) * snapValue;
 
 			if (m_gizmoControls.gizmoMotion == GizmoMotion::Key && !m_gizmoControls.valueStr.empty())
 				lineT = m_gizmoControls.value;
@@ -1041,7 +1122,8 @@ namespace Lina::Editor
 				return dir.Magnitude() * (dot > 0.0f ? 1.0f : -1.0f);
 			};
 
-			float scaleAmt = 0.0f;
+			float scaleAmt	= 0.0f;
+			float snapValue = 0.0f;
 
 			rendererSettings.visualizeAxis = true;
 
@@ -1052,6 +1134,7 @@ namespace Lina::Editor
 
 				scaleAmt  = getScaleAmt(ta);
 				scaleAxis = Vector3::Right;
+				snapValue = m_overlayControls.snappingOptions.directionalSnap.x;
 			}
 			else if (m_gizmoControls.motionAxis == GizmoAxis::Y)
 			{
@@ -1060,6 +1143,7 @@ namespace Lina::Editor
 
 				scaleAmt  = getScaleAmt(ta);
 				scaleAxis = Vector3::Up;
+				snapValue = m_overlayControls.snappingOptions.directionalSnap.y;
 			}
 			else if (m_gizmoControls.motionAxis == GizmoAxis::Z)
 			{
@@ -1068,6 +1152,7 @@ namespace Lina::Editor
 
 				scaleAmt  = getScaleAmt(ta);
 				scaleAxis = Vector3::Forward;
+				snapValue = m_overlayControls.snappingOptions.directionalSnap.z;
 			}
 			else if (m_gizmoControls.motionAxis == GizmoAxis::Center)
 			{
@@ -1075,9 +1160,13 @@ namespace Lina::Editor
 				scaleAmt					   = mouseDir.Normalized().Dot(Vector2(1, -1)) * mouseDir.Magnitude() * 0.005f;
 				scaleAxis					   = Vector3::One;
 				rendererSettings.visualizeAxis = false;
+				snapValue					   = m_overlayControls.snappingOptions.directionalSnap.x;
 			}
 
 			const size_t sz = selection.size();
+
+			if (m_gizmoControls.snapping == GizmoSnapping::Step && !Math::Equals(snapValue, 0.0f, 0.0001f))
+				scaleAmt = Math::RoundToFloat(scaleAmt / snapValue) * snapValue;
 
 			if (m_gizmoControls.gizmoMotion == GizmoMotion::Key && !m_gizmoControls.valueStr.empty())
 				scaleAmt = m_gizmoControls.value;
@@ -1101,8 +1190,8 @@ namespace Lina::Editor
 			float		  deltaAngle = mouseDir.Angle(currentDir);
 			const Vector3 worldDir	 = camera.GetPosition() - m_gizmoControls.averagePosition;
 
-			if (deltaAngle > 90)
-				deltaAngle = 0;
+			// if (deltaAngle > 90)
+			//	deltaAngle = 0;
 
 			Vector3 axis = Vector3::Zero;
 
@@ -1146,13 +1235,21 @@ namespace Lina::Editor
 			}
 
 			// Send these to the shader
-			rendererSettings.angle0				  = angle0;
-			rendererSettings.angle1				  = angle1;
+			rendererSettings.angle0 = angle0;
+			rendererSettings.angle1 = angle1;
+
+			const float snapValue = m_overlayControls.snappingOptions.angularSnap;
+			if (m_gizmoControls.snapping == GizmoSnapping::Step && !Math::Equals(snapValue, 0.0f, 0.0001f))
+			{
+				const float desired = Math::RoundToFloat(deltaAngle / snapValue) * snapValue;
+				LINA_TRACE("{0}", deltaAngle);
+				if (Math::Abs(deltaAngle) < snapValue)
+					return;
+			}
+
 			m_gizmoControls.motionCurrentMousePos = m_lgxWindow->GetMousePosition();
 
 			const size_t sz = selection.size();
-
-			// magic 	Vector3			 local = e->GetRotation().Inverse() * axis;
 
 			if (isKeyMode)
 				deltaAngle = m_gizmoControls.value;
@@ -1167,7 +1264,9 @@ namespace Lina::Editor
 				if (isKeyMode)
 					e->SetRotation(rot * m_gizmoControls.motionStartTransforms.at(i).GetRotation());
 				else
+				{
 					e->SetRotation(rot * e->GetRotation());
+				}
 			}
 		}
 	}

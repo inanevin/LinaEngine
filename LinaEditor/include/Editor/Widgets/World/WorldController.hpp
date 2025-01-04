@@ -42,6 +42,7 @@ namespace Lina
 	class Font;
 	class Icon;
 	class Button;
+	class DirectionalLayout;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -112,6 +113,19 @@ namespace Lina::Editor
 			Vector2 rectSelectionStartPosition	= Vector2::Zero;
 		};
 
+		struct OverlayControls
+		{
+			Widget*			   baseWidget		   = nullptr;
+			DirectionalLayout* topToolbar		   = nullptr;
+			Button*			   buttonSnapOptions   = nullptr;
+			Button*			   buttonWorldOptions  = nullptr;
+			Button*			   buttonCameraOptions = nullptr;
+
+			SnappingOptions snappingOptions = {};
+			CameraOptions	cameraOptions	= {};
+			WorldOptions	worldOptions	= {};
+		};
+
 	public:
 		struct Properties
 		{
@@ -164,9 +178,11 @@ namespace Lina::Editor
 		}
 
 	private:
-		void BuildTopToolbar();
-		void BuildPlayToolbar();
-		void BuildSelectionOverlay();
+		void BuildOverlayItems();
+		void BuildSelectionCircle();
+		void BuildSnappingOptions();
+		void BuildCameraOptions();
+		void BuildWorldOptions();
 
 		void DuplicateSelection();
 		void DeleteSelection();
@@ -197,7 +213,7 @@ namespace Lina::Editor
 		Properties		  m_props			  = {};
 		Font*			  m_worldFont		  = nullptr;
 		SelectionControls m_selectionControls = {};
-		Widget*			  m_overlayWidgets	  = nullptr;
+		OverlayControls	  m_overlayControls	  = {};
 	};
 
 	LINA_WIDGET_BEGIN(WorldController, Hidden)

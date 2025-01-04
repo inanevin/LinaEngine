@@ -169,7 +169,7 @@ namespace Lina::Editor
 
 		Editor* editor = Editor::Get();
 
-		for (auto& windowData : m_windows)
+		for (const WindowLayout& windowData : m_windows)
 		{
 			Widget* panelArea = nullptr;
 			if (windowData.sid == LINA_MAIN_SWAPCHAIN)
@@ -185,7 +185,7 @@ namespace Lina::Editor
 			else
 				panelArea = editor->GetWindowPanelManager().PrepareNewWindowToDock(windowData.position, windowData.size);
 
-			for (auto& dockWidget : windowData.dockWidgets)
+			for (const DockWidgetData& dockWidget : windowData.dockWidgets)
 			{
 				if (dockWidget.isBorder)
 				{
@@ -207,7 +207,7 @@ namespace Lina::Editor
 					area->Initialize();
 					panelArea->AddChild(area);
 
-					for (auto& panelData : dockWidget.panels)
+					for (const PanelData& panelData : dockWidget.panels)
 					{
 						Panel* panel = PanelFactory::CreatePanel(panelArea, panelData.panelType, panelData.subData);
 						area->AddPanel(panel);

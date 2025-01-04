@@ -236,9 +236,9 @@ namespace Lina::Editor
 		Widget* parent = m_controller->GetItem(e);
 		Text*	text   = parent->GetWidgetOfType<Text>(parent);
 
-		InputField* inp = m_manager->Allocate<InputField>();
+		InputField* inp = m_manager->Allocate<InputField>("");
 		inp->GetFlags().Set(WF_USE_FIXED_SIZE_Y);
-		inp->GetText()->GetProps().text = text->GetProps().text;
+		inp->GetText()->GetProps().text = e->GetName();
 		inp->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		inp->SetSizeX(parent->GetSizeX());
 		inp->SetPos(text->GetParent()->GetPos());
