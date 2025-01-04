@@ -48,8 +48,6 @@ namespace Lina::Editor
 {
 	class EditorCamera;
 	class EditorWorldRenderer;
-	class EntityBrowser;
-	class EntityDetails;
 
 	class WorldController : public Widget, public EditorPayloadListener, public EntityWorldListener
 	{
@@ -107,10 +105,8 @@ namespace Lina::Editor
 			float						  radiusPerc = 0.05f;
 			float						  _radius	 = 0.0f;
 
-			Widget* snappingOptions				= nullptr;
 			Button* parentButton				= nullptr;
 			Button* localityButton				= nullptr;
-			bool	snapInForeground			= false;
 			bool	rectSelectionPressed		= false;
 			bool	rectSelectionWaitingResults = false;
 			Vector2 rectSelectionStartPosition	= Vector2::Zero;
@@ -167,17 +163,11 @@ namespace Lina::Editor
 			return m_currentDisplayTexture;
 		}
 
-		inline EntityBrowser* GetBrowser() const
-		{
-			return m_entityBrowser;
-		}
-
-		inline EntityDetails* GetDetails() const
-		{
-			return m_entityDetails;
-		}
-
 	private:
+		void BuildTopToolbar();
+		void BuildPlayToolbar();
+		void BuildSelectionOverlay();
+
 		void DuplicateSelection();
 		void DeleteSelection();
 		void StartSelectionParenting();
@@ -207,8 +197,7 @@ namespace Lina::Editor
 		Properties		  m_props			  = {};
 		Font*			  m_worldFont		  = nullptr;
 		SelectionControls m_selectionControls = {};
-		EntityBrowser*	  m_entityBrowser	  = nullptr;
-		EntityDetails*	  m_entityDetails	  = nullptr;
+		Widget*			  m_overlayWidgets	  = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(WorldController, Hidden)

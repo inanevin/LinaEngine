@@ -194,13 +194,14 @@ namespace Lina::Editor
 			.userData = static_cast<uint32>(ResourceDirectoryType::LinaAssetsFolder),
 		};
 
+		m_editor->GetProjectManager().AddListener(this);
+
 	} // namespace Lina::Editor
 
 	void ResourceDirectoryBrowser::Initialize()
 	{
 		Widget::Initialize();
 		RefreshDirectory();
-		m_editor->GetProjectManager().AddListener(this);
 	}
 
 	void ResourceDirectoryBrowser::Destruct()

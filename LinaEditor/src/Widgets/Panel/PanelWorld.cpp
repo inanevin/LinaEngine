@@ -93,17 +93,12 @@ namespace Lina::Editor
 			return;
 
 		m_worldDisplayer->GetController()->OnEntitySelectionChanged(entities);
-		m_worldDisplayer->GetController()->GetBrowser()->OnEntitySelectionChanged(entities, source == 0);
-		m_worldDisplayer->GetController()->GetDetails()->OnEntitySelectionChanged(entities);
 	}
 
 	void PanelWorld::OnWorldManagerEntityHierarchyChanged(EntityWorld* w)
 	{
 		if (w != m_world)
 			return;
-
-		m_worldDisplayer->GetController()->GetBrowser()->RefreshEntities();
-		m_worldDisplayer->GetController()->GetDetails()->RefreshDetails();
 	}
 
 } // namespace Lina::Editor

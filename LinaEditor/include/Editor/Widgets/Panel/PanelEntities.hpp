@@ -61,6 +61,8 @@ namespace Lina::Editor
 	protected:
 		virtual void OnWorldManagerOpenedWorld(EditorWorldRenderer* wr) override;
 		virtual void OnWorldManagerClosingWorld(EditorWorldRenderer* wr) override;
+		virtual void OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities, StringID source) override;
+		virtual void OnWorldManagerEntityHierarchyChanged(EntityWorld* w) override;
 
 	private:
 		EntityBrowser* m_browser = nullptr;

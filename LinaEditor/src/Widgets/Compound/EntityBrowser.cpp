@@ -145,6 +145,8 @@ namespace Lina::Editor
 		};
 		controller->GetProps().onPayloadAccepted = [this](void* ud) { DropPayload(static_cast<Entity*>(ud)); };
 
+		controller->GetContextMenu()->SetListener(this);
+
 		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("VerticalLayout");
 		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		layout->SetAlignedPos(Vector2::Zero);
@@ -263,11 +265,133 @@ namespace Lina::Editor
 
 	bool EntityBrowser::OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData)
 	{
+		const Vector<Entity*> selection = m_controller->GetSelectedUserData<Entity>();
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::Rename)))
+		{
+			Entity* e = selection.front();
+			RequestRename(e);
+			return true;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::Delete)))
+		{
+			EditorActionEntitySelection::Create(m_editor, m_world->GetID(), selection, false, true);
+			EditorActionEntityDelete::Create(m_editor, m_world, selection);
+			EditorActionCollective::Create(m_editor, 2);
+			return true;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::Duplicate)))
+		{
+			Vector<Entity*> entities;
+			WorldUtility::DuplicateEntities(m_editor, m_world, selection, entities);
+			EditorActionEntitiesCreated::Create(m_editor, m_world, entities);
+			EditorActionEntitySelection::Create(m_editor, m_world->GetID(), entities, true, true);
+			EditorActionCollective::Create(m_editor, 2);
+			return true;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::PointLight)))
+		{
+
+			return true;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::SpotLight)))
+		{
+
+			return true;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::DirectionalLight)))
+		{
+
+			return true;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::AmbientLight)))
+		{
+
+			return true;
+		}
+
 		return false;
 	}
 
 	void EntityBrowser::OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData)
 	{
+		const Vector<Entity*> selection = m_controller->GetSelectedUserData<Entity>();
+
+		bool basicActionsDisabled = false;
+
+		if (selection.empty())
+		{
+			basicActionsDisabled = true;
+		}
+
+		if (sid == 0)
+		{
+			outData.push_back(FileMenuItem::Data{
+				.text		 = Locale::GetStr(LocaleStr::Rename),
+				.altText	 = "F2",
+				.headerIcon	 = ICON_EDIT_PEN,
+				.hasDropdown = false,
+				.isDisabled	 = basicActionsDisabled,
+				.userData	 = userData,
+			});
+
+			outData.push_back(FileMenuItem::Data{.isDivider = true});
+
+			outData.push_back(FileMenuItem::Data{
+				.text		  = Locale::GetStr(LocaleStr::Create),
+				.dropdownIcon = ICON_CHEVRON_RIGHT,
+				.hasDropdown  = true,
+				.isDisabled	  = basicActionsDisabled,
+				.userData	  = userData,
+			});
+
+			outData.push_back(FileMenuItem::Data{
+				.text		= Locale::GetStr(LocaleStr::Delete),
+				.altText	= "DEL",
+				.headerIcon = ICON_TRASH,
+				.isDisabled = basicActionsDisabled,
+				.userData	= userData,
+			});
+
+			outData.push_back(FileMenuItem::Data{
+				.text		= Locale::GetStr(LocaleStr::Duplicate),
+				.altText	= "CTRL + D",
+				.headerIcon = ICON_COPY,
+				.isDisabled = basicActionsDisabled,
+				.userData	= userData,
+			});
+
+			outData.push_back(FileMenuItem::Data{.isDivider = true});
+
+			outData.push_back(FileMenuItem::Data{
+				.text		  = Locale::GetStr(LocaleStr::Display),
+				.dropdownIcon = ICON_CHEVRON_RIGHT,
+				.hasDropdown  = true,
+				.isDisabled	  = basicActionsDisabled,
+				.userData	  = userData,
+			});
+		}
+		else if (sid == TO_SID(Locale::GetStr(LocaleStr::Create)))
+		{
+			outData = {
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::PointLight), .userData = userData},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::SpotLight), .userData = userData},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::DirectionalLight), .userData = userData},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::AmbientLight), .userData = userData},
+			};
+		}
+		else if (sid == TO_SID(Locale::GetStr(LocaleStr::Display)))
+		{
+			outData = {
+
+			};
+		}
 	}
 
 } // namespace Lina::Editor

@@ -246,6 +246,10 @@ namespace Lina::Editor
 #define ICON_GRID				  "\u0029"
 #define ICON_SITEMAP			  "\u002A"
 #define ICON_ROTATE_LEFT		  "\u002B"
+#define ICON_PLAY				  "\u002C"
+#define ICON_SLIDERS			  "\u002D"
+#define ICON_VIDEO				  "\u002E"
+#define ICON_CUBES_STACKED		  "\u002F"
 
 #define DOCK_DEFAULT_PERCENTAGE	  0.4f
 #define DOCKED_MIN_SIZE			  300.0f

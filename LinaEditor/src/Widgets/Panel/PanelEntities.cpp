@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
+#include "Core/World/EntityWorld.hpp"
 #include "Editor/Editor.hpp"
 
 namespace Lina::Editor
@@ -76,11 +77,31 @@ namespace Lina::Editor
 
 	void PanelEntities::OnWorldManagerOpenedWorld(EditorWorldRenderer* wr)
 	{
+		EntityWorld* world = wr->GetWorldRenderer()->GetWorld();
+		if (world->GetID() == 0)
+			return;
 		m_browser->SetWorld(wr->GetWorldRenderer()->GetWorld());
 	}
 
 	void PanelEntities::OnWorldManagerClosingWorld(EditorWorldRenderer* wr)
 	{
+		EntityWorld* world = wr->GetWorldRenderer()->GetWorld();
+		if (world->GetID() == 0)
+			return;
 		m_browser->SetWorld(nullptr);
+	}
+
+	void PanelEntities::OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities, StringID source)
+	{
+		if (w->GetID() == 0)
+			return;
+		m_browser->OnEntitySelectionChanged(entities, source == 0);
+	}
+
+	void PanelEntities::OnWorldManagerEntityHierarchyChanged(EntityWorld* w)
+	{
+		if (w->GetID() == 0)
+			return;
+		m_browser->RefreshEntities();
 	}
 } // namespace Lina::Editor

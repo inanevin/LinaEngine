@@ -206,9 +206,18 @@ namespace Lina::Editor
 		GridSnapping,
 		Parenting,
 		SnapOptions,
+		WorldOptions,
+		CameraOptions,
 		ResetTransform,
 		Physics,
 		NoEntityDetails,
+		Play,
+		PlayPhysics,
+		Display,
+		PointLight,
+		SpotLight,
+		DirectionalLight,
+		AmbientLight,
 	};
 
 	class Locale

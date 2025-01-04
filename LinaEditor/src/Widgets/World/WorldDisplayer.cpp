@@ -47,7 +47,7 @@ namespace Lina::Editor
 		GetWidgetProps().rounding		  = 0.0f;
 		GetWidgetProps().drawBackground	  = true;
 		GetWidgetProps().colorBackground  = Theme::GetDef().background0;
-		GetWidgetProps().childMargins	  = TBLR::Eq(Theme::GetDef().baseIndent);
+		// GetWidgetProps().childMargins	  = TBLR::Eq(Theme::GetDef().baseIndent);
 
 		m_noWorldText = m_manager->Allocate<Text>("NoWorld");
 		m_noWorldText->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);

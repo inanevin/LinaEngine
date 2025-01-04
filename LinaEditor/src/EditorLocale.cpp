@@ -203,9 +203,18 @@ namespace Lina::Editor
 		{LocaleStr::LocalityLocal, "Local"},
 		{LocaleStr::Parenting, "Click once and drag to re-parent"},
 		{LocaleStr::SnapOptions, "Snapping settings"},
+		{LocaleStr::WorldOptions, "World settings"},
+		{LocaleStr::CameraOptions, "Camera settings"},
 		{LocaleStr::ResetTransform, "Reset Transform"},
 		{LocaleStr::Physics, "Physics"},
 		{LocaleStr::NoEntityDetails, "No entity selected for details."},
+		{LocaleStr::Play, "Start playing."},
+		{LocaleStr::PlayPhysics, "Start simulating physics."},
+		{LocaleStr::Display, "Display"},
+		{LocaleStr::PointLight, "Point Light"},
+		{LocaleStr::SpotLight, "Spot Light"},
+		{LocaleStr::DirectionalLight, "Directional Light"},
+		{LocaleStr::AmbientLight, "Ambient Light"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

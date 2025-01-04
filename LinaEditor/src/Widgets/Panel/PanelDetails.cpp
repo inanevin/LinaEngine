@@ -30,7 +30,11 @@ SOFTWARE.
 #include "Editor/Editor.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Widgets/Compound/EntityBrowser.hpp"
+#include "Editor/Widgets/Compound/EntityDetails.hpp"
+#include "Editor/Graphics/EditorWorldRenderer.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
+#include "Core/World/EntityWorld.hpp"
+#include "Core/Graphics/Renderers/WorldRenderer.hpp"
 
 namespace Lina::Editor
 {
@@ -45,6 +49,12 @@ namespace Lina::Editor
 		vertical->GetWidgetProps().childMargins.top	   = Theme::GetDef().baseIndent;
 		vertical->GetWidgetProps().childMargins.bottom = Theme::GetDef().baseIndent;
 		AddChild(vertical);
+
+		m_entityDetails = m_manager->Allocate<EntityDetails>("EntityDetails");
+		m_entityDetails->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		m_entityDetails->SetAlignedPos(Vector2::Zero);
+		m_entityDetails->SetAlignedSize(Vector2::One);
+		AddChild(m_entityDetails);
 
 		m_editor->GetWorldManager().AddListener(this);
 	}
@@ -70,10 +80,34 @@ namespace Lina::Editor
 	void PanelDetails::OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData)
 	{
 	}
+
 	void PanelDetails::OnWorldManagerOpenedWorld(EditorWorldRenderer* wr)
 	{
+		EntityWorld* world = wr->GetWorldRenderer()->GetWorld();
+		if (world->GetID() == 0)
+			return;
+		m_entityDetails->SetWorld(wr->GetWorldRenderer()->GetWorld());
 	}
+
 	void PanelDetails::OnWorldManagerClosingWorld(EditorWorldRenderer* wr)
 	{
+		EntityWorld* world = wr->GetWorldRenderer()->GetWorld();
+		if (world->GetID() == 0)
+			return;
+		m_entityDetails->SetWorld(nullptr);
+	}
+
+	void PanelDetails::OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities, StringID source)
+	{
+		if (w->GetID() == 0)
+			return;
+		m_entityDetails->OnEntitySelectionChanged(entities);
+	}
+
+	void PanelDetails::OnWorldManagerEntityHierarchyChanged(EntityWorld* w)
+	{
+		if (w->GetID() == 0)
+			return;
+		m_entityDetails->RefreshDetails();
 	}
 } // namespace Lina::Editor

@@ -42,6 +42,8 @@ namespace Lina
 namespace Lina::Editor
 {
 	class Editor;
+	class EntityDetails;
+
 	class PanelDetails : public Panel, public FileMenuListener, public EditorWorldManagerListener
 	{
 	public:
@@ -59,10 +61,13 @@ namespace Lina::Editor
 	protected:
 		virtual void OnWorldManagerOpenedWorld(EditorWorldRenderer* wr) override;
 		virtual void OnWorldManagerClosingWorld(EditorWorldRenderer* wr) override;
+		virtual void OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities, StringID source) override;
+		virtual void OnWorldManagerEntityHierarchyChanged(EntityWorld* w) override;
 
 	private:
-		Editor*		 m_editor = nullptr;
-		EntityWorld* m_world  = nullptr;
+		Editor*		   m_editor		   = nullptr;
+		EntityWorld*   m_world		   = nullptr;
+		EntityDetails* m_entityDetails = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(PanelDetails, Hidden)
