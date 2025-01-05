@@ -437,6 +437,46 @@ namespace Lina
 		return oss.str();
 	}
 
+	void FileSystem::CopyDirectory(const String& directory, const String& targetParentFolder)
+	{
+		namespace fs = std::filesystem;
+
+		try
+		{
+			// Ensure the source directory exists
+			fs::path source(directory);
+			if (!fs::exists(source))
+			{
+				throw std::runtime_error("Source directory does not exist or is not a directory.");
+			}
+
+			// Create the destination path
+			fs::path destination = fs::path(targetParentFolder) / source.filename();
+
+			// Check if the destination already exists
+			if (fs::exists(destination))
+				fs::remove_all(destination);
+
+			// Recursively copy the directory and its contents
+			fs::create_directories(destination); // Create the target folder
+			for (const auto& entry : fs::recursive_directory_iterator(source))
+			{
+				const auto& sourcePath		= entry.path();
+				auto		relativePath	= fs::relative(sourcePath, source);
+				auto		destinationPath = destination / relativePath;
+
+				if (fs::is_directory(sourcePath))
+					fs::create_directory(destinationPath);
+				else if (fs::is_regular_file(sourcePath))
+					fs::copy_file(sourcePath, destinationPath, fs::copy_options::overwrite_existing);
+			}
+		}
+		catch (const std::exception& ex)
+		{
+			LINA_ERR("Error while copying directory {0}", ex.what());
+		}
+	}
+
 	char* FileSystem::WCharToChar(const wchar_t* input)
 	{
 		// Count required buffer size (plus one for null-terminator).

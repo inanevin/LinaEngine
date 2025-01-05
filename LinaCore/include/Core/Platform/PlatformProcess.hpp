@@ -34,6 +34,8 @@ namespace Lina
 {
 	class EngineInterface;
 	class SystemEventDispatcher;
+	class Plugin;
+	class PluginInterface;
 
 	class PlatformProcess
 	{
@@ -62,8 +64,8 @@ namespace Lina
 		};
 
 		static void				 PumpOSMessages();
-		static void				 LoadPlugin(const char* name, EngineInterface* engInterface, SystemEventDispatcher* dispatcher);
-		static void				 UnloadPlugin(void* handle);
+		static Plugin*			 LoadPlugin(const String& path, PluginInterface* pInterface);
+		static void				 UnloadPlugin(Plugin* plugin);
 		static void				 CopyToClipboard(const char* str);
 		static bool				 TryGetStringFromClipboard(String& outStr);
 		static Vector<String>	 OpenDialog(const DialogProperties& properties);

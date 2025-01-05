@@ -136,6 +136,8 @@ include/Core/Audio/miniaudio/miniaudio.h
 
 # Platform
 include/Core/Platform/PlatformProcess.hpp
+include/Core/System/PluginInterface.hpp
+include/Core/System/Plugin.hpp
 
 # Reflection
 include/Core/Reflection/ComponentReflection.hpp

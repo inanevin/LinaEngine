@@ -195,6 +195,8 @@ namespace Lina::Editor
 			m_displayEntity = WorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(EDITOR_MODEL_CAPSULE_ID), {displayMaterial});
 		if (m_displayType == MaterialViewerDisplayType::Plane)
 			m_displayEntity = WorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(EDITOR_MODEL_PLANE_ID), {displayMaterial});
+
+		m_displayEntity->SetPosition(Vector3(0.0f, -0.1f, 0.0f));
 	}
 
 	void PanelMaterialViewer::RebuildContents()

@@ -41,6 +41,7 @@ SOFTWARE.
 #include "Editor/Resources/ShaderImport.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Serialization/Serialization.hpp"
+#include "Core/System/Plugin.hpp"
 #include "Core/Meta/ProjectData.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Core/Graphics/Resource/TextureSampler.hpp"
@@ -59,7 +60,11 @@ namespace Lina::Editor
 
 	void ProjectManager::Initialize(Editor* editor)
 	{
+		if (!FileSystem::FileOrPathExists("Resources/Editor/_out/"))
+			FileSystem::CreateFolderInPath("Resources/Editor/_out");
+
 		m_editor = editor;
+		m_pluginInterface.SetReflectionSystem(&ReflectionSystem::Get());
 
 		m_primaryWidgetManager = &editor->GetWindowPanelManager().GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
 
@@ -109,6 +114,9 @@ namespace Lina::Editor
 
 	void ProjectManager::Shutdown()
 	{
+		if (m_gamePlugin)
+			PlatformProcess::UnloadPlugin(m_gamePlugin);
+
 		RemoveCurrentProject();
 	}
 
@@ -118,10 +126,29 @@ namespace Lina::Editor
 			return;
 
 		if (m_checkReimport)
-
+		{
 			m_lastReimportCheckTicks++;
-		if (m_lastReimportCheckTicks > REIMPORT_CHECK_TICKS)
-			ReimportChangedSources(&m_currentProject->GetResourceRoot(), m_editor->GetWindowPanelManager().GetMainWindow());
+
+			if (m_lastReimportCheckTicks > REIMPORT_CHECK_TICKS)
+			{
+				ReimportChangedSources(&m_currentProject->GetResourceRoot(), m_editor->GetWindowPanelManager().GetMainWindow());
+
+				if (m_gamePlugin)
+				{
+					const String& path = m_gamePlugin->GetPath();
+					if (FileSystem::FileOrPathExists(path))
+					{
+						const StringID lastModified = TO_SID(FileSystem::GetLastModifiedDate(path));
+
+						if (lastModified != m_gamePluginLastModified)
+						{
+							m_gamePluginLastModified = lastModified;
+							LoadGamePlugin(true);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	void ProjectManager::OpenDialogCreateProject()
@@ -166,6 +193,54 @@ namespace Lina::Editor
 		const ResourceID id = m_currentProject->ConsumeResourceID();
 		SaveProjectChanges();
 		return id;
+	}
+
+	void ProjectManager::LoadGamePlugin(bool notifyError)
+	{
+#ifdef LINA_PLATFORM_WINDOWS
+
+		const String path = FileSystem::GetFilePath(m_currentProject->GetPath()) + "GamePlugin/bin/GamePlugin.dll";
+#else
+		LINA_ASSERT(false, "");
+#endif
+
+		auto notify = [&](bool success) {
+			if (success == false && !notifyError)
+				return;
+
+			NotificationDisplayer* notificationDisplayer = m_editor->GetWindowPanelManager().GetNotificationDisplayer(m_editor->GetWindowPanelManager().GetMainWindow());
+			notificationDisplayer->AddNotification({
+				.icon				= success ? NotificationIcon::OK : NotificationIcon::Err,
+				.title				= (success ? Locale::GetStr(LocaleStr::LoadGamePluginSuccess) : Locale::GetStr(LocaleStr::LoadGamePluginFail)) + ": " + (m_gamePlugin ? m_gamePlugin->GetPath() : ""),
+				.autoDestroySeconds = 5,
+			});
+		};
+
+		if (!FileSystem::FileOrPathExists(path))
+		{
+			notify(false);
+			return;
+		}
+
+		if (m_gamePlugin)
+		{
+			PlatformProcess::UnloadPlugin(m_gamePlugin);
+			m_gamePlugin = nullptr;
+		}
+
+		// :( i dont like this. OS file copy operations delay.
+		std::chrono::milliseconds d(100);
+		std::this_thread::sleep_for(d);
+
+		const String binDirectory = FileSystem::GetFilePath(m_currentProject->GetPath()) + "GamePlugin/bin";
+		FileSystem::CopyDirectory(binDirectory, "Resources/Editor/_out/");
+		m_gamePlugin			 = PlatformProcess::LoadPlugin("Resources/Editor/_out/bin/GamePlugin.dll", &m_pluginInterface);
+		m_gamePluginLastModified = TO_SID(FileSystem::GetLastModifiedDate(path));
+
+		if (m_gamePlugin)
+			m_gamePlugin->SetPath(path);
+
+		notify(m_gamePlugin != nullptr);
 	}
 
 	void ProjectManager::AddListener(ProjectManagerListener* listener)
@@ -220,7 +295,21 @@ namespace Lina::Editor
 		task->progressText = Locale::GetStr(LocaleStr::LoadingProjectData);
 		task->ownerWindow  = m_editor->GetWindowPanelManager().GetMainWindow();
 
-		task->task = [task, this]() {
+		task->task = [task, this, projectFile]() {
+			const String folder = FileSystem::GetFilePath(projectFile);
+
+			if (!FileSystem::FileOrPathExists(folder + "/GamePlugin"))
+			{
+				FileSystem::CopyDirectory("Resources/Editor/GamePlugin", folder);
+			}
+			else
+			{
+				FileSystem::CopyDirectory("Resources/Editor/GamePlugin/Dependencies", folder + "/GamePlugin/");
+				FileSystem::CopyDirectory("Resources/Editor/GamePlugin/CMake", folder + "/GamePlugin/");
+			}
+
+			LoadGamePlugin(false);
+
 			task->progressText = Locale::GetStr(LocaleStr::LoadingProjectData);
 			m_currentProject->LoadFromFile();
 

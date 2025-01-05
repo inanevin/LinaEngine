@@ -33,6 +33,8 @@ project(GamePlugin)
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;DebugFAST;DebugASAN;DebugProfile;" CACHE STRING "" FORCE)
 set_property(GLOBAL PROPERTY DEBUG_CONFIGURATIONS "Debug;DebugFAST;DebugASAN;DebugProfile;")
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $<1:${CMAKE_SOURCE_DIR}/bin>)
+
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
@@ -79,6 +81,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/Dependen
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/Dependencies/LinaVG)
 
 
+
+
 #--------------------------------------------------------------------
 # Links
 #--------------------------------------------------------------------
@@ -97,3 +101,7 @@ group_sources(HEADERS SOURCES)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CustomTargets")
 set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT GamePlugin)
+
+
+
+

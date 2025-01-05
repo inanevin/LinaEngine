@@ -35,7 +35,7 @@ namespace Lina
 	class GamePlugin : public Plugin
 	{
 	public:
-		GamePlugin(const Lina::String& name) : Plugin(name){};
+		GamePlugin(const Lina::String& name, void* platformHandle) : Plugin(name, platformHandle){};
 		virtual ~GamePlugin() = default;
 
 		// Inherited via IPlugin

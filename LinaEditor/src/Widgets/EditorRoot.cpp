@@ -240,6 +240,12 @@ namespace Lina::Editor
 			return true;
 		}
 
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::LoadGamePlugin)))
+		{
+			Editor::Get()->GetProjectManager().LoadGamePlugin(true);
+			return true;
+		}
+
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Exit)))
 		{
 			Editor::Get()->RequestExit();
@@ -338,6 +344,11 @@ namespace Lina::Editor
 				FileMenuItem::Data{
 					.text		= Locale::GetStr(LocaleStr::SaveProject),
 					.headerIcon = ICON_SAVE,
+				},
+				FileMenuItem::Data{.isDivider = true},
+				FileMenuItem::Data{
+					.text		= Locale::GetStr(LocaleStr::LoadGamePlugin),
+					.headerIcon = ICON_CODE,
 				},
 				FileMenuItem::Data{.isDivider = true},
 				FileMenuItem::Data{

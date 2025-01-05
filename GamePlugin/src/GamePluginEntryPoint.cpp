@@ -35,9 +35,9 @@ SOFTWARE.
 
 Lina::GamePlugin* g_plugin = nullptr;
 
-extern "C" GAMEPLUGIN_API Lina::Plugin* CreatePlugin(const Lina::String& name)
+extern "C" GAMEPLUGIN_API Lina::Plugin* CreatePlugin(const Lina::String& name, void* platformHandle)
 {
-	g_plugin = new Lina::GamePlugin(name);
+	g_plugin = new Lina::GamePlugin(name, platformHandle);
 	return g_plugin;
 }
 

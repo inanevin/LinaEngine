@@ -80,7 +80,6 @@ set (SOURCES
 	src/JobSystem/TaskRunner.cpp
 
 	# System
-	src/System/Plugin.cpp
 	src/System/SystemInfo.cpp
 
 	# Platform
@@ -183,7 +182,6 @@ set(HEADERS
 	include/Common/Math/Plane.hpp
 
 	# System
-	include/Common/System/Plugin.hpp
 	include/Common/System/SystemInfo.hpp
 
 	# Platform

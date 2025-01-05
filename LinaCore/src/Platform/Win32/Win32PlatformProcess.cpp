@@ -31,7 +31,7 @@ SOFTWARE.
 #include "Common/Platform/PlatformTime.hpp"
 #include "Common/System/SystemInfo.hpp"
 #include "Common/Log/Log.hpp"
-#include "Common/System/Plugin.hpp"
+#include "Core/System/Plugin.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Core/Lina.hpp"
 #include <shobjidl.h> // For IFileDialog and related interfaces
@@ -118,70 +118,61 @@ namespace Lina
 	}
 
 	// HashMap<IPlugin*, void*> Win32PlatformProcess::s_pluginHandles;
-	// typedef IPlugin*(__cdecl* CreatePluginFunc)(IEngineInterface* engInterface, const String& name);
-	// typedef void(__cdecl* DestroyPluginFunc)(IPlugin*);
+	typedef Plugin*(__cdecl* CreatePluginFunc)(const String& name, void* handle, PluginInterface* pInterface);
+	typedef void(__cdecl* DestroyPluginFunc)(Plugin*);
 
-	void PlatformProcess::LoadPlugin(const char* name, EngineInterface* engInterface, SystemEventDispatcher* dispatcher)
+	Plugin* PlatformProcess::LoadPlugin(const String& path, PluginInterface* pInterface)
 	{
-		// HINSTANCE hinstLib;
-		// BOOL	  fFreeResult = FALSE;
-		// hinstLib			  = LoadLibrary(TEXT(name));
-		//
-		// // If the handle is valid, try to get the function address.
-		// if (hinstLib != NULL)
-		// {
-		// 	CreatePluginFunc createPluginAddr = (CreatePluginFunc)GetProcAddress(hinstLib, "CreatePlugin");
-		//
-		// 	// If the function address is valid, call the function.
-		//
-		// 	if (NULL != createPluginAddr)
-		// 	{
-		// 		IPlugin* plugin = (createPluginAddr)(engInterface, name);
-		// 		dispatcher->AddListener(plugin);
-		// 		plugin->OnAttached();
-		// 		s_pluginHandles[plugin] = static_cast<void*>(hinstLib);
-		// 	}
-		// 	else
-		// 	{
-		// 		LINA_ERR("[Win32 Platform Process] -> Could not load plugin create function! {0}", name);
-		// 	}
-		// }
-		// else
-		// {
-		// 	LINA_ERR("[Win32 Platform Process] -> Could not find plugin! {0}", name);
-		// }
+		HINSTANCE hinstLib;
+		BOOL	  fFreeResult = FALSE;
+		hinstLib			  = LoadLibrary(TEXT(path.c_str()));
+		Plugin* plugin		  = nullptr;
+
+		// If the handle is valid, try to get the function address.
+		if (hinstLib != NULL)
+		{
+			CreatePluginFunc createPluginAddr = (CreatePluginFunc)GetProcAddress(hinstLib, "CreatePlugin");
+
+			// If the function address is valid, call the function.
+
+			if (NULL != createPluginAddr)
+			{
+				plugin = (createPluginAddr)(path, hinstLib, pInterface);
+				plugin->OnAttached();
+			}
+			else
+			{
+				LINA_ERR("[Win32 Platform Process] -> Could not load plugin create function! {0}", path);
+			}
+		}
+		else
+		{
+			LINA_ERR("[Win32 Platform Process] -> Could not find plugin! {0}", path);
+		}
+
+		return plugin;
 	}
 
-	void PlatformProcess::UnloadPlugin(void* handle)
+	void PlatformProcess::UnloadPlugin(Plugin* plugin)
 	{
-		// HINSTANCE hinstLib = NULL;
-		// IPlugin*  plugin   = nullptr;
-		//
-		// for (auto& [plg, ptr] : s_pluginHandles)
-		// {
-		// 	if (plg->GetName().compare(name) == 0)
-		// 	{
-		// 		dispatcher->RemoveListener(plg);
-		// 		plg->OnDetached();
-		// 		hinstLib = static_cast<HINSTANCE>(ptr);
-		// 		plugin	 = plg;
-		// 		break;
-		// 	}
-		// }
-		//
-		// if (hinstLib == NULL)
-		// {
-		// 	LINA_ERR("[Platform Process] -> Could not find the plugin to unload! {0}", name);
-		// 	return;
-		// }
-		//
-		// DestroyPluginFunc destroyPluginAddr = (DestroyPluginFunc)GetProcAddress(hinstLib, "DestroyPlugin");
-		//
-		// if (destroyPluginAddr != NULL)
-		// 	destroyPluginAddr(plugin);
-		//
-		// // Free the DLL module.
-		// BOOL fFreeResult = FreeLibrary(hinstLib);
+		HINSTANCE hinstLib = NULL;
+
+		plugin->OnDetached();
+		hinstLib = static_cast<HINSTANCE>(plugin->GetPlatformHandle());
+		plugin->OnDetached();
+
+		if (hinstLib == NULL)
+		{
+			LINA_ERR("[Platform Process] -> Could not find the plugin to unload! {0}", plugin->GetPath());
+			return;
+		}
+
+		DestroyPluginFunc destroyPluginAddr = (DestroyPluginFunc)GetProcAddress(hinstLib, "DestroyPlugin");
+		if (destroyPluginAddr != NULL)
+			destroyPluginAddr(plugin);
+
+		// Free the DLL module.
+		BOOL fFreeResult = FreeLibrary(hinstLib);
 	}
 
 	void PlatformProcess::CopyToClipboard(const char* str)

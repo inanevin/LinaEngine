@@ -218,6 +218,9 @@ namespace Lina::Editor
 		SpotLight,
 		DirectionalLight,
 		AmbientLight,
+		LoadGamePlugin,
+		LoadGamePluginSuccess,
+		LoadGamePluginFail,
 	};
 
 	class Locale

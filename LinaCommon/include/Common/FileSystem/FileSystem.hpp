@@ -63,6 +63,7 @@ namespace Lina
 		static String GetSystemTimeStr();
 		static void	  GetSystemTimeInts(int32& hours, int32& minutes, int32& seconds);
 		static String GetTimeStrFromMicroseconds(int64 microseconds);
+		static void	  CopyDirectory(const String& directory, const String& targetParentFolder);
 
 		// Utility
 

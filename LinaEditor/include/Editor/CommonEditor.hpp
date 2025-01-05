@@ -250,6 +250,7 @@ namespace Lina::Editor
 #define ICON_SLIDERS			  "\u002D"
 #define ICON_VIDEO				  "\u002E"
 #define ICON_CUBES_STACKED		  "\u002F"
+#define ICON_CODE				  "\u0030"
 
 #define DOCK_DEFAULT_PERCENTAGE	  0.4f
 #define DOCKED_MIN_SIZE			  300.0f

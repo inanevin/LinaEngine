@@ -215,6 +215,9 @@ namespace Lina::Editor
 		{LocaleStr::SpotLight, "Spot Light"},
 		{LocaleStr::DirectionalLight, "Directional Light"},
 		{LocaleStr::AmbientLight, "Ambient Light"},
+		{LocaleStr::LoadGamePlugin, "Hot Reload C++"},
+		{LocaleStr::LoadGamePluginSuccess, "Successfully loaded game plugin!"},
+		{LocaleStr::LoadGamePluginFail, "Failed loading game plugin!"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

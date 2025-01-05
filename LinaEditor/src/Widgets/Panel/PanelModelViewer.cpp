@@ -241,6 +241,7 @@ namespace Lina::Editor
 		m_compModel		= m_world->GetComponent<CompModel>(m_displayEntity);
 		m_compModel->GetAnimationController().SelectAnimation(m_displayAnimation);
 		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {}, m_resourceSpace);
+		m_displayEntity->SetPosition(Vector3(0.0f, -0.1f, 0.0f));
 	}
 
 } // namespace Lina::Editor

@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Core/Resources/CommonResources.hpp"
+#include "Core/System/PluginInterface.hpp"
 
 namespace LinaGX
 {
@@ -42,6 +43,7 @@ namespace Lina
 	struct ResourceDirectory;
 	struct TextureAtlasImage;
 	class Widget;
+	class Plugin;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -94,6 +96,8 @@ namespace Lina::Editor
 		void	   SaveProjectChanges();
 		ResourceID ConsumeResourceID();
 
+		void LoadGamePlugin(bool notifyError);
+
 		void AddListener(ProjectManagerListener* listener);
 		void RemoveListener(ProjectManagerListener* listener);
 		void NotifyProjectResourcesRefreshed();
@@ -136,5 +140,8 @@ namespace Lina::Editor
 		bool									m_checkReimport			 = false;
 		Vector<EditorResourceReimportData>		m_editorResourceReimports;
 		Vector<Resource*>						m_editorResourcesToReimport;
+		Plugin*									m_gamePlugin			 = nullptr;
+		StringID								m_gamePluginLastModified = 0;
+		PluginInterface							m_pluginInterface		 = {};
 	};
 } // namespace Lina::Editor
