@@ -167,16 +167,16 @@ namespace Lina::Editor
 
 		WorldInput& input = m_world->GetInput();
 
-		if (input.GetKeyDown(LINAGX_KEY_F))
+		if (m_isActive && input.GetKeyDown(LINAGX_KEY_F))
 		{
 			m_orbitProps.targetPoint = Vector3::Zero;
 		}
 
-		if (input.GetMouseButton(LINAGX_MOUSE_MIDDLE))
+		if (m_isActive && input.GetMouseButton(LINAGX_MOUSE_MIDDLE))
 		{
 			const Vector2 mouseDelta = input.GetMouseDeltaRelative();
 
-			if (input.GetKey(LINAGX_KEY_LSHIFT))
+			if (m_isActive && input.GetKey(LINAGX_KEY_LSHIFT))
 			{
 				const float	  panSpeed	= 0.5f;
 				const float	  cosY		= Math::Cos(m_yAngle);
@@ -195,7 +195,9 @@ namespace Lina::Editor
 			}
 		}
 
-		m_targetDistance -= input.GetMouseScroll() * delta * 120.0f;
+		const float wheel = m_wheelActive ? input.GetMouseScroll() : 0.0f;
+
+		m_targetDistance -= wheel * delta * 120.0f;
 		m_targetDistance = Math::Clamp(m_targetDistance, m_orbitProps.minDistance, m_orbitProps.maxDistance);
 
 		const float	  cosY	 = Math::Cos(m_yAngle);
@@ -204,7 +206,43 @@ namespace Lina::Editor
 		m_absPosition = m_orbitProps.targetPoint + offset;
 		m_absRotation = Quaternion::LookAt(m_absPosition, m_orbitProps.targetPoint, Vector3::Up);
 	}
+
+	FreeCamera::FreeCamera(EntityWorld* world) : EditorCamera(world)
+	{
+		m_absPosition = Vector3(0.0, 1.0f, 0.0f);
+	}
+
 	void FreeCamera::OnHandleCamera(float delta)
 	{
+
+		WorldInput& input = m_world->GetInput();
+
+		if (m_isActive && !m_controlsActive && input.GetMouseButton(LINAGX_MOUSE_1))
+		{
+			m_world->GetScreen().GetOwnerWindow()->SetWrapMouse(true);
+			m_controlsActive = true;
+		}
+		else if (m_controlsActive && (!input.GetMouseButton(LINAGX_MOUSE_1) || !m_isActive))
+		{
+			m_world->GetScreen().GetOwnerWindow()->SetWrapMouse(false);
+			m_controlsActive = false;
+		}
+
+		const float shiftBoost = input.GetKey(LINAGX_KEY_LSHIFT) ? m_shiftBoost : 1.0f;
+
+		const Vector2 mouseDelta = (m_controlsActive ? input.GetMouseDelta() : Vector2::Zero) * m_angularPower * 0.02f * m_angularBoost;
+		m_yaw += mouseDelta.x;
+		m_pitch += mouseDelta.y;
+
+		const Quaternion pitch			= Quaternion::AngleAxis(m_pitch, Vector3::Right);
+		const Quaternion yaw			= Quaternion::AngleAxis(m_yaw, Vector3::Up);
+		const Quaternion targetRotation = yaw * pitch * Quaternion::Identity();
+		m_absRotation					= Quaternion::Slerp(m_absRotation, targetRotation, delta * m_angularSpeed);
+
+		const Vector2 axis = m_controlsActive ? Vector2(input.GetKey(LINAGX_KEY_A) ? -1.0f : (input.GetKey(LINAGX_KEY_D) ? 1.0f : 0.0f), input.GetKey(LINAGX_KEY_S) ? -1.0f : (input.GetKey(LINAGX_KEY_W) ? 1.0f : 0.0f)) : Vector2::Zero;
+		const Vector3 move = (m_absRotation.GetForward() * axis.y + m_absRotation.GetRight() * axis.x) * delta * m_movementPower * m_movementBoost * shiftBoost;
+
+		const Vector3 targetPos = m_absPosition + move;
+		m_absPosition			= Vector3::Lerp(m_absPosition, targetPos, delta * m_movementSpeed);
 	}
 } // namespace Lina::Editor

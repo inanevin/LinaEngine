@@ -57,16 +57,8 @@ namespace Lina
 		Vector2 GetMouseDelta();
 		Vector2 GetMouseDeltaRelative();
 		float	GetMouseScroll();
-
-		inline void SetIsActive(bool isActive)
-		{
-			m_isActive = isActive;
-		}
-
-		inline void SetWheelActive(bool isActive)
-		{
-			m_isWheelActive = isActive;
-		}
+		void	ConfineMouse();
+		void	ReleaseMouse();
 
 		inline LinaGX::Input* GetRawLGXInput()
 		{
@@ -77,7 +69,5 @@ namespace Lina
 		Vector2		   m_lastMousePosition = Vector2::Zero;
 		LinaGX::Input* m_lgxInput		   = nullptr;
 		Screen*		   m_screen			   = nullptr;
-		bool		   m_isActive		   = true;
-		bool		   m_isWheelActive	   = true;
 	};
 } // namespace Lina

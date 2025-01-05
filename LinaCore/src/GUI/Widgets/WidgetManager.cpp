@@ -303,7 +303,7 @@ namespace Lina
 		// this is used for removing popups mostly.
 		bool onlyForeground = false;
 
-		if (inputAction == LinaGX::InputAction::Pressed && !m_foregroundRoot->GetChildren().empty())
+		if (!m_foregroundRoot->GetChildren().empty())
 		{
 			Vector<Widget*> removeList;
 			for (auto* c : m_foregroundRoot->GetChildren())

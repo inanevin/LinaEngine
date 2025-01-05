@@ -40,6 +40,7 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Layout/Popup.hpp"
 #include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
+#include "Core/GUI/Widgets/Primitives/InputField.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
@@ -66,9 +67,11 @@ namespace Lina::Editor
 		m_editor	= Editor::Get();
 		m_worldFont = m_editor->GetApp()->GetResourceManager().GetResource<Font>(EDITOR_FONT_PLAY_BIG_ID);
 		m_editor->GetWindowPanelManager().AddPayloadListener(this);
-		m_gizmoControls.type	 = static_cast<GizmoMode>(m_editor->GetSettings().GetParams().GetParamUint8("GizmoType"_hs, 0));
-		m_gizmoControls.locality = static_cast<GizmoLocality>(m_editor->GetSettings().GetParams().GetParamUint8("GizmoLocality"_hs, 0));
-		m_gizmoControls.snapping = static_cast<GizmoSnapping>(m_editor->GetSettings().GetParams().GetParamUint8("GizmoSnapping"_hs, 0));
+		m_gizmoControls.type						  = static_cast<GizmoMode>(m_editor->GetSettings().GetParams().GetParamUint8("GizmoType"_hs, 0));
+		m_gizmoControls.locality					  = static_cast<GizmoLocality>(m_editor->GetSettings().GetParams().GetParamUint8("GizmoLocality"_hs, 0));
+		m_gizmoControls.snapping					  = static_cast<GizmoSnapping>(m_editor->GetSettings().GetParams().GetParamUint8("GizmoSnapping"_hs, 0));
+		m_overlayControls.cameraOptions.movementBoost = m_editor->GetSettings().GetParams().GetParamFloat("CamMoveBoost"_hs, 1.0f);
+		m_overlayControls.cameraOptions.angularBoost  = m_editor->GetSettings().GetParams().GetParamFloat("CamAngBoost"_hs, 1.0f);
 
 		GetWidgetProps().childMargins.left	 = Theme::GetDef().baseIndent;
 		GetWidgetProps().childMargins.top	 = Theme::GetDef().baseIndent;
@@ -311,6 +314,7 @@ namespace Lina::Editor
 		CommonWidgets::BuildClassReflection(layout, &m_overlayControls.snappingOptions, ReflectionSystem::Get().Meta<SnappingOptions>(), [](MetaType* meta, FieldBase* field) {
 
 		});
+
 		m_manager->AddToForeground(layout);
 		const float startY = m_overlayControls.topToolbar->GetPosY() + m_overlayControls.topToolbar->GetSizeY() + m_overlayControls.topToolbar->GetWidgetProps().outlineThickness + Theme::GetDef().baseIndentInner * 0.5f;
 		layout->SetPos(Vector2(m_overlayControls.topToolbar->GetPosX(), startY));
@@ -330,9 +334,17 @@ namespace Lina::Editor
 		layout->GetWidgetProps().rounding		  = 0.05f;
 		layout->GetProps().direction			  = DirectionOrientation::Vertical;
 
-		CommonWidgets::BuildClassReflection(layout, &m_overlayControls.cameraOptions, ReflectionSystem::Get().Meta<CameraOptions>(), [](MetaType* meta, FieldBase* field) {
+		m_overlayControls.cameraOptions.movementBoost = m_camera->GetMovementBoost();
+		m_overlayControls.cameraOptions.angularBoost  = m_camera->GetAngularBoost();
 
+		CommonWidgets::BuildClassReflection(layout, &m_overlayControls.cameraOptions, ReflectionSystem::Get().Meta<CameraOptions>(), [this](MetaType* meta, FieldBase* field) {
+			m_editor->GetSettings().GetParams().SetParamFloat("CamMoveBoost"_hs, m_overlayControls.cameraOptions.movementBoost);
+			m_editor->GetSettings().GetParams().SetParamFloat("CamAngBoost"_hs, m_overlayControls.cameraOptions.angularBoost);
+			m_camera->SetMovementBoost(m_overlayControls.cameraOptions.movementBoost);
+			m_camera->SetAngularBoost(m_overlayControls.cameraOptions.angularBoost);
+			m_editor->SaveSettings();
 		});
+
 		m_manager->AddToForeground(layout);
 		const float startY = m_overlayControls.topToolbar->GetPosY() + m_overlayControls.topToolbar->GetSizeY() + m_overlayControls.topToolbar->GetWidgetProps().outlineThickness + Theme::GetDef().baseIndentInner * 0.5f;
 		layout->SetPos(Vector2(m_overlayControls.topToolbar->GetPosX(), startY));
@@ -352,8 +364,13 @@ namespace Lina::Editor
 		layout->GetWidgetProps().rounding		  = 0.05f;
 		layout->GetProps().direction			  = DirectionOrientation::Vertical;
 
-		CommonWidgets::BuildClassReflection(layout, &m_overlayControls.worldOptions, ReflectionSystem::Get().Meta<WorldOptions>(), [](MetaType* meta, FieldBase* field) {
+		m_overlayControls.worldOptions.skyMaterial = m_world->GetGfxSettings().skyMaterial;
+		m_overlayControls.worldOptions.skyModel	   = m_world->GetGfxSettings().skyModel;
 
+		CommonWidgets::BuildClassReflection(layout, &m_overlayControls.worldOptions, ReflectionSystem::Get().Meta<WorldOptions>(), [this](MetaType* meta, FieldBase* field) {
+			m_world->GetGfxSettings().skyMaterial = m_overlayControls.worldOptions.skyMaterial;
+			m_world->GetGfxSettings().skyModel	  = m_overlayControls.worldOptions.skyModel;
+			m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {}, m_world->GetID());
 		});
 		m_manager->AddToForeground(layout);
 		const float startY = m_overlayControls.topToolbar->GetPosY() + m_overlayControls.topToolbar->GetSizeY() + m_overlayControls.topToolbar->GetWidgetProps().outlineThickness + Theme::GetDef().baseIndentInner * 0.5f;
@@ -386,7 +403,7 @@ namespace Lina::Editor
 			if (cameraType == WorldCameraType::Orbit)
 				m_camera = new OrbitCamera(m_world);
 			else if (cameraType == WorldCameraType::FreeMove)
-				m_camera = new OrbitCamera(m_world);
+				m_camera = new FreeCamera(m_world);
 		}
 	}
 
@@ -397,8 +414,8 @@ namespace Lina::Editor
 
 		// Input setup
 		const bool worldHasFocus = m_manager->GetControlsOwner() == this && m_lgxWindow->HasFocus();
-		m_world->GetInput().SetIsActive(worldHasFocus);
-		m_world->GetInput().SetWheelActive(m_isHovered && m_lgxWindow->HasFocus());
+		m_camera->SetIsActive(worldHasFocus);
+		m_camera->SetIsWheelActive(m_isHovered && m_lgxWindow->HasFocus());
 
 		if (m_selectionControls.rectSelectionWaitingResults)
 		{
@@ -597,16 +614,21 @@ namespace Lina::Editor
 		if (m_worldRenderer == nullptr)
 			return false;
 
+		if (!m_isHovered)
+		{
+			if (m_manager->GetControlsOwner() == this)
+				m_manager->ReleaseControls(this);
+
+			return false;
+		}
+
 		for (Widget* c : m_overlayControls.baseWidget->GetChildren())
 		{
 			if (!c->GetFlags().IsSet(WF_HIDE) && c->GetIsHovered())
 				return false;
 		}
 
-		if (m_isHovered)
-			m_manager->GrabControls(this);
-		else
-			m_manager->ReleaseControls(this);
+		m_manager->GrabControls(this);
 
 		if (m_selectionControls.isParenting)
 		{

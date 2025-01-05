@@ -63,11 +63,45 @@ namespace Lina::Editor
 			return m_props;
 		}
 
+		inline void SetIsActive(bool act)
+		{
+			m_isActive = act;
+		}
+
+		inline void SetIsWheelActive(bool act)
+		{
+			m_wheelActive = act;
+		}
+
+		inline void SetMovementBoost(float boost)
+		{
+			m_movementBoost = boost;
+		}
+
+		inline void SetAngularBoost(float boost)
+		{
+			m_angularBoost = boost;
+		}
+
+		inline float GetMovementBoost() const
+		{
+			return m_movementBoost;
+		}
+
+		inline float GetAngularBoost() const
+		{
+			return m_angularBoost;
+		}
+
 	protected:
-		EntityWorld*	 m_world	   = nullptr;
-		CameraProperties m_props	   = {};
-		Vector3			 m_absPosition = Vector3::Zero;
-		Quaternion		 m_absRotation = Quaternion::Identity();
+		float			 m_angularBoost	 = 1.0f;
+		float			 m_movementBoost = 1.0f;
+		EntityWorld*	 m_world		 = nullptr;
+		CameraProperties m_props		 = {};
+		Vector3			 m_absPosition	 = Vector3::Zero;
+		Quaternion		 m_absRotation	 = Quaternion::Identity();
+		bool			 m_isActive		 = false;
+		bool			 m_wheelActive	 = false;
 	};
 
 	class OrbitCamera : public EditorCamera
@@ -103,10 +137,21 @@ namespace Lina::Editor
 	class FreeCamera : public EditorCamera
 	{
 	public:
-		FreeCamera(EntityWorld* world) : EditorCamera(world){};
+		FreeCamera(EntityWorld* world);
 
 		virtual ~FreeCamera() = default;
 
 		virtual void OnHandleCamera(float delta) override;
+
+	private:
+		float m_shiftBoost = 1.8f;
+
+		float m_yaw			   = 0.0f;
+		float m_pitch		   = 0.0f;
+		float m_movementPower  = 40.0f;
+		float m_movementSpeed  = 40.0f;
+		float m_angularPower   = 10.0f;
+		float m_angularSpeed   = 40.0f;
+		bool  m_controlsActive = false;
 	};
 } // namespace Lina::Editor

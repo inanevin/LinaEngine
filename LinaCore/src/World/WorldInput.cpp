@@ -36,60 +36,36 @@ namespace Lina
 
 	bool WorldInput::GetKey(int32 button)
 	{
-		if (!m_isActive)
-			return false;
 		return m_lgxInput->GetKey(button);
 	}
 
 	bool WorldInput::GetKeyDown(int32 button)
 	{
-		if (!m_isActive)
-			return false;
-
 		return m_lgxInput->GetKeyDown(button);
 	}
 
 	bool WorldInput::GetKeyUp(int32 button)
 	{
-		const bool isUp = m_lgxInput->GetKeyUp(button);
-
-		if (m_isActive)
-			return isUp;
-		else
-			return isUp ? true : false;
+		return m_lgxInput->GetKeyUp(button);
 	}
 
 	bool WorldInput::GetMouseButton(int32 button)
 	{
-		if (!m_isActive)
-			return false;
-
 		return m_lgxInput->GetMouseButton(button);
 	}
 
 	bool WorldInput::GetMouseButtonDown(int button)
 	{
-		if (!m_isActive)
-			return false;
-
 		return m_lgxInput->GetMouseButtonDown(button);
 	}
 
 	bool WorldInput::GetMouseButtonUp(int32 button)
 	{
-		const bool isUp = m_lgxInput->GetMouseButtonUp(button);
-
-		if (m_isActive)
-			return isUp;
-		else
-			return isUp ? true : false;
+		return m_lgxInput->GetMouseButtonUp(button);
 	}
 
 	Vector2 WorldInput::GetMousePosition()
 	{
-		// if (!m_isActive)
-		// 	return m_lastMousePosition;
-		//
 		if (m_screen->GetOwnerWindow() == nullptr)
 			return m_lastMousePosition;
 
@@ -112,26 +88,36 @@ namespace Lina
 	Vector2 WorldInput::GetMouseDelta()
 	{
 		LinaGX::Window* window = m_screen->GetOwnerWindow();
-		if (window == nullptr)
-			return Vector2::Zero;
-
 		return window->GetMouseDelta();
 	}
 
 	Vector2 WorldInput::GetMouseDeltaRelative()
 	{
 		LinaGX::Window* window = m_screen->GetOwnerWindow();
-		if (window == nullptr)
-			return Vector2::Zero;
-
 		return window->GetMouseDeltaRelative();
 	}
 
 	float WorldInput::GetMouseScroll()
 	{
-		if (!m_isWheelActive)
-			return 0.0f;
-
 		return m_lgxInput->GetMouseScroll();
+	}
+
+	void WorldInput::ConfineMouse()
+	{
+		LinaGX::Window* window = m_screen->GetOwnerWindow();
+		if (window == nullptr)
+			return;
+
+		const Vector2 mp = window->GetMousePosition();
+		window->ConfineMouseToPoint(LinaGX::LGXVector2ui(static_cast<uint32>(mp.x), static_cast<uint32>(mp.y)));
+	}
+
+	void WorldInput::ReleaseMouse()
+	{
+		LinaGX::Window* window = m_screen->GetOwnerWindow();
+		if (window == nullptr)
+			return;
+
+		window->FreeMouse();
 	}
 } // namespace Lina

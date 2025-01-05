@@ -99,13 +99,15 @@ namespace Lina::Editor
 
 	struct CameraOptions
 	{
-		float movementSpeed = 0.0f;
-		float angularSpeed	= 0.0f;
+		float movementBoost = 1.0f;
+		float angularBoost	= 1.0f;
 	};
 
 	LINA_CLASS_BEGIN(CameraOptions);
-	LINA_FIELD(CameraOptions, movementSpeed, "Movement Speed", FieldType::Float, 0)
-	LINA_FIELD(CameraOptions, angularSpeed, "Angular Speed", FieldType::Float, 0)
+	LINA_FIELD(CameraOptions, movementBoost, "Movement Boost", FieldType::Float, 0)
+	LINA_FIELD(CameraOptions, angularBoost, "Angular Boost", FieldType::Float, 0)
+	LINA_FIELD_LIMITS(CameraOptions, movementBoost, 0.1f, 3.0f, 0.1f)
+	LINA_FIELD_LIMITS(CameraOptions, angularBoost, 0.1f, 3.0f, 0.1f)
 	LINA_CLASS_END(CameraOptions);
 
 	struct WorldOptions
