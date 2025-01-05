@@ -79,7 +79,7 @@ namespace Lina::Editor
 			Vector2				   motionStartMouseDelta	  = Vector2::Zero;
 			Vector2				   motionStartMousePos		  = Vector2::Zero;
 			Vector2				   motionCurrentMousePos	  = Vector2::Zero;
-			Vector2				   averagePositionScreenSpace = Vector2::Zero;
+			Vector3				   averagePositionScreenSpace = Vector3::Zero;
 			Vector<Transformation> motionStartTransforms	  = {};
 
 			float value				= 0.0f;
@@ -157,6 +157,8 @@ namespace Lina::Editor
 		virtual void OnWorldTick(float delta, PlayMode playmode) override;
 		ResourceID	 GetWorldID();
 		void		 OnEntitySelectionChanged(const Vector<Entity*>& selection);
+		void		 StartPlaying(PlayMode mode);
+		void		 StopPlaying();
 
 		// Gizmos
 		void SelectGizmo(GizmoMode gizmo);
@@ -215,6 +217,7 @@ namespace Lina::Editor
 		Font*			  m_worldFont		  = nullptr;
 		SelectionControls m_selectionControls = {};
 		OverlayControls	  m_overlayControls	  = {};
+		PlayMode		  m_playMode		  = PlayMode::None;
 	};
 
 	LINA_WIDGET_BEGIN(WorldController, Hidden)

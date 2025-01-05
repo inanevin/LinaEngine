@@ -194,7 +194,7 @@ namespace Lina::Editor
 				m_saveIcon->GetFlags().Set(WF_DISABLED);
 		}
 
-		const Color targetColor							 = m_lgxWindow->HasFocus() ? Theme::GetDef().accentPrimary0 : Theme::GetDef().background2;
+		const Color targetColor							 = m_isPlaying ? Theme::GetDef().accentSuccess : (m_lgxWindow->HasFocus() ? Theme::GetDef().accentPrimary0 : Theme::GetDef().background2);
 		m_titleBar->GetWidgetProps().colorBackground.end = Math::Lerp(m_titleBar->GetWidgetProps().colorBackground.end, targetColor, delta * COLOR_SPEED);
 
 		DirectionalLayout::Tick(delta);
@@ -218,6 +218,11 @@ namespace Lina::Editor
 	{
 		m_projectNameText->GetProps().text = project->GetProjectName();
 		m_projectNameText->Initialize();
+	}
+
+	void EditorRoot::SetIsPlaying(bool isPlaying)
+	{
+		m_isPlaying = isPlaying;
 	}
 
 	bool EditorRoot::OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData)

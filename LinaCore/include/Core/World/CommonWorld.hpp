@@ -42,6 +42,7 @@ namespace Lina
 	{
 		None,
 		Play,
+		Physics,
 		Other,
 	};
 

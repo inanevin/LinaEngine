@@ -74,6 +74,7 @@ namespace Lina::Editor
 		ItemController*	   m_controller = nullptr;
 		DirectionalLayout* m_layout		= nullptr;
 		String			   m_searchStr	= "";
+		uint32			   m_itemCtr	= 0;
 	};
 
 	LINA_WIDGET_BEGIN(EntityBrowser, Hidden)

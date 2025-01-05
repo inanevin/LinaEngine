@@ -115,11 +115,19 @@ namespace Lina
 		}
 
 	private:
+		LINA_REFLECTION_ACCESS(CompModel);
+
 		Model*				  m_modelPtr = nullptr;
 		AnimationController	  m_animationController;
 		Vector<CompModelNode> m_nodes;
 		ResourceID			  m_model = 0;
 		Vector<ResourceID>	  m_materials;
 	};
+
+	LINA_COMPONENT_BEGIN(CompModel, "Graphics")
+	LINA_FIELD(CompModel, m_model, "Model", FieldType::ResourceID, GetTypeID<Model>());
+	LINA_FIELD_VEC(CompModel, m_materials, "Materials", FieldType::ResourceID, ResourceID, GetTypeID<Material>())
+	LINA_FIELD_LOCK0(CompModel, m_materials)
+	LINA_CLASS_END(CompModel)
 
 } // namespace Lina

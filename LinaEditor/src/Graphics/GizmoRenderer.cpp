@@ -118,8 +118,11 @@ namespace Lina::Editor
 
 	void GizmoRenderer::Tick(float delta)
 	{
-		DrawOrientationGizmos(m_targetPass, 0);
-		DrawOrientationGizmos(&m_mousePickRenderer->GetRenderPass(), "StaticEntityID"_hs, 2);
+		if (m_gizmoSettings.drawOrientation)
+		{
+			DrawOrientationGizmos(m_targetPass, 0);
+			DrawOrientationGizmos(&m_mousePickRenderer->GetRenderPass(), "StaticEntityID"_hs, 2);
+		}
 
 		if (!m_gizmoSettings.draw)
 			return;

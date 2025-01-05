@@ -62,6 +62,7 @@ namespace Lina::Editor
 		virtual bool OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData) override;
 		virtual void OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
 		virtual void OnProjectOpened(ProjectData* project) override;
+		void		 SetIsPlaying(bool isPlaying);
 
 		inline Widget* GetPanelArea() const
 		{
@@ -80,6 +81,7 @@ namespace Lina::Editor
 		Icon*			   m_saveIcon		 = nullptr;
 		Icon*			   m_linaIcon		 = nullptr;
 		EntityWorld*	   m_currentWorld	 = nullptr;
+		bool			   m_isPlaying		 = false;
 	};
 
 	LINA_WIDGET_BEGIN(EditorRoot, Hidden)

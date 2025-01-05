@@ -38,7 +38,7 @@ namespace Lina
 	public:
 		template <typename T> static inline void* REF_CreateComponentCacheFunc(EntityWorld* world)
 		{
-			Lina::ComponentCache<T>* c = new Lina::ComponentCache<T>(world);
+			Lina::ComponentCache<T>* c = new Lina::ComponentCache<T>();
 			return static_cast<void*>(c);
 		}
 

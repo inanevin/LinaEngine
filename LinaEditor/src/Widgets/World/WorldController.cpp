@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Editor/Graphics/EditorWorldRenderer.hpp"
 #include "Editor/World/EditorCamera.hpp"
 #include "Editor/World/WorldUtility.hpp"
+#include "Editor/Widgets/EditorRoot.hpp"
 
 #include "Core/GUI/Widgets/Layout/Popup.hpp"
 #include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
@@ -77,6 +78,7 @@ namespace Lina::Editor
 		GetWidgetProps().childMargins.top	 = Theme::GetDef().baseIndent;
 		GetWidgetProps().childMargins.bottom = Theme::GetDef().baseIndent;
 		GetWidgetProps().childMargins.right	 = Theme::GetDef().baseIndent;
+		GetWidgetProps().clipChildren		 = true;
 
 		m_overlayControls.baseWidget = m_manager->Allocate<Widget>("Overlay");
 		m_overlayControls.baseWidget->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
@@ -154,18 +156,13 @@ namespace Lina::Editor
 		Button* play					  = CommonWidgets::BuildIconButton(this, ICON_PLAY);
 		play->GetWidgetProps().tooltip	  = Locale::GetStr(LocaleStr::Play);
 		play->GetIcon()->GetProps().color = Theme::GetDef().accentSuccess;
-		play->GetProps().onClicked		  = []() {
-
-		};
+		play->GetProps().onClicked		  = [this]() { StartPlaying(PlayMode::Play); };
 		m_overlayControls.topToolbar->AddChild(play);
 
 		Button* playPhysics						 = CommonWidgets::BuildIconButton(this, ICON_CUBES_STACKED);
 		playPhysics->GetWidgetProps().tooltip	 = Locale::GetStr(LocaleStr::PlayPhysics);
 		playPhysics->GetIcon()->GetProps().color = Theme::GetDef().accentSecondary1;
-		;
-		playPhysics->GetProps().onClicked = []() {
-
-		};
+		playPhysics->GetProps().onClicked		 = [this]() { StartPlaying(PlayMode::Physics); };
 		m_overlayControls.topToolbar->AddChild(playPhysics);
 	}
 
@@ -395,6 +392,7 @@ namespace Lina::Editor
 		m_ewr			= ewr;
 		m_world			= renderer ? m_worldRenderer->GetWorld() : nullptr;
 		m_overlayControls.baseWidget->GetFlags().Set(WF_HIDE, m_world == nullptr);
+		m_ewr->GetGizmoRenderer().GetSettings().drawOrientation = m_world != nullptr;
 
 		if (m_worldRenderer)
 		{
@@ -421,7 +419,7 @@ namespace Lina::Editor
 			return;
 
 		// Input setup
-		const bool worldHasFocus = m_manager->GetControlsOwner() == this && m_lgxWindow->HasFocus();
+		const bool worldHasFocus = m_playMode == PlayMode::None && m_manager->GetControlsOwner() == this && m_lgxWindow->HasFocus();
 		m_camera->SetIsActive(worldHasFocus);
 		m_camera->SetIsWheelActive(m_isHovered && m_lgxWindow->HasFocus());
 
@@ -460,13 +458,18 @@ namespace Lina::Editor
 
 		const Vector2 sz						   = GetEndFromMargins() - GetStartFromMargins();
 		Camera&		  cam						   = m_world->GetWorldCamera();
-		m_gizmoControls.averagePositionScreenSpace = GetStartFromMargins() + Camera::WorldToScreen(cam, m_gizmoControls.averagePosition, sz).XY();
-		m_selectionControls._radius				   = Math::Max(sz.x, sz.y) * m_selectionControls.radiusPerc;
+		m_gizmoControls.averagePositionScreenSpace = GetStartFromMargins() + Camera::WorldToScreen(cam, m_gizmoControls.averagePosition, sz);
+
+		// clip out
+		if (m_gizmoControls.averagePositionScreenSpace.z < 0.0f)
+			m_gizmoControls.averagePositionScreenSpace = m_rect.pos - Vector2(1000, 1000);
+
+		m_selectionControls._radius = Math::Max(sz.x, sz.y) * m_selectionControls.radiusPerc;
 
 		for (const SelectionCircleButton& but : m_selectionControls.buttons)
 		{
 			const Vector2 point	 = Vector2(Math::Cos(DEG_2_RAD * but.angle), Math::Sin(DEG_2_RAD * but.angle)) * m_selectionControls._radius;
-			const Vector2 target = m_gizmoControls.averagePositionScreenSpace + point;
+			const Vector2 target = m_gizmoControls.averagePositionScreenSpace.XY() + point;
 			but.widget->SetPos(target - but.widget->GetHalfSize());
 		}
 
@@ -487,29 +490,35 @@ namespace Lina::Editor
 		if (m_worldRenderer == nullptr)
 			return;
 
+		if (m_playMode != PlayMode::None)
+			return;
+
+		m_manager->SetClip(m_rect);
+
 		const int32 baseDO = m_drawOrder + 1;
-		if (m_gizmoControls.gizmoMotion == GizmoMotion::Key)
-		{
-			LinaVG::StyleOptions style;
-			style.thickness = 1.0f;
-			style.aaEnabled = true;
-
-			const Vector2 point = Camera::WorldToScreen(m_world->GetWorldCamera(), m_gizmoControls.averagePosition, GetEndFromMargins() - GetStartFromMargins()).XY();
-
-			LinaVG::TextOptions opts;
-			opts.font		   = m_worldFont->GetFont(m_lgxWindow->GetDPIScale());
-			opts.color		   = Theme::GetDef().foreground0.AsLVG4();
-			opts.color.start.w = opts.color.end.w = m_gizmoControls.visualizeAlpha;
-
-			const Vector2 pos	= m_gizmoControls.averagePositionScreenSpace + Vector2(0.0f, m_selectionControls._radius);
-			const String  value = UtilStr::FloatToString(m_gizmoControls.visualizeDistance, 3);
-
-			const Vector2 txtSize = m_lvg->CalculateTextSize(value.c_str(), opts);
-			m_lvg->DrawTextDefault(value.c_str(), (pos - Vector2(txtSize.x * 0.5f, txtSize.y * 0.5f)).AsLVG(), opts, 0.0f, baseDO);
-		}
 
 		if (m_selectionControls.visible)
 		{
+			if (m_gizmoControls.gizmoMotion == GizmoMotion::Key)
+			{
+				LinaVG::StyleOptions style;
+				style.thickness = 1.0f;
+				style.aaEnabled = true;
+
+				const Vector2 point = Camera::WorldToScreen(m_world->GetWorldCamera(), m_gizmoControls.averagePosition, GetEndFromMargins() - GetStartFromMargins()).XY();
+
+				LinaVG::TextOptions opts;
+				opts.font		   = m_worldFont->GetFont(m_lgxWindow->GetDPIScale());
+				opts.color		   = Theme::GetDef().foreground0.AsLVG4();
+				opts.color.start.w = opts.color.end.w = m_gizmoControls.visualizeAlpha;
+
+				const Vector2 pos	= m_gizmoControls.averagePositionScreenSpace.XY() + Vector2(0.0f, m_selectionControls._radius);
+				const String  value = UtilStr::FloatToString(m_gizmoControls.visualizeDistance, 3);
+
+				const Vector2 txtSize = m_lvg->CalculateTextSize(value.c_str(), opts);
+				m_lvg->DrawTextDefault(value.c_str(), (pos - Vector2(txtSize.x * 0.5f, txtSize.y * 0.5f)).AsLVG(), opts, 0.0f, baseDO);
+			}
+
 			LinaVG::StyleOptions style;
 			style.color				 = ColorGrad(Theme::GetDef().accentSecondary, Theme::GetDef().accentPrimary0).AsLVG();
 			style.color				 = Theme::GetDef().foreground0.AsLVG4();
@@ -529,7 +538,7 @@ namespace Lina::Editor
 				const float endAngle   = 270.0f;
 				const float actualEnd  = startAngle + (endAngle - startAngle) * m_selectionControls.circleTween.GetValue();
 				if (!Math::Equals(startAngle, actualEnd, 0.1f))
-					m_lvg->DrawCircle(m_gizmoControls.averagePositionScreenSpace.AsLVG(), m_selectionControls._radius, style, 72, 0.0f, startAngle, actualEnd, baseDO);
+					m_lvg->DrawCircle(m_gizmoControls.averagePositionScreenSpace.XY().AsLVG(), m_selectionControls._radius, style, 72, 0.0f, startAngle, actualEnd, baseDO);
 			}
 
 			// Circle 2
@@ -538,7 +547,7 @@ namespace Lina::Editor
 				const float endAngle   = 90.0f;
 				const float actualEnd  = startAngle + (endAngle - startAngle) * m_selectionControls.circleTween.GetValue();
 				if (!Math::Equals(startAngle, actualEnd, 0.1f))
-					m_lvg->DrawCircle(m_gizmoControls.averagePositionScreenSpace.AsLVG(), m_selectionControls._radius, style, 72, 0.0f, startAngle, actualEnd, baseDO);
+					m_lvg->DrawCircle(m_gizmoControls.averagePositionScreenSpace.XY().AsLVG(), m_selectionControls._radius, style, 72, 0.0f, startAngle, actualEnd, baseDO);
 			}
 		}
 
@@ -550,7 +559,7 @@ namespace Lina::Editor
 			style.aaEnabled			 = true;
 			style.thickness			 = 2.0f;
 
-			const Vector2 p0  = m_gizmoControls.averagePositionScreenSpace;
+			const Vector2 p0  = m_gizmoControls.averagePositionScreenSpace.XY();
 			const Vector2 p3  = m_lgxWindow->GetMousePosition();
 			const Vector2 dir = (p3 - p0);
 			const float	  mag = dir.Magnitude() * 0.2f;
@@ -571,6 +580,8 @@ namespace Lina::Editor
 			const Vector2 pointNow = m_lgxWindow->GetMousePosition();
 			m_lvg->DrawRect(m_selectionControls.rectSelectionStartPosition.AsLVG(), pointNow.AsLVG(), style, 0.0f, baseDO);
 		}
+
+		m_manager->UnsetClip();
 	}
 
 	void WorldController::OnPayloadStarted(PayloadType type, Widget* payload)
@@ -700,6 +711,11 @@ namespace Lina::Editor
 	{
 		if (m_worldRenderer == nullptr)
 			return false;
+
+		if (m_playMode != PlayMode::None && act == LinaGX::InputAction::Pressed && keycode == LINAGX_KEY_ESCAPE)
+		{
+			StopPlaying();
+		}
 
 		if (m_manager->GetControlsOwner() != this)
 			return false;
@@ -879,6 +895,26 @@ namespace Lina::Editor
 		}
 
 		SelectGizmo(m_gizmoControls.type);
+	}
+
+	void WorldController::StartPlaying(PlayMode mode)
+	{
+		m_playMode = mode;
+		m_overlayControls.baseWidget->GetFlags().Set(WF_HIDE);
+		m_lgxWindow->SetWrapMouse(true);
+		m_lgxWindow->SetMouseVisible(false);
+		m_editor->GetEditorRoot()->SetIsPlaying(true);
+		m_ewr->GetGizmoRenderer().GetSettings().drawOrientation = false;
+	}
+
+	void WorldController::StopPlaying()
+	{
+		m_playMode = PlayMode::None;
+		m_overlayControls.baseWidget->GetFlags().Set(WF_HIDE, false);
+		m_lgxWindow->SetWrapMouse(false);
+		m_lgxWindow->SetMouseVisible(true);
+		m_editor->GetEditorRoot()->SetIsPlaying(false);
+		m_ewr->GetGizmoRenderer().GetSettings().drawOrientation = true;
 	}
 
 	void WorldController::SelectGizmo(GizmoMode gizmo)

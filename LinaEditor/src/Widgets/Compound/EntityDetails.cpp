@@ -39,6 +39,8 @@ SOFTWARE.
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/World/Entity.hpp"
 #include "Core/World/EntityWorld.hpp"
+#include "Core/World/Component.hpp"
+#include "Core/Application.hpp"
 
 namespace Lina::Editor
 {
@@ -113,6 +115,17 @@ namespace Lina::Editor
 		m_layout->AddChild(rotationLayout);
 		m_layout->AddChild(scaleLayout);
 		m_layout->AddChild(physicsSettings);
+
+		Vector<Component*> comps;
+		m_world->GetComponents(m_selectedEntities.at(0), comps);
+
+		for (Component* c : comps)
+		{
+			CommonWidgets::BuildClassReflection(m_layout, c, ReflectionSystem::Get().Resolve(c->GetTID()), [this, c](MetaType* meta, FieldBase* field) {
+				m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {}, m_world->GetID());
+				c->StoreReferences();
+			});
+		}
 	}
 
 	void EntityDetails::UpdateDetails()

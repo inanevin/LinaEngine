@@ -37,8 +37,8 @@ namespace Lina
 		m_modelPtr = model;
 		m_model	   = model->GetID();
 		m_nodes.clear();
-
-		const Vector<ModelNode>& nodes = model->GetAllNodes();
+		const Vector<ResourceID> modelMaterials = m_modelPtr->GetMeta().materials;
+		const Vector<ModelNode>& nodes			= model->GetAllNodes();
 
 		const size_t nodesSz = nodes.size();
 		m_nodes.resize(nodesSz);

@@ -184,6 +184,7 @@ namespace Lina::Editor
 		m_layout->DeallocAllChildren();
 		m_layout->RemoveAllChildren();
 		m_controller->ClearItems();
+		m_itemCtr = 0;
 
 		if (m_world == nullptr)
 			return;
@@ -247,6 +248,16 @@ namespace Lina::Editor
 
 		FoldLayout* layout = CommonWidgets::BuildEntityItem(this, props);
 		parent->AddChild(layout);
+
+		if (m_itemCtr % 2 == 0)
+		{
+			layout->GetWidgetProps().drawBackground	  = true;
+			layout->GetWidgetProps().outlineThickness = 0.0f;
+			layout->GetWidgetProps().rounding		  = 0.0f;
+			layout->GetWidgetProps().colorBackground  = Theme::GetDef().background2;
+		}
+
+		m_itemCtr++;
 
 		for (Entity* c : children)
 		{
