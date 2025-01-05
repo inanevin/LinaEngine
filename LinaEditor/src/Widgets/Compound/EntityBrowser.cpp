@@ -103,16 +103,17 @@ namespace Lina::Editor
 		controller->GetContextMenu()->SetListener(this);
 		scroll->AddChild(controller);
 
-		controller->GetFlags().Set(WF_HIDE);
-
 		controller->GetProps().onItemSelected = [this](void* ud) {
 			const Vector<Entity*> selection = m_controller->GetSelectedUserData<Entity>();
-			EditorActionEntitySelection::Create(m_editor, m_world->GetID(), selection, true, true, "EntityList"_hs);
+
+			if (m_world)
+				EditorActionEntitySelection::Create(m_editor, m_world->GetID(), selection, true, true, "EntityList"_hs);
 		};
 
 		controller->GetProps().onItemUnselected = [this](void* ud) {
 			const Vector<Entity*> selection = m_controller->GetSelectedUserData<Entity>();
-			EditorActionEntitySelection::Create(m_editor, m_world->GetID(), selection, true, true, "EntityList"_hs);
+			if (m_world)
+				EditorActionEntitySelection::Create(m_editor, m_world->GetID(), selection, true, true, "EntityList"_hs);
 		};
 
 		controller->GetProps().onItemRenamed = [this](void* ud) {
@@ -202,8 +203,6 @@ namespace Lina::Editor
 
 	void EntityBrowser::SetWorld(EntityWorld* w)
 	{
-		m_controller->GetFlags().Set(WF_HIDE, w == nullptr);
-
 		m_world = w;
 		RefreshEntities();
 	}
