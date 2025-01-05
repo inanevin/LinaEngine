@@ -298,12 +298,7 @@ namespace Lina
 
 	void WidgetManager::OnMouse(uint32 button, LinaGX::InputAction inputAction)
 	{
-		// If we have some items in the foreground
-		// check if any was clicked, if not, then remove the non-blocker ones
-		// this is used for removing popups mostly.
-		bool onlyForeground = false;
-
-		if (!m_foregroundRoot->GetChildren().empty())
+		if ((inputAction == LinaGX::InputAction::Pressed) && !m_foregroundRoot->GetChildren().empty())
 		{
 			Vector<Widget*> removeList;
 			for (auto* c : m_foregroundRoot->GetChildren())
@@ -313,8 +308,6 @@ namespace Lina
 					if (!c->GetFlags().IsSet(WF_FOREGROUND_BLOCKER) && !c->GetFlags().IsSet(WF_TOOLTIP))
 						removeList.push_back(c);
 				}
-				else
-					onlyForeground = true;
 			}
 
 			for (auto* w : removeList)
@@ -322,13 +315,7 @@ namespace Lina
 				RemoveFromForeground(w);
 				Deallocate(w);
 			}
-
-			if (!removeList.empty())
-				onlyForeground = true;
 		}
-
-		if (button == LINAGX_MOUSE_0 && inputAction == LinaGX::InputAction::Pressed && m_controlOwner != nullptr && !m_controlOwner->GetIsHovered())
-			ReleaseControls(m_controlOwner);
 
 		Vector<Widget*> sortedChildren = m_foregroundRoot->GetChildren();
 		linatl::sort(sortedChildren.begin(), sortedChildren.end(), [](Widget* w, Widget* other) -> bool { return w->GetDrawOrder() > other->GetDrawOrder(); });
@@ -338,8 +325,12 @@ namespace Lina
 				return;
 		}
 
-		if (onlyForeground)
+		if (button == LINAGX_MOUSE_0 && inputAction == LinaGX::InputAction::Pressed && m_controlOwner != nullptr && !m_controlOwner->GetIsHovered())
+			ReleaseControls(m_controlOwner);
+
+		if (!sortedChildren.empty())
 			return;
+
 		PassMouse(m_rootWidget, button, inputAction);
 	}
 

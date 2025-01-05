@@ -44,6 +44,13 @@ namespace Lina::Editor
 	class EditorCamera
 	{
 	public:
+		enum class FocusType
+		{
+			None,
+			Point,
+			PointAxis,
+		};
+
 		EditorCamera(EntityWorld* world) : m_world(world){};
 		virtual ~EditorCamera() = default;
 
@@ -93,6 +100,13 @@ namespace Lina::Editor
 			return m_angularBoost;
 		}
 
+		inline void SetFocus(const Vector3& p, const Vector3& axis, FocusType type)
+		{
+			m_focusPoint = p;
+			m_focusAxis	 = axis;
+			m_focusType	 = type;
+		}
+
 	protected:
 		float			 m_angularBoost	 = 1.0f;
 		float			 m_movementBoost = 1.0f;
@@ -102,6 +116,9 @@ namespace Lina::Editor
 		Quaternion		 m_absRotation	 = Quaternion::Identity();
 		bool			 m_isActive		 = false;
 		bool			 m_wheelActive	 = false;
+		Vector3			 m_focusPoint	 = Vector3::Zero;
+		Vector3			 m_focusAxis	 = Vector3::Zero;
+		FocusType		 m_focusType	 = FocusType::None;
 	};
 
 	class OrbitCamera : public EditorCamera
@@ -144,14 +161,20 @@ namespace Lina::Editor
 		virtual void OnHandleCamera(float delta) override;
 
 	private:
+		void SyncCamera();
+
+	private:
 		float m_shiftBoost = 1.8f;
 
-		float m_yaw			   = 0.0f;
-		float m_pitch		   = 0.0f;
-		float m_movementPower  = 40.0f;
-		float m_movementSpeed  = 40.0f;
-		float m_angularPower   = 10.0f;
-		float m_angularSpeed   = 40.0f;
-		bool  m_controlsActive = false;
+		float	   m_yaw			= 0.0f;
+		float	   m_pitch			= 0.0f;
+		float	   m_movementPower	= 40.0f;
+		float	   m_movementSpeed	= 40.0f;
+		float	   m_angularPower	= 10.0f;
+		float	   m_angularSpeed	= 40.0f;
+		float	   m_yawPrev		= 0.0f;
+		float	   m_pitchPrev		= 0.0f;
+		bool	   m_controlsActive = false;
+		Quaternion m_targetRotation = Quaternion::Identity();
 	};
 } // namespace Lina::Editor

@@ -27,7 +27,10 @@ SOFTWARE.
 */
 
 #include "Editor/Widgets/Compound/EntityBrowser.hpp"
+#include "Editor/Widgets/World/WorldController.hpp"
+#include "Editor/Widgets/World/WorldDisplayer.hpp"
 #include "Editor/Widgets/Layout/ItemController.hpp"
+#include "Editor/Widgets/Panel/PanelWorld.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Actions/EditorActionEntity.hpp"
@@ -119,6 +122,14 @@ namespace Lina::Editor
 			EditorActionEntitySelection::Create(m_editor, m_world->GetID(), selection, false, true);
 			EditorActionEntityDelete::Create(m_editor, m_world, selection);
 			EditorActionCollective::Create(m_editor, 2);
+		};
+
+		controller->GetProps().onInteract = [this]() {
+			Panel* p = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::World, 0);
+			if (!p)
+				return;
+
+			static_cast<PanelWorld*>(p)->GetDisplayer()->GetController()->FocusSelected();
 		};
 
 		controller->GetProps().onDuplicate = [this]() {

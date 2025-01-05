@@ -148,9 +148,10 @@ namespace Lina::Editor
 		{
 			return m_lgxWindow;
 		}
-		void		 SetWorld(WorldRenderer* renderer, EditorWorldRenderer* ewr, WorldCameraType cameraType);
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act) override;
+		void		 SetWorld(WorldRenderer* renderer, EditorWorldRenderer* ewr, WorldCameraType cameraType);
+		void		 FocusSelected();
 
 		// World
 		virtual void OnWorldTick(float delta, PlayMode playmode) override;

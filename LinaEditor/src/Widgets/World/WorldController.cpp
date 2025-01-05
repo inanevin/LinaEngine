@@ -407,6 +407,14 @@ namespace Lina::Editor
 		}
 	}
 
+	void WorldController::FocusSelected()
+	{
+		if (!m_camera)
+			return;
+
+		m_camera->SetFocus(m_gizmoControls.averagePosition, Vector3::Zero, EditorCamera::FocusType::Point);
+	}
+
 	void WorldController::PreTick()
 	{
 		if (m_worldRenderer == nullptr)
@@ -656,8 +664,20 @@ namespace Lina::Editor
 			{
 				StartGizmoMotion(GizmoMotion::Mouse, GizmoAxis::Center);
 			}
-			else if (lastHovered == GIZMO_ORIENTATION_X || lastHovered == GIZMO_ORIENTATION_Y || lastHovered == GIZMO_ORIENTATION_Z)
+			else if (lastHovered == GIZMO_ORIENTATION_X)
 			{
+				const Vector3 p = m_gizmoControls.averagePosition;
+				m_camera->SetFocus(p, Vector3::Right, EditorCamera::FocusType::PointAxis);
+			}
+			else if (lastHovered == GIZMO_ORIENTATION_Y)
+			{
+				const Vector3 p = m_gizmoControls.averagePosition;
+				m_camera->SetFocus(p, Vector3::Up, EditorCamera::FocusType::PointAxis);
+			}
+			else if (lastHovered == GIZMO_ORIENTATION_Z)
+			{
+				const Vector3 p = m_gizmoControls.averagePosition;
+				m_camera->SetFocus(p, Vector3::Forward, EditorCamera::FocusType::PointAxis);
 			}
 			else
 			{
@@ -686,6 +706,12 @@ namespace Lina::Editor
 
 		if (act != LinaGX::InputAction::Pressed)
 			return false;
+
+		if (keycode == LINAGX_KEY_F && !m_selectedEntities.empty())
+		{
+			FocusSelected();
+			return true;
+		}
 
 		if (keycode == LINAGX_KEY_ESCAPE)
 		{
@@ -796,7 +822,6 @@ namespace Lina::Editor
 
 				uint32 outDecimals	  = 0;
 				m_gizmoControls.value = UtilStr::StringToFloat(m_gizmoControls.valueStr, outDecimals);
-				LINA_TRACE("{0}", m_gizmoControls.value);
 
 				return true;
 			}
@@ -811,7 +836,6 @@ namespace Lina::Editor
 
 				uint32 outDecimals	  = 0;
 				m_gizmoControls.value = UtilStr::StringToFloat(m_gizmoControls.valueStr, outDecimals);
-				LINA_TRACE("{0}", m_gizmoControls.value);
 				return true;
 			}
 		}

@@ -55,6 +55,11 @@ namespace Lina::Editor
 		virtual void Construct() override;
 		virtual void Destruct() override;
 
+		inline WorldDisplayer* GetDisplayer() const
+		{
+			return m_worldDisplayer;
+		}
+
 	protected:
 		virtual void OnWorldManagerOpenedWorld(EditorWorldRenderer* wr) override;
 		virtual void OnWorldManagerClosingWorld(EditorWorldRenderer* wr) override;

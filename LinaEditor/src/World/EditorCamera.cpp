@@ -214,6 +214,35 @@ namespace Lina::Editor
 
 	void FreeCamera::OnHandleCamera(float delta)
 	{
+		if (m_focusType == FocusType::Point)
+		{
+			const float targetDistance = 2.0f;
+			m_targetRotation		   = Quaternion::LookAt(m_absPosition, m_focusPoint, Vector3::Up);
+			m_absPosition			   = Vector3::Lerp(m_absPosition, m_focusPoint - m_targetRotation.GetForward() * targetDistance, delta * 10.0f);
+			m_absRotation			   = Quaternion::Slerp(m_absRotation, m_targetRotation, delta * 10.0f);
+
+			if (m_absPosition.Distance(m_focusPoint) < targetDistance + 0.2f)
+			{
+				SyncCamera();
+			}
+			return;
+		}
+		else if (m_focusType == FocusType::PointAxis)
+		{
+			const float	  targetDistance = 2.0f;
+			const Vector3 cameraPoint	 = m_focusPoint + m_focusAxis * targetDistance;
+			m_targetRotation			 = Quaternion::LookAt(cameraPoint, m_focusPoint, m_focusAxis == Vector3::Up ? Vector3::Forward : Vector3::Up);
+			m_absRotation				 = Quaternion::Slerp(m_absRotation, m_targetRotation, delta * 10.0f);
+
+			m_absPosition = Vector3::Lerp(m_absPosition, cameraPoint, delta * 10.0f);
+
+			if (m_absPosition.Distance(cameraPoint) < 0.1f)
+			{
+				SyncCamera();
+			}
+
+			return;
+		}
 
 		WorldInput& input = m_world->GetInput();
 
@@ -231,18 +260,33 @@ namespace Lina::Editor
 		const float shiftBoost = input.GetKey(LINAGX_KEY_LSHIFT) ? m_shiftBoost : 1.0f;
 
 		const Vector2 mouseDelta = (m_controlsActive ? input.GetMouseDelta() : Vector2::Zero) * m_angularPower * 0.02f * m_angularBoost;
+
+		m_yawPrev	= m_yaw;
+		m_pitchPrev = m_pitch;
+
 		m_yaw += mouseDelta.x;
 		m_pitch += mouseDelta.y;
+		m_pitch = Math::Clamp(m_pitch, -89.0f, 89.0f);
 
-		const Quaternion pitch			= Quaternion::AngleAxis(m_pitch, Vector3::Right);
-		const Quaternion yaw			= Quaternion::AngleAxis(m_yaw, Vector3::Up);
-		const Quaternion targetRotation = yaw * pitch * Quaternion::Identity();
-		m_absRotation					= Quaternion::Slerp(m_absRotation, targetRotation, delta * m_angularSpeed);
+		const Quaternion pitch = Quaternion::AngleAxis(m_pitch - m_pitchPrev, m_targetRotation.GetRight());
+		const Quaternion yaw   = Quaternion::AngleAxis(m_yaw - m_yawPrev, Vector3::Up);
+
+		m_targetRotation = yaw * pitch * m_targetRotation;
+		m_absRotation	 = Quaternion::Slerp(m_absRotation, m_targetRotation, delta * m_angularSpeed);
 
 		const Vector2 axis = m_controlsActive ? Vector2(input.GetKey(LINAGX_KEY_A) ? -1.0f : (input.GetKey(LINAGX_KEY_D) ? 1.0f : 0.0f), input.GetKey(LINAGX_KEY_S) ? -1.0f : (input.GetKey(LINAGX_KEY_W) ? 1.0f : 0.0f)) : Vector2::Zero;
 		const Vector3 move = (m_absRotation.GetForward() * axis.y + m_absRotation.GetRight() * axis.x) * delta * m_movementPower * m_movementBoost * shiftBoost;
 
 		const Vector3 targetPos = m_absPosition + move;
 		m_absPosition			= Vector3::Lerp(m_absPosition, targetPos, delta * m_movementSpeed);
+	}
+
+	void FreeCamera::SyncCamera()
+	{
+		m_yaw		= 0.0f;
+		m_pitch		= 0.0;
+		m_yawPrev	= 0.0f;
+		m_pitchPrev = 0.0f;
+		m_focusType = FocusType::None;
 	}
 } // namespace Lina::Editor
