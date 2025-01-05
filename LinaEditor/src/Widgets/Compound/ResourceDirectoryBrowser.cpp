@@ -401,7 +401,7 @@ namespace Lina::Editor
 		const bool	anyNonExternal	  = checkPredicate([](ResourceDirectory* dir) -> bool { return dir->resourceType != ResourceType::ExternalSource; });
 
 		// Create
-		if (size != 1 || anyFile || anyEngineFolder)
+		if (anyFile || anyEngineFolder)
 			createDisabled = true;
 
 		// Rename
@@ -646,7 +646,7 @@ namespace Lina::Editor
 		}
 
 		ResourceDirectory* newCreated = nullptr;
-		ResourceDirectory* front	  = selection.front();
+		ResourceDirectory* front	  = selection.empty() ? &root : selection.front();
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Folder)))
 		{

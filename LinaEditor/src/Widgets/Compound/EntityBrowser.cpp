@@ -361,7 +361,7 @@ namespace Lina::Editor
 				.text		  = Locale::GetStr(LocaleStr::Create),
 				.dropdownIcon = ICON_CHEVRON_RIGHT,
 				.hasDropdown  = true,
-				.isDisabled	  = basicActionsDisabled,
+				.isDisabled	  = true,
 				.userData	  = userData,
 			});
 
