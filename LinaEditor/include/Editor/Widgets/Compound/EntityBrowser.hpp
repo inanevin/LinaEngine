@@ -60,6 +60,7 @@ namespace Lina::Editor
 	private:
 		void AddItem(Widget* parent, Entity* e, float margin);
 		void RequestRename(Entity* e);
+		bool ContainsSearchStrRecursive(Entity* e);
 
 	protected:
 		virtual bool OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData) override;
@@ -72,6 +73,7 @@ namespace Lina::Editor
 		Editor*			   m_editor		= nullptr;
 		ItemController*	   m_controller = nullptr;
 		DirectionalLayout* m_layout		= nullptr;
+		String			   m_searchStr	= "";
 	};
 
 	LINA_WIDGET_BEGIN(EntityBrowser, Hidden)

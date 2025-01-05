@@ -77,6 +77,10 @@ namespace Lina::Editor
 		searchField->GetProps().usePlaceHolder	= true;
 		searchField->GetProps().placeHolderText = Locale::GetStr(LocaleStr::Search);
 		searchField->GetProps().placeHolderIcon = ICON_SEARCH;
+		searchField->GetProps().onEdited		= [this](const String& str) {
+			   m_searchStr = str;
+			   RefreshEntities();
+		};
 		header->AddChild(searchField);
 
 		ScrollArea* scroll = m_manager->Allocate<ScrollArea>("Scroll");
@@ -194,6 +198,9 @@ namespace Lina::Editor
 
 		for (Entity* root : roots)
 		{
+			if (!m_searchStr.empty() && !ContainsSearchStrRecursive(root))
+				continue;
+
 			AddItem(m_layout, root, Theme::GetDef().baseIndent);
 		}
 
@@ -242,7 +249,11 @@ namespace Lina::Editor
 		parent->AddChild(layout);
 
 		for (Entity* c : children)
+		{
+			if (!m_searchStr.empty() && !ContainsSearchStrRecursive(c))
+				continue;
 			AddItem(layout, c, margin + Theme::GetDef().baseIndent);
+		}
 	}
 
 	void EntityBrowser::RequestRename(Entity* e)
@@ -275,6 +286,20 @@ namespace Lina::Editor
 
 		m_controller->SetFocus(true);
 		m_manager->GrabControls(inp);
+	}
+
+	bool EntityBrowser::ContainsSearchStrRecursive(Entity* e)
+	{
+		if (e->GetName().find(m_searchStr) != String::npos)
+			return true;
+
+		for (Entity* c : e->GetChildren())
+		{
+			if (ContainsSearchStrRecursive(c))
+				return true;
+		}
+
+		return false;
 	}
 
 	bool EntityBrowser::OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData)
