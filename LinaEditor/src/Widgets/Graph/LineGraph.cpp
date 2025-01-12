@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Editor/Editor.hpp"
 #include "Core/Application.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Math/Math.hpp"
 
@@ -38,16 +39,17 @@ namespace Lina::Editor
 
 	void LineGraph::Draw()
 	{
+        
 		if (m_font == nullptr)
 			m_font = Editor::Get()->GetApp()->GetResourceManager().GetResource<Font>(m_props.font);
 
 		LinaVG::TextOptions crossAxisTextOptions;
-		crossAxisTextOptions.font				= m_font->GetFont(m_lgxWindow->GetDPIScale());
+        crossAxisTextOptions.font				= m_font->GetFont(m_manager->GetScalingFactor());
 		crossAxisTextOptions.alignment			= LinaVG::TextAlignment::Right;
 		crossAxisTextOptions.color.gradientType = LinaVG::GradientType::Vertical;
 
 		LinaVG::TextOptions mainAxisTextOptions;
-		mainAxisTextOptions.font			   = m_font->GetFont(m_lgxWindow->GetDPIScale());
+        mainAxisTextOptions.font			   = m_font->GetFont(m_manager->GetScalingFactor());
 		mainAxisTextOptions.alignment		   = LinaVG::TextAlignment::Left;
 		mainAxisTextOptions.color.gradientType = LinaVG::GradientType::Horizontal;
 
@@ -136,7 +138,7 @@ namespace Lina::Editor
 		if (!m_props.title.empty())
 		{
 			LinaVG::TextOptions opts;
-			opts.font		  = m_font->GetFont(m_lgxWindow->GetDPIScale());
+            opts.font		  = m_font->GetFont(m_manager->GetScalingFactor());
 			opts.alignment	  = LinaVG::TextAlignment::Center;
 			const Vector2 pos = Vector2(topLeft.x + graphSize.x * 0.5f, topLeft.y - afterTextIndent);
 			m_lvg->DrawTextDefault(m_props.title.c_str(), pos.AsLVG(), opts, 0.0f, m_drawOrder, false);
@@ -301,7 +303,7 @@ namespace Lina::Editor
 		if (!m_props.legends.empty())
 		{
 			LinaVG::TextOptions legendTextOpts;
-			legendTextOpts.font		 = m_font->GetFont(m_lgxWindow->GetDPIScale());
+            legendTextOpts.font		 = m_font->GetFont(m_manager->GetScalingFactor());
 			legendTextOpts.alignment = LinaVG::TextAlignment::Left;
 			legendTextOpts.color	 = m_props.colorLegendText.AsLVG4();
 

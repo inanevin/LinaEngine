@@ -169,8 +169,7 @@ namespace Lina::Editor
 		source->GetWidgetManager()->AddToForeground(inf);
 		inf->Initialize();
 
-		LinaGX::Window* window	   = source->GetWindow();
-		const Vector2	windowSize = Vector2(static_cast<float>(window->GetSize().x), static_cast<float>(window->GetSize().y));
+        const Vector2	windowSize = source->GetWidgetManager()->GetSize();
 		const Vector2	sz		   = inf->GetSize();
 
 		// Try right
@@ -217,7 +216,6 @@ namespace Lina::Editor
 
 	float CommonWidgets::GetPopupWidth(LinaGX::Window* window)
 	{
-		const float itemHeight = Theme::GetDef().baseItemHeight;
 		return Math::Clamp(window->GetMonitorSize().x * 0.3f, 200.0f, 600.0f);
 	}
 
@@ -452,7 +450,7 @@ namespace Lina::Editor
 			icon->SetAnchorY(Anchor::Center);
 			icon->SetAnchorX(Anchor::Center);
 			icon->GetProps().dynamicSizeToParent = true;
-			icon->GetProps().dynamicSizeScale	 = 1.0f;
+			icon->GetProps().dynamicSizeScale	 = 0.9f;
 			space0->AddChild(icon);
 		}
 		else if (!props.typeText.empty())
@@ -478,7 +476,7 @@ namespace Lina::Editor
 			icon->SetAnchorY(Anchor::Center);
 			icon->SetAnchorX(Anchor::Center);
 			icon->GetProps().dynamicSizeToParent = true;
-			icon->GetProps().dynamicSizeScale	 = 1.0f;
+            icon->GetProps().dynamicSizeScale	 = 0.9f;
 			space1->AddChild(icon);
 		}
 		else if (props.image != nullptr)
@@ -568,8 +566,8 @@ namespace Lina::Editor
 		fold->AddChild(layout);
 
 		Icon* chevron				   = wm->Allocate<Icon>("Chevron");
-		chevron->GetProps().icon	   = ICON_CHEVRON_RIGHT;
-		chevron->GetProps().iconAlt	   = ICON_CHEVRON_DOWN;
+		chevron->GetProps().icon	   = ICON_ARROW_RIGHT;
+		chevron->GetProps().iconAlt	   = ICON_ARROW_DOWN;
 		chevron->GetProps().useAltIcon = unfoldValue ? *unfoldValue : false;
 		chevron->GetFlags().Set(WF_POS_ALIGN_Y);
 		chevron->SetAlignedPosY(0.5f);
@@ -681,7 +679,7 @@ namespace Lina::Editor
 		txt->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 		txt->GetProps().text	  = desc;
 		txt->GetProps().font	  = EDITOR_FONT_PLAY_BIG_ID;
-		txt->GetProps().wrapWidth = static_cast<float>(src->GetWindow()->GetSize().x) * 0.5f;
+		txt->GetProps().wrapWidth = static_cast<float>(src->GetWindow()->GetSize().x) * 0.75f;
 		txt->CalculateTextSize();
 		layout->AddChild(txt);
 
@@ -852,7 +850,7 @@ namespace Lina::Editor
 		{
 			layout->GetFlags().Set(WF_MOUSE_PASSTHRU);
 			layout->GetProps().onClicked = [fold, layout, foldVal]() {
-				const Vector2 mp = layout->GetWindow()->GetMousePosition();
+                const Vector2 mp = layout->GetWidgetManager()->GetMousePosition();
 				if (mp.x < layout->GetRect().GetCenter().x)
 				{
 					fold->SetIsUnfolded(!fold->GetIsUnfolded());

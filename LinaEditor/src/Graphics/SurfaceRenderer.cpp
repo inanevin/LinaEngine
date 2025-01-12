@@ -74,6 +74,9 @@ namespace Lina::Editor
 		m_resourceManagerV2 = &m_editor->GetApp()->GetResourceManager();
 		m_lgx				= Application::GetLGX();
 		m_size				= m_window->GetSize();
+        m_rtSize = Vector2ui(static_cast<float>(m_window->GetSize().x) * m_window->GetDPIScale(), static_cast<float>(m_window->GetSize().y) * m_window->GetDPIScale());
+        m_size = m_rtSize;
+        // m_rtSize = m_size;
 		m_guiDefault		= m_editor->GetApp()->GetResourceManager().GetResource<Shader>(EDITOR_SHADER_GUI_DEFAULT_ID);
 		m_guiColorWheel		= m_editor->GetApp()->GetResourceManager().GetResource<Shader>(EDITOR_SHADER_GUI_COLOR_WHEEL_ID);
 		m_guiHue			= m_editor->GetApp()->GetResourceManager().GetResource<Shader>(EDITOR_SHADER_GUI_HUE_DISPLAY_ID);
@@ -81,7 +84,21 @@ namespace Lina::Editor
 		m_guiSDF			= m_editor->GetApp()->GetResourceManager().GetResource<Shader>(EDITOR_SHADER_GUI_SDF_TEXT_ID);
 		m_guiGlitch			= m_editor->GetApp()->GetResourceManager().GetResource<Shader>(EDITOR_SHADER_GUI_GLITCH_ID);
 		m_guiDisplayTarget	= m_editor->GetApp()->GetResourceManager().GetResource<Shader>(EDITOR_SHADER_GUI_DISPLAYTARGET_ID);
-
+        m_guiSwapchain = m_editor->GetApp()->GetResourceManager().GetResource<Shader>(EDITOR_SHADER_GUI_SWAPCHAIN_ID);
+        m_swapchainTextureSampler = m_resourceManagerV2->CreateResource<TextureSampler>(m_resourceManagerV2->ConsumeResourceID());
+        m_clearColor = clearColor;
+        
+        LinaGX::SamplerDesc samplerData = {};
+        samplerData.minFilter            = LinaGX::Filter::Nearest;
+        samplerData.magFilter            = LinaGX::Filter::Nearest;
+        samplerData.mode                = LinaGX::SamplerAddressMode::ClampToEdge;
+        samplerData.anisotropy            = 6;
+        samplerData.borderColor            = LinaGX::BorderColor::WhiteOpaque;
+        samplerData.mipLodBias            = 0.0f;
+        samplerData.minLod                = 0.0f;
+        samplerData.maxLod                = 0;
+        m_swapchainTextureSampler->GenerateHW(samplerData);
+        
 		const LinaGX::VSyncStyle vsync = {
 			.vulkanVsync = VSYNC_VK,
 			.dx12Vsync	 = VSYNC_DX,
@@ -100,13 +117,23 @@ namespace Lina::Editor
 					   .osHandle	 = window->GetOSHandle(),
 					   .isFullscreen = windowSize.x == monitorSize.x && windowSize.y == monitorSize.y,
 					   .vsyncStyle	 = vsync,
+                       .scalingFactor = window->GetDPIScale(),
 		   });
+        
+        const LinaGX::TextureDesc rtDesc = {
+            .format       = SystemInfo::GetLDRFormat(),
+            .flags       = LinaGX::TF_ColorAttachment | LinaGX::TF_Sampled,
+            .width       = m_rtSize.x,
+            .height       = m_rtSize.y,
+            .samples   = 1,
+            .debugName = "Surface Renderer Target",
+        };
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data	   = m_pfd[i];
 			data.gfxStream = m_lgx->CreateCommandStream({LinaGX::CommandType::Graphics, MAX_GFX_COMMANDS, 24000, 4096, 32, "SurfaceRenderer: Gfx Stream"});
-			m_guiPass.SetColorAttachment(i, 0, {.clearColor = {clearColor.x, clearColor.y, clearColor.z, clearColor.w}, .texture = static_cast<uint32>(m_swapchain), .isSwapchain = true});
+			
 
 			const String cmdStreamDbg = "SurfaceRenderer: CopyStream" + TO_STRING(i);
 			data.copyStream			  = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, MAX_COPY_COMMANDS, 4000, 1024, 32, cmdStreamDbg.c_str()});
@@ -115,15 +142,29 @@ namespace Lina::Editor
 			const String istr = TO_STRING(i);
 			data.guiVertexBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, MAX_GUI_VERTICES * sizeof(LinaVG::Vertex), "SurfaceRenderer: VertexBuffer" + istr);
 			data.guiIndexBuffer.Create(LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_GUI_INDICES * sizeof(LinaVG::Index), "SurfaceRenderer: IndexBuffer" + istr);
+            
+            data.renderTarget = m_resourceManagerV2->CreateResource<Texture>(m_resourceManagerV2->ConsumeResourceID());
+            data.renderTarget->GenerateHWFromDesc(rtDesc);
+            
+            m_swapchainPass.SetColorAttachment(i, 0, {.clearColor = {clearColor.x, clearColor.y, clearColor.z, clearColor.w}, .texture = static_cast<uint32>(m_swapchain), .isSwapchain = true});
+            
+            m_guiPass.SetColorAttachment(i, 0, {.clearColor = {clearColor.x, clearColor.y, clearColor.z, clearColor.w}, .texture = data.renderTarget->GetGPUHandle(), .isSwapchain = false});
 		}
 
 		m_cpuDraw.materialBuffer = {new uint8[10000], 10000};
 		m_gpuDraw.materialBuffer = {new uint8[10000], 10000};
 
 		// RP
-		m_guiPass.Create(EditorGfxHelpers::GetGUIPassDescription(), m_window);
+		m_guiPass.Create(EditorGfxHelpers::GetGUIPassDescription());
+        m_guiPass.SetSize(m_rtSize);
+
+        m_swapchainPass.Create(EditorGfxHelpers::GetSwapchainPassDescription());
+        m_swapchainPass.SetSize(m_size);
+        
 		m_widgetManager.Initialize(&m_editor->GetApp()->GetResourceManager(), m_window, &m_lvgDrawer);
 		m_lvgDrawer.GetCallbacks().draw = BIND(&SurfaceRenderer::DrawDefault, this, std::placeholders::_1);
+        
+        m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 	}
 
 	SurfaceRenderer::~SurfaceRenderer()
@@ -132,7 +173,10 @@ namespace Lina::Editor
 		delete[] m_gpuDraw.materialBuffer.data();
 
 		m_widgetManager.Shutdown();
+        m_swapchainPass.Destroy();
 		m_guiPass.Destroy();
+        m_swapchainTextureSampler->DestroyHW();
+        m_resourceManagerV2->DestroyResource(m_swapchainTextureSampler);
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -142,9 +186,12 @@ namespace Lina::Editor
 			m_lgx->DestroyUserSemaphore(data.copySemaphore.GetSemaphore());
 			data.guiVertexBuffer.Destroy();
 			data.guiIndexBuffer.Destroy();
+            data.renderTarget->DestroyHW();
+            m_resourceManagerV2->DestroyResource(data.renderTarget);
 		}
 
 		m_lgx->DestroySwapchain(m_swapchain);
+        m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 	}
 
 	void SurfaceRenderer::OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& newSize)
@@ -165,10 +212,36 @@ namespace Lina::Editor
 			.height		  = newSize.y,
 			.isFullscreen = newSize.x == monitorSize.x && newSize.y == monitorSize.y,
 			.vsyncStyle	  = vsync,
+            .scalingFactor = m_window->GetDPIScale(),
 		};
 
 		m_lgx->RecreateSwapchain(desc);
 		m_size = newSize;
+        m_rtSize = Vector2ui(static_cast<float>(m_window->GetSize().x) * m_window->GetDPIScale(), static_cast<float>(m_window->GetSize().y) * m_window->GetDPIScale());
+        // m_rtSize = m_size;
+        m_size = m_rtSize;
+        m_guiPass.SetSize(m_rtSize);
+        m_swapchainPass.SetSize(m_size);
+
+        const LinaGX::TextureDesc rtDesc = {
+            .format       = SystemInfo::GetLDRFormat(),
+            .flags       = LinaGX::TF_ColorAttachment | LinaGX::TF_Sampled,
+            .width       = m_rtSize.x,
+            .height       = m_rtSize.y,
+            .samples   = 1,
+            .debugName = "Surface Renderer Target",
+        };
+
+        for(uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+        {
+            PerFrameData& data = m_pfd[i];
+            data.renderTarget->DestroyHW();
+            data.renderTarget->GenerateHWFromDesc(rtDesc);
+            
+            m_guiPass.SetColorAttachment(i, 0, {.clearColor = {m_clearColor.x, m_clearColor.y, m_clearColor.z, m_clearColor.w}, .texture = data.renderTarget->GetGPUHandle(), .isSwapchain = false});
+        }
+        
+        m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 	}
 
 	bool SurfaceRenderer::CheckVisibility()
@@ -186,8 +259,7 @@ namespace Lina::Editor
 
 	void SurfaceRenderer::Tick(float delta)
 	{
-		m_widgetManager.Tick(delta, m_size);
-
+		m_widgetManager.Tick(delta, m_rtSize);
 		m_widgetManager.Draw();
 
 		LinaVG::StyleOptions opts;
@@ -195,10 +267,19 @@ namespace Lina::Editor
 		opts.thickness = Theme::GetDef().baseBorderThickness * 2;
 		opts.color	   = Theme::GetDef().background0.AsLVG4();
 
-		const Vector2 windowSize = m_window->GetSize() - Vector2(2, 2);
-		m_lvgDrawer.DrawRect(LinaVG::Vec2(2, 2), windowSize.AsLVG(), opts, 0.0f, FOREGROUND_DRAW_ORDER);
+        const Vector2 sz = m_widgetManager.GetSize() - Vector2(2, 2);
+		m_lvgDrawer.DrawRect(LinaVG::Vec2(2, 2), sz.AsLVG(), opts, 0.0f, FOREGROUND_DRAW_ORDER);
+        
 		m_lvgDrawer.FlushBuffers();
 		m_lvgDrawer.ResetFrame();
+        
+        RenderPass::InstancedDraw draw = {
+            .shaderHandle  = m_guiSwapchain->GetGPUHandle(),
+            .vertexCount      = 3,
+            .instanceCount = 1,
+        };
+        
+        m_swapchainPass.AddDrawCall(draw);
 	}
 
 	void SurfaceRenderer::DrawDefault(LinaVG::DrawBuffer* buf)
@@ -385,8 +466,8 @@ namespace Lina::Editor
 						.samplerIndex = m_editor->GetEditorRenderer().GetGUITextSampler()->GetBindlessIndex(),
 					},
 				.outlineColor	  = Vector4(0, 0, 0, 0),
-				.thickness		  = 0.52f,
-				.softness		  = 0.025f,
+				.thickness		  = 0.475f,
+				.softness		  = 0.07f,
 				.outlineThickness = 0.0f,
 				.outlineSoftness  = 0.02f,
 			};
@@ -418,20 +499,25 @@ namespace Lina::Editor
 	{
 		auto& currentFrame = m_pfd[frameIndex];
 
-		// Transfers
-		GPUDataGUIView view = {.proj = GfxHelpers::GetProjectionFromSize(m_window->GetSize())};
-		m_guiPass.GetBuffer(frameIndex, "GUIViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataGUIView));
+        GPUDataEditorGUIView view = {.proj = GfxHelpers::GetProjectionFromSize(m_rtSize)};
+		m_guiPass.GetBuffer(frameIndex, "GUIViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataEditorGUIView));
+        
+        GPUDataEditorSwapchainPass swapchainPass = {
+            .textureIndex = m_pfd[frameIndex].renderTarget->GetBindlessIndex(),
+            .samplerIndex = m_swapchainTextureSampler->GetBindlessIndex(),
+        };
+        m_swapchainPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&swapchainPass, sizeof(GPUDataEditorSwapchainPass));
 
 		currentFrame.guiIndexBuffer.BufferData(0, (uint8*)m_gpuDraw.guiIndices.data(), m_gpuDraw.guiIndices.size() * sizeof(LinaVG::Index));
 		currentFrame.guiVertexBuffer.BufferData(0, (uint8*)m_gpuDraw.guiVertices.data(), m_gpuDraw.guiVertices.size() * sizeof(LinaVG::Vertex));
-
 		Buffer& materialBuffer = m_guiPass.GetBuffer(frameIndex, "GUIMaterials"_hs);
 		materialBuffer.BufferData(0, m_gpuDraw.materialBuffer.data(), m_gpuDraw.materialBufferCounter);
 
 		m_uploadQueue.AddBufferRequest(&currentFrame.guiIndexBuffer);
 		m_uploadQueue.AddBufferRequest(&currentFrame.guiVertexBuffer);
 		m_guiPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
-
+        m_swapchainPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+            
 		if (m_uploadQueue.FlushAll(currentFrame.copyStream))
 		{
 			currentFrame.copySemaphore.Increment();
@@ -460,6 +546,7 @@ namespace Lina::Editor
 		m_cpuDraw.guiVertices.resize(0);
 
 		m_guiPass.SyncRender();
+        m_swapchainPass.SyncRender();
 	}
 
 	LinaGX::CommandStream* SurfaceRenderer::Render(uint32 frameIndex)
@@ -470,22 +557,6 @@ namespace Lina::Editor
 		currentFrame.copySemaphore.ResetModified();
 
 		UpdateBuffers(frameIndex);
-
-		const LinaGX::Viewport viewport = {
-			.x		  = 0,
-			.y		  = 0,
-			.width	  = m_size.x,
-			.height	  = m_size.y,
-			.minDepth = 0.0f,
-			.maxDepth = 1.0f,
-		};
-
-		const LinaGX::ScissorsRect scissors = {
-			.x		= 0,
-			.y		= 0,
-			.width	= m_size.x,
-			.height = m_size.y,
-		};
 
 		LinaGX::CMDBindDescriptorSets* bindGlobal = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindDescriptorSets>();
 		bindGlobal->descriptorSetHandles		  = currentFrame.gfxStream->EmplaceAuxMemory<uint16>(m_editor->GetApp()->GetGfxContext().GetDescriptorSetGlobal(frameIndex));
@@ -498,25 +569,33 @@ namespace Lina::Editor
 		LinaGX::CMDBarrier* barrierToColor	= currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
 		barrierToColor->srcStageFlags		= LinaGX::PSF_TopOfPipe;
 		barrierToColor->dstStageFlags		= LinaGX::PSF_ColorAttachment;
-		barrierToColor->textureBarrierCount = 1;
-		barrierToColor->textureBarriers		= currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier));
+		barrierToColor->textureBarrierCount = 2;
+		barrierToColor->textureBarriers		= currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 2);
 		barrierToColor->textureBarriers[0]	= GfxHelpers::GetTextureBarrierPresent2Color(static_cast<uint32>(m_swapchain), true);
+        barrierToColor->textureBarriers[1] = GfxHelpers::GetTextureBarrierColorRead2Att(currentFrame.renderTarget->GetGPUHandle());
 
-		m_guiPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_editor->GetEditorRenderer().GetPipelineLayoutGUI(), 1);
-
-		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Surface Renderer");
-		m_guiPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
+		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Surface Color Target");
+        m_guiPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_editor->GetEditorRenderer().GetPipelineLayoutGUI(), 1);
+		m_guiPass.Begin(currentFrame.gfxStream, frameIndex);
 		m_guiPass.Render(frameIndex, currentFrame.gfxStream);
 		m_guiPass.End(currentFrame.gfxStream);
 		DEBUG_LABEL_END(currentFrame.gfxStream);
+        
+        DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Surface Swapchain");
+        m_swapchainPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_editor->GetEditorRenderer().GetPipelineLayoutSwapchain(), 1);
+        m_swapchainPass.Begin(currentFrame.gfxStream, frameIndex);
+        m_swapchainPass.Render(frameIndex, currentFrame.gfxStream);
+        m_swapchainPass.End(currentFrame.gfxStream);
+        DEBUG_LABEL_END(currentFrame.gfxStream);
 
 		// Barrier to Present
 		LinaGX::CMDBarrier* barrierToPresent  = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
 		barrierToPresent->srcStageFlags		  = LinaGX::PSF_ColorAttachment;
 		barrierToPresent->dstStageFlags		  = LinaGX::PSF_BottomOfPipe;
-		barrierToPresent->textureBarrierCount = 1;
-		barrierToPresent->textureBarriers	  = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier));
-		barrierToPresent->textureBarriers[0]  = GfxHelpers::GetTextureBarrierColor2Present(static_cast<uint32>(m_swapchain), true);
+		barrierToPresent->textureBarrierCount = 2;
+		barrierToPresent->textureBarriers	  = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 2);
+        barrierToPresent->textureBarriers[0]  = GfxHelpers::GetTextureBarrierColor2Present(static_cast<uint32>(m_swapchain), true);
+        barrierToPresent->textureBarriers[1]  = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.renderTarget->GetGPUHandle());
 
 		// Close
 		m_lgx->CloseCommandStreams(&currentFrame.gfxStream, 1);

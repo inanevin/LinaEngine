@@ -80,11 +80,11 @@ namespace Lina::Editor
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 
 		m_fullscreenMaterial->SetShader(m_fullscreenShader);
-		m_fullscreenMaterial->SetProperty("color"_hs, Theme::GetDef().accentPrimary2);
-		m_fullscreenMaterial->SetProperty("thickness"_hs, 2.0f);
+        m_fullscreenMaterial->SetProperty("color"_hs, Theme::GetDef().accentOrange);
+		m_fullscreenMaterial->SetProperty("thickness"_hs, 1.25f);
 
 		m_pipelineLayout = m_lgx->CreatePipelineLayout(EditorGfxHelpers::GetPipelineLayoutDescriptionEntityBufferPass());
-		m_outlinePass.Create(EditorGfxHelpers::GetEntityBufferPassDescription(), nullptr);
+		m_outlinePass.Create(EditorGfxHelpers::GetEntityBufferPassDescription());
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			const uint16 set = m_outlinePass.GetDescriptorSet(i);
@@ -155,7 +155,8 @@ namespace Lina::Editor
 	void OutlineSelectionRenderer::CreateSizeRelativeResources()
 	{
 		m_size = m_wr->GetSize();
-
+        m_outlinePass.SetSize(m_size);
+        
 		const LinaGX::TextureDesc rtDesc = {
 			.format = SystemInfo::GetLDRFormat(),
 			.flags	= LinaGX::TF_ColorAttachment | LinaGX::TF_Sampled | LinaGX::TF_CopySource,
@@ -249,7 +250,7 @@ namespace Lina::Editor
 			.instanceCount = 1,
 			.pushConstant  = m_wr->PushArgument({
 				 .constant1 = m_fullscreenMaterial->GetBindlessIndex(),
-				 .constant2 = m_pfd[frameIndex].renderTarget->GetBindlessIndex(),
+				 .constant2 = m_pfd[txtFrameIndex].renderTarget->GetBindlessIndex(),
 				 .constant3 = m_outlineSampler->GetBindlessIndex(),
 			 }),
 		});
@@ -261,22 +262,6 @@ namespace Lina::Editor
 			return;
 
 		PerFrameData& pfd = m_pfd[frameIndex];
-
-		const LinaGX::Viewport viewport = {
-			.x		  = 0,
-			.y		  = 0,
-			.width	  = m_size.x,
-			.height	  = m_size.y,
-			.minDepth = 0.0f,
-			.maxDepth = 1.0f,
-		};
-
-		const LinaGX::ScissorsRect scissors = {
-			.x		= 0,
-			.y		= 0,
-			.width	= m_size.x,
-			.height = m_size.y,
-		};
 
 		// PASS
 		{
@@ -293,7 +278,7 @@ namespace Lina::Editor
 				barrierToAttachment->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierDepthRead2Att(pfd.depthTarget->GetGPUHandle());
 			}
 
-			m_outlinePass.Begin(stream, viewport, scissors, frameIndex);
+			m_outlinePass.Begin(stream, frameIndex);
 			m_outlinePass.BindDescriptors(stream, frameIndex, m_pipelineLayout, 1);
 			m_outlinePass.Render(frameIndex, stream);
 			m_outlinePass.End(stream);

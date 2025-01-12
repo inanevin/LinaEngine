@@ -42,18 +42,18 @@ namespace Lina::Editor
 	bool EditorResources::LoadPriorityResources(ResourceManagerV2& manager)
 	{
 		Font::Metadata fontMeta1 = {
-			.points = {{.size = 32, .dpiLimit = 10.0f}},
+            .points = {{.size = 32, .scaleLimit = 1.0f}, {.size = 48, .scaleLimit = 1.81f}},
 			.isSDF	= true,
 		};
 
 		Font::Metadata fontMeta2 = {
-			.points = {{.size = 14, .dpiLimit = 1.0f}, {.size = 18, .dpiLimit = 1.8f}, {.size = 22, .dpiLimit = 10.0f}},
+            .points = {{.size = 10, .scaleLimit = 0.72f}, {.size = 12, .scaleLimit = 0.82f}, {.size = 14, .scaleLimit = 1.1f}, {.size = 20, .scaleLimit = 1.6f}, {.size = 24, .scaleLimit = 2.1f}},
 			.isSDF	= false,
 		};
 
 		Font::Metadata fontMeta3 = {
-			.points = {{.size = 20, .dpiLimit = 1.0f}, {.size = 24, .dpiLimit = 1.8f}, {.size = 28, .dpiLimit = 10.0f}},
-			.isSDF	= false,
+            .points = {{.size = 14, .scaleLimit = 0.72f}, {.size = 16, .scaleLimit = 0.82f}, {.size = 18, .scaleLimit = 1.1f}, {.size = 24, .scaleLimit = 1.6f}, {.size = 28, .scaleLimit = 2.1f}},
+            .isSDF    = false,
 		};
 
 		OStream fontStream1, fontStream2, fontStream3;
@@ -97,6 +97,11 @@ namespace Lina::Editor
 				.name = EDITOR_SHADER_GUI_GLITCH_PATH,
 				.tid  = GetTypeID<Shader>(),
 			},
+            {
+                .id      = EDITOR_SHADER_GUI_SWAPCHAIN_ID,
+                .name = EDITOR_SHADER_GUI_SWAPCHAIN_PATH,
+                .tid  = GetTypeID<Shader>(),
+            },
 			{
 				.id	  = EDITOR_TEXTURE_LINA_LOGO_ID,
 				.name = EDITOR_TEXTURE_LINA_LOGO_PATH,
@@ -272,18 +277,18 @@ namespace Lina::Editor
 		m_createdResources.insert(fontPlayVeryBig);
 
 		fontPlay->GetMeta() = {
-			.points = {{.size = 14, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
-			.isSDF	= false,
+            .points = {{.size = 10, .scaleLimit = 0.72f}, {.size = 12, .scaleLimit = 0.82f}, {.size = 14, .scaleLimit = 1.1f}, {.size = 20, .scaleLimit = 1.6f}, {.size = 24, .scaleLimit = 2.1f}},
+            .isSDF    = false,
 		};
 
 		fontPlayBold->GetMeta() = {
-			.points = {{.size = 14, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
-			.isSDF	= false,
+            .points = {{.size = 10, .scaleLimit = 0.72f}, {.size = 12, .scaleLimit = 0.82f}, {.size = 14, .scaleLimit = 1.1f}, {.size = 20, .scaleLimit = 1.6f}, {.size = 24, .scaleLimit = 2.1f}},
+            .isSDF    = false,
 		};
 
 		fontPlayVeryBig->GetMeta() = {
-			.points = {{.size = 32, .dpiLimit = 1.0f}, {.size = 36, .dpiLimit = 1.8f}, {.size = 38, .dpiLimit = 10.0f}},
-			.isSDF	= false,
+            .points = {{.size = 30, .scaleLimit = 0.5f}, {.size = 34, .scaleLimit = 0.8f}, {.size = 38, .scaleLimit = 1.0f}},
+            .isSDF    = false,
 		};
 
 		for (Resource* r : m_createdResources)

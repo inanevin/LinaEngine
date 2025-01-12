@@ -58,8 +58,7 @@ namespace Lina
 
 		if (m_isPressed && m_props.valuePtr)
 		{
-			const Vector2 mouseAbs	  = m_lgxWindow->GetInput()->GetMousePositionAbs();
-			const Vector2 mouse		  = Vector2(mouseAbs.x - static_cast<float>(m_lgxWindow->GetPosition().x), mouseAbs.y - static_cast<float>(m_lgxWindow->GetPosition().y));
+            const Vector2 mouse		  = m_manager->GetMousePosition();
 			float		  targetValue = 0.0f;
 
 			if (m_props.direction == DirectionOrientation::Horizontal)
@@ -159,9 +158,7 @@ namespace Lina
 		if (act == LinaGX::InputAction::Pressed && (m_handle->GetIsHovered() || m_isHovered))
 		{
 			m_isPressed	 = true;
-			m_pressStart = m_lgxWindow->GetInput()->GetMousePositionAbs();
 			m_manager->GrabControls(this);
-			;
 			return true;
 		}
 

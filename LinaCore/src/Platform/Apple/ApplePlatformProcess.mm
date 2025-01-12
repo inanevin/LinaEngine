@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Common/Platform/PlatformInclude.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Log/Log.hpp"
-#include "Common/System/Plugin.hpp"
+#include "Core/System/Plugin.hpp"
 #include "Core/Lina.hpp"
 #include "Common/Profiling/MemoryTracer.hpp"
 
@@ -225,7 +225,7 @@ namespace Lina
 		} while (ev);
 	}
 
-	void PlatformProcess::LoadPlugin(const char* name, EngineInterface* engInterface, SystemEventDispatcher* dispatcher)
+    Plugin* PlatformProcess::LoadPlugin(const String& name, PluginInterface* pInterface)
 	{
 		// void* handle = dlopen(name, RTLD_NOW);
 		// if (handle != NULL)
@@ -251,9 +251,10 @@ namespace Lina
 		//     std::string error = dlerror();
 		//     LINA_ERR("[macOS Platform Process] -> Could not find plugin! {0}", name);
 		// }
+        return nullptr;
 	}
 
-	void PlatformProcess::UnloadPlugin(void* handle)
+	void PlatformProcess::UnloadPlugin(Plugin* plugin)
 	{
 		// if (handle != NULL)
 		// {
@@ -443,7 +444,7 @@ namespace Lina
 
 		if (task_info(mach_task_self(), TASK_BASIC_INFO, (task_info_t)&taskInfo, &taskInfoCount) == KERN_SUCCESS)
 		{
-		    info.currentUsage = static_cast<uint32>(taskInfo.resident_size);
+		    info.currentUsage = static_cast<uint32>(taskInfo.resident_size / (1024*1024));
 		    info.peakUsage = 0; 
 		}
 
@@ -454,6 +455,8 @@ namespace Lina
 
 		if (sysctl(mib, 2, &totalMemory, &size, NULL, 0) == 0)
 		{
+            info.totalMemory = static_cast<uint32>(totalMemory / (1024*1024));
+            
 		    info.totalMemory = static_cast<uint32>( totalMemory);
 		}
 

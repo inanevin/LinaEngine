@@ -66,7 +66,7 @@ namespace Lina::Editor
 		m_lgx	 = editor->GetApp()->GetLGX();
 
 		m_pipelineLayout = m_lgx->CreatePipelineLayout(EditorGfxHelpers::GetPipelineLayoutDescriptionEntityBufferPass());
-		m_entityBufferPass.Create(EditorGfxHelpers::GetEntityBufferPassDescription(), nullptr);
+		m_entityBufferPass.Create(EditorGfxHelpers::GetEntityBufferPassDescription());
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -124,6 +124,7 @@ namespace Lina::Editor
 	void MousePickRenderer::CreateSizeRelativeResources()
 	{
 		m_size = m_wr->GetSize();
+        m_entityBufferPass.SetSize(m_size);
 
 		const LinaGX::TextureDesc rtDesc = {
 			.format = LinaGX::Format::R32_UINT,
@@ -225,22 +226,6 @@ namespace Lina::Editor
 
 		PerFrameData& pfd = m_pfd[frameIndex];
 
-		const LinaGX::Viewport viewport = {
-			.x		  = 0,
-			.y		  = 0,
-			.width	  = m_size.x,
-			.height	  = m_size.y,
-			.minDepth = 0.0f,
-			.maxDepth = 1.0f,
-		};
-
-		const LinaGX::ScissorsRect scissors = {
-			.x		= 0,
-			.y		= 0,
-			.width	= m_size.x,
-			.height = m_size.y,
-		};
-
 		// PASS
 		{
 			DEBUG_LABEL_BEGIN(stream, "Editor: Entity Buffer Pass");
@@ -256,7 +241,7 @@ namespace Lina::Editor
 				barrierToAttachment->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierDepthRead2Att(pfd.depthTarget->GetGPUHandle());
 			}
 
-			m_entityBufferPass.Begin(stream, viewport, scissors, frameIndex);
+			m_entityBufferPass.Begin(stream, frameIndex);
 			m_entityBufferPass.BindDescriptors(stream, frameIndex, m_pipelineLayout, 1);
 			m_entityBufferPass.Render(frameIndex, stream);
 			m_entityBufferPass.End(stream);

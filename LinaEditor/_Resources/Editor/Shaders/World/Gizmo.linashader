@@ -34,6 +34,7 @@ SOFTWARE.
 #pass: Resources/Editor/Shaders/Common/RenderPass_World.linashader
 #blend: LINA_BLEND_ALPHA
 #depth: LINA_DEPTH_ALWAYS
+#depth_target: LINA_TARGET_D32
 #target: LINA_TARGET_LDR_MS
 #cull: LINA_CULL_BACK
 
@@ -47,6 +48,7 @@ SOFTWARE.
 #pass: Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader
 #blend: LINA_BLEND_NONE
 #depth: LINA_DEPTH_ALWAYS
+#depth_target: LINA_TARGET_D32
 #target: LINA_TARGET_R32U
 #cull: LINA_CULL_BACK
 

@@ -97,8 +97,8 @@ namespace Lina
 		m_gBufSampler->GenerateHW(gBufSampler);
 		m_lgx = Application::GetLGX();
 
-		m_deferredPass.Create(GfxHelpers::GetRenderPassDescription(RenderPassType::RENDER_PASS_DEFERRED), nullptr);
-		m_forwardPass.Create(GfxHelpers::GetRenderPassDescription(RenderPassType::RENDER_PASS_FORWARD), nullptr);
+		m_deferredPass.Create(GfxHelpers::GetRenderPassDescription(RenderPassType::RENDER_PASS_DEFERRED));
+		m_forwardPass.Create(GfxHelpers::GetRenderPassDescription(RenderPassType::RENDER_PASS_FORWARD));
 
 		m_lvgDrawer.GetCallbacks().draw = BIND(&WorldRenderer::OnLinaVGDraw, this, std::placeholders::_1);
 
@@ -501,6 +501,8 @@ namespace Lina
 			return;
 
 		m_size = newSize;
+        m_forwardPass.SetSize(m_size);
+        m_deferredPass.SetSize(m_size);
 		DestroySizeRelativeResources();
 		CreateSizeRelativeResources();
 	}
@@ -684,22 +686,6 @@ namespace Lina
 	{
 		auto& currentFrame = m_pfd[frameIndex];
 
-		const LinaGX::Viewport viewport = {
-			.x		  = 0,
-			.y		  = 0,
-			.width	  = m_size.x,
-			.height	  = m_size.y,
-			.minDepth = 0.0f,
-			.maxDepth = 1.0f,
-		};
-
-		const LinaGX::ScissorsRect scissors = {
-			.x		= 0,
-			.y		= 0,
-			.width	= m_size.x,
-			.height = m_size.y,
-		};
-
 		// Global set.
 		LinaGX::CMDBindDescriptorSets* bindGlobal = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindDescriptorSets>();
 		bindGlobal->descriptorSetHandles		  = currentFrame.gfxStream->EmplaceAuxMemory<uint16>(m_gfxContext->GetDescriptorSetGlobal(frameIndex));
@@ -729,7 +715,7 @@ namespace Lina
 		{
 			DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Deferred Pass");
 
-			m_deferredPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
+			m_deferredPass.Begin(currentFrame.gfxStream, frameIndex);
 			m_deferredPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxContext->GetPipelineLayoutPersistent(RenderPassType::RENDER_PASS_DEFERRED), 1);
 			m_deferredPass.Render(frameIndex, currentFrame.gfxStream);
 			m_deferredPass.End(currentFrame.gfxStream);
@@ -753,7 +739,7 @@ namespace Lina
 		{
 			DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Forward Pass");
 
-			m_forwardPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
+			m_forwardPass.Begin(currentFrame.gfxStream, frameIndex);
 			m_forwardPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxContext->GetPipelineLayoutPersistent(RenderPassType::RENDER_PASS_FORWARD), 1);
 			m_forwardPass.Render(frameIndex, currentFrame.gfxStream);
 			m_forwardPass.End(currentFrame.gfxStream);

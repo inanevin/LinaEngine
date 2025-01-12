@@ -166,6 +166,7 @@ namespace Lina
 		DropshadowProps		 dropshadow;
 		bool				 altColorsToggled = false;
 		bool				 useSizeTween	  = false;
+        bool aaEnabled = false;
 		Tween				 sizeTween		  = Tween(1.0f, 1.0f, 0.1f);
 
 		virtual void SaveToStream(OStream& stream) const;
@@ -245,7 +246,6 @@ namespace Lina
 		Vector2 GetStartFromMargins();
 		Vector2 GetEndFromMargins();
 		Rect	GetTemporaryAlignedRect();
-		Vector2 GetWindowSize();
 		Vector2 GetMonitorSize();
 		Vector2 GetWindowPos();
 		Widget* FindChildWithUserdata(void* ud);

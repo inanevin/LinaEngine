@@ -58,7 +58,7 @@ namespace Lina
 	{
 		if (m_isPressed && m_props.value)
 		{
-			const Vector2 mouse		  = m_lgxWindow->GetMousePosition();
+			const Vector2 mouse		  = m_manager->GetMousePosition();
 			float		  targetValue = 0.0f;
 
 			if (m_widgetProps.colorBackgroundDirection == DirectionOrientation::Horizontal)

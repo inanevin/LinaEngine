@@ -74,7 +74,7 @@ namespace Lina::Editor
 
 		if (m_isPressed)
 		{
-			const Vector2& mousePosition   = m_lgxWindow->GetMousePosition();
+			const Vector2& mousePosition   = m_manager->GetMousePosition();
 			const Vector2  perc			   = mousePosition / m_parent->GetSize();
 			const float	   borderSizePercX = Theme::GetDef().baseBorderThickness / m_parent->GetSizeX();
 			const float	   borderSizePercY = Theme::GetDef().baseBorderThickness / m_parent->GetSizeY();
@@ -175,7 +175,7 @@ namespace Lina::Editor
 	{
 		if (m_isHovered && button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Pressed)
 		{
-			m_pressDiff = m_orientation == DirectionOrientation::Horizontal ? (m_lgxWindow->GetMousePosition().y - GetPosY()) : (m_lgxWindow->GetMousePosition().x - GetPosX());
+			m_pressDiff = m_orientation == DirectionOrientation::Horizontal ? (m_manager->GetMousePosition().y - GetPosY()) : (m_manager->GetMousePosition().x - GetPosX());
 			FindAdjacentWidgets();
 
 			for (uint32 i = 0; i < 4; i++)

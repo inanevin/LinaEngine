@@ -77,6 +77,7 @@ namespace Lina::Editor
 			Vector3		  worldAxis		  = Vector3::Zero;
 			float		  angle0		  = 0.0f;
 			float		  angle1		  = 0.0f;
+            float defaultShaderScale = 1.0f;
 		};
 
 		GizmoRenderer(Editor* editor, WorldRenderer* wr, RenderPass* targetPass, MousePickRenderer* mpr);

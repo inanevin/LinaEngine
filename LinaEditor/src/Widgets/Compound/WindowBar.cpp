@@ -88,7 +88,7 @@ namespace Lina::Editor
 
 		if (m_barProps.controlsDragRect)
 		{
-			m_dragRect = Rect(m_rect.pos, m_rect.size);
+            m_dragRect = Rect(m_rect.pos / m_lgxWindow->GetDPIScale(), m_rect.size / m_lgxWindow->GetDPIScale());
 
 			if (m_windowButtons != nullptr)
 				m_dragRect.size.x -= m_windowButtons->GetSizeX();
@@ -111,7 +111,7 @@ namespace Lina::Editor
 
 	bool WindowBar::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
-		if (button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Repeated && m_dragRect.IsPointInside(m_lgxWindow->GetMousePosition()))
+		if (button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Repeated && m_dragRect.IsPointInside(m_manager->GetMousePosition()))
 		{
 			if (m_lgxWindow->GetIsMaximized())
 				m_lgxWindow->Restore();

@@ -122,7 +122,7 @@ namespace Lina
 		{
 			m_type = type;
 		}
-
+     
 	private:
 		void Complete();
 		void PerformTween();

@@ -219,9 +219,7 @@ namespace Lina
 
 		// Update global data.
 		{
-			const auto&			 mp			= m_lgx->GetInput().GetMousePositionAbs();
 			GPUDataEngineGlobals globalData = {};
-			globalData.mouse				= Vector4(static_cast<float>(mp.x), static_cast<float>(mp.y), 0.0f, 0.0f);
 			globalData.deltaElapsed			= Vector4(static_cast<float>(SystemInfo::GetDeltaTime()), SystemInfo::GetAppTimeF(), 0.0f, 0.0f);
 			pfd.globalDataBuffer.BufferData(0, (uint8*)&globalData, sizeof(GPUDataEngineGlobals));
 		}

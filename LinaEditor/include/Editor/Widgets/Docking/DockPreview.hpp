@@ -64,12 +64,11 @@ namespace Lina::Editor
 		{
 			bool isCentral = false;
 		};
-		static constexpr float ANIM_TIME		= 0.15f;
+		static constexpr float ANIM_TIME		= 0.20f;
 		static constexpr float BOUNCE_ANIM_TIME = 0.75f;
 		static constexpr float SMALL_RECT_SZ	= 42.0f;
 
 		virtual void Construct() override;
-		virtual void Initialize() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw() override;
 		void		 GetHoveredDirection(Direction& outDirection, bool& outIsHovered);
@@ -94,7 +93,7 @@ namespace Lina::Editor
 	private:
 		Properties m_props = {};
 		DockRect   m_dockRects[5];
-		Tween	   m_dockPreviewTween;
+        Tween	   m_dockPreviewTween = Tween(0.0f, 1.0f, ANIM_TIME, TweenType::EaseOut);
 		float	   m_smallRectSize = 0.0f;
 	};
 

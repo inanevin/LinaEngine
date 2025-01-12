@@ -112,7 +112,6 @@ namespace Lina
 		Icon*	   m_handle		= nullptr;
 		Vector2	   m_start		= Vector2::Zero;
 		Vector2	   m_end		= Vector2::Zero;
-		Vector2	   m_pressStart = Vector2::Zero;
 
 		Vector2 m_bgStart = Vector2::Zero;
 		Vector2 m_bgEnd	  = Vector2::Zero;

@@ -103,7 +103,7 @@ namespace Lina::Editor
 			m_isHovered = false;
 
 		// Press movement
-		const Vector2& mp = m_lgxWindow->GetMousePosition();
+		const Vector2& mp = m_manager->GetMousePosition();
 		if (m_isPressed)
 		{
 			float desiredX = mp.x - m_offsetAtPress.x;
@@ -176,7 +176,7 @@ namespace Lina::Editor
 			if (!m_props.disableMovement)
 			{
 				m_isPressed		= true;
-				m_offsetAtPress = m_lgxWindow->GetMousePosition() - m_rect.pos;
+				m_offsetAtPress = m_manager->GetMousePosition() - m_rect.pos;
 			}
 
 			return true;

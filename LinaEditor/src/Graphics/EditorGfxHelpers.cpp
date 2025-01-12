@@ -41,7 +41,7 @@ namespace Lina::Editor
 					{
 						.bufferType	  = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
 						.debugName	  = "RP: GUI - ViewData",
-						.size		  = sizeof(GPUDataGUIView),
+						.size		  = sizeof(GPUDataEditorGUIView),
 						.stagingOnly  = true,
 						.bindingIndex = 0,
 						.ident		  = "GUIViewData"_hs,
@@ -58,6 +58,24 @@ namespace Lina::Editor
 			.setDescription = GetSetDescriptionGUI(),
 		};
 	}
+
+RenderPassDescription EditorGfxHelpers::GetSwapchainPassDescription()
+{
+    return {
+        .buffers =
+            {
+                {
+                    .bufferType      = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
+                    .debugName      = "RP: Swapchain - PassData",
+                    .size          = sizeof(GPUDataEditorSwapchainPass),
+                    .stagingOnly  = true,
+                    .bindingIndex = 0,
+                    .ident          = "PassData"_hs,
+                },
+            },
+        .setDescription = GetSetDescriptionSwapchain(),
+    };
+}
 
 	RenderPassDescription EditorGfxHelpers::GetEntityBufferPassDescription()
 	{
@@ -127,6 +145,16 @@ namespace Lina::Editor
 
 		return {.bindings = {guiBinding0, guiBinding1}};
 	}
+
+    LinaGX::DescriptorSetDesc EditorGfxHelpers::GetSetDescriptionSwapchain()
+    {
+        LinaGX::DescriptorBinding guiBinding0 = {
+            .type    = LinaGX::DescriptorType::UBO,
+            .stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+        };
+     
+        return {.bindings = {guiBinding0}};
+    }
 
 	LinaGX::DescriptorSetDesc EditorGfxHelpers::GetSetDescriptionEntityBufferPass()
 	{
@@ -199,6 +227,18 @@ namespace Lina::Editor
 			.debugName				   = "GUILayout",
 		};
 	}
+
+LinaGX::PipelineLayoutDesc EditorGfxHelpers::GetPipelineLayoutDescriptionSwapchain()
+{
+    return {
+        .descriptorSetDescriptions = {GfxHelpers::GetSetDescPersistentGlobal(), GetSetDescriptionSwapchain()},
+        .constantRanges               = {{
+                       .stages = {LinaGX::ShaderStage::Vertex},
+                       .size   = static_cast<uint32>(sizeof(uint32)),
+           }},
+        .debugName                   = "SwapchainLayout",
+    };
+}
 
 	LinaGX::PipelineLayoutDesc EditorGfxHelpers::GetPipelineLayoutDescriptionEntityBufferPass()
 	{

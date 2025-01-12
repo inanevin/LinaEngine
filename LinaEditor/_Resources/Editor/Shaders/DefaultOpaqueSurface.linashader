@@ -65,6 +65,7 @@ struct LinaFragOutput
 #pass: Resources/Core/Shaders/Common/RenderPass_Deferred.linashader
 #blend: LINA_BLEND_NONE
 #depth: LINA_DEPTH_LESS
+#depth_target: LINA_TARGET_D32
 #target: LINA_TARGET_HDR,LINA_TARGET_HDR,LINA_TARGET_HDR
 #cull: LINA_CULL_BACK
 #lina_end
@@ -77,6 +78,7 @@ struct LinaFragOutput
 #pass: Resources/Core/Shaders/Common/RenderPass_Deferred.linashader
 #blend: LINA_BLEND_NONE
 #depth: LINA_DEPTH_LESS
+#depth_target: LINA_TARGET_D32
 #target: LINA_TARGET_HDR,LINA_TARGET_HDR,LINA_TARGET_HDR
 #cull: LINA_CULL_BACK
 

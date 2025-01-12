@@ -473,8 +473,8 @@ namespace Lina
 
 		if (GetProcessMemoryInfo(processHandle, &memCounters, sizeof(memCounters)))
 		{
-			info.currentUsage = static_cast<uint32>(memCounters.WorkingSetSize);
-			info.peakUsage	  = static_cast<uint32>(memCounters.PeakWorkingSetSize);
+			info.currentUsage = static_cast<uint32>(memCounters.WorkingSetSize / (1024*1024));
+			info.peakUsage	  = static_cast<uint32>(memCounters.PeakWorkingSetSize / (1024*1024));
 		}
 
 		// Get total physical memory
@@ -482,7 +482,7 @@ namespace Lina
 		memStatus.dwLength = sizeof(memStatus);
 		if (GlobalMemoryStatusEx(&memStatus))
 		{
-			info.totalMemory = static_cast<uint32>(memStatus.ullTotalPhys);
+			info.totalMemory = static_cast<uint32>(memStatus.ullTotalPhys / (1024*1024));
 		}
 
 		return info;

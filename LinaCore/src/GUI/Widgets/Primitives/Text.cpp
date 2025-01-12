@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/Resources/ResourceManager.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Common/System/SystemInfo.hpp"
 #include "Common/Math/Math.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
@@ -44,14 +45,14 @@ namespace Lina
 		if (m_props.fetchWrapFromParent)
 			m_props.wrapWidth = m_parent->GetSizeX();
 
-		const bool calculate = !Math::Equals(m_lastCalculatedWrapWidth, m_props.wrapWidth, 2.0f) || !Math::Equals(m_lgxWindow->GetDPIScale(), m_calculatedDPIScale, 0.01f);
+        const bool calculate = !Math::Equals(m_lastCalculatedWrapWidth, m_props.wrapWidth, 2.0f) || !Math::Equals(m_manager->GetScalingFactor(), m_calculatedUIScaling, 0.01f);
 		if (calculate)
 			CalculateTextSize();
 	}
 
 	void Text::Draw()
 	{
-		if (!Math::Equals(m_lgxWindow->GetDPIScale(), m_calculatedDPIScale, 0.01f))
+        if (!Math::Equals(m_manager->GetScalingFactor(), m_calculatedUIScaling, 0.01f))
 			CalculateTextSize();
 
 		if (m_props.fetchCustomClipFromParent && m_parent)
@@ -110,10 +111,10 @@ namespace Lina
 
 	void Text::CalculateTextSize()
 	{
-		const float dpiScale	  = m_lgxWindow->GetDPIScale();
+        const float uiScaling	  = m_manager->GetScalingFactor();
 		auto*		font		  = m_resourceManager->GetResource<Font>(m_props.font);
-		m_lvgFont				  = font->GetFont(dpiScale);
-		m_calculatedDPIScale	  = dpiScale;
+		m_lvgFont				  = font->GetFont(uiScaling);
+		m_calculatedUIScaling	  = uiScaling;
 		m_lastCalculatedWrapWidth = m_props.wrapWidth;
 
 		if (m_lvgFont == nullptr)

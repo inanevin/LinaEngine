@@ -84,7 +84,6 @@ namespace Lina
 
 	struct GPUDataEngineGlobals
 	{
-		Vector4 mouse;
 		Vector4 deltaElapsed;
 	};
 
@@ -98,11 +97,6 @@ namespace Lina
 		Vector2 size;
 		Vector2 mouse;
 		Vector4 padding2;
-	};
-
-	struct GPUDataGUIView
-	{
-		Matrix4 proj;
 	};
 
 	struct GPUMaterialGUI

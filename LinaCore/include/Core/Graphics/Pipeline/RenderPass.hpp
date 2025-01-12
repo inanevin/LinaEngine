@@ -90,10 +90,10 @@ namespace Lina
 			LinaGX::RenderPassDepthStencilAttachment  depthStencil;
 		};
 
-		void Create(const RenderPassDescription& desc, LinaGX::Window* window);
+		void Create(const RenderPassDescription& desc);
 		void Destroy();
 		void BindDescriptors(LinaGX::CommandStream* stream, uint32 frameIndex, uint16 pipelineLayout, uint32 firstSet);
-		void Begin(LinaGX::CommandStream* stream, const LinaGX::Viewport& vp, const LinaGX::ScissorsRect& scissors, uint32 frameIndex);
+		void Begin(LinaGX::CommandStream* stream, uint32 frameIndex);
 		void End(LinaGX::CommandStream* stream);
 
 		void AddDrawCall(const InstancedDraw& draw);
@@ -129,13 +129,18 @@ namespace Lina
 		{
 			return m_gpuData.drawCalls;
 		}
+        
+        inline void SetSize(const Vector2ui& sz)
+        {
+            m_size = sz;
+        }
 
 	private:
-		LinaGX::Window*			  m_window = nullptr;
 		View					  m_view   = {};
 		PerFrameData			  m_pfd[FRAMES_IN_FLIGHT];
 		HashMap<StringID, uint32> m_bufferIndices;
 		RenderingData			  m_gpuData = {};
 		RenderingData			  m_cpuData = {};
+        Vector2ui m_size = {};
 	};
 } // namespace Lina

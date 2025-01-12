@@ -59,6 +59,7 @@ struct LinaFragOutput
 #pass: Resources/Core/Shaders/Common/RenderPass_Forward.linashader
 #blend: LINA_BLEND_NONE
 #depth: LINA_DEPTH_EQUAL
+#depth_target: LINA_TARGET_D32
 #target: LINA_TARGET_HDR
 #cull: LINA_CULL_BACK
 #lina_end

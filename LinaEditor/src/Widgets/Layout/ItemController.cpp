@@ -500,13 +500,13 @@ namespace Lina::Editor
 					if (!IsItemSelected(item))
 						SelectItem(item, true, true);
 
-					m_contextMenu->CreateItems(0, m_lgxWindow->GetMousePosition(), nullptr);
+					m_contextMenu->CreateItems(0, m_manager->GetMousePosition(), nullptr);
 					return true;
 				}
 			}
 
 			UnselectAll();
-			m_contextMenu->CreateItems(0, m_lgxWindow->GetMousePosition(), nullptr);
+			m_contextMenu->CreateItems(0, m_manager->GetMousePosition(), nullptr);
 			return true;
 		}
 

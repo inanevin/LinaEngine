@@ -201,7 +201,7 @@ namespace Lina::Editor
 
 		const String path = FileSystem::GetFilePath(m_currentProject->GetPath()) + "GamePlugin/bin/GamePlugin.dll";
 #else
-		LINA_ASSERT(false, "");
+        const String path = "";
 #endif
 
 		auto notify = [&](bool success) {

@@ -64,7 +64,8 @@ namespace Lina
 			ic->SetAnchorY(Anchor::Center);
 			ic->GetProps().icon		 = m_itemData.headerIcon;
 			ic->GetProps().color	 = m_itemData.headerIconColor;
-			ic->GetProps().textScale = 0.5f;
+            ic->GetProps().dynamicSizeScale = 0.8f;
+            ic->GetProps().dynamicSizeToParent = true;
 			m_headerIcon			 = ic;
 			AddChild(ic);
 		}
@@ -150,7 +151,7 @@ namespace Lina
 		{
 			b->GetWidgetProps().colorBackground = b == m_subPopupOwner ? Theme::GetDef().accentPrimary2 : Color(0, 0, 0, 0);
 
-			if (m_subPopup != nullptr && b != m_subPopupOwner && b->GetRect().IsPointInside(m_lgxWindow->GetMousePosition()))
+			if (m_subPopup != nullptr && b != m_subPopupOwner && b->GetRect().IsPointInside(m_manager->GetMousePosition()))
 			{
 				m_manager->RemoveFromForeground(m_subPopup);
 				m_manager->Deallocate(m_subPopup);
@@ -286,10 +287,10 @@ namespace Lina
 			float size = 0.0f;
 
 			if (headerIcon)
-				size += headerIcon->GetSizeX();
+				size += headerIcon->GetSizeX() + fmi->GetWidgetProps().childPadding;
 
 			if (text)
-				size += text->GetSizeX();
+				size += text->GetSizeX() + fmi->GetWidgetProps().childPadding;
 
 			if (altText)
 				size += altText->GetSizeX() + fmi->GetWidgetProps().childPadding;
@@ -297,9 +298,9 @@ namespace Lina
 			maxTextSize = Math::Max(maxTextSize, size);
 		}
 
-		popup->SetFixedSizeX(Math::Max(Theme::GetDef().baseItemHeight * 8, (maxTextSize + popup->GetWidgetProps().childMargins.left + popup->GetWidgetProps().childMargins.right) * 1.25f));
+		popup->SetSizeX(Math::Max(Theme::GetDef().baseItemHeight * 8, (maxTextSize + popup->GetWidgetProps().childMargins.left + popup->GetWidgetProps().childMargins.right) * 1.25f));
 
-		const float windowHeight = static_cast<float>(m_lgxWindow->GetSize().y);
+        const float windowHeight = m_manager->GetSize().y;
 
 		if (pos.y + totalHeight > windowHeight)
 			popup->SetPosY(windowHeight - totalHeight - 10);

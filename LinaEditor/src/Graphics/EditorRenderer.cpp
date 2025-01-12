@@ -51,20 +51,21 @@ namespace Lina::Editor
 		m_guiTextSampler	= m_resourceManagerV2->CreateResource<TextureSampler>(m_resourceManagerV2->ConsumeResourceID(), "EditorRendererGUITextSampler");
 
 		LinaGX::SamplerDesc samplerData = {};
-		samplerData.minFilter			= LinaGX::Filter::Anisotropic;
-		samplerData.magFilter			= LinaGX::Filter::Anisotropic;
-		samplerData.mode				= LinaGX::SamplerAddressMode::Repeat;
+        samplerData.minFilter			= LinaGX::Filter::Linear;
+        samplerData.magFilter			= LinaGX::Filter::Linear;
+        samplerData.mode				= LinaGX::SamplerAddressMode::ClampToEdge;
 		samplerData.anisotropy			= 6;
 		samplerData.borderColor			= LinaGX::BorderColor::WhiteOpaque;
 		samplerData.mipLodBias			= 0.0f;
 		samplerData.minLod				= 0.0f;
-		samplerData.maxLod				= 12;
+		samplerData.maxLod				= 0;
 		m_guiSampler->GenerateHW(samplerData);
 
 		samplerData.magFilter = LinaGX::Filter::Anisotropic;
 		m_guiTextSampler->GenerateHW(samplerData);
 
-		m_pipelineLayoutGUI = m_lgx->CreatePipelineLayout(EditorGfxHelpers::GetPipelineLayoutDescriptionGUI());
+        m_pipelineLayoutGUI = m_lgx->CreatePipelineLayout(EditorGfxHelpers::GetPipelineLayoutDescriptionGUI());
+		m_pipelineLayoutSwapchain = m_lgx->CreatePipelineLayout(EditorGfxHelpers::GetPipelineLayoutDescriptionSwapchain());
 	}
 
 	void EditorRenderer::Shutdown()
@@ -73,7 +74,8 @@ namespace Lina::Editor
 		m_guiTextSampler->DestroyHW();
 		m_resourceManagerV2->DestroyResource(m_guiSampler);
 		m_resourceManagerV2->DestroyResource(m_guiTextSampler);
-		m_lgx->DestroyPipelineLayout(m_pipelineLayoutGUI);
+        m_lgx->DestroyPipelineLayout(m_pipelineLayoutGUI);
+        m_lgx->DestroyPipelineLayout(m_pipelineLayoutSwapchain);
 	}
 
 	void EditorRenderer::PreTick()

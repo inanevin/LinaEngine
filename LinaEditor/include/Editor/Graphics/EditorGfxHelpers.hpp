@@ -120,7 +120,7 @@ namespace Lina::Editor
 		uint32			mipLevel			= 0;
 		ResourceID		sampler				= 0;
 		float			sdfThickness		= 0.5f;
-		float			sdfSoftness			= 0.02f;
+		float			sdfSoftness			= 0.025f;
 		float			sdfOutlineThickness = 0.0f;
 		float			sdfOutlineSoftness	= 0.0f;
 		Color			sdfOutlineColor		= Color::Black;
@@ -146,18 +146,35 @@ namespace Lina::Editor
 		uint32	padding2;
 	};
 
+    struct GPUDataEditorGUIView
+    {
+        Matrix4 proj;
+    };
+    
+    struct GPUDataEditorSwapchainPass
+    {
+        uint32 textureIndex;
+        uint32 samplerIndex;
+        uint32 padding0;
+        uint32 padding1;
+    };
+
+
 	class EditorGfxHelpers
 	{
 	public:
-		static RenderPassDescription	  GetGUIPassDescription();
+        static RenderPassDescription      GetGUIPassDescription();
+		static RenderPassDescription	  GetSwapchainPassDescription();
 		static RenderPassDescription	  GetEntityBufferPassDescription();
 		static RenderPassDescription	  GetEditorWorldPassDescription();
 		static RenderPassDescription	  GetGizmoOrientationPassDescription();
-		static LinaGX::DescriptorSetDesc  GetSetDescriptionGUI();
+        static LinaGX::DescriptorSetDesc  GetSetDescriptionGUI();
+		static LinaGX::DescriptorSetDesc  GetSetDescriptionSwapchain();
 		static LinaGX::DescriptorSetDesc  GetSetDescriptionEntityBufferPass();
 		static LinaGX::DescriptorSetDesc  GetSetDescriptionEditorWorldPass();
 		static LinaGX::DescriptorSetDesc  GetSetDescriptionGizmoOrientationPass();
-		static LinaGX::PipelineLayoutDesc GetPipelineLayoutDescriptionGUI();
+        static LinaGX::PipelineLayoutDesc GetPipelineLayoutDescriptionGUI();
+		static LinaGX::PipelineLayoutDesc GetPipelineLayoutDescriptionSwapchain();
 		static LinaGX::PipelineLayoutDesc GetPipelineLayoutDescriptionEntityBufferPass();
 		static LinaGX::PipelineLayoutDesc GetPipelineLayoutDescriptionEditorWorldPass();
 		static LinaGX::PipelineLayoutDesc GetPipelineLayoutDescriptionGizmoOrientationPass();

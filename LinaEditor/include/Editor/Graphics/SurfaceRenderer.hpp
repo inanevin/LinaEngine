@@ -48,6 +48,7 @@ namespace Lina
 {
 	class ResourceManagerV2;
 	class Shader;
+class TextureSampler;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -65,6 +66,8 @@ namespace Lina::Editor
 			SemaphoreData		   copySemaphore   = {};
 			Buffer				   guiVertexBuffer = {};
 			Buffer				   guiIndexBuffer  = {};
+            
+            Texture* renderTarget = nullptr;
 		};
 
 		struct Draw
@@ -121,11 +124,13 @@ namespace Lina::Editor
 		LinaGX::Instance*	m_lgx				= nullptr;
 		ResourceUploadQueue m_uploadQueue;
 		Vector2ui			m_size = Vector2ui::Zero;
+        Vector2ui m_rtSize = Vector2ui::Zero;
 		PerFrameData		m_pfd[FRAMES_IN_FLIGHT];
 		LinaGX::Window*		m_window	= nullptr;
 		uint8				m_swapchain = 0;
 		bool				m_isVisible = false;
 		RenderPass			m_guiPass	= {};
+        RenderPass m_swapchainPass = {};
 
 		LinaVG::Drawer m_lvgDrawer;
 		WidgetManager  m_widgetManager;
@@ -137,9 +142,12 @@ namespace Lina::Editor
 		Shader* m_guiText		   = nullptr;
 		Shader* m_guiSDF		   = nullptr;
 		Shader* m_guiDisplayTarget = nullptr;
+        Shader* m_guiSwapchain = nullptr;
+        TextureSampler* m_swapchainTextureSampler = nullptr;
 
 		Draw m_cpuDraw = {};
 		Draw m_gpuDraw = {};
+        Color m_clearColor = Color::Purple;
 	};
 
 } // namespace Lina::Editor

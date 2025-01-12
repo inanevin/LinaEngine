@@ -27,20 +27,18 @@ SOFTWARE.
 */
 
 #lina_variant
-
 #name : Default
 #blend: LINA_BLEND_NONE
-#depth: LINA_DEPTH_ALWAYS
-#depth_target: LINA_TARGET_D32
-#target: LINA_TARGET_LDR_MS
+#depth: LINA_DEPTH_NONE
+#target: LINA_TARGET_SWAPCHAIN
 #cull: LINA_CULL_NONE
-
+#face: LINA_FACE_CCW
 #lina_end
 
 #lina_vs
 
 #include "Resources/Core/Shaders/Common/GlobalData.linashader"
-#include "Resources/Editor/Shaders/Common/RenderPass_World.linashader"
+#include "Resources/Editor/Shaders/Common/RenderPass_Swapchain.linashader"
 
 layout (location = 0) out vec2 outUV;
 layout (location = 1) flat out uint outTextureIndex;
@@ -57,9 +55,8 @@ void main()
    gl_Position =  vec4(outUV * 2.0f + -1.0f, 0.0f, 1.0f);
    outUV.y = 1.0f - outUV.y;
 
-    DrawArguments args = LINA_DRAW_ARGUMENTS.data[PushConstants.value0];
-   	outTextureIndex = args.argument0;
-   	outSamplerIndex = args.argument1;
+   outTextureIndex = LINA_PASS.textureIndex;
+   outSamplerIndex = LINA_PASS.samplerIndex;
 }
 
 #lina_end
@@ -70,17 +67,17 @@ layout(location = 0) in vec2 inUV;
 layout (location = 1) flat in uint inTextureIndex;
 layout (location = 2) flat in uint inSamplerIndex;
 
+layout(location = 0) out vec4 outFragColor;
+
 #include "Resources/Core/Shaders/Common/GlobalData.linashader"
-#include "Resources/Editor/Shaders/Common/RenderPass_World.linashader"
+#include "Resources/Editor/Shaders/Common/RenderPass_Swapchain.linashader"
 
 void main()
 {
    	LinaTexture2D txt;
-  	txt.txt = inTextureIndex;
+   	txt.txt = inTextureIndex;
    	txt.smp = inSamplerIndex;
-	vec4 depth = LINA_SAMPLE_TEXTURE(txt, inUV);
-	gl_FragDepth = depth.r;
+	outFragColor = LINA_SAMPLE_TEXTURE(txt, inUV);
 }
-
 
 #lina_end

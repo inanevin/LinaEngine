@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/Resources/ResourceManager.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Common/Math/Math.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
@@ -40,9 +41,9 @@ namespace Lina
 
 	void Icon::CalculateSize(float dt)
 	{
-		const float dpiScale = m_lgxWindow->GetDPIScale();
+        const float dpiScale = m_manager->GetScalingFactor();
 
-		if (!Math::Equals(dpiScale, m_calculatedDPIScale, 0.01f))
+		if (!Math::Equals(dpiScale, m_calculatedUIScaling, 0.01f))
 			CalculateIconSize();
 
 		if (m_props.dynamicSizeToParent)
@@ -79,14 +80,14 @@ namespace Lina
 	void Icon::CalculateIconSize()
 	{
 		auto*		font	 = m_resourceManager->GetResource<Font>(m_props.font);
-		const float dpiScale = m_lgxWindow->GetDPIScale();
-		m_lvgFont			 = font->GetFont(dpiScale);
+        const float uiScaling =  m_manager->GetScalingFactor();
+		m_lvgFont			 = font->GetFont(uiScaling);
 
 		if (m_lvgFont == nullptr)
 			return;
 
 		m_lastDynScale			= m_props.textScale;
-		m_calculatedDPIScale	= dpiScale;
+		m_calculatedUIScaling	= uiScaling;
 		m_textOptions.font		= m_lvgFont;
 		m_textOptions.textScale = m_props.textScale;
 		m_rect.size				= m_lvg->CalculateTextSize(m_props.useAltIcon ? m_props.iconAlt.c_str() : m_props.icon.c_str(), m_textOptions);

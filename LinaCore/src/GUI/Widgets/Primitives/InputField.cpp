@@ -122,7 +122,7 @@ namespace Lina
 
 			if (!m_props.disableNumberSlider)
 			{
-				const Vector2 mouse		= m_lgxWindow->GetMousePosition();
+				const Vector2 mouse		= m_manager->GetMousePosition();
 				const float	  perc		= Math::Clamp(Math::Remap(mouse.x, m_rect.pos.x, m_rect.pos.x + m_rect.size.x, 0.0f, 1.0f), 0.0f, 1.0f);
 				float		  targetVal = Math::Remap(perc, 0.0f, 1.0f, m_props.valueMin, m_props.valueMax);
 				const float	  diff		= targetVal - prev;
@@ -337,7 +337,7 @@ namespace Lina
 
 	uint32 InputField::GetCaretPosFromMouse()
 	{
-		const Vector2& mp  = m_lgxWindow->GetMousePosition();
+		const Vector2& mp  = m_manager->GetMousePosition();
 		const float	   x   = mp.x - m_textStart.x;
 		float		   off = Math::FloorToFloat(x / m_averageCharacterStep);
 		if (off < 0.0f)

@@ -40,7 +40,7 @@ namespace Lina
 	{
 		out << static_cast<int32>(points.size());
 		for (auto p : points)
-			out << p.size << p.dpiLimit;
+			out << p.size << p.scaleLimit;
 		out << isSDF;
 		out << static_cast<int32>(glyphRanges.size());
 
@@ -57,7 +57,7 @@ namespace Lina
 		in >> pointSizeSz;
 		points.resize(pointSizeSz);
 		for (int32 i = 0; i < pointSizeSz; i++)
-			in >> points[i].size >> points[i].dpiLimit;
+			in >> points[i].size >> points[i].scaleLimit;
 
 		in >> isSDF;
 
@@ -167,13 +167,13 @@ namespace Lina
 		stream << m_file;
 	}
 
-	LinaVG::Font* Font::GetFont(float dpiScale)
+	LinaVG::Font* Font::GetFont(float scaleFactor)
 	{
 		const int32 sz = static_cast<int32>(m_meta.points.size());
 
 		for (int32 i = 0; i < sz; i++)
 		{
-			if (dpiScale <= m_meta.points[i].dpiLimit)
+			if (scaleFactor < m_meta.points[i].scaleLimit)
 				return m_hwLvgFonts[i];
 		}
 

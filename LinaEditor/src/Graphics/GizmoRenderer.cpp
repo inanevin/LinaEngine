@@ -120,8 +120,8 @@ namespace Lina::Editor
 	{
 		if (m_gizmoSettings.drawOrientation)
 		{
-			DrawOrientationGizmos(m_targetPass, 0);
-			DrawOrientationGizmos(&m_mousePickRenderer->GetRenderPass(), "StaticEntityID"_hs, 2);
+            DrawOrientationGizmos(m_targetPass, 0, m_gizmoSettings.defaultShaderScale);
+			DrawOrientationGizmos(&m_mousePickRenderer->GetRenderPass(), "StaticEntityID"_hs, m_gizmoSettings.defaultShaderScale * 2);
 		}
 
 		if (!m_gizmoSettings.draw)
@@ -129,15 +129,15 @@ namespace Lina::Editor
 
 		if (m_gizmoSettings.type != GizmoMode::Rotate)
 		{
-			DrawGizmoMoveScale(m_targetPass, 0);
-			DrawGizmoMoveScale(&m_mousePickRenderer->GetRenderPass(), "StaticEntityID"_hs, 2);
+			DrawGizmoMoveScale(m_targetPass, 0, m_gizmoSettings.defaultShaderScale);
+			DrawGizmoMoveScale(&m_mousePickRenderer->GetRenderPass(), "StaticEntityID"_hs, m_gizmoSettings.defaultShaderScale * 2);
 		}
 		else
 		{
 			if (m_gizmoSettings.focusedAxis == GizmoAxis::None)
 			{
-				DrawGizmoRotate(m_targetPass, 0);
-				DrawGizmoRotate(&m_mousePickRenderer->GetRenderPass(), "StaticEntityID"_hs, 1);
+				DrawGizmoRotate(m_targetPass, 0, m_gizmoSettings.defaultShaderScale);
+				DrawGizmoRotate(&m_mousePickRenderer->GetRenderPass(), "StaticEntityID"_hs, m_gizmoSettings.defaultShaderScale * 1);
 			}
 			else
 			{
@@ -149,7 +149,7 @@ namespace Lina::Editor
 		{
 			Camera& cam = m_world->GetWorldCamera();
 			m_worldRenderer->StartLine3DBatch();
-			m_worldRenderer->DrawLine3D(m_gizmoSettings.position + m_gizmoSettings.worldAxis * -cam.GetZFar() * 0.5f, m_gizmoSettings.position + m_gizmoSettings.worldAxis * cam.GetZFar() * 0.5f, 0.08f, GetColorFromAxis(m_gizmoSettings.focusedAxis));
+            m_worldRenderer->DrawLine3D(m_gizmoSettings.position + m_gizmoSettings.worldAxis * -cam.GetZFar() * 0.5f, m_gizmoSettings.position + m_gizmoSettings.worldAxis * cam.GetZFar() * 0.5f, 0.08f * m_gizmoSettings.defaultShaderScale, GetColorFromAxis(m_gizmoSettings.focusedAxis));
 			m_worldRenderer->EndLine3DBatch(*m_targetPass, 0, m_line3DShader->GetGPUHandle());
 		}
 	}

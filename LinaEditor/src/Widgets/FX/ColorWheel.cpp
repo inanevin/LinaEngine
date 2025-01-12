@@ -62,7 +62,7 @@ namespace Lina::Editor
 		if (m_isPressed)
 		{
 			const float	   wheelRadius = m_rect.size.x * 0.5f;
-			const Vector2& mouse	   = m_lgxWindow->GetMousePosition();
+			const Vector2& mouse	   = m_manager->GetMousePosition();
 			const Vector2  relative	   = mouse - m_rect.GetCenter();
 			const float	   x		   = Math::Clamp(Math::Remap(relative.x, -m_rect.size.x * 0.5f, m_rect.size.x * 0.5f, -1.0f, 1.0f), -1.0f, 1.0f);
 			const float	   y		   = Math::Clamp(Math::Remap(relative.y, -m_rect.size.y * 0.5f, m_rect.size.y * 0.5f, -1.0f, 1.0f), -1.0f, 1.0f);

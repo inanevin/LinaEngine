@@ -221,8 +221,8 @@ namespace Lina::Editor
 		ResourceDirectory& root = currentProject->GetResourceRoot();
 
 		const CommonWidgets::ResDirItemProperties linaAssetsProps = {
-			.chevron	   = ICON_CHEVRON_RIGHT,
-			.chevronAlt	   = ICON_CHEVRON_DOWN,
+			.chevron	   = ICON_ARROW_RIGHT,
+			.chevronAlt	   = ICON_ARROW_DOWN,
 			.mainIcon	   = ICON_LINA_LOGO,
 			.mainIconColor = Theme::GetDef().accentPrimary2,
 			.title		   = m_linaAssets.name,
@@ -272,8 +272,8 @@ namespace Lina::Editor
 		}
 
 		const CommonWidgets::ResDirItemProperties rootProps = {
-			.chevron	   = ICON_CHEVRON_RIGHT,
-			.chevronAlt	   = ICON_CHEVRON_DOWN,
+			.chevron	   = ICON_ARROW_RIGHT,
+			.chevronAlt	   = ICON_ARROW_DOWN,
 			.mainIcon	   = rootIcon,
 			.mainIconColor = rootIconColor,
 			.title		   = rootName,
@@ -316,8 +316,8 @@ namespace Lina::Editor
 	void ResourceDirectoryBrowser::AddItem(Widget* parent, ResourceDirectory* item, float margin)
 	{
 		const CommonWidgets::ResDirItemProperties props = {
-			.chevron		 = item->isFolder ? ICON_CHEVRON_RIGHT : "",
-			.chevronAlt		 = item->isFolder ? ICON_CHEVRON_DOWN : "",
+			.chevron		 = item->isFolder ? ICON_ARROW_RIGHT : "",
+			.chevronAlt		 = item->isFolder ? ICON_ARROW_DOWN : "",
 			.typeText		 = item->isFolder ? "" : ReflectionSystem::Get().Resolve(item->resourceTID)->GetProperty<String>("TypeAbbv"_hs),
 			.typeColor		 = item->isFolder ? Color::White : ReflectionSystem::Get().Resolve(item->resourceTID)->GetProperty<Color>("Color"_hs),
 			.mainIcon		 = item->isFolder ? ICON_FOLDER : "",
@@ -457,7 +457,7 @@ namespace Lina::Editor
 
 			outData.push_back(FileMenuItem::Data{
 				.text		  = Locale::GetStr(LocaleStr::Create),
-				.dropdownIcon = ICON_CHEVRON_RIGHT,
+				.dropdownIcon = ICON_ARROW_RIGHT,
 				.hasDropdown  = true,
 				.isDisabled	  = createDisabled,
 				.userData	  = userData,

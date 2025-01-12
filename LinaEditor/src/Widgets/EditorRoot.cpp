@@ -175,7 +175,7 @@ namespace Lina::Editor
 
 	void EditorRoot::PreTick()
 	{
-		m_dragRect				  = Rect(Vector2(m_fileMenu->GetRect().GetEnd().x, 0.0f), Vector2(m_windowButtons->GetPos().x - m_fileMenu->GetRect().GetEnd().x, m_fileMenu->GetParent()->GetSizeY()));
+        m_dragRect				  = Rect(Vector2(m_fileMenu->GetRect().GetEnd().x, 0.0f) / m_lgxWindow->GetDPIScale(), Vector2(m_windowButtons->GetPos().x - m_fileMenu->GetRect().GetEnd().x, m_fileMenu->GetParent()->GetSizeY()) / m_lgxWindow->GetDPIScale());
 		LinaGX::LGXRectui lgxRect = {};
 		lgxRect.pos				  = LinaGX::LGXVector2ui{static_cast<uint32>(m_dragRect.pos.x), static_cast<uint32>(m_dragRect.pos.y)};
 		lgxRect.size			  = LinaGX::LGXVector2ui{static_cast<uint32>(m_dragRect.size.x), static_cast<uint32>(m_dragRect.size.y)};
@@ -202,7 +202,7 @@ namespace Lina::Editor
 
 	bool EditorRoot::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
-		if (button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Repeated && m_dragRect.IsPointInside(m_lgxWindow->GetMousePosition()))
+		if (button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Repeated && m_dragRect.IsPointInside(m_manager->GetMousePosition()))
 		{
 			if (m_lgxWindow->GetIsMaximized())
 				m_lgxWindow->Restore();

@@ -47,7 +47,7 @@ namespace Lina
 		struct FontPoint
 		{
 			uint32 size		= 12;
-			float  dpiLimit = 10.0f;
+			float  scaleLimit = 10.0f;
 		};
 
 		struct GlyphRange
@@ -71,7 +71,7 @@ namespace Lina
 		Font(ResourceID id, const String& name) : Resource(id, GetTypeID<Font>(), name){};
 		virtual ~Font();
 
-		LinaVG::Font*  GetFont(float dpiScale);
+		LinaVG::Font*  GetFont(float scaleFactor);
 		virtual bool   LoadFromFile(const String& path) override;
 		virtual void   LoadFromStream(IStream& stream) override;
 		virtual void   SaveToStream(OStream& stream) const override;
@@ -125,7 +125,7 @@ namespace Lina
 
 	LINA_CLASS_BEGIN(FontPointRef)
 	LINA_FIELD(Font::FontPoint, size, "Size", FieldType::UInt32, 0)
-	LINA_FIELD(Font::FontPoint, dpiLimit, "DPI Limit", FieldType::Float, 0)
+	LINA_FIELD(Font::FontPoint, scaleLimit, "Scale Limit", FieldType::Float, 0)
 	LINA_FIELD_LIMITS(Font::FontPoint, size, 4, 96, 0)
 	LINA_CLASS_END(FontPointRef)
 

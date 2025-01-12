@@ -203,6 +203,7 @@ namespace Lina
 		{
 			Vector2				 size = m_rect.GetEnd() - m_rect.pos;
 			LinaVG::StyleOptions opts;
+            opts.aaEnabled = m_widgetProps.aaEnabled;
 			opts.outlineOptions.thickness	  = m_widgetProps.outlineThickness;
 			opts.outlineOptions.drawDirection = m_widgetProps.outlineIsInner ? LinaVG::OutlineDrawDirection::Inwards : LinaVG::OutlineDrawDirection::Outwards;
 
@@ -355,7 +356,7 @@ namespace Lina
 		if (!m_manager->GetClipOutsideWindow())
 			return false;
 
-		const Rect windowRect = Rect(0, 0, static_cast<float>(m_lgxWindow->GetSize().x), static_cast<float>(m_lgxWindow->GetSize().y));
+		const Rect windowRect = Rect(0, 0, m_manager->GetSize().x, m_manager->GetSize().y);
 		if (windowRect.IsRectCompletelyOutside(m_rect))
 			return true;
 
@@ -408,7 +409,8 @@ namespace Lina
 		stream << colorBackgroundDirection;
 		stream << textureTiling;
 		stream << onlyRound;
-		stream << childrenClipOffset;
+        stream << childrenClipOffset;
+        stream << aaEnabled;
 	}
 
 	void WidgetProps::LoadFromStream(IStream& stream)
@@ -438,6 +440,7 @@ namespace Lina
 		stream >> textureTiling;
 		stream >> onlyRound;
 		stream >> childrenClipOffset;
+        stream >> aaEnabled;
 	}
 
 	void Widget::SaveToStream(OStream& stream) const
@@ -451,7 +454,7 @@ namespace Lina
 		stream << m_alignedSize;
 		stream << m_fixedSize;
 		stream << m_anchorX << m_anchorY;
-
+        
 		const uint32 childSz = static_cast<uint32>(m_children.size());
 		stream << childSz;
 		for (uint32 i = 0; i < childSz; i++)
@@ -531,7 +534,7 @@ namespace Lina
 	void Widget::DrawTooltip()
 	{
 
-		const Vector2 mp = Vector2(Math::FloorToFloat(m_lgxWindow->GetMousePosition().x), Math::FloorToFloat(m_lgxWindow->GetMousePosition().y));
+		const Vector2 mp = Vector2(Math::FloorToFloat(m_manager->GetMousePosition().x), Math::FloorToFloat(m_manager->GetMousePosition().y));
 
 		if (!m_isHovered)
 			return;
@@ -548,7 +551,8 @@ namespace Lina
 			return;
 
 		LinaVG::TextOptions textOpts;
-		textOpts.font		   = m_manager->GetDefaultFont()->GetFont(m_lgxWindow->GetDPIScale());
+        const float scaling = m_manager->GetScalingFactor();
+        textOpts.font		   = m_manager->GetDefaultFont()->GetFont(scaling);
 		const Vector2 textSize = m_lvg->CalculateTextSize(tooltip.c_str(), textOpts);
 
 		const Rect tooltipRect = Rect(mp + Vector2(10, 10), textSize + Vector2(Theme::GetDef().baseIndent * 2.0f, Theme::GetDef().baseIndent));
@@ -590,7 +594,7 @@ namespace Lina
 			}
 		}
 
-		const Vector2& pos = m_lgxWindow->GetMousePosition();
+		const Vector2& pos = m_manager->GetMousePosition();
 		m_isHovered		   = m_rect.IsPointInside(pos);
 
 		if (m_parent && m_parent != m_manager->GetRoot() && m_parent != m_manager->GetForegroundRoot() && !m_parent->GetIsHovered())
@@ -656,11 +660,6 @@ namespace Lina
 	Vector2 Widget::GetMonitorSize()
 	{
 		return Vector2(static_cast<float>(m_lgxWindow->GetMonitorSize().x), static_cast<float>(m_lgxWindow->GetMonitorSize().y));
-	}
-
-	Vector2 Widget::GetWindowSize()
-	{
-		return Vector2(static_cast<float>(m_lgxWindow->GetSize().x), static_cast<float>(m_lgxWindow->GetSize().y));
 	}
 
 	Vector2 Widget::GetWindowPos()

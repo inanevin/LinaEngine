@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/System/SystemInfo.hpp"
@@ -56,14 +57,14 @@ namespace Lina
 
 			if (m_props.direction == DirectionOrientation::Horizontal)
 			{
-				const float newBarPosition	= m_lgxWindow->GetMousePosition().x - m_pressDiff;
+				const float newBarPosition	= m_manager->GetMousePosition().x - m_pressDiff;
 				const float barPositionDiff = newBarPosition - m_barRect.pos.x;
 				const float ratio			= barPositionDiff / m_barRect.size.x;
 				m_scrollAmount				= m_scrollAmount + ratio * m_maxScroll;
 			}
 			else
 			{
-				const float newBarPosition	= m_lgxWindow->GetMousePosition().y - m_pressDiff;
+				const float newBarPosition	= m_manager->GetMousePosition().y - m_pressDiff;
 				const float barPositionDiff = newBarPosition - m_barRect.pos.y;
 				const float ratio			= barPositionDiff / m_barRect.size.y;
 				m_scrollAmount				= m_scrollAmount + ratio * m_maxScroll;
@@ -84,7 +85,7 @@ namespace Lina
 		// Calculate bar
 		const float scrollBackgroundSize = m_props.direction == DirectionOrientation::Horizontal ? (displayWidget->GetSizeX() - m_widgetProps.childMargins.left - m_widgetProps.childMargins.right)
 																								 : (displayWidget->GetSizeY() - m_widgetProps.childMargins.top - m_widgetProps.childMargins.bottom);
-		const float barCrossAxisSize	 = m_props.barThickness;
+        const float barCrossAxisSize	 = m_props.barThickness * m_manager->GetScalingFactor();
 		const float barMainAxisSize		 = scrollBackgroundSize * m_sizeToChildSizeRatio;
 		const float barPosition			 = m_scrollAmount / m_totalChildSize;
 
@@ -110,7 +111,7 @@ namespace Lina
 
 		m_barBGRect	 = Rect(bgStart, bgEnd - bgStart);
 		m_barRect	 = Rect(barStart, barEnd - barStart);
-		m_barHovered = m_barRect.IsPointInside(m_lgxWindow->GetMousePosition());
+		m_barHovered = m_barRect.IsPointInside(m_manager->GetMousePosition());
 	}
 
 	void ScrollArea::ScrollToChild(Widget* w)
@@ -181,7 +182,7 @@ namespace Lina
 
 	bool ScrollArea::IsBarHovered() const
 	{
-		return m_barRect.IsPointInside(m_lgxWindow->GetMousePosition());
+		return m_barRect.IsPointInside(m_manager->GetMousePosition());
 	}
 
 	bool ScrollArea::OnMouse(uint32 button, LinaGX::InputAction act)
@@ -192,12 +193,12 @@ namespace Lina
 		if (button != LINAGX_MOUSE_0)
 			return false;
 
-		const bool isHovered = m_barRect.IsPointInside(m_lgxWindow->GetMousePosition());
+		const bool isHovered = m_barRect.IsPointInside(m_manager->GetMousePosition());
 
 		if (isHovered && !m_isPressed && (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated))
 		{
 			m_isPressed = true;
-			m_pressDiff = m_props.direction == DirectionOrientation::Horizontal ? (m_lgxWindow->GetMousePosition().x - m_barRect.pos.x) : (m_lgxWindow->GetMousePosition().y - m_barRect.pos.y);
+			m_pressDiff = m_props.direction == DirectionOrientation::Horizontal ? (m_manager->GetMousePosition().x - m_barRect.pos.x) : (m_manager->GetMousePosition().y - m_barRect.pos.y);
 			return true;
 		}
 
@@ -218,7 +219,10 @@ namespace Lina
 		if (Math::Equals(m_maxScroll, 0.0f, 0.1f))
 			return false;
 
-		m_scrollAmount -= amt * m_totalChildSize * m_props.mouseWheelMultiplier;
+#ifdef LINA_PLATFORM_APPLE
+        amt *= 0.01f; // :)
+#endif
+        m_scrollAmount -= amt * m_totalChildSize * m_props.mouseWheelMultiplier;
 
 		if (m_props.tryKeepAtEnd)
 			m_lockScrollToEnd = m_scrollAmount > m_maxScroll || Math::Equals(m_scrollAmount, m_maxScroll, 1.0f);

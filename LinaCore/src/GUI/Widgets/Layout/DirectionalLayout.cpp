@@ -59,7 +59,7 @@ namespace Lina
 			for (const Rect& rect : m_borderRects)
 			{
 				GetPressRect(rect, pressRect);
-				if (pressRect.IsPointInside(m_lgxWindow->GetMousePosition()))
+                if (pressRect.IsPointInside(m_manager->GetMousePosition()))
 					m_manager->SetCursorOverride(m_props.direction == DirectionOrientation::Horizontal ? (uint8)LinaGX::CursorType::SizeHorizontal : (uint8)LinaGX::CursorType::SizeVertical);
 			}
 		}
@@ -87,7 +87,7 @@ namespace Lina
 				Widget*		positive = m_children[m_pressedBorder + 1];
 				const Rect& r		 = m_borderRects[m_pressedBorder];
 
-				const Vector2& mousePosition   = m_lgxWindow->GetMousePosition();
+				const Vector2& mousePosition   = m_manager->GetMousePosition();
 				const Vector2  perc			   = mousePosition / GetSize();
 				const float	   borderSizePercX = m_props.borderThickness / m_sz.x;
 				const float	   borderSizePercY = m_props.borderThickness / m_sz.y;
@@ -417,7 +417,7 @@ namespace Lina
 			else
 			{
 				GetPressRect(r, pressRect);
-				opts.color = pressRect.IsPointInside(m_lgxWindow->GetMousePosition()) ? m_props.colorBorderHovered.AsLVG4() : m_props.colorBorder.AsLVG4();
+				opts.color = pressRect.IsPointInside(m_manager->GetMousePosition()) ? m_props.colorBorderHovered.AsLVG4() : m_props.colorBorder.AsLVG4();
 			}
 
 			m_lvg->DrawRect(r.pos.AsLVG(), r.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1 + m_props.borderDrawOrderIncrement);
@@ -446,10 +446,10 @@ namespace Lina
 				{
 					GetPressRect(rect, pressRect);
 
-					if (pressRect.IsPointInside(m_lgxWindow->GetMousePosition()))
+					if (pressRect.IsPointInside(m_manager->GetMousePosition()))
 					{
 						m_pressedBorder	  = i;
-						m_borderPressDiff = m_props.direction == DirectionOrientation::Vertical ? (m_lgxWindow->GetMousePosition().y - pressRect.GetCenter().y) : (m_lgxWindow->GetMousePosition().x - pressRect.GetCenter().x);
+						m_borderPressDiff = m_props.direction == DirectionOrientation::Vertical ? (m_manager->GetMousePosition().y - pressRect.GetCenter().y) : (m_manager->GetMousePosition().x - pressRect.GetCenter().x);
 
 						return true;
 					}

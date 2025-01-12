@@ -91,24 +91,15 @@ namespace Lina::Editor
 			m_dockRects[i].direction = DirectionToVector(static_cast<Direction>(i));
 	}
 
-	void DockPreview::Initialize()
-	{
-		Widget::Initialize();
-		m_dockPreviewTween = Tween(0.0f, 1.0f, ANIM_TIME, TweenType::EaseOut);
-	}
-
 	void DockPreview::Tick(float delta)
 	{
 		if (GetFlags().IsSet(WF_HIDE))
 			return;
 
 		m_dockPreviewTween.Tick(delta);
-
-		m_smallRectSize			 = SMALL_RECT_SZ * m_lgxWindow->GetDPIScale();
-		const Vector2& absMP	 = m_lgxWindow->GetInput()->GetMousePositionAbs();
-		const Vector2  windowPos = GetWindowPos();
-		const Vector2  mp		 = absMP - windowPos;
-
+        
+        m_smallRectSize			 = SMALL_RECT_SZ * m_manager->GetScalingFactor();
+        const Vector2 mp = (m_lgxWindow->GetInput()->GetMousePositionAbs() - m_lgxWindow->GetPosition()) * m_lgxWindow->GetDPIScale();
 		for (int32 i = 0; i < 5; i++)
 		{
 			auto& dr = m_dockRects[i];
@@ -166,6 +157,7 @@ namespace Lina::Editor
 		m_lvg->DrawRect(start.AsLVG(), end.AsLVG(), opts, 0.0f, FOREGROUND_DRAW_ORDER);
 
 		// Icon
+        dr.icon->SetDrawOrder(FOREGROUND_DRAW_ORDER);
 		dr.icon->Draw();
 
 		// Actual placement preview

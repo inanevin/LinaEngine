@@ -69,7 +69,8 @@ namespace Lina
 		if (m_screen->GetOwnerWindow() == nullptr)
 			return m_lastMousePosition;
 
-		const Vector2 mpRelativeWindow = m_screen->GetOwnerWindow()->GetMousePosition();
+        LinaGX::Window* window = m_screen->GetOwnerWindow();
+		const Vector2 mpRelativeWindow = window->GetMousePosition() * window->GetDPIScale();
 		const Vector2 displayPos	   = m_screen->GetDisplayPos();
 		const Vector2 displaySize	   = m_screen->GetDisplaySize();
 		const Vector2 mousePos		   = Vector2(Math::Clamp(mpRelativeWindow.x - displayPos.x, 0.0f, displaySize.x), Math::Clamp(mpRelativeWindow.y - displayPos.y, 0.0f, displaySize.y));
@@ -108,7 +109,7 @@ namespace Lina
 		if (window == nullptr)
 			return;
 
-		const Vector2 mp = window->GetMousePosition();
+        const Vector2 mp = window->GetMousePosition() * window->GetDPIScale();
 		window->ConfineMouseToPoint(LinaGX::LGXVector2ui(static_cast<uint32>(mp.x), static_cast<uint32>(mp.y)));
 	}
 

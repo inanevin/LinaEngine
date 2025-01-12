@@ -155,7 +155,8 @@ namespace Lina::Editor
 
 			// Resize window to work dims.
 			m_mainWindow->SetPosition(m_mainWindow->GetMonitorInfoFromWindow().workTopLeft);
-			m_mainWindow->AddSizeRequest(m_mainWindow->GetMonitorWorkSize());
+			// m_mainWindow->AddSizeRequest(m_mainWindow->GetMonitorWorkSize());
+            m_mainWindow->SetSize(m_mainWindow->GetMonitorWorkSize());
 
 			// Insert editor root.
 			Widget* root = m_primaryWidgetManager->GetRoot();
@@ -250,7 +251,9 @@ namespace Lina::Editor
 	void Editor::OnWindowSizeChanged(LinaGX::Window* window, const LinaGX::LGXVector2ui& size)
 	{
 		m_app->JoinRender();
-		m_windowPanelManager.GetSurfaceRenderer(window->GetSID())->OnWindowSizeChanged(window, size);
+        
+        if(size.x != 0 && size.y != 0)
+            m_windowPanelManager.GetSurfaceRenderer(window->GetSID())->OnWindowSizeChanged(window, size);
 	}
 
 	void Editor::PreTick()

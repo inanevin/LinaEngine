@@ -68,7 +68,7 @@ namespace Lina::Editor
 		m_world	 = m_wr->GetWorld();
 
 		m_wr->AddListener(this);
-		m_pass.Create(EditorGfxHelpers::GetEditorWorldPassDescription(), nullptr);
+		m_pass.Create(EditorGfxHelpers::GetEditorWorldPassDescription());
 		m_pipelineLayout = m_lgx->CreatePipelineLayout(EditorGfxHelpers::GetPipelineLayoutDescriptionEditorWorldPass());
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
@@ -243,7 +243,6 @@ namespace Lina::Editor
 
 		m_mousePickRenderer.AddBuffersToUploadQueue(frameIndex, queue);
 		m_outlineRenderer.AddBuffersToUploadQueue(frameIndex, queue);
-
 		m_pass.AddBuffersToUploadQueue(frameIndex, queue);
 	}
 
@@ -253,22 +252,6 @@ namespace Lina::Editor
 		LinaGX::CommandStream* gfxStream = m_wr->GetGfxStream(frameIndex);
 
 		const Vector2ui& size = m_wr->GetSize();
-
-		const LinaGX::Viewport viewport = {
-			.x		  = 0,
-			.y		  = 0,
-			.width	  = size.x,
-			.height	  = size.y,
-			.minDepth = 0.0f,
-			.maxDepth = 1.0f,
-		};
-
-		const LinaGX::ScissorsRect scissors = {
-			.x		= 0,
-			.y		= 0,
-			.width	= size.x,
-			.height = size.y,
-		};
 
 		m_outlineRenderer.Render(frameIndex, gfxStream);
 
@@ -284,7 +267,7 @@ namespace Lina::Editor
 			barrierToAttachment->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorRead2Att(pfd.renderTargetResolve->GetGPUHandle());
 		}
 
-		m_pass.Begin(gfxStream, viewport, scissors, frameIndex);
+		m_pass.Begin(gfxStream, frameIndex);
 		m_pass.BindDescriptors(gfxStream, frameIndex, m_pipelineLayout, 1);
 		m_pass.Render(frameIndex, gfxStream);
 
@@ -307,7 +290,8 @@ namespace Lina::Editor
 	void EditorWorldRenderer::OnWorldRendererCreateSizeRelative()
 	{
 		m_size = m_wr->GetSize();
-
+        m_pass.SetSize(m_size);
+        
 		const LinaGX::TextureDesc colorMSAA = {
 			.format	   = SystemInfo::GetLDRFormat(),
 			.flags	   = LinaGX::TF_ColorAttachment,

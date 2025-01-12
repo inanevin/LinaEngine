@@ -47,6 +47,7 @@ namespace Lina::Editor
 			outlineStatic.targets		 = {{
 					   .format = SystemInfo::GetLDRFormat(),
 			   }};
+            outlineStatic.depthFormat = SystemInfo::GetDepthFormat();
 			ShaderPreprocessor::ApplyBlending(outlineStatic, BlendMode::Opaque);
 			ShaderPreprocessor::ApplyDepth(outlineStatic, DepthTesting::Less);
 			shader->GetMeta().variants.push_back(outlineStatic);
@@ -60,6 +61,7 @@ namespace Lina::Editor
 			outlineSkinned.targets		  = {{
 					   .format = SystemInfo::GetLDRFormat(),
 			   }};
+            outlineSkinned.depthFormat = SystemInfo::GetDepthFormat();
 			ShaderPreprocessor::ApplyBlending(outlineSkinned, BlendMode::Opaque);
 			ShaderPreprocessor::ApplyDepth(outlineSkinned, DepthTesting::Less);
 			shader->GetMeta().variants.push_back(outlineSkinned);
@@ -71,6 +73,8 @@ namespace Lina::Editor
 			entityIDStatic.name			  = "StaticEntityID";
 			entityIDStatic.renderPassName = "EntityID";
 			entityIDStatic.targets		  = {{LinaGX::Format::R32_UINT}};
+            entityIDStatic.depthFormat = SystemInfo::GetDepthFormat();
+
 			ShaderPreprocessor::ApplyBlending(entityIDStatic, BlendMode::Opaque);
 			ShaderPreprocessor::ApplyDepth(entityIDStatic, DepthTesting::Less);
 			shader->GetMeta().variants.push_back(entityIDStatic);
@@ -82,6 +86,8 @@ namespace Lina::Editor
 			entityIDSkinned.renderPass	   = "Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader";
 			entityIDSkinned.name		   = "SkinnedEntityID";
 			entityIDSkinned.renderPassName = "EntityID";
+            entityIDSkinned.depthFormat = SystemInfo::GetDepthFormat();
+
 			ShaderPreprocessor::ApplyBlending(entityIDSkinned, BlendMode::Opaque);
 			ShaderPreprocessor::ApplyDepth(entityIDSkinned, DepthTesting::Less);
 			shader->GetMeta().variants.push_back(entityIDSkinned);

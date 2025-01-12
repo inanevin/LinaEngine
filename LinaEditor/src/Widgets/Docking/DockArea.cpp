@@ -175,7 +175,7 @@ namespace Lina::Editor
 				payloadData->type			  = pair.first->GetType();
 				payloadData->subData		  = pair.first->GetSubData();
 				payloadData->panelName		  = pair.first->GetWidgetProps().debugName;
-				payloadData->panelSize		  = pair.first->GetSize();
+                payloadData->panelSize		  = pair.first->GetSize() / m_lgxWindow->GetDPIScale();
 				payload->SetUserData(payloadData);
 				Editor::Get()->GetWindowPanelManager().CreatePayload(payload, PayloadType::DockedPanel, payload->GetSize());
 			}

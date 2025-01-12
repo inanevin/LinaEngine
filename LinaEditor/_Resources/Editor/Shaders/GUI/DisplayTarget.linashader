@@ -30,7 +30,7 @@ SOFTWARE.
 #name : Default
 #blend: LINA_BLEND_NONE
 #depth: LINA_DEPTH_NONE
-#target: LINA_TARGET_SWAPCHAIN
+#target: LINA_TARGET_LDR
 #cull: LINA_CULL_NONE
 #face: LINA_FACE_CCW
 #lina_end
@@ -38,7 +38,7 @@ SOFTWARE.
 #lina_vs
 
 #include "Resources/Core/Shaders/Common/GlobalData.linashader"
-#include "Resources/Editor/Shaders/Common/EditorPassGUI.linashader"
+#include "Resources/Editor/Shaders/Common/RenderPass_GUI.linashader"
 
 layout (location = 0) in vec2 pos;
 layout (location = 1) in vec2 uv;
@@ -66,7 +66,7 @@ void main()
 #lina_fs
 
 #include "Resources/Core/Shaders/Common/GlobalData.linashader"
-#include "Resources/Editor/Shaders/Common/EditorPassGUI.linashader"
+#include "Resources/Editor/Shaders/Common/RenderPass_GUI.linashader"
 
 layout (location = 0) in vec4 inCol;
 layout (location = 1) in vec2 inUV;

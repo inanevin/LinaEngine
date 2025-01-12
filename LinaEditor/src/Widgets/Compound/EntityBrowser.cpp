@@ -421,7 +421,7 @@ namespace Lina::Editor
 
 			outData.push_back(FileMenuItem::Data{
 				.text		  = Locale::GetStr(LocaleStr::Display),
-				.dropdownIcon = ICON_CHEVRON_RIGHT,
+				.dropdownIcon = ICON_ARROW_RIGHT,
 				.hasDropdown  = true,
 				.isDisabled	  = basicActionsDisabled,
 				.userData	  = userData,
