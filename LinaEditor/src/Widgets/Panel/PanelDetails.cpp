@@ -58,7 +58,7 @@ namespace Lina::Editor
 
         EntityWorld* w = m_editor->GetWorldManager().GetFirstGameWorld();
         if(w)
-            m_browser->SetWorld(w);
+            m_entityDetails->SetWorld(w);
         
 		m_editor->GetWorldManager().AddListener(this);
 	}
