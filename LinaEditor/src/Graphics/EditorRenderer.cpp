@@ -53,12 +53,12 @@ namespace Lina::Editor
 		LinaGX::SamplerDesc samplerData = {};
         samplerData.minFilter			= LinaGX::Filter::Linear;
         samplerData.magFilter			= LinaGX::Filter::Linear;
-        samplerData.mode				= LinaGX::SamplerAddressMode::ClampToEdge;
+        samplerData.mode				= LinaGX::SamplerAddressMode::Repeat;
 		samplerData.anisotropy			= 6;
-		samplerData.borderColor			= LinaGX::BorderColor::WhiteOpaque;
+        samplerData.borderColor			= LinaGX::BorderColor::BlackTransparent;
 		samplerData.mipLodBias			= 0.0f;
 		samplerData.minLod				= 0.0f;
-		samplerData.maxLod				= 0;
+		samplerData.maxLod				= 16;
 		m_guiSampler->GenerateHW(samplerData);
 
 		samplerData.magFilter = LinaGX::Filter::Anisotropic;

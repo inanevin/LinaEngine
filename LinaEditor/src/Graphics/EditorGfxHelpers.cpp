@@ -77,26 +77,7 @@ RenderPassDescription EditorGfxHelpers::GetSwapchainPassDescription()
     };
 }
 
-	RenderPassDescription EditorGfxHelpers::GetEntityBufferPassDescription()
-	{
-		LinaGX::DescriptorSetDesc setDesc = GetSetDescriptionEntityBufferPass();
-
-		return {
-			.buffers =
-				{
-					{
-						.bufferType	  = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
-						.debugName	  = "EntityBuffer Pass - ViewData",
-						.size		  = sizeof(GPUDataView),
-						.stagingOnly  = true,
-						.bindingIndex = 0,
-						.ident		  = "ViewData"_hs,
-					},
-				},
-			.setDescription = setDesc,
-		};
-	}
-
+	
 	RenderPassDescription EditorGfxHelpers::GetEditorWorldPassDescription()
 	{
 		LinaGX::DescriptorSetDesc setDesc = GetSetDescriptionEditorWorldPass();
@@ -156,31 +137,7 @@ RenderPassDescription EditorGfxHelpers::GetSwapchainPassDescription()
         return {.bindings = {guiBinding0}};
     }
 
-	LinaGX::DescriptorSetDesc EditorGfxHelpers::GetSetDescriptionEntityBufferPass()
-	{
-		LinaGX::DescriptorBinding binding0 = {
-			.type	= LinaGX::DescriptorType::UBO,
-			.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-		};
-
-		LinaGX::DescriptorBinding binding1 = {
-			.type	= LinaGX::DescriptorType::SSBO,
-			.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-		};
-
-		LinaGX::DescriptorBinding binding2 = {
-			.type	= LinaGX::DescriptorType::SSBO,
-			.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-		};
-
-		LinaGX::DescriptorBinding binding3 = {
-			.type	= LinaGX::DescriptorType::SSBO,
-			.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-		};
-
-		return {.bindings = {binding0, binding1, binding2, binding3}};
-	}
-
+	
 	LinaGX::DescriptorSetDesc EditorGfxHelpers::GetSetDescriptionEditorWorldPass()
 	{
 		LinaGX::DescriptorBinding binding0 = {
@@ -197,8 +154,13 @@ RenderPassDescription EditorGfxHelpers::GetSwapchainPassDescription()
 			.type	= LinaGX::DescriptorType::SSBO,
 			.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 		};
+        
+        LinaGX::DescriptorBinding binding3 = {
+            .type    = LinaGX::DescriptorType::SSBO,
+            .stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+        };
 
-		return {.bindings = {binding0, binding1, binding2}};
+		return {.bindings = {binding0, binding1, binding2, binding3}};
 	}
 
 	LinaGX::DescriptorSetDesc EditorGfxHelpers::GetSetDescriptionGizmoOrientationPass()
@@ -240,14 +202,7 @@ LinaGX::PipelineLayoutDesc EditorGfxHelpers::GetPipelineLayoutDescriptionSwapcha
     };
 }
 
-	LinaGX::PipelineLayoutDesc EditorGfxHelpers::GetPipelineLayoutDescriptionEntityBufferPass()
-	{
-		LinaGX::PipelineLayoutDesc desc;
-		desc.descriptorSetDescriptions = {GfxHelpers::GetSetDescPersistentGlobal(), GetSetDescriptionEntityBufferPass()};
-		desc.debugName				   = "PL Editor EntityBuffer Pass";
-		desc.constantRanges.push_back(LinaGX::PipelineLayoutPushConstantRange{.stages = {LinaGX::ShaderStage::Vertex}, .size = sizeof(uint32)});
-		return desc;
-	}
+
 
 	LinaGX::PipelineLayoutDesc EditorGfxHelpers::GetPipelineLayoutDescriptionEditorWorldPass()
 	{

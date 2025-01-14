@@ -45,7 +45,7 @@ SOFTWARE.
 #name : StaticEntityID
 #vertex: Resources/Editor/Shaders/Common/MainVertexStaticEntityID.linashader
 #frag: Resources/Editor/Shaders/Common/MainFragEntityID.linashader
-#pass: Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader
+#pass: Resources/Editor/Shaders/Common/RenderPass_World.linashader
 #blend: LINA_BLEND_NONE
 #depth: LINA_DEPTH_ALWAYS
 #depth_target: LINA_TARGET_D32

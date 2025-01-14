@@ -31,6 +31,7 @@ include/Editor/Actions/EditorActionManager.hpp
 include/Editor/Actions/EditorAction.hpp
 include/Editor/Actions/EditorActionResources.hpp
 include/Editor/Actions/EditorActionEntity.hpp
+include/Editor/Actions/EditorActionComponent.hpp
 include/Editor/WindowPanelManager.hpp
 include/Editor/World/CommonEditorWorld.hpp
 include/Editor/World/EditorWorldManager.hpp
@@ -95,6 +96,7 @@ include/Editor/Widgets/Panel/PanelMaterialViewer.hpp
 include/Editor/Widgets/Panel/PanelAudioViewer.hpp
 include/Editor/Widgets/Panel/PanelResourceBrowser.hpp
 include/Editor/Widgets/Panel/PanelColorWheel.hpp
+include/Editor/Widgets/Panel/PanelGenericSelector.hpp
 include/Editor/Widgets/Panel/PanelFactory.hpp
 include/Editor/Widgets/Panel/PanelResourceViewer.hpp
 include/Editor/Widgets/FX/LinaLoading.hpp
@@ -125,6 +127,7 @@ src/Actions/EditorActionManager.cpp
 src/Actions/EditorAction.cpp
 src/Actions/EditorActionResources.cpp
 src/Actions/EditorActionEntity.cpp
+src/Actions/EditorActionComponent.cpp
 src/EditorLocale.cpp
 src/Editor.cpp
 src/EditorTaskManager.cpp
@@ -190,6 +193,7 @@ src/Widgets/Panel/PanelMaterialViewer.cpp
 src/Widgets/Panel/PanelAudioViewer.cpp
 src/Widgets/Panel/PanelResourceBrowser.cpp
 src/Widgets/Panel/PanelColorWheel.cpp
+src/Widgets/Panel/PanelGenericSelector.cpp
 src/Widgets/Panel/PanelFactory.cpp
 src/Widgets/Panel/PanelResourceViewer.cpp
 src/Widgets/FX/LinaLoading.cpp

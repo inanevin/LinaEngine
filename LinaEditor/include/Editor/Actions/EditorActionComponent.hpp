@@ -28,10 +28,39 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/World/Component.hpp"
-#include "Core/Graphics/Data/RenderData.hpp"
+#include "EditorAction.hpp"
+#include "Core/World/CommonWorld.hpp"
+#include "Common/Data/String.hpp"
 
 namespace Lina
 {
+	class Entity;
+	class EntityWorld;
+}; // namespace Lina
 
-} // namespace Lina
+namespace Lina::Editor
+{
+	class Editor;
+
+	class EditorActionComponentChanged : public EditorAction
+	{
+	public:
+		EditorActionComponentChanged()		   = default;
+		virtual ~EditorActionComponentChanged()
+        {
+            for(OStream& stream : m_currentStreams)
+                stream.Destroy();
+        }
+
+		static EditorActionComponentChanged* Create(Editor* editor, uint64 worldId, const Vector<Entity*>& entities, const Vector<TypeID>& comps, const Vector<OStream>& previousBuffers);
+		virtual void						Execute(Editor* editor, ExecType type) override;
+
+	private:
+        Vector<EntityID> m_entities;
+        Vector<TypeID> m_components;
+        Vector<OStream> m_previousStreams;
+        Vector<OStream> m_currentStreams;
+        uint64 m_worldId = 0;
+	};
+
+} // namespace Lina::Editor

@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Editor/Widgets/Compound/ColorWheelCompound.hpp"
 #include "Editor/Actions/EditorActionResources.hpp"
 #include "Editor/Graphics/EditorWorldRenderer.hpp"
+#include "Editor/Widgets/Panel/PanelColorWheel.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Serialization/Serialization.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
@@ -203,26 +204,40 @@ namespace Lina::Editor
 	{
 		m_inspector->DeallocAllChildren();
 		m_inspector->RemoveAllChildren();
+        
+        DirectionalLayout* panelItems = m_manager->Allocate<DirectionalLayout>();
+        panelItems->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);
+        panelItems->SetAlignedSize(Vector2::One);
+        panelItems->SetAlignedPosX(0.0f);
+        panelItems->GetWidgetProps().childPadding = m_inspector->GetWidgetProps().childPadding;
+        panelItems->GetProps().direction = DirectionOrientation::Vertical;
+        panelItems->GetCallbacks().onEditEnded = [this](){
+            if (m_displayType == MaterialViewerDisplayType::Skybox && m_shaderType != ShaderType::Custom)
+            {
+                LINA_WARN("Can not display this shader type as a skybox.");
+                m_displayType = MaterialViewerDisplayType::Cube;
+            }
+            SetupWorld();
+        };
+        m_inspector->AddChild(panelItems);
+        CommonWidgets::BuildClassReflection(panelItems, this, ReflectionSystem::Get().Resolve<PanelMaterialViewer>());
+      
+        Material* mat = static_cast<Material*>(m_resource);
 
-		CommonWidgets::BuildClassReflection(m_inspector, this, ReflectionSystem::Get().Resolve<PanelMaterialViewer>(), [this](MetaType* meta, FieldBase* field) {
-			if (m_displayType == MaterialViewerDisplayType::Skybox && m_shaderType != ShaderType::Custom)
-			{
-				LINA_WARN("Can not display this shader type as a skybox.");
-				m_displayType = MaterialViewerDisplayType::Cube;
-			}
-			SetupWorld();
-		});
-		Material* mat = static_cast<Material*>(m_resource);
+        Widget* shaderField =  CommonWidgets::BuildField(m_inspector, Locale::GetStr(LocaleStr::Shader), &m_shaderID, {
+            .type = FieldType::ResourceID,
+            .tid = GetTypeID<Shader>(),
+        });
+        shaderField->GetCallbacks().onEditEnded = [this, mat](){
+            if(m_previousShaderID != m_shaderID)
+                EditorActionResourceMaterialShader::Create(m_editor, mat->GetID(), m_resourceSpace, m_previousShaderID, m_shaderID, m_previousStream);
+        };
+        m_inspector->AddChild(shaderField);
 
-		Widget* shaderField			= CommonWidgets::BuildFieldLayoutWithRightSide(m_inspector, 0, Locale::GetStr(LocaleStr::Shader), false, nullptr, 0.6f);
-		Widget* shaderResourceField = CommonWidgets::BuildResourceField(m_inspector, &m_shaderID, GetTypeID<Shader>(), [this, mat](ResourceDirectory* selected) {
-			m_shaderID = selected->resourceID;
-			EditorActionResourceMaterialShader::Create(m_editor, mat->GetID(), m_resourceSpace, m_previousShaderID, m_shaderID, m_previousStream);
-		});
-
-		Widget::GetWidgetOfType<DirectionalLayout>(shaderField)->AddChild(shaderResourceField);
-		m_inspector->AddChild(shaderField);
-
+        m_propertyFoldValues.resize(mat->GetProperties().size());
+        
+        /*
+   
 		auto buildColorButton = [this](uint8* data, uint8 comps) -> Button* {
 			Button* b = m_manager->Allocate<Button>();
 			b->GetFlags().Set(WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
@@ -257,11 +272,15 @@ namespace Lina::Editor
 			for (uint8 i = 0; i < fieldCount; i++)
 			{
 				InputField* inp				   = CommonWidgets::BuildFloatField(m_inspector, dataStart + i * sizeof(uint32), 32, isInt, isUnsigned, true, isUnsigned ? 0 : -1000.0f, 1000.0f, 0.1f);
-				inp->GetProps().onEditEnd	   = [this](const String& txt) { UpdateMaterial(); };
-				inp->GetProps().onValueChanged = [this](float val, bool fromSlider) {
-					if (fromSlider)
-						m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
-				};
+                
+                inp->GetCallbacks().onEditEnded = [this](){
+                    UpdateMaterial();
+                };
+                
+                inp->GetCallbacks().onEdited = [this](){
+                    m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
+                };
+				
 				inp->GetProps().disableNumberSlider = true;
 				srcToAdd->AddChild(inp);
 			}
@@ -274,135 +293,204 @@ namespace Lina::Editor
 			return rightSide;
 		};
 
-		uint32 i = 0;
 
-		m_propertyFoldValues.resize(mat->GetProperties().size());
 
-		for (MaterialProperty* p : mat->GetProperties())
-		{
-			if (p->propDef.type == ShaderPropertyType::Float)
-			{
-				DirectionalLayout* rightSide = buildDefaultLayout(p->propDef.name);
-				buildFloatField(rightSide, p->data.data(), 1, false, false);
-			}
-			else if (p->propDef.type == ShaderPropertyType::Int32)
-			{
-				DirectionalLayout* rightSide = buildDefaultLayout(p->propDef.name);
-				buildFloatField(rightSide, p->data.data(), 1, true, false);
-			}
-			else if (p->propDef.type == ShaderPropertyType::UInt32)
-			{
-				DirectionalLayout* rightSide = buildDefaultLayout(p->propDef.name);
-				buildFloatField(rightSide, p->data.data(), 1, true, true);
-			}
-			else if (p->propDef.type == ShaderPropertyType::Bool)
-			{
-				DirectionalLayout* rightSide = buildDefaultLayout(p->propDef.name);
-				Checkbox*		   v0		 = m_manager->Allocate<Checkbox>();
-				v0->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y);
-				v0->SetAlignedSize(Vector2::One);
-				v0->SetAlignedPosY(0.0f);
-				v0->GetProps().value		   = reinterpret_cast<bool*>(p->data.data());
-				v0->GetIcon()->GetProps().icon = ICON_CHECK;
-				v0->GetIcon()->CalculateIconSize();
-				v0->GetProps().onValueChanged = [p, this](bool val) {
-					MEMCPY(p->data.data(), &val, sizeof(bool));
-					UpdateMaterial();
-				};
+		
+   */
+        
+        auto setCb = [&](Widget* w){
+            w->GetCallbacks().onEdited = [this](){
+                m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
+            };
+            w->GetCallbacks().onEditEnded = [this](){
+                UpdateMaterial();
+            };
+        };
+        
+        uint32 i = 0;
 
-				rightSide->AddChild(v0);
-			}
-			else if (p->propDef.type == ShaderPropertyType::Vec2)
-			{
-				DirectionalLayout* rightSide = buildDefaultLayout(p->propDef.name);
-				buildFloatField(rightSide, p->data.data(), 2, false, false);
-			}
-			else if (p->propDef.type == ShaderPropertyType::Vec3)
-			{
-				DirectionalLayout* rightSide = buildDefaultLayout(p->propDef.name);
-				rightSide->AddChild(buildColorButton(p->data.data(), 3));
-				buildFloatField(rightSide, p->data.data(), 3, false, false);
-			}
-			else if (p->propDef.type == ShaderPropertyType::Vec4)
-			{
-				DirectionalLayout* rightSide = buildDefaultLayout(p->propDef.name);
-				rightSide->AddChild(buildColorButton(p->data.data(), 4));
-				buildFloatField(rightSide, p->data.data(), 4, false, false);
-			}
-			else if (p->propDef.type == ShaderPropertyType::IVec2)
-			{
-				DirectionalLayout* rightSide = buildDefaultLayout(p->propDef.name);
-				buildFloatField(rightSide, p->data.data(), 2, true, false);
-			}
-			else if (p->propDef.type == ShaderPropertyType::IVec3)
-			{
-				DirectionalLayout* rightSide = buildDefaultLayout(p->propDef.name);
-				buildFloatField(rightSide, p->data.data(), 3, true, false);
-			}
-			else if (p->propDef.type == ShaderPropertyType::IVec4)
-			{
-				DirectionalLayout* rightSide = buildDefaultLayout(p->propDef.name);
-				buildFloatField(rightSide, p->data.data(), 4, true, false);
-			}
-			else if (p->propDef.type == ShaderPropertyType::Matrix4)
-			{
-				FoldLayout* fold = static_cast<FoldLayout*>(CommonWidgets::BuildFieldLayout(this, 0, "Matrix4", true, reinterpret_cast<bool*>(&m_propertyFoldValues[i])));
-				m_inspector->AddChild(fold);
+        for (MaterialProperty* p : mat->GetProperties())
+        {
+            if (p->propDef.type == ShaderPropertyType::Float)
+            {
+                Widget* layout = CommonWidgets::BuildField(m_inspector, p->propDef.name, p->data.data(), {
+                    .type = FieldType::Float,
+                    .stepFloat = 0.1f,
+                    .foldPtr = reinterpret_cast<bool*>(&m_propertyFoldValues[i]),
+                });
+                setCb(layout);
+                m_inspector->AddChild(layout);
+            }
+            else if (p->propDef.type == ShaderPropertyType::Int32)
+            {
+                Widget* layout = CommonWidgets::BuildField(m_inspector, p->propDef.name, p->data.data(), {
+                    .type = FieldType::Int32,
+                    .stepFloat = 1.0f,
+                    .foldPtr = reinterpret_cast<bool*>(&m_propertyFoldValues[i]),
+                });
+                setCb(layout);
+                m_inspector->AddChild(layout);
+            }
+            else if (p->propDef.type == ShaderPropertyType::UInt32)
+            {
+                Widget* layout = CommonWidgets::BuildField(m_inspector, p->propDef.name, p->data.data(), {
+                    .type = FieldType::UInt32,
+                    .stepFloat = 1.0f,
+                    .foldPtr = reinterpret_cast<bool*>(&m_propertyFoldValues[i]),
+                });
+                setCb(layout);
+                m_inspector->AddChild(layout);
+            }
+            else if (p->propDef.type == ShaderPropertyType::Bool)
+            {
+                Widget* layout = CommonWidgets::BuildField(m_inspector, p->propDef.name, p->data.data(), {
+                    .type = FieldType::Boolean,
+                    .foldPtr = reinterpret_cast<bool*>(&m_propertyFoldValues[i]),
+                });
+                setCb(layout);
+                m_inspector->AddChild(layout);
+            }
+            else if (p->propDef.type == ShaderPropertyType::Vec2)
+            {
+                Widget* layout = CommonWidgets::BuildField(m_inspector, p->propDef.name, p->data.data(), {
+                    .type = FieldType::Vector2,
+                    .stepFloat = 0.1f,
+                    .foldPtr = reinterpret_cast<bool*>(&m_propertyFoldValues[i]),
+                });
+                setCb(layout);
+                m_inspector->AddChild(layout);
+            }
+            else if (p->propDef.type == ShaderPropertyType::Vec3)
+            {
+                Widget* layout = CommonWidgets::BuildField(m_inspector, p->propDef.name, p->data.data(), {
+                    .type = FieldType::Vector3,
+                    .stepFloat = 0.1f,
+                    .foldPtr = reinterpret_cast<bool*>(&m_propertyFoldValues[i]),
+                });
+                setCb(layout);
+                m_inspector->AddChild(layout);
+            }
+            else if (p->propDef.type == ShaderPropertyType::Vec4)
+            {
+                Widget* layout = CommonWidgets::BuildField(m_inspector, p->propDef.name, p->data.data(), {
+                    .type = FieldType::Vector4,
+                    .stepFloat = 0.1f,
+                    .foldPtr = reinterpret_cast<bool*>(&m_propertyFoldValues[i]),
+                });
+                
+                Widget* rightSide = layout->GetChildren().back();
+                Vector<Widget*> children = rightSide->GetChildren();
+                rightSide->RemoveAllChildren();
+                
+                Button* colorButton = CommonWidgets::BuildIconButton(layout, ICON_PALETTE);
+                rightSide->AddChild(colorButton);
+                for(Widget* c : children)
+                    rightSide->AddChild(c);
+                
+                colorButton->GetProps().onClicked = [this, colorButton, p, setCb, mat, i](){
+                    PanelColorWheel* pcw = m_editor->GetWindowPanelManager().OpenColorWheelPanel(colorButton);
+                    Color* col = reinterpret_cast<Color*>(p->data.data());
+                    pcw->GetWheel()->SetTargetColor(*col);
+                    pcw->SetUserData(this);
+                   
+                    const ResourceID matID = mat->GetID();
+                    const uint32 propIdx = i;
+                    
+                    pcw->GetCallbacks().onEditEnded = [matID](){
+                        Panel* panel = Editor::Get()->GetWindowPanelManager().FindPanelOfType(PanelType::MaterialViewer, matID);
+                        if(!panel)
+                            return;
+                        static_cast<PanelMaterialViewer*>(panel)->UpdateMaterial();
+                    };
+                    
+                    pcw->GetCallbacks().onEdited = [matID, propIdx, pcw](){
+                        Material* mat = Editor::Get()->GetApp()->GetResourceManager().GetIfExists<Material>(matID);
+                        if(!mat)
+                            return;
+                        
+                        if(mat->GetProperties().size() <= propIdx)
+                            return;
+                        
+                        MaterialProperty* prop = mat->GetProperties().at(propIdx);
+                        
+                        if(prop->propDef.type != ShaderPropertyType::Vec4)
+                            return;
+                        
+                        const Color col = pcw->GetWheel()->GetEditedColor().SRGB2Linear();
+                        Color* matColor = reinterpret_cast<Color*>(prop->data.data());
+                        *matColor = col;
+                        Editor::Get()->GetApp()->GetGfxContext().MarkBindlessDirty();
+                    };
+                };
+                
+                setCb(layout);
+                m_inspector->AddChild(layout);
+            }
+            else if (p->propDef.type == ShaderPropertyType::IVec2)
+            {
+                Widget* layout = CommonWidgets::BuildField(m_inspector, p->propDef.name, p->data.data(), {
+                    .type = FieldType::Vector2i,
+                    .stepFloat = 1.0f,
+                    .foldPtr = reinterpret_cast<bool*>(&m_propertyFoldValues[i]),
+                });
+                setCb(layout);
+                m_inspector->AddChild(layout);
+            }
+            else if (p->propDef.type == ShaderPropertyType::IVec3)
+            {
+                Widget* layout = CommonWidgets::BuildField(m_inspector, p->propDef.name, p->data.data(), {
+                    .type = FieldType::Vector3i,
+                    .stepFloat = 1.0f,
+                    .foldPtr = reinterpret_cast<bool*>(&m_propertyFoldValues[i]),
+                });
+                setCb(layout);
+                m_inspector->AddChild(layout);
+            }
+            else if (p->propDef.type == ShaderPropertyType::IVec4)
+            {
+                Widget* layout = CommonWidgets::BuildField(m_inspector, p->propDef.name, p->data.data(), {
+                    .type = FieldType::Vector4i,
+                    .stepFloat = 1.0f,
+                    .foldPtr = reinterpret_cast<bool*>(&m_propertyFoldValues[i]),
+                });
+                setCb(layout);
+                m_inspector->AddChild(layout);
+            }
+            else if (p->propDef.type == ShaderPropertyType::Matrix4)
+            {
+                
+            }
+            else if (p->propDef.type == ShaderPropertyType::Texture2D)
+            {
+                Widget* layout = CommonWidgets::BuildField(m_inspector, p->propDef.name, p->data.data(), {
+                    .type = FieldType::UserClass,
+                    .tid = GetTypeID<LinaTexture2D>(),
+                    .foldPtr = reinterpret_cast<bool*>(&m_propertyFoldValues[i]),
+                });
+                
+                setCb(layout);
+                m_inspector->AddChild(layout);
+            }
 
-				for (uint8 i = 0; i < 4; i++)
-				{
-					DirectionalLayout* row = static_cast<DirectionalLayout*>(CommonWidgets::BuildFieldLayoutWithRightSide(this, 0, "Row1", false, nullptr));
-					fold->AddChild(row);
+            i++;
+        }
 
-					DirectionalLayout* rowRightSide = Widget::GetWidgetOfType<DirectionalLayout>(row);
-					buildFloatField(rowRightSide, p->data.data() + sizeof(float) * i * 4, 4, false, false);
-				}
-			}
-			else if (p->propDef.type == ShaderPropertyType::Texture2D)
-			{
-				LinaTexture2D* txt = reinterpret_cast<LinaTexture2D*>(p->data.data());
+        m_inspector->Initialize();
 
-				Widget* txtField = CommonWidgets::BuildTextureField(this, m_editor->GetProjectManager().GetProjectData(), txt, 0, p->propDef.name, reinterpret_cast<bool*>(&m_propertyFoldValues[i]), [this]() { UpdateMaterial(); });
-				m_inspector->AddChild(txtField);
-			}
-
-			i++;
-		}
-
-		m_inspector->Initialize();
-
-		if (m_previewOnly)
-			DisableRecursively(m_inspector);
-	}
-
-	void PanelMaterialViewer::OnPanelColorWheelValueChanged(const Color& linearColor)
-	{
-		Color val = linearColor;
-		for (uint8 i = 0; i < m_latestColorWheelComps; i++)
-			MEMCPY(m_latestColorWheelData + sizeof(float) * i, &val[i], sizeof(float));
-
-		// Update without commands.
-		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
-	}
-
-	void PanelMaterialViewer::OnPanelColorWheelListenerChanged()
-	{
-		UpdateMaterial();
-	}
-
-	void PanelMaterialViewer::OnPanelColorWheelClosed()
-	{
-		UpdateMaterial();
-		m_colorWheel = nullptr;
+        if (m_previewOnly)
+            DisableRecursively(m_inspector);
 	}
 
 	void PanelMaterialViewer::UpdateMaterial()
 	{
 		Material* mat = static_cast<Material*>(m_resource);
 
-		if (m_colorWheel)
-			m_colorWheel->GetWheel()->FetchFromTrackedColors();
-
+        Panel* panel = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::ColorWheel, 0);
+        if(panel && panel->GetUserData() == this)
+        {
+            
+        }
+        
 		OStream stream;
 		mat->SaveToStream(stream);
 		EditorActionResourceMaterial::Create(m_editor, m_resource->GetID(), m_resourceSpace, m_previousStream, stream);

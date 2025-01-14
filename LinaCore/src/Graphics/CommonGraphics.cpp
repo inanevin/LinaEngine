@@ -27,6 +27,8 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/CommonGraphics.hpp"
+#include "Core/Graphics/Resource/Texture.hpp"
+#include "Core/Graphics/Resource/TextureSampler.hpp"
 
 namespace Lina
 {
@@ -43,5 +45,10 @@ namespace Lina
 		}
 		return true;
 	}
+
+LINA_CLASS_BEGIN(LinaTexture2D)
+LINA_FIELD(LinaTexture2D, texture, "Texture", FieldType::ResourceID, GetTypeID<Texture>())
+LINA_FIELD(LinaTexture2D, sampler, "Sampler", FieldType::ResourceID, GetTypeID<TextureSampler>())
+LINA_CLASS_END(LinaTexture2D)
 
 } // namespace Lina

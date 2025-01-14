@@ -200,8 +200,12 @@ namespace Lina
 			for (const Instance& inst : call.instances)
 			{
 				const CompModelNode& node	= inst.comp->GetNodes().at(inst.nodeIndex);
+                const Matrix4 model = inst.comp->GetEntity()->GetTransform().ToMatrix() * node.transform.ToLocalMatrix();
+                const Matrix4 normal =  model.GetNormalMatrix();
+                
 				const GPUEntity		 entity = {
-						 .model = inst.comp->GetEntity()->GetTransform().ToMatrix() * node.transform.ToLocalMatrix(),
+						 .model = model,
+                         .normal = normal,
 				 };
 
 				const EntityIdent ident = {

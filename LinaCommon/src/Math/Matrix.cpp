@@ -146,6 +146,12 @@ namespace Lina
 		return *this;
 	}
 
+    Matrix4 Matrix4::GetNormalMatrix() const
+    {
+        glm::mat4 res = glm::transpose(glm::inverse(glm::mat3(*this)));
+        return res;
+    }
+
 	Vector3 Matrix4::GetScale()
 	{
 		return Vector3((*this)[0][0], (*this)[1][1], (*this)[2][2]);

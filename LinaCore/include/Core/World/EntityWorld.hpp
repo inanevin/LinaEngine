@@ -63,15 +63,19 @@ namespace Lina
 		{
 			ResourceID skyMaterial;
 			ResourceID skyModel;
+            Color ambientTop = Color::White;
+            Color ambientMid = Color::White;
+            Color ambientBot = Color::White;
+            float ambientIntensity = 1.0f;
 
 			void SaveToStream(OStream& stream) const
 			{
-				stream << skyMaterial << skyModel;
+                stream << skyMaterial << skyModel << ambientTop << ambientMid << ambientBot << ambientIntensity;
 			}
 
 			void LoadFromStream(IStream& stream)
 			{
-				stream >> skyMaterial >> skyModel;
+                stream >> skyMaterial >> skyModel >> ambientTop >> ambientMid >> ambientBot >> ambientIntensity;
 			}
 		};
 

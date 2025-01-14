@@ -30,7 +30,6 @@ SOFTWARE.
 
 #include "Editor/Widgets/Panel/Panel.hpp"
 #include "Editor/World/EditorWorldManager.hpp"
-#include "Core/GUI/Widgets/Compound/FileMenu.hpp"
 
 namespace Lina
 {
@@ -44,7 +43,7 @@ namespace Lina::Editor
 	class Editor;
 	class EntityBrowser;
 
-	class PanelEntities : public Panel, public FileMenuListener, public EditorWorldManagerListener
+	class PanelEntities : public Panel, public EditorWorldManagerListener
 	{
 	public:
 		PanelEntities() : Panel(PanelType::Entities){};
@@ -54,9 +53,6 @@ namespace Lina::Editor
 		virtual void Destruct() override;
 		virtual void PreTick() override;
 		virtual void Tick(float dt) override;
-
-		virtual bool OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData) override;
-		virtual void OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
 
 	protected:
 		virtual void OnWorldManagerOpenedWorld(EditorWorldRenderer* wr) override;

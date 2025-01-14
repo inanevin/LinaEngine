@@ -43,7 +43,7 @@ namespace Lina::Editor
 			outlineStatic.fragWrap		 = "Resources/Editor/Shaders/Common/MainFragOutline.linashader";
 			outlineStatic.name			 = "StaticOutline";
 			outlineStatic.renderPassName = "Outline";
-			outlineStatic.renderPass	 = "Resources/Editor/Shaders/Common/RenderPass_Outline.linashader";
+			outlineStatic.renderPass	 = "Resources/Editor/Shaders/Common/RenderPass_World.linashader";
 			outlineStatic.targets		 = {{
 					   .format = SystemInfo::GetLDRFormat(),
 			   }};
@@ -57,7 +57,7 @@ namespace Lina::Editor
 			outlineSkinned.fragWrap		  = "Resources/Editor/Shaders/Common/MainFragOutline.linashader";
 			outlineSkinned.name			  = "SkinnedOutline";
 			outlineSkinned.renderPassName = "Outline";
-			outlineSkinned.renderPass	  = "Resources/Editor/Shaders/Common/RenderPass_Outline.linashader";
+			outlineSkinned.renderPass	  = "Resources/Editor/Shaders/Common/RenderPass_World.linashader";
 			outlineSkinned.targets		  = {{
 					   .format = SystemInfo::GetLDRFormat(),
 			   }};
@@ -69,7 +69,7 @@ namespace Lina::Editor
 			ShaderVariant entityIDStatic  = {};
 			entityIDStatic.vertexWrap	  = "Resources/Editor/Shaders/Common/MainVertexStaticEntityID.linashader";
 			entityIDStatic.fragWrap		  = "Resources/Editor/Shaders/Common/MainFragEntityID.linashader";
-			entityIDStatic.renderPass	  = "Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader";
+			entityIDStatic.renderPass	  = "Resources/Editor/Shaders/Common/RenderPass_World.linashader";
 			entityIDStatic.name			  = "StaticEntityID";
 			entityIDStatic.renderPassName = "EntityID";
 			entityIDStatic.targets		  = {{LinaGX::Format::R32_UINT}};
@@ -83,7 +83,7 @@ namespace Lina::Editor
 			entityIDSkinned.vertexWrap	   = "Resources/Editor/Shaders/Common/MainVertexSkinnedEntityID.linashader";
 			entityIDSkinned.fragWrap	   = "Resources/Editor/Shaders/Common/MainFragEntityID.linashader";
 			entityIDSkinned.targets		   = {{LinaGX::Format::R32_UINT}};
-			entityIDSkinned.renderPass	   = "Resources/Editor/Shaders/Common/RenderPass_EntityID.linashader";
+			entityIDSkinned.renderPass	   = "Resources/Editor/Shaders/Common/RenderPass_World.linashader";
 			entityIDSkinned.name		   = "SkinnedEntityID";
 			entityIDSkinned.renderPassName = "EntityID";
             entityIDSkinned.depthFormat = SystemInfo::GetDepthFormat();

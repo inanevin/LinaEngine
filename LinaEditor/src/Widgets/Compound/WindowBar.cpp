@@ -91,7 +91,7 @@ namespace Lina::Editor
             m_dragRect = Rect(m_rect.pos / m_lgxWindow->GetDPIScale(), m_rect.size / m_lgxWindow->GetDPIScale());
 
 			if (m_windowButtons != nullptr)
-				m_dragRect.size.x -= m_windowButtons->GetSizeX();
+                m_dragRect.size.x -= m_windowButtons->GetSizeX() / m_lgxWindow->GetDPIScale();
 
 			LinaGX::LGXRectui lgxRect;
 			lgxRect.pos	 = {static_cast<uint32>(m_dragRect.pos.x), static_cast<uint32>(m_dragRect.pos.y)};

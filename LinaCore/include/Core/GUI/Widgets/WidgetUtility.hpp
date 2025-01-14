@@ -54,7 +54,6 @@ namespace Lina
 		static void DrawDropShadowRect(LinaVG::Drawer* lvg, const Rect& rect, int32 drawOrder, const Color& baseColor, int32 radius);
 
 		static DirectionalLayout* BuildLayoutForPopups(Widget* source);
-		static Text*			  BuildEditableText(Widget* source, bool horizontal, Delegate<void()>&& onTextChanged);
 		static Button*			  BuildIconTextButton(Widget* src, const String& icon, const String& text);
 
 		static bool CheckIfCanShrinkWidgets(const Vector<Widget*>& widgets, float absAmount, bool isX, float minSize);

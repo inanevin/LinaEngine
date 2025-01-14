@@ -136,14 +136,7 @@ namespace Lina::Editor
 		Vector4 cameraDirectionAndFar;
 		Vector2 size;
 		Vector2 mouse;
-		uint32	deprecated0;
-		uint32	deprecated1;
-		uint32	deprecated2;
-		uint32	deprecated3;
-		uint32	deprecated4;
-		uint32	padding0;
-		uint32	padding1;
-		uint32	padding2;
+        Vector4 padding;
 	};
 
     struct GPUDataEditorGUIView
@@ -165,17 +158,14 @@ namespace Lina::Editor
 	public:
         static RenderPassDescription      GetGUIPassDescription();
 		static RenderPassDescription	  GetSwapchainPassDescription();
-		static RenderPassDescription	  GetEntityBufferPassDescription();
 		static RenderPassDescription	  GetEditorWorldPassDescription();
 		static RenderPassDescription	  GetGizmoOrientationPassDescription();
         static LinaGX::DescriptorSetDesc  GetSetDescriptionGUI();
 		static LinaGX::DescriptorSetDesc  GetSetDescriptionSwapchain();
-		static LinaGX::DescriptorSetDesc  GetSetDescriptionEntityBufferPass();
 		static LinaGX::DescriptorSetDesc  GetSetDescriptionEditorWorldPass();
 		static LinaGX::DescriptorSetDesc  GetSetDescriptionGizmoOrientationPass();
         static LinaGX::PipelineLayoutDesc GetPipelineLayoutDescriptionGUI();
 		static LinaGX::PipelineLayoutDesc GetPipelineLayoutDescriptionSwapchain();
-		static LinaGX::PipelineLayoutDesc GetPipelineLayoutDescriptionEntityBufferPass();
 		static LinaGX::PipelineLayoutDesc GetPipelineLayoutDescriptionEditorWorldPass();
 		static LinaGX::PipelineLayoutDesc GetPipelineLayoutDescriptionGizmoOrientationPass();
 	};

@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Common/Data/String.hpp"
+#include "Common/Data/Vector.hpp"
 #include "Common/Math/Color.hpp"
 #include "Editor/Graphics/EditorGfxHelpers.hpp"
 
@@ -70,6 +71,53 @@ namespace Lina::Editor
 			Delegate<void()> onPressed;
 		};
 
+        struct FieldProperties
+        {
+            FieldType type = FieldType::UInt8;
+            FieldBase* field = nullptr;
+            MetaType* meta = nullptr;
+            int32 elementIndex = -1;
+            bool hasLimits = false;
+            float minFloat = 0.0f;
+            float maxFloat = 0.0f;
+            float stepFloat = 0.0f;
+            uint32 dependencies = 0;
+            TypeID tid = 0;
+            Vector<uint32> onlyShow = {};
+            bool* foldPtr = nullptr;
+            String tooltip = "";
+        };
+        
+        struct ResDirItemProperties
+        {
+            String               chevron           = "";
+            String               chevronAlt       = "";
+            String               typeText           = "";
+            Color               typeColor       = Color::White;
+            String               mainIcon           = "";
+            Color               mainIconColor   = Color::White;
+            TextureAtlasImage* image           = nullptr;
+            String               title           = "";
+            String               footerIcon       = "";
+            Color               footerIconColor = Color::White;
+            float               margin           = 0.0f;
+            bool*               unfoldValue       = nullptr;
+            void*               userData           = nullptr;
+        };
+
+        struct EntityItemProperties
+        {
+            String icon              = "";
+            Color  iconColor      = Color::White;
+            String visibilityIcon = "";
+            String title          = "";
+            bool   hasChildren      = false;
+            float  margin          = 0.0f;
+            bool*  unfoldValue      = nullptr;
+            void*  userData          = nullptr;
+        };
+
+        
 		static DirectionalLayout* BuildWindowButtons(Widget* source);
 		static InfoTooltip*		  ThrowInfoTooltip(const String& str, LogLevel level, float time, Widget* source);
 		static InfoTooltip*		  ThrowInfoTooltip(const String& str, LogLevel level, float time, WidgetManager* manager, const Vector2& targetPos);
@@ -83,62 +131,29 @@ namespace Lina::Editor
 
 		static Widget* BuildPayloadForPanel(Widget* src, const String& name);
 
-		static Widget* BuildStringLayout(Widget* src, const String& title, String* str, uint32 dependencies = 0, Delegate<void()> editStarted = nullptr, Delegate<void()> edited = nullptr, Delegate<void()> editEnd = nullptr);
-		static Widget* BuildVector3FLayout(Widget* src, const String& title, float step, Vector3* vector, uint32 dependencies = 0, Delegate<void()> editStarted = nullptr, Delegate<void()> edited = nullptr, Delegate<void()> editEnd = nullptr);
-		static Widget* BuildFloatLayout(Widget* src, const String& title, float step, float* val, uint32 dependencies = 0, Delegate<void()> editStarted = nullptr, Delegate<void()> edited = nullptr, Delegate<void()> editEnd = nullptr);
-
-		static InputField* BuildFloatField(Widget* src, void* ptr, uint8 bits, bool isInt, bool isUnsigned, bool hasLimits, float minLimit = 0.0f, float maxLimit = 1.0f, float step = 0.1f, bool canSelectThemeValues = false);
-		static Widget*	   BuildTextureField(Widget* src, ProjectData* project, LinaTexture2D* txt, uint32 dependencies, const String& title, bool* foldVal, Delegate<void()> onValueChanged);
-		static Widget*	   BuildResourceField(Widget* src, ResourceID* currentResourceID, TypeID targetType, Delegate<void(ResourceDirectory*)> onSelected);
-
-		static Widget*	   BuildFieldLayout(Widget* src, uint32 dependencies, const String& title, bool isFoldLayout, bool* foldVal = nullptr);
-		static Widget*	   BuildFieldLayoutWithRightSide(Widget* src, uint32 dependencies, const String& title, bool isFoldLayout, bool* foldVal = nullptr, float horizontalSz = 0.5f);
-		static Widget*	   BuildField(Widget* src, const String& title, void* memberVariablePtr, MetaType* metaType, FieldBase* field, FieldType fieldType, Delegate<void(MetaType* meta, FieldBase* field)> onFieldChanged, int32 vectorElementIndex = -1);
+		static InputField* BuildFloatField(Widget* src, void* ptr, uint8 bits, bool isInt, bool isUnsigned, bool hasLimits, float minLimit = 0.0f, float maxLimit = 1.0f, float step = 0.1f, bool canSelectThemeValues = false, uint32 decimals = 0);
+		
+		static Widget*	   BuildResourceField(Widget* src, ResourceID* currentResourceID, TypeID targetType);
+        static Widget*	   BuildFieldLayout(Widget* src, uint32 dependencies, const String& title, bool isFoldLayout, bool* foldVal = nullptr);
+		static Widget*	   BuildField(Widget* src, const String& title, void* variablePtr, const FieldProperties& props);
 		static FoldLayout* BuildFoldTitle(Widget* src, const String& title, bool* foldValue);
-		static Widget*	   BuildColorGradSlider(Widget* src, ColorGrad* color, MetaType* meta, FieldBase* field, Delegate<void(MetaType* meta, FieldBase* field)> onFieldChanged);
-		static void		   BuildClassReflection(Widget* owner, void* obj, MetaType* meta, Delegate<void(MetaType* meta, FieldBase* field)> onFieldChanged);
-		static void		   RefreshVector(Widget* owningFold, FieldBase* field, void* vectorPtr, MetaType* meta, FieldType subType, int32 elementIndex, Delegate<void(MetaType* meta, FieldBase* field)> onFieldChanged, bool disallowAddDelete);
+		static Widget*	   BuildColorGradSlider(Widget* src, ColorGrad* color, MetaType* meta, FieldBase* field);
+		static void		   BuildClassReflection(Widget* owner, void* obj, MetaType* meta);
+		static void		   RefreshVector(Widget* owningFold, FieldBase* field, void* vectorPtr, MetaType* meta, FieldType subType, int32 elementIndex, bool disallowAddDelete);
 
-		static Widget* ThrowResourceSelector(Widget* src, ResourceID currentResourceID, TypeID resourceType, Delegate<void(ResourceDirectory*)>&& onSelected);
+		static Widget* ThrowResourceSelector(Widget* src, ResourceID currentResourceID, TypeID resourceType);
 		static Widget* BuildThumbnailTooltip(void* thumbnailOwner);
 
 		static Widget* BuildSimpleForegroundLockText(Widget* src, const String& text);
 
 		static Button* BuildIconButton(Widget* src, const String& icon);
 
-		struct ResDirItemProperties
-		{
-			String			   chevron		   = "";
-			String			   chevronAlt	   = "";
-			String			   typeText		   = "";
-			Color			   typeColor	   = Color::White;
-			String			   mainIcon		   = "";
-			Color			   mainIconColor   = Color::White;
-			TextureAtlasImage* image		   = nullptr;
-			String			   title		   = "";
-			String			   footerIcon	   = "";
-			Color			   footerIconColor = Color::White;
-			float			   margin		   = 0.0f;
-			bool*			   unfoldValue	   = nullptr;
-			void*			   userData		   = nullptr;
-		};
 
 		static FoldLayout* BuildTreeItem(Widget* src, const ResDirItemProperties& props);
-
-		struct EntityItemProperties
-		{
-			String icon			  = "";
-			Color  iconColor	  = Color::White;
-			String visibilityIcon = "";
-			String title		  = "";
-			bool   hasChildren	  = false;
-			float  margin		  = 0.0f;
-			bool*  unfoldValue	  = nullptr;
-			void*  userData		  = nullptr;
-		};
-
+	
 		static FoldLayout* BuildEntityItem(Widget* src, const EntityItemProperties& props);
 
+        static void FillFieldProperties(FieldProperties& out, MetaType* meta, FieldBase* field);
 	private:
 	};
 } // namespace Lina::Editor

@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Editor/Editor.hpp"
 #include "Editor/Graphics/EditorGfxHelpers.hpp"
 #include "Editor/Graphics/MousePickRenderer.hpp"
+#include "Editor/Graphics/EditorWorldRenderer.hpp"
 #include "Editor/World/CommonEditorWorld.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/System/SystemInfo.hpp"
@@ -65,11 +66,12 @@ namespace Lina::Editor
 #define DEBUG_LABEL_END(Stream)
 #endif
 
-	OutlineSelectionRenderer::OutlineSelectionRenderer(Editor* editor, WorldRenderer* wr, RenderPass* pass, MousePickRenderer* mpr)
+OutlineSelectionRenderer::OutlineSelectionRenderer(Editor* editor, EditorWorldRenderer* ewr, RenderPass* pass, MousePickRenderer* mpr)
 	{
 		m_fullscreenPass = pass;
 		m_editor		 = editor;
-		m_wr			 = wr;
+        m_ewr = ewr;
+        m_wr			 = m_ewr->GetWorldRenderer();
 		m_rm			 = &m_editor->GetApp()->GetResourceManager();
 		m_world			 = m_wr->GetWorld();
 		m_lgx			 = m_editor->GetApp()->GetLGX();
@@ -83,8 +85,7 @@ namespace Lina::Editor
         m_fullscreenMaterial->SetProperty("color"_hs, Theme::GetDef().accentOrange);
 		m_fullscreenMaterial->SetProperty("thickness"_hs, 1.25f);
 
-		m_pipelineLayout = m_lgx->CreatePipelineLayout(EditorGfxHelpers::GetPipelineLayoutDescriptionEntityBufferPass());
-		m_outlinePass.Create(EditorGfxHelpers::GetEntityBufferPassDescription());
+        m_outlinePass.Create(EditorGfxHelpers::GetEditorWorldPassDescription());
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			const uint16 set = m_outlinePass.GetDescriptorSet(i);
@@ -128,7 +129,6 @@ namespace Lina::Editor
 		m_rm->DestroyResource(m_outlineSampler);
 
 		DestroySizeRelativeResources();
-		m_lgx->DestroyPipelineLayout(m_pipelineLayout);
 		m_outlinePass.Destroy();
 
 		m_rm->DestroyResource(m_fullscreenMaterial);
@@ -189,7 +189,7 @@ namespace Lina::Editor
 		// View data.
 		{
 			Camera&		worldCam = m_world->GetWorldCamera();
-			GPUDataView view	 = {
+			EditorWorldPassViewData view	 = {
 					.view = worldCam.GetView(),
 					.proj = worldCam.GetProjection(),
 			};
@@ -203,7 +203,7 @@ namespace Lina::Editor
 			view.cameraDirectionAndFar = Vector4(camDir.x, camDir.y, camDir.z, worldCam.GetZFar());
 			view.size				   = Vector2(static_cast<float>(m_size.x), static_cast<float>(m_size.y));
 			view.mouse				   = m_world->GetInput().GetMousePositionRatio();
-			m_outlinePass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
+			m_outlinePass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(EditorWorldPassViewData));
 		}
 
 		m_outlinePass.AddBuffersToUploadQueue(frameIndex, queue);
@@ -241,6 +241,9 @@ namespace Lina::Editor
 
 		DrawCollector::CollectCompModels(compModelsToCollect, m_outlinePass, m_rm, m_wr, &m_editor->GetApp()->GetGfxContext(), {.useVariantOverride = true, .staticVariantOverride = "StaticOutline"_hs, .skinnedVariantOverride = "SkinnedOutline"_hs});
 
+        if(m_outlinePass.GetDrawCallsCPU().empty())
+            return;
+        
 		const uint32 frameIndex	   = Application::GetLGX()->GetCurrentFrameIndex();
 		const uint32 txtFrameIndex = (frameIndex + SystemInfo::GetRendererBehindFrames()) % FRAMES_IN_FLIGHT;
 		// Fullscreen draw in editor world pass.
@@ -279,7 +282,7 @@ namespace Lina::Editor
 			}
 
 			m_outlinePass.Begin(stream, frameIndex);
-			m_outlinePass.BindDescriptors(stream, frameIndex, m_pipelineLayout, 1);
+            m_outlinePass.BindDescriptors(stream, frameIndex, m_ewr->GetPipelineLayout(), 1);
 			m_outlinePass.Render(frameIndex, stream);
 			m_outlinePass.End(stream);
 

@@ -209,6 +209,8 @@ namespace Lina
 
 #define LINA_FIELD_DEPENDENCY_POS(ClassName, FieldName, Dependency, Value) Lina::ReflectionSystem::Get().Meta<ClassName>()->GetField(sid_##FieldName)->AddPositiveDependency(TO_SIDC(Dependency), Value);
 
+#define LINA_FIELD_DEPENDENCY_POS_OP(ClassName, FieldName, Dependency, Value, Operation) Lina::ReflectionSystem::Get().Meta<ClassName>()->GetField(sid_##FieldName)->AddPositiveDependency(TO_SIDC(Dependency), Value, Operation);
+
 #define LINA_FIELD_LIMITS(ClassName, FieldName, MIN, MAX, STEP)                                                                                                                                                                                                    \
 	Lina::ReflectionSystem::Get().Meta<ClassName>()->GetField(sid_##FieldName)->AddProperty<float>(Lina::TO_SIDC("Min"), MIN);                                                                                                                                     \
 	Lina::ReflectionSystem::Get().Meta<ClassName>()->GetField(sid_##FieldName)->AddProperty<float>(Lina::TO_SIDC("Max"), MAX);                                                                                                                                     \

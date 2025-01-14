@@ -50,11 +50,7 @@ namespace Lina
 
 		struct Properties
 		{
-			Delegate<void(const String&)>		   onEditStarted;
-			Delegate<void(const String&)>		   onEdited;
-			Delegate<void(const String&)>		   onEditEnd;
 			Delegate<void()>					   onRightClick;
-			Delegate<void(float, bool fromSlider)> onValueChanged;
 
 			Color	  colorHighlight	  = Theme::GetDef().accentPrimary1;
 			Color	  colorCaret		  = Theme::GetDef().foreground0;
@@ -107,6 +103,7 @@ namespace Lina
 		void		 SelectAll();
 		void		 StartEditing();
 		void		 UpdateTextFromValue();
+        const String& GetValueStr() const;
 		virtual void OnGrabbedControls(bool fw, Widget* w) override
 		{
 			StartEditing();
@@ -157,6 +154,7 @@ namespace Lina
 			}
 		}
 
+        
 		float GetValue()
 		{
 			if (m_props.valueUnsigned)

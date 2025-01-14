@@ -69,20 +69,6 @@ namespace Lina
 		m_manager->Deallocate(m_text);
 	}
 
-	void Button::PreTick()
-	{
-		if (GetIsHovered() && !m_lastHoverStatus)
-		{
-			if (m_props.onHoverBegin)
-				m_props.onHoverBegin();
-		}
-		else if (!GetIsHovered() && m_lastHoverStatus)
-		{
-			if (m_props.onHoverEnd)
-				m_props.onHoverEnd();
-		}
-	}
-
 	bool Button::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
 		if (button != LINAGX_MOUSE_0)

@@ -319,6 +319,7 @@ namespace Lina
 	{
 		StringID id	 = 0;
 		uint8	 dep = 0;
+        StringID operation = 0;
 	};
 
 	class FieldBase
@@ -398,7 +399,7 @@ namespace Lina
 			return cache->GetFunction(sid);
 		}
 
-		inline void AddPositiveDependency(StringID sid, uint8 val)
+		inline void AddPositiveDependency(StringID sid, uint8 val, StringID operation = "eq"_hs)
 		{
 			DependencyPair out = {};
 			if (FindPosDepCache(sid, out))
@@ -407,7 +408,7 @@ namespace Lina
 				return;
 			}
 
-			m_positiveDependencies.push_back({sid, val});
+			m_positiveDependencies.push_back({sid, val, operation});
 		}
 
 		const Vector<DependencyPair>& GetPositiveDependencies() const
@@ -597,6 +598,12 @@ namespace Lina
 		{
 			return m_propertyCacheManager;
 		}
+        
+        
+        inline bool* GetFoldValuePtr()
+        {
+            return &m_foldValue;
+        }
 
 	private:
 		bool FindFunctionCache(TypeID tid, FunctionCachePair& pair) const
@@ -629,6 +636,7 @@ namespace Lina
 
 	private:
 		friend class ReflectionSystem;
+        bool m_foldValue = false;
 		PropertyCacheManager	  m_propertyCacheManager;
 		Vector<FunctionCachePair> m_functionCaches;
 		Vector<FieldPair>		  m_fields;

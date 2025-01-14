@@ -37,6 +37,7 @@ struct DrawArguments
 struct LinaEntity
 {
     mat4 modelMatrix;
+    mat4 normalMatrix;
 };
 
 layout(set = 1, binding = 0) uniform ViewData
@@ -44,13 +45,11 @@ layout(set = 1, binding = 0) uniform ViewData
 	mat4 view;
 	mat4 proj;
 	mat4 viewProj;
-	vec4 cameraPositionAndNear;
-	vec4 cameraDirectionAndFar;
-	vec2 size;
-	vec2 mouse;
+	vec4 paddding0;
+	vec4 padding1;
 	vec4 padding2;
+	vec4 padding3;
 } LINA_VIEW;
-
 
 layout(set = 1, binding = 1) readonly buffer DrawArgumentsBuffer
 {
@@ -71,3 +70,4 @@ LinaEntity LINA_GET_ENTITY(uint index)
 {
 	return LINA_ENTITIES.data[index];
 }
+

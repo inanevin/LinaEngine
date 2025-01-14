@@ -88,6 +88,7 @@ namespace Lina
 	private:
 		LINA_REFLECTION_ACCESS(ColorField);
 		Properties m_props = {};
+        Widget* m_bg = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(ColorField, Primitive)

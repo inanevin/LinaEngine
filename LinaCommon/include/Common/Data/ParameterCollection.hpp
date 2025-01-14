@@ -49,11 +49,11 @@ namespace Lina
 
 			void SaveToStream(OStream& stream) const
 			{
-				stream << val;
+				stream << sid << val;
 			}
 			void LoadFromStream(IStream& stream)
 			{
-				stream >> val;
+				stream >> sid >> val;
 			}
 		};
 
@@ -64,11 +64,11 @@ namespace Lina
 
 			void SaveToStream(OStream& stream) const
 			{
-				stream << val;
+				stream << sid << val;
 			}
 			void LoadFromStream(IStream& stream)
 			{
-				stream >> val;
+				stream >> sid >> val;
 			}
 		};
 
@@ -79,11 +79,11 @@ namespace Lina
 
 			void SaveToStream(OStream& stream) const
 			{
-				stream << val;
+				stream << sid << val;
 			}
 			void LoadFromStream(IStream& stream)
 			{
-				stream >> val;
+				stream >> sid >> val;
 			}
 		};
 
@@ -93,11 +93,11 @@ namespace Lina
 			float	 val = 0.0f;
 			void	 SaveToStream(OStream& stream) const
 			{
-				stream << val;
+				stream << sid << val;
 			}
 			void LoadFromStream(IStream& stream)
 			{
-				stream >> val;
+				stream >> sid >> val;
 			}
 		};
 
@@ -107,11 +107,11 @@ namespace Lina
 			String	 val = "";
 			void	 SaveToStream(OStream& stream) const
 			{
-				stream << val;
+				stream << sid << val;
 			}
 			void LoadFromStream(IStream& stream)
 			{
-				stream >> val;
+				stream >> sid >> val;
 			}
 		};
 

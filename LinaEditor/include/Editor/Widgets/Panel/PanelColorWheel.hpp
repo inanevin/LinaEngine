@@ -40,13 +40,6 @@ namespace Lina::Editor
 	class Editor;
 	class ColorWheelCompound;
 
-	class PanelColorWheelListener
-	{
-	public:
-		virtual void OnPanelColorWheelValueChanged(const Color& linearColor) = 0;
-		virtual void OnPanelColorWheelListenerChanged()						 = 0;
-		virtual void OnPanelColorWheelClosed()								 = 0;
-	};
 
 	class PanelColorWheel : public Panel
 	{
@@ -61,16 +54,7 @@ namespace Lina::Editor
 			return m_colorWheel;
 		}
 
-		inline void SetListener(PanelColorWheelListener* list)
-		{
-			if (m_listener)
-				m_listener->OnPanelColorWheelListenerChanged();
-
-			m_listener = list;
-		}
-
 	private:
-		PanelColorWheelListener* m_listener	  = nullptr;
 		ColorWheelCompound*		 m_colorWheel = nullptr;
 	};
 

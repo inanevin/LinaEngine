@@ -67,8 +67,8 @@ namespace Lina::Editor
 		field->SetAlignedSizeY(1.0f);
 		field->SetFixedSizeX(baseItemHeight * 2.0f);
 		field->SetAlignedPosY(0.0f);
-		field->GetProps().onValueChanged = [this](float val, bool fromSlider) { Recalculate(true, true); };
-
+        field->GetCallbacks().onEdited = [this](){Recalculate(true, true);};
+        
 		ColorSlider* slider						= m_manager->Allocate<ColorSlider>("ColorComponentColorSlider");
 		slider->GetWidgetProps().drawBackground = true;
 		slider->GetProps().minValue				= 0.0f;
@@ -78,7 +78,7 @@ namespace Lina::Editor
 		slider->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_SIZE_ALIGN_X | WF_POS_ALIGN_Y);
 		slider->SetAlignedSize(Vector2(0.0f, 1.0f));
 		slider->SetAlignedPosY(0.0f);
-		slider->GetProps().onValueChanged = [this](float val) { Recalculate(true, true); };
+        slider->GetCallbacks().onEdited = [this](){Recalculate(true, true);};
 
 		DirectionalLayout* layout			  = m_manager->Allocate<DirectionalLayout>("ColorComponentRow");
 		layout->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
@@ -117,7 +117,7 @@ namespace Lina::Editor
 		field->SetAlignedSizeX(1.0f);
 		field->SetAlignedPosX(0.0f);
 		field->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		field->GetProps().onValueChanged = [this](float val, bool fromSlider) { Recalculate(false, true); };
+        field->GetCallbacks().onEdited = [this](){Recalculate(false, true);};
 
 		ColorSlider* slider								  = m_manager->Allocate<ColorSlider>("HSVSlider");
 		slider->GetWidgetProps().colorBackgroundDirection = DirectionOrientation::Vertical;
@@ -131,8 +131,8 @@ namespace Lina::Editor
 		slider->GetProps().value				= val;
 		slider->GetProps().step					= 0.0f;
 		slider->GetWidgetProps().lvgUserData	= isHue ? &m_colorSliderUserData : nullptr;
-		slider->GetProps().onValueChanged		= [this](float val) { Recalculate(false, true); };
-		slider->GetWidgetProps().drawBackground = true;
+        slider->GetCallbacks().onEdited = [this](){Recalculate(false, true);};
+        slider->GetWidgetProps().drawBackground = true;
 
 		// Layout
 		DirectionalLayout* layout			  = m_manager->Allocate<DirectionalLayout>("SaturationValueLayout");
@@ -191,7 +191,7 @@ namespace Lina::Editor
 		m_wheel->SetAlignedPos(Vector2::Zero);
 		m_wheel->GetProps().hue			   = &m_hsv.x;
 		m_wheel->GetProps().saturation	   = &m_hsv.y;
-		m_wheel->GetProps().onValueChanged = [this](float, float) { Recalculate(false, true); };
+        m_wheel->GetCallbacks().onEdited = [this](){Recalculate(false, true);};
 		topRowLeftSide->AddChild(m_wheel);
 
 		// HSV
@@ -245,12 +245,14 @@ namespace Lina::Editor
 
 		// Hex
 		m_hexField						 = m_manager->Allocate<InputField>("HexField");
-		m_hexField->GetProps().onEditEnd = [this](const String& str) {
-			m_editedColor.FromHex(str);
-			m_editedColor255 = m_editedColor * 255.0f;
-			m_editedColor255.Round();
-			Recalculate(true, true);
-		};
+        m_hexField->GetCallbacks().onEditEnded = [this](){
+            const String& str = m_hexField->GetText()->GetProps().text;
+            m_editedColor.FromHex(str);
+            m_editedColor255 = m_editedColor * 255.0f;
+            m_editedColor255.Round();
+            Recalculate(true, true);
+            PropagateCBOnEditEnded();
+        };
 		m_hexField->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
 		m_hexField->SetFixedSizeX(baseItemHeight * 6);
 		m_hexField->SetAlignedSizeY(1.0f);
@@ -345,8 +347,7 @@ namespace Lina::Editor
 			 outNewTitle	   = items[item];
 			 const Color color = themeColors[item];
 			 SetTargetColor(color);
-			 if (m_props.onValueChanged)
-				 m_props.onValueChanged(color);
+             PropagateCBOnEdited();
 			 return true;
 		};
 		themeDropdown->GetProps().onAddItems = [this, items](Popup* popup) {
@@ -501,11 +502,24 @@ namespace Lina::Editor
 		m_colorComp4.slider->GetWidgetProps().colorBackground.end	= Color(m_editedColor.x, m_editedColor.y, m_editedColor.z, 1.0f).SRGB2Linear();
 		m_wheel->GetProps().darknessAlpha							= m_hsv.z;
 
-		if (callback && m_props.onValueChanged)
-			m_props.onValueChanged(m_editedColor.SRGB2Linear());
-
+        if(callback && m_props.trackColorv3)
+        {
+            const Color col = m_editedColor.SRGB2Linear();
+            *m_props.trackColorv3 = Vector3(col.x, col.y, col.z);
+        }
+        
+        if(callback && m_props.trackColorv4)
+        {
+            const Color col = m_editedColor.SRGB2Linear();
+            *m_props.trackColorv4 = Vector4(col.x, col.y, col.z, col.w);
+        }
+        
+        if(callback)
+            PropagateCBOnEdited();
+        
 		m_hexField->GetText()->GetProps().text = m_editedColor.GetHex();
 		m_hexField->GetText()->CalculateTextSize();
+        
 	}
 
 } // namespace Lina::Editor

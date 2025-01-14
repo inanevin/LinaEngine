@@ -170,46 +170,6 @@ namespace Lina
 		return true;
 	}
 
-	Text* WidgetUtility::BuildEditableText(Widget* source, bool horizontal, Delegate<void()>&& onTextChanged)
-	{
-		Text* txt					   = source->GetWidgetManager()->Allocate<Text>("EditableText");
-		txt->GetProps().delayOnClicked = true;
-		txt->GetProps().onClicked	   = [onTextChanged, horizontal, source, txt]() {
-			 InputField* inp = source->GetWidgetManager()->Allocate<InputField>();
-			 inp->GetFlags().Set(WF_USE_FIXED_SIZE_Y);
-			 inp->GetText()->GetProps().text = txt->GetProps().text;
-			 inp->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-			 inp->SetSizeX(txt->GetSizeX() * 2);
-			 inp->Initialize();
-
-			 if (horizontal)
-			 {
-				 inp->SetPosX(txt->GetPosX());
-				 inp->SetPosY(txt->GetParent()->GetPosY());
-			 }
-			 else
-			 {
-				 inp->SetPosX(txt->GetParent()->GetRect().GetCenter().x - inp->GetHalfSizeX());
-				 inp->SetPosY(txt->GetPosY());
-			 }
-
-			 inp->GetProps().onEditEnd = [onTextChanged, inp, txt, source](const String& str) {
-				 txt->GetProps().text = str;
-				 txt->CalculateTextSize();
-				 source->GetWidgetManager()->AddToKillList(inp);
-
-				 if (onTextChanged)
-					 onTextChanged();
-			 };
-
-			 source->GetWidgetManager()->AddToForeground(inp);
-			 inp->StartEditing();
-			 inp->SelectAll();
-		};
-
-		return txt;
-	}
-
 	Button* WidgetUtility::BuildIconTextButton(Widget* src, const String& icon, const String& text)
 	{
 		WidgetManager* wm  = src->GetWidgetManager();

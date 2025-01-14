@@ -195,6 +195,17 @@ namespace Lina::Editor
 
 	void Editor::OnWindowMouse(LinaGX::Window* window, uint32 button, LinaGX::InputAction inputAction)
 	{
+        const Vector<LinaGX::Window*>& windows = m_windowPanelManager.GetSubWindows();
+        
+        for(LinaGX::Window* w : windows)
+        {
+            if(w->GetUserFlags() & WindowFlags::WINDOW_FLAGS_FOCUS_LOST_DESTROY)
+            {
+                if(window != w)
+                    return;
+            }
+        }
+        
 		SurfaceRenderer* rend = m_windowPanelManager.GetSurfaceRenderer(window->GetSID());
 		rend->GetWidgetManager().OnMouse(button, inputAction);
 	}
@@ -215,13 +226,18 @@ namespace Lina::Editor
 	{
 		SurfaceRenderer* rend = m_windowPanelManager.GetSurfaceRenderer(window->GetSID());
 		rend->GetWidgetManager().OnFocus(gainedFocus);
+        
+        if(!gainedFocus)
+        {
+            if(window->GetUserFlags() & WindowFlags::WINDOW_FLAGS_FOCUS_LOST_DESTROY)
+                m_windowPanelManager.CloseWindow(window->GetSID());
+        }
 	}
 
 	void Editor::OnWindowHoverBegin(LinaGX::Window* window)
 	{
 		SurfaceRenderer* rend = m_windowPanelManager.GetSurfaceRenderer(window->GetSID());
 		rend->GetWidgetManager().OnHoverBegin();
-		;
 	}
 
 	void Editor::OnWindowHoverEnd(LinaGX::Window* window)

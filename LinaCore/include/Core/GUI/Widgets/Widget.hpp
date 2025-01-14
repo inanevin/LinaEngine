@@ -173,6 +173,13 @@ namespace Lina
 		virtual void LoadFromStream(IStream& stream);
 	};
 
+    struct WidgetCallbacks
+    {
+        Delegate<void()> onEditStarted;
+        Delegate<void()> onEdited;
+        Delegate<void()> onEditEnded;
+    };
+
 	/*
 	struct TransformProps
 	{
@@ -256,6 +263,9 @@ namespace Lina
 		bool IsWidgetInHierarchy(Widget* widget);
 		void CheckClipChildren();
 		void CheckClipChildrenEnd();
+        void PropagateCBOnEditStarted();
+        void PropagateCBOnEdited();
+        void PropagateCBOnEditEnded();
 
 		virtual float CalculateChildrenSize()
 		{
@@ -481,6 +491,11 @@ namespace Lina
 		{
 			m_addChildRequests.push_back(w);
 		}
+        
+        inline WidgetCallbacks& GetCallbacks()
+        {
+            return m_callbacks;
+        }
 
 		V2_GET_MUTATE(FixedSize, m_fixedSize);
 		V2_GET_MUTATE(AlignedSize, m_alignedSize);
@@ -537,6 +552,7 @@ namespace Lina
 		bool						m_initializing			= false;
 		bool						m_initialized			= false;
 		Vector<Widget*>				m_addChildRequests;
+        WidgetCallbacks m_callbacks = {};
 	};
 
 	LINA_WIDGET_BEGIN(Widget, General)

@@ -50,6 +50,10 @@ namespace Lina::Editor
 		m_browser->SetAlignedSize(Vector2(1.0f, 1.0f));
 		AddChild(m_browser);
 
+        EntityWorld* w = m_editor->GetWorldManager().GetFirstGameWorld();
+        if(w)
+            m_browser->SetWorld(w);
+        
 		m_editor->GetWorldManager().AddListener(this);
 	}
 
@@ -63,15 +67,6 @@ namespace Lina::Editor
 	}
 
 	void PanelEntities::Tick(float dt)
-	{
-	}
-
-	bool PanelEntities::OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData)
-	{
-		return true;
-	}
-
-	void PanelEntities::OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData)
 	{
 	}
 

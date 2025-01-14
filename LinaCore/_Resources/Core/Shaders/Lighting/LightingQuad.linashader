@@ -83,11 +83,27 @@ layout (location = 0) out vec4 outFragColor;
 
 void main()
 {
-   vec4 albedo = texture(sampler2D(LINA_TEXTURES[LINA_PASS.gBufColorMaterialID], LINA_SAMPLERS[LINA_PASS.gBufSampler]), inUV);
-   vec4 normals = texture(sampler2D(LINA_TEXTURES[LINA_PASS.gBufNormal], LINA_SAMPLERS[LINA_PASS.gBufSampler]), inUV);
-   vec4 worldPos = texture(sampler2D(LINA_TEXTURES[LINA_PASS.gBufPosition], LINA_SAMPLERS[LINA_PASS.gBufSampler]), inUV);
+   vec4 albedo = texture(sampler2D(LINA_TEXTURES[LINA_VIEW.gBufColorMaterialID], LINA_SAMPLERS[LINA_VIEW.gBufSampler]), inUV);
+   vec4 normals = texture(sampler2D(LINA_TEXTURES[LINA_VIEW.gBufNormal], LINA_SAMPLERS[LINA_VIEW.gBufSampler]), inUV);
+   vec4 worldPos = texture(sampler2D(LINA_TEXTURES[LINA_VIEW.gBufPosition], LINA_SAMPLERS[LINA_VIEW.gBufSampler]), inUV);
    vec3 finalColor = albedo.xyz;
+
+   float ambientIntensity = LINA_VIEW.ambientTop.w;
+   vec3 norm = normals.xyz;
+   float dotTop = dot(norm, vec3(0.0, 1.0, 0.0));
+
+   float topMultiplier = clamp(dotTop, 0.0, 1.0);
+   float botMultiplier = -1.0 * clamp(dotTop, -1.0, 0.0);
+   float midMultiplier = 1.0 - abs(dotTop);
+
+   vec3 atop = LINA_VIEW.ambientTop.xyz * topMultiplier;
+   vec3 abot = LINA_VIEW.ambientBot.xyz * botMultiplier;
+   vec3 amid = LINA_VIEW.ambientMid.xyz * midMultiplier;
+
+   finalColor *= (atop + abot + amid) * ambientIntensity;
    outFragColor = vec4(finalColor.rgb, 1.0);
+
+
 }
 
 #lina_end

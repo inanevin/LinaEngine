@@ -73,6 +73,7 @@ namespace Lina
 			Buffer entityBuffer	   = {};
 			Buffer argumentsBuffer = {};
 			Buffer boneBuffer	   = {};
+            Buffer lightBuffer = {};
 
 			Buffer lvgVtxBuffer;
 			Buffer lvgIdxBuffer;
@@ -90,6 +91,7 @@ namespace Lina
 			Vector<uint16>			 line3DIndices;
 			Vector<LinaVG::Vertex>	 lvgVertices;
 			Vector<LinaVG::Index>	 lvgIndices;
+            Vector<GPULight> lights;
 		};
 
 	public:

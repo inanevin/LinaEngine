@@ -110,7 +110,7 @@ namespace Lina::Editor
 
 			WindowBar* wb = Widget::GetWidgetOfType<WindowBar>(m_manager->GetRoot());
 			wb->SetMaximizeDisabled(true);
-			m_lgxWindow->SetIsFloating(true);
+			// m_lgxWindow->SetIsFloating(true);
 		}
 
 		w->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_X);
@@ -185,7 +185,7 @@ namespace Lina::Editor
 			if (m_panels.empty())
 			{
 				if (m_parent->GetChildren().size() == 1)
-					Editor::Get()->GetWindowPanelManager().CloseWindow(static_cast<StringID>(m_lgxWindow->GetSID()));
+					Editor::Get()->GetWindowPanelManager().CloseWindow(m_lgxWindow->GetSID());
 				else
 					RemoveArea();
 			}

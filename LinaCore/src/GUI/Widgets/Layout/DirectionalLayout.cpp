@@ -477,14 +477,6 @@ namespace Lina
 			return false;
 		}
 
-		if (button == LINAGX_MOUSE_1 && m_isHovered && act == LinaGX::InputAction::Pressed)
-		{
-			if (m_props.onRightClicked)
-				m_props.onRightClicked();
-
-			return false;
-		}
-
 		if (button != LINAGX_MOUSE_0)
 			return false;
 

@@ -84,12 +84,17 @@ namespace Lina
 				c->GetFlags().Set(WF_HIDE);
 				continue;
 			}
-
-			c->GetFlags().Remove(WF_HIDE);
+            
+            // c->GetFlags().Remove(WF_HIDE);
 			c->GetFlags().Remove(WF_POS_ALIGN_X);
 			c->SetPosX(x);
-			c->SetPosY(y);
-			y += c->GetSizeY() + GetWidgetProps().childPadding;
+            
+            if(!c->GetFlags().IsSet(WF_HIDE))
+            {
+                c->SetPosY(y);
+                y += c->GetSizeY() + GetWidgetProps().childPadding;
+            }
+			
 
 			if (idx != 0)
 			{
@@ -142,6 +147,19 @@ namespace Lina
 
 		if (m_unfolded && m_props.useTween)
 			m_tween = Tween(m_props.tweenPower, 0.0f, m_props.tweenDuration, TweenType::Bounce);
+        
+        uint32 i = 0;
+        for(Widget* c : m_children)
+        {
+            if(i == 0)
+            {
+                i++;
+                continue;
+            }
+            
+            c->GetFlags().Set(WF_HIDE, !unfolded);
+            i++;
+        }
 	}
 
 } // namespace Lina

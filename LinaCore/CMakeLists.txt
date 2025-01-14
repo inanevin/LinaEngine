@@ -82,9 +82,9 @@ src/World/Screen.cpp
 src/World/WorldInput.cpp
 src/World/EntityWorld.cpp
 src/World/Camera.cpp
-src/World/Components/CompRenderable.cpp
 src/World/Components/CompCamera.cpp
 src/World/Components/CompModel.cpp
+src/World/Components/CompLight.cpp
 src/World/Animation/AnimationController.cpp
 
 # Physics
@@ -204,8 +204,8 @@ include/Core/World/EntityWorldListener.hpp
 include/Core/World/CommonWorld.hpp
 include/Core/World/Camera.hpp
 include/Core/World/Components/CompCamera.hpp
-include/Core/World/Components/CompRenderable.hpp
 include/Core/World/Components/CompModel.hpp
+include/Core/World/Components/CompLight.hpp
 include/Core/World/Animation/AnimationController.hpp
 
 # Physics

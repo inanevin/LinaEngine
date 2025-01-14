@@ -76,9 +76,7 @@ namespace Lina
 				*m_props.value = targetValue;
 
 			*m_props.value = Math::Clamp(*m_props.value, m_props.minValue, m_props.maxValue);
-
-			if (m_props.onValueChanged)
-				m_props.onValueChanged(*m_props.value);
+            PropagateCBOnEdited();
 		}
 	}
 
@@ -131,12 +129,13 @@ namespace Lina
 		{
 			m_isPressed = true;
 			m_manager->GrabControls(this);
-			;
+            PropagateCBOnEditStarted();
 			return true;
 		}
 
 		if (m_isPressed && action == LinaGX::InputAction::Released)
 		{
+            PropagateCBOnEditEnded();
 			m_isPressed = false;
 			return true;
 		}
@@ -153,12 +152,11 @@ namespace Lina
 			return false;
 
 		auto stepValue = [&](float direction) {
+            PropagateCBOnEditStarted();
 			const float step = Math::Equals(m_props.step, 0.0f, 0.001f) ? (m_props.maxValue - m_props.minValue) * 0.1f : m_props.step;
 			*m_props.value += step * direction;
 			*m_props.value = Math::Clamp(*m_props.value, m_props.minValue, m_props.maxValue);
-
-			if (m_props.onValueChanged)
-				m_props.onValueChanged(*m_props.value);
+            PropagateCBOnEdited();
 		};
 
 		if (m_widgetProps.colorBackgroundDirection == DirectionOrientation::Horizontal && keycode == LINAGX_KEY_LEFT)

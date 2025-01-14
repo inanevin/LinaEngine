@@ -301,7 +301,7 @@ namespace Lina
 				{
 					const Vector2 ratio	 = m_rect.size / textureSize;
 					const float	  aspect = m_rect.size.x / m_rect.size.y;
-					textureTiling.y /= aspect;
+                    textureTiling = ratio * m_widgetProps.textureTiling;
 				}
 
 				opts.textureTilingAndOffset.x = textureTiling.x;
@@ -578,7 +578,7 @@ namespace Lina
 			m_isHovered = false;
 			return;
 		}
-
+        
 		auto*		foregroundRoot	= m_manager->GetForegroundRoot();
 		const auto& foregroundItems = foregroundRoot->GetChildren();
 
@@ -704,6 +704,28 @@ namespace Lina
 	{
 		if (m_widgetProps.clipChildren)
 			m_manager->UnsetClip();
-	}
+    }
+
+    void Widget::PropagateCBOnEditStarted() {
+        if(m_callbacks.onEditStarted)
+            m_callbacks.onEditStarted();
+        else if(m_parent)
+            m_parent->PropagateCBOnEditStarted();
+    }
+    
+    void Widget::PropagateCBOnEdited() {
+        if(m_callbacks.onEdited)
+            m_callbacks.onEdited();
+        else if(m_parent)
+            m_parent->PropagateCBOnEdited();
+    }
+    
+    void Widget::PropagateCBOnEditEnded() {
+        if(m_callbacks.onEditEnded)
+            m_callbacks.onEditEnded();
+        else if(m_parent)
+            m_parent->PropagateCBOnEditEnded();
+    }
+
 
 } // namespace Lina

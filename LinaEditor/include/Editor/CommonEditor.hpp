@@ -278,6 +278,7 @@ namespace Lina::Editor
 		PhysicsMaterialViewer,
 		Log,
 		Details,
+        GenericSelector,
 	};
 
 	enum class ResourceDirectoryType
@@ -291,5 +292,11 @@ namespace Lina::Editor
 	{
 		RDM_NONE = 1 << 0,
 	};
+
+    enum WindowFlags
+    {
+        WINDOW_FLAGS_NONE = 1 << 0,
+        WINDOW_FLAGS_FOCUS_LOST_DESTROY = 1 << 1,
+    };
 
 } // namespace Lina::Editor

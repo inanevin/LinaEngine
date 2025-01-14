@@ -130,6 +130,11 @@ namespace Lina
 			return m_gpuData.drawCalls;
 		}
         
+        inline const Vector<InstancedDraw>& GetDrawCallsCPU() const
+        {
+            return m_cpuData.drawCalls;
+        }
+        
         inline void SetSize(const Vector2ui& sz)
         {
             m_size = sz;

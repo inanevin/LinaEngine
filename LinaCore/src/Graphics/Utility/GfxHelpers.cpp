@@ -230,7 +230,7 @@ namespace Lina
 			};
 
 			LinaGX::DescriptorBinding binding1 = {
-				.type	= LinaGX::DescriptorType::UBO,
+				.type	= LinaGX::DescriptorType::SSBO,
 				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 			};
 
@@ -243,11 +243,11 @@ namespace Lina
 				.type	= LinaGX::DescriptorType::SSBO,
 				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 			};
-
-			LinaGX::DescriptorBinding binding4 = {
-				.type	= LinaGX::DescriptorType::SSBO,
-				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-			};
+            
+            LinaGX::DescriptorBinding binding4 = {
+                .type    = LinaGX::DescriptorType::SSBO,
+                .stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+            };
 
 			return {.bindings = {binding0, binding1, binding2, binding3, binding4}};
 		}
@@ -399,11 +399,11 @@ namespace Lina
 					{
 						{
 							.bufferType	  = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
-							.debugName	  = "Deferred Pass View",
-							.size		  = sizeof(GPUDataView),
+							.debugName	  = "Deferred Pass Data",
+							.size		  = sizeof(GPUDataDeferredPass),
 							.stagingOnly  = true,
 							.bindingIndex = 0,
-							.ident		  = "ViewData"_hs,
+							.ident		  = "PassData"_hs,
 						},
 
 					},
@@ -418,21 +418,12 @@ namespace Lina
 					{
 						{
 							.bufferType	  = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
-							.debugName	  = "Forward pass  ViewData",
-							.size		  = sizeof(GPUDataView),
+							.debugName	  = "Forward Pass Data",
+							.size		  = sizeof(GPUDataForwardPass),
 							.stagingOnly  = true,
 							.bindingIndex = 0,
-							.ident		  = "ViewData"_hs,
-						},
-						{
-							.bufferType	  = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
-							.debugName	  = "Forward Pass PassData",
-							.size		  = sizeof(GPUForwardPassData),
-							.stagingOnly  = true,
-							.bindingIndex = 1,
 							.ident		  = "PassData"_hs,
 						},
-
 					},
 				.setDescription = setDesc,
 			};

@@ -32,7 +32,7 @@ SOFTWARE.
 #include "Editor/Widgets/CommonWidgets.hpp"
 
 #include "Core/GUI/Widgets/WidgetManager.hpp"
-#include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
+#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Meta/ProjectData.hpp"
@@ -93,16 +93,34 @@ namespace Lina::Editor
 		m_inspector->RemoveAllChildren();
 
 		Texture* txt = static_cast<Texture*>(m_resource);
+        
+        DirectionalLayout* panelItems = m_manager->Allocate<DirectionalLayout>();
+        panelItems->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);
+        panelItems->SetAlignedSize(Vector2::One);
+        panelItems->SetAlignedPosX(0.0f);
+        panelItems->GetWidgetProps().childPadding = m_inspector->GetWidgetProps().childPadding;
+        panelItems->GetProps().direction = DirectionOrientation::Vertical;
+        panelItems->GetCallbacks().onEditEnded = [this](){
+            m_guiUserData.displayChannels = m_displayChannels;
+            m_guiUserData.mipLevel          = m_mipLevel;
+        };
+        m_inspector->AddChild(panelItems);
+		CommonWidgets::BuildClassReflection(panelItems, this, ReflectionSystem::Get().Resolve<PanelTextureViewer>());
 
-		CommonWidgets::BuildClassReflection(m_inspector, this, ReflectionSystem::Get().Resolve<PanelTextureViewer>(), [this](MetaType* meta, FieldBase* field) {
-			m_guiUserData.displayChannels = m_displayChannels;
-			m_guiUserData.mipLevel		  = m_mipLevel;
-		});
+        DirectionalLayout* textureItems = m_manager->Allocate<DirectionalLayout>();
+        textureItems->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);
+        textureItems->SetAlignedSize(Vector2::One);
+        textureItems->SetAlignedPosX(0.0f);
+        textureItems->GetWidgetProps().childPadding = m_inspector->GetWidgetProps().childPadding;
+        textureItems->GetProps().direction = DirectionOrientation::Vertical;
+        textureItems->GetCallbacks().onEditEnded = [this, txt](){
+            EditorActionResourceTexture::Create(m_editor, txt->GetID(), m_prevMeta, txt->GetMeta());
+        };
+        m_inspector->AddChild(textureItems);
+        
+		CommonWidgets::BuildClassReflection(textureItems, &txt->GetMeta(), ReflectionSystem::Get().Resolve<Texture::Metadata>());
 
-		CommonWidgets::BuildClassReflection(
-			m_inspector, &txt->GetMeta(), ReflectionSystem::Get().Resolve<Texture::Metadata>(), [this, txt](MetaType* meta, FieldBase* field) { EditorActionResourceTexture::Create(m_editor, txt->GetID(), m_prevMeta, txt->GetMeta()); });
-
-		Widget*		mipLevelField	  = m_inspector->FindChildWithDebugName("Mip Level");
+		Widget*		mipLevelField	  = panelItems->FindChildWithDebugName("Mip Level");
 		InputField* mipLevel		  = static_cast<InputField*>(Widget::GetWidgetOfType<InputField>(mipLevelField));
 		mipLevel->GetProps().valueMax = static_cast<float>(txt->GetAllLevels().size() - 1);
 	}

@@ -173,11 +173,26 @@ namespace Lina::Editor
 			l->OnWorldManagerEntityHierarchyChanged(world);
 	}
 
+    void EditorWorldManager::BroadcastComponentsChanged(EntityWorld *world)
+    {
+        for (EditorWorldManagerListener* l : m_listeners)
+            l->OnWorldManagerComponentsDataChanged(world);
+    }
+
 	EditorWorldManager::WorldData& EditorWorldManager::GetWorldData(EntityWorld* world)
 	{
 		auto it = linatl::find_if(m_worlds.begin(), m_worlds.end(), [world](const WorldData& wd) -> bool { return wd.world == world; });
 		LINA_ASSERT(it != m_worlds.end(), "");
 		return *it;
 	}
+
+    EntityWorld* EditorWorldManager::GetFirstGameWorld()
+    {
+        for(const WorldData& wd : m_worlds)
+        {
+            if(wd.world->GetID() != 0)
+                return wd.world;
+        }
+    }
 
 } // namespace Lina::Editor

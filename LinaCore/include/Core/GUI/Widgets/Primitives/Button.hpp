@@ -43,8 +43,6 @@ namespace Lina
 		struct Properties
 		{
 			Delegate<void()> onClicked;
-			Delegate<void()> onHoverBegin;
-			Delegate<void()> onHoverEnd;
 
 			void SaveToStream(OStream& stream) const
 			{
@@ -59,7 +57,6 @@ namespace Lina
 		virtual ~Button() = default;
 
 		virtual void Construct() override;
-		virtual void PreTick() override;
 		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 

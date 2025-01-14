@@ -155,73 +155,85 @@ namespace Lina::Editor
 
 		m_inspector->DeallocAllChildren();
 		m_inspector->RemoveAllChildren();
-		CommonWidgets::BuildClassReflection(m_inspector, this, ReflectionSystem::Get().Resolve<PanelModelViewer>(), [this](MetaType* meta, FieldBase* field) { m_compModel->GetAnimationController().SetSpeed(m_animationPreviewSpeed); });
+        
+        DirectionalLayout* panelItems = m_manager->Allocate<DirectionalLayout>();
+        panelItems->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);
+        panelItems->SetAlignedSize(Vector2::One);
+        panelItems->SetAlignedPosX(0.0f);
+        panelItems->GetWidgetProps().childPadding = m_inspector->GetWidgetProps().childPadding;
+        panelItems->GetProps().direction = DirectionOrientation::Vertical;
+        panelItems->GetCallbacks().onEditEnded = [this](){
+            m_compModel->GetAnimationController().SetSpeed(m_animationPreviewSpeed);
+        };
+        m_inspector->AddChild(panelItems);
+        CommonWidgets::BuildClassReflection(panelItems, this, ReflectionSystem::Get().Resolve<PanelModelViewer>());
 
-		// Animation preview
-		{
-			Widget*			   layout	 = CommonWidgets::BuildFieldLayoutWithRightSide(this, 0, Locale::GetStr(LocaleStr::PreviewAnimation), false, nullptr, 0.6f);
-			DirectionalLayout* rightSide = Widget::GetWidgetOfType<DirectionalLayout>(layout);
+        Widget* animLayout = CommonWidgets::BuildFieldLayout(this, 0, Locale::GetStr(LocaleStr::PreviewAnimation), false);
+        Widget* rightSide = animLayout->GetChildren().back();
+        
+        Dropdown* animationDD = m_manager->Allocate<Dropdown>("Animation DD");
+        animationDD->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+        animationDD->SetAlignedPos(Vector2::Zero);
+        animationDD->SetAlignedSize(Vector2(1.0f, 1.0f));
+        
+        animationDD->GetText()->UpdateTextAndCalcSize(m_displayAnimation == -1 ? Locale::GetStr(LocaleStr::None) : model->GetAllAnimations().at(m_displayAnimation).name);
 
-			Dropdown* animationDD = m_manager->Allocate<Dropdown>("Animation DD");
-			animationDD->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-			animationDD->SetAlignedPos(Vector2::Zero);
-			animationDD->SetAlignedSize(Vector2(1.0f, 1.0f));
+        animationDD->GetProps().onAddItems = [model, this](Popup* popup) {
+            const Vector<ModelAnimation>& anims = model->GetAllAnimations();
 
-			animationDD->GetText()->UpdateTextAndCalcSize(m_displayAnimation == -1 ? Locale::GetStr(LocaleStr::None) : model->GetAllAnimations().at(m_displayAnimation).name);
+            popup->AddToggleItem(Locale::GetStr(LocaleStr::None), m_displayAnimation == -1, -1);
+            int32 i = 0;
+            for (const ModelAnimation& anim : anims)
+            {
+                popup->AddToggleItem(anim.name.empty() ? "NoName" : anim.name, m_displayAnimation == i, i);
+                i++;
+            }
+        };
+        
+        animationDD->GetProps().onSelected = [this, model](int32 selection, String& newTitle) -> bool {
+            const Vector<ModelAnimation>& anims = model->GetAllAnimations();
+            m_displayAnimation                    = selection;
+            m_compModel->GetAnimationController().SelectAnimation(m_displayAnimation);
+            newTitle = m_displayAnimation == -1 ? Locale::GetStr(LocaleStr::None) : anims.at(m_displayAnimation).name;
+            if (newTitle.empty())
+                newTitle = "NoName";
+            m_editor->GetSettings().GetParams().SetParamInt32("AnimationPreview"_hs, m_displayAnimation);
+            m_editor->SaveSettings();
+            return true;
+        };
 
-			animationDD->GetProps().onAddItems = [model, this](Popup* popup) {
-				const Vector<ModelAnimation>& anims = model->GetAllAnimations();
+        rightSide->AddChild(animationDD);
+        m_inspector->AddChild(animLayout);
+        
+        Model::Metadata&    meta      = model->GetMeta();
+        Vector<ResourceID>& materials = meta.materials;
 
-				popup->AddToggleItem(Locale::GetStr(LocaleStr::None), m_displayAnimation == -1, -1);
-				int32 i = 0;
-				for (const ModelAnimation& anim : anims)
-				{
-					popup->AddToggleItem(anim.name.empty() ? "NoName" : anim.name, m_displayAnimation == i, i);
-					i++;
-				}
-			};
+        const size_t mtSize = meta.materials.size();
+        for (size_t i = 0; i < mtSize; i++)
+        {
+            Widget* matField = CommonWidgets::BuildField(m_inspector, Locale::GetStr(LocaleStr::Material), &materials[i], {
+                .type = FieldType::ResourceID,
+                .tid = GetTypeID<Material>(),
+            });
+            
+            matField->GetCallbacks().onEditEnded = [model, i, this](){
+                Model* model                  = static_cast<Model*>(m_resource);
 
-			animationDD->GetProps().onSelected = [this, model](int32 selection, String& newTitle) -> bool {
-				const Vector<ModelAnimation>& anims = model->GetAllAnimations();
-				m_displayAnimation					= selection;
-				m_compModel->GetAnimationController().SelectAnimation(m_displayAnimation);
-				newTitle = m_displayAnimation == -1 ? Locale::GetStr(LocaleStr::None) : anims.at(m_displayAnimation).name;
-				if (newTitle.empty())
-					newTitle = "NoName";
-				m_editor->GetSettings().GetParams().SetParamInt32("AnimationPreview"_hs, m_displayAnimation);
-				m_editor->SaveSettings();
-				return true;
-			};
+                OStream stream;
+                model->SaveToStream(stream);
+                EditorActionResourceModel::Create(m_editor, m_resource->GetID(), m_resourceSpace, m_previousStream, stream);
+                stream.Destroy();
+            };
+            
+            m_inspector->AddChild(matField);
+            
+        
+        }
 
-			rightSide->AddChild(animationDD);
-			m_inspector->AddChild(layout);
-		}
+        m_inspector->Initialize();
 
-		Model::Metadata&	meta	  = model->GetMeta();
-		Vector<ResourceID>& materials = meta.materials;
-
-		const size_t mtSize = meta.materials.size();
-		for (size_t i = 0; i < mtSize; i++)
-		{
-			Widget* materialField		  = CommonWidgets::BuildFieldLayoutWithRightSide(m_inspector, 0, Locale::GetStr(LocaleStr::Material), false, nullptr, 0.6f);
-			Widget* materialResourceField = CommonWidgets::BuildResourceField(m_inspector, &meta.materials[i], GetTypeID<Material>(), [this, i](ResourceDirectory* selected) {
-				Model* model				  = static_cast<Model*>(m_resource);
-				model->GetMeta().materials[i] = selected->resourceID;
-
-				OStream stream;
-				model->SaveToStream(stream);
-				EditorActionResourceModel::Create(m_editor, m_resource->GetID(), m_resourceSpace, m_previousStream, stream);
-				stream.Destroy();
-			});
-
-			Widget::GetWidgetOfType<DirectionalLayout>(materialField)->AddChild(materialResourceField);
-			m_inspector->AddChild(materialField);
-		}
-
-		m_inspector->Initialize();
-
-		if (m_previewOnly)
-			DisableRecursively(m_inspector);
+        if (m_previewOnly)
+            DisableRecursively(m_inspector);
 	}
 
 	void PanelModelViewer::SetupWorld()

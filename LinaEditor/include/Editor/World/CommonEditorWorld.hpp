@@ -110,14 +110,5 @@ namespace Lina::Editor
 	LINA_FIELD_LIMITS(CameraOptions, angularBoost, 0.1f, 3.0f, 0.1f)
 	LINA_CLASS_END(CameraOptions);
 
-	struct WorldOptions
-	{
-		ResourceID skyMaterial = 0;
-		ResourceID skyModel	   = 0;
-	};
 
-	LINA_CLASS_BEGIN(WorldOptions);
-	LINA_FIELD(WorldOptions, skyMaterial, "Sky Material", FieldType::ResourceID, GetTypeID<Material>())
-	LINA_FIELD(WorldOptions, skyModel, "Sky Model", FieldType::ResourceID, GetTypeID<Model>())
-	LINA_CLASS_END(WorldOptions);
 } // namespace Lina::Editor

@@ -49,7 +49,6 @@ namespace Lina::Editor
 			float*						 hue		   = nullptr;
 			float*						 saturation	   = nullptr;
 			float						 darknessAlpha = 1.0f;
-			Delegate<void(float, float)> onValueChanged;
 
 			void SaveToStream(OStream& stream) const
 			{

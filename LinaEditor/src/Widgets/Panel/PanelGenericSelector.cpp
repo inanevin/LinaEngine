@@ -1,11 +1,11 @@
 /*
-This file is a part of: LinaGX
-https://github.com/inanevin/LinaGX
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
 
 Author: Inan Evin
 http://www.inanevin.com
 
-Copyright (c) [2023-] [Inan Evin]
+Copyright (c) [2018-] [Inan Evin]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,48 +26,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-struct DrawArguments
-{
-	uint argument0;
-	uint argument1;
-	uint argument2;
-	uint argument3;
-};
+#include "Editor/Widgets/Panel/PanelGenericSelector.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 
-struct LinaEntity
+namespace Lina::Editor
 {
-    mat4 modelMatrix;
-};
-
-layout(set = 1, binding = 0) uniform ViewData
-{
-	mat4 view;
-	mat4 proj;
-	mat4 viewProj;
-	vec4 cameraPositionAndNear;
-	vec4 cameraDirectionAndFar;
-	vec2 size;
-	vec2 mouse;
-	vec4 padding2;
-} LINA_VIEW;
-
-
-layout(set = 1, binding = 1) readonly buffer DrawArgumentsBuffer
-{
-    DrawArguments data[];
-} LINA_DRAW_ARGUMENTS;
-
-layout(set = 1, binding = 2) readonly buffer EntityBuffer
-{
-    LinaEntity data[];
-} LINA_ENTITIES;
-
-layout(set = 1, binding = 3) readonly buffer BoneBuffer
-{
-    mat4 data[];
-} LINA_BONES;
-
-LinaEntity LINA_GET_ENTITY(uint index)
-{
-	return LINA_ENTITIES.data[index];
-}
+    void PanelGenericSelector::Construct()
+    {
+        m_lgxWindow->SetUserFlags(WindowFlags::WINDOW_FLAGS_FOCUS_LOST_DESTROY);
+    }
+} // namespace Lina::Editor

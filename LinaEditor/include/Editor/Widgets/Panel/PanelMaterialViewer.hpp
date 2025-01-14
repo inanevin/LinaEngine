@@ -31,7 +31,6 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelResourceViewer.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
-#include "Editor/Widgets/Panel/PanelColorWheel.hpp"
 
 namespace Lina
 {
@@ -56,7 +55,7 @@ namespace Lina::Editor
 		Skybox,
 	};
 
-	class PanelMaterialViewer : public PanelResourceViewer, public PanelColorWheelListener
+	class PanelMaterialViewer : public PanelResourceViewer
 	{
 	public:
 		PanelMaterialViewer() : PanelResourceViewer(PanelType::MaterialViewer, GetTypeID<Material>(), GetTypeID<PanelMaterialViewer>()){};
@@ -77,10 +76,6 @@ namespace Lina::Editor
 			return m_world;
 		}
 
-		virtual void OnPanelColorWheelValueChanged(const Color& linearColor) override;
-		virtual void OnPanelColorWheelListenerChanged() override;
-		virtual void OnPanelColorWheelClosed() override;
-
 	private:
 		void UpdateMaterial();
 
@@ -100,7 +95,6 @@ namespace Lina::Editor
 		ResourceID				  m_previousShaderID	  = 0;
 		uint8*					  m_latestColorWheelData  = nullptr;
 		uint32					  m_latestColorWheelComps = 0;
-		PanelColorWheel*		  m_colorWheel			  = nullptr;
 		Material*				  m_defaultSky			  = nullptr;
 	};
 

@@ -40,6 +40,7 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelSamplerViewer.hpp"
 #include "Editor/Widgets/Panel/PanelPhysicsMaterialViewer.hpp"
 #include "Editor/Widgets/Panel/PanelMaterialViewer.hpp"
+#include "Editor/Widgets/Panel/PanelGenericSelector.hpp"
 #include "Editor/Widgets/Panel/PanelAudioViewer.hpp"
 #include "Editor/Widgets/Panel/PanelLog.hpp"
 #include "Editor/Widgets/Panel/PanelDetails.hpp"
@@ -102,6 +103,9 @@ namespace Lina::Editor
 		case PanelType::Details:
 			panel = source->GetWidgetManager()->Allocate<PanelDetails>("Details");
 			break;
+            case PanelType::GenericSelector:
+                panel = source->GetWidgetManager()->Allocate<PanelGenericSelector>("Selector");
+            break;
 		default:
 			LINA_ASSERT(false, "");
 			break;

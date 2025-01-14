@@ -116,6 +116,7 @@ namespace Lina
 			data.argumentsBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUDrawArguments) * 1000, m_name + " InstanceDataBuffer");
 			data.entityBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUEntity) * 1000, m_name + " EntityBuffer");
 			data.boneBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(Matrix4) * 1000, m_name + " BoneBuffer");
+            data.lightBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPULight) * 100, m_name + " LightBuffer");
 
 			data.line3DVtxBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, sizeof(Line3DVertex) * 1000, m_name + " Line3DVertexBuffer");
 			data.lvgVtxBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, sizeof(LinaVG::Vertex) * 2000, m_name + " LVGVertexBuffer");
@@ -146,21 +147,27 @@ namespace Lina
 			// FW
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = setFw,
-				.binding   = 2,
+				.binding   = 1,
 				.buffers   = {data.argumentsBuffer.GetGPUResource()},
 			});
 
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = setFw,
-				.binding   = 3,
+				.binding   = 2,
 				.buffers   = {data.entityBuffer.GetGPUResource()},
 			});
 
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = setFw,
-				.binding   = 4,
+				.binding   = 3,
 				.buffers   = {data.boneBuffer.GetGPUResource()},
 			});
+            
+            m_lgx->DescriptorUpdateBuffer({
+                .setHandle = setFw,
+                .binding   = 4,
+                .buffers   = {data.lightBuffer.GetGPUResource()},
+            });
 		}
 
 		m_guiBackend.Initialize(m_resourceManagerV2);
@@ -185,7 +192,8 @@ namespace Lina
 
 			data.argumentsBuffer.Destroy();
 			data.entityBuffer.Destroy();
-			data.boneBuffer.Destroy();
+            data.boneBuffer.Destroy();
+			data.lightBuffer.Destroy();
 
 			data.line3DVtxBuffer.Destroy();
 			data.line3DIdxBuffer.Destroy();
@@ -533,6 +541,7 @@ namespace Lina
 			return false;
 		});
 
+        
 		CalculateSkinning(m_skinnedModels);
 		DrawCollector::CollectCompModels(m_compModels, m_deferredPass, m_resourceManagerV2, this, m_gfxContext, {.allowedShaderTypes = {ShaderType::DeferredSurface}});
 		DrawCollector::CollectCompModels(m_compModels, m_forwardPass, m_resourceManagerV2, this, m_gfxContext, {.allowedShaderTypes = {ShaderType::ForwardSurface}});
@@ -598,7 +607,8 @@ namespace Lina
 		m_cpuDrawData.lvgIndices.resize(0);
 		m_cpuDrawData.lvgVertices.resize(0);
 		m_cpuDrawData.line3DIndices.resize(0);
-		m_cpuDrawData.line3DVertices.resize(0);
+        m_cpuDrawData.line3DVertices.resize(0);
+		m_cpuDrawData.lights.resize(0);
 
 		m_deferredPass.SyncRender();
 		m_forwardPass.SyncRender();
@@ -616,37 +626,43 @@ namespace Lina
 			// const Vector2ui sz		 = m_world->GetScreen().GetRenderSize();
 			// 	worldCam.Calculate(m_size);
 
-			GPUDataView view = {
+            
+            const GPUDataDeferredPass view = {
 				.view = worldCam.GetView(),
 				.proj = worldCam.GetProjection(),
+                .viewProj = worldCam.GetViewProj(),
 			};
+            m_deferredPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataDeferredPass));
 
-			const Vector3& camPos	   = worldCam.GetPosition();
-			const Vector3& camDir	   = worldCam.GetRotation().GetForward();
-			view.viewProj			   = view.proj * view.view;
-			view.cameraPositionAndNear = Vector4(camPos.x, camPos.y, camPos.z, worldCam.GetZNear());
-			view.cameraDirectionAndFar = Vector4(camDir.x, camDir.y, camDir.z, worldCam.GetZFar());
-			view.size				   = Vector2(static_cast<float>(m_size.x), static_cast<float>(m_size.y));
-			view.mouse				   = m_world->GetInput().GetMousePositionRatio();
-			m_deferredPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
-			m_forwardPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
+            EntityWorld::GfxSettings& gfx = m_world->GetGfxSettings();
+
+            const GPUDataForwardPass fw = {
+                .view = worldCam.GetView(),
+                .proj = worldCam.GetProjection(),
+                .viewProj = worldCam.GetViewProj(),
+                .ambientTop = Color(gfx.ambientTop.x,gfx.ambientTop.y,gfx.ambientTop.z,gfx.ambientIntensity),
+                .ambientMid = gfx.ambientMid,
+                .ambientBot = gfx.ambientBot,
+                .gBufAlbedo              = currentFrame.gBufAlbedo->GetBindlessIndex(),
+                .gBufPositionMetallic = currentFrame.gBufPosition->GetBindlessIndex(),
+                .gBufNormalRoughness  = currentFrame.gBufNormal->GetBindlessIndex(),
+                .gBufSampler = m_gBufSampler->GetBindlessIndex(),
+                .lightCount = static_cast<uint32>(m_gpuDrawData.lights.size()),
+            };
+            
+            m_forwardPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&fw, sizeof(GPUDataForwardPass));
+			// const Vector3& camPos	   = worldCam.GetPosition();
+			// const Vector3& camDir	   = worldCam.GetRotation().GetForward();
+			// view.viewProj			   = view.proj * view.view;
+			// view.cameraPositionAndNear = Vector4(camPos.x, camPos.y, camPos.z, worldCam.GetZNear());
+			// view.cameraDirectionAndFar = Vector4(camDir.x, camDir.y, camDir.z, worldCam.GetZFar());
+			// view.size				   = Vector2(static_cast<float>(m_size.x), static_cast<float>(m_size.y));
+			// view.mouse				   = m_world->GetInput().GetMousePositionRatio();
+            
 		}
-
-		// Forward pass specific.
-		{
-
-			GPUForwardPassData renderPassData = {
-				.gBufAlbedo			  = currentFrame.gBufAlbedo->GetBindlessIndex(),
-				.gBufPositionMetallic = currentFrame.gBufPosition->GetBindlessIndex(),
-				.gBufNormalRoughness  = currentFrame.gBufNormal->GetBindlessIndex(),
-				// .gBufDepth             = currentFrame.gBufDepth->GetBindlessIndex(),
-				.gBufSampler = m_gBufSampler->GetBindlessIndex(),
-			};
-
-			m_forwardPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&renderPassData, sizeof(GPUForwardPassData));
-		}
-
+        
 		size_t entityIdx = 0;
+        
 		for (const DrawEntity& de : m_gpuDrawData.entities)
 		{
 			currentFrame.entityBuffer.BufferData(entityIdx * sizeof(GPUEntity), (uint8*)&de.entity, sizeof(GPUEntity));
@@ -655,7 +671,8 @@ namespace Lina
 
 		currentFrame.argumentsBuffer.BufferData(0, (uint8*)m_gpuDrawData.arguments.data(), sizeof(GPUDrawArguments) * m_gpuDrawData.arguments.size());
 		currentFrame.boneBuffer.BufferData(0, (uint8*)m_gpuDrawData.bones.data(), sizeof(Matrix4) * m_gpuDrawData.bones.size());
-
+        currentFrame.lightBuffer.BufferData(0, (uint8*)m_gpuDrawData.lights.data(), sizeof(GPULight) * m_gpuDrawData.lights.size());
+        
 		currentFrame.lvgVtxBuffer.BufferData(0, (uint8*)m_gpuDrawData.lvgVertices.data(), sizeof(LinaVG::Vertex) * m_gpuDrawData.lvgVertices.size());
 		currentFrame.lvgIdxBuffer.BufferData(0, (uint8*)m_gpuDrawData.lvgIndices.data(), sizeof(LinaVG::Index) * m_gpuDrawData.lvgIndices.size());
 		currentFrame.line3DIdxBuffer.BufferData(0, (uint8*)m_gpuDrawData.line3DIndices.data(), sizeof(uint16) * m_gpuDrawData.line3DIndices.size());
@@ -668,7 +685,8 @@ namespace Lina
 
 		m_uploadQueue.AddBufferRequest(&currentFrame.argumentsBuffer);
 		m_uploadQueue.AddBufferRequest(&currentFrame.boneBuffer);
-		m_uploadQueue.AddBufferRequest(&currentFrame.entityBuffer);
+        m_uploadQueue.AddBufferRequest(&currentFrame.entityBuffer);
+		m_uploadQueue.AddBufferRequest(&currentFrame.lightBuffer);
 
 		m_deferredPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
 		m_forwardPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);

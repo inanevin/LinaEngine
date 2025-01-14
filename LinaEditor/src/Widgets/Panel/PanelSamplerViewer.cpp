@@ -32,7 +32,7 @@ SOFTWARE.
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Editor/Actions/EditorActionResources.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
-#include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
+#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Application.hpp"
@@ -93,13 +93,27 @@ namespace Lina::Editor
 		TextureSampler* sampler = static_cast<TextureSampler*>(m_resource);
 		m_inspector->DeallocAllChildren();
 		m_inspector->RemoveAllChildren();
+        
+        DirectionalLayout* panelItems = m_manager->Allocate<DirectionalLayout>();
+        panelItems->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);
+        panelItems->SetAlignedSize(Vector2::One);
+        panelItems->SetAlignedPosX(0.0f);
+        panelItems->GetWidgetProps().childPadding = m_inspector->GetWidgetProps().childPadding;
+        panelItems->GetProps().direction = DirectionOrientation::Vertical;
+        m_inspector->AddChild(panelItems);
+        CommonWidgets::BuildClassReflection(panelItems, this, ReflectionSystem::Get().Resolve<PanelSamplerViewer>());
 
-		CommonWidgets::BuildClassReflection(m_inspector, this, ReflectionSystem::Get().Resolve<PanelSamplerViewer>(), [](MetaType* meta, FieldBase* field) {
-
-		});
-
-		CommonWidgets::BuildClassReflection(
-			m_inspector, &sampler->GetDesc(), ReflectionSystem::Get().Resolve<LinaGX::SamplerDesc>(), [this, sampler](MetaType* meta, FieldBase* field) { EditorActionResourceSampler::Create(m_editor, sampler->GetID(), m_storedDesc, sampler->GetDesc()); });
+        DirectionalLayout* samplerItems = m_manager->Allocate<DirectionalLayout>();
+        samplerItems->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);
+        samplerItems->SetAlignedSize(Vector2::One);
+        samplerItems->SetAlignedPosX(0.0f);
+        samplerItems->GetWidgetProps().childPadding = m_inspector->GetWidgetProps().childPadding;
+        samplerItems->GetProps().direction = DirectionOrientation::Vertical;
+        samplerItems->GetCallbacks().onEditEnded = [this, sampler](){
+            EditorActionResourceSampler::Create(m_editor, sampler->GetID(), m_storedDesc, sampler->GetDesc());
+        };
+        m_inspector->AddChild(samplerItems);
+		CommonWidgets::BuildClassReflection(samplerItems, &sampler->GetDesc(), ReflectionSystem::Get().Resolve<LinaGX::SamplerDesc>());
 
 		if (m_previewOnly)
 			DisableRecursively(m_inspector);

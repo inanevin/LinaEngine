@@ -46,8 +46,6 @@ namespace Lina
 
 		struct Properties
 		{
-			Delegate<void(float)> onValueChanged;
-
 			Color	 colorLine		   = Theme::GetDef().foreground0;
 			Color	 colorLineOutline  = Theme::GetDef().background0;
 			Texture* backgroundTexture = nullptr;

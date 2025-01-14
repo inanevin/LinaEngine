@@ -312,9 +312,7 @@ namespace Lina::Editor
 		layout->GetWidgetProps().rounding		  = 0.05f;
 		layout->GetProps().direction			  = DirectionOrientation::Vertical;
 
-		CommonWidgets::BuildClassReflection(layout, &m_overlayControls.snappingOptions, ReflectionSystem::Get().Meta<SnappingOptions>(), [](MetaType* meta, FieldBase* field) {
-
-		});
+		CommonWidgets::BuildClassReflection(layout, &m_overlayControls.snappingOptions, ReflectionSystem::Get().Meta<SnappingOptions>());
 
 		m_manager->AddToForeground(layout);
 		const float startY = m_overlayControls.topToolbar->GetPosY() + m_overlayControls.topToolbar->GetSizeY() + m_overlayControls.topToolbar->GetWidgetProps().outlineThickness + Theme::GetDef().baseIndentInner * 0.5f;
@@ -338,13 +336,15 @@ namespace Lina::Editor
 		m_overlayControls.cameraOptions.movementBoost = m_camera->GetMovementBoost();
 		m_overlayControls.cameraOptions.angularBoost  = m_camera->GetAngularBoost();
 
-		CommonWidgets::BuildClassReflection(layout, &m_overlayControls.cameraOptions, ReflectionSystem::Get().Meta<CameraOptions>(), [this](MetaType* meta, FieldBase* field) {
-			m_editor->GetSettings().GetParams().SetParamFloat("CamMoveBoost"_hs, m_overlayControls.cameraOptions.movementBoost);
-			m_editor->GetSettings().GetParams().SetParamFloat("CamAngBoost"_hs, m_overlayControls.cameraOptions.angularBoost);
-			m_camera->SetMovementBoost(m_overlayControls.cameraOptions.movementBoost);
-			m_camera->SetAngularBoost(m_overlayControls.cameraOptions.angularBoost);
-			m_editor->SaveSettings();
-		});
+		CommonWidgets::BuildClassReflection(layout, &m_overlayControls.cameraOptions, ReflectionSystem::Get().Meta<CameraOptions>());
+        
+        layout->GetCallbacks().onEditEnded = [this](){
+            m_editor->GetSettings().GetParams().SetParamFloat("CamMoveBoost"_hs, m_overlayControls.cameraOptions.movementBoost);
+            m_editor->GetSettings().GetParams().SetParamFloat("CamAngBoost"_hs, m_overlayControls.cameraOptions.angularBoost);
+            m_camera->SetMovementBoost(m_overlayControls.cameraOptions.movementBoost);
+            m_camera->SetAngularBoost(m_overlayControls.cameraOptions.angularBoost);
+            m_editor->SaveSettings();
+        };
 
 		m_manager->AddToForeground(layout);
 		const float startY = m_overlayControls.topToolbar->GetPosY() + m_overlayControls.topToolbar->GetSizeY() + m_overlayControls.topToolbar->GetWidgetProps().outlineThickness + Theme::GetDef().baseIndentInner * 0.5f;
@@ -365,14 +365,13 @@ namespace Lina::Editor
 		layout->GetWidgetProps().rounding		  = 0.05f;
 		layout->GetProps().direction			  = DirectionOrientation::Vertical;
 
-		m_overlayControls.worldOptions.skyMaterial = m_world->GetGfxSettings().skyMaterial;
-		m_overlayControls.worldOptions.skyModel	   = m_world->GetGfxSettings().skyModel;
-
-		CommonWidgets::BuildClassReflection(layout, &m_overlayControls.worldOptions, ReflectionSystem::Get().Meta<WorldOptions>(), [this](MetaType* meta, FieldBase* field) {
-			m_world->GetGfxSettings().skyMaterial = m_overlayControls.worldOptions.skyMaterial;
-			m_world->GetGfxSettings().skyModel	  = m_overlayControls.worldOptions.skyModel;
-			m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {}, m_world->GetID());
-		});
+        EntityWorld::GfxSettings& gfxSettings = m_world->GetGfxSettings();
+        
+        CommonWidgets::BuildClassReflection(layout, &gfxSettings, ReflectionSystem::Get().Meta<EntityWorld::GfxSettings>());
+        layout->GetCallbacks().onEditEnded = [this](){
+            m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {}, m_world->GetID());
+        };
+        
 		m_manager->AddToForeground(layout);
 		const float startY = m_overlayControls.topToolbar->GetPosY() + m_overlayControls.topToolbar->GetSizeY() + m_overlayControls.topToolbar->GetWidgetProps().outlineThickness + Theme::GetDef().baseIndentInner * 0.5f;
 		layout->SetPos(Vector2(m_overlayControls.topToolbar->GetPosX(), startY));

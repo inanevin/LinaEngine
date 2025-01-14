@@ -37,6 +37,7 @@ struct DrawArguments
 struct LinaEntity
 {
     mat4 modelMatrix;
+    mat4 normalMatrix;
 };
 
 layout(set = 1, binding = 0) uniform ViewData
@@ -48,14 +49,7 @@ layout(set = 1, binding = 0) uniform ViewData
 	vec4 cameraDirectionAndFar;
 	vec2 size;
 	vec2 mouse;
-	uint deprecated0;
-	uint deprecated1;
-	uint deprecated2;
-	uint deprecated3;
-	uint deprecated4;
-	uint padding0;
-	uint padding1;
-	uint padding2;
+	vec4 padding;
 } LINA_VIEW;
 
 
@@ -69,6 +63,10 @@ layout(set = 1, binding = 2) readonly buffer EntityBuffer
     LinaEntity data[];
 } LINA_ENTITIES;
 
+layout(set = 1, binding = 3) readonly buffer BoneBuffer
+{
+    mat4 data[];
+} LINA_BONES;
 
 LinaEntity LINA_GET_ENTITY(uint index)
 {

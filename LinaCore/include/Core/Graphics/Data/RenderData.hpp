@@ -87,17 +87,34 @@ namespace Lina
 		Vector4 deltaElapsed;
 	};
 
-	struct GPUDataView
+	struct GPUDataDeferredPass
 	{
 		Matrix4 view;
 		Matrix4 proj;
 		Matrix4 viewProj;
-		Vector4 cameraPositionAndNear;
-		Vector4 cameraDirectionAndFar;
-		Vector2 size;
-		Vector2 mouse;
-		Vector4 padding2;
+        Vector4 padding;
+        Vector4 padding1;
+        Vector4 padding2;
+        Vector4 padding3;
 	};
+
+    struct GPUDataForwardPass
+    {
+        Matrix4 view;
+        Matrix4 proj;
+        Matrix4 viewProj;
+        Vector4 ambientTop;
+        Vector4 ambientMid;
+        Vector4 ambientBot;
+        uint32 gBufAlbedo;
+        uint32 gBufPositionMetallic;
+        uint32 gBufNormalRoughness;
+        uint32 gBufSampler;
+        uint32 lightCount;
+        uint32 padding0;
+        uint32 padding1;
+        uint32 padding2;
+    };
 
 	struct GPUMaterialGUI
 	{
@@ -112,7 +129,8 @@ namespace Lina
 
 	struct GPUEntity
 	{
-		Matrix4 model;
+        Matrix4 model;
+		Matrix4 normal;
 	};
 
 	struct GPUDrawArguments
@@ -121,18 +139,6 @@ namespace Lina
 		uint32 constant1;
 		uint32 constant2;
 		uint32 constant3;
-	};
-
-	struct GPUForwardPassData
-	{
-		uint32 gBufAlbedo			= 0;
-		uint32 gBufPositionMetallic = 0;
-		uint32 gBufNormalRoughness	= 0;
-		uint32 gBufSampler			= 0;
-		uint32 pad0					= 0;
-		uint32 pad1					= 0;
-		uint32 pad3					= 0;
-		uint32 pad4					= 0;
 	};
 
 	struct Line3DVertex
@@ -161,5 +167,11 @@ namespace Lina
 		GPUEntity	entity;
 		EntityIdent ident;
 	};
+
+    struct GPULight
+    {
+        Vector4 colorAndIntensity;
+        Vector4 params;
+    };
 
 } // namespace Lina

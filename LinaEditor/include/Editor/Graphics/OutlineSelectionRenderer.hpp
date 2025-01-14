@@ -53,6 +53,7 @@ namespace Lina::Editor
 {
 	class Editor;
 	class MousePickRenderer;
+    class EditorWorldRenderer;
 
 	class OutlineSelectionRenderer
 	{
@@ -68,7 +69,7 @@ namespace Lina::Editor
 		};
 
 	public:
-		OutlineSelectionRenderer(Editor* editor, WorldRenderer* wr, RenderPass* targetPass, MousePickRenderer* mpr);
+		OutlineSelectionRenderer(Editor* editor, EditorWorldRenderer* ewr, RenderPass* targetPass, MousePickRenderer* mpr);
 		virtual ~OutlineSelectionRenderer();
 
 		void DestroySizeRelativeResources();
@@ -98,6 +99,7 @@ namespace Lina::Editor
 		LinaGX::Instance*  m_lgx		   = nullptr;
 		Editor*			   m_editor		   = nullptr;
 		WorldRenderer*	   m_wr			   = nullptr;
+        EditorWorldRenderer* m_ewr = nullptr;
 		ResourceManagerV2* m_rm			   = nullptr;
 		EntityWorld*	   m_world		   = nullptr;
 		MousePickRenderer* m_mpr		   = nullptr;
@@ -106,7 +108,6 @@ namespace Lina::Editor
 		Material*		m_fullscreenMaterial = nullptr;
 		Shader*			m_fullscreenShader	 = nullptr;
 
-		uint16			m_pipelineLayout = 0;
 		RenderPass		m_outlinePass;
 		Vector2ui		m_size			 = Vector2ui::Zero;
 		TextureSampler* m_outlineSampler = nullptr;

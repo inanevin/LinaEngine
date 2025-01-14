@@ -56,7 +56,6 @@ namespace Lina::Editor
 
 		struct Properties
 		{
-			Delegate<void(const Color& linearColor)> onValueChanged;
 			Vector3*								 trackColorv3 = nullptr;
 			Vector4*								 trackColorv4 = nullptr;
 		};
@@ -85,6 +84,11 @@ namespace Lina::Editor
 		{
 			Widget::LoadFromStream(stream);
 		}
+        
+        inline const Color& GetEditedColor() const
+        {
+            return m_editedColor;
+        }
 
 	private:
 		struct ColorComponent

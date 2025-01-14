@@ -100,8 +100,6 @@ namespace Lina
 		if (!FileSystem::FileOrPathExists(path))
 			return false;
 
-		DestroySW();
-
 		LinaGX::TextureBuffer outBuffer = {};
 		LinaGX::LoadImageFromFile(path.c_str(), outBuffer, 0, &m_meta.channels, m_meta.force8Bit);
 
@@ -134,7 +132,8 @@ namespace Lina
 				return false;
 			}
 		}
-
+        
+        DestroySW();
 		DetermineFormat();
 
 		m_size.x = outBuffer.width;

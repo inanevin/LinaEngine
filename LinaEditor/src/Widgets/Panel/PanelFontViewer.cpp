@@ -30,9 +30,8 @@ SOFTWARE.
 #include "Editor/Editor.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Editor/Actions/EditorActionResources.hpp"
-
 #include "Core/GUI/Widgets/WidgetManager.hpp"
-#include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
+#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/Application.hpp"
 #include "Core/Meta/ProjectData.hpp"
@@ -89,10 +88,29 @@ namespace Lina::Editor
 
 		Font* font = static_cast<Font*>(m_resource);
 
-		CommonWidgets::BuildClassReflection(m_inspector, this, ReflectionSystem::Get().Resolve<PanelFontViewer>(), [this](MetaType* meta, FieldBase* field) { m_fontDisplay->GetProps().textScale = m_scale; });
-
-		CommonWidgets::BuildClassReflection(
-			m_inspector, &font->GetMeta(), ReflectionSystem::Get().Resolve<Font::Metadata>(), [this, font](MetaType* meta, FieldBase* field) { EditorActionResourceFont::Create(m_editor, font->GetID(), m_storedMeta, font->GetMeta()); });
+        DirectionalLayout* panelItems = m_manager->Allocate<DirectionalLayout>();
+        panelItems->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);
+        panelItems->SetAlignedSize(Vector2::One);
+        panelItems->SetAlignedPosX(0.0f);
+        panelItems->GetWidgetProps().childPadding = m_inspector->GetWidgetProps().childPadding;
+        panelItems->GetProps().direction = DirectionOrientation::Vertical;
+        panelItems->GetCallbacks().onEditEnded = [this](){
+            m_fontDisplay->GetProps().textScale = m_scale;
+        };
+        m_inspector->AddChild(panelItems);
+        CommonWidgets::BuildClassReflection(panelItems, this, ReflectionSystem::Get().Resolve<PanelFontViewer>());
+        
+        DirectionalLayout* fontItems = m_manager->Allocate<DirectionalLayout>();
+        fontItems->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);
+        fontItems->SetAlignedSize(Vector2::One);
+        fontItems->SetAlignedPosX(0.0f);
+        fontItems->GetWidgetProps().childPadding = m_inspector->GetWidgetProps().childPadding;
+        fontItems->GetProps().direction = DirectionOrientation::Vertical;
+        fontItems->GetCallbacks().onEditEnded = [this, font](){
+            EditorActionResourceFont::Create(m_editor, font->GetID(), m_storedMeta, font->GetMeta());
+        };
+        m_inspector->AddChild(fontItems);
+		CommonWidgets::BuildClassReflection(fontItems, &font->GetMeta(), ReflectionSystem::Get().Resolve<Font::Metadata>());
 
 		if (m_previewOnly)
 			DisableRecursively(m_inspector);

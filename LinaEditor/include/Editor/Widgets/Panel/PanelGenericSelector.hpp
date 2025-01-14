@@ -26,9 +26,31 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/World/Components/CompRenderable.hpp"
+#pragma once
+
+#include "Editor/Widgets/Panel/Panel.hpp"
 
 namespace Lina
 {
 
 } // namespace Lina
+
+namespace Lina::Editor
+{
+	class Editor;
+
+	class PanelGenericSelector : public Panel
+	{
+	public:
+		PanelGenericSelector() : Panel(PanelType::GenericSelector, PF_FLOATING_POPUP){};
+		virtual ~PanelGenericSelector() = default;
+		
+        virtual void Construct() override;
+        
+	private:
+	};
+
+	LINA_WIDGET_BEGIN(PanelGenericSelector, Hidden)
+	LINA_CLASS_END(PanelGenericSelector)
+
+} // namespace Lina::Editor

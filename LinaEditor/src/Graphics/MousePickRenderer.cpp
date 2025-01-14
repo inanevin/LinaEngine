@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Editor/Graphics/MousePickRenderer.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/Graphics/EditorGfxHelpers.hpp"
+#include "Editor/Graphics/EditorWorldRenderer.hpp"
 #include "Common/Math/Math.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Application.hpp"
@@ -57,16 +58,16 @@ namespace Lina::Editor
 #define DEBUG_LABEL_END(Stream)
 #endif
 
-	MousePickRenderer::MousePickRenderer(Editor* editor, WorldRenderer* wr)
+	MousePickRenderer::MousePickRenderer(Editor* editor, EditorWorldRenderer* ewr)
 	{
 		m_editor = editor;
-		m_wr	 = wr;
+        m_ewr = ewr;
+        m_wr	 = m_ewr->GetWorldRenderer();
 		m_rm	 = &m_editor->GetApp()->GetResourceManager();
 		m_world	 = m_wr->GetWorld();
 		m_lgx	 = editor->GetApp()->GetLGX();
 
-		m_pipelineLayout = m_lgx->CreatePipelineLayout(EditorGfxHelpers::GetPipelineLayoutDescriptionEntityBufferPass());
-		m_entityBufferPass.Create(EditorGfxHelpers::GetEntityBufferPassDescription());
+        m_entityBufferPass.Create(EditorGfxHelpers::GetEditorWorldPassDescription());
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -97,7 +98,6 @@ namespace Lina::Editor
 	MousePickRenderer::~MousePickRenderer()
 	{
 		DestroySizeRelativeResources();
-		m_lgx->DestroyPipelineLayout(m_pipelineLayout);
 		m_entityBufferPass.Destroy();
 	}
 
@@ -160,7 +160,7 @@ namespace Lina::Editor
 		// View data.
 		{
 			Camera&		worldCam = m_world->GetWorldCamera();
-			GPUDataView view	 = {
+			EditorWorldPassViewData view	 = {
 					.view = worldCam.GetView(),
 					.proj = worldCam.GetProjection(),
 			};
@@ -174,35 +174,44 @@ namespace Lina::Editor
 			view.cameraDirectionAndFar = Vector4(camDir.x, camDir.y, camDir.z, worldCam.GetZFar());
 			view.size				   = Vector2(static_cast<float>(m_size.x), static_cast<float>(m_size.y));
 			view.mouse				   = m_world->GetInput().GetMousePositionRatio();
-			m_entityBufferPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
+            m_entityBufferPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(EditorWorldPassViewData));
 		}
 
 		const Vector2 mp		  = m_world->GetInput().GetMousePosition();
-		uint32*		  mapping	  = reinterpret_cast<uint32*>(m_pfd[frameIndex].snapshotBuffer.GetMapped());
-		const uint32  pixel		  = m_size.x * static_cast<uint32>(mp.y) + static_cast<uint32>(mp.x);
-		const size_t  entityIndex = static_cast<size_t>(mapping[pixel]);
+        const bool mpOK = mp.x < m_size.x - 1 && mp.y < m_size.y - 1 && mp.x > 0 && mp.y > 0;
+        size_t entityIndex = 0;
+        uint32*          mapping      = reinterpret_cast<uint32*>(m_pfd[frameIndex].snapshotBuffer.GetMapped());
 
+        if(mpOK)
+        {
+            const uint32  pixel          = m_size.x * static_cast<uint32>(mp.y) + static_cast<uint32>(mp.x);
+            entityIndex = static_cast<size_t>(mapping[pixel]);
+        }
+		
 		if (m_rectSelectData.select)
 		{
 			m_rectSelectData.select = false;
 
-			for (uint32 y = m_rectSelectData.start.y; y < m_rectSelectData.end.y; y++)
-			{
-				for (uint32 x = m_rectSelectData.start.x; x < m_rectSelectData.end.x; x++)
-				{
-					const uint32 pixelIndex = y * m_size.x + x;
+			if(mpOK)
+            {
+                for (uint32 y = m_rectSelectData.start.y; y < m_rectSelectData.end.y; y++)
+                {
+                    for (uint32 x = m_rectSelectData.start.x; x < m_rectSelectData.end.x; x++)
+                    {
+                        const uint32 pixelIndex = y * m_size.x + x;
 
-					const size_t index = static_cast<size_t>(mapping[pixelIndex]);
-					if (index != 0 && index - 1 < m_lastEntityIDs.size())
-					{
-						const EntityID res = m_lastEntityIDs[index - 1];
-						auto		   it  = linatl::find_if(m_gpuData.rectSelectionIDs.begin(), m_gpuData.rectSelectionIDs.end(), [res](EntityID id) -> bool { return id == res; });
+                        const size_t index = static_cast<size_t>(mapping[pixelIndex]);
+                        if (index != 0 && index - 1 < m_lastEntityIDs.size())
+                        {
+                            const EntityID res = m_lastEntityIDs[index - 1];
+                            auto           it  = linatl::find_if(m_gpuData.rectSelectionIDs.begin(), m_gpuData.rectSelectionIDs.end(), [res](EntityID id) -> bool { return id == res; });
 
-						if (it == m_gpuData.rectSelectionIDs.end())
-							m_gpuData.rectSelectionIDs.push_back(res);
-					}
-				}
-			}
+                            if (it == m_gpuData.rectSelectionIDs.end())
+                                m_gpuData.rectSelectionIDs.push_back(res);
+                        }
+                    }
+                }
+            }
 		}
 
 		if (entityIndex == 0)
@@ -216,7 +225,7 @@ namespace Lina::Editor
 	void MousePickRenderer::Tick(float delta)
 	{
 		const Vector<CompModel*>& compModels = m_wr->GetCompModels();
-		DrawCollector::CollectCompModels(compModels, m_entityBufferPass, m_rm, m_wr, &m_editor->GetApp()->GetGfxContext(), {.useVariantOverride = true, .staticVariantOverride = "StaticEntityID"_hs, .skinnedVariantOverride = "SkinnedEntityID"_hs});
+        DrawCollector::CollectCompModels(compModels, m_entityBufferPass, m_rm, m_wr, &m_editor->GetApp()->GetGfxContext(), {.allowedShaderTypes = {ShaderType::DeferredSurface, ShaderType::ForwardSurface}, .useVariantOverride = true, .staticVariantOverride = "StaticEntityID"_hs, .skinnedVariantOverride = "SkinnedEntityID"_hs});
 	}
 
 	void MousePickRenderer::Render(uint32 frameIndex, LinaGX::CommandStream* stream)
@@ -242,7 +251,7 @@ namespace Lina::Editor
 			}
 
 			m_entityBufferPass.Begin(stream, frameIndex);
-			m_entityBufferPass.BindDescriptors(stream, frameIndex, m_pipelineLayout, 1);
+            m_entityBufferPass.BindDescriptors(stream, frameIndex, m_ewr->GetPipelineLayout(), 1);
 			m_entityBufferPass.Render(frameIndex, stream);
 			m_entityBufferPass.End(stream);
 

@@ -122,7 +122,6 @@ namespace Lina::Editor
 
 			SnappingOptions snappingOptions = {};
 			CameraOptions	cameraOptions	= {};
-			WorldOptions	worldOptions	= {};
 		};
 
 	public:

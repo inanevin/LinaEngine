@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Actions/EditorActionEntity.hpp"
 #include "Editor/World/WorldUtility.hpp"
+#include "Core/World/Components/CompLight.hpp"
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
@@ -77,10 +78,10 @@ namespace Lina::Editor
 		searchField->GetProps().usePlaceHolder	= true;
 		searchField->GetProps().placeHolderText = Locale::GetStr(LocaleStr::Search);
 		searchField->GetProps().placeHolderIcon = ICON_SEARCH;
-		searchField->GetProps().onEdited		= [this](const String& str) {
-			   m_searchStr = str;
-			   RefreshEntities();
-		};
+        searchField->GetCallbacks().onEdited = [searchField, this](){
+            m_searchStr = searchField->GetText()->GetProps().text;
+            RefreshEntities();
+        };
 		header->AddChild(searchField);
 
 		ScrollArea* scroll = m_manager->Allocate<ScrollArea>("Scroll");
@@ -281,16 +282,16 @@ namespace Lina::Editor
 		inp->SetFixedSizeY(text->GetParent()->GetSizeY());
 		inp->Initialize();
 
-		inp->GetProps().onEditEnd = [text, inp, e, parent, this](const String& str) {
-			text->GetProps().text = str;
-			text->CalculateTextSize();
-			text->GetWidgetManager()->AddToKillList(inp);
-
-			const String stored = e->GetName();
-			e->SetName(str);
-			EditorActionEntityNames::Create(m_editor, m_world->GetID(), {e}, {stored});
-		};
-
+        inp->GetCallbacks().onEditEnded = [text, e, inp, this](){
+            const String& str = inp->GetValueStr();
+            text->GetProps().text = str;
+            text->CalculateTextSize();
+            text->GetWidgetManager()->AddToKillList(inp);
+            const String stored = e->GetName();
+            e->SetName(str);
+            EditorActionEntityNames::Create(m_editor, m_world->GetID(), {e}, {stored});
+        };
+	
 		text->GetWidgetManager()->AddToForeground(inp);
 		inp->StartEditing();
 		inp->SelectAll();
@@ -341,36 +342,59 @@ namespace Lina::Editor
 			EditorActionCollective::Create(m_editor, 2);
 			return true;
 		}
+        
+        const Vector3 cameraPos = m_world->GetWorldCamera().GetPosition() + m_world->GetWorldCamera().GetRotation().GetForward() * 1.0f;
+        const Vector3 createPos = selection.empty() ? cameraPos : selection.at(0)->GetPosition();
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::PointLight)))
 		{
-
+            Entity* e = m_world->CreateEntity(m_world->ConsumeEntityGUID(), Locale::GetStr(LocaleStr::PointLight));
+            e->SetPosition(createPos);
+            CompLight* comp = m_world->AddComponent<CompLight>(e);
+            comp->SetType(LightType::Point);
+            
+            EditorActionEntitiesCreated::Create(m_editor, m_world, {e});
+            EditorActionEntitySelection::Create(m_editor, m_world->GetID(), {e}, true, true);
+            EditorActionCollective::Create(m_editor, 2);
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::SpotLight)))
 		{
-
+            Entity* e = m_world->CreateEntity(m_world->ConsumeEntityGUID(), Locale::GetStr(LocaleStr::SpotLight));
+            e->SetPosition(createPos);
+            CompLight* comp = m_world->AddComponent<CompLight>(e);
+            comp->SetType(LightType::Spot);
+            
+            EditorActionEntitiesCreated::Create(m_editor, m_world, {e});
+            EditorActionEntitySelection::Create(m_editor, m_world->GetID(), {e}, true, true);
+            EditorActionCollective::Create(m_editor, 2);
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::DirectionalLight)))
 		{
 
+            Entity* e = m_world->CreateEntity(m_world->ConsumeEntityGUID(), Locale::GetStr(LocaleStr::DirectionalLight));
+            e->SetPosition(createPos);
+            CompLight* comp = m_world->AddComponent<CompLight>(e);
+            comp->SetType(LightType::Directional);
+            
+            EditorActionEntitiesCreated::Create(m_editor, m_world, {e});
+            EditorActionEntitySelection::Create(m_editor, m_world->GetID(), {e}, true, true);
+            EditorActionCollective::Create(m_editor, 2);
 			return true;
 		}
 
-		if (sid == TO_SID(Locale::GetStr(LocaleStr::AmbientLight)))
-		{
-
-			return true;
-		}
-
+		
 		return false;
 	}
 
 	void EntityBrowser::OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData)
 	{
+        if(!m_world)
+            return;
+        
 		const Vector<Entity*> selection = m_controller->GetSelectedUserData<Entity>();
 
 		bool basicActionsDisabled = false;
@@ -397,7 +421,7 @@ namespace Lina::Editor
 				.text		  = Locale::GetStr(LocaleStr::Create),
 				.dropdownIcon = ICON_CHEVRON_RIGHT,
 				.hasDropdown  = true,
-				.isDisabled	  = true,
+				.isDisabled	  = false,
 				.userData	  = userData,
 			});
 
@@ -433,7 +457,6 @@ namespace Lina::Editor
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::PointLight), .userData = userData},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::SpotLight), .userData = userData},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::DirectionalLight), .userData = userData},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::AmbientLight), .userData = userData},
 			};
 		}
 		else if (sid == TO_SID(Locale::GetStr(LocaleStr::Display)))

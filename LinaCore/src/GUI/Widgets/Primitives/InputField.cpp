@@ -99,8 +99,8 @@ namespace Lina
 
 		if (m_middlePressed && m_props.isNumberField && !m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_MIDDLE))
 		{
-			if (m_props.valuePtr && m_props.onEditEnd && !Math::Equals(m_valueOnMiddlePress, GetValue(), 0.001f))
-				m_props.onEditEnd(m_text->GetProps().text);
+			if (m_props.valuePtr && !Math::Equals(m_valueOnMiddlePress, GetValue(), 0.001f))
+                PropagateCBOnEditEnded();
 			m_middlePressed = false;
 		}
 
@@ -140,8 +140,7 @@ namespace Lina
 				m_lastStoredValue = INPF_VALUE_MIN;
 			}
 
-			if (m_props.onValueChanged)
-				m_props.onValueChanged(GetValue(), true);
+            PropagateCBOnEdited();
 		}
 
 		if (!m_isEditing && m_props.valueStr)
@@ -287,8 +286,7 @@ namespace Lina
 		m_manager->GrabControls(this);
 
 		m_isEditing = true;
-		if (m_props.onEditStarted)
-			m_props.onEditStarted(m_text->GetProps().text);
+        PropagateCBOnEditStarted();
 	}
 
 	void InputField::UpdateTextFromValue()
@@ -296,6 +294,11 @@ namespace Lina
 		m_text->GetProps().text = UtilStr::FloatToString(GetValue(), m_props.decimals);
 		m_text->CalculateTextSize();
 	}
+
+    const String& InputField::GetValueStr() const
+    {
+        return m_text->GetProps().text;
+    }
 
 	void InputField::SelectAll()
 	{
@@ -316,8 +319,7 @@ namespace Lina
 		if (m_props.valueStr && !m_props.isNumberField)
 			*m_props.valueStr = m_text->GetProps().text;
 
-		if (m_props.onEditEnd)
-			m_props.onEditEnd(m_text->GetProps().text);
+        PropagateCBOnEditEnded();
 	}
 
 	Vector2 InputField::GetPosFromCaretIndex(uint32 index)
@@ -502,8 +504,7 @@ namespace Lina
 			if (m_props.valuePtr)
 				m_valueOnMiddlePress = GetValue();
 
-			if (m_props.onEditStarted)
-				m_props.onEditStarted(m_text->GetProps().text);
+            PropagateCBOnEditStarted();
 
 			m_middlePressed = true;
 			return true;
@@ -512,8 +513,8 @@ namespace Lina
 		// Catch middle release
 		if (m_props.isNumberField && button == LINAGX_MOUSE_MIDDLE && action == LinaGX::InputAction::Released && m_middlePressed)
 		{
-			if (m_props.valuePtr && m_props.onEditEnd && !Math::Equals(m_valueOnMiddlePress, GetValue(), 0.001f))
-				m_props.onEditEnd(m_text->GetProps().text);
+			if (m_props.valuePtr && !Math::Equals(m_valueOnMiddlePress, GetValue(), 0.001f))
+                PropagateCBOnEditEnded();
 
 			m_middlePressed = false;
 			return true;
@@ -533,6 +534,10 @@ namespace Lina
 		if (m_isHovered && action == LinaGX::InputAction::Repeated)
 		{
 			SelectAll();
+            
+            if(m_isPressed)
+                m_isPressed = false;
+            
 			return true;
 		}
 
@@ -581,12 +586,10 @@ namespace Lina
 				m_lastStoredValue = INPF_VALUE_MIN;
 			}
 
-			if (m_props.onValueChanged)
-				m_props.onValueChanged(GetValue(), false);
+            PropagateCBOnEdited();
 		}
 
-		if (m_props.onEdited)
-			m_props.onEdited(m_text->GetProps().text);
+        Widget::PropagateCBOnEdited();
 	}
 
 	void InputField::RemoveCurrent()
@@ -611,8 +614,6 @@ namespace Lina
 			m_caretInsertPos = m_highlightStartPos = min;
 		}
 
-		if (m_props.onEdited)
-			m_props.onEdited(m_text->GetProps().text);
 
 		if (m_text->GetProps().text.empty())
 			m_textOffset = 0.0f;
@@ -629,10 +630,10 @@ namespace Lina
 				SetValue(Math::Clamp(GetValue(), m_props.valueMin, m_props.valueMax));
 				m_lastStoredValue = INPF_VALUE_MIN;
 			}
-
-			if (m_props.onValueChanged)
-				m_props.onValueChanged(GetValue(), false);
 		}
+        
+        Widget::PropagateCBOnEdited();
+
 	}
 
 	void InputField::ClampCaretInsert()

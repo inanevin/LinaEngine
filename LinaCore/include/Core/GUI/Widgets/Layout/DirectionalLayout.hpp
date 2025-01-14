@@ -61,7 +61,6 @@ namespace Lina
 
 			Delegate<void()> onClicked;
 			Delegate<void()> onDoubleClicked;
-			Delegate<void()> onRightClicked;
 			Delegate<void()> onPressed;
 			Delegate<void()> onDestructed;
 			Delegate<void()> onHoverBegin;

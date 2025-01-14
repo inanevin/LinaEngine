@@ -591,10 +591,10 @@ namespace Lina::Editor
 		search->SetAlignedSize(Vector2(0.0f, 1.0f));
 		search->GetProps().placeHolderIcon = ICON_SEARCH;
 		search->GetProps().placeHolderText = Locale::GetStr(LocaleStr::Search);
-		search->GetProps().onEdited		   = [this](const String& str) {
-			   m_resourcesData.searchStr = UtilStr::ToLower(str);
-			   RefreshResourcesTable();
-		};
+	    search->GetCallbacks().onEdited = [search, this](){
+            m_resourcesData.searchStr = UtilStr::ToLower(search->GetText()->GetProps().text);
+            RefreshResourcesTable();
+        };
 
 		header->AddChild(search);
 

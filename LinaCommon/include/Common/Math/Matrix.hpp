@@ -69,6 +69,7 @@ namespace Lina
 		Matrix4		   Transpose() const;
 		Matrix4		   Inverse() const;
 		Matrix4		   ApplyScale(const Vector3& scale);
+        Matrix4 GetNormalMatrix() const;
 
 		Vector3 GetScale();
 		Vector3 GetTranslation();

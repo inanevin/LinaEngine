@@ -59,12 +59,11 @@ namespace Lina::Editor
 #define DEBUG_LABEL_END(Stream)
 #endif
 
-	EditorWorldRenderer::EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr) : m_mousePickRenderer(editor, wr), m_gizmoRenderer(editor, wr, &m_pass, &m_mousePickRenderer), m_outlineRenderer(editor, wr, &m_pass, &m_mousePickRenderer)
+	EditorWorldRenderer::EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr) : m_wr(wr), m_mousePickRenderer(editor, this), m_gizmoRenderer(editor, wr, &m_pass, &m_mousePickRenderer), m_outlineRenderer(editor, this, &m_pass, &m_mousePickRenderer)
 	{
 		m_editor = editor;
 		m_lgx	 = lgx;
 		m_rm	 = &m_editor->GetApp()->GetResourceManager();
-		m_wr	 = wr;
 		m_world	 = m_wr->GetWorld();
 
 		m_wr->AddListener(this);
@@ -88,6 +87,12 @@ namespace Lina::Editor
 				.binding   = 2,
 				.buffers   = {m_wr->GetEntityDataBuffer(i).GetGPUResource()},
 			});
+            
+            m_lgx->DescriptorUpdateBuffer({
+                .setHandle = set,
+                .binding   = 3,
+                .buffers   = {m_wr->GetBoneBuffer(i).GetGPUResource()},
+            });
 		}
 
 		// Grid

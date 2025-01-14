@@ -58,8 +58,6 @@ namespace Lina
 			float				 step				 = 0.0f;
 			float				 _localValue		 = 0.0f;
 
-			Delegate<void(float val)> onValueChanged;
-
 			void SaveToStream(OStream& stream) const
 			{
 				stream << colorFill;

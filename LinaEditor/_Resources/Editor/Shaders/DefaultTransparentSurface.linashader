@@ -90,6 +90,8 @@ struct LinaFragOutput
 
 layout (location = 0) out flat uint outargument1;
 layout (location = 1) out vec2 outUV;
+layout (location = 2) out vec3 outNormal;
+layout (location = 3) out vec3 outWorldPos;
 
 void LINA_VERTEX_MAIN(in LinaVertexInput inVertex, out LinaVertexOutput outVertex)
 {
@@ -98,6 +100,8 @@ void LINA_VERTEX_MAIN(in LinaVertexInput inVertex, out LinaVertexOutput outVerte
    outVertex.clipPosition = LINA_VIEW.viewProj * vec4(worldPos, 1.0);
    outargument1 = inVertex.drawArguments.argument1;
    outUV = inVertex.uv;
+   outNormal = inVertex.normal;
+   outWorldPos = worldPos;
 }
 
 #lina_end
@@ -106,6 +110,8 @@ void LINA_VERTEX_MAIN(in LinaVertexInput inVertex, out LinaVertexOutput outVerte
 
 layout (location = 0) in flat uint inargument1;
 layout (location = 1) in vec2 inUV;
+layout (location = 2) in vec3 inNormal;
+layout (location = 3) in vec3 inWorldPos;
 
 struct LinaMaterial
 {
