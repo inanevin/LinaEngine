@@ -17,11 +17,13 @@ set(LINAGX_FOLDER_BASE LinaEngine/Dependencies/LinaGXProject)
 set(LINAVG_FOLDER_BASE LinaEngine/Dependencies/LinaVGProject)
 set(LINAGX_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>)
 
+
 add_subdirectory(LinaGX)
 add_subdirectory(LinaVG)
 ## target_compile_definitions(LinaGX PUBLIC _ITERATOR_DEBUG_LEVEL=${LINA_ITERATOR_DEBUG_LEVEL})
 ## target_compile_definitions(LinaVG PUBLIC _ITERATOR_DEBUG_LEVEL=${LINA_ITERATOR_DEBUG_LEVEL})
 
+add_subdirectory(Dependencies/JoltPhysics-5.2.0/Build)
 add_subdirectory(Dependencies/memory-allocators)
 add_subdirectory(Dependencies/lz4-1.9.4)
 add_subdirectory(Dependencies/fmt-7.0.3)
@@ -31,3 +33,4 @@ set_property(TARGET lz4 PROPERTY FOLDER LinaEngine/Dependencies)
 set_property(TARGET memory-allocators PROPERTY FOLDER LinaEngine/Dependencies)
 set_property(TARGET fmt PROPERTY FOLDER LinaEngine/Dependencies)
 set_property(TARGET glm_static PROPERTY FOLDER LinaEngine/Dependencies)
+set_property(TARGET Jolt PROPERTY FOLDER LinaEngine/Dependencies)

@@ -101,6 +101,8 @@ namespace Lina
 			s_lgx = nullptr;
 			return false;
 		}
+        
+        m_physicsBackend.Initialize();
 
 		return true;
 	}
@@ -173,6 +175,8 @@ namespace Lina
 
 	void Application::Shutdown()
 	{
+        m_physicsBackend.Shutdown();
+        
 		JoinRender();
 		GetAppDelegate()->PreShutdown();
 		m_guiBackend.Shutdown();

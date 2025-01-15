@@ -90,6 +90,8 @@ src/World/Animation/AnimationController.cpp
 # Physics
 src/Physics/PhysicsWorld.cpp
 src/Physics/PhysicsMaterial.cpp
+src/Physics/PhysicsBackend.cpp
+src/Physics/CommonPhysics.cpp
 
 
 # GUI
@@ -211,6 +213,8 @@ include/Core/World/Animation/AnimationController.hpp
 # Physics
 include/Core/Physics/PhysicsWorld.hpp
 include/Core/Physics/PhysicsMaterial.hpp
+include/Core/Physics/PhysicsBackend.hpp
+include/Core/Physics/CommonPhysics.hpp
 
 
 # GUI
@@ -280,7 +284,7 @@ include(../CMake/ProjectSettings.cmake)
 #--------------------------------------------------------------------
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/Dependencies/JoltPhysics-5.2.0)
 
 #--------------------------------------------------------------------
 # Subdirectories & linking
@@ -288,7 +292,11 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon
 
 target_link_libraries(${PROJECT_NAME} 
 	PUBLIC Lina::Common
+	PUBLIC Jolt
 )
+
+message("LinaCore -> LinaCommon has been linked.")
+message("LinaCore -> Jolt Physics has been linked.")
 
 if(APPLE)
 	target_link_libraries(${PROJECT_NAME}
@@ -299,7 +307,6 @@ if(APPLE)
 	)
 endif()
 
-message("LinaCore -> LinaCommon has been linked.")
 
 if(WIN32)
 target_link_libraries(${PROJECT_NAME} 
@@ -308,6 +315,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 message("LinaCore -> User32 has been linked.")
 message("LinaCore -> Shcore has been linked.")
+
 endif()
 
 #--------------------------------------------------------------------

@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/GfxContext.hpp"
 #include "Core/Graphics/GUI/GUIBackend.hpp"
+#include "Core/Physics/PhysicsBackend.hpp"
 
 namespace LinaGX
 {
@@ -110,6 +111,11 @@ namespace Lina
 		{
 			return m_exitReason;
 		}
+        
+        inline PhysicsBackend& GetPhysicsBackend()
+        {
+            return m_physicsBackend;
+        }
 
 	private:
 		void Render();
@@ -127,6 +133,7 @@ namespace Lina
 		GUIBackend				 m_guiBackend;
 		GfxContext				 m_gfxContext;
 		String					 m_exitReason = "";
+        PhysicsBackend m_physicsBackend;
 
 		// Time
 		int64 m_frameCapAccumulator = 0;
