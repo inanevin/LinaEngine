@@ -28,14 +28,15 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/Resources/CommonResources.hpp"
 #include "Common/Data/CommonData.hpp"
+#include "Common/Data/HashSet.hpp"
 
 namespace Lina
 {
 	class ResourceManagerV2;
 	class GfxContext;
 	class Shader;
+	class Resource;
 } // namespace Lina
 
 namespace Lina::Editor

@@ -29,7 +29,6 @@ SOFTWARE.
 #pragma once
 
 #include "Common/StringID.hpp"
-#include "Core/Resources/CommonResources.hpp"
 
 namespace Lina
 {

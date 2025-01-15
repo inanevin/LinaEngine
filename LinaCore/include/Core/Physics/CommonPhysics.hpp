@@ -35,18 +35,32 @@ SOFTWARE.
 namespace Lina
 {
 
-	namespace PhysicsBroadPhaseLayers
+	enum class PhysicsBroadPhaseLayers : uint16
 	{
-		static constexpr JPH::BroadPhaseLayer NON_MOVING(0);
-		static constexpr JPH::BroadPhaseLayer MOVING(1);
-		static constexpr uint				  NUM_LAYERS(2);
-	}; // namespace PhysicsBroadPhaseLayers
+		NonMoving = 0,
+		Moving,
+	};
 
-	namespace PhysicsObjectLayers
+	enum class PhysicsObjectLayers : uint16
 	{
-		static constexpr JPH::ObjectLayer NON_MOVING = 0;
-		static constexpr JPH::ObjectLayer MOVING	 = 1;
-		static constexpr JPH::ObjectLayer NUM_LAYERS = 2;
-	}; // namespace PhysicsObjectLayers
+		NonMoving = 0,
+		Moving,
+	};
+
+	static constexpr uint16 PHYSICS_NUM_BP_LAYERS(2);
+	static constexpr uint16 PHYSICS_NUM_OBJ_LAYERS(2);
+
+	enum class PhysicsBodyType
+	{
+		None,
+		Static,
+		Kinematic,
+		Dynamic
+	};
+
+	struct EntityPhysicsSettings
+	{
+		PhysicsBodyType bodyType = PhysicsBodyType::None;
+	};
 
 } // namespace Lina

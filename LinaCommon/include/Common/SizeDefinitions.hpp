@@ -28,9 +28,6 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef SizeDefinitions_HPP
-#define SizeDefinitions_HPP
-
 #if defined(__GNUC__) || defined(__clang__) || (defined(_MSC_VER) && _MSC_VER >= 1600)
 #include <stdint.h>
 #elif defined(_MSC_VER)
@@ -82,4 +79,8 @@ typedef uint64_t  uint64;
 typedef intptr_t  intptr;
 typedef uintptr_t uintptr;
 
-#endif
+namespace Lina
+{
+	typedef uint64 EntityID;
+	typedef uint64 ResourceID;
+} // namespace Lina

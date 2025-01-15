@@ -29,7 +29,6 @@ SOFTWARE.
 #pragma once
 
 #include "EditorAction.hpp"
-#include "Core/Resources/CommonResources.hpp"
 #include "Common/Data/String.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"

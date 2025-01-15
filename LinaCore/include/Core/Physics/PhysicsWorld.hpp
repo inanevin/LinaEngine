@@ -50,7 +50,6 @@ namespace Lina
 		virtual ~PhysicsWorld();
 
 		void Simulate();
-		void WaitForSimulation();
 
 		// Contacts
 		virtual JPH::ValidateResult OnContactValidate(const JPH::Body& inBody1, const JPH::Body& inBody2, JPH::RVec3Arg inBaseOffset, const JPH::CollideShapeResult& inCollisionResult) override;

@@ -30,7 +30,6 @@ SOFTWARE.
 
 #include "Common/Data/Vector.hpp"
 #include "Common/Data/Deque.hpp"
-#include "CommonResources.hpp"
 #include "ResourceCache.hpp"
 #include "ResourceManagerListener.hpp"
 #include "Common/JobSystem/JobSystem.hpp"

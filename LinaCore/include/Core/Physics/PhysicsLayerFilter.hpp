@@ -39,16 +39,13 @@ namespace Lina
 	public:
 		virtual bool ShouldCollide(JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2) const override
 		{
-			switch (inObject1)
-			{
-			case PhysicsObjectLayers::NON_MOVING:
-				return inObject2 == PhysicsObjectLayers::MOVING; // Non moving only collides with moving
-			case PhysicsObjectLayers::MOVING:
-				return true; // Moving collides with everything
-			default:
-				JPH_ASSERT(false);
-				return false;
-			}
+			PhysicsObjectLayers inLayer1 = static_cast<PhysicsObjectLayers>(inObject1);
+			PhysicsObjectLayers inLayer2 = static_cast<PhysicsObjectLayers>(inObject2);
+
+			if (inLayer1 == PhysicsObjectLayers::NonMoving)
+				return inLayer2 == PhysicsObjectLayers::Moving;
+
+			return true;
 		}
 	};
 } // namespace Lina

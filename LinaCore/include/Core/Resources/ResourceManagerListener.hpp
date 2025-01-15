@@ -30,7 +30,6 @@ SOFTWARE.
 
 #include "Common/SizeDefinitions.hpp"
 #include "Common/Data/HashSet.hpp"
-#include "Core/Resources/CommonResources.hpp"
 
 namespace Lina
 {

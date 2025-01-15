@@ -28,8 +28,6 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/Resources/CommonResources.hpp"
-#include "Core/World/CommonWorld.hpp"
 #include "Common/Math/Vector.hpp"
 
 namespace Lina

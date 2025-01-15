@@ -30,7 +30,6 @@ SOFTWARE.
 
 #include "Editor/Widgets/Panel/Panel.hpp"
 #include "Editor/World/EditorWorldManager.hpp"
-#include "Core/World/CommonWorld.hpp"
 
 namespace Lina
 {

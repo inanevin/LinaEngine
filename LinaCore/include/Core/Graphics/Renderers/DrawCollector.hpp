@@ -28,7 +28,6 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/Resources/CommonResources.hpp"
 #include "Core/Graphics/Data/RenderData.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
 

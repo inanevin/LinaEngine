@@ -32,8 +32,6 @@ SOFTWARE.
 #include "Common/Math/Vector.hpp"
 #include "Common/Math/Matrix.hpp"
 #include "Common/Data/CommonData.hpp"
-#include "Core/Resources/CommonResources.hpp"
-#include "Core/World/CommonWorld.hpp"
 
 namespace Lina
 {

@@ -30,7 +30,6 @@ SOFTWARE.
 
 #include "Core/Graphics/Pipeline/Buffer.hpp"
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
-#include "Core/World/CommonWorld.hpp"
 #include "Common/Data/Vector.hpp"
 
 namespace Lina

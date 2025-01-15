@@ -28,7 +28,6 @@ SOFTWARE.
 
 #pragma once
 
-#include "CommonResources.hpp"
 #include "Common/Data/Streams.hpp"
 #include "Core/Resources/CommonResources.hpp"
 #include "Common/Memory/AllocatorBucket.hpp"

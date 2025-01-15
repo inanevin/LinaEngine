@@ -29,7 +29,6 @@ SOFTWARE.
 #pragma once
 
 #include "EditorAction.hpp"
-#include "Core/World/CommonWorld.hpp"
 #include "Common/Data/String.hpp"
 
 namespace Lina

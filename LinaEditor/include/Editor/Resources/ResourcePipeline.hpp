@@ -28,7 +28,6 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/Resources/CommonResources.hpp"
 #include "Common/Data/CommonData.hpp"
 
 namespace Lina

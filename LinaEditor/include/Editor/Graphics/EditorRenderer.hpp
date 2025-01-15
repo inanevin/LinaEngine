@@ -30,7 +30,6 @@ SOFTWARE.
 
 #include "Core/Graphics/GUI/GUIBackend.hpp"
 #include "Core/Graphics/ResourceUploadQueue.hpp"
-#include "Core/Resources/CommonResources.hpp"
 
 namespace Lina
 {

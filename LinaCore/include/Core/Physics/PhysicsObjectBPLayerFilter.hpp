@@ -29,7 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Core/Physics/CommonPhysics.hpp"
-#include <Jolt/Jolt.h>
+#include "Core/Physics/PhysicsBackend.hpp"
 
 namespace Lina
 {
@@ -38,16 +38,13 @@ namespace Lina
 	public:
 		virtual bool ShouldCollide(JPH::ObjectLayer inLayer1, JPH::BroadPhaseLayer inLayer2) const override
 		{
-			switch (inLayer1)
-			{
-			case PhysicsObjectLayers::NON_MOVING:
-				return inLayer2 == PhysicsBroadPhaseLayers::MOVING;
-			case PhysicsObjectLayers::MOVING:
-				return true;
-			default:
-				JPH_ASSERT(false);
-				return false;
-			}
+            const PhysicsObjectLayers objLayer1 = static_cast<PhysicsObjectLayers>(inLayer1);
+            
+            if(objLayer1 == PhysicsObjectLayers::NonMoving)
+               return inLayer2 == PhysicsBackend::PHYSICS_BP_LAYERS[(uint16)PhysicsBroadPhaseLayers::Moving];
+            
+            return true;
+            
 		}
 	};
 } // namespace Lina

@@ -30,7 +30,6 @@ SOFTWARE.
 
 #include "Common/StringID.hpp"
 #include "Common/Data/String.hpp"
-#include "Core/Resources/CommonResources.hpp"
 #include "Core/Reflection/ResourceReflection.hpp"
 #include "Common/ClassMacros.hpp"
 #include "Common/Memory/CommonMemory.hpp"

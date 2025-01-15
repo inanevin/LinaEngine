@@ -35,9 +35,6 @@ SOFTWARE.
 
 namespace Lina
 {
-
-	typedef uint64 EntityID;
-
 	enum class PlayMode
 	{
 		None,

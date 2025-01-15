@@ -28,14 +28,18 @@ SOFTWARE.
 
 #pragma once
 
+#include "Core/Physics/CommonPhysics.hpp"
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
+
 namespace Lina
 {
-
 	class PhysicsBackend
 	{
 	public:
-		void Initialize();
-		void Shutdown();
+		void								  Initialize();
+		void								  Shutdown();
+		static constexpr JPH::BroadPhaseLayer PHYSICS_BP_LAYERS[PHYSICS_NUM_BP_LAYERS] = {};
 
 	private:
 	};

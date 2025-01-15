@@ -29,7 +29,6 @@ SOFTWARE.
 #pragma once
 
 #include "Common/SizeDefinitions.hpp"
-#include "Core/Resources/CommonResources.hpp"
 #include "Common/Reflection/ClassReflection.hpp"
 #include <LinaGX/Common/Defines/Format.hpp>
 

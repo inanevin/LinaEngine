@@ -39,16 +39,14 @@ namespace Lina
 		const uint cNumBodyMutexes		  = 0;
 		const uint cMaxBodyPairs		  = 1024;
 		const uint cMaxContactConstraints = 1024;
+		m_physicsSystem.Init(cMaxBodies, cNumBodyMutexes, cMaxBodyPairs, cMaxContactConstraints, m_bpLayerInterface, m_objectBPLayerFilter, m_layerFilter);
 	};
 
 	PhysicsWorld::~PhysicsWorld()
 	{
 	}
-	void PhysicsWorld::Simulate()
-	{
-	}
 
-	void PhysicsWorld::WaitForSimulation()
+	void PhysicsWorld::Simulate()
 	{
 	}
 

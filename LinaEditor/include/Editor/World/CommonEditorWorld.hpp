@@ -28,7 +28,6 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/Resources/CommonResources.hpp"
 #include "Common/Reflection/ClassReflection.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/Resource/Model.hpp"

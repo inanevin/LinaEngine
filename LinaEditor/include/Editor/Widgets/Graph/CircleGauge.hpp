@@ -29,7 +29,6 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
-#include "Core/Resources/CommonResources.hpp"
 
 namespace Lina
 {

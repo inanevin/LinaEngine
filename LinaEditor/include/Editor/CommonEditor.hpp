@@ -28,8 +28,6 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/Resources/CommonResources.hpp"
-
 namespace Lina::Editor
 {
 

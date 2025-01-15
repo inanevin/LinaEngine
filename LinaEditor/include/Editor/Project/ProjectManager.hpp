@@ -28,7 +28,7 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/Resources/CommonResources.hpp"
+#include "Common/Data/HashSet.hpp"
 #include "Core/System/PluginInterface.hpp"
 
 namespace LinaGX
@@ -44,6 +44,7 @@ namespace Lina
 	struct TextureAtlasImage;
 	class Widget;
 	class Plugin;
+	class Resource;
 } // namespace Lina
 
 namespace Lina::Editor
