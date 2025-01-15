@@ -122,17 +122,16 @@ namespace Lina::Editor
 		Editor*				m_editor			= nullptr;
 		ResourceManagerV2*	m_resourceManagerV2 = nullptr;
 		LinaGX::Instance*	m_lgx				= nullptr;
-		ResourceUploadQueue m_uploadQueue;
-		Vector2ui			m_size	 = Vector2ui::Zero;
-		Vector2ui			m_rtSize = Vector2ui::Zero;
-		PerFrameData		m_pfd[FRAMES_IN_FLIGHT];
-		LinaGX::Window*		m_window		= nullptr;
-		uint8				m_swapchain		= 0;
-		bool				m_isVisible		= false;
-		RenderPass			m_guiPass		= {};
-		RenderPass			m_swapchainPass = {};
-		LinaVG::Drawer		m_lvgDrawer;
-		WidgetManager		m_widgetManager;
+		Vector2ui			m_size				= Vector2ui::Zero;
+		Vector2ui			m_rtSize			= Vector2ui::Zero;
+		LinaGX::Window*		m_window			= nullptr;
+		uint8				m_swapchain			= 0;
+		bool				m_isVisible			= false;
+		RenderPass			m_guiPass			= {};
+		RenderPass			m_swapchainPass		= {};
+		LinaVG::Drawer		m_lvgDrawer			= {};
+		WidgetManager		m_widgetManager		= {};
+		ResourceUploadQueue m_uploadQueue		= {};
 
 		Shader*			m_guiDefault			  = nullptr;
 		Shader*			m_guiGlitch				  = nullptr;
@@ -144,9 +143,10 @@ namespace Lina::Editor
 		Shader*			m_guiSwapchain			  = nullptr;
 		TextureSampler* m_swapchainTextureSampler = nullptr;
 
-		Draw  m_cpuDraw	   = {};
-		Draw  m_gpuDraw	   = {};
-		Color m_clearColor = Color::Purple;
+		PerFrameData m_pfd[FRAMES_IN_FLIGHT];
+		Draw		 m_cpuDraw	  = {};
+		Draw		 m_gpuDraw	  = {};
+		Color		 m_clearColor = Color::Purple;
 	};
 
 } // namespace Lina::Editor
