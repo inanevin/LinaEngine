@@ -36,58 +36,58 @@ SOFTWARE.
 
 namespace
 {
-// Callback for traces, connect this to your own trace function if you have one
-    static void TraceImpl(const char *inFMT, ...)
-    {
-        va_list args;
-        va_start(args, inFMT);
+	// Callback for traces, connect this to your own trace function if you have one
+	static void TraceImpl(const char* inFMT, ...)
+	{
+		va_list args;
+		va_start(args, inFMT);
 
-        // Use vsnprintf to safely format the string into a buffer.
-        char buffer[4096]; // Adjust buffer size as needed.
-        vsnprintf(buffer, sizeof(buffer), inFMT, args);
+		// Use vsnprintf to safely format the string into a buffer.
+		char buffer[4096]; // Adjust buffer size as needed.
+		vsnprintf(buffer, sizeof(buffer), inFMT, args);
 
-        // Convert buffer to std::string for regex replacement.
-        std::string formattedMessage(buffer);
+		// Convert buffer to std::string for regex replacement.
+		std::string formattedMessage(buffer);
 
-        // Escape curly braces by replacing `{` with `{{` and `}` with `}}`.
-        formattedMessage = std::regex_replace(formattedMessage, std::regex("\\{"), "{{");
-        formattedMessage = std::regex_replace(formattedMessage, std::regex("\\}"), "}}");
+		// Escape curly braces by replacing `{` with `{{` and `}` with `}}`.
+		formattedMessage = std::regex_replace(formattedMessage, std::regex("\\{"), "{{");
+		formattedMessage = std::regex_replace(formattedMessage, std::regex("\\}"), "}}");
 
-        // Pass the formatted and sanitized message to LINA_ERR.
-        LINA_INFO(formattedMessage.c_str());
+		// Pass the formatted and sanitized message to LINA_ERR.
+		LINA_INFO(formattedMessage.c_str());
 
-        va_end(args);
-    }
+		va_end(args);
+	}
 
 #ifdef JPH_ENABLE_ASSERTS
 
-// Callback for asserts, connect this to your own assert handler if you have one
-static bool AssertFailedImpl(const char *inExpression, const char *inMessage, const char *inFile, uint inLine)
-{
-    LINA_ASSERT(false, inExpression);
-    return true;
-};
+	// Callback for asserts, connect this to your own assert handler if you have one
+	static bool AssertFailedImpl(const char* inExpression, const char* inMessage, const char* inFile, uint inLine)
+	{
+		LINA_ASSERT(false, inExpression);
+		return true;
+	};
 
 #endif // JPH_ENABLE_ASSERTS
 
-}
+} // namespace
 namespace Lina
 {
 
-    void PhysicsBackend::Initialize()
-    {
-        JPH::RegisterDefaultAllocator();
-        JPH::Trace = TraceImpl;
-        JPH_IF_ENABLE_ASSERTS(JPH::AssertFailed = AssertFailedImpl;)
-        JPH::Factory::sInstance = new JPH::Factory();
-        JPH::RegisterTypes();
-    }
+	void PhysicsBackend::Initialize()
+	{
+		JPH::RegisterDefaultAllocator();
+		JPH::Trace = TraceImpl;
+		JPH_IF_ENABLE_ASSERTS(JPH::AssertFailed = AssertFailedImpl;)
+		JPH::Factory::sInstance = new JPH::Factory();
+		JPH::RegisterTypes();
+	}
 
-    void PhysicsBackend::Shutdown()
-    {
-        JPH::UnregisterTypes();
-        delete JPH::Factory::sInstance;
-        JPH::Factory::sInstance = nullptr;
-    }
+	void PhysicsBackend::Shutdown()
+	{
+		JPH::UnregisterTypes();
+		delete JPH::Factory::sInstance;
+		JPH::Factory::sInstance = nullptr;
+	}
 
 } // namespace Lina
