@@ -27,7 +27,7 @@
 # SOFTWARE.
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.10...3.31)
 project(GamePlugin)
 
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;DebugFAST;DebugASAN;DebugProfile;" CACHE STRING "" FORCE)

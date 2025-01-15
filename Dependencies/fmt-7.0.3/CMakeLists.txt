@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1.0)
+cmake_minimum_required (VERSION 3.10...3.31)
 
 # Use newer policies if available, up to most recent tested version of CMake.
 if(${CMAKE_VERSION} VERSION_LESS 3.11)

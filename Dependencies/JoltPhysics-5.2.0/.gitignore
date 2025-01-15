@@ -1,0 +1,8 @@
+.vs
+.vscode
+.DS_Store
+/profile_chart_*.html
+/stats*.html
+/snapshot.bin
+/*.jor
+/detlog.txt

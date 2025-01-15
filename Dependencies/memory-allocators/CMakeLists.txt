@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.10...3.31)
 project (memory-allocators CXX)
 
 set(HEADERS src/Allocator.cpp
