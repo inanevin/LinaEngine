@@ -111,11 +111,11 @@ namespace Lina
 		{
 			return m_exitReason;
 		}
-        
-        inline PhysicsBackend& GetPhysicsBackend()
-        {
-            return m_physicsBackend;
-        }
+
+		inline PhysicsBackend& GetPhysicsBackend()
+		{
+			return m_physicsBackend;
+		}
 
 	private:
 		void Render();
@@ -133,7 +133,7 @@ namespace Lina
 		GUIBackend				 m_guiBackend;
 		GfxContext				 m_gfxContext;
 		String					 m_exitReason = "";
-        PhysicsBackend m_physicsBackend;
+		PhysicsBackend			 m_physicsBackend;
 
 		// Time
 		int64 m_frameCapAccumulator = 0;

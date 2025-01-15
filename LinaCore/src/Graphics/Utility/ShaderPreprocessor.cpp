@@ -541,9 +541,9 @@ namespace Lina
 		if (str.compare("LINA_TARGET_LDR") == 0)
 			return LinaGX::Format::R8G8B8A8_SRGB;
 
-        if(str.compare("LINA_TARGET_D32") == 0)
-            return LinaGX::Format::D32_SFLOAT;
-        
+		if (str.compare("LINA_TARGET_D32") == 0)
+			return LinaGX::Format::D32_SFLOAT;
+
 		if (str.compare("LINA_TARGET_LDR_MS") == 0)
 		{
 			isMSAA = true;
@@ -607,7 +607,7 @@ namespace Lina
 			.blendAlphaOp		 = LinaGX::BlendOp::Add,
 			.depthTest			 = true,
 			.depthWrite			 = true,
-            .depthFormat		 = LinaGX::Format::UNDEFINED,
+			.depthFormat		 = LinaGX::Format::UNDEFINED,
 			.targets			 = {},
 			.depthOp			 = LinaGX::CompareOp::Less,
 			.cullMode			 = LinaGX::CullMode::Back,
@@ -673,16 +673,15 @@ namespace Lina
 					ApplyBlending(variant, GetBlendModeFromStr(lineValue));
 				}
 
-                if(line.find("#depth_target") != String::npos)
-                {
-                    bool isMSAA = false;
-                    variant.depthFormat = GetTargetFromStr(lineValue, isMSAA);
-                }
-                else if (line.find("#depth") != String::npos)
-                {
-                    ApplyDepth(variant, GetDepthTestingFromStr(lineValue));
-                }
-                    
+				if (line.find("#depth_target") != String::npos)
+				{
+					bool isMSAA			= false;
+					variant.depthFormat = GetTargetFromStr(lineValue, isMSAA);
+				}
+				else if (line.find("#depth") != String::npos)
+				{
+					ApplyDepth(variant, GetDepthTestingFromStr(lineValue));
+				}
 
 				if (line.find("#target") != String::npos)
 				{

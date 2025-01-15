@@ -62,11 +62,11 @@ namespace Lina
 			ic->GetFlags().Set(WF_POS_ALIGN_Y);
 			ic->SetAlignedPos(Vector2(1.0f, 0.5f));
 			ic->SetAnchorY(Anchor::Center);
-			ic->GetProps().icon		 = m_itemData.headerIcon;
-			ic->GetProps().color	 = m_itemData.headerIconColor;
-            ic->GetProps().dynamicSizeScale = 0.8f;
-            ic->GetProps().dynamicSizeToParent = true;
-			m_headerIcon			 = ic;
+			ic->GetProps().icon				   = m_itemData.headerIcon;
+			ic->GetProps().color			   = m_itemData.headerIconColor;
+			ic->GetProps().dynamicSizeScale	   = 0.8f;
+			ic->GetProps().dynamicSizeToParent = true;
+			m_headerIcon					   = ic;
 			AddChild(ic);
 		}
 		Text* txt = m_manager->Allocate<Text>("Text");
@@ -300,7 +300,7 @@ namespace Lina
 
 		popup->SetSizeX(Math::Max(Theme::GetDef().baseItemHeight * 8, (maxTextSize + popup->GetWidgetProps().childMargins.left + popup->GetWidgetProps().childMargins.right) * 1.25f));
 
-        const float windowHeight = m_manager->GetSize().y;
+		const float windowHeight = m_manager->GetSize().y;
 
 		if (pos.y + totalHeight > windowHeight)
 			popup->SetPosY(windowHeight - totalHeight - 10);

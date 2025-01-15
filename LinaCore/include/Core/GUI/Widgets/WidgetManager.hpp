@@ -94,9 +94,9 @@ namespace Lina
 		void	OnFocus(bool gainedFocus);
 		void	OnHoverBegin();
 		void	OnHoverEnd();
-        float GetScalingFactor() const;
-        Vector2 GetMousePosition() const;
-        
+		float	GetScalingFactor() const;
+		Vector2 GetMousePosition() const;
+
 		inline Widget* GetRoot() const
 		{
 			return m_rootWidget;
@@ -162,11 +162,11 @@ namespace Lina
 		{
 			m_cursorOverride = cursor;
 		}
-        
-        inline const Vector2& GetSize() const
-        {
-            return m_size;
-        }
+
+		inline const Vector2& GetSize() const
+		{
+			return m_size;
+		}
 
 		bool		PassMousePos(Widget* widget, const Vector2& pos);
 		void		PassCalculateSize(Widget* w, float delta);
@@ -199,7 +199,7 @@ namespace Lina
 		}
 
 	private:
-        Vector2 m_size = Vector2::Zero;
+		Vector2					m_size	 = Vector2::Zero;
 		LinaGX::Window*			m_window = nullptr;
 		LinaVG::Drawer*			m_lvg	 = nullptr;
 		Vector<Widget*>			m_controlsOwners;

@@ -38,14 +38,14 @@ namespace Lina
 
 #ifdef LINA_DEBUG
 #define DEBUG_LABEL_BEGIN(Stream, LABEL)                                                                                                                                                                                                                           \
-    {                                                                                                                                                                                                                                                              \
-        LinaGX::CMDDebugBeginLabel* debug = Stream->AddCommand<LinaGX::CMDDebugBeginLabel>();                                                                                                                                                                      \
-        debug->label                      = LABEL;                                                                                                                                                                                                                 \
-    }
+	{                                                                                                                                                                                                                                                              \
+		LinaGX::CMDDebugBeginLabel* debug = Stream->AddCommand<LinaGX::CMDDebugBeginLabel>();                                                                                                                                                                      \
+		debug->label					  = LABEL;                                                                                                                                                                                                                 \
+	}
 #define DEBUG_LABEL_END(Stream)                                                                                                                                                                                                                                    \
-    {                                                                                                                                                                                                                                                              \
-        Stream->AddCommand<LinaGX::CMDDebugEndLabel>();                                                                                                                                                                                                            \
-    }
+	{                                                                                                                                                                                                                                                              \
+		Stream->AddCommand<LinaGX::CMDDebugEndLabel>();                                                                                                                                                                                                            \
+	}
 #else
 #define DEBUG_LABEL_BEGIN(Stream, LABEL)
 #define DEBUG_LABEL_END(Stream)

@@ -129,23 +129,23 @@ namespace Lina
 		{
 			return m_gpuData.drawCalls;
 		}
-        
-        inline const Vector<InstancedDraw>& GetDrawCallsCPU() const
-        {
-            return m_cpuData.drawCalls;
-        }
-        
-        inline void SetSize(const Vector2ui& sz)
-        {
-            m_size = sz;
-        }
+
+		inline const Vector<InstancedDraw>& GetDrawCallsCPU() const
+		{
+			return m_cpuData.drawCalls;
+		}
+
+		inline void SetSize(const Vector2ui& sz)
+		{
+			m_size = sz;
+		}
 
 	private:
-		View					  m_view   = {};
+		View					  m_view = {};
 		PerFrameData			  m_pfd[FRAMES_IN_FLIGHT];
 		HashMap<StringID, uint32> m_bufferIndices;
 		RenderingData			  m_gpuData = {};
 		RenderingData			  m_cpuData = {};
-        Vector2ui m_size = {};
+		Vector2ui				  m_size	= {};
 	};
 } // namespace Lina

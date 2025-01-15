@@ -203,7 +203,7 @@ namespace Lina
 		{
 			Vector2				 size = m_rect.GetEnd() - m_rect.pos;
 			LinaVG::StyleOptions opts;
-            opts.aaEnabled = m_widgetProps.aaEnabled;
+			opts.aaEnabled					  = m_widgetProps.aaEnabled;
 			opts.outlineOptions.thickness	  = m_widgetProps.outlineThickness;
 			opts.outlineOptions.drawDirection = m_widgetProps.outlineIsInner ? LinaVG::OutlineDrawDirection::Inwards : LinaVG::OutlineDrawDirection::Outwards;
 
@@ -301,7 +301,7 @@ namespace Lina
 				{
 					const Vector2 ratio	 = m_rect.size / textureSize;
 					const float	  aspect = m_rect.size.x / m_rect.size.y;
-                    textureTiling = ratio * m_widgetProps.textureTiling;
+					textureTiling		 = ratio * m_widgetProps.textureTiling;
 				}
 
 				opts.textureTilingAndOffset.x = textureTiling.x;
@@ -409,8 +409,8 @@ namespace Lina
 		stream << colorBackgroundDirection;
 		stream << textureTiling;
 		stream << onlyRound;
-        stream << childrenClipOffset;
-        stream << aaEnabled;
+		stream << childrenClipOffset;
+		stream << aaEnabled;
 	}
 
 	void WidgetProps::LoadFromStream(IStream& stream)
@@ -440,7 +440,7 @@ namespace Lina
 		stream >> textureTiling;
 		stream >> onlyRound;
 		stream >> childrenClipOffset;
-        stream >> aaEnabled;
+		stream >> aaEnabled;
 	}
 
 	void Widget::SaveToStream(OStream& stream) const
@@ -454,7 +454,7 @@ namespace Lina
 		stream << m_alignedSize;
 		stream << m_fixedSize;
 		stream << m_anchorX << m_anchorY;
-        
+
 		const uint32 childSz = static_cast<uint32>(m_children.size());
 		stream << childSz;
 		for (uint32 i = 0; i < childSz; i++)
@@ -551,9 +551,9 @@ namespace Lina
 			return;
 
 		LinaVG::TextOptions textOpts;
-        const float scaling = m_manager->GetScalingFactor();
-        textOpts.font		   = m_manager->GetDefaultFont()->GetFont(scaling);
-		const Vector2 textSize = m_lvg->CalculateTextSize(tooltip.c_str(), textOpts);
+		const float			scaling = m_manager->GetScalingFactor();
+		textOpts.font				= m_manager->GetDefaultFont()->GetFont(scaling);
+		const Vector2 textSize		= m_lvg->CalculateTextSize(tooltip.c_str(), textOpts);
 
 		const Rect tooltipRect = Rect(mp + Vector2(10, 10), textSize + Vector2(Theme::GetDef().baseIndent * 2.0f, Theme::GetDef().baseIndent));
 
@@ -578,7 +578,7 @@ namespace Lina
 			m_isHovered = false;
 			return;
 		}
-        
+
 		auto*		foregroundRoot	= m_manager->GetForegroundRoot();
 		const auto& foregroundItems = foregroundRoot->GetChildren();
 
@@ -704,28 +704,30 @@ namespace Lina
 	{
 		if (m_widgetProps.clipChildren)
 			m_manager->UnsetClip();
-    }
+	}
 
-    void Widget::PropagateCBOnEditStarted() {
-        if(m_callbacks.onEditStarted)
-            m_callbacks.onEditStarted();
-        else if(m_parent)
-            m_parent->PropagateCBOnEditStarted();
-    }
-    
-    void Widget::PropagateCBOnEdited() {
-        if(m_callbacks.onEdited)
-            m_callbacks.onEdited();
-        else if(m_parent)
-            m_parent->PropagateCBOnEdited();
-    }
-    
-    void Widget::PropagateCBOnEditEnded() {
-        if(m_callbacks.onEditEnded)
-            m_callbacks.onEditEnded();
-        else if(m_parent)
-            m_parent->PropagateCBOnEditEnded();
-    }
+	void Widget::PropagateCBOnEditStarted()
+	{
+		if (m_callbacks.onEditStarted)
+			m_callbacks.onEditStarted();
+		else if (m_parent)
+			m_parent->PropagateCBOnEditStarted();
+	}
 
+	void Widget::PropagateCBOnEdited()
+	{
+		if (m_callbacks.onEdited)
+			m_callbacks.onEdited();
+		else if (m_parent)
+			m_parent->PropagateCBOnEdited();
+	}
+
+	void Widget::PropagateCBOnEditEnded()
+	{
+		if (m_callbacks.onEditEnded)
+			m_callbacks.onEditEnded();
+		else if (m_parent)
+			m_parent->PropagateCBOnEditEnded();
+	}
 
 } // namespace Lina

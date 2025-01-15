@@ -65,7 +65,6 @@ namespace Lina
 #define MAX_GUI_MATERIALS 100
 #define MAX_OBJECTS		  256
 
-
 	WorldRenderer::WorldRenderer(GfxContext* context, ResourceManagerV2* rm, EntityWorld* world, const Vector2ui& viewSize, const String& name, Buffer* snapshotBuffers, bool standaloneSubmit)
 	{
 		m_name					 = name.empty() ? "WorldRenderer" : name;
@@ -103,7 +102,7 @@ namespace Lina
 			data.argumentsBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUDrawArguments) * 1000, m_name + " InstanceDataBuffer");
 			data.entityBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUEntity) * 1000, m_name + " EntityBuffer");
 			data.boneBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(Matrix4) * 1000, m_name + " BoneBuffer");
-            data.lightBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPULight) * 100, m_name + " LightBuffer");
+			data.lightBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPULight) * 100, m_name + " LightBuffer");
 
 			data.line3DVtxBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, sizeof(Line3DVertex) * 10000, m_name + " Line3DVertexBuffer");
 			data.lvgVtxBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, sizeof(LinaVG::Vertex) * 2000, m_name + " LVGVertexBuffer");
@@ -149,12 +148,12 @@ namespace Lina
 				.binding   = 3,
 				.buffers   = {data.boneBuffer.GetGPUResource()},
 			});
-            
-            m_lgx->DescriptorUpdateBuffer({
-                .setHandle = setFw,
-                .binding   = 4,
-                .buffers   = {data.lightBuffer.GetGPUResource()},
-            });
+
+			m_lgx->DescriptorUpdateBuffer({
+				.setHandle = setFw,
+				.binding   = 4,
+				.buffers   = {data.lightBuffer.GetGPUResource()},
+			});
 		}
 
 		m_guiBackend.Initialize(m_resourceManagerV2);
@@ -179,7 +178,7 @@ namespace Lina
 
 			data.argumentsBuffer.Destroy();
 			data.entityBuffer.Destroy();
-            data.boneBuffer.Destroy();
+			data.boneBuffer.Destroy();
 			data.lightBuffer.Destroy();
 
 			data.line3DVtxBuffer.Destroy();
@@ -374,10 +373,10 @@ namespace Lina
 				.ident	= ident,
 			});
 		}
-        else
-        {
-            m_cpuDrawData.entities.at(idx).entity = e;
-        }
+		else
+		{
+			m_cpuDrawData.entities.at(idx).entity = e;
+		}
 
 		return idx;
 	}
@@ -435,127 +434,126 @@ namespace Lina
 		m_cpuDrawData.line3DIndices.push_back(sz);
 	}
 
-    void WorldRenderer::DrawWireframeCube3D(const Vector3 &center, const Vector3 &extents, float thickness, const ColorGrad &color)
-    {
-        const Vector3 p0 = center - extents * 0.5f;
-        const Vector3 p1 = p0 + Vector3(0, extents.y, 0);
-        const Vector3 p2 = p1 + Vector3(0, 0, extents.z);
-        const Vector3 p3 = p2 + Vector3(0, -extents.y, 0);
-        DrawLine3D(p0, p1, thickness, color);
-        DrawLine3D(p1, p2, thickness, color);
-        DrawLine3D(p2, p3, thickness, color);
-        DrawLine3D(p0, p3, thickness, color);
-        
-        const Vector3 pr0 = p0 + Vector3(extents.x, 0, 0);
-        const Vector3 pr1 = p1 + Vector3(extents.x, 0, 0);
-        const Vector3 pr2 = p2 + Vector3(extents.x, 0, 0);
-        const Vector3 pr3 = p3 + Vector3(extents.x, 0, 0);
-        DrawLine3D(pr0, pr1, thickness, color);
-        DrawLine3D(pr1, pr2, thickness, color);
-        DrawLine3D(pr2, pr3, thickness, color);
-        DrawLine3D(pr0, pr3, thickness, color);
-        
-        DrawLine3D(p0, pr0, thickness, color);
-        DrawLine3D(p1, pr1, thickness, color);
-        
-        DrawLine3D(p2, pr2, thickness, color);
-        DrawLine3D(p3, pr3, thickness, color);
-    }
+	void WorldRenderer::DrawWireframeCube3D(const Vector3& center, const Vector3& extents, float thickness, const ColorGrad& color)
+	{
+		const Vector3 p0 = center - extents * 0.5f;
+		const Vector3 p1 = p0 + Vector3(0, extents.y, 0);
+		const Vector3 p2 = p1 + Vector3(0, 0, extents.z);
+		const Vector3 p3 = p2 + Vector3(0, -extents.y, 0);
+		DrawLine3D(p0, p1, thickness, color);
+		DrawLine3D(p1, p2, thickness, color);
+		DrawLine3D(p2, p3, thickness, color);
+		DrawLine3D(p0, p3, thickness, color);
 
-    void WorldRenderer::DrawWireSphere3D(const Vector3 &center, float radius, float thickness, const ColorGrad &color)
-    {
-        const int segments = 32; 
-        const float deltaAngle = glm::two_pi<float>() / segments;
+		const Vector3 pr0 = p0 + Vector3(extents.x, 0, 0);
+		const Vector3 pr1 = p1 + Vector3(extents.x, 0, 0);
+		const Vector3 pr2 = p2 + Vector3(extents.x, 0, 0);
+		const Vector3 pr3 = p3 + Vector3(extents.x, 0, 0);
+		DrawLine3D(pr0, pr1, thickness, color);
+		DrawLine3D(pr1, pr2, thickness, color);
+		DrawLine3D(pr2, pr3, thickness, color);
+		DrawLine3D(pr0, pr3, thickness, color);
 
-        // Draw circles in the XZ plane (latitude).
-        for (int i = 0; i < segments; ++i)
-        {
-            float theta0 = i * deltaAngle;
-            float theta1 = (i + 1) * deltaAngle;
+		DrawLine3D(p0, pr0, thickness, color);
+		DrawLine3D(p1, pr1, thickness, color);
 
-            Vector3 p0 = center + Vector3(radius * cos(theta0), 0.0f, radius * sin(theta0));
-            Vector3 p1 = center + Vector3(radius * cos(theta1), 0.0f, radius * sin(theta1));
+		DrawLine3D(p2, pr2, thickness, color);
+		DrawLine3D(p3, pr3, thickness, color);
+	}
 
-            DrawLine3D(p0, p1, thickness, color);
-        }
+	void WorldRenderer::DrawWireSphere3D(const Vector3& center, float radius, float thickness, const ColorGrad& color)
+	{
+		const int	segments   = 32;
+		const float deltaAngle = glm::two_pi<float>() / segments;
 
-        // Draw circles in the XY plane (longitude).
-        for (int i = 0; i < segments; ++i)
-        {
-            float theta0 = i * deltaAngle;
-            float theta1 = (i + 1) * deltaAngle;
+		// Draw circles in the XZ plane (latitude).
+		for (int i = 0; i < segments; ++i)
+		{
+			float theta0 = i * deltaAngle;
+			float theta1 = (i + 1) * deltaAngle;
 
-            Vector3 p0 = center + Vector3(radius * cos(theta0), radius * sin(theta0), 0.0f);
-            Vector3 p1 = center + Vector3(radius * cos(theta1), radius * sin(theta1), 0.0f);
+			Vector3 p0 = center + Vector3(radius * cos(theta0), 0.0f, radius * sin(theta0));
+			Vector3 p1 = center + Vector3(radius * cos(theta1), 0.0f, radius * sin(theta1));
 
-            DrawLine3D(p0, p1, thickness, color);
-        }
+			DrawLine3D(p0, p1, thickness, color);
+		}
 
-        // Draw circles in the YZ plane (longitude).
-        for (int i = 0; i < segments; ++i)
-        {
-            float theta0 = i * deltaAngle;
-            float theta1 = (i + 1) * deltaAngle;
+		// Draw circles in the XY plane (longitude).
+		for (int i = 0; i < segments; ++i)
+		{
+			float theta0 = i * deltaAngle;
+			float theta1 = (i + 1) * deltaAngle;
 
-            Vector3 p0 = center + Vector3(0.0f, radius * cos(theta0), radius * sin(theta0));
-            Vector3 p1 = center + Vector3(0.0f, radius * cos(theta1), radius * sin(theta1));
+			Vector3 p0 = center + Vector3(radius * cos(theta0), radius * sin(theta0), 0.0f);
+			Vector3 p1 = center + Vector3(radius * cos(theta1), radius * sin(theta1), 0.0f);
 
-            DrawLine3D(p0, p1, thickness, color);
-        }
-    }
+			DrawLine3D(p0, p1, thickness, color);
+		}
 
-    void WorldRenderer::DrawWireCone3D(const Vector3 &top, const Vector3 &dir, float length, const float radius, float thickness, const ColorGrad& color, bool drawLines)
-    {
-        const int segments = 36; // Number of segments for the base circle.
-        const float deltaAngle = glm::two_pi<float>() / segments;
+		// Draw circles in the YZ plane (longitude).
+		for (int i = 0; i < segments; ++i)
+		{
+			float theta0 = i * deltaAngle;
+			float theta1 = (i + 1) * deltaAngle;
 
-        // Normalize the direction vector.
-        Vector3 direction = glm::normalize(dir);
+			Vector3 p0 = center + Vector3(0.0f, radius * cos(theta0), radius * sin(theta0));
+			Vector3 p1 = center + Vector3(0.0f, radius * cos(theta1), radius * sin(theta1));
 
-        // Calculate the center of the base circle.
-        Vector3 baseCenter = top + direction * length;
+			DrawLine3D(p0, p1, thickness, color);
+		}
+	}
 
-        // Create two orthogonal vectors perpendicular to the direction vector.
-        Vector3 up = (fabs(direction.y) < 0.99f) ? Vector3(0.0f, 1.0f, 0.0f) : Vector3(1.0f, 0.0f, 0.0f);
-        Vector3 right = glm::normalize(glm::cross(direction, up));
-        Vector3 forward = glm::normalize(glm::cross(right, direction));
+	void WorldRenderer::DrawWireCone3D(const Vector3& top, const Vector3& dir, float length, const float radius, float thickness, const ColorGrad& color, bool drawLines)
+	{
+		const int	segments   = 36; // Number of segments for the base circle.
+		const float deltaAngle = glm::two_pi<float>() / segments;
 
-        // Draw the base circle.
-        Vector<Vector3> circlePoints;
-        Vector<Vector3> linePoints;
-        
-        for (int i = 0; i < segments; ++i)
-        {
-            float angle = i * deltaAngle;
-            Vector3 pointOnCircle = baseCenter + right * (radius * cos(angle)) + forward * (radius * sin(angle));
-            circlePoints.push_back(pointOnCircle);
-            
-            if(i % 8 == 0)
-                linePoints.push_back(pointOnCircle);
+		// Normalize the direction vector.
+		Vector3 direction = glm::normalize(dir);
 
-            // Draw a line segment of the circle.
-            if (i > 0)
-                DrawLine3D(circlePoints[i - 1], circlePoints[i], thickness, color);
-        }
+		// Calculate the center of the base circle.
+		Vector3 baseCenter = top + direction * length;
 
-        // Connect the last segment to close the circle.
-        DrawLine3D(circlePoints.back(), circlePoints[0], thickness, color);
+		// Create two orthogonal vectors perpendicular to the direction vector.
+		Vector3 up		= (fabs(direction.y) < 0.99f) ? Vector3(0.0f, 1.0f, 0.0f) : Vector3(1.0f, 0.0f, 0.0f);
+		Vector3 right	= glm::normalize(glm::cross(direction, up));
+		Vector3 forward = glm::normalize(glm::cross(right, direction));
 
-        if(!drawLines)
-            return;
-        
-        // Draw lines connecting the top point to the base circle.
-        for (const Vector3& point : linePoints)
-            DrawLine3D(top, point, thickness, color);
-    }
+		// Draw the base circle.
+		Vector<Vector3> circlePoints;
+		Vector<Vector3> linePoints;
+
+		for (int i = 0; i < segments; ++i)
+		{
+			float	angle		  = i * deltaAngle;
+			Vector3 pointOnCircle = baseCenter + right * (radius * cos(angle)) + forward * (radius * sin(angle));
+			circlePoints.push_back(pointOnCircle);
+
+			if (i % 8 == 0)
+				linePoints.push_back(pointOnCircle);
+
+			// Draw a line segment of the circle.
+			if (i > 0)
+				DrawLine3D(circlePoints[i - 1], circlePoints[i], thickness, color);
+		}
+
+		// Connect the last segment to close the circle.
+		DrawLine3D(circlePoints.back(), circlePoints[0], thickness, color);
+
+		if (!drawLines)
+			return;
+
+		// Draw lines connecting the top point to the base circle.
+		for (const Vector3& point : linePoints)
+			DrawLine3D(top, point, thickness, color);
+	}
 
 	void WorldRenderer::EndLine3DBatch(RenderPass& pass, uint32 pushConstantValue, uint32 shaderHandle)
 	{
-        const uint32 ic = static_cast<uint32>(m_cpuDrawData.line3DIndices.size()) - m_currentLine3DStartIndex;
-        if(ic == 0)
-            return;
-        
-        
+		const uint32 ic = static_cast<uint32>(m_cpuDrawData.line3DIndices.size()) - m_currentLine3DStartIndex;
+		if (ic == 0)
+			return;
+
 		const RenderPass::InstancedDraw draw = {
 			.vertexBuffers = {&m_pfd[0].line3DVtxBuffer, &m_pfd[1].line3DVtxBuffer},
 			.indexBuffers  = {&m_pfd[0].line3DIdxBuffer, &m_pfd[1].line3DIdxBuffer},
@@ -581,11 +579,11 @@ namespace Lina
 	{
 		m_lvgDrawer.FlushBuffers();
 		m_lvgDrawer.ResetFrame();
-        
-        const uint32 ic = static_cast<uint32>(m_cpuDrawData.lvgIndices.size()) - m_currentLvgStartIndex;
-        
-        if(ic == 0)
-            return;
+
+		const uint32 ic = static_cast<uint32>(m_cpuDrawData.lvgIndices.size()) - m_currentLvgStartIndex;
+
+		if (ic == 0)
+			return;
 
 		const RenderPass::InstancedDraw draw = {
 			.vertexBuffers = {&m_pfd[0].lvgVtxBuffer, &m_pfd[1].lvgVtxBuffer},
@@ -624,8 +622,8 @@ namespace Lina
 			return;
 
 		m_size = newSize;
-        m_forwardPass.SetSize(m_size);
-        m_deferredPass.SetSize(m_size);
+		m_forwardPass.SetSize(m_size);
+		m_deferredPass.SetSize(m_size);
 		DestroySizeRelativeResources();
 		CreateSizeRelativeResources();
 	}
@@ -655,66 +653,65 @@ namespace Lina
 
 			return false;
 		});
-        
-        
-        m_compLights.resize(0);
-        
-        m_world->GetCache<CompLight>()->GetBucket().View([&](CompLight* light, uint32 idx) -> bool {
-            if(!light->GetEntity()->GetVisible())
-                return false;
-            
-            m_compLights.push_back(light);
-        });
-        
-        const size_t lightsSz = m_compLights.size();
-        m_cpuDrawData.lights.resize(lightsSz);
-        
-        for(size_t i = 0; i < lightsSz; i++)
-        {
-            GPULight& light = m_cpuDrawData.lights[i];
-            CompLight* compLight = m_compLights.at(i);
-            Entity* e = compLight->GetEntity();
-            
-            const Color& color = compLight->GetColor();
-            const float intensity = compLight->GetIntensity();
-            const LightType type = compLight->GetType();
-            const float cutoff = compLight->GetCutoff();
-            const float outerCutoff = compLight->GetOuterCutoff();
-            const float radius = compLight->GetRadius();
-            const float falloff = compLight->GetFalloff();
-            
-            const GPUEntity entity = {
-                .model = compLight->GetEntity()->GetTransform().ToMatrix(),
-                .position = e->GetPosition(),
-                .forward = e->GetRotation().GetForward(),
-            };
-            
-            
-            const uint32 idx = PushEntity(entity, {
-                .entityGUID = compLight->GetEntity()->GetGUID(),
-            });
-            
-            light.colorAndIntensity = Vector4(color.x, color.y, color.z, intensity);
-            light.type = static_cast<uint32>(type);
-            light.entityIndex = idx;
 
-            if(type == LightType::Directional)
-            {
-            }
-            else if(type == LightType::Point)
-            {
-                light.radius = radius;
-                light.falloff = falloff;
-            }
-            else if(type == LightType::Spot)
-            {
-                light.radius = radius;
-                light.falloff = falloff;
-                light.cutoff = Math::Cos(Math::ToRadians(cutoff));
-                light.outerCutoff = Math::Cos(Math::ToRadians(outerCutoff));
-            }
-        }
-        
+		m_compLights.resize(0);
+
+		m_world->GetCache<CompLight>()->GetBucket().View([&](CompLight* light, uint32 idx) -> bool {
+			if (!light->GetEntity()->GetVisible())
+				return false;
+
+			m_compLights.push_back(light);
+		});
+
+		const size_t lightsSz = m_compLights.size();
+		m_cpuDrawData.lights.resize(lightsSz);
+
+		for (size_t i = 0; i < lightsSz; i++)
+		{
+			GPULight&  light	 = m_cpuDrawData.lights[i];
+			CompLight* compLight = m_compLights.at(i);
+			Entity*	   e		 = compLight->GetEntity();
+
+			const Color&	color		= compLight->GetColor();
+			const float		intensity	= compLight->GetIntensity();
+			const LightType type		= compLight->GetType();
+			const float		cutoff		= compLight->GetCutoff();
+			const float		outerCutoff = compLight->GetOuterCutoff();
+			const float		radius		= compLight->GetRadius();
+			const float		falloff		= compLight->GetFalloff();
+
+			const GPUEntity entity = {
+				.model	  = compLight->GetEntity()->GetTransform().ToMatrix(),
+				.position = e->GetPosition(),
+				.forward  = e->GetRotation().GetForward(),
+			};
+
+			const uint32 idx = PushEntity(entity,
+										  {
+											  .entityGUID = compLight->GetEntity()->GetGUID(),
+										  });
+
+			light.colorAndIntensity = Vector4(color.x, color.y, color.z, intensity);
+			light.type				= static_cast<uint32>(type);
+			light.entityIndex		= idx;
+
+			if (type == LightType::Directional)
+			{
+			}
+			else if (type == LightType::Point)
+			{
+				light.radius  = radius;
+				light.falloff = falloff;
+			}
+			else if (type == LightType::Spot)
+			{
+				light.radius	  = radius;
+				light.falloff	  = falloff;
+				light.cutoff	  = Math::Cos(Math::ToRadians(cutoff));
+				light.outerCutoff = Math::Cos(Math::ToRadians(outerCutoff));
+			}
+		}
+
 		CalculateSkinning(m_skinnedModels);
 		DrawCollector::CollectCompModels(m_compModels, m_deferredPass, m_resourceManagerV2, this, m_gfxContext, {.allowedShaderTypes = {ShaderType::DeferredSurface}});
 
@@ -728,8 +725,7 @@ namespace Lina
 			m_forwardPass.AddDrawCall(lightingQuad);
 		}
 
-        
-        // Skybox.
+		// Skybox.
 		{
 			Material*			   skyMaterial = m_resourceManagerV2->GetResource<Material>(m_world->GetGfxSettings().skyMaterial);
 			Shader*				   skyShader   = m_resourceManagerV2->GetResource<Shader>(skyMaterial->GetShader());
@@ -769,8 +765,8 @@ namespace Lina
 				m_forwardPass.AddDrawCall(skyDraw);
 			}
 		}
-        
-        DrawCollector::CollectCompModels(m_compModels, m_forwardPass, m_resourceManagerV2, this, m_gfxContext, {.allowedShaderTypes = {ShaderType::ForwardSurface}});
+
+		DrawCollector::CollectCompModels(m_compModels, m_forwardPass, m_resourceManagerV2, this, m_gfxContext, {.allowedShaderTypes = {ShaderType::ForwardSurface}});
 	}
 
 	void WorldRenderer::SyncRender()
@@ -782,7 +778,7 @@ namespace Lina
 		m_cpuDrawData.lvgIndices.resize(0);
 		m_cpuDrawData.lvgVertices.resize(0);
 		m_cpuDrawData.line3DIndices.resize(0);
-        m_cpuDrawData.line3DVertices.resize(0);
+		m_cpuDrawData.line3DVertices.resize(0);
 		m_cpuDrawData.lights.resize(0);
 
 		m_deferredPass.SyncRender();
@@ -801,31 +797,30 @@ namespace Lina
 			// const Vector2ui sz		 = m_world->GetScreen().GetRenderSize();
 			// 	worldCam.Calculate(m_size);
 
-            
-            const GPUDataDeferredPass view = {
-				.view = worldCam.GetView(),
-				.proj = worldCam.GetProjection(),
-                .viewProj = worldCam.GetViewProj(),
+			const GPUDataDeferredPass view = {
+				.view	  = worldCam.GetView(),
+				.proj	  = worldCam.GetProjection(),
+				.viewProj = worldCam.GetViewProj(),
 			};
-            m_deferredPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataDeferredPass));
+			m_deferredPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataDeferredPass));
 
-            EntityWorld::GfxSettings& gfx = m_world->GetGfxSettings();
+			EntityWorld::GfxSettings& gfx = m_world->GetGfxSettings();
 
-            const GPUDataForwardPass fw = {
-                .view = worldCam.GetView(),
-                .proj = worldCam.GetProjection(),
-                .viewProj = worldCam.GetViewProj(),
-                .ambientTop = Color(gfx.ambientTop.x,gfx.ambientTop.y,gfx.ambientTop.z,gfx.ambientIntensity),
-                .ambientMid = gfx.ambientMid,
-                .ambientBot = gfx.ambientBot,
-                .gBufAlbedo              = currentFrame.gBufAlbedo->GetBindlessIndex(),
-                .gBufPositionMetallic = currentFrame.gBufPosition->GetBindlessIndex(),
-                .gBufNormalRoughness  = currentFrame.gBufNormal->GetBindlessIndex(),
-                .gBufSampler = m_gBufSampler->GetBindlessIndex(),
-                .lightCount = static_cast<uint32>(m_gpuDrawData.lights.size()),
-            };
-            
-            m_forwardPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&fw, sizeof(GPUDataForwardPass));
+			const GPUDataForwardPass fw = {
+				.view				  = worldCam.GetView(),
+				.proj				  = worldCam.GetProjection(),
+				.viewProj			  = worldCam.GetViewProj(),
+				.ambientTop			  = Color(gfx.ambientTop.x, gfx.ambientTop.y, gfx.ambientTop.z, gfx.ambientIntensity),
+				.ambientMid			  = gfx.ambientMid,
+				.ambientBot			  = gfx.ambientBot,
+				.gBufAlbedo			  = currentFrame.gBufAlbedo->GetBindlessIndex(),
+				.gBufPositionMetallic = currentFrame.gBufPosition->GetBindlessIndex(),
+				.gBufNormalRoughness  = currentFrame.gBufNormal->GetBindlessIndex(),
+				.gBufSampler		  = m_gBufSampler->GetBindlessIndex(),
+				.lightCount			  = static_cast<uint32>(m_gpuDrawData.lights.size()),
+			};
+
+			m_forwardPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&fw, sizeof(GPUDataForwardPass));
 			// const Vector3& camPos	   = worldCam.GetPosition();
 			// const Vector3& camDir	   = worldCam.GetRotation().GetForward();
 			// view.viewProj			   = view.proj * view.view;
@@ -833,11 +828,10 @@ namespace Lina
 			// view.cameraDirectionAndFar = Vector4(camDir.x, camDir.y, camDir.z, worldCam.GetZFar());
 			// view.size				   = Vector2(static_cast<float>(m_size.x), static_cast<float>(m_size.y));
 			// view.mouse				   = m_world->GetInput().GetMousePositionRatio();
-            
 		}
-        
+
 		size_t entityIdx = 0;
-        
+
 		for (const DrawEntity& de : m_gpuDrawData.entities)
 		{
 			currentFrame.entityBuffer.BufferData(entityIdx * sizeof(GPUEntity), (uint8*)&de.entity, sizeof(GPUEntity));
@@ -846,8 +840,8 @@ namespace Lina
 
 		currentFrame.argumentsBuffer.BufferData(0, (uint8*)m_gpuDrawData.arguments.data(), sizeof(GPUDrawArguments) * m_gpuDrawData.arguments.size());
 		currentFrame.boneBuffer.BufferData(0, (uint8*)m_gpuDrawData.bones.data(), sizeof(Matrix4) * m_gpuDrawData.bones.size());
-        currentFrame.lightBuffer.BufferData(0, (uint8*)m_gpuDrawData.lights.data(), sizeof(GPULight) * m_gpuDrawData.lights.size());
-        
+		currentFrame.lightBuffer.BufferData(0, (uint8*)m_gpuDrawData.lights.data(), sizeof(GPULight) * m_gpuDrawData.lights.size());
+
 		currentFrame.lvgVtxBuffer.BufferData(0, (uint8*)m_gpuDrawData.lvgVertices.data(), sizeof(LinaVG::Vertex) * m_gpuDrawData.lvgVertices.size());
 		currentFrame.lvgIdxBuffer.BufferData(0, (uint8*)m_gpuDrawData.lvgIndices.data(), sizeof(LinaVG::Index) * m_gpuDrawData.lvgIndices.size());
 		currentFrame.line3DIdxBuffer.BufferData(0, (uint8*)m_gpuDrawData.line3DIndices.data(), sizeof(uint16) * m_gpuDrawData.line3DIndices.size());
@@ -860,7 +854,7 @@ namespace Lina
 
 		m_uploadQueue.AddBufferRequest(&currentFrame.argumentsBuffer);
 		m_uploadQueue.AddBufferRequest(&currentFrame.boneBuffer);
-        m_uploadQueue.AddBufferRequest(&currentFrame.entityBuffer);
+		m_uploadQueue.AddBufferRequest(&currentFrame.entityBuffer);
 		m_uploadQueue.AddBufferRequest(&currentFrame.lightBuffer);
 
 		m_deferredPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);

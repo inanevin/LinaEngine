@@ -33,19 +33,18 @@ SOFTWARE.
 namespace Lina
 {
 
- 
-    enum PhysicsObjectLayers : uint16
-    {
-        PHYSICS_OBJ_LAYER_MOVING = 0,
-        PHYSICS_OBJ_LAYER_NONMOVING = 1,
-        PHYSICS_OBJ_LAYER_MAX = 20,
-    };
+	enum PhysicsObjectLayers : uint16
+	{
+		PHYSICS_OBJ_LAYER_MOVING	= 0,
+		PHYSICS_OBJ_LAYER_NONMOVING = 1,
+		PHYSICS_OBJ_LAYER_MAX		= 20,
+	};
 
-    enum PhysicsBroadPhaseLayers : uint16
-    {
-        PHYSICS_BP_LAYER_MOVING = 0,
-        PHYSICS_BP_LAYER_NONMOVING = 1,
-        PHYSICS_BP_LAYER_MAX = 2,
-    };
-    
+	enum PhysicsBroadPhaseLayers : uint16
+	{
+		PHYSICS_BP_LAYER_MOVING	   = 0,
+		PHYSICS_BP_LAYER_NONMOVING = 1,
+		PHYSICS_BP_LAYER_MAX	   = 2,
+	};
+
 } // namespace Lina

@@ -50,7 +50,7 @@ namespace Lina
 
 		struct Properties
 		{
-			Delegate<void()>					   onRightClick;
+			Delegate<void()> onRightClick;
 
 			Color	  colorHighlight	  = Theme::GetDef().accentPrimary1;
 			Color	  colorCaret		  = Theme::GetDef().foreground0;
@@ -93,18 +93,18 @@ namespace Lina
 			}
 		};
 
-		virtual void Construct() override;
-		virtual void Initialize() override;
-		virtual void PreTick() override;
-		virtual void Tick(float delta) override;
-		virtual void Draw() override;
-		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action) override;
-		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
-		void		 SelectAll();
-		void		 StartEditing();
-		void		 UpdateTextFromValue();
-        const String& GetValueStr() const;
-		virtual void OnGrabbedControls(bool fw, Widget* w) override
+		virtual void  Construct() override;
+		virtual void  Initialize() override;
+		virtual void  PreTick() override;
+		virtual void  Tick(float delta) override;
+		virtual void  Draw() override;
+		virtual bool  OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action) override;
+		virtual bool  OnMouse(uint32 button, LinaGX::InputAction action) override;
+		void		  SelectAll();
+		void		  StartEditing();
+		void		  UpdateTextFromValue();
+		const String& GetValueStr() const;
+		virtual void  OnGrabbedControls(bool fw, Widget* w) override
 		{
 			StartEditing();
 			SelectAll();
@@ -154,7 +154,6 @@ namespace Lina
 			}
 		}
 
-        
 		float GetValue()
 		{
 			if (m_props.valueUnsigned)

@@ -96,9 +96,8 @@ namespace Lina
 			totalHeight += c->GetFixedSizeY();
 		}
 
-        // const float height = Math::Min(m_props.maxSizeY * m_manager->GetScalingFactor(), totalHeight);
-        SetSizeY(totalHeight * m_manager->GetScalingFactor() * m_tween.GetValue());
-        
+		// const float height = Math::Min(m_props.maxSizeY * m_manager->GetScalingFactor(), totalHeight);
+		SetSizeY(totalHeight * m_manager->GetScalingFactor() * m_tween.GetValue());
 	}
 
 	void Popup::Tick(float delta)

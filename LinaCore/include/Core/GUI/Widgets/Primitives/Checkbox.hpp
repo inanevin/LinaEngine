@@ -40,7 +40,7 @@ namespace Lina
 	public:
 		struct Properties
 		{
-			bool*				 value = nullptr;
+			bool* value = nullptr;
 
 			void SaveToStream(OStream& stream) const
 			{

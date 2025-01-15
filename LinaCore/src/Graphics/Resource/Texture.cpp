@@ -132,8 +132,8 @@ namespace Lina
 				return false;
 			}
 		}
-        
-        DestroySW();
+
+		DestroySW();
 		DetermineFormat();
 
 		m_size.x = outBuffer.width;

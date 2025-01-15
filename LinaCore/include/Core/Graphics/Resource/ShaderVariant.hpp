@@ -71,7 +71,7 @@ namespace Lina
 		Vector<LinaGX::ColorComponentFlags> componentFlags		= {LinaGX::ColorComponentFlags::R, LinaGX::ColorComponentFlags::G, LinaGX::ColorComponentFlags::B, LinaGX::ColorComponentFlags::A};
 		bool								depthTest			= true;
 		bool								depthWrite			= true;
-        LinaGX::Format						depthFormat			= LinaGX::Format::UNDEFINED;
+		LinaGX::Format						depthFormat			= LinaGX::Format::UNDEFINED;
 		Vector<VariantColorTarget>			targets;
 		LinaGX::CompareOp					depthOp				= LinaGX::CompareOp::Less;
 		LinaGX::CullMode					cullMode			= LinaGX::CullMode::Back;

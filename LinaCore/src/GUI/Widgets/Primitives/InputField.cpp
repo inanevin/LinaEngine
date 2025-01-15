@@ -100,7 +100,7 @@ namespace Lina
 		if (m_middlePressed && m_props.isNumberField && !m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_MIDDLE))
 		{
 			if (m_props.valuePtr && !Math::Equals(m_valueOnMiddlePress, GetValue(), 0.001f))
-                PropagateCBOnEditEnded();
+				PropagateCBOnEditEnded();
 			m_middlePressed = false;
 		}
 
@@ -140,7 +140,7 @@ namespace Lina
 				m_lastStoredValue = INPF_VALUE_MIN;
 			}
 
-            PropagateCBOnEdited();
+			PropagateCBOnEdited();
 		}
 
 		if (!m_isEditing && m_props.valueStr)
@@ -286,7 +286,7 @@ namespace Lina
 		m_manager->GrabControls(this);
 
 		m_isEditing = true;
-        PropagateCBOnEditStarted();
+		PropagateCBOnEditStarted();
 	}
 
 	void InputField::UpdateTextFromValue()
@@ -295,10 +295,10 @@ namespace Lina
 		m_text->CalculateTextSize();
 	}
 
-    const String& InputField::GetValueStr() const
-    {
-        return m_text->GetProps().text;
-    }
+	const String& InputField::GetValueStr() const
+	{
+		return m_text->GetProps().text;
+	}
 
 	void InputField::SelectAll()
 	{
@@ -319,7 +319,7 @@ namespace Lina
 		if (m_props.valueStr && !m_props.isNumberField)
 			*m_props.valueStr = m_text->GetProps().text;
 
-        PropagateCBOnEditEnded();
+		PropagateCBOnEditEnded();
 	}
 
 	Vector2 InputField::GetPosFromCaretIndex(uint32 index)
@@ -504,7 +504,7 @@ namespace Lina
 			if (m_props.valuePtr)
 				m_valueOnMiddlePress = GetValue();
 
-            PropagateCBOnEditStarted();
+			PropagateCBOnEditStarted();
 
 			m_middlePressed = true;
 			return true;
@@ -514,7 +514,7 @@ namespace Lina
 		if (m_props.isNumberField && button == LINAGX_MOUSE_MIDDLE && action == LinaGX::InputAction::Released && m_middlePressed)
 		{
 			if (m_props.valuePtr && !Math::Equals(m_valueOnMiddlePress, GetValue(), 0.001f))
-                PropagateCBOnEditEnded();
+				PropagateCBOnEditEnded();
 
 			m_middlePressed = false;
 			return true;
@@ -534,10 +534,10 @@ namespace Lina
 		if (m_isHovered && action == LinaGX::InputAction::Repeated)
 		{
 			SelectAll();
-            
-            if(m_isPressed)
-                m_isPressed = false;
-            
+
+			if (m_isPressed)
+				m_isPressed = false;
+
 			return true;
 		}
 
@@ -586,10 +586,10 @@ namespace Lina
 				m_lastStoredValue = INPF_VALUE_MIN;
 			}
 
-            PropagateCBOnEdited();
+			PropagateCBOnEdited();
 		}
 
-        Widget::PropagateCBOnEdited();
+		Widget::PropagateCBOnEdited();
 	}
 
 	void InputField::RemoveCurrent()
@@ -614,7 +614,6 @@ namespace Lina
 			m_caretInsertPos = m_highlightStartPos = min;
 		}
 
-
 		if (m_text->GetProps().text.empty())
 			m_textOffset = 0.0f;
 
@@ -631,9 +630,8 @@ namespace Lina
 				m_lastStoredValue = INPF_VALUE_MIN;
 			}
 		}
-        
-        Widget::PropagateCBOnEdited();
 
+		Widget::PropagateCBOnEdited();
 	}
 
 	void InputField::ClampCaretInsert()

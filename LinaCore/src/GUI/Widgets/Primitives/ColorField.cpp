@@ -37,33 +37,31 @@ namespace Lina
 {
 	void ColorField::Construct()
 	{
-        GetWidgetProps().drawBackground = true;
-        GetWidgetProps().drawOrderIncrement = 1;
-      
-        Widget* bg = m_manager->Allocate<Widget>("CheckerBG");
-        bg->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-        bg->SetAlignedPos(Vector2::Zero);
-        bg->SetAlignedSize(Vector2::One);
-        bg->GetWidgetProps().drawBackground         = true;
-        bg->GetWidgetProps().colorBackground     = Color(0,0,0,1);
-        bg->GetWidgetProps().activeTextureTiling = true;
-        bg->GetWidgetProps().textureTiling = Vector2(3.0f, 3.0f);
-        bg->GetWidgetProps().outlineThickness     = 0.0f;
-        bg->GetWidgetProps().rounding             = 0.0f;
-        bg->GetWidgetProps().drawOrderIncrement = -1;
-        AddChild(bg);
-        m_bg = bg;
-        
+		GetWidgetProps().drawBackground		= true;
+		GetWidgetProps().drawOrderIncrement = 1;
+
+		Widget* bg = m_manager->Allocate<Widget>("CheckerBG");
+		bg->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		bg->SetAlignedPos(Vector2::Zero);
+		bg->SetAlignedSize(Vector2::One);
+		bg->GetWidgetProps().drawBackground		 = true;
+		bg->GetWidgetProps().colorBackground	 = Color(0, 0, 0, 1);
+		bg->GetWidgetProps().activeTextureTiling = true;
+		bg->GetWidgetProps().textureTiling		 = Vector2(3.0f, 3.0f);
+		bg->GetWidgetProps().outlineThickness	 = 0.0f;
+		bg->GetWidgetProps().rounding			 = 0.0f;
+		bg->GetWidgetProps().drawOrderIncrement	 = -1;
+		AddChild(bg);
+		m_bg = bg;
 	}
 
 	void ColorField::Initialize()
 	{
 		Widget::Initialize();
-        return;
-        
+		return;
+
 		if (m_props.backgroundTexture != nullptr)
 		{
-			
 		}
 	}
 
@@ -71,9 +69,9 @@ namespace Lina
 	{
 		if (m_props.backgroundTexture)
 		{
-            m_bg->GetWidgetProps().rawTexture = m_props.backgroundTexture;
-            m_bg->GetWidgetProps().colorBackground = Color::White;
-            
+			m_bg->GetWidgetProps().rawTexture	   = m_props.backgroundTexture;
+			m_bg->GetWidgetProps().colorBackground = Color::White;
+
 			if (m_props.value)
 				GetWidgetProps().colorBackground = m_props.convertToLinear ? m_props.value->SRGB2Linear() : *m_props.value;
 
@@ -85,9 +83,9 @@ namespace Lina
 		}
 		else
 		{
-            m_bg->GetWidgetProps().rawTexture = m_props.backgroundTexture;
-            m_bg->GetWidgetProps().colorBackground = Color(0,0,0,0);
-            
+			m_bg->GetWidgetProps().rawTexture	   = m_props.backgroundTexture;
+			m_bg->GetWidgetProps().colorBackground = Color(0, 0, 0, 0);
+
 			if (m_props.value)
 				GetWidgetProps().colorBackground = m_props.convertToLinear ? m_props.value->SRGB2Linear() : *m_props.value;
 

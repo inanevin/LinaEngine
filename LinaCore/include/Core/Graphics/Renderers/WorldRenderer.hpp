@@ -44,7 +44,7 @@ namespace LinaGX
 
 namespace Lina
 {
-    class CompModel;
+	class CompModel;
 	class CompLight;
 	class Shader;
 	class Texture;
@@ -74,7 +74,7 @@ namespace Lina
 			Buffer entityBuffer	   = {};
 			Buffer argumentsBuffer = {};
 			Buffer boneBuffer	   = {};
-            Buffer lightBuffer = {};
+			Buffer lightBuffer	   = {};
 
 			Buffer lvgVtxBuffer;
 			Buffer lvgIdxBuffer;
@@ -92,7 +92,7 @@ namespace Lina
 			Vector<uint16>			 line3DIndices;
 			Vector<LinaVG::Vertex>	 lvgVertices;
 			Vector<LinaVG::Index>	 lvgIndices;
-            Vector<GPULight> lights;
+			Vector<GPULight>		 lights;
 		};
 
 	public:
@@ -117,9 +117,9 @@ namespace Lina
 
 		void StartLine3DBatch();
 		void DrawLine3D(const Vector3& p1, const Vector3& p2, float thickness, const ColorGrad& color);
-        void DrawWireframeCube3D(const Vector3& center, const Vector3& extents, float thickness, const ColorGrad& color);
-        void DrawWireSphere3D(const Vector3& center, float radius, float thickness, const ColorGrad& color);
-        void DrawWireCone3D(const Vector3& top, const Vector3& dir, float length, const float radius, float thickness, const ColorGrad& color, bool drawLines);
+		void DrawWireframeCube3D(const Vector3& center, const Vector3& extents, float thickness, const ColorGrad& color);
+		void DrawWireSphere3D(const Vector3& center, float radius, float thickness, const ColorGrad& color);
+		void DrawWireCone3D(const Vector3& top, const Vector3& dir, float length, const float radius, float thickness, const ColorGrad& color, bool drawLines);
 		void EndLine3DBatch(RenderPass& pass, uint32 pushConstantValue, uint32 shaderHandle);
 
 		void			StartLinaVGBatch();
@@ -232,11 +232,11 @@ namespace Lina
 		{
 			return m_gpuDrawData.entities;
 		}
-        
-        inline const Vector<CompLight*>& GetCompLights() const
-        {
-            return m_compLights;
-        }
+
+		inline const Vector<CompLight*>& GetCompLights() const
+		{
+			return m_compLights;
+		}
 
 	private:
 		void CalculateSkinning(const Vector<CompModel*>& comps);
@@ -265,8 +265,8 @@ namespace Lina
 		GfxContext*					   m_gfxContext;
 		String						   m_name = "";
 		JobExecutor					   m_executor;
-        Vector<CompModel*>               m_compModels;
-        Vector<CompLight*>			   m_compLights;
+		Vector<CompModel*>			   m_compModels;
+		Vector<CompLight*>			   m_compLights;
 		DrawData					   m_cpuDrawData = {};
 		DrawData					   m_gpuDrawData = {};
 		Vector<CompModel*>			   m_skinnedModels;

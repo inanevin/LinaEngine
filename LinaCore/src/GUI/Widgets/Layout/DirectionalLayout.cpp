@@ -59,7 +59,7 @@ namespace Lina
 			for (const Rect& rect : m_borderRects)
 			{
 				GetPressRect(rect, pressRect);
-                if (pressRect.IsPointInside(m_manager->GetMousePosition()))
+				if (pressRect.IsPointInside(m_manager->GetMousePosition()))
 					m_manager->SetCursorOverride(m_props.direction == DirectionOrientation::Horizontal ? (uint8)LinaGX::CursorType::SizeHorizontal : (uint8)LinaGX::CursorType::SizeVertical);
 			}
 		}

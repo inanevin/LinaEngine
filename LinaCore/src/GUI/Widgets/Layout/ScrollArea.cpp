@@ -85,7 +85,7 @@ namespace Lina
 		// Calculate bar
 		const float scrollBackgroundSize = m_props.direction == DirectionOrientation::Horizontal ? (displayWidget->GetSizeX() - m_widgetProps.childMargins.left - m_widgetProps.childMargins.right)
 																								 : (displayWidget->GetSizeY() - m_widgetProps.childMargins.top - m_widgetProps.childMargins.bottom);
-        const float barCrossAxisSize	 = m_props.barThickness * m_manager->GetScalingFactor();
+		const float barCrossAxisSize	 = m_props.barThickness * m_manager->GetScalingFactor();
 		const float barMainAxisSize		 = scrollBackgroundSize * m_sizeToChildSizeRatio;
 		const float barPosition			 = m_scrollAmount / m_totalChildSize;
 
@@ -220,9 +220,9 @@ namespace Lina
 			return false;
 
 #ifdef LINA_PLATFORM_APPLE
-        amt *= 0.01f; // :)
+		amt *= 0.01f; // :)
 #endif
-        m_scrollAmount -= amt * m_totalChildSize * m_props.mouseWheelMultiplier;
+		m_scrollAmount -= amt * m_totalChildSize * m_props.mouseWheelMultiplier;
 
 		if (m_props.tryKeepAtEnd)
 			m_lockScrollToEnd = m_scrollAmount > m_maxScroll || Math::Equals(m_scrollAmount, m_maxScroll, 1.0f);

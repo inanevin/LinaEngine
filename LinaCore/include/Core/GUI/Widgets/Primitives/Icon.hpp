@@ -109,11 +109,11 @@ namespace Lina
 	private:
 		LINA_REFLECTION_ACCESS(Icon);
 
-		Properties			m_props				 = {};
-		LinaVG::TextOptions m_textOptions		 = {};
+		Properties			m_props				  = {};
+		LinaVG::TextOptions m_textOptions		  = {};
 		float				m_calculatedUIScaling = 0.0f;
-		LinaVG::Font*		m_lvgFont			 = nullptr;
-		float				m_lastDynScale		 = 0.0f;
+		LinaVG::Font*		m_lvgFont			  = nullptr;
+		float				m_lastDynScale		  = 0.0f;
 	};
 
 	LINA_WIDGET_BEGIN(Icon, Primitive)

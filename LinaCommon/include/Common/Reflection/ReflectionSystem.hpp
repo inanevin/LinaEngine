@@ -317,9 +317,9 @@ namespace Lina
 
 	struct DependencyPair
 	{
-		StringID id	 = 0;
-		uint8	 dep = 0;
-        StringID operation = 0;
+		StringID id		   = 0;
+		uint8	 dep	   = 0;
+		StringID operation = 0;
 	};
 
 	class FieldBase
@@ -598,12 +598,11 @@ namespace Lina
 		{
 			return m_propertyCacheManager;
 		}
-        
-        
-        inline bool* GetFoldValuePtr()
-        {
-            return &m_foldValue;
-        }
+
+		inline bool* GetFoldValuePtr()
+		{
+			return &m_foldValue;
+		}
 
 	private:
 		bool FindFunctionCache(TypeID tid, FunctionCachePair& pair) const
@@ -636,7 +635,7 @@ namespace Lina
 
 	private:
 		friend class ReflectionSystem;
-        bool m_foldValue = false;
+		bool					  m_foldValue = false;
 		PropertyCacheManager	  m_propertyCacheManager;
 		Vector<FunctionCachePair> m_functionCaches;
 		Vector<FieldPair>		  m_fields;

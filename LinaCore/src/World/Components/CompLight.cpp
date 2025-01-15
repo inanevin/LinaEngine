@@ -29,5 +29,5 @@ SOFTWARE.
 #include "Core/World/Components/CompLight.hpp"
 namespace Lina
 {
-	
+
 } // namespace Lina

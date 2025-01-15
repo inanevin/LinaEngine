@@ -166,19 +166,19 @@ namespace Lina
 		DropshadowProps		 dropshadow;
 		bool				 altColorsToggled = false;
 		bool				 useSizeTween	  = false;
-        bool aaEnabled = false;
+		bool				 aaEnabled		  = false;
 		Tween				 sizeTween		  = Tween(1.0f, 1.0f, 0.1f);
 
 		virtual void SaveToStream(OStream& stream) const;
 		virtual void LoadFromStream(IStream& stream);
 	};
 
-    struct WidgetCallbacks
-    {
-        Delegate<void()> onEditStarted;
-        Delegate<void()> onEdited;
-        Delegate<void()> onEditEnded;
-    };
+	struct WidgetCallbacks
+	{
+		Delegate<void()> onEditStarted;
+		Delegate<void()> onEdited;
+		Delegate<void()> onEditEnded;
+	};
 
 	/*
 	struct TransformProps
@@ -263,9 +263,9 @@ namespace Lina
 		bool IsWidgetInHierarchy(Widget* widget);
 		void CheckClipChildren();
 		void CheckClipChildrenEnd();
-        void PropagateCBOnEditStarted();
-        void PropagateCBOnEdited();
-        void PropagateCBOnEditEnded();
+		void PropagateCBOnEditStarted();
+		void PropagateCBOnEdited();
+		void PropagateCBOnEditEnded();
 
 		virtual float CalculateChildrenSize()
 		{
@@ -491,11 +491,11 @@ namespace Lina
 		{
 			m_addChildRequests.push_back(w);
 		}
-        
-        inline WidgetCallbacks& GetCallbacks()
-        {
-            return m_callbacks;
-        }
+
+		inline WidgetCallbacks& GetCallbacks()
+		{
+			return m_callbacks;
+		}
 
 		V2_GET_MUTATE(FixedSize, m_fixedSize);
 		V2_GET_MUTATE(AlignedSize, m_alignedSize);
@@ -552,7 +552,7 @@ namespace Lina
 		bool						m_initializing			= false;
 		bool						m_initialized			= false;
 		Vector<Widget*>				m_addChildRequests;
-        WidgetCallbacks m_callbacks = {};
+		WidgetCallbacks				m_callbacks = {};
 	};
 
 	LINA_WIDGET_BEGIN(Widget, General)

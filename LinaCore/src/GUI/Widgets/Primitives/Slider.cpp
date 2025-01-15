@@ -58,7 +58,7 @@ namespace Lina
 
 		if (m_isPressed && m_props.valuePtr)
 		{
-            const Vector2 mouse		  = m_manager->GetMousePosition();
+			const Vector2 mouse		  = m_manager->GetMousePosition();
 			float		  targetValue = 0.0f;
 
 			if (m_props.direction == DirectionOrientation::Horizontal)
@@ -87,7 +87,7 @@ namespace Lina
 
 			if (!Math::Equals(*m_props.valuePtr, prev, 0.001f))
 			{
-                PropagateCBOnEdited();
+				PropagateCBOnEdited();
 			}
 		}
 	}
@@ -156,15 +156,15 @@ namespace Lina
 
 		if (act == LinaGX::InputAction::Pressed && (m_handle->GetIsHovered() || m_isHovered))
 		{
-            PropagateCBOnEditStarted();
-			m_isPressed	 = true;
+			PropagateCBOnEditStarted();
+			m_isPressed = true;
 			m_manager->GrabControls(this);
 			return true;
 		}
 
 		if (act == LinaGX::InputAction::Released && m_isPressed)
 		{
-            PropagateCBOnEditEnded();
+			PropagateCBOnEditEnded();
 			m_isPressed = false;
 			return true;
 		}
@@ -181,16 +181,16 @@ namespace Lina
 			return false;
 
 		auto stepValue = [&](float direction) {
-            PropagateCBOnEditStarted();
+			PropagateCBOnEditStarted();
 			const float step = Math::Equals(m_props.step, 0.0f, 0.001f) ? (m_props.maxValue - m_props.minValue) * 0.1f : m_props.step;
 			*m_props.valuePtr += step * direction;
 			*m_props.valuePtr = Math::Clamp(*m_props.valuePtr, m_props.minValue, m_props.maxValue);
-            PropagateCBOnEdited();
+			PropagateCBOnEdited();
 		};
 
 		if (m_props.direction == DirectionOrientation::Horizontal && keycode == LINAGX_KEY_LEFT)
 		{
-            
+
 			stepValue(-1.0f);
 			return true;
 		}

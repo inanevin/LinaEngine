@@ -30,5 +30,4 @@ SOFTWARE.
 namespace Lina
 {
 
-
 } // namespace Lina

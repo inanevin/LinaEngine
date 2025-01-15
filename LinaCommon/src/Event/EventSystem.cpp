@@ -30,12 +30,12 @@ SOFTWARE.
 
 namespace Lina
 {
-    EventSystem::~EventSystem()
-    {
-        for (auto& [tid, func] : m_disconnectFunctions)
-            func(m_eventSinks[tid]);
+	EventSystem::~EventSystem()
+	{
+		for (auto& [tid, func] : m_disconnectFunctions)
+			func(m_eventSinks[tid]);
 
-        m_eventSinks.clear();
-        m_disconnectFunctions.clear();
-    }
+		m_eventSinks.clear();
+		m_disconnectFunctions.clear();
+	}
 } // namespace Lina

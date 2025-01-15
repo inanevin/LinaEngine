@@ -42,4 +42,25 @@ namespace Lina
 	{
 	}
 
+	JPH::ValidateResult OnContactValidate(const JPH::Body& inBody1, const JPH::Body& inBody2, JPH::RVec3Arg inBaseOffset, const JPH::CollideShapeResult& inCollisionResult)
+	{
+	}
+	void OnContactAdded(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings)
+	{
+	}
+	void OnContactPersisted(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings)
+	{
+	}
+	void OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePair)
+	{
+	}
+
+	// Body
+	void OnBodyActivated(const JPH::BodyID& inBodyID, uint64 inBodyUserData)
+	{
+	}
+	void OnBodyDeactivated(const JPH::BodyID& inBodyID, uint64 inBodyUserData)
+	{
+	}
+
 } // namespace Lina

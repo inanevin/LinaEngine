@@ -101,21 +101,21 @@ namespace Lina
 
 	void RenderPass::Begin(LinaGX::CommandStream* stream, uint32 frameIndex)
 	{
-        const LinaGX::Viewport viewport = {
-            .x          = 0,
-            .y          = 0,
-            .width      = m_size.x,
-            .height      = m_size.y,
-            .minDepth = 0.0f,
-            .maxDepth = 1.0f,
-        };
+		const LinaGX::Viewport viewport = {
+			.x		  = 0,
+			.y		  = 0,
+			.width	  = m_size.x,
+			.height	  = m_size.y,
+			.minDepth = 0.0f,
+			.maxDepth = 1.0f,
+		};
 
-        const LinaGX::ScissorsRect scissors = {
-            .x        = 0,
-            .y        = 0,
-            .width    = m_size.x,
-            .height = m_size.y,
-        };
+		const LinaGX::ScissorsRect scissors = {
+			.x		= 0,
+			.y		= 0,
+			.width	= m_size.x,
+			.height = m_size.y,
+		};
 		auto& colorAttachments = m_pfd[frameIndex].colorAttachments;
 
 		LinaGX::CMDBeginRenderPass* rp = stream->AddCommand<LinaGX::CMDBeginRenderPass>();
@@ -185,25 +185,24 @@ namespace Lina
 
 			if (draw.useScissors)
 			{
-                const uint32 windowX =  static_cast<uint32>(m_size.x);
-                const uint32 windowY =  static_cast<uint32>(m_size.y);
-				LinaGX::CMDSetScissors* sc = stream->AddCommand<LinaGX::CMDSetScissors>();
-				sc->x					   = draw.clip.pos.x < 0 ? 0 : static_cast<uint32>(draw.clip.pos.x);
-				sc->y					   = draw.clip.pos.y < 0 ? 0 : static_cast<uint32>(draw.clip.pos.y);
-				sc->width				   = draw.clip.size.x <= 0 ? windowX : static_cast<uint32>(draw.clip.size.x);
-				sc->height				   = draw.clip.size.y <= 0 ? windowY : static_cast<uint32>(draw.clip.size.y);
-                
-                if(sc->y + sc->height > windowY)
-                {
-                    sc->height = windowY - sc->y;
-                }
-                
-                if(sc->x + sc->width > windowX)
-                {
-                    sc->width = windowX - sc->x;
-                }
-				scissorsWasSet			   = true;
-       
+				const uint32			windowX = static_cast<uint32>(m_size.x);
+				const uint32			windowY = static_cast<uint32>(m_size.y);
+				LinaGX::CMDSetScissors* sc		= stream->AddCommand<LinaGX::CMDSetScissors>();
+				sc->x							= draw.clip.pos.x < 0 ? 0 : static_cast<uint32>(draw.clip.pos.x);
+				sc->y							= draw.clip.pos.y < 0 ? 0 : static_cast<uint32>(draw.clip.pos.y);
+				sc->width						= draw.clip.size.x <= 0 ? windowX : static_cast<uint32>(draw.clip.size.x);
+				sc->height						= draw.clip.size.y <= 0 ? windowY : static_cast<uint32>(draw.clip.size.y);
+
+				if (sc->y + sc->height > windowY)
+				{
+					sc->height = windowY - sc->y;
+				}
+
+				if (sc->x + sc->width > windowX)
+				{
+					sc->width = windowX - sc->x;
+				}
+				scissorsWasSet = true;
 			}
 			else if (scissorsWasSet)
 			{

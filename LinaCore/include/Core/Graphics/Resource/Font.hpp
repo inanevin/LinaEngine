@@ -46,7 +46,7 @@ namespace Lina
 	public:
 		struct FontPoint
 		{
-			uint32 size		= 12;
+			uint32 size		  = 12;
 			float  scaleLimit = 10.0f;
 		};
 

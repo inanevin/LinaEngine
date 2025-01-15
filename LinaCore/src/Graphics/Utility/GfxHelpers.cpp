@@ -243,11 +243,11 @@ namespace Lina
 				.type	= LinaGX::DescriptorType::SSBO,
 				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 			};
-            
-            LinaGX::DescriptorBinding binding4 = {
-                .type    = LinaGX::DescriptorType::SSBO,
-                .stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-            };
+
+			LinaGX::DescriptorBinding binding4 = {
+				.type	= LinaGX::DescriptorType::SSBO,
+				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+			};
 
 			return {.bindings = {binding0, binding1, binding2, binding3, binding4}};
 		}

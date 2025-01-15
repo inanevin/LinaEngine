@@ -100,8 +100,8 @@ namespace Lina
 
 	void WidgetManager::Tick(float delta, const Vector2ui& size)
 	{
-        m_size = size;
-        
+		m_size = size;
+
 		// actual tick.
 		m_debugDrawYOffset = 0.0f;
 		m_foregroundRoot->SetPos(Vector2::Zero);
@@ -351,7 +351,7 @@ namespace Lina
 	{
 		if (PassMousePos(m_foregroundRoot, pos))
 			return;
-        PassMousePos(m_rootWidget, Vector2(pos.x * m_window->GetDPIScale(), pos.y * m_window->GetDPIScale()) );
+		PassMousePos(m_rootWidget, Vector2(pos.x * m_window->GetDPIScale(), pos.y * m_window->GetDPIScale()));
 	}
 
 	void WidgetManager::OnFocus(bool gainedFocus)
@@ -368,19 +368,19 @@ namespace Lina
 		m_isMouseHoveringWindow = false;
 	}
 
-    float WidgetManager::GetScalingFactor() const
-    {
-        const Vector2 sz = m_window->GetSize();
-        const Vector2 mSize = m_window->GetMonitorSize();
-        const float factor =  Math::Remap(mSize.y * m_window->GetDPIScale(), 1080.0f, 2160.0f, 0.8f, 1.0f);
-        return factor * (Math::Equals(m_window->GetDPIScale(), 1.0f, 0.1f) ? 1.0f : m_window->GetDPIScale() * 0.75f);
-    }
+	float WidgetManager::GetScalingFactor() const
+	{
+		const Vector2 sz	 = m_window->GetSize();
+		const Vector2 mSize	 = m_window->GetMonitorSize();
+		const float	  factor = Math::Remap(mSize.y * m_window->GetDPIScale(), 1080.0f, 2160.0f, 0.8f, 1.0f);
+		return factor * (Math::Equals(m_window->GetDPIScale(), 1.0f, 0.1f) ? 1.0f : m_window->GetDPIScale() * 0.75f);
+	}
 
-    Vector2 WidgetManager::GetMousePosition() const
-    {
-        const Vector2 mp = m_window->GetMousePosition();
-        return mp * m_window->GetDPIScale();
-    }
+	Vector2 WidgetManager::GetMousePosition() const
+	{
+		const Vector2 mp = m_window->GetMousePosition();
+		return mp * m_window->GetDPIScale();
+	}
 
 	void WidgetManager::DebugDraw(Widget* w)
 	{
@@ -401,8 +401,8 @@ namespace Lina
 
 		const Rect			rect	= w->GetRect();
 		const Vector2&		mp		= GetMousePosition();
-        const float scaling = GetScalingFactor();
-        auto*				lvgFont = m_resourceManagerV2->GetResource<Font>(Theme::GetDef().defaultFont)->GetFont(scaling);
+		const float			scaling = GetScalingFactor();
+		auto*				lvgFont = m_resourceManagerV2->GetResource<Font>(Theme::GetDef().defaultFont)->GetFont(scaling);
 		LinaVG::TextOptions textOpts;
 		textOpts.font = lvgFont;
 
@@ -592,9 +592,9 @@ namespace Lina
 
 	void WidgetManager::PassPreTick(Widget* w)
 	{
-        for (auto cb : w->m_preTickHooks)
-            cb();
-        
+		for (auto cb : w->m_preTickHooks)
+			cb();
+
 		if (w->GetFlags().IsSet(WF_HIDE))
 			return;
 
@@ -642,10 +642,10 @@ namespace Lina
 		Vector2			totalNonExpandingSize = Vector2::Zero;
 
 		if (w->GetFlags().IsSet(WF_USE_FIXED_SIZE_X))
-            w->SetSizeX(w->GetFixedSizeX() * GetScalingFactor());
+			w->SetSizeX(w->GetFixedSizeX() * GetScalingFactor());
 
 		if (w->GetFlags().IsSet(WF_USE_FIXED_SIZE_Y))
-            w->SetSizeY(w->GetFixedSizeY() * GetScalingFactor());
+			w->SetSizeY(w->GetFixedSizeY() * GetScalingFactor());
 
 		for (auto* c : w->GetChildren())
 		{

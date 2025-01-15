@@ -31,13 +31,12 @@ SOFTWARE.
 namespace Lina
 {
 
-    class PhysicsBackend
-    {
-    public:
-        
-        void Initialize();
-        void Shutdown();
-        
-    private:
-    };
+	class PhysicsBackend
+	{
+	public:
+		void Initialize();
+		void Shutdown();
+
+	private:
+	};
 } // namespace Lina

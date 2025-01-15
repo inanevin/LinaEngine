@@ -101,8 +101,8 @@ namespace Lina
 			s_lgx = nullptr;
 			return false;
 		}
-        
-        m_physicsBackend.Initialize();
+
+		m_physicsBackend.Initialize();
 
 		return true;
 	}
@@ -175,8 +175,8 @@ namespace Lina
 
 	void Application::Shutdown()
 	{
-        m_physicsBackend.Shutdown();
-        
+		m_physicsBackend.Shutdown();
+
 		JoinRender();
 		GetAppDelegate()->PreShutdown();
 		m_guiBackend.Shutdown();
@@ -252,7 +252,7 @@ namespace Lina
 			SystemInfo::SetMeasuredFPS(static_cast<uint32>(static_cast<float>((frames - lastFPSFrames)) / measureTime));
 			lastFPSFrames = frames;
 			lastFPSUpdate = gameTime;
-			//LINA_TRACE("FPS: {0} Time: {1}", SystemInfo::GetMeasuredFPS(), static_cast<float>(SystemInfo::GetDeltaTime()) * 1000.0f);
+			// LINA_TRACE("FPS: {0} Time: {1}", SystemInfo::GetMeasuredFPS(), static_cast<float>(SystemInfo::GetDeltaTime()) * 1000.0f);
 		}
 	}
 

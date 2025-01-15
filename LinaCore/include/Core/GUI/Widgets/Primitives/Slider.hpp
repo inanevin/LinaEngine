@@ -106,10 +106,10 @@ namespace Lina
 	private:
 		LINA_REFLECTION_ACCESS(Slider);
 
-		Properties m_props		= {};
-		Icon*	   m_handle		= nullptr;
-		Vector2	   m_start		= Vector2::Zero;
-		Vector2	   m_end		= Vector2::Zero;
+		Properties m_props	= {};
+		Icon*	   m_handle = nullptr;
+		Vector2	   m_start	= Vector2::Zero;
+		Vector2	   m_end	= Vector2::Zero;
 
 		Vector2 m_bgStart = Vector2::Zero;
 		Vector2 m_bgEnd	  = Vector2::Zero;

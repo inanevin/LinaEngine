@@ -32,13 +32,12 @@ SOFTWARE.
 
 namespace Lina
 {
-    class PhysicsLayerFilter : public JPH::ObjectLayerPairFilter
-    {
-    public:
-        virtual bool  ShouldCollide(JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2) const override
-        {
-            return true;
-        }
-    };
+	class PhysicsLayerFilter : public JPH::ObjectLayerPairFilter
+	{
+	public:
+		virtual bool ShouldCollide(JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2) const override
+		{
+			return true;
+		}
+	};
 } // namespace Lina
-

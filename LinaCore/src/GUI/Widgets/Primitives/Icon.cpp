@@ -41,7 +41,7 @@ namespace Lina
 
 	void Icon::CalculateSize(float dt)
 	{
-        const float dpiScale = m_manager->GetScalingFactor();
+		const float dpiScale = m_manager->GetScalingFactor();
 
 		if (!Math::Equals(dpiScale, m_calculatedUIScaling, 0.01f))
 			CalculateIconSize();
@@ -79,9 +79,9 @@ namespace Lina
 
 	void Icon::CalculateIconSize()
 	{
-		auto*		font	 = m_resourceManager->GetResource<Font>(m_props.font);
-        const float uiScaling =  m_manager->GetScalingFactor();
-		m_lvgFont			 = font->GetFont(uiScaling);
+		auto*		font	  = m_resourceManager->GetResource<Font>(m_props.font);
+		const float uiScaling = m_manager->GetScalingFactor();
+		m_lvgFont			  = font->GetFont(uiScaling);
 
 		if (m_lvgFont == nullptr)
 			return;

@@ -92,29 +92,29 @@ namespace Lina
 		Matrix4 view;
 		Matrix4 proj;
 		Matrix4 viewProj;
-        Vector4 padding;
-        Vector4 padding1;
-        Vector4 padding2;
-        Vector4 padding3;
+		Vector4 padding;
+		Vector4 padding1;
+		Vector4 padding2;
+		Vector4 padding3;
 	};
 
-    struct GPUDataForwardPass
-    {
-        Matrix4 view;
-        Matrix4 proj;
-        Matrix4 viewProj;
-        Vector4 ambientTop;
-        Vector4 ambientMid;
-        Vector4 ambientBot;
-        uint32 gBufAlbedo;
-        uint32 gBufPositionMetallic;
-        uint32 gBufNormalRoughness;
-        uint32 gBufSampler;
-        uint32 lightCount;
-        uint32 padding0;
-        uint32 padding1;
-        uint32 padding2;
-    };
+	struct GPUDataForwardPass
+	{
+		Matrix4 view;
+		Matrix4 proj;
+		Matrix4 viewProj;
+		Vector4 ambientTop;
+		Vector4 ambientMid;
+		Vector4 ambientBot;
+		uint32	gBufAlbedo;
+		uint32	gBufPositionMetallic;
+		uint32	gBufNormalRoughness;
+		uint32	gBufSampler;
+		uint32	lightCount;
+		uint32	padding0;
+		uint32	padding1;
+		uint32	padding2;
+	};
 
 	struct GPUMaterialGUI
 	{
@@ -129,11 +129,11 @@ namespace Lina
 
 	struct GPUEntity
 	{
-        Matrix4 model;
+		Matrix4 model;
 		Matrix4 normal;
-        Vector4 position;
-        Vector4 forward;
-        float padding[24];
+		Vector4 position;
+		Vector4 forward;
+		float	padding[24];
 	};
 
 	struct GPUDrawArguments
@@ -171,16 +171,16 @@ namespace Lina
 		EntityIdent ident;
 	};
 
-    struct GPULight
-    {
-        Vector4 colorAndIntensity;
-        uint32 type;
-        uint32 entityIndex;
-        float radius;
-        float falloff;
-        float cutoff;
-        float outerCutoff;
-        float padding[22];
-    };
+	struct GPULight
+	{
+		Vector4 colorAndIntensity;
+		uint32	type;
+		uint32	entityIndex;
+		float	radius;
+		float	falloff;
+		float	cutoff;
+		float	outerCutoff;
+		float	padding[22];
+	};
 
 } // namespace Lina

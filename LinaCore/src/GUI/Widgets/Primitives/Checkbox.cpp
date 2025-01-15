@@ -77,8 +77,8 @@ namespace Lina
 			if (m_isHovered && m_props.value)
 			{
 				*m_props.value = !*m_props.value;
-                PropagateCBOnEdited();
-                PropagateCBOnEditEnded();
+				PropagateCBOnEdited();
+				PropagateCBOnEditEnded();
 			}
 
 			m_isPressed = false;
@@ -102,8 +102,8 @@ namespace Lina
 			if (m_props.value)
 			{
 				*m_props.value = !*m_props.value;
-                PropagateCBOnEdited();
-                PropagateCBOnEditEnded();
+				PropagateCBOnEdited();
+				PropagateCBOnEditEnded();
 			}
 			return true;
 		}
