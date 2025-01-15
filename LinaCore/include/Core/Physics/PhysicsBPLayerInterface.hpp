@@ -30,28 +30,31 @@ SOFTWARE.
 
 #include "Core/Physics/CommonPhysics.hpp"
 #include <Jolt/Jolt.h>
+#include <Jolt/Physics/Collision/BroadPhase/BroadPhase.h>
 
 namespace Lina
 {
 	class PhysicsBPLayerInterface final : public JPH::BroadPhaseLayerInterface
 	{
 	public:
-		PhysicsBPLayerInterface()		   = default;
 		virtual ~PhysicsBPLayerInterface() = default;
+
+		PhysicsBPLayerInterface()
+		{
+			// Create a mapping table from object to broad phase layer
+			mObjectToBroadPhase[PhysicsObjectLayers::NON_MOVING] = PhysicsBroadPhaseLayers::NON_MOVING;
+			mObjectToBroadPhase[PhysicsObjectLayers::MOVING]	 = PhysicsBroadPhaseLayers::MOVING;
+		}
 
 		virtual uint GetNumBroadPhaseLayers() const override
 		{
-			return PhysicsBroadPhaseLayers::PHYSICS_BP_LAYER_MAX;
+			return PhysicsBroadPhaseLayers::NUM_LAYERS;
 		}
 
 		virtual JPH::BroadPhaseLayer GetBroadPhaseLayer(JPH::ObjectLayer inLayer) const override
 		{
-			LINA_ASSERT(inLayer < PhysicsObjectLayers::PHYSICS_OBJ_LAYER_MAX, "");
-
-			if (inLayer == PhysicsObjectLayers::PHYSICS_OBJ_LAYER_NONMOVING)
-				return m_layers[PhysicsBroadPhaseLayers::PHYSICS_BP_LAYER_NONMOVING];
-
-			return m_layers[PhysicsBroadPhaseLayers::PHYSICS_BP_LAYER_MOVING];
+			JPH_ASSERT(inLayer < PhysicsObjectLayers::NUM_LAYERS);
+			return mObjectToBroadPhase[inLayer];
 		}
 
 #if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
@@ -59,19 +62,19 @@ namespace Lina
 		{
 			switch ((JPH::BroadPhaseLayer::Type)inLayer)
 			{
-			case (JPH::BroadPhaseLayer::Type)PHYSICS_BP_LAYER_NONMOVING:
+			case (JPH::BroadPhaseLayer::Type)PhysicsBroadPhaseLayers::NON_MOVING:
 				return "NON_MOVING";
-			case (JPH::BroadPhaseLayer::Type)PHYSICS_BP_LAYER_MOVING:
+			case (JPH::BroadPhaseLayer::Type)PhysicsBroadPhaseLayers::MOVING:
 				return "MOVING";
 			default:
-				LINA_ASSERT(false, "");
+				JPH_ASSERT(false);
 				return "INVALID";
 			}
 		}
 #endif // JPH_EXTERNAL_PROFILE || JPH_PROFILE_ENABLED
 
 	private:
-		JPH::BroadPhaseLayer m_layers[PhysicsBroadPhaseLayers::PHYSICS_BP_LAYER_MAX];
+		JPH::BroadPhaseLayer mObjectToBroadPhase[PhysicsObjectLayers::NUM_LAYERS];
 	};
 
 } // namespace Lina

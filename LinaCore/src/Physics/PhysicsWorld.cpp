@@ -33,7 +33,17 @@ SOFTWARE.
 
 namespace Lina
 {
+	PhysicsWorld::PhysicsWorld(EntityWorld* ew) : m_world(ew)
+	{
+		const uint cMaxBodies			  = 1024;
+		const uint cNumBodyMutexes		  = 0;
+		const uint cMaxBodyPairs		  = 1024;
+		const uint cMaxContactConstraints = 1024;
+	};
 
+	PhysicsWorld::~PhysicsWorld()
+	{
+	}
 	void PhysicsWorld::Simulate()
 	{
 	}
@@ -42,24 +52,27 @@ namespace Lina
 	{
 	}
 
-	JPH::ValidateResult OnContactValidate(const JPH::Body& inBody1, const JPH::Body& inBody2, JPH::RVec3Arg inBaseOffset, const JPH::CollideShapeResult& inCollisionResult)
-	{
-	}
-	void OnContactAdded(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings)
-	{
-	}
-	void OnContactPersisted(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings)
-	{
-	}
-	void OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePair)
+	JPH::ValidateResult PhysicsWorld::OnContactValidate(const JPH::Body& inBody1, const JPH::Body& inBody2, JPH::RVec3Arg inBaseOffset, const JPH::CollideShapeResult& inCollisionResult)
 	{
 	}
 
-	// Body
-	void OnBodyActivated(const JPH::BodyID& inBodyID, uint64 inBodyUserData)
+	void PhysicsWorld::OnContactAdded(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings)
 	{
 	}
-	void OnBodyDeactivated(const JPH::BodyID& inBodyID, uint64 inBodyUserData)
+
+	void PhysicsWorld::OnContactPersisted(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings)
+	{
+	}
+
+	void PhysicsWorld::OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePair)
+	{
+	}
+
+	void PhysicsWorld::OnBodyActivated(const JPH::BodyID& inBodyID, uint64 inBodyUserData)
+	{
+	}
+
+	void PhysicsWorld::OnBodyDeactivated(const JPH::BodyID& inBodyID, uint64 inBodyUserData)
 	{
 	}
 

@@ -29,22 +29,24 @@ SOFTWARE.
 #pragma once
 
 #include "Common/SizeDefinitions.hpp"
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
 
 namespace Lina
 {
 
-	enum PhysicsObjectLayers : uint16
+	namespace PhysicsBroadPhaseLayers
 	{
-		PHYSICS_OBJ_LAYER_MOVING	= 0,
-		PHYSICS_OBJ_LAYER_NONMOVING = 1,
-		PHYSICS_OBJ_LAYER_MAX		= 20,
-	};
+		static constexpr JPH::BroadPhaseLayer NON_MOVING(0);
+		static constexpr JPH::BroadPhaseLayer MOVING(1);
+		static constexpr uint				  NUM_LAYERS(2);
+	}; // namespace PhysicsBroadPhaseLayers
 
-	enum PhysicsBroadPhaseLayers : uint16
+	namespace PhysicsObjectLayers
 	{
-		PHYSICS_BP_LAYER_MOVING	   = 0,
-		PHYSICS_BP_LAYER_NONMOVING = 1,
-		PHYSICS_BP_LAYER_MAX	   = 2,
-	};
+		static constexpr JPH::ObjectLayer NON_MOVING = 0;
+		static constexpr JPH::ObjectLayer MOVING	 = 1;
+		static constexpr JPH::ObjectLayer NUM_LAYERS = 2;
+	}; // namespace PhysicsObjectLayers
 
 } // namespace Lina

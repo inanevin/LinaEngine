@@ -28,7 +28,9 @@ SOFTWARE.
 
 #pragma once
 
+#include "Core/Physics/CommonPhysics.hpp"
 #include <Jolt/Jolt.h>
+#include <Jolt/Physics/Collision/ObjectLayer.h>
 
 namespace Lina
 {
@@ -37,7 +39,16 @@ namespace Lina
 	public:
 		virtual bool ShouldCollide(JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2) const override
 		{
-			return true;
+			switch (inObject1)
+			{
+			case PhysicsObjectLayers::NON_MOVING:
+				return inObject2 == PhysicsObjectLayers::MOVING; // Non moving only collides with moving
+			case PhysicsObjectLayers::MOVING:
+				return true; // Moving collides with everything
+			default:
+				JPH_ASSERT(false);
+				return false;
+			}
 		}
 	};
 } // namespace Lina

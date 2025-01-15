@@ -28,9 +28,16 @@ SOFTWARE.
 
 #pragma once
 
+#include "Core/Physics/PhysicsLayerFilter.hpp"
+#include "Core/Physics/PhysicsBPLayerInterface.hpp"
+#include "Core/Physics/PhysicsObjectBPLayerFilter.hpp"
+
 #include <Jolt/Jolt.h>
+#include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/Physics/Collision/ContactListener.h>
 #include <Jolt/Physics/Body/BodyActivationListener.h>
+#include <Jolt/Core/TempAllocator.h>
+#include <Jolt/Core/JobSystemThreadPool.h>
 
 namespace Lina
 {
@@ -39,8 +46,8 @@ namespace Lina
 	class PhysicsWorld : public JPH::ContactListener, public JPH::BodyActivationListener
 	{
 	public:
-		PhysicsWorld(EntityWorld* world) : m_world(world){};
-		~PhysicsWorld() = default;
+		PhysicsWorld(EntityWorld* world);
+		virtual ~PhysicsWorld();
 
 		void Simulate();
 		void WaitForSimulation();
@@ -56,6 +63,13 @@ namespace Lina
 		virtual void OnBodyDeactivated(const JPH::BodyID& inBodyID, uint64 inBodyUserData) override;
 
 	private:
-		EntityWorld* m_world = nullptr;
+		JPH::PhysicsSystem		 m_physicsSystem;
+		JPH::TempAllocatorImpl	 m_tempAllocator = JPH::TempAllocatorImpl(10 * 1024 * 1024);
+		JPH::JobSystemThreadPool m_jobSystem	 = JPH::JobSystemThreadPool(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, JPH::thread::hardware_concurrency() - 1);
+
+		PhysicsLayerFilter		   m_layerFilter;
+		PhysicsObjectBPLayerFilter m_objectBPLayerFilter;
+		PhysicsBPLayerInterface	   m_bpLayerInterface;
+		EntityWorld*			   m_world = nullptr;
 	};
 } // namespace Lina
