@@ -51,20 +51,6 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-#ifdef LINA_DEBUG
-#define DEBUG_LABEL_BEGIN(Stream, LABEL)                                                                                                                                                                                                                           \
-	{                                                                                                                                                                                                                                                              \
-		LinaGX::CMDDebugBeginLabel* debug = Stream->AddCommand<LinaGX::CMDDebugBeginLabel>();                                                                                                                                                                      \
-		debug->label					  = LABEL;                                                                                                                                                                                                                 \
-	}
-#define DEBUG_LABEL_END(Stream)                                                                                                                                                                                                                                    \
-	{                                                                                                                                                                                                                                                              \
-		Stream->AddCommand<LinaGX::CMDDebugEndLabel>();                                                                                                                                                                                                            \
-	}
-#else
-#define DEBUG_LABEL_BEGIN(Stream, LABEL)
-#define DEBUG_LABEL_END(Stream)
-#endif
 
 OutlineSelectionRenderer::OutlineSelectionRenderer(Editor* editor, EditorWorldRenderer* ewr, RenderPass* pass, MousePickRenderer* mpr)
 	{

@@ -53,21 +53,6 @@ namespace Lina::Editor
 #define VSYNC_DX LinaGX::DXVsync::None
 #define VSYNC_VK LinaGX::VKVsync::None
 
-#ifdef LINA_DEBUG
-#define DEBUG_LABEL_BEGIN(Stream, LABEL)                                                                                                                                                                                                                           \
-	{                                                                                                                                                                                                                                                              \
-		LinaGX::CMDDebugBeginLabel* debug = Stream->AddCommand<LinaGX::CMDDebugBeginLabel>();                                                                                                                                                                      \
-		debug->label					  = LABEL;                                                                                                                                                                                                                 \
-	}
-#define DEBUG_LABEL_END(Stream)                                                                                                                                                                                                                                    \
-	{                                                                                                                                                                                                                                                              \
-		Stream->AddCommand<LinaGX::CMDDebugEndLabel>();                                                                                                                                                                                                            \
-	}
-#else
-#define DEBUG_LABEL_BEGIN(Stream, LABEL)
-#define DEBUG_LABEL_END(Stream)
-#endif
-
 	SurfaceRenderer::SurfaceRenderer(Editor* editor, LinaGX::Window* window, const Color& clearColor) : m_window(window)
 	{
 		m_editor			= editor;

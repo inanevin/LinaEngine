@@ -35,4 +35,19 @@ namespace Lina
 {
 	extern void SaveLinaGXShaderLayout(OStream& stream, const LinaGX::ShaderLayout& layout);
 	extern void LoadLinaGXShaderLayout(IStream& stream, LinaGX::ShaderLayout& layout);
+
+#ifdef LINA_DEBUG
+#define DEBUG_LABEL_BEGIN(Stream, LABEL)                                                                                                                                                                                                                           \
+    {                                                                                                                                                                                                                                                              \
+        LinaGX::CMDDebugBeginLabel* debug = Stream->AddCommand<LinaGX::CMDDebugBeginLabel>();                                                                                                                                                                      \
+        debug->label                      = LABEL;                                                                                                                                                                                                                 \
+    }
+#define DEBUG_LABEL_END(Stream)                                                                                                                                                                                                                                    \
+    {                                                                                                                                                                                                                                                              \
+        Stream->AddCommand<LinaGX::CMDDebugEndLabel>();                                                                                                                                                                                                            \
+    }
+#else
+#define DEBUG_LABEL_BEGIN(Stream, LABEL)
+#define DEBUG_LABEL_END(Stream)
+#endif
 } // namespace Lina

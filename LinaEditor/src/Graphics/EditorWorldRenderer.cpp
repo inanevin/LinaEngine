@@ -44,20 +44,6 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-#ifdef LINA_DEBUG
-#define DEBUG_LABEL_BEGIN(Stream, LABEL)                                                                                                                                                                                                                           \
-	{                                                                                                                                                                                                                                                              \
-		LinaGX::CMDDebugBeginLabel* debug = Stream->AddCommand<LinaGX::CMDDebugBeginLabel>();                                                                                                                                                                      \
-		debug->label					  = LABEL;                                                                                                                                                                                                                 \
-	}
-#define DEBUG_LABEL_END(Stream)                                                                                                                                                                                                                                    \
-	{                                                                                                                                                                                                                                                              \
-		Stream->AddCommand<LinaGX::CMDDebugEndLabel>();                                                                                                                                                                                                            \
-	}
-#else
-#define DEBUG_LABEL_BEGIN(Stream, LABEL)
-#define DEBUG_LABEL_END(Stream)
-#endif
 
 	EditorWorldRenderer::EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr) : m_wr(wr), m_mousePickRenderer(editor, this), m_gizmoRenderer(editor, wr, &m_pass, &m_mousePickRenderer), m_outlineRenderer(editor, this, &m_pass, &m_mousePickRenderer)
 	{

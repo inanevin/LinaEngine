@@ -52,22 +52,6 @@ namespace Lina::Editor
 {
 
 #define UID_LIGHT_ICON UINT32_MAX - 1000
-
-#ifdef LINA_DEBUG
-#define DEBUG_LABEL_BEGIN(Stream, LABEL)                                                                                                                                                                                                                           \
-	{                                                                                                                                                                                                                                                              \
-		LinaGX::CMDDebugBeginLabel* debug = Stream->AddCommand<LinaGX::CMDDebugBeginLabel>();                                                                                                                                                                      \
-		debug->label					  = LABEL;                                                                                                                                                                                                                 \
-	}
-#define DEBUG_LABEL_END(Stream)                                                                                                                                                                                                                                    \
-	{                                                                                                                                                                                                                                                              \
-		Stream->AddCommand<LinaGX::CMDDebugEndLabel>();                                                                                                                                                                                                            \
-	}
-#else
-#define DEBUG_LABEL_BEGIN(Stream, LABEL)
-#define DEBUG_LABEL_END(Stream)
-#endif
-
 #define ORIENTATION_PASS_SIZE 250
 
 	GizmoRenderer::GizmoRenderer(Editor* editor, WorldRenderer* wr, RenderPass* pass, MousePickRenderer* mpr)
@@ -75,98 +59,59 @@ namespace Lina::Editor
 		m_editor			= editor;
 		m_worldRenderer		= wr;
 		m_rm				= &m_editor->GetApp()->GetResourceManager();
-		m_gizmoShader		= m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_GIZMO_ID);
-		m_gizmoRotateShader = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_GIZMO_ROTATE_ID);
-		m_line3DShader		= m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_LINE3D_ID);
-		m_lvgShader			= m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_LVG3D_ID);
-        m_billboardSDFShader = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_BILLBOARD_SDF_ID);
-		m_orientGizmoShader = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_ORIENT_GIZMO_ID);
-        m_iconFont = m_rm->GetResource<Font>(EDITOR_FONT_ICON_ID);
+		m_shaderGizmo		= m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_GIZMO_ID);
+		m_shaderGizmoRotateCircle = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_GIZMO_ROTATE_ID);
+		m_shaderLine		= m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_LINE3D_ID);
+		m_shaderLVG			= m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_LVG3D_ID);
+        m_shaderSDFIcon = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_BILLBOARD_SDF_ID);
+		m_shaderGizmoOrientation = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_ORIENT_GIZMO_ID);
+        m_fontSDFIcon = m_rm->GetResource<Font>(EDITOR_FONT_ICON_ID);
 		m_world				= m_worldRenderer->GetWorld();
 		m_targetPass		= pass;
 		m_mousePickRenderer = mpr;
 
-		m_gizmoMaterialCenter = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material Center");
-		m_gizmoMaterialX	  = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material X");
-		m_gizmoMaterialY	  = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material Y");
-		m_gizmoMaterialZ	  = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material Z");
-		m_gizmoRotateMaterial = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Rotate Material");
+		m_matGizmoCenter = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material Center");
+		m_matGizmoX	  = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material X");
+		m_matGizmoY	  = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material Y");
+		m_matGizmoZ	  = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material Z");
+		m_matGizmoRotateCircle = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Rotate Material");
         m_matLightIconSpot = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "SDF Icon Mat SpotLight");
         m_matLightIconSun = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "SDF Icon Mat SunLight");
         m_matLightIconPoint = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "SDF Icon Mat PointLight");
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 
-		m_gizmoMaterialCenter->SetShader(m_gizmoShader);
-		m_gizmoMaterialX->SetShader(m_gizmoShader);
-		m_gizmoMaterialY->SetShader(m_gizmoShader);
-		m_gizmoMaterialZ->SetShader(m_gizmoShader);
-		m_gizmoRotateMaterial->SetShader(m_gizmoRotateShader);
-        m_matLightIconSpot->SetShader(m_billboardSDFShader);
-        m_matLightIconPoint->SetShader(m_billboardSDFShader);
-        m_matLightIconSun->SetShader(m_billboardSDFShader);
+		m_matGizmoCenter->SetShader(m_shaderGizmo);
+		m_matGizmoX->SetShader(m_shaderGizmo);
+		m_matGizmoY->SetShader(m_shaderGizmo);
+		m_matGizmoZ->SetShader(m_shaderGizmo);
+		m_matGizmoRotateCircle->SetShader(m_shaderGizmoRotateCircle);
+		m_matGizmoCenter->SetProperty("color"_hs, Vector4(Theme::GetDef().foreground0));
+		m_matGizmoX->SetProperty("color"_hs, Vector4(Theme::GetDef().accentPrimary2));
+		m_matGizmoY->SetProperty("color"_hs, Vector4(Theme::GetDef().accentSuccess));
+		m_matGizmoZ->SetProperty("color"_hs, Vector4(Theme::GetDef().accentSecondary));
+        
+        SetupIconMaterial(m_matLightIconPoint, m_fontSDFIcon, 0x0031, m_iconSzPoint);
+        SetupIconMaterial(m_matLightIconSpot, m_fontSDFIcon, 0x0032, m_iconSzSpot);
+        SetupIconMaterial(m_matLightIconSun, m_fontSDFIcon, 0x0033, m_iconSzSun);
 
-		m_gizmoMaterialCenter->SetProperty("color"_hs, Vector4(Theme::GetDef().foreground0));
-		m_gizmoMaterialX->SetProperty("color"_hs, Vector4(Theme::GetDef().accentPrimary2));
-		m_gizmoMaterialY->SetProperty("color"_hs, Vector4(Theme::GetDef().accentSuccess));
-		m_gizmoMaterialZ->SetProperty("color"_hs, Vector4(Theme::GetDef().accentSecondary));
-        
-        LinaVG::Font* lvgFont = m_iconFont->GetFont(m_gizmoSettings.defaultShaderScale);
-        LinaVG::TextCharacter& glyphPoint = lvgFont->glyphs.at(0x0031);
-        LinaVG::TextCharacter& glyphSpot = lvgFont->glyphs.at(0x0032);
-        LinaVG::TextCharacter& glyphSun = lvgFont->glyphs.at(0x0033);
-        
-        m_iconSzSpot =  Vector2(glyphSpot.m_uv34.x, glyphSpot.m_uv34.y) - Vector2(glyphSpot.m_uv12.x, glyphSpot.m_uv12.y);
-        m_iconSzSun = Vector2(glyphSun.m_uv34.x, glyphSun.m_uv34.y) - Vector2(glyphSun.m_uv12.x, glyphSun.m_uv12.y);
-        m_iconSzPoint = Vector2(glyphPoint.m_uv34.x, glyphPoint.m_uv34.y) - Vector2(glyphPoint.m_uv12.x, glyphPoint.m_uv12.y);
-        
-        Texture* ft = m_editor->GetApp()->GetGUIBackend().GetFontTexture(lvgFont->atlas).texture;
-        const LinaTexture2D txt = {.texture = ft->GetID(), .sampler = m_editor->GetEditorRenderer().GetGUITextSampler()->GetID(),};
-        
-        m_matLightIconSpot->SetProperty("diffuse"_hs, txt);
-        m_matLightIconSpot->SetProperty("color"_hs, Vector4(Theme::GetDef().accentYellowGold));
-        m_matLightIconSpot->SetProperty("thickness"_hs, 0.5f);
-        m_matLightIconSpot->SetProperty("outlineThickness"_hs, 0.0f);
-        m_matLightIconSpot->SetProperty("softness"_hs, 0.02f);
-        m_matLightIconSpot->SetProperty("outlineSoftness"_hs, 0.02f);
-        m_matLightIconSpot->SetProperty("uvStart"_hs, Vector2(glyphSpot.m_uv12.x, glyphSpot.m_uv12.y));
-        m_matLightIconSpot->SetProperty("uvSize"_hs, m_iconSzSpot);
-        
-        m_matLightIconPoint->SetProperty("diffuse"_hs, txt);
-        m_matLightIconPoint->SetProperty("color"_hs, Vector4(Theme::GetDef().accentYellowGold));
-        m_matLightIconPoint->SetProperty("thickness"_hs, 0.5f);
-        m_matLightIconPoint->SetProperty("outlineThickness"_hs, 0.0f);
-        m_matLightIconPoint->SetProperty("softness"_hs, 0.02f);
-        m_matLightIconPoint->SetProperty("outlineSoftness"_hs, 0.02f);
-        m_matLightIconPoint->SetProperty("uvStart"_hs, Vector2(glyphPoint.m_uv12.x, glyphPoint.m_uv12.y));
-        m_matLightIconPoint->SetProperty("uvSize"_hs, m_iconSzPoint);
-        
-        m_matLightIconSun->SetProperty("diffuse"_hs, txt);
-        m_matLightIconSun->SetProperty("color"_hs, Vector4(Theme::GetDef().accentYellowGold));
-        m_matLightIconSun->SetProperty("thickness"_hs, 0.5f);
-        m_matLightIconSun->SetProperty("outlineThickness"_hs, 0.0f);
-        m_matLightIconSun->SetProperty("softness"_hs, 0.02f);
-        m_matLightIconSun->SetProperty("outlineSoftness"_hs, 0.02f);
-        m_matLightIconSun->SetProperty("uvStart"_hs, Vector2(glyphSun.m_uv12.x, glyphSun.m_uv12.y));
-        m_matLightIconSun->SetProperty("uvSize"_hs, m_iconSzSun);
-
-		m_translateModel  = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_TRANSLATE_ID);
-		m_rotateModel	  = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_ROTATE_ID);
-		m_rotateFullModel = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_ROTATE_FULL_ID);
-		m_scaleModel	  = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_SCALE_ID);
-		m_centerTranslate = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_TRANSLATE_CENTER_ID);
-		m_centerScale	  = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_SCALE_CENTER_ID);
-		m_orientGizmo	  = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_ORIENTATION_ID);
-        m_quadModel = m_rm->GetResource<Model>(EDITOR_MODEL_QUAD_ID);
+		m_modelTranslate  = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_TRANSLATE_ID);
+		m_modelRotate	  = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_ROTATE_ID);
+		m_modelRotateCircle = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_ROTATE_FULL_ID);
+		m_modelScale	  = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_SCALE_ID);
+		m_modelTranslateCenter = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_TRANSLATE_CENTER_ID);
+		m_modelScaleCenter	  = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_SCALE_CENTER_ID);
+		m_modelOrientationGizmo	  = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_ORIENTATION_ID);
+        m_modelQuad = m_rm->GetResource<Model>(EDITOR_MODEL_QUAD_ID);
 
 	} // namespace Lina::Editor
 
 	GizmoRenderer::~GizmoRenderer()
 	{
-		m_rm->DestroyResource(m_gizmoMaterialX);
-		m_rm->DestroyResource(m_gizmoMaterialY);
-        m_rm->DestroyResource(m_gizmoMaterialZ);
-        m_rm->DestroyResource(m_gizmoMaterialCenter);
-        m_rm->DestroyResource(m_gizmoRotateMaterial);
+		m_rm->DestroyResource(m_matGizmoX);
+		m_rm->DestroyResource(m_matGizmoY);
+        m_rm->DestroyResource(m_matGizmoZ);
+        m_rm->DestroyResource(m_matGizmoCenter);
+        m_rm->DestroyResource(m_matGizmoRotateCircle);
         m_rm->DestroyResource(m_matLightIconSpot);
         m_rm->DestroyResource(m_matLightIconPoint);
         m_rm->DestroyResource(m_matLightIconSun);
@@ -211,7 +156,7 @@ namespace Lina::Editor
 			Camera& cam = m_world->GetWorldCamera();
 			m_worldRenderer->StartLine3DBatch();
             m_worldRenderer->DrawLine3D(m_gizmoSettings.position + m_gizmoSettings.worldAxis * -cam.GetZFar() * 0.5f, m_gizmoSettings.position + m_gizmoSettings.worldAxis * cam.GetZFar() * 0.5f, 0.08f * m_gizmoSettings.defaultShaderScale, GetColorFromAxis(m_gizmoSettings.focusedAxis));
-			m_worldRenderer->EndLine3DBatch(*m_targetPass, 0, m_line3DShader->GetGPUHandle());
+			m_worldRenderer->EndLine3DBatch(*m_targetPass, 0, m_shaderLine->GetGPUHandle());
 		}
 	}
 
@@ -262,7 +207,7 @@ namespace Lina::Editor
             }
         }
         
-        m_worldRenderer->EndLine3DBatch(*m_targetPass, 0, m_line3DShader->GetGPUHandle());
+        m_worldRenderer->EndLine3DBatch(*m_targetPass, 0, m_shaderLine->GetGPUHandle());
     }
 
     void GizmoRenderer::DrawLightIcons(RenderPass* pass, StringID variant)
@@ -271,7 +216,7 @@ namespace Lina::Editor
         if(lights.empty())
             return;
         
-        const PrimitiveStatic& prim          = m_quadModel->GetAllMeshes().at(0).primitivesStatic.at(0);
+        const PrimitiveStatic& prim          = m_modelQuad->GetAllMeshes().at(0).primitivesStatic.at(0);
         const uint32           baseVertex = prim._vertexOffset;
         const uint32           baseIndex  = prim._indexOffset;
         const uint32           indexCount = static_cast<uint32>(prim.indices.size());
@@ -333,7 +278,7 @@ namespace Lina::Editor
             .vertexBuffers = {vtx, vtx},
             .indexBuffers  = {idx, idx},
             .vertexSize       = sizeof(VertexStatic),
-            .shaderHandle  = variant == 0 ? m_billboardSDFShader->GetGPUHandle() : m_billboardSDFShader->GetGPUHandle(variant),
+            .shaderHandle  = variant == 0 ? m_shaderSDFIcon->GetGPUHandle() : m_shaderSDFIcon->GetGPUHandle(variant),
             .baseVertex       = baseVertex,
             .baseIndex       = baseIndex,
             .indexCount       = indexCount,
@@ -346,7 +291,7 @@ namespace Lina::Editor
 
 	void GizmoRenderer::DrawGizmoMoveScale(RenderPass* pass, StringID variant, float shaderScale)
 	{
-		Model*				   model	  = m_gizmoSettings.type == GizmoMode::Move ? m_translateModel : m_scaleModel;
+		Model*				   model	  = m_gizmoSettings.type == GizmoMode::Move ? m_modelTranslate : m_modelScale;
 		const PrimitiveStatic& prim		  = model->GetAllMeshes().at(0).primitivesStatic.at(0);
 		const uint32		   baseVertex = prim._vertexOffset;
 		const uint32		   baseIndex  = prim._indexOffset;
@@ -370,28 +315,28 @@ namespace Lina::Editor
 
 		const GPUDrawArguments argsCenter = {
 			.constant0 = m_worldRenderer->PushEntity(axisCenter, {.entityGUID = GIZMO_GUID_CENTER_AXIS}),
-			.constant1 = m_gizmoMaterialCenter->GetBindlessIndex(),
+			.constant1 = m_matGizmoCenter->GetBindlessIndex(),
 			.constant2 = m_gizmoSettings.hoveredEntityID == GIZMO_GUID_CENTER_AXIS,
 			.constant3 = static_cast<uint32>(shaderScale), // scale
 		};
 
 		const GPUDrawArguments argsX = {
 			.constant0 = m_worldRenderer->PushEntity(axisX, {.entityGUID = GIZMO_GUID_X_AXIS}),
-			.constant1 = m_gizmoMaterialX->GetBindlessIndex(),
+			.constant1 = m_matGizmoX->GetBindlessIndex(),
 			.constant2 = m_gizmoSettings.hoveredEntityID == GIZMO_GUID_X_AXIS,
 			.constant3 = static_cast<uint32>(shaderScale), // scale
 		};
 
 		const GPUDrawArguments argsY = {
 			.constant0 = m_worldRenderer->PushEntity(axisY, {.entityGUID = GIZMO_GUID_Y_AXIS}),
-			.constant1 = m_gizmoMaterialY->GetBindlessIndex(),
+			.constant1 = m_matGizmoY->GetBindlessIndex(),
 			.constant2 = m_gizmoSettings.hoveredEntityID == GIZMO_GUID_Y_AXIS,
 			.constant3 = static_cast<uint32>(shaderScale), // scale
 		};
 
 		const GPUDrawArguments argsZ = {
 			.constant0 = m_worldRenderer->PushEntity(axisZ, {.entityGUID = GIZMO_GUID_Z_AXIS}),
-			.constant1 = m_gizmoMaterialZ->GetBindlessIndex(),
+			.constant1 = m_matGizmoZ->GetBindlessIndex(),
 			.constant2 = m_gizmoSettings.hoveredEntityID == GIZMO_GUID_Z_AXIS,
 			.constant3 = static_cast<uint32>(shaderScale), // scale
 		};
@@ -407,7 +352,7 @@ namespace Lina::Editor
 			.vertexBuffers = {vtx, vtx},
 			.indexBuffers  = {idx, idx},
 			.vertexSize	   = sizeof(VertexStatic),
-			.shaderHandle  = variant == 0 ? m_gizmoShader->GetGPUHandle() : m_gizmoShader->GetGPUHandle(variant),
+			.shaderHandle  = variant == 0 ? m_shaderGizmo->GetGPUHandle() : m_shaderGizmo->GetGPUHandle(variant),
 			.baseVertex	   = baseVertex,
 			.baseIndex	   = baseIndex,
 			.indexCount	   = indexCount,
@@ -418,14 +363,14 @@ namespace Lina::Editor
 
 		// central
 		{
-			Model*							centerModel = m_gizmoSettings.type == GizmoMode::Move ? m_centerTranslate : m_centerScale;
+			Model*							centerModel = m_gizmoSettings.type == GizmoMode::Move ? m_modelTranslateCenter : m_modelScaleCenter;
 			const PrimitiveStatic&			prim		= centerModel->GetAllMeshes().at(0).primitivesStatic.at(0);
 			const uint32					pc			= m_worldRenderer->PushArgument(argsCenter);
 			const RenderPass::InstancedDraw draw		= {
 					   .vertexBuffers = {vtx, vtx},
 					   .indexBuffers  = {idx, idx},
 					   .vertexSize	  = sizeof(VertexStatic),
-					   .shaderHandle  = variant == 0 ? m_gizmoShader->GetGPUHandle() : m_gizmoShader->GetGPUHandle(variant),
+					   .shaderHandle  = variant == 0 ? m_shaderGizmo->GetGPUHandle() : m_shaderGizmo->GetGPUHandle(variant),
 					   .baseVertex	  = prim._vertexOffset,
 					   .baseIndex	  = prim._indexOffset,
 					   .indexCount	  = static_cast<uint32>(prim.indices.size()),
@@ -438,7 +383,7 @@ namespace Lina::Editor
 
 	void GizmoRenderer::DrawGizmoRotate(RenderPass* pass, StringID variant, float shaderScale)
 	{
-		Model*				   model	  = m_rotateModel;
+		Model*				   model	  = m_modelRotate;
 		const PrimitiveStatic& prim		  = model->GetAllMeshes().at(0).primitivesStatic.at(0);
 		const uint32		   baseVertex = prim._vertexOffset;
 		const uint32		   baseIndex  = prim._indexOffset;
@@ -467,21 +412,21 @@ namespace Lina::Editor
 		};
 		const GPUDrawArguments argsX = {
 			.constant0 = m_worldRenderer->PushEntity(axisX, {.entityGUID = GIZMO_GUID_X_AXIS}),
-			.constant1 = m_gizmoMaterialX->GetBindlessIndex(),
+			.constant1 = m_matGizmoX->GetBindlessIndex(),
 			.constant2 = m_gizmoSettings.hoveredEntityID == GIZMO_GUID_X_AXIS,
 			.constant3 = static_cast<uint32>(shaderScale), // scale
 		};
 
 		const GPUDrawArguments argsY = {
 			.constant0 = m_worldRenderer->PushEntity(axisY, {.entityGUID = GIZMO_GUID_Y_AXIS}),
-			.constant1 = m_gizmoMaterialY->GetBindlessIndex(),
+			.constant1 = m_matGizmoY->GetBindlessIndex(),
 			.constant2 = m_gizmoSettings.hoveredEntityID == GIZMO_GUID_Y_AXIS,
 			.constant3 = static_cast<uint32>(shaderScale), // scale
 		};
 
 		const GPUDrawArguments argsZ = {
 			.constant0 = m_worldRenderer->PushEntity(axisZ, {.entityGUID = GIZMO_GUID_Z_AXIS}),
-			.constant1 = m_gizmoMaterialZ->GetBindlessIndex(),
+			.constant1 = m_matGizmoZ->GetBindlessIndex(),
 			.constant2 = m_gizmoSettings.hoveredEntityID == GIZMO_GUID_Z_AXIS,
 			.constant3 = static_cast<uint32>(shaderScale), // scale
 		};
@@ -496,7 +441,7 @@ namespace Lina::Editor
 			.vertexBuffers = {vtx, vtx},
 			.indexBuffers  = {idx, idx},
 			.vertexSize	   = sizeof(VertexStatic),
-			.shaderHandle  = variant == 0 ? m_gizmoShader->GetGPUHandle() : m_gizmoShader->GetGPUHandle(variant),
+			.shaderHandle  = variant == 0 ? m_shaderGizmo->GetGPUHandle() : m_shaderGizmo->GetGPUHandle(variant),
 			.baseVertex	   = baseVertex,
 			.baseIndex	   = baseIndex,
 			.indexCount	   = indexCount,
@@ -512,7 +457,7 @@ namespace Lina::Editor
 
 		m_worldRenderer->StartLinaVGBatch();
 
-		Model*				   model	  = m_rotateFullModel;
+		Model*				   model	  = m_modelRotateCircle;
 		const PrimitiveStatic& prim		  = model->GetAllMeshes().at(0).primitivesStatic.at(0);
 		const uint32		   baseVertex = prim._vertexOffset;
 		const uint32		   baseIndex  = prim._indexOffset;
@@ -525,14 +470,14 @@ namespace Lina::Editor
 		Color col = Vector4(GetColorFromAxis(m_gizmoSettings.focusedAxis));
 		col.w	  = 0.5f;
 
-		m_gizmoRotateMaterial->SetProperty("color"_hs, col);
-		m_gizmoRotateMaterial->SetProperty("angle0"_hs, m_gizmoSettings.angle0);
-		m_gizmoRotateMaterial->SetProperty("angle1"_hs, m_gizmoSettings.angle1);
+		m_matGizmoRotateCircle->SetProperty("color"_hs, col);
+		m_matGizmoRotateCircle->SetProperty("angle0"_hs, m_gizmoSettings.angle0);
+		m_matGizmoRotateCircle->SetProperty("angle1"_hs, m_gizmoSettings.angle1);
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 
 		const GPUDrawArguments args = {
 			.constant0 = m_worldRenderer->PushEntity(e, {}),
-			.constant1 = m_gizmoRotateMaterial->GetBindlessIndex(),
+			.constant1 = m_matGizmoRotateCircle->GetBindlessIndex(),
 			.constant3 = static_cast<uint32>(shaderScale), // scale
 		};
 		const uint32 pc = m_worldRenderer->PushArgument(args);
@@ -544,7 +489,7 @@ namespace Lina::Editor
 			.vertexBuffers = {vtx, vtx},
 			.indexBuffers  = {idx, idx},
 			.vertexSize	   = sizeof(VertexStatic),
-			.shaderHandle  = m_gizmoRotateShader->GetGPUHandle(),
+			.shaderHandle  = m_shaderGizmoRotateCircle->GetGPUHandle(),
 			.baseVertex	   = baseVertex,
 			.baseIndex	   = baseIndex,
 			.indexCount	   = indexCount,
@@ -558,7 +503,7 @@ namespace Lina::Editor
 	{
 		Camera& cam = m_world->GetWorldCamera();
 
-		Model*				   model	  = m_orientGizmo;
+		Model*				   model	  = m_modelOrientationGizmo;
 		const PrimitiveStatic& prim		  = model->GetAllMeshes().at(0).primitivesStatic.at(0);
 		const uint32		   baseVertex = prim._vertexOffset;
 		const uint32		   baseIndex  = prim._indexOffset;
@@ -588,21 +533,21 @@ namespace Lina::Editor
 
 		const GPUDrawArguments argsX = {
 			.constant0 = m_worldRenderer->PushEntity(ex, {.entityGUID = GIZMO_ORIENTATION_X}),
-			.constant1 = m_gizmoMaterialX->GetBindlessIndex(),
+			.constant1 = m_matGizmoX->GetBindlessIndex(),
 			.constant2 = m_gizmoSettings.hoveredEntityID == GIZMO_ORIENTATION_X,
 			.constant3 = static_cast<uint32>(shaderScale), // scale
 		};
 
 		const GPUDrawArguments argsY = {
 			.constant0 = m_worldRenderer->PushEntity(ey, {.entityGUID = GIZMO_ORIENTATION_Y}),
-			.constant1 = m_gizmoMaterialY->GetBindlessIndex(),
+			.constant1 = m_matGizmoY->GetBindlessIndex(),
 			.constant2 = m_gizmoSettings.hoveredEntityID == GIZMO_ORIENTATION_Y,
 			.constant3 = static_cast<uint32>(shaderScale), // scale
 		};
 
 		const GPUDrawArguments argsZ = {
 			.constant0 = m_worldRenderer->PushEntity(ez, {.entityGUID = GIZMO_ORIENTATION_Z}),
-			.constant1 = m_gizmoMaterialZ->GetBindlessIndex(),
+			.constant1 = m_matGizmoZ->GetBindlessIndex(),
 			.constant2 = m_gizmoSettings.hoveredEntityID == GIZMO_ORIENTATION_Z,
 			.constant3 = static_cast<uint32>(shaderScale), // scale
 		};
@@ -618,7 +563,7 @@ namespace Lina::Editor
 			.vertexBuffers = {vtx, vtx},
 			.indexBuffers  = {idx, idx},
 			.vertexSize	   = sizeof(VertexStatic),
-			.shaderHandle  = variant == 0 ? m_orientGizmoShader->GetGPUHandle() : m_orientGizmoShader->GetGPUHandle(variant),
+			.shaderHandle  = variant == 0 ? m_shaderGizmoOrientation->GetGPUHandle() : m_shaderGizmoOrientation->GetGPUHandle(variant),
 			.baseVertex	   = baseVertex,
 			.baseIndex	   = baseIndex,
 			.indexCount	   = indexCount,
@@ -628,5 +573,28 @@ namespace Lina::Editor
 
 		pass->AddDrawCall(draw);
 	}
+
+void GizmoRenderer::SetupIconMaterial(Material *mat, Font *font, uint8 codePoint, Vector2 &outSize)
+{
+    LinaVG::Font* lvgFont = font->GetFont(m_gizmoSettings.defaultShaderScale);
+    LinaVG::TextCharacter& glyph = lvgFont->glyphs.at(codePoint);
+    outSize =  Vector2(glyph.m_uv34.x, glyph.m_uv34.y) - Vector2(glyph.m_uv12.x, glyph.m_uv12.y);
+    Texture* ft = m_editor->GetApp()->GetGUIBackend().GetFontTexture(lvgFont->atlas).texture;
+    const LinaTexture2D txt = {
+        .texture = ft->GetID(),
+        .sampler = m_editor->GetEditorRenderer().GetGUITextSampler()->GetID(),
+    };
+
+    mat->SetShader(m_shaderSDFIcon);
+    mat->SetProperty("diffuse"_hs, txt);
+    mat->SetProperty("color"_hs, Vector4(Theme::GetDef().accentYellowGold));
+    mat->SetProperty("outlineColor"_hs, Vector4(Theme::GetDef().background0));
+    mat->SetProperty("thickness"_hs, 0.5f);
+    mat->SetProperty("outlineThickness"_hs, 0.55f);
+    mat->SetProperty("softness"_hs, 0.02f);
+    mat->SetProperty("outlineSoftness"_hs, 0.02f);
+    mat->SetProperty("uvStart"_hs, Vector2(glyph.m_uv12.x, glyph.m_uv12.y));
+    mat->SetProperty("uvSize"_hs, outSize);
+}
 
 } // namespace Lina::Editor
