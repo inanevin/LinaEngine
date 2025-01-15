@@ -92,7 +92,9 @@ src/Physics/PhysicsWorld.cpp
 src/Physics/PhysicsMaterial.cpp
 src/Physics/PhysicsBackend.cpp
 src/Physics/CommonPhysics.cpp
-
+src/Physics/PhysicsLayerFilter.cpp
+src/Physics/PhysicsBPLayerInterface.cpp
+src/Physics/PhysicsObjectBPLayerFilter.cpp
 
 # GUI
 src/GUI/Theme.cpp
@@ -215,7 +217,9 @@ include/Core/Physics/PhysicsWorld.hpp
 include/Core/Physics/PhysicsMaterial.hpp
 include/Core/Physics/PhysicsBackend.hpp
 include/Core/Physics/CommonPhysics.hpp
-
+include/Core/Physics/PhysicsLayerFilter.hpp
+include/Core/Physics/PhysicsBPLayerInterface.hpp
+include/Core/Physics/PhysicsObjectBPLayerFilter.hpp
 
 # GUI
 include/Core/GUI/CommonGUI.hpp

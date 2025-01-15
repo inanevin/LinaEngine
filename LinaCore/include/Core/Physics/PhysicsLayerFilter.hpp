@@ -28,24 +28,17 @@ SOFTWARE.
 
 #pragma once
 
-#include "Common/SizeDefinitions.hpp"
+#include <Jolt/Jolt.h>
 
 namespace Lina
 {
-
- 
-    enum PhysicsObjectLayers : uint16
+    class PhysicsLayerFilter : public JPH::ObjectLayerPairFilter
     {
-        PHYSICS_OBJ_LAYER_MOVING = 0,
-        PHYSICS_OBJ_LAYER_NONMOVING = 1,
-        PHYSICS_OBJ_LAYER_MAX = 20,
+    public:
+        virtual bool  ShouldCollide(JPH::ObjectLayer inObject1, JPH::ObjectLayer inObject2) const override
+        {
+            return true;
+        }
     };
-
-    enum PhysicsBroadPhaseLayers : uint16
-    {
-        PHYSICS_BP_LAYER_MOVING = 0,
-        PHYSICS_BP_LAYER_NONMOVING = 1,
-        PHYSICS_BP_LAYER_MAX = 2,
-    };
-    
 } // namespace Lina
+

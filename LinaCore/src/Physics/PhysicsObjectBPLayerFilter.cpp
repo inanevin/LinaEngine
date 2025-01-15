@@ -26,26 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#include "Common/SizeDefinitions.hpp"
-
+#include "Core/Physics/CommonPhysics.hpp"
 namespace Lina
 {
 
- 
-    enum PhysicsObjectLayers : uint16
-    {
-        PHYSICS_OBJ_LAYER_MOVING = 0,
-        PHYSICS_OBJ_LAYER_NONMOVING = 1,
-        PHYSICS_OBJ_LAYER_MAX = 20,
-    };
 
-    enum PhysicsBroadPhaseLayers : uint16
-    {
-        PHYSICS_BP_LAYER_MOVING = 0,
-        PHYSICS_BP_LAYER_NONMOVING = 1,
-        PHYSICS_BP_LAYER_MAX = 2,
-    };
-    
 } // namespace Lina
