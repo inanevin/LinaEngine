@@ -40,6 +40,7 @@ SOFTWARE.
 #include "Core/Graphics/Pipeline/View.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/World/Components/CompModel.hpp"
+#include "Core/World/Components/CompLight.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 
 #include "Common/Platform/LinaGXIncl.hpp"
@@ -118,9 +119,9 @@ namespace Lina
 			data.boneBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(Matrix4) * 1000, m_name + " BoneBuffer");
             data.lightBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPULight) * 100, m_name + " LightBuffer");
 
-			data.line3DVtxBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, sizeof(Line3DVertex) * 1000, m_name + " Line3DVertexBuffer");
+			data.line3DVtxBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, sizeof(Line3DVertex) * 10000, m_name + " Line3DVertexBuffer");
 			data.lvgVtxBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, sizeof(LinaVG::Vertex) * 2000, m_name + " LVGVertexBuffer");
-			data.line3DIdxBuffer.Create(LinaGX::ResourceTypeHint::TH_IndexBuffer, sizeof(uint16) * 1000, m_name + " Line3DIndexBuffer");
+			data.line3DIdxBuffer.Create(LinaGX::ResourceTypeHint::TH_IndexBuffer, sizeof(uint16) * 20000, m_name + " Line3DIndexBuffer");
 			data.lvgIdxBuffer.Create(LinaGX::ResourceTypeHint::TH_IndexBuffer, sizeof(LinaVG::Index) * 5000, m_name + "LVGIndexBuffer");
 
 			const uint16 setDf = m_deferredPass.GetDescriptorSet(i);
@@ -387,6 +388,10 @@ namespace Lina
 				.ident	= ident,
 			});
 		}
+        else
+        {
+            m_cpuDrawData.entities.at(idx).entity = e;
+        }
 
 		return idx;
 	}
@@ -444,16 +449,135 @@ namespace Lina
 		m_cpuDrawData.line3DIndices.push_back(sz);
 	}
 
+    void WorldRenderer::DrawWireframeCube3D(const Vector3 &center, const Vector3 &extents, float thickness, const ColorGrad &color)
+    {
+        const Vector3 p0 = center - extents * 0.5f;
+        const Vector3 p1 = p0 + Vector3(0, extents.y, 0);
+        const Vector3 p2 = p1 + Vector3(0, 0, extents.z);
+        const Vector3 p3 = p2 + Vector3(0, -extents.y, 0);
+        DrawLine3D(p0, p1, thickness, color);
+        DrawLine3D(p1, p2, thickness, color);
+        DrawLine3D(p2, p3, thickness, color);
+        DrawLine3D(p0, p3, thickness, color);
+        
+        const Vector3 pr0 = p0 + Vector3(extents.x, 0, 0);
+        const Vector3 pr1 = p1 + Vector3(extents.x, 0, 0);
+        const Vector3 pr2 = p2 + Vector3(extents.x, 0, 0);
+        const Vector3 pr3 = p3 + Vector3(extents.x, 0, 0);
+        DrawLine3D(pr0, pr1, thickness, color);
+        DrawLine3D(pr1, pr2, thickness, color);
+        DrawLine3D(pr2, pr3, thickness, color);
+        DrawLine3D(pr0, pr3, thickness, color);
+        
+        DrawLine3D(p0, pr0, thickness, color);
+        DrawLine3D(p1, pr1, thickness, color);
+        
+        DrawLine3D(p2, pr2, thickness, color);
+        DrawLine3D(p3, pr3, thickness, color);
+    }
+
+    void WorldRenderer::DrawWireSphere3D(const Vector3 &center, float radius, float thickness, const ColorGrad &color)
+    {
+        const int segments = 32; 
+        const float deltaAngle = glm::two_pi<float>() / segments;
+
+        // Draw circles in the XZ plane (latitude).
+        for (int i = 0; i < segments; ++i)
+        {
+            float theta0 = i * deltaAngle;
+            float theta1 = (i + 1) * deltaAngle;
+
+            Vector3 p0 = center + Vector3(radius * cos(theta0), 0.0f, radius * sin(theta0));
+            Vector3 p1 = center + Vector3(radius * cos(theta1), 0.0f, radius * sin(theta1));
+
+            DrawLine3D(p0, p1, thickness, color);
+        }
+
+        // Draw circles in the XY plane (longitude).
+        for (int i = 0; i < segments; ++i)
+        {
+            float theta0 = i * deltaAngle;
+            float theta1 = (i + 1) * deltaAngle;
+
+            Vector3 p0 = center + Vector3(radius * cos(theta0), radius * sin(theta0), 0.0f);
+            Vector3 p1 = center + Vector3(radius * cos(theta1), radius * sin(theta1), 0.0f);
+
+            DrawLine3D(p0, p1, thickness, color);
+        }
+
+        // Draw circles in the YZ plane (longitude).
+        for (int i = 0; i < segments; ++i)
+        {
+            float theta0 = i * deltaAngle;
+            float theta1 = (i + 1) * deltaAngle;
+
+            Vector3 p0 = center + Vector3(0.0f, radius * cos(theta0), radius * sin(theta0));
+            Vector3 p1 = center + Vector3(0.0f, radius * cos(theta1), radius * sin(theta1));
+
+            DrawLine3D(p0, p1, thickness, color);
+        }
+    }
+
+    void WorldRenderer::DrawWireCone3D(const Vector3 &top, const Vector3 &dir, float length, const float radius, float thickness, const ColorGrad& color, bool drawLines)
+    {
+        const int segments = 36; // Number of segments for the base circle.
+        const float deltaAngle = glm::two_pi<float>() / segments;
+
+        // Normalize the direction vector.
+        Vector3 direction = glm::normalize(dir);
+
+        // Calculate the center of the base circle.
+        Vector3 baseCenter = top + direction * length;
+
+        // Create two orthogonal vectors perpendicular to the direction vector.
+        Vector3 up = (fabs(direction.y) < 0.99f) ? Vector3(0.0f, 1.0f, 0.0f) : Vector3(1.0f, 0.0f, 0.0f);
+        Vector3 right = glm::normalize(glm::cross(direction, up));
+        Vector3 forward = glm::normalize(glm::cross(right, direction));
+
+        // Draw the base circle.
+        Vector<Vector3> circlePoints;
+        Vector<Vector3> linePoints;
+        
+        for (int i = 0; i < segments; ++i)
+        {
+            float angle = i * deltaAngle;
+            Vector3 pointOnCircle = baseCenter + right * (radius * cos(angle)) + forward * (radius * sin(angle));
+            circlePoints.push_back(pointOnCircle);
+            
+            if(i % 8 == 0)
+                linePoints.push_back(pointOnCircle);
+
+            // Draw a line segment of the circle.
+            if (i > 0)
+                DrawLine3D(circlePoints[i - 1], circlePoints[i], thickness, color);
+        }
+
+        // Connect the last segment to close the circle.
+        DrawLine3D(circlePoints.back(), circlePoints[0], thickness, color);
+
+        if(!drawLines)
+            return;
+        
+        // Draw lines connecting the top point to the base circle.
+        for (const Vector3& point : linePoints)
+            DrawLine3D(top, point, thickness, color);
+    }
+
 	void WorldRenderer::EndLine3DBatch(RenderPass& pass, uint32 pushConstantValue, uint32 shaderHandle)
 	{
+        const uint32 ic = static_cast<uint32>(m_cpuDrawData.line3DIndices.size()) - m_currentLine3DStartIndex;
+        if(ic == 0)
+            return;
+        
+        
 		const RenderPass::InstancedDraw draw = {
 			.vertexBuffers = {&m_pfd[0].line3DVtxBuffer, &m_pfd[1].line3DVtxBuffer},
 			.indexBuffers  = {&m_pfd[0].line3DIdxBuffer, &m_pfd[1].line3DIdxBuffer},
 			.vertexSize	   = sizeof(Line3DVertex),
 			.shaderHandle  = shaderHandle,
-			.baseVertex	   = m_currentLine3DStartVertex,
+			.baseVertex	   = 0,
 			.baseIndex	   = m_currentLine3DStartIndex,
-			.indexCount	   = static_cast<uint32>(m_cpuDrawData.line3DIndices.size()) - m_currentLine3DStartIndex,
+			.indexCount	   = ic,
 			.instanceCount = 1,
 			.pushConstant  = pushConstantValue,
 		};
@@ -471,15 +595,20 @@ namespace Lina
 	{
 		m_lvgDrawer.FlushBuffers();
 		m_lvgDrawer.ResetFrame();
+        
+        const uint32 ic = static_cast<uint32>(m_cpuDrawData.lvgIndices.size()) - m_currentLvgStartIndex;
+        
+        if(ic == 0)
+            return;
 
 		const RenderPass::InstancedDraw draw = {
 			.vertexBuffers = {&m_pfd[0].lvgVtxBuffer, &m_pfd[1].lvgVtxBuffer},
 			.indexBuffers  = {&m_pfd[0].lvgIdxBuffer, &m_pfd[1].lvgIdxBuffer},
 			.vertexSize	   = sizeof(LinaVG::Vertex),
 			.shaderHandle  = shaderHandle,
-			.baseVertex	   = m_currentLvgStartVertex,
+			.baseVertex	   = 0,
 			.baseIndex	   = m_currentLvgStartIndex,
-			.indexCount	   = static_cast<uint32>(m_cpuDrawData.lvgIndices.size()) - m_currentLvgStartIndex,
+			.indexCount	   = ic,
 			.instanceCount = 1,
 			.pushConstant  = pushConstantValue,
 		};
@@ -540,11 +669,68 @@ namespace Lina
 
 			return false;
 		});
+        
+        
+        m_compLights.resize(0);
+        
+        m_world->GetCache<CompLight>()->GetBucket().View([&](CompLight* light, uint32 idx) -> bool {
+            if(!light->GetEntity()->GetVisible())
+                return false;
+            
+            m_compLights.push_back(light);
+        });
+        
+        const size_t lightsSz = m_compLights.size();
+        m_cpuDrawData.lights.resize(lightsSz);
+        
+        for(size_t i = 0; i < lightsSz; i++)
+        {
+            GPULight& light = m_cpuDrawData.lights[i];
+            CompLight* compLight = m_compLights.at(i);
+            Entity* e = compLight->GetEntity();
+            
+            const Color& color = compLight->GetColor();
+            const float intensity = compLight->GetIntensity();
+            const LightType type = compLight->GetType();
+            const float cutoff = compLight->GetCutoff();
+            const float outerCutoff = compLight->GetOuterCutoff();
+            const float radius = compLight->GetRadius();
+            const float falloff = compLight->GetFalloff();
+            
+            const GPUEntity entity = {
+                .model = compLight->GetEntity()->GetTransform().ToMatrix(),
+                .position = e->GetPosition(),
+                .forward = e->GetRotation().GetForward(),
+            };
+            
+            
+            const uint32 idx = PushEntity(entity, {
+                .entityGUID = compLight->GetEntity()->GetGUID(),
+            });
+            
+            light.colorAndIntensity = Vector4(color.x, color.y, color.z, intensity);
+            light.type = static_cast<uint32>(type);
+            light.entityIndex = idx;
 
+            if(type == LightType::Directional)
+            {
+            }
+            else if(type == LightType::Point)
+            {
+                light.radius = radius;
+                light.falloff = falloff;
+            }
+            else if(type == LightType::Spot)
+            {
+                light.radius = radius;
+                light.falloff = falloff;
+                light.cutoff = Math::Cos(Math::ToRadians(cutoff));
+                light.outerCutoff = Math::Cos(Math::ToRadians(outerCutoff));
+            }
+        }
         
 		CalculateSkinning(m_skinnedModels);
 		DrawCollector::CollectCompModels(m_compModels, m_deferredPass, m_resourceManagerV2, this, m_gfxContext, {.allowedShaderTypes = {ShaderType::DeferredSurface}});
-		DrawCollector::CollectCompModels(m_compModels, m_forwardPass, m_resourceManagerV2, this, m_gfxContext, {.allowedShaderTypes = {ShaderType::ForwardSurface}});
 
 		// Lighting Quad
 		{
@@ -556,7 +742,8 @@ namespace Lina
 			m_forwardPass.AddDrawCall(lightingQuad);
 		}
 
-		// Skybox.
+        
+        // Skybox.
 		{
 			Material*			   skyMaterial = m_resourceManagerV2->GetResource<Material>(m_world->GetGfxSettings().skyMaterial);
 			Shader*				   skyShader   = m_resourceManagerV2->GetResource<Shader>(skyMaterial->GetShader());
@@ -596,6 +783,8 @@ namespace Lina
 				m_forwardPass.AddDrawCall(skyDraw);
 			}
 		}
+        
+        DrawCollector::CollectCompModels(m_compModels, m_forwardPass, m_resourceManagerV2, this, m_gfxContext, {.allowedShaderTypes = {ShaderType::ForwardSurface}});
 	}
 
 	void WorldRenderer::SyncRender()

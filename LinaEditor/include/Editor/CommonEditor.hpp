@@ -81,6 +81,7 @@ namespace Lina::Editor
 #define EDITOR_SHADER_WORLD_GIZMO_ROTATE_PATH		   "Resources/Editor/Shaders/World/GizmoRotate.linashader"
 #define EDITOR_SHADER_WORLD_ORIENT_GIZMO_PATH		   "Resources/Editor/Shaders/World/OrientationGizmo.linashader"
 #define EDITOR_SHADER_GUI_SWAPCHAIN_PATH           "Resources/Editor/Shaders/GUI/Swapchain.linashader"
+#define EDITOR_SHADER_WORLD_BILLBOARD_SDF_PATH           "Resources/Editor/Shaders/World/BillboardSDF.linashader"
 
 #define EDITOR_SHADER_GUI_DEFAULT_ID				 RESOURCE_ID_EDITOR_SHADERS
 #define EDITOR_SHADER_GUI_COLOR_WHEEL_ID			 RESOURCE_ID_EDITOR_SHADERS + 1
@@ -104,7 +105,8 @@ namespace Lina::Editor
 #define EDITOR_SHADER_WORLD_DEPTH_SAMPLE_ID			 RESOURCE_ID_EDITOR_SHADERS + 19
 #define EDITOR_SHADER_WORLD_GIZMO_ROTATE_ID			 RESOURCE_ID_EDITOR_SHADERS + 20
 #define EDITOR_SHADER_WORLD_ORIENT_GIZMO_ID			 RESOURCE_ID_EDITOR_SHADERS + 21
-#define EDITOR_SHADER_GUI_SWAPCHAIN_ID             RESOURCE_ID_EDITOR_SHADERS + 22
+#define EDITOR_SHADER_GUI_SWAPCHAIN_ID               RESOURCE_ID_EDITOR_SHADERS + 22
+#define EDITOR_SHADER_WORLD_BILLBOARD_SDF_ID            RESOURCE_ID_EDITOR_SHADERS + 23
 
 // Textures
 #define EDITOR_TEXTURE_CHECKERED_PATH				 "Resources/Editor/Textures/Checkered.png"
@@ -159,7 +161,8 @@ namespace Lina::Editor
 #define EDITOR_MODEL_GIZMO_TRANSLATE_CENTER_PATH "Resources/Editor/Models/Sphere.glb"
 #define EDITOR_MODEL_GIZMO_SCALE_CENTER_PATH	 "Resources/Editor/Models/Cube.glb"
 #define EDITOR_MODEL_GIZMO_ROTATE_FULL_PATH		 "Resources/Editor/Models/GizmoRotateFull.glb"
-#define EDITOR_MODEL_GIZMO_ORIENTATION_PATH		 "Resources/Editor/Models/GizmoOrientation.glb"
+#define EDITOR_MODEL_GIZMO_ORIENTATION_PATH         "Resources/Editor/Models/GizmoOrientation.glb"
+#define EDITOR_MODEL_QUAD_PATH		 "Resources/Editor/Models/Quad.glb"
 
 #define EDITOR_MODEL_CUBE_ID				   RESOURCE_ID_EDITOR_MODELS
 #define EDITOR_MODEL_CYLINDER_ID			   RESOURCE_ID_EDITOR_MODELS + 1
@@ -174,7 +177,8 @@ namespace Lina::Editor
 #define EDITOR_MODEL_GIZMO_TRANSLATE_CENTER_ID RESOURCE_ID_EDITOR_MODELS + 10
 #define EDITOR_MODEL_GIZMO_SCALE_CENTER_ID	   RESOURCE_ID_EDITOR_MODELS + 11
 #define EDITOR_MODEL_GIZMO_ROTATE_FULL_ID	   RESOURCE_ID_EDITOR_MODELS + 12
-#define EDITOR_MODEL_GIZMO_ORIENTATION_ID	   RESOURCE_ID_EDITOR_MODELS + 13
+#define EDITOR_MODEL_GIZMO_ORIENTATION_ID       RESOURCE_ID_EDITOR_MODELS + 13
+#define EDITOR_MODEL_QUAD_ID	   RESOURCE_ID_EDITOR_MODELS + 14
 
 // Icons
 #define ICON_LINA_LOGO			  "\u0041"
@@ -252,7 +256,10 @@ namespace Lina::Editor
 #define ICON_SLIDERS			  "\u002D"
 #define ICON_VIDEO				  "\u002E"
 #define ICON_CUBES_STACKED		  "\u002F"
-#define ICON_CODE				  "\u0030"
+#define ICON_CODE                 "\u0030"
+#define ICON_LIGHTBULD            "\u0031"
+#define ICON_SPOTLIGHT            "\u0032"
+#define ICON_SUN				  "\u0033"
 
 #define DOCK_DEFAULT_PERCENTAGE	  0.4f
 #define DOCKED_MIN_SIZE			  300.0f

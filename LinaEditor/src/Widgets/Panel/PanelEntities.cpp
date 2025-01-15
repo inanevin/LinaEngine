@@ -51,6 +51,7 @@ namespace Lina::Editor
 		AddChild(m_browser);
 
         EntityWorld* w = m_editor->GetWorldManager().GetFirstGameWorld();
+        
         if(w)
             m_browser->SetWorld(w);
         

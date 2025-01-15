@@ -856,7 +856,8 @@ namespace Lina::Editor
 		WorldUtility::ExtractRoots(m_world, m_selectedEntities, m_selectedRoots);
 
 		m_ewr->SetSelectedEntities(m_selectedEntities);
-
+        CalculateAverageGizmoPosition();
+        
 		const bool selectionCircleVisible = !m_selectedRoots.empty();
 		if (!m_selectionControls.visible && selectionCircleVisible)
 			m_selectionControls.circleTween = Tween(0.0f, 1.0f, SELECTION_CIRCLE_DUR, TweenType::EaseIn);
@@ -1038,19 +1039,19 @@ namespace Lina::Editor
 
 		const Vector<Entity*>& selection = m_selectedRoots;
 
+        rendererSettings.draw           = !selection.empty();
+        rendererSettings.position       = m_gizmoControls.averagePosition;
+        rendererSettings.defaultShaderScale = m_lgxWindow->GetDPIScale();
+        rendererSettings.visualizeAxis = false;
+        rendererSettings.type           = m_gizmoControls.type;
+        rendererSettings.focusedAxis   = m_gizmoControls.motionAxis;
+        
 		if (selection.empty())
 			return;
 
 		if (m_gizmoControls.gizmoMotion == GizmoMotion::Mouse && !m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_0))
 			StopGizmoMotion(true);
 
-		rendererSettings.draw		   = true;
-		rendererSettings.visualizeAxis = false;
-		rendererSettings.position	   = m_gizmoControls.averagePosition;
-		rendererSettings.type		   = m_gizmoControls.type;
-		rendererSettings.focusedAxis   = m_gizmoControls.motionAxis;
-        rendererSettings.defaultShaderScale = m_lgxWindow->GetDPIScale();
-        
 		if (m_gizmoControls.type == GizmoMode::Scale)
 			rendererSettings.rotation = selection.size() == 1 ? selection.at(0)->GetRotation() : Quaternion::Identity();
 		else
@@ -1064,7 +1065,7 @@ namespace Lina::Editor
 			m_gizmoControls.usedLocality = GizmoLocality::World;
 
 		m_gizmoControls.visualizeAlpha = Math::Lerp(m_gizmoControls.visualizeAlpha, m_gizmoControls.gizmoMotion == GizmoMotion::Key ? 1.0f : 0.0f, SystemInfo::GetDeltaTime() * 10.0f);
-
+        
 		if (m_gizmoControls.motionAxis == GizmoAxis::None)
 			return;
 

@@ -129,7 +129,6 @@ void main() {
    
     float t = -nearPoint.y / (farPoint.y - nearPoint.y);
     vec3 fragPos3D = nearPoint + t * (farPoint - nearPoint);
-    gl_FragDepth = computeDepth(fragPos3D);
 
     float linearDepth = computeLinearDepth(fragPos3D);
     float fading = max(0, (material.fading - linearDepth));
@@ -162,6 +161,9 @@ void main() {
     }
 
     outColor.a *= fading;
+
+    gl_FragDepth = outColor.a < 0.1 ? 1.0 : computeDepth(fragPos3D);
+
 }
 
 #lina_end

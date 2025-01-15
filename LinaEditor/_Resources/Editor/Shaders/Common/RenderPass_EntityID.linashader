@@ -34,16 +34,9 @@ struct DrawArguments
 	uint argument3;
 };
 
-struct LinaLight
+struct LinaEntity
 {
-	vec4 colorAndIntensity;
-	uint type;
-	uint entityIndex;
-	float radius;
-	float falloff;  
-	float cutoff;
-	float outerCutoff;
-	float padding[22];         
+    mat4 modelMatrix;
 };
 
 layout(set = 1, binding = 0) uniform ViewData
@@ -51,18 +44,13 @@ layout(set = 1, binding = 0) uniform ViewData
 	mat4 view;
 	mat4 proj;
 	mat4 viewProj;
-	vec4 ambientTop;
-	vec4 ambientMid;
-	vec4 ambientBot;
-	uint gBufColorMaterialID;
-	uint gBufPosition;
-	uint gBufNormal;
-	uint gBufSampler;
-	uint lightCount;
-	uint padding0;
-	uint padding1;
-	uint padding2;
+	vec4 cameraPositionAndNear;
+	vec4 cameraDirectionAndFar;
+	vec2 size;
+	vec2 mouse;
+	vec4 padding2;
 } LINA_VIEW;
+
 
 layout(set = 1, binding = 1) readonly buffer DrawArgumentsBuffer
 {
@@ -78,11 +66,6 @@ layout(set = 1, binding = 3) readonly buffer BoneBuffer
 {
     mat4 data[];
 } LINA_BONES;
-
-layout(set = 1, binding = 4) readonly buffer LightBuffer
-{
-	LinaLight data[];
-} LINA_LIGHTS;
 
 LinaEntity LINA_GET_ENTITY(uint index)
 {

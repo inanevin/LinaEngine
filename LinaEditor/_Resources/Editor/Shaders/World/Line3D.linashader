@@ -30,7 +30,7 @@ SOFTWARE.
 
 #name : Default
 #blend: LINA_BLEND_ALPHA
-#depth: LINA_DEPTH_NONE
+#depth: LINA_DEPTH_LESS
 #depth_target: LINA_TARGET_D32
 #target: LINA_TARGET_LDR_MS
 #cull: LINA_CULL_NONE

@@ -49,3 +49,13 @@ vec4 LINA_SAMPLE_TEXTURE(LinaTexture2D linaTxt, vec2 uv)
 {
 	return texture(sampler2D(LINA_TEXTURES[linaTxt.txt], LINA_SAMPLERS[linaTxt.smp]), uv);
 }
+
+struct LinaEntity
+{
+    mat4 modelMatrix;
+    mat4 normalMatrix;
+	vec4 position;
+	vec4 forward;
+	float padding[24];
+};
+

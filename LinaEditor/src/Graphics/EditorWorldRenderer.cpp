@@ -381,7 +381,6 @@ namespace Lina::Editor
 
 			pfd.depthTarget = pfd.renderTargetMSAA = pfd.renderTargetResolve = nullptr;
 		}
-
 		m_mousePickRenderer.DestroySizeRelativeResources();
 		m_outlineRenderer.DestroySizeRelativeResources();
 	}
@@ -390,6 +389,7 @@ namespace Lina::Editor
 	{
 		m_selectedEntities = selected;
 		m_outlineRenderer.SetSelectedEntities(selected);
+        m_gizmoRenderer.SetSelectedEntities(selected);
 	}
 
 } // namespace Lina::Editor

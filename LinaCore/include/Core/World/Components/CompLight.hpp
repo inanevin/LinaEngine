@@ -51,12 +51,47 @@ namespace Lina
         
         virtual void SaveToStream(OStream& stream) const
         {
-            stream << m_type << m_color << m_intensity << m_distance << m_cutOff;
+            stream << m_type << m_color << m_intensity << m_radius << m_cutoff << m_outerCutoff << m_falloff;
         }
         
         virtual void LoadFromStream(IStream& stream)
         {
-            stream>> m_type >> m_color >> m_intensity >> m_distance >> m_cutOff;
+            stream >> m_type >> m_color >> m_intensity >> m_radius >> m_cutoff >> m_outerCutoff >> m_falloff;
+        }
+        
+        inline float GetRadius() const
+        {
+            return m_radius;
+        }
+        
+        inline float GetCutoff() const
+        {
+            return m_cutoff;
+        }
+        
+        inline float GetOuterCutoff() const
+        {
+            return m_outerCutoff;
+        }
+        
+        inline float GetIntensity() const
+        {
+            return m_intensity;
+        }
+        
+        inline const Color& GetColor() const
+        {
+            return m_color;
+        }
+        
+        inline LightType GetType() const
+        {
+            return m_type;
+        }
+        
+        inline float GetFalloff() const
+        {
+            return m_falloff;
         }
         
     private:
@@ -65,8 +100,10 @@ namespace Lina
         LightType m_type = LightType::Directional;
         Color m_color = Color::White;
         float m_intensity = 1.0f;
-        float m_distance = 1.0f;
-        float m_cutOff = 0.0f;
+        float m_radius = 2.0f;
+        float m_falloff = 1.0f;
+        float m_cutoff = 5.0f;
+        float m_outerCutoff = 7.0f;
     };
     
 LINA_CLASS_BEGIN(LightType)
@@ -77,12 +114,18 @@ LINA_CLASS_END(LightType)
 
 LINA_COMPONENT_BEGIN(CompLight, "Graphics")
 LINA_FIELD(CompLight, m_type, "Type", FieldType::Enum, GetTypeID<LightType>())
-LINA_FIELD(CompLight, m_distance, "Distance", FieldType::Float, 0)
-LINA_FIELD(CompLight, m_cutOff, "CutOff", FieldType::Float, 0)
+LINA_FIELD(CompLight, m_radius, "Radius", FieldType::Float, 0)
+LINA_FIELD(CompLight, m_falloff, "Falloff", FieldType::Float, 0)
+LINA_FIELD(CompLight, m_cutoff, "Cutoff", FieldType::Float, 0)
+LINA_FIELD(CompLight, m_outerCutoff, "Outer Cutoff", FieldType::Float, 0)
 LINA_FIELD(CompLight, m_intensity, "Intensity", FieldType::Float, 0)
 LINA_FIELD(CompLight, m_color, "Color", FieldType::Color, 0)
-LINA_FIELD_DEPENDENCY_POS_OP(CompLight, m_distance, "m_type", 0, "neq"_hs)
-LINA_FIELD_DEPENDENCY_POS(CompLight, m_cutOff, "m_type", 2)
+LINA_FIELD_DEPENDENCY_POS_OP(CompLight, m_radius, "m_type", 0, "neq"_hs)
+LINA_FIELD_DEPENDENCY_POS_OP(CompLight, m_falloff, "m_type", 0, "neq"_hs)
+LINA_FIELD_DEPENDENCY_POS(CompLight, m_cutoff, "m_type", 2)
+LINA_FIELD_DEPENDENCY_POS(CompLight, m_outerCutoff, "m_type", 2)
+LINA_FIELD_LIMITS(CompLight, m_cutoff, 0.0f, 89.0f, 1.0f)
+LINA_FIELD_LIMITS(CompLight, m_outerCutoff, 0.0f, 89.0f, 1.0f)
 LINA_CLASS_END(CompLight)
 
 

@@ -34,12 +34,6 @@ struct DrawArguments
 	uint argument3;
 };
 
-struct LinaEntity
-{
-    mat4 modelMatrix;
-    mat4 normalMatrix;
-};
-
 layout(set = 1, binding = 0) uniform ViewData
 {
 	mat4 view;

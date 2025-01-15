@@ -189,6 +189,11 @@ namespace Lina::Editor
 				.name = EDITOR_SHADER_WORLD_LVG3D_PATH,
 				.tid  = GetTypeID<Shader>(),
 			},
+            {
+                .id      = EDITOR_SHADER_WORLD_BILLBOARD_SDF_ID,
+                .name = EDITOR_SHADER_WORLD_BILLBOARD_SDF_PATH,
+                .tid  = GetTypeID<Shader>(),
+            },
 			{
 				.id	  = EDITOR_SHADER_WORLD_SAMPLE_ID,
 				.name = EDITOR_SHADER_WORLD_SAMPLE_PATH,
@@ -264,6 +269,11 @@ namespace Lina::Editor
 				.name = EDITOR_MODEL_GIZMO_ORIENTATION_PATH,
 				.tid  = GetTypeID<Model>(),
 			},
+            {
+                .id   = EDITOR_MODEL_QUAD_ID,
+                .name = EDITOR_MODEL_QUAD_PATH,
+                .tid  = GetTypeID<Model>(),
+            },
 		};
 
 		for (const ResourceDef& def : defs)

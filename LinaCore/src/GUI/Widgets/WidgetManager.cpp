@@ -592,11 +592,11 @@ namespace Lina
 
 	void WidgetManager::PassPreTick(Widget* w)
 	{
+        for (auto cb : w->m_preTickHooks)
+            cb();
+        
 		if (w->GetFlags().IsSet(WF_HIDE))
 			return;
-
-		for (auto cb : w->m_preTickHooks)
-			cb();
 
 		if (!w->GetFlags().IsSet(WF_CONTROLS_DRAW_ORDER) && w->GetParent())
 			w->SetDrawOrder(w->GetParent()->GetDrawOrder() + w->GetWidgetProps().drawOrderIncrement);

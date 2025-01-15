@@ -42,6 +42,7 @@ namespace Lina
 	class Model;
 	class RenderPass;
 	class Texture;
+class Font;
 } // namespace Lina
 
 namespace LinaVG
@@ -90,18 +91,26 @@ namespace Lina::Editor
 			return m_gizmoSettings;
 		}
 
+        inline void SetSelectedEntities(const Vector<Entity*>& entities)
+        {
+            m_selectedEntities = entities;
+        }
 	private:
 		Color GetColorFromAxis(GizmoAxis axis);
 		void  DrawGizmoMoveScale(RenderPass* pass, StringID variant, float shaderScale = 1.0f);
 		void  DrawGizmoRotate(RenderPass* pass, StringID variant, float shaderScale = 1.0f);
 		void  DrawGizmoRotateFocus(RenderPass* pass, float shaderScale = 1.0f);
 		void  DrawOrientationGizmos(RenderPass* pass, StringID variant, float shaderScale = 1.0f);
+        void DrawLightIcons(RenderPass* pass, StringID variant);
+        void DrawLightWireframes();
 
 	private:
+        Vector<Entity*> m_selectedEntities;
 		Editor*			   m_editor		   = nullptr;
 		WorldRenderer*	   m_worldRenderer = nullptr;
 		ResourceManagerV2* m_rm			   = nullptr;
 		EntityWorld*	   m_world		   = nullptr;
+        Font* m_iconFont = nullptr;
 
 		Model* m_translateModel	 = nullptr;
 		Model* m_scaleModel		 = nullptr;
@@ -110,19 +119,28 @@ namespace Lina::Editor
 		Model* m_centerTranslate = nullptr;
 		Model* m_centerScale	 = nullptr;
 		Model* m_orientGizmo	 = nullptr;
+        Model* m_quadModel = nullptr;
 
 		Material*		   m_gizmoRotateMaterial = nullptr;
 		Material*		   m_gizmoMaterialCenter = nullptr;
 		Material*		   m_gizmoMaterialX		 = nullptr;
 		Material*		   m_gizmoMaterialY		 = nullptr;
 		Material*		   m_gizmoMaterialZ		 = nullptr;
+        Material* m_matLightIconSun = nullptr;
+        Material* m_matLightIconSpot = nullptr;
+        Material* m_matLightIconPoint = nullptr;
 		Shader*			   m_gizmoShader		 = nullptr;
 		Shader*			   m_gizmoRotateShader	 = nullptr;
 		Shader*			   m_line3DShader		 = nullptr;
 		Shader*			   m_lvgShader			 = nullptr;
 		Shader*			   m_orientGizmoShader	 = nullptr;
+        Shader* m_billboardSDFShader = nullptr;
 		RenderPass*		   m_targetPass			 = nullptr;
 		MousePickRenderer* m_mousePickRenderer	 = nullptr;
 		GizmoSettings	   m_gizmoSettings		 = {};
+        
+        Vector2 m_iconSzSun = Vector2::Zero;
+        Vector2 m_iconSzSpot = Vector2::Zero;
+        Vector2 m_iconSzPoint = Vector2::Zero;
 	};
 } // namespace Lina::Editor

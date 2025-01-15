@@ -69,7 +69,6 @@ namespace Lina
 
 	void ColorField::Tick(float delta)
 	{
-
 		if (m_props.backgroundTexture)
 		{
             m_bg->GetWidgetProps().rawTexture = m_props.backgroundTexture;

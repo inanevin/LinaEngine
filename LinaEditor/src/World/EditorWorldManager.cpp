@@ -193,6 +193,8 @@ namespace Lina::Editor
             if(wd.world->GetID() != 0)
                 return wd.world;
         }
+        
+        return nullptr;
     }
 
 } // namespace Lina::Editor

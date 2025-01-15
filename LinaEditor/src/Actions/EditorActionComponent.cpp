@@ -62,7 +62,13 @@ namespace Lina::Editor
 		}
         
         action->m_components = comps;
-        action->m_previousStreams = previousBuffers;
+        
+        for(const OStream& stream : previousBuffers)
+        {
+            OStream prevStream;
+            prevStream.WriteRaw(stream.GetDataRaw(), stream.GetCurrentSize());
+            action->m_previousStreams.push_back(prevStream);
+        }
 		editor->GetEditorActionManager().AddToStack(action);
 		return action;
 	}
@@ -117,8 +123,8 @@ namespace Lina::Editor
             c->StoreReferences();
         }
         
-        editor->GetWorldManager().BroadcastComponentsChanged(wd.world);
-
+        if(type == ExecType::Redo || type == ExecType::Undo)
+            editor->GetWorldManager().BroadcastComponentsChanged(wd.world);
 	}
 
 } // namespace Lina::Editor

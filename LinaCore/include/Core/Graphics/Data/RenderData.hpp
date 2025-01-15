@@ -131,6 +131,9 @@ namespace Lina
 	{
         Matrix4 model;
 		Matrix4 normal;
+        Vector4 position;
+        Vector4 forward;
+        float padding[24];
 	};
 
 	struct GPUDrawArguments
@@ -171,7 +174,13 @@ namespace Lina
     struct GPULight
     {
         Vector4 colorAndIntensity;
-        Vector4 params;
+        uint32 type;
+        uint32 entityIndex;
+        float radius;
+        float falloff;
+        float cutoff;
+        float outerCutoff;
+        float padding[22];
     };
 
 } // namespace Lina
