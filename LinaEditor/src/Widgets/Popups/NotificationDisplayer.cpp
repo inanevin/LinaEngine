@@ -68,7 +68,7 @@ namespace Lina::Editor
 			posY -= Theme::GetDef().baseIndent + itemSz;
 
 			const float targetX = maxX - item->layout->GetSizeX();
-            item->layout->SetPosX(targetX - item->tween.GetValue() * m_manager->GetScalingFactor());
+			item->layout->SetPosX(targetX - item->tween.GetValue() * m_manager->GetScalingFactor());
 			item->layout->SetPosY(posY);
 
 			if (!item->done)

@@ -93,31 +93,29 @@ namespace Lina::Editor
 		m_inspector->RemoveAllChildren();
 
 		Texture* txt = static_cast<Texture*>(m_resource);
-        
-        DirectionalLayout* panelItems = m_manager->Allocate<DirectionalLayout>();
-        panelItems->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);
-        panelItems->SetAlignedSize(Vector2::One);
-        panelItems->SetAlignedPosX(0.0f);
-        panelItems->GetWidgetProps().childPadding = m_inspector->GetWidgetProps().childPadding;
-        panelItems->GetProps().direction = DirectionOrientation::Vertical;
-        panelItems->GetCallbacks().onEditEnded = [this](){
-            m_guiUserData.displayChannels = m_displayChannels;
-            m_guiUserData.mipLevel          = m_mipLevel;
-        };
-        m_inspector->AddChild(panelItems);
+
+		DirectionalLayout* panelItems = m_manager->Allocate<DirectionalLayout>();
+		panelItems->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);
+		panelItems->SetAlignedSize(Vector2::One);
+		panelItems->SetAlignedPosX(0.0f);
+		panelItems->GetWidgetProps().childPadding = m_inspector->GetWidgetProps().childPadding;
+		panelItems->GetProps().direction		  = DirectionOrientation::Vertical;
+		panelItems->GetCallbacks().onEditEnded	  = [this]() {
+			   m_guiUserData.displayChannels = m_displayChannels;
+			   m_guiUserData.mipLevel		 = m_mipLevel;
+		};
+		m_inspector->AddChild(panelItems);
 		CommonWidgets::BuildClassReflection(panelItems, this, ReflectionSystem::Get().Resolve<PanelTextureViewer>());
 
-        DirectionalLayout* textureItems = m_manager->Allocate<DirectionalLayout>();
-        textureItems->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);
-        textureItems->SetAlignedSize(Vector2::One);
-        textureItems->SetAlignedPosX(0.0f);
-        textureItems->GetWidgetProps().childPadding = m_inspector->GetWidgetProps().childPadding;
-        textureItems->GetProps().direction = DirectionOrientation::Vertical;
-        textureItems->GetCallbacks().onEditEnded = [this, txt](){
-            EditorActionResourceTexture::Create(m_editor, txt->GetID(), m_prevMeta, txt->GetMeta());
-        };
-        m_inspector->AddChild(textureItems);
-        
+		DirectionalLayout* textureItems = m_manager->Allocate<DirectionalLayout>();
+		textureItems->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);
+		textureItems->SetAlignedSize(Vector2::One);
+		textureItems->SetAlignedPosX(0.0f);
+		textureItems->GetWidgetProps().childPadding = m_inspector->GetWidgetProps().childPadding;
+		textureItems->GetProps().direction			= DirectionOrientation::Vertical;
+		textureItems->GetCallbacks().onEditEnded	= [this, txt]() { EditorActionResourceTexture::Create(m_editor, txt->GetID(), m_prevMeta, txt->GetMeta()); };
+		m_inspector->AddChild(textureItems);
+
 		CommonWidgets::BuildClassReflection(textureItems, &txt->GetMeta(), ReflectionSystem::Get().Resolve<Texture::Metadata>());
 
 		Widget*		mipLevelField	  = panelItems->FindChildWithDebugName("Mip Level");

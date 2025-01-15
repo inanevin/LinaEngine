@@ -47,7 +47,7 @@ namespace Lina::Editor
 	class NotificationDisplayer;
 	class SurfaceRenderer;
 	class PanelColorWheel;
-class PanelGenericSelector;
+	class PanelGenericSelector;
 	class PanelResourceViewer;
 
 	struct WindowPanelInfo
@@ -84,8 +84,8 @@ class PanelGenericSelector;
 		Vector<PanelResourceViewer*> FindResourceViewers(ResourceID subData);
 		void						 FillPanelLayout(Panel* panel);
 
-		PanelColorWheel* OpenColorWheelPanel(Widget* requester);
-        PanelGenericSelector* OpenGenericSelectorPanel(Widget* requester);
+		PanelColorWheel*	  OpenColorWheelPanel(Widget* requester);
+		PanelGenericSelector* OpenGenericSelectorPanel(Widget* requester);
 
 		// Notification
 		NotificationDisplayer* GetNotificationDisplayer(LinaGX::Window* window);

@@ -156,7 +156,7 @@ namespace Lina::Editor
 			// Resize window to work dims.
 			m_mainWindow->SetPosition(m_mainWindow->GetMonitorInfoFromWindow().workTopLeft);
 			// m_mainWindow->AddSizeRequest(m_mainWindow->GetMonitorWorkSize());
-            m_mainWindow->SetSize(m_mainWindow->GetMonitorWorkSize());
+			m_mainWindow->SetSize(m_mainWindow->GetMonitorWorkSize());
 
 			// Insert editor root.
 			Widget* root = m_primaryWidgetManager->GetRoot();
@@ -195,17 +195,17 @@ namespace Lina::Editor
 
 	void Editor::OnWindowMouse(LinaGX::Window* window, uint32 button, LinaGX::InputAction inputAction)
 	{
-        const Vector<LinaGX::Window*>& windows = m_windowPanelManager.GetSubWindows();
-        
-        for(LinaGX::Window* w : windows)
-        {
-            if(w->GetUserFlags() & WindowFlags::WINDOW_FLAGS_FOCUS_LOST_DESTROY)
-            {
-                if(window != w)
-                    return;
-            }
-        }
-        
+		const Vector<LinaGX::Window*>& windows = m_windowPanelManager.GetSubWindows();
+
+		for (LinaGX::Window* w : windows)
+		{
+			if (w->GetUserFlags() & WindowFlags::WINDOW_FLAGS_FOCUS_LOST_DESTROY)
+			{
+				if (window != w)
+					return;
+			}
+		}
+
 		SurfaceRenderer* rend = m_windowPanelManager.GetSurfaceRenderer(window->GetSID());
 		rend->GetWidgetManager().OnMouse(button, inputAction);
 	}
@@ -226,12 +226,12 @@ namespace Lina::Editor
 	{
 		SurfaceRenderer* rend = m_windowPanelManager.GetSurfaceRenderer(window->GetSID());
 		rend->GetWidgetManager().OnFocus(gainedFocus);
-        
-        if(!gainedFocus)
-        {
-            if(window->GetUserFlags() & WindowFlags::WINDOW_FLAGS_FOCUS_LOST_DESTROY)
-                m_windowPanelManager.CloseWindow(window->GetSID());
-        }
+
+		if (!gainedFocus)
+		{
+			if (window->GetUserFlags() & WindowFlags::WINDOW_FLAGS_FOCUS_LOST_DESTROY)
+				m_windowPanelManager.CloseWindow(window->GetSID());
+		}
 	}
 
 	void Editor::OnWindowHoverBegin(LinaGX::Window* window)
@@ -267,9 +267,9 @@ namespace Lina::Editor
 	void Editor::OnWindowSizeChanged(LinaGX::Window* window, const LinaGX::LGXVector2ui& size)
 	{
 		m_app->JoinRender();
-        
-        if(size.x != 0 && size.y != 0)
-            m_windowPanelManager.GetSurfaceRenderer(window->GetSID())->OnWindowSizeChanged(window, size);
+
+		if (size.x != 0 && size.y != 0)
+			m_windowPanelManager.GetSurfaceRenderer(window->GetSID())->OnWindowSizeChanged(window, size);
 	}
 
 	void Editor::PreTick()

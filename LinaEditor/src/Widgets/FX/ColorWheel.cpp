@@ -82,7 +82,7 @@ namespace Lina::Editor
 			if (m_props.saturation)
 				*m_props.saturation = saturation;
 
-            PropagateCBOnEdited();
+			PropagateCBOnEdited();
 		}
 		else
 		{
@@ -109,7 +109,7 @@ namespace Lina::Editor
 
 		if (m_isHovered && act == LinaGX::InputAction::Pressed)
 		{
-            PropagateCBOnEditStarted();
+			PropagateCBOnEditStarted();
 			m_manager->GrabControls(this);
 			m_isPressed = true;
 			return true;
@@ -117,7 +117,7 @@ namespace Lina::Editor
 
 		if (m_isPressed && act == LinaGX::InputAction::Released)
 		{
-            PropagateCBOnEditEnded();
+			PropagateCBOnEditEnded();
 			m_isPressed = false;
 			return true;
 		}

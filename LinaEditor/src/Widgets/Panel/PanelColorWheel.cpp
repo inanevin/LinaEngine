@@ -40,14 +40,12 @@ namespace Lina::Editor
 		cw->SetAlignedSize(Vector2::One);
 		AddChild(cw);
 		m_colorWheel = cw;
-        m_lgxWindow->SetUserFlags(WindowFlags::WINDOW_FLAGS_FOCUS_LOST_DESTROY);
-
+		m_lgxWindow->SetUserFlags(WindowFlags::WINDOW_FLAGS_FOCUS_LOST_DESTROY);
 	}
 
 	void PanelColorWheel::Destruct()
 	{
 		Panel::Destruct();
-
 	}
 
 } // namespace Lina::Editor

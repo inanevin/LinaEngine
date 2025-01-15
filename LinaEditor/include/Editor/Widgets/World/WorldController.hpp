@@ -103,7 +103,7 @@ namespace Lina::Editor
 			float						  endAngle	  = 0.0f;
 			bool						  visible	  = false;
 			Vector<SelectionCircleButton> buttons;
-			float						  _radius	 = 0.0f;
+			float						  _radius = 0.0f;
 
 			Button* parentButton				= nullptr;
 			Button* localityButton				= nullptr;

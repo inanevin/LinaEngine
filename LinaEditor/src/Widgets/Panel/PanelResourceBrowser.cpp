@@ -35,12 +35,11 @@ namespace Lina::Editor
 	void PanelResourceBrowser::Construct()
 	{
 		ResourceDirectoryBrowser* dirBrowser = m_manager->Allocate<ResourceDirectoryBrowser>();
-		dirBrowser->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y |WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		dirBrowser->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		dirBrowser->SetAlignedPos(Vector2::Zero);
 		dirBrowser->SetAlignedSize(Vector2(1.0f, 0.0f));
 		AddChild(dirBrowser);
 		m_resourceBrowser = dirBrowser;
-        
 	}
 
 	void PanelResourceBrowser::SaveLayoutDefaults(OStream& stream)

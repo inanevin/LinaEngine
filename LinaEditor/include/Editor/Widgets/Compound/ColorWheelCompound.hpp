@@ -56,8 +56,8 @@ namespace Lina::Editor
 
 		struct Properties
 		{
-			Vector3*								 trackColorv3 = nullptr;
-			Vector4*								 trackColorv4 = nullptr;
+			Vector3* trackColorv3 = nullptr;
+			Vector4* trackColorv4 = nullptr;
 		};
 
 		virtual void Construct() override;
@@ -84,11 +84,11 @@ namespace Lina::Editor
 		{
 			Widget::LoadFromStream(stream);
 		}
-        
-        inline const Color& GetEditedColor() const
-        {
-            return m_editedColor;
-        }
+
+		inline const Color& GetEditedColor() const
+		{
+			return m_editedColor;
+		}
 
 	private:
 		struct ColorComponent

@@ -102,8 +102,8 @@ namespace Lina::Editor
 		scroll->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		scroll->SetAlignedPosY(0.0f);
 		scroll->SetAlignedSize(Vector2(0.0f, 1.0f));
-        scroll->GetProps().direction = DirectionOrientation::Vertical;
-        scroll->GetWidgetProps().drawOrderIncrement = 1;
+		scroll->GetProps().direction				= DirectionOrientation::Vertical;
+		scroll->GetWidgetProps().drawOrderIncrement = 1;
 		layout->AddChild(scroll);
 
 		m_layout					   = m_manager->Allocate<DirectionalLayout>("Contents");
@@ -168,20 +168,19 @@ namespace Lina::Editor
 			{
 				memTimer = 0.0f;
 
-				const PlatformProcess::MemoryInformation info			 = PlatformProcess::QueryMemInformation();
-                
-                if(info.totalMemory != 0)
-                {
-                    m_profilingData.memCircle->GetProps().foregroundFill     = static_cast<float>(info.currentUsage) / static_cast<float>(info.totalMemory);
-                    
-                    m_profilingData.memPeakCircle->GetProps().foregroundFill = static_cast<float>(info.peakUsage) / static_cast<float>(info.totalMemory);
-                }
+				const PlatformProcess::MemoryInformation info = PlatformProcess::QueryMemInformation();
 
-				const String currentUsageStr = UtilStr::FloatToString(static_cast<float>(info.currentUsage) , 0);
+				if (info.totalMemory != 0)
+				{
+					m_profilingData.memCircle->GetProps().foregroundFill = static_cast<float>(info.currentUsage) / static_cast<float>(info.totalMemory);
+
+					m_profilingData.memPeakCircle->GetProps().foregroundFill = static_cast<float>(info.peakUsage) / static_cast<float>(info.totalMemory);
+				}
+
+				const String currentUsageStr = UtilStr::FloatToString(static_cast<float>(info.currentUsage), 0);
 				const String peakUsageStr	 = UtilStr::FloatToString(static_cast<float>(info.peakUsage), 0);
 				m_profilingData.memText->UpdateTextAndCalcSize(currentUsageStr + " MB");
 				m_profilingData.memPeakText->UpdateTextAndCalcSize(peakUsageStr + " MB");
-
 			}
 
 			static float tableTimer = 0.0f;
@@ -193,7 +192,7 @@ namespace Lina::Editor
 
 				m_profilingData.delta->UpdateTextAndCalcSize(UtilStr::FloatToString(delta, 10));
 				m_profilingData.smoothedDelta->UpdateTextAndCalcSize(UtilStr::FloatToString(SystemInfo::GetSmoothedDeltaTime(), 10));
-                m_profilingData.dpi->UpdateTextAndCalcSize(UtilStr::FloatToString(m_manager->GetScalingFactor(), 1));
+				m_profilingData.dpi->UpdateTextAndCalcSize(UtilStr::FloatToString(m_manager->GetScalingFactor(), 1));
 				m_profilingData.tris->UpdateTextAndCalcSize(TO_STRING(m_profilingData._tris));
 				m_profilingData.vertices->UpdateTextAndCalcSize(TO_STRING(m_profilingData._verts));
 				m_profilingData.indices->UpdateTextAndCalcSize(TO_STRING(m_profilingData._indices));
@@ -357,7 +356,6 @@ namespace Lina::Editor
 		fpsGraphLayout->GetWidgetProps().colorOutline	  = Theme::GetDef().background0;
 		m_layout->AddChild(fpsGraphLayout);
 
-        
 		m_profilingData.fpsGraph = m_manager->Allocate<LineGraph>("Graph");
 		m_profilingData.fpsGraph->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
 		m_profilingData.fpsGraph->SetAlignedPosX(0.0f);
@@ -447,7 +445,7 @@ namespace Lina::Editor
 			gauge->GetCircle()->GetProps().endAngle		   = 360.0f;
 			gauge->GetCircle()->GetProps().isFilled		   = false;
 			gauge->GetCircle()->GetProps().useAA		   = true;
-            gauge->GetCircle()->GetProps().thickness	   = Theme::GetDef().baseItemHeight * 0.25f * m_manager->GetScalingFactor();
+			gauge->GetCircle()->GetProps().thickness	   = Theme::GetDef().baseItemHeight * 0.25f * m_manager->GetScalingFactor();
 			gauge->GetCircle()->GetProps().colorBackground = Theme::GetDef().background0;
 			gauge->GetCircle()->GetProps().foregroundFill  = 0.5f;
 			gauge->GetCircle()->GetProps().useXForRadius   = true;
@@ -591,10 +589,10 @@ namespace Lina::Editor
 		search->SetAlignedSize(Vector2(0.0f, 1.0f));
 		search->GetProps().placeHolderIcon = ICON_SEARCH;
 		search->GetProps().placeHolderText = Locale::GetStr(LocaleStr::Search);
-	    search->GetCallbacks().onEdited = [search, this](){
-            m_resourcesData.searchStr = UtilStr::ToLower(search->GetText()->GetProps().text);
-            RefreshResourcesTable();
-        };
+		search->GetCallbacks().onEdited	   = [search, this]() {
+			   m_resourcesData.searchStr = UtilStr::ToLower(search->GetText()->GetProps().text);
+			   RefreshResourcesTable();
+		};
 
 		header->AddChild(search);
 

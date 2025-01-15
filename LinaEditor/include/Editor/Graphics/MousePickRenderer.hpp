@@ -52,7 +52,7 @@ namespace LinaGX
 namespace Lina::Editor
 {
 	class Editor;
-    class EditorWorldRenderer;
+	class EditorWorldRenderer;
 
 	class MousePickRenderer
 	{
@@ -78,7 +78,7 @@ namespace Lina::Editor
 		};
 
 	public:
-        MousePickRenderer(Editor* editor, EditorWorldRenderer* ewr);
+		MousePickRenderer(Editor* editor, EditorWorldRenderer* ewr);
 		virtual ~MousePickRenderer();
 
 		void DestroySizeRelativeResources();
@@ -110,16 +110,16 @@ namespace Lina::Editor
 		}
 
 	private:
-		LinaGX::Instance*  m_lgx	= nullptr;
-		Editor*			   m_editor = nullptr;
-		WorldRenderer*	   m_wr		= nullptr;
-		ResourceManagerV2* m_rm		= nullptr;
-		EntityWorld*	   m_world	= nullptr;
-        EditorWorldRenderer* m_ewr = nullptr;
+		LinaGX::Instance*	 m_lgx	  = nullptr;
+		Editor*				 m_editor = nullptr;
+		WorldRenderer*		 m_wr	  = nullptr;
+		ResourceManagerV2*	 m_rm	  = nullptr;
+		EntityWorld*		 m_world  = nullptr;
+		EditorWorldRenderer* m_ewr	  = nullptr;
 
 		RenderPass		 m_entityBufferPass;
 		PerFrameData	 m_pfd[FRAMES_IN_FLIGHT];
-		Vector2ui		 m_size			  = Vector2ui::Zero;
+		Vector2ui		 m_size = Vector2ui::Zero;
 		Vector<EntityID> m_lastEntityIDs;
 		DrawData		 m_cpuData		  = {};
 		DrawData		 m_gpuData		  = {};

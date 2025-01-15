@@ -53,7 +53,7 @@ namespace Lina::Editor
 {
 	class Editor;
 	class MousePickRenderer;
-    class EditorWorldRenderer;
+	class EditorWorldRenderer;
 
 	class OutlineSelectionRenderer
 	{
@@ -95,14 +95,14 @@ namespace Lina::Editor
 		}
 
 	private:
-		bool			   m_renderHovered = false;
-		LinaGX::Instance*  m_lgx		   = nullptr;
-		Editor*			   m_editor		   = nullptr;
-		WorldRenderer*	   m_wr			   = nullptr;
-        EditorWorldRenderer* m_ewr = nullptr;
-		ResourceManagerV2* m_rm			   = nullptr;
-		EntityWorld*	   m_world		   = nullptr;
-		MousePickRenderer* m_mpr		   = nullptr;
+		bool				 m_renderHovered = false;
+		LinaGX::Instance*	 m_lgx			 = nullptr;
+		Editor*				 m_editor		 = nullptr;
+		WorldRenderer*		 m_wr			 = nullptr;
+		EditorWorldRenderer* m_ewr			 = nullptr;
+		ResourceManagerV2*	 m_rm			 = nullptr;
+		EntityWorld*		 m_world		 = nullptr;
+		MousePickRenderer*	 m_mpr			 = nullptr;
 
 		Vector<Entity*> m_selectedEntities	 = {};
 		Material*		m_fullscreenMaterial = nullptr;

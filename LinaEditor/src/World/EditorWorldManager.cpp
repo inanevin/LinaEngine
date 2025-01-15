@@ -173,11 +173,11 @@ namespace Lina::Editor
 			l->OnWorldManagerEntityHierarchyChanged(world);
 	}
 
-    void EditorWorldManager::BroadcastComponentsChanged(EntityWorld *world)
-    {
-        for (EditorWorldManagerListener* l : m_listeners)
-            l->OnWorldManagerComponentsDataChanged(world);
-    }
+	void EditorWorldManager::BroadcastComponentsChanged(EntityWorld* world)
+	{
+		for (EditorWorldManagerListener* l : m_listeners)
+			l->OnWorldManagerComponentsDataChanged(world);
+	}
 
 	EditorWorldManager::WorldData& EditorWorldManager::GetWorldData(EntityWorld* world)
 	{
@@ -186,15 +186,15 @@ namespace Lina::Editor
 		return *it;
 	}
 
-    EntityWorld* EditorWorldManager::GetFirstGameWorld()
-    {
-        for(const WorldData& wd : m_worlds)
-        {
-            if(wd.world->GetID() != 0)
-                return wd.world;
-        }
-        
-        return nullptr;
-    }
+	EntityWorld* EditorWorldManager::GetFirstGameWorld()
+	{
+		for (const WorldData& wd : m_worlds)
+		{
+			if (wd.world->GetID() != 0)
+				return wd.world;
+		}
+
+		return nullptr;
+	}
 
 } // namespace Lina::Editor

@@ -110,5 +110,4 @@ namespace Lina::Editor
 	LINA_FIELD_LIMITS(CameraOptions, angularBoost, 0.1f, 3.0f, 0.1f)
 	LINA_CLASS_END(CameraOptions);
 
-
 } // namespace Lina::Editor

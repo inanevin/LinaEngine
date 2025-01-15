@@ -302,7 +302,7 @@ namespace Lina::Editor
 				for (const Model::ModelTexture& def : textureDefs)
 				{
 					const ResourceID newID = projectData->ConsumeResourceID();
-                    const String name = def.name.empty() ? "NoName" : def.name;
+					const String	 name  = def.name.empty() ? "NoName" : def.name;
 
 					ResourceDirectory* child = projectData->CreateResourceDirectory(dir->parent,
 																					{
@@ -323,7 +323,7 @@ namespace Lina::Editor
 					texture.GetMeta().force8Bit = true;
 					texture.LoadFromBuffer(def.buffer.pixels, def.buffer.width, def.buffer.height, def.buffer.bytesPerPixel);
 					texture.SaveToFileAsBinary(projectData->GetResourcePath(newID));
-                    
+
 					createdTextures.push_back(newID);
 					createdTextureNames.push_back(name);
 				}
@@ -413,10 +413,10 @@ namespace Lina::Editor
 					mat.SaveToFileAsBinary(projectData->GetResourcePath(newID));
 					matIdx++;
 				}
-                
-                if(matDefs.empty())
-                    meta.materials.push_back(EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID);
-                
+
+				if (matDefs.empty())
+					meta.materials.push_back(EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID);
+
 				model.SaveToFileAsBinary(projectData->GetResourcePath(model.GetID()));
 				model.DestroyTextureDefs();
 			}

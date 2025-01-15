@@ -136,35 +136,34 @@ namespace Lina::Editor
 		Vector4 cameraDirectionAndFar;
 		Vector2 size;
 		Vector2 mouse;
-        Vector4 padding;
+		Vector4 padding;
 	};
 
-    struct GPUDataEditorGUIView
-    {
-        Matrix4 proj;
-    };
-    
-    struct GPUDataEditorSwapchainPass
-    {
-        uint32 textureIndex;
-        uint32 samplerIndex;
-        uint32 padding0;
-        uint32 padding1;
-    };
+	struct GPUDataEditorGUIView
+	{
+		Matrix4 proj;
+	};
 
+	struct GPUDataEditorSwapchainPass
+	{
+		uint32 textureIndex;
+		uint32 samplerIndex;
+		uint32 padding0;
+		uint32 padding1;
+	};
 
 	class EditorGfxHelpers
 	{
 	public:
-        static RenderPassDescription      GetGUIPassDescription();
+		static RenderPassDescription	  GetGUIPassDescription();
 		static RenderPassDescription	  GetSwapchainPassDescription();
 		static RenderPassDescription	  GetEditorWorldPassDescription();
 		static RenderPassDescription	  GetGizmoOrientationPassDescription();
-        static LinaGX::DescriptorSetDesc  GetSetDescriptionGUI();
+		static LinaGX::DescriptorSetDesc  GetSetDescriptionGUI();
 		static LinaGX::DescriptorSetDesc  GetSetDescriptionSwapchain();
 		static LinaGX::DescriptorSetDesc  GetSetDescriptionEditorWorldPass();
 		static LinaGX::DescriptorSetDesc  GetSetDescriptionGizmoOrientationPass();
-        static LinaGX::PipelineLayoutDesc GetPipelineLayoutDescriptionGUI();
+		static LinaGX::PipelineLayoutDesc GetPipelineLayoutDescriptionGUI();
 		static LinaGX::PipelineLayoutDesc GetPipelineLayoutDescriptionSwapchain();
 		static LinaGX::PipelineLayoutDesc GetPipelineLayoutDescriptionEditorWorldPass();
 		static LinaGX::PipelineLayoutDesc GetPipelineLayoutDescriptionGizmoOrientationPass();

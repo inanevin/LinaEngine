@@ -337,30 +337,30 @@ namespace Lina::Editor
 		PanelColorWheel* wh	   = static_cast<PanelColorWheel*>(OpenPanel(PanelType::ColorWheel, 0, requester));
 		m_panelColorWheel	   = wh;
 		m_panelColorWheelOwner = requester;
-        
-        const Vector2 ms = m_mainWindow->GetMonitorSize();
-        const float width = ms.x * 0.28f;
-        const float height = width * 1.15f;
-        wh->GetWindow()->SetSize(LinaGX::LGXVector2ui(width, height));
-        
-        const float posx = requester->GetWindow()->GetPosition().x + requester->GetPos().x / requester->GetWindow()->GetDPIScale();
-        const float posy = requester->GetWindow()->GetPosition().y + (requester->GetPos().y  + requester->GetSize().y) / requester->GetWindow()->GetDPIScale() + Theme::GetDef().baseIndent;
-        wh->GetWindow()->SetPosition({static_cast<int32>(posx), static_cast<int32>(posy)});
-        
+
+		const Vector2 ms	 = m_mainWindow->GetMonitorSize();
+		const float	  width	 = ms.x * 0.28f;
+		const float	  height = width * 1.15f;
+		wh->GetWindow()->SetSize(LinaGX::LGXVector2ui(width, height));
+
+		const float posx = requester->GetWindow()->GetPosition().x + requester->GetPos().x / requester->GetWindow()->GetDPIScale();
+		const float posy = requester->GetWindow()->GetPosition().y + (requester->GetPos().y + requester->GetSize().y) / requester->GetWindow()->GetDPIScale() + Theme::GetDef().baseIndent;
+		wh->GetWindow()->SetPosition({static_cast<int32>(posx), static_cast<int32>(posy)});
+
 		return wh;
 	}
 
-    PanelGenericSelector* WindowPanelManager::OpenGenericSelectorPanel(Widget *requester)
-    {
-        PanelGenericSelector* panel =  static_cast<PanelGenericSelector*>(OpenPanel(PanelType::GenericSelector, 0, requester));
-    
-        const float width = panel->GetWindow()->GetMonitorSize().x * 0.25f;
-        panel->GetWindow()->SetSize({static_cast<uint32>(width), static_cast<uint32>(width * 1.15f)});
-    
-        const float posx = requester->GetWindow()->GetPosition().x + requester->GetPos().x / requester->GetWindow()->GetDPIScale();
-        const float posy = requester->GetWindow()->GetPosition().y + (requester->GetPos().y  + requester->GetSize().y) / requester->GetWindow()->GetDPIScale() +    Theme::GetDef().baseIndent;
-        panel->GetWindow()->SetPosition({static_cast<int32>(posx), static_cast<int32>(posy)});
-    }
+	PanelGenericSelector* WindowPanelManager::OpenGenericSelectorPanel(Widget* requester)
+	{
+		PanelGenericSelector* panel = static_cast<PanelGenericSelector*>(OpenPanel(PanelType::GenericSelector, 0, requester));
+
+		const float width = panel->GetWindow()->GetMonitorSize().x * 0.25f;
+		panel->GetWindow()->SetSize({static_cast<uint32>(width), static_cast<uint32>(width * 1.15f)});
+
+		const float posx = requester->GetWindow()->GetPosition().x + requester->GetPos().x / requester->GetWindow()->GetDPIScale();
+		const float posy = requester->GetWindow()->GetPosition().y + (requester->GetPos().y + requester->GetSize().y) / requester->GetWindow()->GetDPIScale() + Theme::GetDef().baseIndent;
+		panel->GetWindow()->SetPosition({static_cast<int32>(posx), static_cast<int32>(posy)});
+	}
 
 	Panel* WindowPanelManager::OpenPanel(PanelType type, ResourceID subData, Widget* requestingWidget)
 	{

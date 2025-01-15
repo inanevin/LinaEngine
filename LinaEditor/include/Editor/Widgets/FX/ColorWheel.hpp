@@ -46,9 +46,9 @@ namespace Lina::Editor
 
 		struct Properties
 		{
-			float*						 hue		   = nullptr;
-			float*						 saturation	   = nullptr;
-			float						 darknessAlpha = 1.0f;
+			float* hue			 = nullptr;
+			float* saturation	 = nullptr;
+			float  darknessAlpha = 1.0f;
 
 			void SaveToStream(OStream& stream) const
 			{

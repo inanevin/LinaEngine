@@ -97,9 +97,9 @@ namespace Lina::Editor
 			return;
 
 		m_dockPreviewTween.Tick(delta);
-        
-        m_smallRectSize			 = SMALL_RECT_SZ * m_manager->GetScalingFactor();
-        const Vector2 mp = (m_lgxWindow->GetInput()->GetMousePositionAbs() - m_lgxWindow->GetPosition()) * m_lgxWindow->GetDPIScale();
+
+		m_smallRectSize	 = SMALL_RECT_SZ * m_manager->GetScalingFactor();
+		const Vector2 mp = (m_lgxWindow->GetInput()->GetMousePositionAbs() - m_lgxWindow->GetPosition()) * m_lgxWindow->GetDPIScale();
 		for (int32 i = 0; i < 5; i++)
 		{
 			auto& dr = m_dockRects[i];
@@ -157,7 +157,7 @@ namespace Lina::Editor
 		m_lvg->DrawRect(start.AsLVG(), end.AsLVG(), opts, 0.0f, FOREGROUND_DRAW_ORDER);
 
 		// Icon
-        dr.icon->SetDrawOrder(FOREGROUND_DRAW_ORDER);
+		dr.icon->SetDrawOrder(FOREGROUND_DRAW_ORDER);
 		dr.icon->Draw();
 
 		// Actual placement preview

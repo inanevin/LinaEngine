@@ -31,8 +31,8 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    void PanelGenericSelector::Construct()
-    {
-        m_lgxWindow->SetUserFlags(WindowFlags::WINDOW_FLAGS_FOCUS_LOST_DESTROY);
-    }
+	void PanelGenericSelector::Construct()
+	{
+		m_lgxWindow->SetUserFlags(WindowFlags::WINDOW_FLAGS_FOCUS_LOST_DESTROY);
+	}
 } // namespace Lina::Editor

@@ -112,11 +112,11 @@ namespace Lina::Editor
 		{
 			return m_wr;
 		}
-        
-        inline uint16 GetPipelineLayout() const
-        {
-            return m_pipelineLayout;
-        }
+
+		inline uint16 GetPipelineLayout() const
+		{
+			return m_pipelineLayout;
+		}
 
 	private:
 		Vector<Entity*>			 m_selectedEntities;

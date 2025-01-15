@@ -103,9 +103,9 @@ namespace Lina::Editor
 		case PanelType::Details:
 			panel = source->GetWidgetManager()->Allocate<PanelDetails>("Details");
 			break;
-            case PanelType::GenericSelector:
-                panel = source->GetWidgetManager()->Allocate<PanelGenericSelector>("Selector");
-            break;
+		case PanelType::GenericSelector:
+			panel = source->GetWidgetManager()->Allocate<PanelGenericSelector>("Selector");
+			break;
 		default:
 			LINA_ASSERT(false, "");
 			break;

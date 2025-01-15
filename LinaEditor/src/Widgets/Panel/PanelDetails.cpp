@@ -56,10 +56,10 @@ namespace Lina::Editor
 		m_entityDetails->SetAlignedSize(Vector2::One);
 		AddChild(m_entityDetails);
 
-        EntityWorld* w = m_editor->GetWorldManager().GetFirstGameWorld();
-        if(w)
-            m_entityDetails->SetWorld(w);
-        
+		EntityWorld* w = m_editor->GetWorldManager().GetFirstGameWorld();
+		if (w)
+			m_entityDetails->SetWorld(w);
+
 		m_editor->GetWorldManager().AddListener(this);
 	}
 
@@ -115,10 +115,10 @@ namespace Lina::Editor
 		m_entityDetails->RefreshDetails();
 	}
 
-    void PanelDetails::OnWorldManagerComponentsDataChanged(EntityWorld *w)
-    {
-        if (w->GetID() == 0)
-            return;
-        m_entityDetails->RefreshDetails();
-    }
+	void PanelDetails::OnWorldManagerComponentsDataChanged(EntityWorld* w)
+	{
+		if (w->GetID() == 0)
+			return;
+		m_entityDetails->RefreshDetails();
+	}
 } // namespace Lina::Editor

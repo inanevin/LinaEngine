@@ -93,26 +93,24 @@ namespace Lina::Editor
 		TextureSampler* sampler = static_cast<TextureSampler*>(m_resource);
 		m_inspector->DeallocAllChildren();
 		m_inspector->RemoveAllChildren();
-        
-        DirectionalLayout* panelItems = m_manager->Allocate<DirectionalLayout>();
-        panelItems->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);
-        panelItems->SetAlignedSize(Vector2::One);
-        panelItems->SetAlignedPosX(0.0f);
-        panelItems->GetWidgetProps().childPadding = m_inspector->GetWidgetProps().childPadding;
-        panelItems->GetProps().direction = DirectionOrientation::Vertical;
-        m_inspector->AddChild(panelItems);
-        CommonWidgets::BuildClassReflection(panelItems, this, ReflectionSystem::Get().Resolve<PanelSamplerViewer>());
 
-        DirectionalLayout* samplerItems = m_manager->Allocate<DirectionalLayout>();
-        samplerItems->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);
-        samplerItems->SetAlignedSize(Vector2::One);
-        samplerItems->SetAlignedPosX(0.0f);
-        samplerItems->GetWidgetProps().childPadding = m_inspector->GetWidgetProps().childPadding;
-        samplerItems->GetProps().direction = DirectionOrientation::Vertical;
-        samplerItems->GetCallbacks().onEditEnded = [this, sampler](){
-            EditorActionResourceSampler::Create(m_editor, sampler->GetID(), m_storedDesc, sampler->GetDesc());
-        };
-        m_inspector->AddChild(samplerItems);
+		DirectionalLayout* panelItems = m_manager->Allocate<DirectionalLayout>();
+		panelItems->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);
+		panelItems->SetAlignedSize(Vector2::One);
+		panelItems->SetAlignedPosX(0.0f);
+		panelItems->GetWidgetProps().childPadding = m_inspector->GetWidgetProps().childPadding;
+		panelItems->GetProps().direction		  = DirectionOrientation::Vertical;
+		m_inspector->AddChild(panelItems);
+		CommonWidgets::BuildClassReflection(panelItems, this, ReflectionSystem::Get().Resolve<PanelSamplerViewer>());
+
+		DirectionalLayout* samplerItems = m_manager->Allocate<DirectionalLayout>();
+		samplerItems->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);
+		samplerItems->SetAlignedSize(Vector2::One);
+		samplerItems->SetAlignedPosX(0.0f);
+		samplerItems->GetWidgetProps().childPadding = m_inspector->GetWidgetProps().childPadding;
+		samplerItems->GetProps().direction			= DirectionOrientation::Vertical;
+		samplerItems->GetCallbacks().onEditEnded	= [this, sampler]() { EditorActionResourceSampler::Create(m_editor, sampler->GetID(), m_storedDesc, sampler->GetDesc()); };
+		m_inspector->AddChild(samplerItems);
 		CommonWidgets::BuildClassReflection(samplerItems, &sampler->GetDesc(), ReflectionSystem::Get().Resolve<LinaGX::SamplerDesc>());
 
 		if (m_previewOnly)

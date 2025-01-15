@@ -93,8 +93,8 @@ namespace Lina::Editor
 	private:
 		Properties m_props = {};
 		DockRect   m_dockRects[5];
-        Tween	   m_dockPreviewTween = Tween(0.0f, 1.0f, ANIM_TIME, TweenType::EaseOut);
-		float	   m_smallRectSize = 0.0f;
+		Tween	   m_dockPreviewTween = Tween(0.0f, 1.0f, ANIM_TIME, TweenType::EaseOut);
+		float	   m_smallRectSize	  = 0.0f;
 	};
 
 	LINA_WIDGET_BEGIN(DockPreview, Hidden)

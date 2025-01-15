@@ -40,7 +40,6 @@ namespace Lina::Editor
 	class Editor;
 	class ColorWheelCompound;
 
-
 	class PanelColorWheel : public Panel
 	{
 	public:
@@ -55,7 +54,7 @@ namespace Lina::Editor
 		}
 
 	private:
-		ColorWheelCompound*		 m_colorWheel = nullptr;
+		ColorWheelCompound* m_colorWheel = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(PanelColorWheel, Hidden)

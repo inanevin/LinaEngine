@@ -48,7 +48,7 @@ namespace Lina
 {
 	class ResourceManagerV2;
 	class Shader;
-class TextureSampler;
+	class TextureSampler;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -66,8 +66,8 @@ namespace Lina::Editor
 			SemaphoreData		   copySemaphore   = {};
 			Buffer				   guiVertexBuffer = {};
 			Buffer				   guiIndexBuffer  = {};
-            
-            Texture* renderTarget = nullptr;
+
+			Texture* renderTarget = nullptr;
 		};
 
 		struct Draw
@@ -123,31 +123,31 @@ namespace Lina::Editor
 		ResourceManagerV2*	m_resourceManagerV2 = nullptr;
 		LinaGX::Instance*	m_lgx				= nullptr;
 		ResourceUploadQueue m_uploadQueue;
-		Vector2ui			m_size = Vector2ui::Zero;
-        Vector2ui m_rtSize = Vector2ui::Zero;
+		Vector2ui			m_size	 = Vector2ui::Zero;
+		Vector2ui			m_rtSize = Vector2ui::Zero;
 		PerFrameData		m_pfd[FRAMES_IN_FLIGHT];
-		LinaGX::Window*		m_window	= nullptr;
-		uint8				m_swapchain = 0;
-		bool				m_isVisible = false;
-		RenderPass			m_guiPass	= {};
-        RenderPass m_swapchainPass = {};
+		LinaGX::Window*		m_window		= nullptr;
+		uint8				m_swapchain		= 0;
+		bool				m_isVisible		= false;
+		RenderPass			m_guiPass		= {};
+		RenderPass			m_swapchainPass = {};
 
 		LinaVG::Drawer m_lvgDrawer;
 		WidgetManager  m_widgetManager;
 
-		Shader* m_guiDefault	   = nullptr;
-		Shader* m_guiGlitch		   = nullptr;
-		Shader* m_guiColorWheel	   = nullptr;
-		Shader* m_guiHue		   = nullptr;
-		Shader* m_guiText		   = nullptr;
-		Shader* m_guiSDF		   = nullptr;
-		Shader* m_guiDisplayTarget = nullptr;
-        Shader* m_guiSwapchain = nullptr;
-        TextureSampler* m_swapchainTextureSampler = nullptr;
+		Shader*			m_guiDefault			  = nullptr;
+		Shader*			m_guiGlitch				  = nullptr;
+		Shader*			m_guiColorWheel			  = nullptr;
+		Shader*			m_guiHue				  = nullptr;
+		Shader*			m_guiText				  = nullptr;
+		Shader*			m_guiSDF				  = nullptr;
+		Shader*			m_guiDisplayTarget		  = nullptr;
+		Shader*			m_guiSwapchain			  = nullptr;
+		TextureSampler* m_swapchainTextureSampler = nullptr;
 
-		Draw m_cpuDraw = {};
-		Draw m_gpuDraw = {};
-        Color m_clearColor = Color::Purple;
+		Draw  m_cpuDraw	   = {};
+		Draw  m_gpuDraw	   = {};
+		Color m_clearColor = Color::Purple;
 	};
 
 } // namespace Lina::Editor

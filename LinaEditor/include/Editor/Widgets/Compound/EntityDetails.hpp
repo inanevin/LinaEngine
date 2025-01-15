@@ -38,7 +38,7 @@ namespace Lina
 	class Entity;
 	class EntityWorld;
 	class Text;
-class Component;
+	class Component;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -47,7 +47,7 @@ namespace Lina::Editor
 
 	class EntityDetails : public Widget
 	{
-    public:
+	public:
 		struct DummyDetails
 		{
 			String	name  = "";
@@ -60,7 +60,7 @@ namespace Lina::Editor
 		EntityDetails()			 = default;
 		virtual ~EntityDetails() = default;
 
-        virtual void Construct() override;
+		virtual void Construct() override;
 		virtual void Destruct() override;
 		virtual void PreTick() override;
 		void		 SetWorld(EntityWorld* w);
@@ -75,28 +75,27 @@ namespace Lina::Editor
 
 		void StartEditingName();
 		void StopEditingName();
-        void StartEditingComponents();
-        void StopEditingComponents();
+		void StartEditingComponents();
+		void StopEditingComponents();
 
 	private:
-        LINA_REFLECTION_ACCESS(EntityDetails);
-        
+		LINA_REFLECTION_ACCESS(EntityDetails);
+
 		Editor*				   m_editor = nullptr;
 		DirectionalLayout*	   m_layout = nullptr;
 		Vector<Entity*>		   m_selectedEntities;
 		Vector<Transformation> m_storedTransformations;
 		Vector<String>		   m_storedNames;
-		EntityWorld*		   m_world				 = nullptr;
-		DummyDetails		   m_dummyDetails		 = {};
-		bool				   m_physicsSettingsFold = false;
-		Text*				   m_noDetailsText		 = nullptr;
-		bool				   m_isEditing			 = false;
-        Vector<OStream> m_editingComponentsBuffer = {};
-        Vector<Component*> m_editingComponents = {};
+		EntityWorld*		   m_world					 = nullptr;
+		DummyDetails		   m_dummyDetails			 = {};
+		bool				   m_physicsSettingsFold	 = false;
+		Text*				   m_noDetailsText			 = nullptr;
+		bool				   m_isEditing				 = false;
+		Vector<OStream>		   m_editingComponentsBuffer = {};
+		Vector<Component*>	   m_editingComponents		 = {};
 	};
 
 	LINA_WIDGET_BEGIN(EntityDetails, Hidden)
 	LINA_CLASS_END(EntityDetails)
-
 
 } // namespace Lina::Editor

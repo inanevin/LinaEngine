@@ -51,33 +51,33 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-#define UID_LIGHT_ICON UINT32_MAX - 1000
+#define UID_LIGHT_ICON		  UINT32_MAX - 1000
 #define ORIENTATION_PASS_SIZE 250
 
 	GizmoRenderer::GizmoRenderer(Editor* editor, WorldRenderer* wr, RenderPass* pass, MousePickRenderer* mpr)
 	{
-		m_editor			= editor;
-		m_worldRenderer		= wr;
-		m_rm				= &m_editor->GetApp()->GetResourceManager();
-		m_shaderGizmo		= m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_GIZMO_ID);
+		m_editor				  = editor;
+		m_worldRenderer			  = wr;
+		m_rm					  = &m_editor->GetApp()->GetResourceManager();
+		m_shaderGizmo			  = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_GIZMO_ID);
 		m_shaderGizmoRotateCircle = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_GIZMO_ROTATE_ID);
-		m_shaderLine		= m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_LINE3D_ID);
-		m_shaderLVG			= m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_LVG3D_ID);
-        m_shaderSDFIcon = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_BILLBOARD_SDF_ID);
-		m_shaderGizmoOrientation = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_ORIENT_GIZMO_ID);
-        m_fontSDFIcon = m_rm->GetResource<Font>(EDITOR_FONT_ICON_ID);
-		m_world				= m_worldRenderer->GetWorld();
-		m_targetPass		= pass;
-		m_mousePickRenderer = mpr;
+		m_shaderLine			  = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_LINE3D_ID);
+		m_shaderLVG				  = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_LVG3D_ID);
+		m_shaderSDFIcon			  = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_BILLBOARD_SDF_ID);
+		m_shaderGizmoOrientation  = m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_ORIENT_GIZMO_ID);
+		m_fontSDFIcon			  = m_rm->GetResource<Font>(EDITOR_FONT_ICON_ID);
+		m_world					  = m_worldRenderer->GetWorld();
+		m_targetPass			  = pass;
+		m_mousePickRenderer		  = mpr;
 
-		m_matGizmoCenter = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material Center");
-		m_matGizmoX	  = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material X");
-		m_matGizmoY	  = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material Y");
-		m_matGizmoZ	  = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material Z");
+		m_matGizmoCenter	   = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material Center");
+		m_matGizmoX			   = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material X");
+		m_matGizmoY			   = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material Y");
+		m_matGizmoZ			   = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Material Z");
 		m_matGizmoRotateCircle = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "Gizmo Rotate Material");
-        m_matLightIconSpot = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "SDF Icon Mat SpotLight");
-        m_matLightIconSun = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "SDF Icon Mat SunLight");
-        m_matLightIconPoint = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "SDF Icon Mat PointLight");
+		m_matLightIconSpot	   = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "SDF Icon Mat SpotLight");
+		m_matLightIconSun	   = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "SDF Icon Mat SunLight");
+		m_matLightIconPoint	   = m_rm->CreateResource<Material>(m_rm->ConsumeResourceID(), "SDF Icon Mat PointLight");
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 
 		m_matGizmoCenter->SetShader(m_shaderGizmo);
@@ -89,19 +89,19 @@ namespace Lina::Editor
 		m_matGizmoX->SetProperty("color"_hs, Vector4(Theme::GetDef().accentPrimary2));
 		m_matGizmoY->SetProperty("color"_hs, Vector4(Theme::GetDef().accentSuccess));
 		m_matGizmoZ->SetProperty("color"_hs, Vector4(Theme::GetDef().accentSecondary));
-        
-        SetupIconMaterial(m_matLightIconPoint, m_fontSDFIcon, 0x0031, m_iconSzPoint);
-        SetupIconMaterial(m_matLightIconSpot, m_fontSDFIcon, 0x0032, m_iconSzSpot);
-        SetupIconMaterial(m_matLightIconSun, m_fontSDFIcon, 0x0033, m_iconSzSun);
 
-		m_modelTranslate  = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_TRANSLATE_ID);
-		m_modelRotate	  = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_ROTATE_ID);
-		m_modelRotateCircle = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_ROTATE_FULL_ID);
-		m_modelScale	  = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_SCALE_ID);
-		m_modelTranslateCenter = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_TRANSLATE_CENTER_ID);
-		m_modelScaleCenter	  = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_SCALE_CENTER_ID);
-		m_modelOrientationGizmo	  = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_ORIENTATION_ID);
-        m_modelQuad = m_rm->GetResource<Model>(EDITOR_MODEL_QUAD_ID);
+		SetupIconMaterial(m_matLightIconPoint, m_fontSDFIcon, 0x0031, m_iconSzPoint);
+		SetupIconMaterial(m_matLightIconSpot, m_fontSDFIcon, 0x0032, m_iconSzSpot);
+		SetupIconMaterial(m_matLightIconSun, m_fontSDFIcon, 0x0033, m_iconSzSun);
+
+		m_modelTranslate		= m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_TRANSLATE_ID);
+		m_modelRotate			= m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_ROTATE_ID);
+		m_modelRotateCircle		= m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_ROTATE_FULL_ID);
+		m_modelScale			= m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_SCALE_ID);
+		m_modelTranslateCenter	= m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_TRANSLATE_CENTER_ID);
+		m_modelScaleCenter		= m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_SCALE_CENTER_ID);
+		m_modelOrientationGizmo = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_ORIENTATION_ID);
+		m_modelQuad				= m_rm->GetResource<Model>(EDITOR_MODEL_QUAD_ID);
 
 	} // namespace Lina::Editor
 
@@ -109,24 +109,24 @@ namespace Lina::Editor
 	{
 		m_rm->DestroyResource(m_matGizmoX);
 		m_rm->DestroyResource(m_matGizmoY);
-        m_rm->DestroyResource(m_matGizmoZ);
-        m_rm->DestroyResource(m_matGizmoCenter);
-        m_rm->DestroyResource(m_matGizmoRotateCircle);
-        m_rm->DestroyResource(m_matLightIconSpot);
-        m_rm->DestroyResource(m_matLightIconPoint);
-        m_rm->DestroyResource(m_matLightIconSun);
+		m_rm->DestroyResource(m_matGizmoZ);
+		m_rm->DestroyResource(m_matGizmoCenter);
+		m_rm->DestroyResource(m_matGizmoRotateCircle);
+		m_rm->DestroyResource(m_matLightIconSpot);
+		m_rm->DestroyResource(m_matLightIconPoint);
+		m_rm->DestroyResource(m_matLightIconSun);
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 	}
 
 	void GizmoRenderer::Tick(float delta)
 	{
-        DrawLightWireframes();
-        DrawLightIcons(m_targetPass, 0);
-        DrawLightIcons(&m_mousePickRenderer->GetRenderPass(), "StaticEntityID"_hs);
-        
+		DrawLightWireframes();
+		DrawLightIcons(m_targetPass, 0);
+		DrawLightIcons(&m_mousePickRenderer->GetRenderPass(), "StaticEntityID"_hs);
+
 		if (m_gizmoSettings.drawOrientation)
 		{
-            DrawOrientationGizmos(m_targetPass, 0, m_gizmoSettings.defaultShaderScale);
+			DrawOrientationGizmos(m_targetPass, 0, m_gizmoSettings.defaultShaderScale);
 			DrawOrientationGizmos(&m_mousePickRenderer->GetRenderPass(), "StaticEntityID"_hs, m_gizmoSettings.defaultShaderScale * 2);
 		}
 
@@ -155,7 +155,10 @@ namespace Lina::Editor
 		{
 			Camera& cam = m_world->GetWorldCamera();
 			m_worldRenderer->StartLine3DBatch();
-            m_worldRenderer->DrawLine3D(m_gizmoSettings.position + m_gizmoSettings.worldAxis * -cam.GetZFar() * 0.5f, m_gizmoSettings.position + m_gizmoSettings.worldAxis * cam.GetZFar() * 0.5f, 0.08f * m_gizmoSettings.defaultShaderScale, GetColorFromAxis(m_gizmoSettings.focusedAxis));
+			m_worldRenderer->DrawLine3D(m_gizmoSettings.position + m_gizmoSettings.worldAxis * -cam.GetZFar() * 0.5f,
+										m_gizmoSettings.position + m_gizmoSettings.worldAxis * cam.GetZFar() * 0.5f,
+										0.08f * m_gizmoSettings.defaultShaderScale,
+										GetColorFromAxis(m_gizmoSettings.focusedAxis));
 			m_worldRenderer->EndLine3DBatch(*m_targetPass, 0, m_shaderLine->GetGPUHandle());
 		}
 	}
@@ -171,123 +174,125 @@ namespace Lina::Editor
 		return Color::White;
 	}
 
-    void GizmoRenderer::DrawLightWireframes()
-    {
-        const Vector<CompLight*>& compLights = m_worldRenderer->GetCompLights();
-        m_worldRenderer->StartLine3DBatch();
-        
-        const float thickness = 0.1f * m_gizmoSettings.defaultShaderScale;
-        
-        for(CompLight* l : compLights)
-        {
-            const LightType type = l->GetType();
-            Entity* e = l->GetEntity();
-            
-            auto it = linatl::find_if(m_selectedEntities.begin(), m_selectedEntities.end(), [e](Entity* selected) -> bool {return selected == e;});
-            if(it == m_selectedEntities.end())
-                continue;
-            
-            const Vector3 p = e->GetPosition();
+	void GizmoRenderer::DrawLightWireframes()
+	{
+		const Vector<CompLight*>& compLights = m_worldRenderer->GetCompLights();
+		m_worldRenderer->StartLine3DBatch();
 
-            if(type == LightType::Directional)
-            {
-                m_worldRenderer->DrawLine3D(p, p + e->GetRotation().GetForward() * 2.0f, thickness, Theme::GetDef().accentYellowGold);
-            }
-            else if(type == LightType::Point)
-            {
-                m_worldRenderer->DrawWireSphere3D(e->GetPosition(), l->GetRadius(), thickness, Theme::GetDef().accentYellowGold);
-                m_worldRenderer->DrawWireSphere3D(e->GetPosition(), l->GetFalloff(), thickness, Theme::GetDef().accentPrimary3);
-            }
-            else if(type == LightType::Spot)
-            {
-                const float radius = l->GetRadius() * Math::Tan(DEG_2_RAD * l->GetCutoff());
-                const float radiusOuter = l->GetRadius() * Math::Tan(DEG_2_RAD * l->GetOuterCutoff());
-                m_worldRenderer->DrawWireCone3D(p, e->GetRotation().GetForward(), l->GetRadius(), radius, thickness, Theme::GetDef().accentYellowGold, true);
-                m_worldRenderer->DrawWireCone3D(p, e->GetRotation().GetForward(), l->GetRadius(), radiusOuter, thickness, Theme::GetDef().accentPrimary3, false);
-            }
-        }
-        
-        m_worldRenderer->EndLine3DBatch(*m_targetPass, 0, m_shaderLine->GetGPUHandle());
-    }
+		const float thickness = 0.1f * m_gizmoSettings.defaultShaderScale;
 
-    void GizmoRenderer::DrawLightIcons(RenderPass* pass, StringID variant)
-    {
-        const Vector<CompLight*>& lights = m_worldRenderer->GetCompLights();
-        if(lights.empty())
-            return;
-        
-        const PrimitiveStatic& prim          = m_modelQuad->GetAllMeshes().at(0).primitivesStatic.at(0);
-        const uint32           baseVertex = prim._vertexOffset;
-        const uint32           baseIndex  = prim._indexOffset;
-        const uint32           indexCount = static_cast<uint32>(prim.indices.size());
-    
-        uint32 pc = 0;
-        uint32 instanceCount = 0;
-    
-        for(CompLight* l : lights)
-        {
-            const LightType type = l->GetType();
-            Entity* e = l->GetEntity();
-            
-            uint32 matIndex = 0;
-            Vector3 scale = Vector3::One;
-            
-            if(type == LightType::Directional)
-            {
-                matIndex = m_matLightIconSun->GetBindlessIndex();
-                scale = m_iconSzSun.Normalized() * 0.5f;
-            }
-            else if(type == LightType::Spot)
-            {
-                matIndex = m_matLightIconSpot->GetBindlessIndex();
-                scale = m_iconSzSpot.Normalized() * 0.5f;
-            }
-            else{
-                matIndex = m_matLightIconPoint->GetBindlessIndex();
-                scale = m_iconSzPoint.Normalized() * 0.5f;
-            }
-      
-            const GPUEntity entity = {
-                .model = Matrix4::TransformMatrix(e->GetPosition(), Quaternion::LookAt(e->GetPosition(), m_world->GetWorldCamera().GetPosition(), -Vector3::Up), scale),
-            };
-            
-            const uint32 entityIndex =  m_worldRenderer->PushEntity(entity, {
-                .entityGUID = e->GetGUID(),
-                .uniqueID2 = UID_LIGHT_ICON,
-            });
-            
-            const GPUDrawArguments args = {
-                .constant0 = entityIndex,
-                .constant1 = matIndex,
-            };
-    
-            const uint32 argIndex = m_worldRenderer->PushArgument(args);
-    
-            if(instanceCount == 0)
-            {
-                pc = argIndex;
-            }
-            
-            instanceCount++;
-        }
-        
-        Buffer* vtx = &m_editor->GetApp()->GetGfxContext().GetMeshManagerDefault().GetVtxBufferStatic();
-        Buffer* idx = &m_editor->GetApp()->GetGfxContext().GetMeshManagerDefault().GetIdxBufferStatic();
-    
-        const RenderPass::InstancedDraw draw = {
-            .vertexBuffers = {vtx, vtx},
-            .indexBuffers  = {idx, idx},
-            .vertexSize       = sizeof(VertexStatic),
-            .shaderHandle  = variant == 0 ? m_shaderSDFIcon->GetGPUHandle() : m_shaderSDFIcon->GetGPUHandle(variant),
-            .baseVertex       = baseVertex,
-            .baseIndex       = baseIndex,
-            .indexCount       = indexCount,
-            .instanceCount = instanceCount,
-            .pushConstant  = pc,
-        };
-        
-        pass->AddDrawCall(draw);
-    }
+		for (CompLight* l : compLights)
+		{
+			const LightType type = l->GetType();
+			Entity*			e	 = l->GetEntity();
+
+			auto it = linatl::find_if(m_selectedEntities.begin(), m_selectedEntities.end(), [e](Entity* selected) -> bool { return selected == e; });
+			if (it == m_selectedEntities.end())
+				continue;
+
+			const Vector3 p = e->GetPosition();
+
+			if (type == LightType::Directional)
+			{
+				m_worldRenderer->DrawLine3D(p, p + e->GetRotation().GetForward() * 2.0f, thickness, Theme::GetDef().accentYellowGold);
+			}
+			else if (type == LightType::Point)
+			{
+				m_worldRenderer->DrawWireSphere3D(e->GetPosition(), l->GetRadius(), thickness, Theme::GetDef().accentYellowGold);
+				m_worldRenderer->DrawWireSphere3D(e->GetPosition(), l->GetFalloff(), thickness, Theme::GetDef().accentPrimary3);
+			}
+			else if (type == LightType::Spot)
+			{
+				const float radius		= l->GetRadius() * Math::Tan(DEG_2_RAD * l->GetCutoff());
+				const float radiusOuter = l->GetRadius() * Math::Tan(DEG_2_RAD * l->GetOuterCutoff());
+				m_worldRenderer->DrawWireCone3D(p, e->GetRotation().GetForward(), l->GetRadius(), radius, thickness, Theme::GetDef().accentYellowGold, true);
+				m_worldRenderer->DrawWireCone3D(p, e->GetRotation().GetForward(), l->GetRadius(), radiusOuter, thickness, Theme::GetDef().accentPrimary3, false);
+			}
+		}
+
+		m_worldRenderer->EndLine3DBatch(*m_targetPass, 0, m_shaderLine->GetGPUHandle());
+	}
+
+	void GizmoRenderer::DrawLightIcons(RenderPass* pass, StringID variant)
+	{
+		const Vector<CompLight*>& lights = m_worldRenderer->GetCompLights();
+		if (lights.empty())
+			return;
+
+		const PrimitiveStatic& prim		  = m_modelQuad->GetAllMeshes().at(0).primitivesStatic.at(0);
+		const uint32		   baseVertex = prim._vertexOffset;
+		const uint32		   baseIndex  = prim._indexOffset;
+		const uint32		   indexCount = static_cast<uint32>(prim.indices.size());
+
+		uint32 pc			 = 0;
+		uint32 instanceCount = 0;
+
+		for (CompLight* l : lights)
+		{
+			const LightType type = l->GetType();
+			Entity*			e	 = l->GetEntity();
+
+			uint32	matIndex = 0;
+			Vector3 scale	 = Vector3::One;
+
+			if (type == LightType::Directional)
+			{
+				matIndex = m_matLightIconSun->GetBindlessIndex();
+				scale	 = m_iconSzSun.Normalized() * 0.5f;
+			}
+			else if (type == LightType::Spot)
+			{
+				matIndex = m_matLightIconSpot->GetBindlessIndex();
+				scale	 = m_iconSzSpot.Normalized() * 0.5f;
+			}
+			else
+			{
+				matIndex = m_matLightIconPoint->GetBindlessIndex();
+				scale	 = m_iconSzPoint.Normalized() * 0.5f;
+			}
+
+			const GPUEntity entity = {
+				.model = Matrix4::TransformMatrix(e->GetPosition(), Quaternion::LookAt(e->GetPosition(), m_world->GetWorldCamera().GetPosition(), -Vector3::Up), scale),
+			};
+
+			const uint32 entityIndex = m_worldRenderer->PushEntity(entity,
+																   {
+																	   .entityGUID = e->GetGUID(),
+																	   .uniqueID2  = UID_LIGHT_ICON,
+																   });
+
+			const GPUDrawArguments args = {
+				.constant0 = entityIndex,
+				.constant1 = matIndex,
+			};
+
+			const uint32 argIndex = m_worldRenderer->PushArgument(args);
+
+			if (instanceCount == 0)
+			{
+				pc = argIndex;
+			}
+
+			instanceCount++;
+		}
+
+		Buffer* vtx = &m_editor->GetApp()->GetGfxContext().GetMeshManagerDefault().GetVtxBufferStatic();
+		Buffer* idx = &m_editor->GetApp()->GetGfxContext().GetMeshManagerDefault().GetIdxBufferStatic();
+
+		const RenderPass::InstancedDraw draw = {
+			.vertexBuffers = {vtx, vtx},
+			.indexBuffers  = {idx, idx},
+			.vertexSize	   = sizeof(VertexStatic),
+			.shaderHandle  = variant == 0 ? m_shaderSDFIcon->GetGPUHandle() : m_shaderSDFIcon->GetGPUHandle(variant),
+			.baseVertex	   = baseVertex,
+			.baseIndex	   = baseIndex,
+			.indexCount	   = indexCount,
+			.instanceCount = instanceCount,
+			.pushConstant  = pc,
+		};
+
+		pass->AddDrawCall(draw);
+	}
 
 	void GizmoRenderer::DrawGizmoMoveScale(RenderPass* pass, StringID variant, float shaderScale)
 	{
@@ -347,7 +352,7 @@ namespace Lina::Editor
 		const uint32 pc = m_worldRenderer->PushArgument(argsX);
 		m_worldRenderer->PushArgument(argsY);
 		m_worldRenderer->PushArgument(argsZ);
-        
+
 		const RenderPass::InstancedDraw draw = {
 			.vertexBuffers = {vtx, vtx},
 			.indexBuffers  = {idx, idx},
@@ -574,27 +579,27 @@ namespace Lina::Editor
 		pass->AddDrawCall(draw);
 	}
 
-void GizmoRenderer::SetupIconMaterial(Material *mat, Font *font, uint8 codePoint, Vector2 &outSize)
-{
-    LinaVG::Font* lvgFont = font->GetFont(m_gizmoSettings.defaultShaderScale);
-    LinaVG::TextCharacter& glyph = lvgFont->glyphs.at(codePoint);
-    outSize =  Vector2(glyph.m_uv34.x, glyph.m_uv34.y) - Vector2(glyph.m_uv12.x, glyph.m_uv12.y);
-    Texture* ft = m_editor->GetApp()->GetGUIBackend().GetFontTexture(lvgFont->atlas).texture;
-    const LinaTexture2D txt = {
-        .texture = ft->GetID(),
-        .sampler = m_editor->GetEditorRenderer().GetGUITextSampler()->GetID(),
-    };
+	void GizmoRenderer::SetupIconMaterial(Material* mat, Font* font, uint8 codePoint, Vector2& outSize)
+	{
+		LinaVG::Font*		   lvgFont = font->GetFont(m_gizmoSettings.defaultShaderScale);
+		LinaVG::TextCharacter& glyph   = lvgFont->glyphs.at(codePoint);
+		outSize						   = Vector2(glyph.m_uv34.x, glyph.m_uv34.y) - Vector2(glyph.m_uv12.x, glyph.m_uv12.y);
+		Texture*			ft		   = m_editor->GetApp()->GetGUIBackend().GetFontTexture(lvgFont->atlas).texture;
+		const LinaTexture2D txt		   = {
+				   .texture = ft->GetID(),
+				   .sampler = m_editor->GetEditorRenderer().GetGUITextSampler()->GetID(),
+		   };
 
-    mat->SetShader(m_shaderSDFIcon);
-    mat->SetProperty("diffuse"_hs, txt);
-    mat->SetProperty("color"_hs, Vector4(Theme::GetDef().accentYellowGold));
-    mat->SetProperty("outlineColor"_hs, Vector4(Theme::GetDef().background0));
-    mat->SetProperty("thickness"_hs, 0.5f);
-    mat->SetProperty("outlineThickness"_hs, 0.55f);
-    mat->SetProperty("softness"_hs, 0.02f);
-    mat->SetProperty("outlineSoftness"_hs, 0.02f);
-    mat->SetProperty("uvStart"_hs, Vector2(glyph.m_uv12.x, glyph.m_uv12.y));
-    mat->SetProperty("uvSize"_hs, outSize);
-}
+		mat->SetShader(m_shaderSDFIcon);
+		mat->SetProperty("diffuse"_hs, txt);
+		mat->SetProperty("color"_hs, Vector4(Theme::GetDef().accentYellowGold));
+		mat->SetProperty("outlineColor"_hs, Vector4(Theme::GetDef().background0));
+		mat->SetProperty("thickness"_hs, 0.5f);
+		mat->SetProperty("outlineThickness"_hs, 0.55f);
+		mat->SetProperty("softness"_hs, 0.02f);
+		mat->SetProperty("outlineSoftness"_hs, 0.02f);
+		mat->SetProperty("uvStart"_hs, Vector2(glyph.m_uv12.x, glyph.m_uv12.y));
+		mat->SetProperty("uvSize"_hs, outSize);
+	}
 
 } // namespace Lina::Editor

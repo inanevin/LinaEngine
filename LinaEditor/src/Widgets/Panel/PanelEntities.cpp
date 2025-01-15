@@ -50,11 +50,11 @@ namespace Lina::Editor
 		m_browser->SetAlignedSize(Vector2(1.0f, 1.0f));
 		AddChild(m_browser);
 
-        EntityWorld* w = m_editor->GetWorldManager().GetFirstGameWorld();
-        
-        if(w)
-            m_browser->SetWorld(w);
-        
+		EntityWorld* w = m_editor->GetWorldManager().GetFirstGameWorld();
+
+		if (w)
+			m_browser->SetWorld(w);
+
 		m_editor->GetWorldManager().AddListener(this);
 	}
 

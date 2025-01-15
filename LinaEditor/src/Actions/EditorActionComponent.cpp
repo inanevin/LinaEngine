@@ -37,38 +37,38 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-    EditorActionComponentChanged* EditorActionComponentChanged::Create(Editor *editor, uint64 worldId, const Vector<Entity *> &entities, const Vector<TypeID> &comps, const Vector<OStream> &previousBuffers)
-    {
-        if(!(entities.size() == comps.size() && comps.size() == previousBuffers.size()))
-            return;
-        
+	EditorActionComponentChanged* EditorActionComponentChanged::Create(Editor* editor, uint64 worldId, const Vector<Entity*>& entities, const Vector<TypeID>& comps, const Vector<OStream>& previousBuffers)
+	{
+		if (!(entities.size() == comps.size() && comps.size() == previousBuffers.size()))
+			return;
+
 		EditorActionComponentChanged* action = new EditorActionComponentChanged();
 		action->m_entities.reserve(entities.size());
 		action->m_worldId = worldId;
 
-        EditorWorldManager::WorldData& wd = editor->GetWorldManager().GetWorldData(editor->GetWorldManager().GetWorld(worldId));
+		EditorWorldManager::WorldData& wd = editor->GetWorldManager().GetWorldData(editor->GetWorldManager().GetWorld(worldId));
 
-        uint32 i = 0;
+		uint32 i = 0;
 		for (Entity* e : entities)
 		{
 			if (e != nullptr)
 				action->m_entities.push_back(e->GetGUID());
-            
-            Component* c = wd.world->GetComponent(e, comps.at(i));
-            OStream stream;
-            c->SaveToStream(stream);
-            action->m_currentStreams.push_back(stream);
-            i++;
+
+			Component* c = wd.world->GetComponent(e, comps.at(i));
+			OStream	   stream;
+			c->SaveToStream(stream);
+			action->m_currentStreams.push_back(stream);
+			i++;
 		}
-        
-        action->m_components = comps;
-        
-        for(const OStream& stream : previousBuffers)
-        {
-            OStream prevStream;
-            prevStream.WriteRaw(stream.GetDataRaw(), stream.GetCurrentSize());
-            action->m_previousStreams.push_back(prevStream);
-        }
+
+		action->m_components = comps;
+
+		for (const OStream& stream : previousBuffers)
+		{
+			OStream prevStream;
+			prevStream.WriteRaw(stream.GetDataRaw(), stream.GetCurrentSize());
+			action->m_previousStreams.push_back(prevStream);
+		}
 		editor->GetEditorActionManager().AddToStack(action);
 		return action;
 	}
@@ -81,50 +81,50 @@ namespace Lina::Editor
 
 		EditorWorldManager::WorldData& wd = editor->GetWorldManager().GetWorldData(world);
 
-        Vector<Component*> comps;
-        comps.resize(m_previousStreams.size());
-        
-        uint32 i = 0;
-        for(EntityID guid : m_entities)
-        {
-            Entity* e = wd.world->GetEntity(m_entities.at(i));
-            Component* c = wd.world->GetComponent(e, m_components.at(i));
-            comps[i] = c;
-        }
-        
+		Vector<Component*> comps;
+		comps.resize(m_previousStreams.size());
+
+		uint32 i = 0;
+		for (EntityID guid : m_entities)
+		{
+			Entity*	   e = wd.world->GetEntity(m_entities.at(i));
+			Component* c = wd.world->GetComponent(e, m_components.at(i));
+			comps[i]	 = c;
+		}
+
 		if (type == ExecType::Undo)
 		{
-            i = 0;
-            for(OStream& stream : m_previousStreams)
-            {
-                IStream istream;
-                istream.Create(stream.GetDataRaw(), stream.GetCurrentSize());
-                comps.at(i)->LoadFromStream(istream);
-                istream.Destroy();
-                i++;
-            }
+			i = 0;
+			for (OStream& stream : m_previousStreams)
+			{
+				IStream istream;
+				istream.Create(stream.GetDataRaw(), stream.GetCurrentSize());
+				comps.at(i)->LoadFromStream(istream);
+				istream.Destroy();
+				i++;
+			}
 		}
 		else if (type == ExecType::Redo)
 		{
-            i = 0;
-            for(OStream& stream : m_currentStreams)
-            {
-                IStream istream;
-                istream.Create(stream.GetDataRaw(), stream.GetCurrentSize());
-                comps.at(i)->LoadFromStream(istream);
-                istream.Destroy();
-                i++;
-            }
+			i = 0;
+			for (OStream& stream : m_currentStreams)
+			{
+				IStream istream;
+				istream.Create(stream.GetDataRaw(), stream.GetCurrentSize());
+				comps.at(i)->LoadFromStream(istream);
+				istream.Destroy();
+				i++;
+			}
 		}
-        
-        for(Component* c : comps)
-        {
-            wd.world->LoadMissingResources(editor->GetApp()->GetResourceManager(), editor->GetProjectManager().GetProjectData(), {}, m_worldId);
-            c->StoreReferences();
-        }
-        
-        if(type == ExecType::Redo || type == ExecType::Undo)
-            editor->GetWorldManager().BroadcastComponentsChanged(wd.world);
+
+		for (Component* c : comps)
+		{
+			wd.world->LoadMissingResources(editor->GetApp()->GetResourceManager(), editor->GetProjectManager().GetProjectData(), {}, m_worldId);
+			c->StoreReferences();
+		}
+
+		if (type == ExecType::Redo || type == ExecType::Undo)
+			editor->GetWorldManager().BroadcastComponentsChanged(wd.world);
 	}
 
 } // namespace Lina::Editor

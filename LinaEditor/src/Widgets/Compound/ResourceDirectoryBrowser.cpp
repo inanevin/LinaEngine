@@ -66,64 +66,62 @@ namespace Lina::Editor
 
 	void ResourceDirectoryBrowser::Construct()
 	{
-		m_editor = Editor::Get();
-        ParameterCollection& params = Editor::Get()->GetSettings().GetParams();
+		m_editor					= Editor::Get();
+		ParameterCollection& params = Editor::Get()->GetSettings().GetParams();
 
-        DirectionalLayout* vertical = m_manager->Allocate<DirectionalLayout>();
-        vertical->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-        vertical->GetProps().direction                   = DirectionOrientation::Vertical;
-        vertical->GetWidgetProps().childPadding           = Theme::GetDef().baseIndent;
-        vertical->GetWidgetProps().childMargins.top       = Theme::GetDef().baseIndent;
-        vertical->GetWidgetProps().childMargins.bottom = Theme::GetDef().baseIndent;
-        AddChild(vertical);
-        
-        DirectionalLayout* header = m_manager->Allocate<DirectionalLayout>();
-        header->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-        header->SetAlignedPosX(0.0f);
-        header->SetAlignedSizeX(1.0f);
-        header->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-        header->GetWidgetProps().childPadding        = Theme::GetDef().baseIndent;
-        header->GetWidgetProps().childMargins.left    = Theme::GetDef().baseIndent;
-        header->GetWidgetProps().childMargins.right = Theme::GetDef().baseIndent;
-        vertical->AddChild(header);
-        
-        Dropdown* filterDD = m_manager->Allocate<Dropdown>("Fiter");
-        filterDD->GetFlags().Set(WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_SIZE_ALIGN_Y);
-        filterDD->SetAlignedPosY(0.0f);
-        filterDD->SetAlignedSizeY(1.0f);
-        filterDD->SetFixedSizeX(Theme::GetDef().baseItemWidth * 1.5f);
-        filterDD->GetIcon()->GetProps().icon = ICON_FILTER;
-        filterDD->GetText()->GetProps().text = Locale::GetStr(LocaleStr::Filter) + ": " + ResourceDirectoryBrowser::GetFilterStr(static_cast<ResourceDirectoryBrowser::Filter>(params.GetParamUint8("panelResBrowserFilter"_hs, 0)));
-        filterDD->GetProps().onAddItems         = [this](Popup* popup) {
-             const uint8 max    = static_cast<uint8>(ResourceDirectoryBrowser::Filter::Max);
-             const uint8 filter = Editor::Get()->GetSettings().GetParams().GetParamUint8("panelResBrowserFilter"_hs, 0);
+		DirectionalLayout* vertical = m_manager->Allocate<DirectionalLayout>();
+		vertical->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		vertical->GetProps().direction				   = DirectionOrientation::Vertical;
+		vertical->GetWidgetProps().childPadding		   = Theme::GetDef().baseIndent;
+		vertical->GetWidgetProps().childMargins.top	   = Theme::GetDef().baseIndent;
+		vertical->GetWidgetProps().childMargins.bottom = Theme::GetDef().baseIndent;
+		AddChild(vertical);
 
-             for (uint8 i = 0; i < max; i++)
-                 popup->AddToggleItem(ResourceDirectoryBrowser::GetFilterStr(static_cast<ResourceDirectoryBrowser::Filter>(i)), filter == i, i);
-        };
+		DirectionalLayout* header = m_manager->Allocate<DirectionalLayout>();
+		header->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+		header->SetAlignedPosX(0.0f);
+		header->SetAlignedSizeX(1.0f);
+		header->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		header->GetWidgetProps().childPadding		= Theme::GetDef().baseIndent;
+		header->GetWidgetProps().childMargins.left	= Theme::GetDef().baseIndent;
+		header->GetWidgetProps().childMargins.right = Theme::GetDef().baseIndent;
+		vertical->AddChild(header);
 
-        filterDD->GetProps().onSelected = [this](int32 idx, String& newTitle) -> bool {
-            Editor::Get()->GetSettings().GetParams().SetParamUint8("panelResBrowserFilter"_hs, static_cast<uint8>(idx));
-            Editor::Get()->SaveSettings();
-            newTitle = Locale::GetStr(LocaleStr::Filter) + ": " + ResourceDirectoryBrowser::GetFilterStr(static_cast<ResourceDirectoryBrowser::Filter>(idx));
-            SetFilter(static_cast<ResourceDirectoryBrowser::Filter>(idx));
-            return true;
-        };
-        
-        header->AddChild(filterDD);
-        
-        InputField* searchField = m_manager->Allocate<InputField>();
-        searchField->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-        searchField->SetAlignedPosY(0.0f);
-        searchField->SetAlignedSize(Vector2(0.0f, 1.0f));
-        searchField->GetProps().usePlaceHolder    = true;
-        searchField->GetProps().placeHolderText = Locale::GetStr(LocaleStr::Search);
-        searchField->GetProps().placeHolderIcon = ICON_SEARCH;
-        searchField->GetCallbacks().onEdited = [searchField, this](){
-            SetSearchStr(searchField->GetValueStr());
-        };
-        header->AddChild(searchField);
-       
+		Dropdown* filterDD = m_manager->Allocate<Dropdown>("Fiter");
+		filterDD->GetFlags().Set(WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_SIZE_ALIGN_Y);
+		filterDD->SetAlignedPosY(0.0f);
+		filterDD->SetAlignedSizeY(1.0f);
+		filterDD->SetFixedSizeX(Theme::GetDef().baseItemWidth * 1.5f);
+		filterDD->GetIcon()->GetProps().icon = ICON_FILTER;
+		filterDD->GetText()->GetProps().text = Locale::GetStr(LocaleStr::Filter) + ": " + ResourceDirectoryBrowser::GetFilterStr(static_cast<ResourceDirectoryBrowser::Filter>(params.GetParamUint8("panelResBrowserFilter"_hs, 0)));
+		filterDD->GetProps().onAddItems		 = [this](Popup* popup) {
+			 const uint8 max	= static_cast<uint8>(ResourceDirectoryBrowser::Filter::Max);
+			 const uint8 filter = Editor::Get()->GetSettings().GetParams().GetParamUint8("panelResBrowserFilter"_hs, 0);
+
+			 for (uint8 i = 0; i < max; i++)
+				 popup->AddToggleItem(ResourceDirectoryBrowser::GetFilterStr(static_cast<ResourceDirectoryBrowser::Filter>(i)), filter == i, i);
+		};
+
+		filterDD->GetProps().onSelected = [this](int32 idx, String& newTitle) -> bool {
+			Editor::Get()->GetSettings().GetParams().SetParamUint8("panelResBrowserFilter"_hs, static_cast<uint8>(idx));
+			Editor::Get()->SaveSettings();
+			newTitle = Locale::GetStr(LocaleStr::Filter) + ": " + ResourceDirectoryBrowser::GetFilterStr(static_cast<ResourceDirectoryBrowser::Filter>(idx));
+			SetFilter(static_cast<ResourceDirectoryBrowser::Filter>(idx));
+			return true;
+		};
+
+		header->AddChild(filterDD);
+
+		InputField* searchField = m_manager->Allocate<InputField>();
+		searchField->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		searchField->SetAlignedPosY(0.0f);
+		searchField->SetAlignedSize(Vector2(0.0f, 1.0f));
+		searchField->GetProps().usePlaceHolder	= true;
+		searchField->GetProps().placeHolderText = Locale::GetStr(LocaleStr::Search);
+		searchField->GetProps().placeHolderIcon = ICON_SEARCH;
+		searchField->GetCallbacks().onEdited	= [searchField, this]() { SetSearchStr(searchField->GetValueStr()); };
+		header->AddChild(searchField);
+
 		ScrollArea* scroll = m_manager->Allocate<ScrollArea>("Scroll");
 		scroll->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		scroll->SetAlignedPosX(0.0f);
@@ -258,9 +256,9 @@ namespace Lina::Editor
 	void ResourceDirectoryBrowser::Initialize()
 	{
 		Widget::Initialize();
-        ParameterCollection& params = Editor::Get()->GetSettings().GetParams();
+		ParameterCollection& params = Editor::Get()->GetSettings().GetParams();
 
-        SetFilter(static_cast<ResourceDirectoryBrowser::Filter>(params.GetParamUint8("panelResBrowserFilter"_hs, 0)));
+		SetFilter(static_cast<ResourceDirectoryBrowser::Filter>(params.GetParamUint8("panelResBrowserFilter"_hs, 0)));
 	}
 
 	void ResourceDirectoryBrowser::Destruct()
@@ -790,13 +788,13 @@ namespace Lina::Editor
 		inp->SetFixedSizeY(text->GetParent()->GetSizeY());
 		inp->Initialize();
 
-        inp->GetCallbacks().onEditEnded = [text, dir, inp, this](){
-            const String& str = inp->GetValueStr();
-            text->GetProps().text = str;
-            text->CalculateTextSize();
-            text->GetWidgetManager()->AddToKillList(inp);
-            EditorActionResourceRename::Create(m_editor, dir->guid, dir->name, str);
-        };
+		inp->GetCallbacks().onEditEnded = [text, dir, inp, this]() {
+			const String& str	  = inp->GetValueStr();
+			text->GetProps().text = str;
+			text->CalculateTextSize();
+			text->GetWidgetManager()->AddToKillList(inp);
+			EditorActionResourceRename::Create(m_editor, dir->guid, dir->name, str);
+		};
 
 		text->GetWidgetManager()->AddToForeground(inp);
 		inp->StartEditing();

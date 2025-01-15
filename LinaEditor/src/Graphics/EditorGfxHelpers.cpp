@@ -59,25 +59,24 @@ namespace Lina::Editor
 		};
 	}
 
-RenderPassDescription EditorGfxHelpers::GetSwapchainPassDescription()
-{
-    return {
-        .buffers =
-            {
-                {
-                    .bufferType      = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
-                    .debugName      = "RP: Swapchain - PassData",
-                    .size          = sizeof(GPUDataEditorSwapchainPass),
-                    .stagingOnly  = true,
-                    .bindingIndex = 0,
-                    .ident          = "PassData"_hs,
-                },
-            },
-        .setDescription = GetSetDescriptionSwapchain(),
-    };
-}
+	RenderPassDescription EditorGfxHelpers::GetSwapchainPassDescription()
+	{
+		return {
+			.buffers =
+				{
+					{
+						.bufferType	  = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
+						.debugName	  = "RP: Swapchain - PassData",
+						.size		  = sizeof(GPUDataEditorSwapchainPass),
+						.stagingOnly  = true,
+						.bindingIndex = 0,
+						.ident		  = "PassData"_hs,
+					},
+				},
+			.setDescription = GetSetDescriptionSwapchain(),
+		};
+	}
 
-	
 	RenderPassDescription EditorGfxHelpers::GetEditorWorldPassDescription()
 	{
 		LinaGX::DescriptorSetDesc setDesc = GetSetDescriptionEditorWorldPass();
@@ -127,17 +126,16 @@ RenderPassDescription EditorGfxHelpers::GetSwapchainPassDescription()
 		return {.bindings = {guiBinding0, guiBinding1}};
 	}
 
-    LinaGX::DescriptorSetDesc EditorGfxHelpers::GetSetDescriptionSwapchain()
-    {
-        LinaGX::DescriptorBinding guiBinding0 = {
-            .type    = LinaGX::DescriptorType::UBO,
-            .stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-        };
-     
-        return {.bindings = {guiBinding0}};
-    }
+	LinaGX::DescriptorSetDesc EditorGfxHelpers::GetSetDescriptionSwapchain()
+	{
+		LinaGX::DescriptorBinding guiBinding0 = {
+			.type	= LinaGX::DescriptorType::UBO,
+			.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+		};
 
-	
+		return {.bindings = {guiBinding0}};
+	}
+
 	LinaGX::DescriptorSetDesc EditorGfxHelpers::GetSetDescriptionEditorWorldPass()
 	{
 		LinaGX::DescriptorBinding binding0 = {
@@ -154,11 +152,11 @@ RenderPassDescription EditorGfxHelpers::GetSwapchainPassDescription()
 			.type	= LinaGX::DescriptorType::SSBO,
 			.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 		};
-        
-        LinaGX::DescriptorBinding binding3 = {
-            .type    = LinaGX::DescriptorType::SSBO,
-            .stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-        };
+
+		LinaGX::DescriptorBinding binding3 = {
+			.type	= LinaGX::DescriptorType::SSBO,
+			.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+		};
 
 		return {.bindings = {binding0, binding1, binding2, binding3}};
 	}
@@ -190,19 +188,17 @@ RenderPassDescription EditorGfxHelpers::GetSwapchainPassDescription()
 		};
 	}
 
-LinaGX::PipelineLayoutDesc EditorGfxHelpers::GetPipelineLayoutDescriptionSwapchain()
-{
-    return {
-        .descriptorSetDescriptions = {GfxHelpers::GetSetDescPersistentGlobal(), GetSetDescriptionSwapchain()},
-        .constantRanges               = {{
-                       .stages = {LinaGX::ShaderStage::Vertex},
-                       .size   = static_cast<uint32>(sizeof(uint32)),
-           }},
-        .debugName                   = "SwapchainLayout",
-    };
-}
-
-
+	LinaGX::PipelineLayoutDesc EditorGfxHelpers::GetPipelineLayoutDescriptionSwapchain()
+	{
+		return {
+			.descriptorSetDescriptions = {GfxHelpers::GetSetDescPersistentGlobal(), GetSetDescriptionSwapchain()},
+			.constantRanges			   = {{
+						   .stages = {LinaGX::ShaderStage::Vertex},
+						   .size   = static_cast<uint32>(sizeof(uint32)),
+			   }},
+			.debugName				   = "SwapchainLayout",
+		};
+	}
 
 	LinaGX::PipelineLayoutDesc EditorGfxHelpers::GetPipelineLayoutDescriptionEditorWorldPass()
 	{

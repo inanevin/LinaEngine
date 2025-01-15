@@ -44,9 +44,9 @@ namespace Lina::Editor
 	public:
 		PanelGenericSelector() : Panel(PanelType::GenericSelector, PF_FLOATING_POPUP){};
 		virtual ~PanelGenericSelector() = default;
-		
-        virtual void Construct() override;
-        
+
+		virtual void Construct() override;
+
 	private:
 	};
 

@@ -69,12 +69,12 @@ namespace Lina::Editor
 		AddChild(m_noDetailsText);
 	}
 
-    void EntityDetails::Destruct()
-    {
-        for(OStream& stream : m_editingComponentsBuffer)
-            stream.Destroy();
-        m_editingComponentsBuffer.clear();
-    }
+	void EntityDetails::Destruct()
+	{
+		for (OStream& stream : m_editingComponentsBuffer)
+			stream.Destroy();
+		m_editingComponentsBuffer.clear();
+	}
 
 	void EntityDetails::PreTick()
 	{
@@ -108,80 +108,68 @@ namespace Lina::Editor
 
 		UpdateDetails();
 
-        Widget* name = CommonWidgets::BuildField(m_layout, Locale::GetStr(LocaleStr::Name), &m_dummyDetails.name, {
-            .type = FieldType::String,
-        });
-        name->GetCallbacks().onEditStarted = [this](){
-            StartEditingName();
-        };
-        name->GetCallbacks().onEditEnded = [this](){
-            StopEditingName();
-        };
-        m_layout->AddChild(name);
-        
-        Widget* pos = CommonWidgets::BuildField(m_layout, Locale::GetStr(LocaleStr::Position), &m_dummyDetails.pos, {
-            .type = FieldType::Vector3,
-        });
-        pos->GetCallbacks().onEditStarted = [this](){
-            StartEditingTransform();
-        };
-        pos->GetCallbacks().onEdited = [this](){
-            UpdateEntities();
-        };
-        pos->GetCallbacks().onEditEnded = [this](){
-            StopEditingTransform();
-        };
-        m_layout->AddChild(pos);
-        
-        Widget* rotation = CommonWidgets::BuildField(m_layout, Locale::GetStr(LocaleStr::Rotation), &m_dummyDetails.rot, {
-            .type = FieldType::Vector3,
-        });
-        rotation->GetCallbacks().onEditStarted = [this](){
-            StartEditingTransform();
-        };
-        rotation->GetCallbacks().onEdited = [this](){
-            UpdateEntities();
-        };
-        rotation->GetCallbacks().onEditEnded = [this](){
-            StopEditingTransform();
-        };
-        m_layout->AddChild(rotation);
-        
-        Widget* scale = CommonWidgets::BuildField(m_layout, Locale::GetStr(LocaleStr::Scale), &m_dummyDetails.scale, {
-            .type = FieldType::Vector3,
-        });
-        scale->GetCallbacks().onEditStarted = [this](){
-            StartEditingTransform();
-        };
-        scale->GetCallbacks().onEdited = [this](){
-            UpdateEntities();
-        };
-        scale->GetCallbacks().onEditEnded = [this](){
-            StopEditingTransform();
-        };
-        m_layout->AddChild(scale);
-        
-        Vector<Component*> comps;
-        m_world->GetComponents(m_selectedEntities.at(0), comps);
+		Widget* name					   = CommonWidgets::BuildField(m_layout,
+												   Locale::GetStr(LocaleStr::Name),
+												   &m_dummyDetails.name,
+																	   {
+																		   .type = FieldType::String,
+												   });
+		name->GetCallbacks().onEditStarted = [this]() { StartEditingName(); };
+		name->GetCallbacks().onEditEnded   = [this]() { StopEditingName(); };
+		m_layout->AddChild(name);
 
-        for (Component* c : comps)
-        {
-            MetaType* meta = ReflectionSystem::Get().Resolve(c->GetTID());
-            const String& title = meta->GetProperty<String>("Title"_hs);
-            
-            Widget* foldTitle = CommonWidgets::BuildFoldTitle(m_layout, title, meta->GetFoldValuePtr());
-            m_layout->AddChild(foldTitle);
-            CommonWidgets::BuildClassReflection(foldTitle, c, meta);
-            
-            foldTitle->GetCallbacks().onEditStarted = [this, c] () {
-                m_editingComponents = {c};
-                StartEditingComponents();
-            };
-            
-            foldTitle->GetCallbacks().onEditEnded = [this, c](){
-                StopEditingComponents();
-            };
-        }
+		Widget* pos						  = CommonWidgets::BuildField(m_layout,
+												  Locale::GetStr(LocaleStr::Position),
+												  &m_dummyDetails.pos,
+																	  {
+																		  .type = FieldType::Vector3,
+												  });
+		pos->GetCallbacks().onEditStarted = [this]() { StartEditingTransform(); };
+		pos->GetCallbacks().onEdited	  = [this]() { UpdateEntities(); };
+		pos->GetCallbacks().onEditEnded	  = [this]() { StopEditingTransform(); };
+		m_layout->AddChild(pos);
+
+		Widget* rotation					   = CommonWidgets::BuildField(m_layout,
+													   Locale::GetStr(LocaleStr::Rotation),
+													   &m_dummyDetails.rot,
+																		   {
+																			   .type = FieldType::Vector3,
+													   });
+		rotation->GetCallbacks().onEditStarted = [this]() { StartEditingTransform(); };
+		rotation->GetCallbacks().onEdited	   = [this]() { UpdateEntities(); };
+		rotation->GetCallbacks().onEditEnded   = [this]() { StopEditingTransform(); };
+		m_layout->AddChild(rotation);
+
+		Widget* scale						= CommonWidgets::BuildField(m_layout,
+													Locale::GetStr(LocaleStr::Scale),
+													&m_dummyDetails.scale,
+																		{
+																			.type = FieldType::Vector3,
+													});
+		scale->GetCallbacks().onEditStarted = [this]() { StartEditingTransform(); };
+		scale->GetCallbacks().onEdited		= [this]() { UpdateEntities(); };
+		scale->GetCallbacks().onEditEnded	= [this]() { StopEditingTransform(); };
+		m_layout->AddChild(scale);
+
+		Vector<Component*> comps;
+		m_world->GetComponents(m_selectedEntities.at(0), comps);
+
+		for (Component* c : comps)
+		{
+			MetaType*	  meta	= ReflectionSystem::Get().Resolve(c->GetTID());
+			const String& title = meta->GetProperty<String>("Title"_hs);
+
+			Widget* foldTitle = CommonWidgets::BuildFoldTitle(m_layout, title, meta->GetFoldValuePtr());
+			m_layout->AddChild(foldTitle);
+			CommonWidgets::BuildClassReflection(foldTitle, c, meta);
+
+			foldTitle->GetCallbacks().onEditStarted = [this, c]() {
+				m_editingComponents = {c};
+				StartEditingComponents();
+			};
+
+			foldTitle->GetCallbacks().onEditEnded = [this, c]() { StopEditingComponents(); };
+		}
 	}
 
 	void EntityDetails::UpdateDetails()
@@ -243,22 +231,22 @@ namespace Lina::Editor
 		EditorActionEntityNames::Create(m_editor, m_world->GetID(), m_selectedEntities, m_storedNames);
 	}
 
-    void EntityDetails::StartEditingComponents()
-    {
-        for(OStream& stream : m_editingComponentsBuffer)
-            stream.Destroy();
-        m_editingComponentsBuffer.resize(0);
-        
-        for(Component* c : m_editingComponents)
-        {
-            OStream stream;
-            c->SaveToStream(stream);
-            m_editingComponentsBuffer.push_back(stream);
-        }
-    }
+	void EntityDetails::StartEditingComponents()
+	{
+		for (OStream& stream : m_editingComponentsBuffer)
+			stream.Destroy();
+		m_editingComponentsBuffer.resize(0);
 
-    void EntityDetails::StopEditingComponents()
-    {
-        EditorActionComponentChanged::Create(m_editor, m_world->GetID(), {m_selectedEntities.at(0)}, {m_editingComponents.at(0)->GetTID()}, m_editingComponentsBuffer);
-    }
+		for (Component* c : m_editingComponents)
+		{
+			OStream stream;
+			c->SaveToStream(stream);
+			m_editingComponentsBuffer.push_back(stream);
+		}
+	}
+
+	void EntityDetails::StopEditingComponents()
+	{
+		EditorActionComponentChanged::Create(m_editor, m_world->GetID(), {m_selectedEntities.at(0)}, {m_editingComponents.at(0)->GetTID()}, m_editingComponentsBuffer);
+	}
 } // namespace Lina::Editor

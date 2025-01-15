@@ -44,8 +44,8 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-
-	EditorWorldRenderer::EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr) : m_wr(wr), m_mousePickRenderer(editor, this), m_gizmoRenderer(editor, wr, &m_pass, &m_mousePickRenderer), m_outlineRenderer(editor, this, &m_pass, &m_mousePickRenderer)
+	EditorWorldRenderer::EditorWorldRenderer(Editor* editor, LinaGX::Instance* lgx, WorldRenderer* wr)
+		: m_wr(wr), m_mousePickRenderer(editor, this), m_gizmoRenderer(editor, wr, &m_pass, &m_mousePickRenderer), m_outlineRenderer(editor, this, &m_pass, &m_mousePickRenderer)
 	{
 		m_editor = editor;
 		m_lgx	 = lgx;
@@ -73,12 +73,12 @@ namespace Lina::Editor
 				.binding   = 2,
 				.buffers   = {m_wr->GetEntityDataBuffer(i).GetGPUResource()},
 			});
-            
-            m_lgx->DescriptorUpdateBuffer({
-                .setHandle = set,
-                .binding   = 3,
-                .buffers   = {m_wr->GetBoneBuffer(i).GetGPUResource()},
-            });
+
+			m_lgx->DescriptorUpdateBuffer({
+				.setHandle = set,
+				.binding   = 3,
+				.buffers   = {m_wr->GetBoneBuffer(i).GetGPUResource()},
+			});
 		}
 
 		// Grid
@@ -281,8 +281,8 @@ namespace Lina::Editor
 	void EditorWorldRenderer::OnWorldRendererCreateSizeRelative()
 	{
 		m_size = m_wr->GetSize();
-        m_pass.SetSize(m_size);
-        
+		m_pass.SetSize(m_size);
+
 		const LinaGX::TextureDesc colorMSAA = {
 			.format	   = SystemInfo::GetLDRFormat(),
 			.flags	   = LinaGX::TF_ColorAttachment,
@@ -375,7 +375,7 @@ namespace Lina::Editor
 	{
 		m_selectedEntities = selected;
 		m_outlineRenderer.SetSelectedEntities(selected);
-        m_gizmoRenderer.SetSelectedEntities(selected);
+		m_gizmoRenderer.SetSelectedEntities(selected);
 	}
 
 } // namespace Lina::Editor

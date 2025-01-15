@@ -51,13 +51,12 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-
-OutlineSelectionRenderer::OutlineSelectionRenderer(Editor* editor, EditorWorldRenderer* ewr, RenderPass* pass, MousePickRenderer* mpr)
+	OutlineSelectionRenderer::OutlineSelectionRenderer(Editor* editor, EditorWorldRenderer* ewr, RenderPass* pass, MousePickRenderer* mpr)
 	{
 		m_fullscreenPass = pass;
 		m_editor		 = editor;
-        m_ewr = ewr;
-        m_wr			 = m_ewr->GetWorldRenderer();
+		m_ewr			 = ewr;
+		m_wr			 = m_ewr->GetWorldRenderer();
 		m_rm			 = &m_editor->GetApp()->GetResourceManager();
 		m_world			 = m_wr->GetWorld();
 		m_lgx			 = m_editor->GetApp()->GetLGX();
@@ -68,10 +67,10 @@ OutlineSelectionRenderer::OutlineSelectionRenderer(Editor* editor, EditorWorldRe
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 
 		m_fullscreenMaterial->SetShader(m_fullscreenShader);
-        m_fullscreenMaterial->SetProperty("color"_hs, Theme::GetDef().accentOrange);
+		m_fullscreenMaterial->SetProperty("color"_hs, Theme::GetDef().accentOrange);
 		m_fullscreenMaterial->SetProperty("thickness"_hs, 1.25f);
 
-        m_outlinePass.Create(EditorGfxHelpers::GetEditorWorldPassDescription());
+		m_outlinePass.Create(EditorGfxHelpers::GetEditorWorldPassDescription());
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			const uint16 set = m_outlinePass.GetDescriptorSet(i);
@@ -141,8 +140,8 @@ OutlineSelectionRenderer::OutlineSelectionRenderer(Editor* editor, EditorWorldRe
 	void OutlineSelectionRenderer::CreateSizeRelativeResources()
 	{
 		m_size = m_wr->GetSize();
-        m_outlinePass.SetSize(m_size);
-        
+		m_outlinePass.SetSize(m_size);
+
 		const LinaGX::TextureDesc rtDesc = {
 			.format = SystemInfo::GetLDRFormat(),
 			.flags	= LinaGX::TF_ColorAttachment | LinaGX::TF_Sampled | LinaGX::TF_CopySource,
@@ -174,7 +173,7 @@ OutlineSelectionRenderer::OutlineSelectionRenderer(Editor* editor, EditorWorldRe
 	{
 		// View data.
 		{
-			Camera&		worldCam = m_world->GetWorldCamera();
+			Camera&					worldCam = m_world->GetWorldCamera();
 			EditorWorldPassViewData view	 = {
 					.view = worldCam.GetView(),
 					.proj = worldCam.GetProjection(),
@@ -227,9 +226,9 @@ OutlineSelectionRenderer::OutlineSelectionRenderer(Editor* editor, EditorWorldRe
 
 		DrawCollector::CollectCompModels(compModelsToCollect, m_outlinePass, m_rm, m_wr, &m_editor->GetApp()->GetGfxContext(), {.useVariantOverride = true, .staticVariantOverride = "StaticOutline"_hs, .skinnedVariantOverride = "SkinnedOutline"_hs});
 
-        if(m_outlinePass.GetDrawCallsCPU().empty())
-            return;
-        
+		if (m_outlinePass.GetDrawCallsCPU().empty())
+			return;
+
 		const uint32 frameIndex	   = Application::GetLGX()->GetCurrentFrameIndex();
 		const uint32 txtFrameIndex = (frameIndex + SystemInfo::GetRendererBehindFrames()) % FRAMES_IN_FLIGHT;
 		// Fullscreen draw in editor world pass.
@@ -268,7 +267,7 @@ OutlineSelectionRenderer::OutlineSelectionRenderer(Editor* editor, EditorWorldRe
 			}
 
 			m_outlinePass.Begin(stream, frameIndex);
-            m_outlinePass.BindDescriptors(stream, frameIndex, m_ewr->GetPipelineLayout(), 1);
+			m_outlinePass.BindDescriptors(stream, frameIndex, m_ewr->GetPipelineLayout(), 1);
 			m_outlinePass.Render(frameIndex, stream);
 			m_outlinePass.End(stream);
 

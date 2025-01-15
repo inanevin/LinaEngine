@@ -45,22 +45,22 @@ namespace Lina::Editor
 	class EditorActionComponentChanged : public EditorAction
 	{
 	public:
-		EditorActionComponentChanged()		   = default;
+		EditorActionComponentChanged() = default;
 		virtual ~EditorActionComponentChanged()
-        {
-            for(OStream& stream : m_currentStreams)
-                stream.Destroy();
-        }
+		{
+			for (OStream& stream : m_currentStreams)
+				stream.Destroy();
+		}
 
 		static EditorActionComponentChanged* Create(Editor* editor, uint64 worldId, const Vector<Entity*>& entities, const Vector<TypeID>& comps, const Vector<OStream>& previousBuffers);
-		virtual void						Execute(Editor* editor, ExecType type) override;
+		virtual void						 Execute(Editor* editor, ExecType type) override;
 
 	private:
-        Vector<EntityID> m_entities;
-        Vector<TypeID> m_components;
-        Vector<OStream> m_previousStreams;
-        Vector<OStream> m_currentStreams;
-        uint64 m_worldId = 0;
+		Vector<EntityID> m_entities;
+		Vector<TypeID>	 m_components;
+		Vector<OStream>	 m_previousStreams;
+		Vector<OStream>	 m_currentStreams;
+		uint64			 m_worldId = 0;
 	};
 
 } // namespace Lina::Editor

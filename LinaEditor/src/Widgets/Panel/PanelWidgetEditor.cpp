@@ -148,12 +148,12 @@ namespace Lina::Editor
 		btnLoad->SetAlignedPosY(0.5f);
 		btnLoad->SetAnchorY(Anchor::Center);
 		btnLoad->SetAlignedSizeY(1.0f);
-        btnLoad->GetProps().onClicked = [this]() {
-            CommonWidgets::ThrowResourceSelector(this, 0, GetTypeID<GUIWidget>());
-            /*
-             [this](ResourceDirectory* dir) { CheckSaveCurrent([this, dir]() { OpenWidget(dir->resourceID); }); });
-             */
-        };
+		btnLoad->GetProps().onClicked = [this]() {
+			CommonWidgets::ThrowResourceSelector(this, 0, GetTypeID<GUIWidget>());
+			/*
+			 [this](ResourceDirectory* dir) { CheckSaveCurrent([this, dir]() { OpenWidget(dir->resourceID); }); });
+			 */
+		};
 		buttons->AddChild(btnLoad);
 
 		Button* btnSave = WidgetUtility::BuildIconTextButton(this, ICON_SAVE, Locale::GetStr(LocaleStr::Save));
@@ -650,13 +650,13 @@ namespace Lina::Editor
 		inp->SetFixedSizeY(text->GetParent()->GetSizeY());
 		inp->Initialize();
 
-        inp->GetCallbacks().onEditEnded = [this, inp, w, text](){
-            const String& str = inp->GetValueStr();
-            text->GetProps().text = str;
-            text->CalculateTextSize();
-            w->GetWidgetProps().debugName = str;
-            text->GetWidgetManager()->AddToKillList(inp);
-        };
+		inp->GetCallbacks().onEditEnded = [this, inp, w, text]() {
+			const String& str	  = inp->GetValueStr();
+			text->GetProps().text = str;
+			text->CalculateTextSize();
+			w->GetWidgetProps().debugName = str;
+			text->GetWidgetManager()->AddToKillList(inp);
+		};
 
 		text->GetWidgetManager()->AddToForeground(inp);
 		inp->StartEditing();

@@ -175,7 +175,7 @@ namespace Lina::Editor
 
 	void EditorRoot::PreTick()
 	{
-        m_dragRect				  = Rect(Vector2(m_fileMenu->GetRect().GetEnd().x, 0.0f) / m_lgxWindow->GetDPIScale(), Vector2(m_windowButtons->GetPos().x - m_fileMenu->GetRect().GetEnd().x, m_fileMenu->GetParent()->GetSizeY()) / m_lgxWindow->GetDPIScale());
+		m_dragRect				  = Rect(Vector2(m_fileMenu->GetRect().GetEnd().x, 0.0f) / m_lgxWindow->GetDPIScale(), Vector2(m_windowButtons->GetPos().x - m_fileMenu->GetRect().GetEnd().x, m_fileMenu->GetParent()->GetSizeY()) / m_lgxWindow->GetDPIScale());
 		LinaGX::LGXRectui lgxRect = {};
 		lgxRect.pos				  = LinaGX::LGXVector2ui{static_cast<uint32>(m_dragRect.pos.x), static_cast<uint32>(m_dragRect.pos.y)};
 		lgxRect.size			  = LinaGX::LGXVector2ui{static_cast<uint32>(m_dragRect.size.x), static_cast<uint32>(m_dragRect.size.y)};

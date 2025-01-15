@@ -101,7 +101,7 @@ namespace Lina::Editor
 		m_overlayControls.topToolbar->SetFixedSizeY(Theme::GetDef().baseItemHeight * 1.5f);
 		m_overlayControls.topToolbar->GetWidgetProps().childPadding		   = Theme::GetDef().baseIndent;
 		m_overlayControls.topToolbar->GetWidgetProps().childMargins.top	   = Theme::GetDef().baseItemHeight * 0.25f;
-        m_overlayControls.topToolbar->GetWidgetProps().childMargins.bottom = Theme::GetDef().baseItemHeight * 0.25f;
+		m_overlayControls.topToolbar->GetWidgetProps().childMargins.bottom = Theme::GetDef().baseItemHeight * 0.25f;
 		m_overlayControls.topToolbar->GetWidgetProps().childMargins.left   = Theme::GetDef().baseIndent;
 		m_overlayControls.topToolbar->GetWidgetProps().childMargins.right  = Theme::GetDef().baseIndent;
 		m_overlayControls.topToolbar->GetWidgetProps().drawOrderIncrement  = 1;
@@ -287,12 +287,12 @@ namespace Lina::Editor
 			but.widget->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_USE_FIXED_SIZE_Y | WF_HIDE);
 			but.widget->SetFixedSize(Vector2(Theme::GetDef().baseItemHeight * 1.5f));
 			but.widget->GetWidgetProps().rounding			= Theme::GetDef().baseRounding;
-            but.widget->GetWidgetProps().colorHovered        = Theme::GetDef().background3.Brighten(0.1f);
-            but.widget->GetWidgetProps().aaEnabled = true;
+			but.widget->GetWidgetProps().colorHovered		= Theme::GetDef().background3.Brighten(0.1f);
+			but.widget->GetWidgetProps().aaEnabled			= true;
 			but.widget->GetWidgetProps().drawOrderIncrement = 2;
-            but.widget->GetWidgetProps().colorBackground = Theme::GetDef().background3;
-            but.widget->GetWidgetProps().colorOutline = Theme::GetDef().background0;
-            but.widget->GetWidgetProps().outlineThickness = Theme::GetDef().baseOutlineThickness;
+			but.widget->GetWidgetProps().colorBackground	= Theme::GetDef().background3;
+			but.widget->GetWidgetProps().colorOutline		= Theme::GetDef().background0;
+			but.widget->GetWidgetProps().outlineThickness	= Theme::GetDef().baseOutlineThickness;
 			but.widget->GetWidgetProps().useSizeTween		= true;
 			but.icon										= but.widget->GetIcon();
 			but.icon->GetProps().dynamicSizeScale			= 0.9f;
@@ -337,14 +337,14 @@ namespace Lina::Editor
 		m_overlayControls.cameraOptions.angularBoost  = m_camera->GetAngularBoost();
 
 		CommonWidgets::BuildClassReflection(layout, &m_overlayControls.cameraOptions, ReflectionSystem::Get().Meta<CameraOptions>());
-        
-        layout->GetCallbacks().onEditEnded = [this](){
-            m_editor->GetSettings().GetParams().SetParamFloat("CamMoveBoost"_hs, m_overlayControls.cameraOptions.movementBoost);
-            m_editor->GetSettings().GetParams().SetParamFloat("CamAngBoost"_hs, m_overlayControls.cameraOptions.angularBoost);
-            m_camera->SetMovementBoost(m_overlayControls.cameraOptions.movementBoost);
-            m_camera->SetAngularBoost(m_overlayControls.cameraOptions.angularBoost);
-            m_editor->SaveSettings();
-        };
+
+		layout->GetCallbacks().onEditEnded = [this]() {
+			m_editor->GetSettings().GetParams().SetParamFloat("CamMoveBoost"_hs, m_overlayControls.cameraOptions.movementBoost);
+			m_editor->GetSettings().GetParams().SetParamFloat("CamAngBoost"_hs, m_overlayControls.cameraOptions.angularBoost);
+			m_camera->SetMovementBoost(m_overlayControls.cameraOptions.movementBoost);
+			m_camera->SetAngularBoost(m_overlayControls.cameraOptions.angularBoost);
+			m_editor->SaveSettings();
+		};
 
 		m_manager->AddToForeground(layout);
 		const float startY = m_overlayControls.topToolbar->GetPosY() + m_overlayControls.topToolbar->GetSizeY() + m_overlayControls.topToolbar->GetWidgetProps().outlineThickness + Theme::GetDef().baseIndentInner * 0.5f;
@@ -365,13 +365,11 @@ namespace Lina::Editor
 		layout->GetWidgetProps().rounding		  = 0.05f;
 		layout->GetProps().direction			  = DirectionOrientation::Vertical;
 
-        EntityWorld::GfxSettings& gfxSettings = m_world->GetGfxSettings();
-        
-        CommonWidgets::BuildClassReflection(layout, &gfxSettings, ReflectionSystem::Get().Meta<EntityWorld::GfxSettings>());
-        layout->GetCallbacks().onEditEnded = [this](){
-            m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {}, m_world->GetID());
-        };
-        
+		EntityWorld::GfxSettings& gfxSettings = m_world->GetGfxSettings();
+
+		CommonWidgets::BuildClassReflection(layout, &gfxSettings, ReflectionSystem::Get().Meta<EntityWorld::GfxSettings>());
+		layout->GetCallbacks().onEditEnded = [this]() { m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {}, m_world->GetID()); };
+
 		m_manager->AddToForeground(layout);
 		const float startY = m_overlayControls.topToolbar->GetPosY() + m_overlayControls.topToolbar->GetSizeY() + m_overlayControls.topToolbar->GetWidgetProps().outlineThickness + Theme::GetDef().baseIndentInner * 0.5f;
 		layout->SetPos(Vector2(m_overlayControls.topToolbar->GetPosX(), startY));
@@ -395,9 +393,9 @@ namespace Lina::Editor
 		m_ewr			= ewr;
 		m_world			= renderer ? m_worldRenderer->GetWorld() : nullptr;
 		m_overlayControls.baseWidget->GetFlags().Set(WF_HIDE, m_world == nullptr);
-        
-        if(m_ewr)
-            m_ewr->GetGizmoRenderer().GetSettings().drawOrientation = true;
+
+		if (m_ewr)
+			m_ewr->GetGizmoRenderer().GetSettings().drawOrientation = true;
 
 		if (m_worldRenderer)
 		{
@@ -493,7 +491,7 @@ namespace Lina::Editor
 				const Vector2 point = Camera::WorldToScreen(m_world->GetWorldCamera(), m_gizmoControls.averagePosition, GetEndFromMargins() - GetStartFromMargins()).XY();
 
 				LinaVG::TextOptions opts;
-                opts.font		   = m_worldFont->GetFont(m_manager->GetScalingFactor());
+				opts.font		   = m_worldFont->GetFont(m_manager->GetScalingFactor());
 				opts.color		   = Theme::GetDef().foreground0.AsLVG4();
 				opts.color.start.w = opts.color.end.w = m_gizmoControls.visualizeAlpha;
 
@@ -856,8 +854,8 @@ namespace Lina::Editor
 		WorldUtility::ExtractRoots(m_world, m_selectedEntities, m_selectedRoots);
 
 		m_ewr->SetSelectedEntities(m_selectedEntities);
-        CalculateAverageGizmoPosition();
-        
+		CalculateAverageGizmoPosition();
+
 		const bool selectionCircleVisible = !m_selectedRoots.empty();
 		if (!m_selectionControls.visible && selectionCircleVisible)
 			m_selectionControls.circleTween = Tween(0.0f, 1.0f, SELECTION_CIRCLE_DUR, TweenType::EaseIn);
@@ -1039,13 +1037,13 @@ namespace Lina::Editor
 
 		const Vector<Entity*>& selection = m_selectedRoots;
 
-        rendererSettings.draw           = !selection.empty();
-        rendererSettings.position       = m_gizmoControls.averagePosition;
-        rendererSettings.defaultShaderScale = m_lgxWindow->GetDPIScale();
-        rendererSettings.visualizeAxis = false;
-        rendererSettings.type           = m_gizmoControls.type;
-        rendererSettings.focusedAxis   = m_gizmoControls.motionAxis;
-        
+		rendererSettings.draw				= !selection.empty();
+		rendererSettings.position			= m_gizmoControls.averagePosition;
+		rendererSettings.defaultShaderScale = m_lgxWindow->GetDPIScale();
+		rendererSettings.visualizeAxis		= false;
+		rendererSettings.type				= m_gizmoControls.type;
+		rendererSettings.focusedAxis		= m_gizmoControls.motionAxis;
+
 		if (selection.empty())
 			return;
 
@@ -1065,7 +1063,7 @@ namespace Lina::Editor
 			m_gizmoControls.usedLocality = GizmoLocality::World;
 
 		m_gizmoControls.visualizeAlpha = Math::Lerp(m_gizmoControls.visualizeAlpha, m_gizmoControls.gizmoMotion == GizmoMotion::Key ? 1.0f : 0.0f, SystemInfo::GetDeltaTime() * 10.0f);
-        
+
 		if (m_gizmoControls.motionAxis == GizmoAxis::None)
 			return;
 
@@ -1401,27 +1399,27 @@ namespace Lina::Editor
 		if (m_camera)
 			m_camera->Tick(delta);
 
-        CalculateAverageGizmoPosition();
+		CalculateAverageGizmoPosition();
 
-        const Vector2 sz                           = GetEndFromMargins() - GetStartFromMargins();
-        Camera&          cam                           = m_world->GetWorldCamera();
-        m_gizmoControls.averagePositionScreenSpace = GetStartFromMargins() + Camera::WorldToScreen(cam, m_gizmoControls.averagePosition, sz);
+		const Vector2 sz						   = GetEndFromMargins() - GetStartFromMargins();
+		Camera&		  cam						   = m_world->GetWorldCamera();
+		m_gizmoControls.averagePositionScreenSpace = GetStartFromMargins() + Camera::WorldToScreen(cam, m_gizmoControls.averagePosition, sz);
 
-        // clip out
-        if (m_gizmoControls.averagePositionScreenSpace.z < 0.0f)
-            m_gizmoControls.averagePositionScreenSpace = m_rect.pos - Vector2(1000, 1000);
+		// clip out
+		if (m_gizmoControls.averagePositionScreenSpace.z < 0.0f)
+			m_gizmoControls.averagePositionScreenSpace = m_rect.pos - Vector2(1000, 1000);
 
-        m_selectionControls._radius = Theme::GetDef().baseItemHeight * 7.5f * m_manager->GetScalingFactor();
+		m_selectionControls._radius = Theme::GetDef().baseItemHeight * 7.5f * m_manager->GetScalingFactor();
 
-        for (const SelectionCircleButton& but : m_selectionControls.buttons)
-        {
-            const Vector2 point     = Vector2(Math::Cos(DEG_2_RAD * but.angle), Math::Sin(DEG_2_RAD * but.angle)) * m_selectionControls._radius;
-            const Vector2 target = m_gizmoControls.averagePositionScreenSpace.XY() + point;
-            but.widget->SetPos(target - but.widget->GetHalfSize());
-        }
+		for (const SelectionCircleButton& but : m_selectionControls.buttons)
+		{
+			const Vector2 point	 = Vector2(Math::Cos(DEG_2_RAD * but.angle), Math::Sin(DEG_2_RAD * but.angle)) * m_selectionControls._radius;
+			const Vector2 target = m_gizmoControls.averagePositionScreenSpace.XY() + point;
+			but.widget->SetPos(target - but.widget->GetHalfSize());
+		}
 
-        m_selectionControls.localityButton->GetIcon()->GetProps().icon = m_gizmoControls.usedLocality == GizmoLocality::World ? ICON_GLOBE : ICON_CUBE;
-        m_selectionControls.localityButton->GetWidgetProps().tooltip   = m_gizmoControls.usedLocality == GizmoLocality::World ? Locale::GetStr(LocaleStr::LocalityWorld) : Locale::GetStr(LocaleStr::LocalityLocal);
+		m_selectionControls.localityButton->GetIcon()->GetProps().icon = m_gizmoControls.usedLocality == GizmoLocality::World ? ICON_GLOBE : ICON_CUBE;
+		m_selectionControls.localityButton->GetWidgetProps().tooltip   = m_gizmoControls.usedLocality == GizmoLocality::World ? Locale::GetStr(LocaleStr::LocalityWorld) : Locale::GetStr(LocaleStr::LocalityLocal);
 	}
 
 } // namespace Lina::Editor

@@ -37,10 +37,10 @@ namespace Lina::Editor
 
 	struct PanelPayloadData
 	{
-		PanelType type		= PanelType::Entities;
-		ResourceID  subData	= 0;
-		Vector2	  panelSize = Vector2::Zero;
-		String	  panelName = "";
+		PanelType  type		 = PanelType::Entities;
+		ResourceID subData	 = 0;
+		Vector2	   panelSize = Vector2::Zero;
+		String	   panelName = "";
 	};
 
 	enum PanelFlags

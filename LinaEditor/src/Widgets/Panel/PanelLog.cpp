@@ -117,10 +117,10 @@ namespace Lina::Editor
 		search->SetAlignedSize(Vector2(0.0f, 1.0f));
 		search->GetProps().placeHolderText = Locale::GetStr(LocaleStr::Search);
 		search->GetProps().placeHolderIcon = ICON_SEARCH;
-        search->GetCallbacks().onEdited = [search, this](){
-            m_searchStr = UtilStr::ToLower(search->GetText()->GetProps().text);
-            UpdateTextVisibility();
-        };
+		search->GetCallbacks().onEdited	   = [search, this]() {
+			   m_searchStr = UtilStr::ToLower(search->GetText()->GetProps().text);
+			   UpdateTextVisibility();
+		};
 
 		topLayout->AddChild(search);
 
@@ -199,7 +199,7 @@ namespace Lina::Editor
 	{
 		LOCK_GUARD(Log::GetLogMutex());
 
-        uint32 childSz = static_cast<uint32>(m_logLayout->GetChildren().size());
+		uint32 childSz = static_cast<uint32>(m_logLayout->GetChildren().size());
 
 		for (Widget* w : m_newLogs)
 		{

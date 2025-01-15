@@ -42,18 +42,18 @@ namespace Lina::Editor
 	bool EditorResources::LoadPriorityResources(ResourceManagerV2& manager)
 	{
 		Font::Metadata fontMeta1 = {
-            .points = {{.size = 32, .scaleLimit = 1.0f}, {.size = 48, .scaleLimit = 1.81f}},
+			.points = {{.size = 32, .scaleLimit = 1.0f}, {.size = 48, .scaleLimit = 1.81f}},
 			.isSDF	= true,
 		};
 
 		Font::Metadata fontMeta2 = {
-            .points = {{.size = 10, .scaleLimit = 0.72f}, {.size = 12, .scaleLimit = 0.82f}, {.size = 14, .scaleLimit = 1.1f}, {.size = 20, .scaleLimit = 1.6f}, {.size = 24, .scaleLimit = 2.1f}},
+			.points = {{.size = 10, .scaleLimit = 0.72f}, {.size = 12, .scaleLimit = 0.82f}, {.size = 14, .scaleLimit = 1.1f}, {.size = 20, .scaleLimit = 1.6f}, {.size = 24, .scaleLimit = 2.1f}},
 			.isSDF	= false,
 		};
 
 		Font::Metadata fontMeta3 = {
-            .points = {{.size = 14, .scaleLimit = 0.72f}, {.size = 16, .scaleLimit = 0.82f}, {.size = 18, .scaleLimit = 1.1f}, {.size = 24, .scaleLimit = 1.6f}, {.size = 28, .scaleLimit = 2.1f}},
-            .isSDF    = false,
+			.points = {{.size = 14, .scaleLimit = 0.72f}, {.size = 16, .scaleLimit = 0.82f}, {.size = 18, .scaleLimit = 1.1f}, {.size = 24, .scaleLimit = 1.6f}, {.size = 28, .scaleLimit = 2.1f}},
+			.isSDF	= false,
 		};
 
 		OStream fontStream1, fontStream2, fontStream3;
@@ -97,11 +97,11 @@ namespace Lina::Editor
 				.name = EDITOR_SHADER_GUI_GLITCH_PATH,
 				.tid  = GetTypeID<Shader>(),
 			},
-            {
-                .id      = EDITOR_SHADER_GUI_SWAPCHAIN_ID,
-                .name = EDITOR_SHADER_GUI_SWAPCHAIN_PATH,
-                .tid  = GetTypeID<Shader>(),
-            },
+			{
+				.id	  = EDITOR_SHADER_GUI_SWAPCHAIN_ID,
+				.name = EDITOR_SHADER_GUI_SWAPCHAIN_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
 			{
 				.id	  = EDITOR_TEXTURE_LINA_LOGO_ID,
 				.name = EDITOR_TEXTURE_LINA_LOGO_PATH,
@@ -189,11 +189,11 @@ namespace Lina::Editor
 				.name = EDITOR_SHADER_WORLD_LVG3D_PATH,
 				.tid  = GetTypeID<Shader>(),
 			},
-            {
-                .id      = EDITOR_SHADER_WORLD_BILLBOARD_SDF_ID,
-                .name = EDITOR_SHADER_WORLD_BILLBOARD_SDF_PATH,
-                .tid  = GetTypeID<Shader>(),
-            },
+			{
+				.id	  = EDITOR_SHADER_WORLD_BILLBOARD_SDF_ID,
+				.name = EDITOR_SHADER_WORLD_BILLBOARD_SDF_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
 			{
 				.id	  = EDITOR_SHADER_WORLD_SAMPLE_ID,
 				.name = EDITOR_SHADER_WORLD_SAMPLE_PATH,
@@ -269,11 +269,11 @@ namespace Lina::Editor
 				.name = EDITOR_MODEL_GIZMO_ORIENTATION_PATH,
 				.tid  = GetTypeID<Model>(),
 			},
-            {
-                .id   = EDITOR_MODEL_QUAD_ID,
-                .name = EDITOR_MODEL_QUAD_PATH,
-                .tid  = GetTypeID<Model>(),
-            },
+			{
+				.id	  = EDITOR_MODEL_QUAD_ID,
+				.name = EDITOR_MODEL_QUAD_PATH,
+				.tid  = GetTypeID<Model>(),
+			},
 		};
 
 		for (const ResourceDef& def : defs)
@@ -287,18 +287,18 @@ namespace Lina::Editor
 		m_createdResources.insert(fontPlayVeryBig);
 
 		fontPlay->GetMeta() = {
-            .points = {{.size = 10, .scaleLimit = 0.72f}, {.size = 12, .scaleLimit = 0.82f}, {.size = 14, .scaleLimit = 1.1f}, {.size = 20, .scaleLimit = 1.6f}, {.size = 24, .scaleLimit = 2.1f}},
-            .isSDF    = false,
+			.points = {{.size = 10, .scaleLimit = 0.72f}, {.size = 12, .scaleLimit = 0.82f}, {.size = 14, .scaleLimit = 1.1f}, {.size = 20, .scaleLimit = 1.6f}, {.size = 24, .scaleLimit = 2.1f}},
+			.isSDF	= false,
 		};
 
 		fontPlayBold->GetMeta() = {
-            .points = {{.size = 10, .scaleLimit = 0.72f}, {.size = 12, .scaleLimit = 0.82f}, {.size = 14, .scaleLimit = 1.1f}, {.size = 20, .scaleLimit = 1.6f}, {.size = 24, .scaleLimit = 2.1f}},
-            .isSDF    = false,
+			.points = {{.size = 10, .scaleLimit = 0.72f}, {.size = 12, .scaleLimit = 0.82f}, {.size = 14, .scaleLimit = 1.1f}, {.size = 20, .scaleLimit = 1.6f}, {.size = 24, .scaleLimit = 2.1f}},
+			.isSDF	= false,
 		};
 
 		fontPlayVeryBig->GetMeta() = {
-            .points = {{.size = 30, .scaleLimit = 0.5f}, {.size = 34, .scaleLimit = 0.8f}, {.size = 38, .scaleLimit = 1.0f}},
-            .isSDF    = false,
+			.points = {{.size = 30, .scaleLimit = 0.5f}, {.size = 34, .scaleLimit = 0.8f}, {.size = 38, .scaleLimit = 1.0f}},
+			.isSDF	= false,
 		};
 
 		for (Resource* r : m_createdResources)
