@@ -63,6 +63,7 @@ namespace Lina::Editor
 		virtual void OnWorldManagerClosingWorld(EditorWorldRenderer* wr) override;
 		virtual void OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities, StringID source) override;
 		virtual void OnWorldManagerEntityHierarchyChanged(EntityWorld* w) override;
+		virtual void OnWorldManagerEntityPhysicsSettingsChanged(EntityWorld* w) override;
 		virtual void OnWorldManagerComponentsDataChanged(EntityWorld* w) override;
 
 	private:

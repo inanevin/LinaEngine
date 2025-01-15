@@ -121,6 +121,7 @@ namespace Lina::Editor
 		static InfoTooltip*		  ThrowInfoTooltip(const String& str, LogLevel level, float time, Widget* source);
 		static InfoTooltip*		  ThrowInfoTooltip(const String& str, LogLevel level, float time, WidgetManager* manager, const Vector2& targetPos);
 
+		static Widget* BuildSeperator(Widget* src);
 		static Widget* BuildGenericPopupWithButtons(Widget* src, const String& desc, const Vector<GenericPopupButton>& buttons);
 		static Widget* BuildGenericPopupProgress(Widget* src, const String& desc, bool isRotatingCircle);
 

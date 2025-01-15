@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Common/Memory/CommonMemory.hpp"
 #include "Common/ObjectWrapper.hpp"
 #include "Common/Math/AABB.hpp"
+#include "Core/Physics/CommonPhysics.hpp"
 
 namespace Lina
 {
@@ -161,6 +162,11 @@ namespace Lina
 			return m_interfaceUserData;
 		}
 
+		inline EntityPhysicsSettings& GetPhysicsSettings()
+		{
+			return m_physicsSettings;
+		}
+
 	private:
 		void UpdateGlobalPosition();
 		void UpdateLocalPosition();
@@ -181,15 +187,16 @@ namespace Lina
 		ALLOCATOR_BUCKET_MEM;
 		ALLOCATOR_BUCKET_GET;
 
-		EntityID		  m_guid   = 0;
-		EntityWorld*	  m_world  = nullptr;
-		Entity*			  m_parent = nullptr;
-		String			  m_name   = "";
-		Vector<Entity*>	  m_children;
-		Transformation	  m_transform;
-		Bitmask32		  m_mask;
-		AABB			  m_totalAABB;
-		InterfaceUserData m_interfaceUserData = {};
+		EntityID			  m_guid   = 0;
+		EntityWorld*		  m_world  = nullptr;
+		Entity*				  m_parent = nullptr;
+		String				  m_name   = "";
+		Vector<Entity*>		  m_children;
+		Transformation		  m_transform;
+		Bitmask32			  m_mask;
+		AABB				  m_totalAABB;
+		InterfaceUserData	  m_interfaceUserData = {};
+		EntityPhysicsSettings m_physicsSettings	  = {};
 	};
 
 } // namespace Lina

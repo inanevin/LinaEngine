@@ -333,12 +333,12 @@ namespace Lina
 
 	void Entity::SaveToStream(OStream& stream) const
 	{
-		stream << m_mask << m_transform << m_name << m_guid;
+		stream << m_mask << m_transform << m_name << m_guid << m_physicsSettings;
 	}
 
 	void Entity::LoadFromStream(IStream& stream)
 	{
-		stream >> m_mask >> m_transform >> m_name >> m_guid;
+		stream >> m_mask >> m_transform >> m_name >> m_guid >> m_physicsSettings;
 	}
 
 	void Entity::UpdateLocalRotation()

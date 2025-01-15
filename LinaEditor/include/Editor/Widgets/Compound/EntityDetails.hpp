@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Common/Data/String.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
+#include "Core/Physics/CommonPhysics.hpp"
 
 namespace Lina
 {
@@ -77,22 +78,25 @@ namespace Lina::Editor
 		void StopEditingName();
 		void StartEditingComponents();
 		void StopEditingComponents();
+		void StartEditingEntityPhysicsSettings();
+		void StopEditingEntityPhyiscsSettings();
 
 	private:
 		LINA_REFLECTION_ACCESS(EntityDetails);
 
-		Editor*				   m_editor = nullptr;
-		DirectionalLayout*	   m_layout = nullptr;
-		Vector<Entity*>		   m_selectedEntities;
-		Vector<Transformation> m_storedTransformations;
-		Vector<String>		   m_storedNames;
-		EntityWorld*		   m_world					 = nullptr;
-		DummyDetails		   m_dummyDetails			 = {};
-		bool				   m_physicsSettingsFold	 = false;
-		Text*				   m_noDetailsText			 = nullptr;
-		bool				   m_isEditing				 = false;
-		Vector<OStream>		   m_editingComponentsBuffer = {};
-		Vector<Component*>	   m_editingComponents		 = {};
+		Editor*						  m_editor = nullptr;
+		DirectionalLayout*			  m_layout = nullptr;
+		Vector<Entity*>				  m_selectedEntities;
+		Vector<Transformation>		  m_storedTransformations;
+		Vector<EntityPhysicsSettings> m_storedPhysicsSettings;
+		Vector<String>				  m_storedNames;
+		EntityWorld*				  m_world					= nullptr;
+		DummyDetails				  m_dummyDetails			= {};
+		bool						  m_physicsSettingsFold		= false;
+		Text*						  m_noDetailsText			= nullptr;
+		bool						  m_isEditing				= false;
+		Vector<OStream>				  m_editingComponentsBuffer = {};
+		Vector<Component*>			  m_editingComponents		= {};
 	};
 
 	LINA_WIDGET_BEGIN(EntityDetails, Hidden)

@@ -559,6 +559,19 @@ namespace Lina::Editor
 		return button;
 	}
 
+	Widget* CommonWidgets::BuildSeperator(Widget* src)
+	{
+		WidgetManager* wm	= src->GetWidgetManager();
+		Widget*		   line = wm->Allocate<Widget>("Line");
+		line->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+		line->SetAlignedPosX(0.0f);
+		line->SetAlignedSizeX(1.0f);
+		line->SetFixedSizeY(Theme::GetDef().baseBorderThickness);
+		line->GetWidgetProps().drawBackground  = true;
+		line->GetWidgetProps().colorBackground = Theme::GetDef().background0;
+		return line;
+	}
+
 	Widget* CommonWidgets::BuildGenericPopupWithButtons(Widget* src, const String& desc, const Vector<GenericPopupButton>& buttonDefs)
 	{
 		DirectionalLayout* layout = src->GetWidgetManager()->Allocate<DirectionalLayout>("Base");
@@ -1559,6 +1572,8 @@ namespace Lina::Editor
 						passes = depVal == val;
 					else if (op == "neq"_hs)
 						passes = depVal != val;
+					else if (op == "mask"_hs)
+						passes = depVal & val;
 
 					if (passes && current->GetFlags().IsSet(WF_HIDE))
 						current->GetFlags().Remove(WF_HIDE);

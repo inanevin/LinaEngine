@@ -358,4 +358,54 @@ namespace Lina::Editor
 		editor->GetWorldManager().BroadcastEntityHierarchyChanged(world);
 	}
 
+	EditorActionEntityPhysicsSettingsChanged* EditorActionEntityPhysicsSettingsChanged::Create(Editor* editor, EntityWorld* world, const Vector<Entity*>& entities, const Vector<EntityPhysicsSettings>& previousSettings)
+	{
+		EditorActionEntityPhysicsSettingsChanged* action = new EditorActionEntityPhysicsSettingsChanged();
+
+		for (Entity* e : entities)
+		{
+			action->m_guids.push_back(e->GetGUID());
+			action->m_newSettings.push_back(e->GetPhysicsSettings());
+		}
+
+		action->m_worldId	  = world->GetID();
+		action->m_oldSettings = previousSettings;
+		editor->GetEditorActionManager().AddToStack(action);
+	}
+
+	void EditorActionEntityPhysicsSettingsChanged::Execute(Editor* editor, ExecType type)
+	{
+		EntityWorld* world = editor->GetWorldManager().GetWorld(m_worldId);
+		if (!world)
+			return;
+
+		Vector<Entity*> entities;
+		entities.reserve(m_guids.size());
+
+		for (EntityID id : m_guids)
+			entities.push_back(world->GetEntity(id));
+
+		if (type == ExecType::Redo)
+		{
+			size_t i = 0;
+			for (Entity* e : entities)
+			{
+				e->GetPhysicsSettings() = m_newSettings.at(i);
+				i++;
+			}
+		}
+		else if (type == ExecType::Undo)
+		{
+			size_t i = 0;
+			for (Entity* e : entities)
+			{
+				e->GetPhysicsSettings() = m_oldSettings.at(i);
+				i++;
+			}
+		}
+
+		if (type != ExecType::Create)
+			editor->GetWorldManager().BroadcastEntityPhysicsSettingsChanged(world);
+	}
+
 } // namespace Lina::Editor

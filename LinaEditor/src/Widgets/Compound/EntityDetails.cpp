@@ -151,6 +151,23 @@ namespace Lina::Editor
 		scale->GetCallbacks().onEditEnded	= [this]() { StopEditingTransform(); };
 		m_layout->AddChild(scale);
 
+		m_layout->AddChild(CommonWidgets::BuildSeperator(m_layout));
+
+		DirectionalLayout* physicsSettingsWrapper = m_manager->Allocate<DirectionalLayout>("PhySettingsWrapper");
+		physicsSettingsWrapper->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);
+		physicsSettingsWrapper->SetAlignedPosX(0.0f);
+		physicsSettingsWrapper->SetAlignedSize(Vector2::One);
+		physicsSettingsWrapper->GetProps().direction		  = DirectionOrientation::Vertical;
+		physicsSettingsWrapper->GetWidgetProps().childPadding = m_layout->GetWidgetProps().childPadding;
+		physicsSettingsWrapper->GetCallbacks().onEditStarted  = [this]() { StartEditingEntityPhysicsSettings(); };
+		physicsSettingsWrapper->GetCallbacks().onEditEnded	  = [this]() { StopEditingEntityPhyiscsSettings(); };
+		m_layout->AddChild(physicsSettingsWrapper);
+
+		EntityPhysicsSettings& phySettings = m_selectedEntities.at(0)->GetPhysicsSettings();
+		CommonWidgets::BuildClassReflection(physicsSettingsWrapper, &phySettings, ReflectionSystem::Get().Resolve<EntityPhysicsSettings>());
+
+		m_layout->AddChild(CommonWidgets::BuildSeperator(m_layout));
+
 		Vector<Component*> comps;
 		m_world->GetComponents(m_selectedEntities.at(0), comps);
 
@@ -249,4 +266,15 @@ namespace Lina::Editor
 	{
 		EditorActionComponentChanged::Create(m_editor, m_world->GetID(), {m_selectedEntities.at(0)}, {m_editingComponents.at(0)->GetTID()}, m_editingComponentsBuffer);
 	}
+
+	void EntityDetails::StartEditingEntityPhysicsSettings()
+	{
+		m_storedPhysicsSettings = {m_selectedEntities.at(0)->GetPhysicsSettings()};
+	}
+
+	void EntityDetails::StopEditingEntityPhyiscsSettings()
+	{
+		EditorActionEntityPhysicsSettingsChanged::Create(m_editor, m_world, {m_selectedEntities.at(0)}, m_storedPhysicsSettings);
+	}
+
 } // namespace Lina::Editor
