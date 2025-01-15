@@ -231,12 +231,12 @@ namespace Lina
 	LINA_FIELD(InputField::Properties, outlineThickness, "Outline Thickness", FieldType::Float, 0)
 	LINA_FIELD(InputField::Properties, horizontalIndent, "Horizontal Indent", FieldType::Float, 0)
 
-	LINA_FIELD_DEPENDENCY_POS(InputField::Properties, placeHolderText, "usePlaceHolder", 1)
-	LINA_FIELD_DEPENDENCY_POS(InputField::Properties, disableNumberSlider, "isNumberField", 1)
-	LINA_FIELD_DEPENDENCY_POS(InputField::Properties, clampNumber, "isNumberField", 1)
-	LINA_FIELD_DEPENDENCY_POS(InputField::Properties, valueMin, "isNumberField", 1)
-	LINA_FIELD_DEPENDENCY_POS(InputField::Properties, valueMax, "isNumberField", 1)
-	LINA_FIELD_DEPENDENCY_POS(InputField::Properties, valueStep, "isNumberField", 1)
+	LINA_FIELD_DEPENDENCY(InputField::Properties, placeHolderText, "usePlaceHolder", "1")
+	LINA_FIELD_DEPENDENCY(InputField::Properties, disableNumberSlider, "isNumberField", "1")
+	LINA_FIELD_DEPENDENCY(InputField::Properties, clampNumber, "isNumberField", "1")
+	LINA_FIELD_DEPENDENCY(InputField::Properties, valueMin, "isNumberField", "1")
+	LINA_FIELD_DEPENDENCY(InputField::Properties, valueMax, "isNumberField", "1")
+	LINA_FIELD_DEPENDENCY(InputField::Properties, valueStep, "isNumberField", "1")
 	LINA_CLASS_END(InputFieldProperties)
 
 } // namespace Lina

@@ -579,15 +579,15 @@ namespace Lina
 	LINA_FIELD(DropshadowProps, direction, "Direction", FieldType::Enum, GetTypeID<Direction>());
 	LINA_FIELD_VEC(DropshadowProps, onlyRound, "Only Round", FieldType::Int32, int32, 0);
 
-	LINA_FIELD_DEPENDENCY_POS(DropshadowProps, isInner, "enabled", 1);
-	LINA_FIELD_DEPENDENCY_POS(DropshadowProps, margin, "enabled", 1);
-	LINA_FIELD_DEPENDENCY_POS(DropshadowProps, thickness, "enabled", 1);
-	LINA_FIELD_DEPENDENCY_POS(DropshadowProps, rounding, "enabled", 1);
-	LINA_FIELD_DEPENDENCY_POS(DropshadowProps, drawOrderIncrement, "enabled", 1);
-	LINA_FIELD_DEPENDENCY_POS(DropshadowProps, steps, "enabled", 1);
-	LINA_FIELD_DEPENDENCY_POS(DropshadowProps, color, "enabled", 1);
-	LINA_FIELD_DEPENDENCY_POS(DropshadowProps, direction, "enabled", 1);
-	LINA_FIELD_DEPENDENCY_POS(DropshadowProps, onlyRound, "enabled", 1);
+	LINA_FIELD_DEPENDENCY(DropshadowProps, isInner, "enabled", "1");
+	LINA_FIELD_DEPENDENCY(DropshadowProps, margin, "enabled", "1");
+	LINA_FIELD_DEPENDENCY(DropshadowProps, thickness, "enabled", "1");
+	LINA_FIELD_DEPENDENCY(DropshadowProps, rounding, "enabled", "1");
+	LINA_FIELD_DEPENDENCY(DropshadowProps, drawOrderIncrement, "enabled", "1");
+	LINA_FIELD_DEPENDENCY(DropshadowProps, steps, "enabled", "1");
+	LINA_FIELD_DEPENDENCY(DropshadowProps, color, "enabled", "1");
+	LINA_FIELD_DEPENDENCY(DropshadowProps, direction, "enabled", "1");
+	LINA_FIELD_DEPENDENCY(DropshadowProps, onlyRound, "enabled", "1");
 	LINA_CLASS_END(DropshadowProps)
 
 	LINA_CLASS_BEGIN(WidgetProps)
@@ -623,26 +623,26 @@ namespace Lina
 	LINA_FIELD_VEC(WidgetProps, onlyRound, "Only Round", FieldType::Int32, int32, 0);
 	LINA_FIELD(WidgetProps, dropshadow, "Dropshadow Props", FieldType::UserClass, GetTypeID<DropshadowProps>());
 
-	LINA_FIELD_DEPENDENCY_POS(WidgetProps, backgroundIsCentralGradient, "drawBackground", 1);
-	LINA_FIELD_DEPENDENCY_POS(WidgetProps, interpolateColor, "drawBackground", 1);
-	LINA_FIELD_DEPENDENCY_POS(WidgetProps, colorInterpolateSpeed, "interpolateColor", 1);
-	LINA_FIELD_DEPENDENCY_POS(WidgetProps, colorBackgroundDirection, "drawBackground", 1);
-	LINA_FIELD_DEPENDENCY_POS(WidgetProps, colorBackground, "drawBackground", 1);
-	LINA_FIELD_DEPENDENCY_POS(WidgetProps, colorBackgroundAlt, "drawBackground", 1);
-	LINA_FIELD_DEPENDENCY_POS(WidgetProps, colorOutline, "drawBackground", 1);
-	LINA_FIELD_DEPENDENCY_POS(WidgetProps, colorOutlineControls, "drawBackground", 1);
-	LINA_FIELD_DEPENDENCY_POS(WidgetProps, colorDisabled, "drawBackground", 1);
-	LINA_FIELD_DEPENDENCY_POS(WidgetProps, hoveredIsDifferentColor, "drawBackground", 1);
-	LINA_FIELD_DEPENDENCY_POS(WidgetProps, colorHovered, "hoveredIsDifferentColor", 1);
-	LINA_FIELD_DEPENDENCY_POS(WidgetProps, pressedIsDifferentColor, "drawBackground", 1);
-	LINA_FIELD_DEPENDENCY_POS(WidgetProps, colorPressed, "pressedIsDifferentColor", 1);
-	LINA_FIELD_DEPENDENCY_POS(WidgetProps, outlineThickness, "drawBackground", 1);
-	LINA_FIELD_DEPENDENCY_POS(WidgetProps, outlineIsInner, "drawBackground", 1);
-	LINA_FIELD_DEPENDENCY_POS(WidgetProps, rounding, "drawBackground", 1);
-	LINA_FIELD_DEPENDENCY_POS(WidgetProps, fitTexture, "drawBackground", 1);
-	LINA_FIELD_DEPENDENCY_POS(WidgetProps, textureTiling, "drawBackground", 1);
-	LINA_FIELD_DEPENDENCY_POS(WidgetProps, activeTextureTiling, "drawBackground", 1);
-	LINA_FIELD_DEPENDENCY_POS(WidgetProps, childrenClipOffset, "clipChildren", 1);
+	LINA_FIELD_DEPENDENCY(WidgetProps, backgroundIsCentralGradient, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, interpolateColor, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, colorInterpolateSpeed, "interpolateColor", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, colorBackgroundDirection, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, colorBackground, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, colorBackgroundAlt, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, colorOutline, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, colorOutlineControls, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, colorDisabled, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, hoveredIsDifferentColor, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, colorHovered, "hoveredIsDifferentColor", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, pressedIsDifferentColor, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, colorPressed, "pressedIsDifferentColor", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, outlineThickness, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, outlineIsInner, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, rounding, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, fitTexture, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, textureTiling, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, activeTextureTiling, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, childrenClipOffset, "clipChildren", "1");
 
 	LINA_CLASS_END(WidgetProps)
 

@@ -156,8 +156,8 @@ namespace Lina
 	LINA_FIELD(Texture::Metadata, generateMipmaps, "Generate Mipmaps", FieldType::Boolean, 0)
 	LINA_FIELD(Texture::Metadata, isPremultipliedAlpha, "Pre-multiplied Alpha", FieldType::Boolean, 0)
 	LINA_FIELD(Texture::Metadata, mipFilter, "Mipmap Filter", FieldType::Enum, GetTypeID<LinaGX::MipmapFilter>())
-	LINA_FIELD_DEPENDENCY_POS(Texture::Metadata, isPremultipliedAlpha, "generateMipmaps", 1)
-	LINA_FIELD_DEPENDENCY_POS(Texture::Metadata, mipFilter, "generateMipmaps", 1)
+	LINA_FIELD_DEPENDENCY(Texture::Metadata, isPremultipliedAlpha, "generateMipmaps", "1")
+	LINA_FIELD_DEPENDENCY(Texture::Metadata, mipFilter, "generateMipmaps", "1")
 	LINA_CLASS_END(TextureMeta)
 
 	/*

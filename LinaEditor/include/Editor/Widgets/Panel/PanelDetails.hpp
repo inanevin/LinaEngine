@@ -68,7 +68,6 @@ namespace Lina::Editor
 
 	private:
 		Editor*		   m_editor		   = nullptr;
-		EntityWorld*   m_world		   = nullptr;
 		EntityDetails* m_entityDetails = nullptr;
 	};
 

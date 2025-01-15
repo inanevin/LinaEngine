@@ -181,4 +181,9 @@ namespace Lina
 		float	padding[22];
 	};
 
+	template <typename T, int N> struct BufferedGroup
+	{
+		T* items[N];
+	};
+
 } // namespace Lina

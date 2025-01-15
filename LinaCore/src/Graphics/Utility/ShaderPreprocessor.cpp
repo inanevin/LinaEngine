@@ -73,7 +73,7 @@ namespace Lina
 				const size_t found = line.find(str);
 				if (found != String::npos)
 				{
-					const String trimmedLine = FileSystem::RemoveWhitespaces(line);
+					const String trimmedLine = UtilStr::RemoveWhitespaces(line);
 					outName					 = trimmedLine.substr(propType.length(), trimmedLine.find(";") - propType.length());
 					return true;
 				}
@@ -128,7 +128,7 @@ namespace Lina
 				// + 1 \n
 				materialBlockEnd += line.length() + 1;
 
-				const String lineTrimmed = FileSystem::RemoveWhitespaces(line);
+				const String lineTrimmed = UtilStr::RemoveWhitespaces(line);
 
 				if (commentBlock)
 				{
@@ -626,7 +626,7 @@ namespace Lina
 			if (line.empty())
 				continue;
 
-			const String lineTrimmed = FileSystem::RemoveWhitespaces(line);
+			const String lineTrimmed = UtilStr::RemoveWhitespaces(line);
 
 			if (commentBlock)
 			{

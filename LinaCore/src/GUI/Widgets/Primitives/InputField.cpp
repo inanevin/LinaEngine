@@ -45,12 +45,13 @@ namespace Lina
 	void InputField::Construct()
 	{
 		GetWidgetProps().drawBackground			   = true;
-		GetWidgetProps().clipChildren			   = true;
+		//GetWidgetProps().clipChildren			   = true;
 		GetWidgetProps().childrenClipOffset.pos.x  = Theme::GetDef().baseIndent / 2;
 		GetWidgetProps().childrenClipOffset.size.x = -Theme::GetDef().baseIndent;
 
 		m_text						 = m_manager->Allocate<Text>("InputFieldText");
-		m_text->GetProps().isDynamic = true;
+        m_text->GetProps().isDynamic = true;
+        m_text->GetProps().fetchCustomClipFromParent = true;
 		m_text->GetFlags().Set(WF_POS_ALIGN_Y);
 		m_text->SetAlignedPosY(0.5f);
 		m_text->SetAnchorY(Anchor::Center);

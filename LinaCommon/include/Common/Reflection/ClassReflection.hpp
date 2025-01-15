@@ -205,11 +205,9 @@ namespace Lina
 
 #define LINA_FIELD_TOOLTIP(ClassName, FieldName, TOOLTIP) Lina::ReflectionSystem::Get().Meta<ClassName>()->GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Tooltip"), TOOLTIP);
 
-#define LINA_FIELD_DEPENDSON(ClassName, FieldName, DEPENDSON) Lina::ReflectionSystem::Get().Meta<ClassName>()->GetField(sid_##FieldName)->AddProperty<Lina::StringID>(Lina::TO_SIDC("DependsOn"), TO_SIDC(DEPENDSON));
+#define LINA_FIELD_DEPENDENCY(ClassName, FieldName, Dependency, Value) Lina::ReflectionSystem::Get().Meta<ClassName>()->GetField(sid_##FieldName)->AddDependency(TO_SIDC(Dependency), Value);
 
-#define LINA_FIELD_DEPENDENCY_POS(ClassName, FieldName, Dependency, Value) Lina::ReflectionSystem::Get().Meta<ClassName>()->GetField(sid_##FieldName)->AddPositiveDependency(TO_SIDC(Dependency), Value);
-
-#define LINA_FIELD_DEPENDENCY_POS_OP(ClassName, FieldName, Dependency, Value, Operation) Lina::ReflectionSystem::Get().Meta<ClassName>()->GetField(sid_##FieldName)->AddPositiveDependency(TO_SIDC(Dependency), Value, Operation);
+#define LINA_FIELD_DEPENDENCY_OP(ClassName, FieldName, Dependency, Value, Operation) Lina::ReflectionSystem::Get().Meta<ClassName>()->GetField(sid_##FieldName)->AddDependency(TO_SIDC(Dependency), Value, TO_SIDC(Operation));
 
 #define LINA_FIELD_LIMITS(ClassName, FieldName, MIN, MAX, STEP)                                                                                                                                                                                                    \
 	Lina::ReflectionSystem::Get().Meta<ClassName>()->GetField(sid_##FieldName)->AddProperty<float>(Lina::TO_SIDC("Min"), MIN);                                                                                                                                     \

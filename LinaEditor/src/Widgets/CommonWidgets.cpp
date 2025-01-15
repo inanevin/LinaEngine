@@ -1556,24 +1556,25 @@ namespace Lina::Editor
 
 			for (const DependencyPair& depPair : posDepends)
 			{
-				const StringID sid = depPair.id;
-				const StringID op  = depPair.operation;
-				const uint8	   val = depPair.dep;
+				const StringID		sid	 = depPair.id;
+				const StringID		op	 = depPair.operation;
+				const Vector<uint8> vals = depPair.deps;
 
 				FieldBase* depSrc = meta->GetField(sid);
 
 				void* valPtr = depSrc->Value(obj).GetPtr();
-				current->AddPreTickHook([valPtr, val, current, op]() {
+				current->AddPreTickHook([valPtr, vals, current, op]() {
 					const uint8 depVal = *static_cast<uint8*>(valPtr);
 
 					bool passes = false;
 
+					auto	   it	 = linatl::find_if(vals.begin(), vals.end(), [depVal](uint8 v) -> bool { return v == depVal; });
+					const bool found = it != vals.end();
+
 					if (op == "eq"_hs)
-						passes = depVal == val;
+						passes = found;
 					else if (op == "neq"_hs)
-						passes = depVal != val;
-					else if (op == "mask"_hs)
-						passes = depVal & val;
+						passes = !found;
 
 					if (passes && current->GetFlags().IsSet(WF_HIDE))
 						current->GetFlags().Remove(WF_HIDE);

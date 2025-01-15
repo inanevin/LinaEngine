@@ -63,7 +63,6 @@ namespace Lina::Editor
 	private:
 		EntityBrowser* m_browser = nullptr;
 		Editor*		   m_editor	 = nullptr;
-		EntityWorld*   m_world	 = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(PanelEntities, Hidden)

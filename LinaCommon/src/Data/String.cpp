@@ -316,6 +316,20 @@ namespace Lina
 		const float val = static_cast<float>(sz) / 1000000.0f;
 		return FloatToString(val, decimals) + " mb";
 	}
+
+	String UtilStr::RemoveWhitespaces(const String& str)
+	{
+		std::string result;
+		for (char c : str)
+		{
+			if (!std::isspace(static_cast<unsigned char>(c)))
+			{
+				result.push_back(c);
+			}
+		}
+		return result;
+	}
+
 } // namespace Lina
 
 #ifdef LINA_COMPILER_MSVC

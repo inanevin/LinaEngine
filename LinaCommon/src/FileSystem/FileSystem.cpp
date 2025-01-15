@@ -249,19 +249,6 @@ namespace Lina
 		}
 	}
 
-	String FileSystem::RemoveWhitespaces(const String& str)
-	{
-		std::string result;
-		for (char c : str)
-		{
-			if (!std::isspace(static_cast<unsigned char>(c)))
-			{
-				result.push_back(c);
-			}
-		}
-		return result;
-	}
-
 	String FileSystem::GetUserDataFolder()
 	{
 #ifdef LINA_PLATFORM_WINDOWS

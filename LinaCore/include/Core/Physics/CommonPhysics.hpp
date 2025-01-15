@@ -111,9 +111,9 @@ namespace Lina
 	LINA_FIELD(EntityPhysicsSettings, radius, "Radius", FieldType::Float, 0)
 	LINA_FIELD(EntityPhysicsSettings, height, "Height", FieldType::Float, 0)
 	LINA_FIELD(EntityPhysicsSettings, material, "Material", FieldType::ResourceID, GetTypeID<PhysicsMaterial>())
-	LINA_FIELD_DEPENDENCY_POS_OP(EntityPhysicsSettings, shapeExtents, "shapeType", 1 | 4, "mask"_hs)
-	LINA_FIELD_DEPENDENCY_POS_OP(EntityPhysicsSettings, radius, "shapeType", 0 | 2 | 3, "mask"_hs)
-	LINA_FIELD_DEPENDENCY_POS_OP(EntityPhysicsSettings, height, "shapeType", 0 | 2 | 3, "mask"_hs)
+	LINA_FIELD_DEPENDENCY(EntityPhysicsSettings, shapeExtents, "shapeType", "1, 4")
+	LINA_FIELD_DEPENDENCY(EntityPhysicsSettings, radius, "shapeType", "0, 2, 3")
+	LINA_FIELD_DEPENDENCY(EntityPhysicsSettings, height, "shapeType", "0, 2, 3")
 	LINA_CLASS_END(EntityPhysicsSettings)
 
 } // namespace Lina

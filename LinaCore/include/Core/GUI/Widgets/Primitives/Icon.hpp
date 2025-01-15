@@ -129,7 +129,7 @@ namespace Lina
 	LINA_FIELD(Icon::Properties, dynamicSizeToParent, "Dynamic Size To Parent", FieldType::Boolean, 0)
 	LINA_FIELD(Icon::Properties, dynamicSizeScale, "Scale", FieldType::Float, 0)
 
-	LINA_FIELD_DEPENDENCY_POS(Icon::Properties, dynamicSizeScale, "dynamicSizeToParent", 1)
+	LINA_FIELD_DEPENDENCY(Icon::Properties, dynamicSizeScale, "dynamicSizeToParent", "1")
 	LINA_CLASS_END(IconProperties)
 
 } // namespace Lina

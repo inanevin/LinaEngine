@@ -175,8 +175,8 @@ namespace Lina
 			checkPipeline(draw.shaderHandle);
 
 			bool	indexedInstanced = false;
-			Buffer* indexBuffer		 = draw.indexBuffers[frameIndex];
-			Buffer* vertexBuffer	 = draw.vertexBuffers[frameIndex];
+			Buffer* indexBuffer		 = draw.indexBuffers.items[frameIndex];
+			Buffer* vertexBuffer	 = draw.vertexBuffers.items[frameIndex];
 			if (indexBuffer != nullptr && vertexBuffer != nullptr)
 			{
 				checkBuffers(vertexBuffer, indexBuffer, draw.vertexSize);

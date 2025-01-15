@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Common/System/SystemInfo.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
+#include "Core/Graphics/Renderers/ShapeRenderer.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Resource/TextureSampler.hpp"
@@ -123,6 +124,7 @@ namespace Lina::Editor
 		DrawLightWireframes();
 		DrawLightIcons(m_targetPass, 0);
 		DrawLightIcons(&m_mousePickRenderer->GetRenderPass(), "StaticEntityID"_hs);
+		DrawPhysicsWireframes();
 
 		if (m_gizmoSettings.drawOrientation)
 		{
@@ -154,12 +156,15 @@ namespace Lina::Editor
 		if (m_gizmoSettings.visualizeAxis)
 		{
 			Camera& cam = m_world->GetWorldCamera();
-			m_worldRenderer->StartLine3DBatch();
-			m_worldRenderer->DrawLine3D(m_gizmoSettings.position + m_gizmoSettings.worldAxis * -cam.GetZFar() * 0.5f,
-										m_gizmoSettings.position + m_gizmoSettings.worldAxis * cam.GetZFar() * 0.5f,
-										0.08f * m_gizmoSettings.defaultShaderScale,
-										GetColorFromAxis(m_gizmoSettings.focusedAxis));
-			m_worldRenderer->EndLine3DBatch(*m_targetPass, 0, m_shaderLine->GetGPUHandle());
+
+			ShapeRenderer shape(&m_worldRenderer->GetCPUDrawData().line3DVertices, &m_worldRenderer->GetCPUDrawData().line3DIndices);
+
+			shape.DrawLine3D(m_gizmoSettings.position + m_gizmoSettings.worldAxis * -cam.GetZFar() * 0.5f,
+							 m_gizmoSettings.position + m_gizmoSettings.worldAxis * cam.GetZFar() * 0.5f,
+							 0.08f * m_gizmoSettings.defaultShaderScale,
+							 GetColorFromAxis(m_gizmoSettings.focusedAxis));
+
+			shape.Submit(m_worldRenderer->GetLine3DVtxBufferGroup(), m_worldRenderer->GetLine3DIdxBufferGroup(), *m_targetPass, 0, m_shaderLine->GetGPUHandle());
 		}
 	}
 
@@ -174,10 +179,51 @@ namespace Lina::Editor
 		return Color::White;
 	}
 
+	void GizmoRenderer::DrawPhysicsWireframes()
+	{
+		ShapeRenderer shape(&m_worldRenderer->GetCPUDrawData().line3DVertices, &m_worldRenderer->GetCPUDrawData().line3DIndices);
+
+		const float thickness = 0.1f * m_gizmoSettings.defaultShaderScale;
+
+		for (Entity* e : m_selectedEntities)
+		{
+			const EntityPhysicsSettings& settings = e->GetPhysicsSettings();
+			const PhysicsBodyType		 type	  = settings.bodyType;
+			if (type == PhysicsBodyType::None)
+				continue;
+
+			const Vector3		   pos		 = e->GetPosition();
+			const PhysicsShapeType shapeType = settings.shapeType;
+
+			if (shapeType == PhysicsShapeType::Sphere)
+			{
+				shape.DrawWireframeSphere3D(pos, settings.radius, thickness, Theme::GetDef().accentSuccess);
+			}
+			else if (shapeType == PhysicsShapeType::Box)
+			{
+				shape.DrawWireframeCube3D(pos, settings.shapeExtents, thickness, Theme::GetDef().accentSuccess);
+			}
+			else if (shapeType == PhysicsShapeType::Capsule)
+			{
+				shape.DrawWireframeCapsule3D(pos, settings.height, settings.radius, thickness, Theme::GetDef().accentSuccess);
+			}
+			else if (shapeType == PhysicsShapeType::Cylinder)
+			{
+				shape.DrawWireframeCylinder3D(pos, settings.height, settings.radius, thickness, Theme::GetDef().accentSuccess);
+			}
+			else if (shapeType == PhysicsShapeType::Plane)
+			{
+				shape.DrawWireframePlane3D(pos, settings.shapeExtents, thickness, Theme::GetDef().accentSuccess);
+			}
+		}
+
+		shape.Submit(m_worldRenderer->GetLine3DVtxBufferGroup(), m_worldRenderer->GetLine3DIdxBufferGroup(), *m_targetPass, 0, m_shaderLine->GetGPUHandle());
+	}
+
 	void GizmoRenderer::DrawLightWireframes()
 	{
 		const Vector<CompLight*>& compLights = m_worldRenderer->GetCompLights();
-		m_worldRenderer->StartLine3DBatch();
+		ShapeRenderer			  shape(&m_worldRenderer->GetCPUDrawData().line3DVertices, &m_worldRenderer->GetCPUDrawData().line3DIndices);
 
 		const float thickness = 0.1f * m_gizmoSettings.defaultShaderScale;
 
@@ -194,23 +240,23 @@ namespace Lina::Editor
 
 			if (type == LightType::Directional)
 			{
-				m_worldRenderer->DrawLine3D(p, p + e->GetRotation().GetForward() * 2.0f, thickness, Theme::GetDef().accentYellowGold);
+				shape.DrawLine3D(p, p + e->GetRotation().GetForward() * 2.0f, thickness, Theme::GetDef().accentYellowGold);
 			}
 			else if (type == LightType::Point)
 			{
-				m_worldRenderer->DrawWireSphere3D(e->GetPosition(), l->GetRadius(), thickness, Theme::GetDef().accentYellowGold);
-				m_worldRenderer->DrawWireSphere3D(e->GetPosition(), l->GetFalloff(), thickness, Theme::GetDef().accentPrimary3);
+				shape.DrawWireframeSphere3D(e->GetPosition(), l->GetRadius(), thickness, Theme::GetDef().accentYellowGold);
+				shape.DrawWireframeSphere3D(e->GetPosition(), l->GetFalloff(), thickness, Theme::GetDef().accentPrimary3);
 			}
 			else if (type == LightType::Spot)
 			{
 				const float radius		= l->GetRadius() * Math::Tan(DEG_2_RAD * l->GetCutoff());
 				const float radiusOuter = l->GetRadius() * Math::Tan(DEG_2_RAD * l->GetOuterCutoff());
-				m_worldRenderer->DrawWireCone3D(p, e->GetRotation().GetForward(), l->GetRadius(), radius, thickness, Theme::GetDef().accentYellowGold, true);
-				m_worldRenderer->DrawWireCone3D(p, e->GetRotation().GetForward(), l->GetRadius(), radiusOuter, thickness, Theme::GetDef().accentPrimary3, false);
+				shape.DrawWireCone3D(p, e->GetRotation().GetForward(), l->GetRadius(), radius, thickness, Theme::GetDef().accentYellowGold, true);
+				shape.DrawWireCone3D(p, e->GetRotation().GetForward(), l->GetRadius(), radiusOuter, thickness, Theme::GetDef().accentPrimary3, false);
 			}
 		}
 
-		m_worldRenderer->EndLine3DBatch(*m_targetPass, 0, m_shaderLine->GetGPUHandle());
+		shape.Submit(m_worldRenderer->GetLine3DVtxBufferGroup(), m_worldRenderer->GetLine3DIdxBufferGroup(), *m_targetPass, 0, m_shaderLine->GetGPUHandle());
 	}
 
 	void GizmoRenderer::DrawLightIcons(RenderPass* pass, StringID variant)

@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Common/Math/Math.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
+#include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
@@ -49,6 +50,13 @@ namespace Lina::Editor
 	{
 		m_editor = Editor::Get();
 
+		ScrollArea* scroll = m_manager->Allocate<ScrollArea>("Scroll");
+		scroll->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		scroll->SetAlignedPos(Vector2::Zero);
+		scroll->SetAlignedSize(Vector2::One);
+		scroll->GetProps().direction = DirectionOrientation::Vertical;
+		AddChild(scroll);
+
 		m_layout = m_manager->Allocate<DirectionalLayout>("Vertical");
 		m_layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		m_layout->SetAlignedPos(Vector2::Zero);
@@ -57,7 +65,8 @@ namespace Lina::Editor
 		m_layout->GetWidgetProps().childPadding		   = Theme::GetDef().baseIndent;
 		m_layout->GetWidgetProps().childMargins.top	   = Theme::GetDef().baseIndent;
 		m_layout->GetWidgetProps().childMargins.bottom = Theme::GetDef().baseIndent;
-		AddChild(m_layout);
+		m_layout->GetWidgetProps().clipChildren		   = true;
+		scroll->AddChild(m_layout);
 
 		m_noDetailsText = m_manager->Allocate<Text>("NoEntityDetails");
 		m_noDetailsText->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
@@ -151,22 +160,13 @@ namespace Lina::Editor
 		scale->GetCallbacks().onEditEnded	= [this]() { StopEditingTransform(); };
 		m_layout->AddChild(scale);
 
-		m_layout->AddChild(CommonWidgets::BuildSeperator(m_layout));
-
-		DirectionalLayout* physicsSettingsWrapper = m_manager->Allocate<DirectionalLayout>("PhySettingsWrapper");
-		physicsSettingsWrapper->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);
-		physicsSettingsWrapper->SetAlignedPosX(0.0f);
-		physicsSettingsWrapper->SetAlignedSize(Vector2::One);
-		physicsSettingsWrapper->GetProps().direction		  = DirectionOrientation::Vertical;
-		physicsSettingsWrapper->GetWidgetProps().childPadding = m_layout->GetWidgetProps().childPadding;
-		physicsSettingsWrapper->GetCallbacks().onEditStarted  = [this]() { StartEditingEntityPhysicsSettings(); };
-		physicsSettingsWrapper->GetCallbacks().onEditEnded	  = [this]() { StopEditingEntityPhyiscsSettings(); };
-		m_layout->AddChild(physicsSettingsWrapper);
+		FoldLayout* phySettingsLayout					= CommonWidgets::BuildFoldTitle(m_layout, Locale::GetStr(LocaleStr::Physics), &m_physicsSettingsFold);
+		phySettingsLayout->GetCallbacks().onEditStarted = [this]() { StartEditingEntityPhysicsSettings(); };
+		phySettingsLayout->GetCallbacks().onEditEnded	= [this]() { StopEditingEntityPhyiscsSettings(); };
 
 		EntityPhysicsSettings& phySettings = m_selectedEntities.at(0)->GetPhysicsSettings();
-		CommonWidgets::BuildClassReflection(physicsSettingsWrapper, &phySettings, ReflectionSystem::Get().Resolve<EntityPhysicsSettings>());
-
-		m_layout->AddChild(CommonWidgets::BuildSeperator(m_layout));
+		CommonWidgets::BuildClassReflection(phySettingsLayout, &phySettings, ReflectionSystem::Get().Resolve<EntityPhysicsSettings>());
+		m_layout->AddChild(phySettingsLayout);
 
 		Vector<Component*> comps;
 		m_world->GetComponents(m_selectedEntities.at(0), comps);

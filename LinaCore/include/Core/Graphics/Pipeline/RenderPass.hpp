@@ -62,19 +62,19 @@ namespace Lina
 	public:
 		struct InstancedDraw
 		{
-			Buffer* vertexBuffers[FRAMES_IN_FLIGHT];
-			Buffer* indexBuffers[FRAMES_IN_FLIGHT];
-			size_t	vertexSize	  = 0;
-			uint32	shaderHandle  = 0;
-			uint32	baseVertex	  = 0;
-			uint32	vertexCount	  = 0;
-			uint32	baseIndex	  = 0;
-			uint32	indexCount	  = 0;
-			uint32	instanceCount = 0;
-			uint32	baseInstance  = 0;
-			uint32	pushConstant  = 0;
-			Recti	clip		  = {};
-			bool	useScissors	  = false;
+			BufferedGroup<Buffer, FRAMES_IN_FLIGHT> vertexBuffers;
+			BufferedGroup<Buffer, FRAMES_IN_FLIGHT> indexBuffers;
+			size_t									vertexSize	  = 0;
+			uint32									shaderHandle  = 0;
+			uint32									baseVertex	  = 0;
+			uint32									vertexCount	  = 0;
+			uint32									baseIndex	  = 0;
+			uint32									indexCount	  = 0;
+			uint32									instanceCount = 0;
+			uint32									baseInstance  = 0;
+			uint32									pushConstant  = 0;
+			Recti									clip		  = {};
+			bool									useScissors	  = false;
 		};
 
 		struct RenderingData

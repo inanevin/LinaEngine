@@ -106,7 +106,7 @@ namespace Lina
 	LINA_FIELD(FoldLayout::Properties, tweenPower, "Tween Power", FieldType::Float, 0)
 	LINA_FIELD(FoldLayout::Properties, tweenDuration, "Tween Duration", FieldType::Float, 0)
 	LINA_FIELD(FoldLayout::Properties, marginIncrease, "Margin Increase", FieldType::Float, 0)
-	LINA_FIELD_DEPENDENCY_POS(FoldLayout::Properties, tweenPower, "useTween", 1)
-	LINA_FIELD_DEPENDENCY_POS(FoldLayout::Properties, tweenDuration, "useTween", 1)
+	LINA_FIELD_DEPENDENCY(FoldLayout::Properties, tweenPower, "useTween", "1")
+	LINA_FIELD_DEPENDENCY(FoldLayout::Properties, tweenDuration, "useTween", "1")
 	LINA_CLASS_END(FoldLayoutProperties)
 } // namespace Lina

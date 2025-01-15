@@ -317,9 +317,9 @@ namespace Lina
 
 	struct DependencyPair
 	{
-		StringID id		   = 0;
-		uint8	 dep	   = 0;
-		StringID operation = 0;
+		StringID	  id = 0;
+		Vector<uint8> deps;
+		StringID	  operation = 0;
 	};
 
 	class FieldBase
@@ -399,16 +399,26 @@ namespace Lina
 			return cache->GetFunction(sid);
 		}
 
-		inline void AddPositiveDependency(StringID sid, uint8 val, StringID operation = "eq"_hs)
+		inline void AddDependency(StringID sid, const String& valuesRaw, StringID operation = "eq"_hs)
 		{
+			const String		 trimmed   = UtilStr::RemoveWhitespaces(valuesRaw);
+			const Vector<String> valuesStr = UtilStr::SplitBy(trimmed, ",");
+
+			Vector<uint8> values;
+
+			for (const String& str : valuesStr)
+			{
+				values.push_back(static_cast<uint8>(UtilStr::StringToInt(str)));
+			}
+
 			DependencyPair out = {};
 			if (FindPosDepCache(sid, out))
 			{
-				out.dep = val;
+				out.deps = values;
 				return;
 			}
 
-			m_positiveDependencies.push_back({sid, val, operation});
+			m_positiveDependencies.push_back({sid, values, operation});
 		}
 
 		const Vector<DependencyPair>& GetPositiveDependencies() const

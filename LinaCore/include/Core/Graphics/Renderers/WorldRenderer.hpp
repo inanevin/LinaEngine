@@ -115,13 +115,6 @@ namespace Lina
 		uint32 PushEntity(const GPUEntity& e, const EntityIdent& ident);
 		uint32 PushArgument(const GPUDrawArguments& args);
 
-		void StartLine3DBatch();
-		void DrawLine3D(const Vector3& p1, const Vector3& p2, float thickness, const ColorGrad& color);
-		void DrawWireframeCube3D(const Vector3& center, const Vector3& extents, float thickness, const ColorGrad& color);
-		void DrawWireSphere3D(const Vector3& center, float radius, float thickness, const ColorGrad& color);
-		void DrawWireCone3D(const Vector3& top, const Vector3& dir, float length, const float radius, float thickness, const ColorGrad& color, bool drawLines);
-		void EndLine3DBatch(RenderPass& pass, uint32 pushConstantValue, uint32 shaderHandle);
-
 		void			StartLinaVGBatch();
 		LinaVG::Drawer* GetLVGDrawer()
 		{
@@ -223,6 +216,26 @@ namespace Lina
 			return m_pfd[frameIndex].boneBuffer;
 		}
 
+		inline BufferedGroup<Buffer, FRAMES_IN_FLIGHT> GetLine3DVtxBufferGroup()
+		{
+			BufferedGroup<Buffer, FRAMES_IN_FLIGHT> gr;
+
+			for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+				gr.items[i] = &m_pfd[i].line3DVtxBuffer;
+
+			return gr;
+		}
+
+		inline BufferedGroup<Buffer, FRAMES_IN_FLIGHT> GetLine3DIdxBufferGroup()
+		{
+			BufferedGroup<Buffer, FRAMES_IN_FLIGHT> gr;
+
+			for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+				gr.items[i] = &m_pfd[i].line3DIdxBuffer;
+
+			return gr;
+		}
+
 		inline const Vector<CompModel*>& GetCompModels() const
 		{
 			return m_compModels;
@@ -236,6 +249,11 @@ namespace Lina
 		inline const Vector<CompLight*>& GetCompLights() const
 		{
 			return m_compLights;
+		}
+
+		inline DrawData& GetCPUDrawData()
+		{
+			return m_cpuDrawData;
 		}
 
 	private:

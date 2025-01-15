@@ -140,11 +140,11 @@ namespace Lina
 	LINA_FIELD(DirectionalLayout::Properties, borderMinSize, "Border Min Size", FieldType::Float, 0)
 	LINA_FIELD_LIMITS(DirectionalLayout::Properties, borderMinSize, 0.0f, 1.0f, 0.1f)
 
-	LINA_FIELD_DEPENDENCY_POS(DirectionalLayout::Properties, colorBorder, "mode", 3)
-	LINA_FIELD_DEPENDENCY_POS(DirectionalLayout::Properties, colorBorderHovered, "mode", 3)
-	LINA_FIELD_DEPENDENCY_POS(DirectionalLayout::Properties, borderThickness, "mode", 3)
-	LINA_FIELD_DEPENDENCY_POS(DirectionalLayout::Properties, borderExpandForMouse, "mode", 3)
-	LINA_FIELD_DEPENDENCY_POS(DirectionalLayout::Properties, borderMinSize, "mode", 3)
+	LINA_FIELD_DEPENDENCY(DirectionalLayout::Properties, colorBorder, "mode", "3")
+	LINA_FIELD_DEPENDENCY(DirectionalLayout::Properties, colorBorderHovered, "mode", "3")
+	LINA_FIELD_DEPENDENCY(DirectionalLayout::Properties, borderThickness, "mode", "3")
+	LINA_FIELD_DEPENDENCY(DirectionalLayout::Properties, borderExpandForMouse, "mode", "3")
+	LINA_FIELD_DEPENDENCY(DirectionalLayout::Properties, borderMinSize, "mode", "3")
 	LINA_CLASS_END(DirectionalLayoutProperties)
 
 	LINA_CLASS_BEGIN(DirectionalLayoutMode)

@@ -104,6 +104,7 @@ namespace Lina::Editor
 		void  DrawOrientationGizmos(RenderPass* pass, StringID variant, float shaderScale = 1.0f);
 		void  DrawLightIcons(RenderPass* pass, StringID variant);
 		void  DrawLightWireframes();
+		void  DrawPhysicsWireframes();
 		void  SetupIconMaterial(Material* mat, Font* font, uint8 codePoint, Vector2& outSize);
 
 	private:
