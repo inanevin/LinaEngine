@@ -131,9 +131,8 @@ namespace Lina::Editor
 		bool				m_isVisible		= false;
 		RenderPass			m_guiPass		= {};
 		RenderPass			m_swapchainPass = {};
-
-		LinaVG::Drawer m_lvgDrawer;
-		WidgetManager  m_widgetManager;
+		LinaVG::Drawer		m_lvgDrawer;
+		WidgetManager		m_widgetManager;
 
 		Shader*			m_guiDefault			  = nullptr;
 		Shader*			m_guiGlitch				  = nullptr;
