@@ -38,13 +38,12 @@ namespace Lina
 	public:
 		virtual bool ShouldCollide(JPH::ObjectLayer inLayer1, JPH::BroadPhaseLayer inLayer2) const override
 		{
-            const PhysicsObjectLayers objLayer1 = static_cast<PhysicsObjectLayers>(inLayer1);
-            
-            if(objLayer1 == PhysicsObjectLayers::NonMoving)
-               return inLayer2 == PhysicsBackend::PHYSICS_BP_LAYERS[(uint16)PhysicsBroadPhaseLayers::Moving];
-            
-            return true;
-            
+			const PhysicsObjectLayers objLayer1 = static_cast<PhysicsObjectLayers>(inLayer1);
+
+			if (objLayer1 == PhysicsObjectLayers::NonMoving)
+				return inLayer2 == PhysicsBackend::PHYSICS_BP_LAYERS[(uint16)PhysicsBroadPhaseLayers::Moving];
+
+			return true;
 		}
 	};
 } // namespace Lina
