@@ -428,7 +428,7 @@ namespace Lina::Editor
 			return;
 
 		// Input setup
-		const bool worldHasFocus = m_playMode != PlayMode::Play && m_manager->GetControlsOwner() == this && m_lgxWindow->HasFocus();
+		const bool worldHasFocus = m_playMode == PlayMode::None && m_manager->GetControlsOwner() == this && m_lgxWindow->HasFocus();
 		m_camera->SetIsActive(worldHasFocus);
 		m_camera->SetIsWheelActive(m_isHovered && m_lgxWindow->HasFocus());
 
@@ -479,7 +479,7 @@ namespace Lina::Editor
 		if (m_worldRenderer == nullptr)
 			return;
 
-		if (m_playMode == PlayMode::Play)
+		if (m_playMode != PlayMode::None)
 			return;
 
 		m_manager->SetClip(m_rect);
@@ -890,14 +890,9 @@ namespace Lina::Editor
 	void WorldController::StartPlaying(PlayMode mode)
 	{
 		m_playMode = mode;
-
-		if (mode == PlayMode::Play)
-		{
-			m_overlayControls.baseWidget->GetFlags().Set(WF_HIDE);
-			m_lgxWindow->SetWrapMouse(true);
-			m_lgxWindow->SetMouseVisible(false);
-		}
-
+		m_overlayControls.baseWidget->GetFlags().Set(WF_HIDE);
+		m_lgxWindow->SetWrapMouse(true);
+		m_lgxWindow->SetMouseVisible(false);
 		m_ewr->GetGizmoRenderer().GetSettings().drawOrientation = false;
 		m_editor->GetEditorRoot()->SetIsPlaying(true);
 		m_world->SetPlayMode(m_playMode);

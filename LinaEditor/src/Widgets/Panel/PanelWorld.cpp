@@ -71,6 +71,9 @@ namespace Lina::Editor
 		const ResourceID id = m_editor->GetSettings().GetParams().GetParamResourceID("LastWorld"_hs);
 		m_worldToOpen		= id;
 		m_openWorld			= true;
+
+		GetWidgetProps().debugName = Locale::GetStr(LocaleStr::World) + ": None";
+		RefreshTab();
 	}
 
 	void PanelWorld::Destruct()
@@ -113,10 +116,12 @@ namespace Lina::Editor
 		EditorWorldRenderer* ewr = m_editor->GetWorldManager().CreateEditorWorld();
 		m_world					 = ewr->GetWorldRenderer()->GetWorld();
 		m_worldDisplayer->DisplayWorld(ewr, WorldCameraType::FreeMove);
-		m_editor->GetSettings().GetParams().SetParamResourceID("LastWorld"_hs, m_world->GetID());
 		m_world->LoadFromFile(path);
 		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {});
 		m_world->RefreshAllComponentReferences();
+
+		GetWidgetProps().debugName = Locale::GetStr(LocaleStr::World) + ": " + m_world->GetName();
+		RefreshTab();
 
 		Panel* panelEntities = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::Entities, 0);
 		Panel* panelDetails	 = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::Details, 0);
@@ -126,6 +131,9 @@ namespace Lina::Editor
 
 		if (panelDetails)
 			static_cast<PanelDetails*>(panelDetails)->SetWorld(m_world);
+
+		m_editor->GetSettings().GetParams().SetParamResourceID("LastWorld"_hs, m_world->GetID());
+		m_editor->SaveSettings();
 	}
 
 	void PanelWorld::CloseWorld()
@@ -136,5 +144,17 @@ namespace Lina::Editor
 		m_world->SaveToFileAsBinary(m_editor->GetProjectManager().GetProjectData()->GetResourcePath(m_world->GetID()));
 		m_editor->GetWorldManager().DestroyEditorWorld(m_world);
 		m_world = nullptr;
+
+		GetWidgetProps().debugName = Locale::GetStr(LocaleStr::World) + ": None";
+		RefreshTab();
+
+		Panel* panelEntities = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::Entities, 0);
+		Panel* panelDetails	 = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::Details, 0);
+
+		if (panelEntities)
+			static_cast<PanelEntities*>(panelEntities)->SetWorld(nullptr);
+
+		if (panelDetails)
+			static_cast<PanelDetails*>(panelDetails)->SetWorld(nullptr);
 	}
 } // namespace Lina::Editor

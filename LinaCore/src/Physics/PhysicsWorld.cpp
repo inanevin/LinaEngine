@@ -109,6 +109,9 @@ namespace Lina
 
 	void PhysicsWorld::RemoveAllBodies()
 	{
+		if (m_addedBodyIDs.empty())
+			return;
+
 		JPH::BodyInterface& bodyInterface = m_physicsSystem.GetBodyInterface();
 		bodyInterface.RemoveBodies(m_addedBodyIDs.data(), static_cast<int32>(m_addedBodyIDs.size()));
 		LINA_TRACE("Removed bodies from world! {0}", m_addedBodyIDs.size());
