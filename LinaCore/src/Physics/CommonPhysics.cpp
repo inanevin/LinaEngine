@@ -52,4 +52,9 @@ namespace Lina
 
 		return JPH::EMotionType::Dynamic;
 	}
+
+    Vector3 FromJoltVec3(const JPH::Vec3& v)
+    {
+        return Vector3(v.GetX(), v.GetY(), v.GetZ());
+    }
 } // namespace Lina

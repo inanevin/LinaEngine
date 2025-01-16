@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Editor/World/CommonEditorWorld.hpp"
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
+#include "Core/Graphics/Renderers/ShapeRenderer.hpp"
 
 namespace Lina
 {
@@ -85,6 +86,8 @@ namespace Lina::Editor
 		virtual ~GizmoRenderer();
 
 		void Tick(float delta);
+		void SyncRender();
+		void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue);
 
 		inline GizmoSettings& GetSettings()
 		{
@@ -142,8 +145,9 @@ namespace Lina::Editor
 		MousePickRenderer* m_mousePickRenderer		 = nullptr;
 		GizmoSettings	   m_gizmoSettings			 = {};
 
-		Vector2 m_iconSzSun	  = Vector2::Zero;
-		Vector2 m_iconSzSpot  = Vector2::Zero;
-		Vector2 m_iconSzPoint = Vector2::Zero;
+		Vector2		  m_iconSzSun	  = Vector2::Zero;
+		Vector2		  m_iconSzSpot	  = Vector2::Zero;
+		Vector2		  m_iconSzPoint	  = Vector2::Zero;
+		ShapeRenderer m_shapeRenderer = {};
 	};
 } // namespace Lina::Editor

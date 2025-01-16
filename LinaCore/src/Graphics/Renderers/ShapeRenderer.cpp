@@ -28,25 +28,62 @@ SOFTWARE.
 
 #include "Core/Graphics/Renderers/ShapeRenderer.hpp"
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
+#include "Core/Graphics/ResourceUploadQueue.hpp"
 
 namespace Lina
 {
 
-	void ShapeRenderer::Start()
+	void ShapeRenderer::Initialize()
 	{
-		m_startIndex  = static_cast<uint32>(m_vtxBuffer->size());
-		m_startVertex = static_cast<uint32>(m_idxBuffer->size());
+		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+		{
+			PerFrameData& pfd = m_pfd[i];
+			pfd.vtxBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, sizeof(Line3DVertex) * 10000, "ShapeRenderer Vtx");
+			pfd.idxBuffer.Create(LinaGX::ResourceTypeHint::TH_IndexBuffer, sizeof(uint16) * 30000, "ShapeRenderer Idx");
+		}
 	}
 
-	void ShapeRenderer::Submit(BufferedGroup<Buffer, FRAMES_IN_FLIGHT> vtx, BufferedGroup<Buffer, FRAMES_IN_FLIGHT> idx, RenderPass& pass, uint32 pushConstantValue, uint32 shaderHandle)
+	void ShapeRenderer::Shutdown()
 	{
-		const uint32 ic = static_cast<uint32>(m_idxBuffer->size()) - m_startIndex;
+		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+		{
+			PerFrameData& pfd = m_pfd[i];
+			pfd.vtxBuffer.Destroy();
+			pfd.idxBuffer.Destroy();
+		}
+	}
+
+	void ShapeRenderer::SyncRender()
+	{
+		m_gpuDrawData = m_cpuDrawData;
+		m_cpuDrawData.vertices.resize(0);
+		m_cpuDrawData.indices.resize(0);
+	}
+
+	void ShapeRenderer::AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue)
+	{
+		PerFrameData& pfd = m_pfd[frameIndex];
+		pfd.vtxBuffer.BufferData(0, (uint8*)m_gpuDrawData.vertices.data(), sizeof(Line3DVertex) * m_gpuDrawData.vertices.size());
+		pfd.idxBuffer.BufferData(0, (uint8*)m_gpuDrawData.indices.data(), sizeof(uint16) * m_gpuDrawData.indices.size());
+		queue.AddBufferRequest(&pfd.vtxBuffer);
+		queue.AddBufferRequest(&pfd.idxBuffer);
+	}
+
+	void ShapeRenderer::StartBatch()
+	{
+		m_startIndex  = static_cast<uint32>(m_cpuDrawData.indices.size());
+		m_startVertex = static_cast<uint32>(m_cpuDrawData.vertices.size());
+	}
+
+	void ShapeRenderer::SubmitBatch(RenderPass& pass, uint32 pushConstantValue, uint32 shaderHandle)
+	{
+		const uint32 ic = static_cast<uint32>(m_cpuDrawData.indices.size()) - m_startIndex;
 		if (ic == 0)
 			return;
 
 		const RenderPass::InstancedDraw draw = {
-			.vertexBuffers = vtx,
-			.indexBuffers  = idx,
+			.vertexBuffers = {&m_pfd[0].vtxBuffer, &m_pfd[1].vtxBuffer},
+			.indexBuffers  = {&m_pfd[0].idxBuffer, &m_pfd[1].idxBuffer},
 			.vertexSize	   = sizeof(Line3DVertex),
 			.shaderHandle  = shaderHandle,
 			.baseVertex	   = 0,
@@ -61,42 +98,42 @@ namespace Lina
 
 	void ShapeRenderer::DrawLine3D(const Vector3& p1, const Vector3& p2, float thickness, const ColorGrad& color)
 	{
-		const uint16 sz = static_cast<uint16>(m_vtxBuffer->size());
+		const uint16 sz = static_cast<uint16>(m_cpuDrawData.vertices.size());
 
-		m_vtxBuffer->push_back({
+		m_cpuDrawData.vertices.push_back({
 			.position	  = p1,
 			.nextPosition = p2,
 			.color		  = color.start,
 			.direction	  = 1.0f * thickness,
 		});
 
-		m_vtxBuffer->push_back({
+		m_cpuDrawData.vertices.push_back({
 			.position	  = p1,
 			.nextPosition = p2,
 			.color		  = color.start,
 			.direction	  = -1.0f * thickness,
 		});
 
-		m_vtxBuffer->push_back({
+		m_cpuDrawData.vertices.push_back({
 			.position	  = p2,
 			.nextPosition = p1,
 			.color		  = color.end,
 			.direction	  = 1.0f * thickness,
 		});
 
-		m_vtxBuffer->push_back({
+		m_cpuDrawData.vertices.push_back({
 			.position	  = p2,
 			.nextPosition = p1,
 			.color		  = color.end,
 			.direction	  = -1.0f * thickness,
 		});
 
-		m_idxBuffer->push_back(sz + 0);
-		m_idxBuffer->push_back(sz + 1);
-		m_idxBuffer->push_back(sz + 2);
-		m_idxBuffer->push_back(sz + 2);
-		m_idxBuffer->push_back(sz + 3);
-		m_idxBuffer->push_back(sz);
+		m_cpuDrawData.indices.push_back(sz + 0);
+		m_cpuDrawData.indices.push_back(sz + 1);
+		m_cpuDrawData.indices.push_back(sz + 2);
+		m_cpuDrawData.indices.push_back(sz + 2);
+		m_cpuDrawData.indices.push_back(sz + 3);
+		m_cpuDrawData.indices.push_back(sz);
 	}
 
 	void ShapeRenderer::DrawWireframeCube3D(const Vector3& center, const Vector3& extents, float thickness, const ColorGrad& color)

@@ -31,30 +31,37 @@ SOFTWARE.
 #include "Common/Math/Vector.hpp"
 #include "Common/Math/Color.hpp"
 #include "Core/Graphics/Data/RenderData.hpp"
+#include "Core/Graphics/Pipeline/Buffer.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
 
 namespace Lina
 {
-
 	class RenderPass;
-	class Buffer;
+	class ResourceUploadQueue;
 
 	class ShapeRenderer
 	{
-	public:
-		ShapeRenderer(Vector<Line3DVertex>* vtxBuffer, Vector<uint16>* idxBuffer)
+	private:
+		struct PerFrameData
 		{
-			SetupLists(vtxBuffer, idxBuffer);
-		}
-
-		inline void SetupLists(Vector<Line3DVertex>* vtxBuffer, Vector<uint16>* idxBuffer)
-		{
-			m_vtxBuffer = vtxBuffer;
-			m_idxBuffer = idxBuffer;
+			Buffer vtxBuffer;
+			Buffer idxBuffer;
 		};
 
-		void Start();
-		void Submit(BufferedGroup<Buffer, FRAMES_IN_FLIGHT> vtx, BufferedGroup<Buffer, FRAMES_IN_FLIGHT> idx, RenderPass& pass, uint32 pushConstantValue, uint32 shaderHandle);
+		struct DrawData
+		{
+			Vector<Line3DVertex> vertices;
+			Vector<uint16>		 indices;
+		};
+
+	public:
+		void Initialize();
+		void Shutdown();
+		void SyncRender();
+		void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue);
+
+		void StartBatch();
+		void SubmitBatch(RenderPass& pass, uint32 pushConstantValue, uint32 shaderHandle);
 
 		void DrawLine3D(const Vector3& p1, const Vector3& p2, float thickness, const ColorGrad& color);
 		void DrawWireframeCube3D(const Vector3& center, const Vector3& extents, float thickness, const ColorGrad& color);
@@ -68,9 +75,10 @@ namespace Lina
 		void DrawWireframeCapsule3D(const Vector3& center, float height, float radius, float thickness, const ColorGrad& color);
 
 	private:
-		Vector<Line3DVertex>* m_vtxBuffer	= nullptr;
-		Vector<uint16>*		  m_idxBuffer	= nullptr;
-		uint32				  m_startVertex = 0;
-		uint32				  m_startIndex	= 0;
+		PerFrameData m_pfd[FRAMES_IN_FLIGHT];
+		DrawData	 m_cpuDrawData = {};
+		DrawData	 m_gpuDrawData = {};
+		uint32		 m_startVertex = 0;
+		uint32		 m_startIndex  = 0;
 	};
 } // namespace Lina

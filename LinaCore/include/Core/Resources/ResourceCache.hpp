@@ -109,7 +109,7 @@ namespace Lina
 			m_resourceBucket.View(std::move(callback));
 		}
 
-		virtual Vector<Resource*> GetAllResources()
+		virtual Vector<Resource*> GetAllResources() override
 		{
 			Vector<Resource*> resources;
 			resources.reserve(m_resources.size());

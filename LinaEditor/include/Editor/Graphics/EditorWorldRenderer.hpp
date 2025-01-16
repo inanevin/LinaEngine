@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
 #include "Core/Graphics/Pipeline/Buffer.hpp"
 #include "Core/Graphics/Renderers/WorldRendererListener.hpp"
+#include "Core/Graphics/Renderers/PhysicsDebugRenderer.hpp"
 #include "Editor/Graphics/GizmoRenderer.hpp"
 #include "Editor/Graphics/MousePickRenderer.hpp"
 #include "Editor/Graphics/OutlineSelectionRenderer.hpp"
@@ -131,6 +132,7 @@ namespace Lina::Editor
 		MousePickRenderer		 m_mousePickRenderer;
 		OutlineSelectionRenderer m_outlineRenderer;
 		GizmoRenderer			 m_gizmoRenderer;
+		PhysicsDebugRenderer	 m_physicsDebugRenderer;
 
 		Shader*			m_gridShader			 = nullptr;
 		Shader*			m_worldSampleShader		 = nullptr;

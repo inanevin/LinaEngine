@@ -97,6 +97,7 @@ namespace Lina
 	extern JPH::Vec3		ToJoltVec3(const Vector3& v);
 	extern JPH::Quat		ToJoltQuat(const Quaternion& q);
 	extern JPH::EMotionType ToJoltMotionType(const PhysicsBodyType& type);
+	extern Vector3			FromJoltVec3(const JPH::Vec3& v);
 
 	LINA_CLASS_BEGIN(PhysicsBodyType)
 	LINA_PROPERTY_STRING(PhysicsBodyType, 0, "None")

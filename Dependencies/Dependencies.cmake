@@ -23,6 +23,8 @@ add_subdirectory(LinaVG)
 ## target_compile_definitions(LinaGX PUBLIC _ITERATOR_DEBUG_LEVEL=${LINA_ITERATOR_DEBUG_LEVEL})
 ## target_compile_definitions(LinaVG PUBLIC _ITERATOR_DEBUG_LEVEL=${LINA_ITERATOR_DEBUG_LEVEL})
 
+set(CPP_RTTI_ENABLED ON CACHE BOOL "" FORCE)
+
 add_subdirectory(Dependencies/JoltPhysics-5.2.0/Build)
 add_subdirectory(Dependencies/memory-allocators)
 add_subdirectory(Dependencies/lz4-1.9.4)

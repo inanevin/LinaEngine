@@ -104,9 +104,7 @@ namespace Lina
 			data.boneBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(Matrix4) * 1000, m_name + " BoneBuffer");
 			data.lightBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPULight) * 100, m_name + " LightBuffer");
 
-			data.line3DVtxBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, sizeof(Line3DVertex) * 20000, m_name + " Line3DVertexBuffer");
 			data.lvgVtxBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, sizeof(LinaVG::Vertex) * 2000, m_name + " LVGVertexBuffer");
-			data.line3DIdxBuffer.Create(LinaGX::ResourceTypeHint::TH_IndexBuffer, sizeof(uint16) * 40000, m_name + " Line3DIndexBuffer");
 			data.lvgIdxBuffer.Create(LinaGX::ResourceTypeHint::TH_IndexBuffer, sizeof(LinaVG::Index) * 5000, m_name + "LVGIndexBuffer");
 
 			const uint16 setDf = m_deferredPass.GetDescriptorSet(i);
@@ -181,8 +179,6 @@ namespace Lina
 			data.boneBuffer.Destroy();
 			data.lightBuffer.Destroy();
 
-			data.line3DVtxBuffer.Destroy();
-			data.line3DIdxBuffer.Destroy();
 			data.lvgVtxBuffer.Destroy();
 			data.lvgIdxBuffer.Destroy();
 		}
@@ -596,8 +592,6 @@ namespace Lina
 		m_cpuDrawData.entities.resize(0);
 		m_cpuDrawData.lvgIndices.resize(0);
 		m_cpuDrawData.lvgVertices.resize(0);
-		m_cpuDrawData.line3DIndices.resize(0);
-		m_cpuDrawData.line3DVertices.resize(0);
 		m_cpuDrawData.lights.resize(0);
 
 		m_deferredPass.SyncRender();
@@ -663,11 +657,7 @@ namespace Lina
 
 		currentFrame.lvgVtxBuffer.BufferData(0, (uint8*)m_gpuDrawData.lvgVertices.data(), sizeof(LinaVG::Vertex) * m_gpuDrawData.lvgVertices.size());
 		currentFrame.lvgIdxBuffer.BufferData(0, (uint8*)m_gpuDrawData.lvgIndices.data(), sizeof(LinaVG::Index) * m_gpuDrawData.lvgIndices.size());
-		currentFrame.line3DIdxBuffer.BufferData(0, (uint8*)m_gpuDrawData.line3DIndices.data(), sizeof(uint16) * m_gpuDrawData.line3DIndices.size());
-		currentFrame.line3DVtxBuffer.BufferData(0, (uint8*)m_gpuDrawData.line3DVertices.data(), sizeof(Line3DVertex) * m_gpuDrawData.line3DVertices.size());
 
-		m_uploadQueue.AddBufferRequest(&currentFrame.line3DVtxBuffer);
-		m_uploadQueue.AddBufferRequest(&currentFrame.line3DIdxBuffer);
 		m_uploadQueue.AddBufferRequest(&currentFrame.lvgVtxBuffer);
 		m_uploadQueue.AddBufferRequest(&currentFrame.lvgIdxBuffer);
 

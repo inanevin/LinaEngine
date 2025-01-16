@@ -117,10 +117,13 @@ namespace Lina::Editor
 
 		OnWorldRendererCreateSizeRelative();
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
+
+		m_physicsDebugRenderer.Initialize();
 	}
 
 	EditorWorldRenderer::~EditorWorldRenderer()
 	{
+		m_physicsDebugRenderer.Shutdown();
 
 		m_worldSampler->DestroyHW();
 		m_rm->DestroyResource(m_worldSampler);
@@ -204,6 +207,8 @@ namespace Lina::Editor
 		m_outlineRenderer.SyncRender();
 		m_mousePickRenderer.SyncRender();
 		m_pass.SyncRender();
+		m_gizmoRenderer.SyncRender();
+		m_physicsDebugRenderer.SyncRender();
 	}
 
 	void EditorWorldRenderer::UpdateBuffers(uint32 frameIndex)
@@ -232,9 +237,11 @@ namespace Lina::Editor
 			m_pass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(EditorWorldPassViewData));
 		}
 
+		m_physicsDebugRenderer.AddBuffersToUploadQueue(frameIndex, queue);
 		m_mousePickRenderer.AddBuffersToUploadQueue(frameIndex, queue);
 		m_outlineRenderer.AddBuffersToUploadQueue(frameIndex, queue);
 		m_pass.AddBuffersToUploadQueue(frameIndex, queue);
+		m_gizmoRenderer.AddBuffersToUploadQueue(frameIndex, queue);
 	}
 
 	void EditorWorldRenderer::Render(uint32 frameIndex)

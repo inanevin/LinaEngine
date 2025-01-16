@@ -486,7 +486,7 @@ namespace Lina
 			stream << value.GetValue<T>();
 		}
 
-		inline virtual void LoadFromStream(IStream& stream, void* obj)
+		inline virtual void LoadFromStream(IStream& stream, void* obj) override
 		{
 			FieldValue value = Value(obj);
 			// stream >> *(value.GetPtr());

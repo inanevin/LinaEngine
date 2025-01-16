@@ -78,8 +78,6 @@ namespace Lina
 
 			Buffer lvgVtxBuffer;
 			Buffer lvgIdxBuffer;
-			Buffer line3DVtxBuffer;
-			Buffer line3DIdxBuffer;
 		};
 
 	public:
@@ -88,8 +86,6 @@ namespace Lina
 			Vector<DrawEntity>		 entities;
 			Vector<GPUDrawArguments> arguments;
 			Vector<Matrix4>			 bones;
-			Vector<Line3DVertex>	 line3DVertices;
-			Vector<uint16>			 line3DIndices;
 			Vector<LinaVG::Vertex>	 lvgVertices;
 			Vector<LinaVG::Index>	 lvgIndices;
 			Vector<GPULight>		 lights;
@@ -216,26 +212,6 @@ namespace Lina
 			return m_pfd[frameIndex].boneBuffer;
 		}
 
-		inline BufferedGroup<Buffer, FRAMES_IN_FLIGHT> GetLine3DVtxBufferGroup()
-		{
-			BufferedGroup<Buffer, FRAMES_IN_FLIGHT> gr;
-
-			for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-				gr.items[i] = &m_pfd[i].line3DVtxBuffer;
-
-			return gr;
-		}
-
-		inline BufferedGroup<Buffer, FRAMES_IN_FLIGHT> GetLine3DIdxBufferGroup()
-		{
-			BufferedGroup<Buffer, FRAMES_IN_FLIGHT> gr;
-
-			for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-				gr.items[i] = &m_pfd[i].line3DIdxBuffer;
-
-			return gr;
-		}
-
 		inline const Vector<CompModel*>& GetCompModels() const
 		{
 			return m_compModels;
@@ -290,9 +266,6 @@ namespace Lina
 		Vector<CompModel*>			   m_skinnedModels;
 
 		LinaVG::Drawer m_lvgDrawer;
-
-		uint32 m_currentLine3DStartVertex = 0;
-		uint32 m_currentLine3DStartIndex  = 0;
 
 		uint32 m_currentLvgStartVertex = 0;
 		uint32 m_currentLvgStartIndex  = 0;

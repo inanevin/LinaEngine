@@ -26,27 +26,67 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Graphics/Renderers/PhysicsDebugRenderer.hpp"
+#pragma once
+
+namespace Lina
+{
+	class ResourceUploadQueue;
+}
+
+#ifdef JPH_DEBUG_RENDERER
+
 #include <Jolt/Jolt.h>
 #include <Jolt/Renderer/DebugRenderer.h>
+#include "Core/Graphics/Renderers/ShapeRenderer.hpp"
 
 namespace Lina
 {
 	class PhysicsDebugRenderer : public JPH::DebugRenderer
 	{
 	public:
-		virtual void  DrawLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, JPH::ColorArg inColor) override;
-		virtual void  DrawTriangle(JPH::RVec3Arg inV1, JPH::RVec3Arg inV2, JPH::RVec3Arg inV3, JPH::ColorArg inColor, ECastShadow inCastShadow) override;
-		virtual void  DrawText3D(JPH::RVec3Arg inPosition, const string_view& inString, JPH::ColorArg inColor, float inHeight) override;
-		virtual Batch CreateTriangleBatch(const JPH::Triangle* inTriangles, int inTriangleCount) override;
-		virtual Batch CreateTriangleBatch(const JPH::Vertex* inVertices, int inVertexCount, const uint32* inIndices, int inIndexCount) override;
-		virtual void  DrawGeometry(JPH::RMat44Arg		   inModelMatrix,
-								   const JPH::AABox&	   inWorldSpaceBounds,
-								   float				   inLODScaleSq,
-								   JPH::ColorArg		   inModelColor,
-								   const JPH::GeometryRef& inGeometry,
-								   JPH::ECullMode		   inCullMode	= JPH::ECullMode::CullBackFace,
-								   JPH::ECastShadow		   inCastShadow = JPH::ECastShadow::On,
-								   JPH::EDrawMode		   inDrawMode	= JPH::EDrawMode::Solid) override;
+		PhysicsDebugRenderer()
+		{
+			JPH::DebugRenderer::Initialize();
+		}
+		virtual ~PhysicsDebugRenderer() = default;
+
+		void Initialize();
+		void Shutdown();
+		void SyncRender();
+		void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue);
+
+		virtual void					  DrawLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, JPH::ColorArg inColor) override;
+		virtual void					  DrawTriangle(JPH::RVec3Arg inV1, JPH::RVec3Arg inV2, JPH::RVec3Arg inV3, JPH::ColorArg inColor, JPH::DebugRenderer::ECastShadow inCastShadow) override;
+		virtual void					  DrawText3D(JPH::RVec3Arg inPosition, const std::string_view& inString, JPH::ColorArg inColor, float inHeight) override;
+		virtual JPH::DebugRenderer::Batch CreateTriangleBatch(const JPH::DebugRenderer::Triangle* inTriangles, int inTriangleCount) override;
+		virtual JPH::DebugRenderer::Batch CreateTriangleBatch(const JPH::DebugRenderer::Vertex* inVertices, int inVertexCount, const uint32* inIndices, int inIndexCount) override;
+
+		virtual void DrawGeometry(JPH::RMat44Arg						 inModelMatrix,
+								  const JPH::AABox&						 inWorldSpaceBounds,
+								  float									 inLODScaleSq,
+								  JPH::ColorArg							 inModelColor,
+								  const JPH::DebugRenderer::GeometryRef& inGeometry,
+								  JPH::DebugRenderer::ECullMode			 inCullMode	  = JPH::DebugRenderer::ECullMode::CullBackFace,
+								  JPH::DebugRenderer::ECastShadow		 inCastShadow = JPH::DebugRenderer::ECastShadow::On,
+								  JPH::DebugRenderer::EDrawMode			 inDrawMode	  = JPH::DebugRenderer::EDrawMode::Solid) override;
+
+	private:
+		ShapeRenderer m_shapeRenderer;
 	};
+
 } // namespace Lina
+
+#else
+
+namespace Lina
+{
+	class PhysicsDebugRenderer
+	{
+	public:
+		void Initialize(){};
+		void Shutdown(){};
+		void SyncRender(){};
+		void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue){};
+	}
+} // namespace Lina
+#endif
