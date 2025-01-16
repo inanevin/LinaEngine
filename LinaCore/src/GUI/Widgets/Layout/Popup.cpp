@@ -205,7 +205,7 @@ namespace Lina
 		icon->GetProps().color = isSelected ? Theme::GetDef().accentPrimary1 : Theme::GetDef().foreground0;
 		icon->CalculateIconSize();
 		layout->AddChild(icon);
-		totalSize += icon->GetSizeX() + layout->GetWidgetProps().childPadding;
+		totalSize += icon->GetSizeX() + layout->GetWidgetProps().childPadding * m_manager->GetScalingFactor();
 
 		Text* txt			 = m_manager->Allocate<Text>("Text");
 		txt->GetProps().text = title;
@@ -217,15 +217,16 @@ namespace Lina
 		m_background->AddChild(layout);
 		totalSize += txt->GetSizeX();
 
-		Widget* shape							 = m_manager->Allocate<Widget>("Shape");
-		shape->GetWidgetProps().drawBackground	 = true;
-		shape->GetWidgetProps().outlineThickness = 0.0f;
-		shape->GetWidgetProps().rounding		 = 0.0f;
-		shape->GetWidgetProps().colorBackground	 = Theme::GetDef().background3;
+		Widget* shape							   = m_manager->Allocate<Widget>("Shape");
+		shape->GetWidgetProps().drawBackground	   = true;
+		shape->GetWidgetProps().outlineThickness   = 0.0f;
+		shape->GetWidgetProps().rounding		   = 0.0f;
+		shape->GetWidgetProps().colorBackground	   = Theme::GetDef().background3;
+		shape->GetWidgetProps().drawOrderIncrement = 1;
 		shape->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
 		shape->SetAlignedPosX(0.0f);
 		shape->SetAlignedSizeX(1.0f);
-		shape->SetFixedSizeY(Theme::GetDef().baseOutlineThickness);
+		shape->SetFixedSizeY(Theme::GetDef().baseOutlineThickness * 2);
 		m_background->AddChild(shape);
 
 		m_maxItemWidth = Math::Max(m_maxItemWidth, totalSize);

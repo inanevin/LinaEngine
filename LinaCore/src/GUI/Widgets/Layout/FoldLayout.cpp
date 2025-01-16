@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Common/Math/Math.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
@@ -54,9 +55,9 @@ namespace Lina
 					continue;
 
 				c->CalculateSize(delta);
-				childrenTotalHeight += c->GetSizeY() + GetWidgetProps().childPadding;
+				childrenTotalHeight += c->GetSizeY() + GetWidgetProps().childPadding * m_manager->GetScalingFactor();
 			}
-			childrenTotalHeight -= GetWidgetProps().childPadding;
+			childrenTotalHeight -= GetWidgetProps().childPadding * m_manager->GetScalingFactor();
 			SetSizeY(childrenTotalHeight);
 		}
 		else
@@ -95,7 +96,7 @@ namespace Lina
 			if (!c->GetFlags().IsSet(WF_HIDE))
 			{
 				c->SetPosY(y);
-				y += c->GetSizeY() + GetWidgetProps().childPadding;
+				y += c->GetSizeY() + GetWidgetProps().childPadding * m_manager->GetScalingFactor();
 			}
 
 			if (idx != 0)

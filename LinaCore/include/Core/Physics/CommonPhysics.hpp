@@ -73,8 +73,8 @@ namespace Lina
 	{
 		PhysicsBodyType	 bodyType	  = PhysicsBodyType::None;
 		PhysicsShapeType shapeType	  = PhysicsShapeType::Box;
-		Vector3			 shapeExtents = Vector3::One;
-		float			 radius		  = 1.0f;
+		Vector3			 shapeExtents = Vector3(0.5f, 0.5f, 0.5f);
+		float			 radius		  = 0.5f;
 		float			 height		  = 1.0f;
 		ResourceID		 material	  = 0;
 

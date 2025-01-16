@@ -33,7 +33,7 @@ SOFTWARE.
 #frag: Resources/Core/Shaders/Common/MainFragSimple.linashader
 #pass: Resources/Editor/Shaders/Common/RenderPass_World.linashader
 #blend: LINA_BLEND_ALPHA
-#depth: LINA_DEPTH_ALWAYS
+#depth: LINA_DEPTH_LESS
 #depth_target: LINA_TARGET_D32
 #target: LINA_TARGET_LDR_MS
 #cull: LINA_CULL_BACK
@@ -99,6 +99,7 @@ void LINA_FRAG_MAIN(out LinaFragOutput outFrag)
 
    vec3 albedo = mix(material.outlineColor.rgb, material.color.rgb, outline);
    outFrag.color = vec4(albedo, a * material.color.a);
+
 }
 
 #lina_end

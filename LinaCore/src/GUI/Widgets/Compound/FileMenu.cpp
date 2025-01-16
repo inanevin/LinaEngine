@@ -241,7 +241,7 @@ namespace Lina
 			else
 				it->SetFixedSizeY(Theme::GetDef().baseItemHeight * 0.5f);
 
-			totalHeight += it->GetFixedSizeY() + popup->GetWidgetProps().childPadding;
+			totalHeight += it->GetFixedSizeY() + popup->GetWidgetProps().childPadding * m_manager->GetScalingFactor();
 
 			it->GetWidgetProps().colorBackground = Color(0, 0, 0, 0);
 			it->GetWidgetProps().childPadding	 = Theme::GetDef().baseIndent;
@@ -287,13 +287,13 @@ namespace Lina
 			float size = 0.0f;
 
 			if (headerIcon)
-				size += headerIcon->GetSizeX() + fmi->GetWidgetProps().childPadding;
+				size += headerIcon->GetSizeX() + fmi->GetWidgetProps().childPadding * m_manager->GetScalingFactor();
 
 			if (text)
-				size += text->GetSizeX() + fmi->GetWidgetProps().childPadding;
+				size += text->GetSizeX() + fmi->GetWidgetProps().childPadding * m_manager->GetScalingFactor();
 
 			if (altText)
-				size += altText->GetSizeX() + fmi->GetWidgetProps().childPadding;
+				size += altText->GetSizeX() + fmi->GetWidgetProps().childPadding * m_manager->GetScalingFactor();
 
 			maxTextSize = Math::Max(maxTextSize, size);
 		}

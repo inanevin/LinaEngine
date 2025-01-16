@@ -704,7 +704,7 @@ namespace Lina
 					continue;
 
 				if (idx != 0)
-					total += w->GetWidgetProps().childPadding;
+					total += w->GetWidgetProps().childPadding * GetScalingFactor();
 
 				total += c->GetSizeX();
 				idx++;
@@ -724,7 +724,7 @@ namespace Lina
 					continue;
 
 				if (idx != 0)
-					total += w->GetWidgetProps().childPadding;
+					total += w->GetWidgetProps().childPadding * GetScalingFactor();
 
 				total += c->GetSizeY();
 				idx++;
@@ -777,7 +777,7 @@ namespace Lina
 			const Vector2 end						 = w->GetEndFromMargins();
 			const Vector2 size						 = end - start;
 			const Vector2 totalAvailableSpace		 = size - totalNonExpandingSize;
-			const float	  totalPad					 = w->GetWidgetProps().childPadding * static_cast<float>(w->GetChildren().size() - 1);
+			const float	  totalPad					 = w->GetWidgetProps().childPadding * GetScalingFactor() * static_cast<float>(w->GetChildren().size() - 1);
 			const Vector2 totalAvailableAfterPadding = totalAvailableSpace - Vector2(totalPad, totalPad);
 			const Vector2 targetSize				 = totalAvailableAfterPadding / (static_cast<float>(expandingChildren.size()));
 

@@ -48,12 +48,13 @@ namespace Lina
 		textContainer->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_ALIGN_X);
 		textContainer->SetAlignedPos(Vector2::Zero);
 		textContainer->SetAlignedSize(Vector2(0.8f, 1.0f));
-		textContainer->GetWidgetProps().clipChildren = true;
-		m_textContainer								 = textContainer;
+		// textContainer->GetWidgetProps().clipChildren = true;
+		m_textContainer = textContainer;
 		AddChild(textContainer);
 
 		m_text						 = m_manager->Allocate<Text>("Title");
 		m_text->GetProps().isDynamic = true;
+		// m_text->GetProps().fetchCustomClipFromParent = true;
 		m_text->GetFlags().Set(WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
 		m_text->SetAlignedPos(Vector2(0.0f, 0.5f));
 		m_text->SetAnchorY(Anchor::Center);

@@ -121,10 +121,10 @@ namespace Lina::Editor
 
 	void GizmoRenderer::Tick(float delta)
 	{
+		DrawPhysicsWireframes();
 		DrawLightWireframes();
 		DrawLightIcons(m_targetPass, 0);
 		DrawLightIcons(&m_mousePickRenderer->GetRenderPass(), "StaticEntityID"_hs);
-		DrawPhysicsWireframes();
 
 		if (m_gizmoSettings.drawOrientation)
 		{
@@ -183,7 +183,7 @@ namespace Lina::Editor
 	{
 		ShapeRenderer shape(&m_worldRenderer->GetCPUDrawData().line3DVertices, &m_worldRenderer->GetCPUDrawData().line3DIndices);
 
-		const float thickness = 0.1f * m_gizmoSettings.defaultShaderScale;
+		const float thickness = 0.25f;
 
 		for (Entity* e : m_selectedEntities)
 		{
@@ -225,7 +225,7 @@ namespace Lina::Editor
 		const Vector<CompLight*>& compLights = m_worldRenderer->GetCompLights();
 		ShapeRenderer			  shape(&m_worldRenderer->GetCPUDrawData().line3DVertices, &m_worldRenderer->GetCPUDrawData().line3DIndices);
 
-		const float thickness = 0.1f * m_gizmoSettings.defaultShaderScale;
+		const float thickness = 0.25f;
 
 		for (CompLight* l : compLights)
 		{

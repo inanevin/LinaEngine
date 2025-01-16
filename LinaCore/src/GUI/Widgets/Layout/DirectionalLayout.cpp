@@ -300,7 +300,7 @@ namespace Lina
 		if (m_children.empty())
 			return;
 
-		const float totalAvailableSize = (m_props.direction == DirectionOrientation::Horizontal ? m_sz.x : m_sz.y) - (static_cast<float>(m_children.size() - 1) * GetWidgetProps().childPadding);
+		const float totalAvailableSize = (m_props.direction == DirectionOrientation::Horizontal ? m_sz.x : m_sz.y) - (static_cast<float>(m_children.size() - 1) * GetWidgetProps().childPadding * m_manager->GetScalingFactor());
 		const float perItemSize		   = totalAvailableSize / static_cast<float>(m_children.size());
 
 		float pos = m_props.direction == DirectionOrientation::Horizontal ? m_start.x : m_start.y;
@@ -317,7 +317,7 @@ namespace Lina
 				c->SetPosY(pos);
 			}
 
-			pos += perItemSize + GetWidgetProps().childPadding;
+			pos += perItemSize + GetWidgetProps().childPadding * m_manager->GetScalingFactor();
 		}
 	}
 
@@ -384,9 +384,9 @@ namespace Lina
 			const bool	lastItem	  = idx == m_children.size() - 1;
 
 			if (m_props.direction == DirectionOrientation::Horizontal)
-				x += incrementSize + (lastItem ? 0.0f : GetWidgetProps().childPadding);
+				x += incrementSize + (lastItem ? 0.0f : GetWidgetProps().childPadding * m_manager->GetScalingFactor());
 			else
-				y += incrementSize + (lastItem ? 0.0f : GetWidgetProps().childPadding);
+				y += incrementSize + (lastItem ? 0.0f : GetWidgetProps().childPadding * m_manager->GetScalingFactor());
 
 			idx++;
 		}
@@ -523,12 +523,12 @@ namespace Lina
 				continue;
 
 			if (m_props.direction == DirectionOrientation::Horizontal)
-				sz += c->GetSizeX() + GetWidgetProps().childPadding;
+				sz += c->GetSizeX() + GetWidgetProps().childPadding * m_manager->GetScalingFactor();
 			else
-				sz += c->GetSizeY() + GetWidgetProps().childPadding;
+				sz += c->GetSizeY() + GetWidgetProps().childPadding * m_manager->GetScalingFactor();
 		}
 
-		return sz - GetWidgetProps().childPadding;
+		return sz - GetWidgetProps().childPadding * m_manager->GetScalingFactor();
 	}
 
 	void DirectionalLayout::Properties::SaveToStream(OStream& stream) const

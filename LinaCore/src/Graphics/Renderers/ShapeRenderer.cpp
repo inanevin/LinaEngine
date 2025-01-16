@@ -140,8 +140,8 @@ namespace Lina
 
 	void ShapeRenderer::DrawWireframeCapsule3D(const Vector3& center, float height, float radius, float thickness, const ColorGrad& color)
 	{
-		const int segments	 = 36; // Number of segments for the circular parts.
-		const int stacks	 = 18; // Number of stacks for the hemispheres.
+		const int segments	 = 9; // Number of segments for the circular parts.
+		const int stacks	 = 3; // Number of stacks for the hemispheres.
 		float	  halfHeight = height * 0.5f;
 
 		// Calculate the top and bottom centers of the capsule.
@@ -218,6 +218,25 @@ namespace Lina
 
 	void ShapeRenderer::DrawWireframeCylinder3D(const Vector3& center, float height, float radius, float thickness, const ColorGrad& color)
 	{
+		const Vector3 top = center + Vector3(0.0f, height * 0.5f, 0.0f);
+		const Vector3 bot = center - Vector3(0.0f, height * 0.5f, 0.0f);
+		DrawWireframeCircle3D(top, radius, thickness, color);
+		DrawWireframeCircle3D(bot, radius, thickness, color);
+
+		const int	segments   = 32;
+		const float deltaAngle = glm::two_pi<float>() / segments;
+
+		// Draw circles in the XZ plane (latitude).
+		for (int i = 0; i < segments; ++i)
+		{
+			if (i % 4 != 0)
+				continue;
+
+			float		  theta0 = i * deltaAngle;
+			const Vector3 p0	 = center + Vector3(radius * cos(theta0), height * 0.5f, radius * sin(theta0));
+			const Vector3 p1	 = center + Vector3(radius * cos(theta0), -height * 0.5f, radius * sin(theta0));
+			DrawLine3D(p0, p1, thickness, color);
+		}
 	}
 
 	void ShapeRenderer::DrawWireframeCircle3D(const Vector3& center, float radius, float thickness, const ColorGrad& color)
@@ -280,7 +299,7 @@ namespace Lina
 		}
 	}
 
-	void ShapeRenderer::DrawWireHemiSphere3D(const Vector3& center, float radius, float thickness, const ColorGrad& color)
+	void ShapeRenderer::DrawWireframeHemiSphere3D(const Vector3& center, float radius, float thickness, const ColorGrad& color)
 	{
 		const int	segments   = 32;
 		const float deltaAngle = glm::two_pi<float>() / segments;

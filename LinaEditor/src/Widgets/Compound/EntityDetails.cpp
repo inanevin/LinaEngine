@@ -187,6 +187,8 @@ namespace Lina::Editor
 
 			foldTitle->GetCallbacks().onEditEnded = [this, c]() { StopEditingComponents(); };
 		}
+
+		m_layout->Initialize();
 	}
 
 	void EntityDetails::UpdateDetails()

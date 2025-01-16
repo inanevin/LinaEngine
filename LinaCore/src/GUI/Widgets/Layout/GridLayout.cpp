@@ -70,7 +70,7 @@ namespace Lina
 			c->SetPosX(x);
 			c->SetPosY(y);
 			maxItemHeight = Math::Max(maxItemHeight, c->GetSizeY());
-			x += c->GetSizeX() + GetWidgetProps().childPadding;
+			x += c->GetSizeX() + GetWidgetProps().childPadding * m_manager->GetScalingFactor();
 		}
 
 		uint32 idx = 0;
