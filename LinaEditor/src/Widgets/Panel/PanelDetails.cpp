@@ -56,13 +56,13 @@ namespace Lina::Editor
 		m_entityDetails->SetAlignedPos(Vector2::Zero);
 		m_entityDetails->SetAlignedSize(Vector2::One);
 		AddChild(m_entityDetails);
-        
-        Panel* panel = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::World, 0);
-        if(panel)
-        {
-            EntityWorld* w = static_cast<PanelWorld*>(panel)->GetWorld();
-            SetWorld(w);
-        }
+
+		Panel* panel = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::World, 0);
+		if (panel)
+		{
+			EntityWorld* w = static_cast<PanelWorld*>(panel)->GetWorld();
+			SetWorld(w);
+		}
 
 		m_editor->GetWorldManager().AddListener(this);
 	}
@@ -80,11 +80,11 @@ namespace Lina::Editor
 	{
 	}
 
-    void PanelDetails::SetWorld(EntityWorld *world)
-    {
-        m_entityDetails->SetWorld(world);
-        m_entityDetails->RefreshDetails();
-    }
+	void PanelDetails::SetWorld(EntityWorld* world)
+	{
+		m_entityDetails->SetWorld(world);
+		m_entityDetails->RefreshDetails();
+	}
 
 	void PanelDetails::OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities, StringID source)
 	{

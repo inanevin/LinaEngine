@@ -122,10 +122,10 @@ namespace Lina::Editor
 		Panel* panelDetails	 = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::Details, 0);
 
 		if (panelEntities)
-			static_cast<PanelEntities*>(panelEntities->SetWorld(m_world));
+			static_cast<PanelEntities*>(panelEntities)->SetWorld(m_world);
 
 		if (panelDetails)
-			static_cast<PanelDetails*>(panelDetails->SetWorld(m_world));
+			static_cast<PanelDetails*>(panelDetails)->SetWorld(m_world);
 	}
 
 	void PanelWorld::CloseWorld()
