@@ -128,6 +128,7 @@ namespace Lina::Editor
 			return;
 		}
 
+		m_editor->GetApp()->GetResourceManager().UnloadResourceSpace(world->GetID());
 		m_editor->GetApp()->JoinRender();
 
 		WorldData& data = *it;

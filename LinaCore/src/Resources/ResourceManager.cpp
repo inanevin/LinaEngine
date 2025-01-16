@@ -123,11 +123,11 @@ namespace Lina
 		UnloadResources(unloadList);
 	}
 
-	void ResourceManagerV2::FillResourcesOfSpace(ResourceID space, Vector<ResourceID>& outResources);
+	void ResourceManagerV2::FillResourcesOfSpace(ResourceID space, HashSet<ResourceID>& outResources)
 	{
-		const HashSet<Resource*>& space = GetSpace(space);
-		for (Resource* r : space)
-			resources.push_back(r->GetID());
+		const HashSet<Resource*>& sce = GetSpace(space);
+		for (Resource* r : sce)
+			outResources.insert(r->GetID());
 	}
 
 	void ResourceManagerV2::AddListener(ResourceManagerListener* listener)
@@ -212,11 +212,15 @@ namespace Lina
 		uint32 idx = 0;
 		for (ResourceID id : resources)
 		{
+			if (id == 0)
+				continue;
+
 			ResourceDirectory* dir = project->GetResourceRoot().FindResourceDirectory(id);
 
 			if (dir == nullptr)
 			{
-				LINA_ERR("Can't find resource to load from project! {0}", id);
+				if (id < RESOURCE_ID_CUSTOM_SPACE)
+					LINA_ERR("Can't find resource to load from project! {0}", id);
 
 				if (onProgress)
 					onProgress(++idx, nullptr);

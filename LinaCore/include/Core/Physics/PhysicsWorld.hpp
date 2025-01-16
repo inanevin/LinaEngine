@@ -50,16 +50,16 @@ namespace Lina
 		PhysicsWorld(EntityWorld* world);
 		virtual ~PhysicsWorld();
 
-        void Begin();
-        void End();
-        void EnsurePhysicsBodies();
-        
+		void Begin();
+		void End();
+		void EnsurePhysicsBodies();
+
 		void AddAllBodies();
 		void RemoveAllBodies();
 		void Simulate(float dt);
-        
-        JPH::Body* CreateBodyForEntity(Entity* e);
-        void DestroyBodyForEntity(Entity* e);
+
+		JPH::Body* CreateBodyForEntity(Entity* e);
+		void	   DestroyBodyForEntity(Entity* e);
 
 		// Contacts
 		virtual JPH::ValidateResult OnContactValidate(const JPH::Body& inBody1, const JPH::Body& inBody2, JPH::RVec3Arg inBaseOffset, const JPH::CollideShapeResult& inCollisionResult) override;
@@ -71,14 +71,12 @@ namespace Lina
 		virtual void OnBodyActivated(const JPH::BodyID& inBodyID, uint64 inBodyUserData) override;
 		virtual void OnBodyDeactivated(const JPH::BodyID& inBodyID, uint64 inBodyUserData) override;
 
-        inline JPH::PhysicsSystem& GetPhysicsSystem()
-        {
-            return m_physicsSystem;
-        }
-        
-	private:
-	
+		inline JPH::PhysicsSystem& GetPhysicsSystem()
+		{
+			return m_physicsSystem;
+		}
 
+	private:
 	private:
 		JPH::PhysicsSystem		 m_physicsSystem;
 		JPH::TempAllocatorImpl	 m_tempAllocator = JPH::TempAllocatorImpl(10 * 1024 * 1024);

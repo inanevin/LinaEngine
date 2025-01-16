@@ -201,7 +201,7 @@ namespace Lina::Editor
 			world.SetPath(path);
 			world.GetGfxSettings().skyMaterial = EDITOR_MATERIAL_DEFAULT_SKY_ID;
 			world.GetGfxSettings().skyModel	   = EDITOR_MODEL_SKYSPHERE_ID;
-			world.SaveToFileAsBinary(path);
+			EditorWorldUtility::SaveWorldToFile(Editor::Get(), &world);
 		}
 		else
 			saveDefault();

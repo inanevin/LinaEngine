@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Common/Serialization/Serialization.hpp"
+#include "Common/FileSystem/FileSystem.hpp"
 
 namespace Lina::Editor
 {
@@ -126,20 +127,41 @@ namespace Lina::Editor
 
 	void EditorWorldUtility::SaveWorldToFile(Editor* editor, EntityWorld* world)
 	{
-		OStream stream;
+		const String path = editor->GetProjectManager().GetProjectData()->GetResourcePath(world->GetID());
+
+		OStream				stream;
+		HashSet<ResourceID> resources;
+		editor->GetApp()->GetResourceManager().FillResourcesOfSpace(world->GetID(), resources);
+		world->CollectResourceNeeds(resources);
+
+		Vector<ResourceID> toSave;
+		for (ResourceID id : resources)
+			toSave.push_back(id);
+		stream << toSave;
+
+		world->SaveToStream(stream);
+
+		Serialization::SaveToFile(path.c_str(), stream);
+		stream.Destroy();
 	}
 
 	void EditorWorldUtility::OpenWorldFromFile(Editor* editor, EntityWorld* world)
 	{
+		const String resourcePath = editor->GetProjectManager().GetProjectData()->GetResourcePath(world->GetID());
+		if (!FileSystem::FileOrPathExists(resourcePath))
+			return;
 
-		IStream stream = Serialization::LoadFromFile(resourcePath.c_str());
+		HashSet<ResourceID> neededResources;
+		Vector<ResourceID>	worldResources;
+		IStream				stream = Serialization::LoadFromFile(resourcePath.c_str());
+		stream >> worldResources;
+
+		for (ResourceID id : worldResources)
+			neededResources.insert(id);
+
+		world->LoadMissingResources(editor->GetApp()->GetResourceManager(), editor->GetProjectManager().GetProjectData(), neededResources, world->GetID());
 		world->LoadFromStream(stream);
 		stream.Destroy();
-
-		HashSet<ResourceID> defaultResources = {
-
-		};
-		world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), defaultResources, world->GetID());
 	}
 
 } // namespace Lina::Editor
