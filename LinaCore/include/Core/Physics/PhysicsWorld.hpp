@@ -42,6 +42,7 @@ SOFTWARE.
 namespace Lina
 {
 	class EntityWorld;
+	class Entity;
 
 	class PhysicsWorld : public JPH::ContactListener, public JPH::BodyActivationListener
 	{
@@ -49,6 +50,8 @@ namespace Lina
 		PhysicsWorld(EntityWorld* world);
 		virtual ~PhysicsWorld();
 
+		void AddAllBodies();
+		void RemoveAllBodies();
 		void Simulate();
 
 		// Contacts
@@ -62,6 +65,9 @@ namespace Lina
 		virtual void OnBodyDeactivated(const JPH::BodyID& inBodyID, uint64 inBodyUserData) override;
 
 	private:
+		JPH::Body* CreateBodyForEntity(Entity* e);
+
+	private:
 		JPH::PhysicsSystem		 m_physicsSystem;
 		JPH::TempAllocatorImpl	 m_tempAllocator = JPH::TempAllocatorImpl(10 * 1024 * 1024);
 		JPH::JobSystemThreadPool m_jobSystem	 = JPH::JobSystemThreadPool(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, JPH::thread::hardware_concurrency() - 1);
@@ -70,5 +76,6 @@ namespace Lina
 		PhysicsObjectBPLayerFilter m_objectBPLayerFilter;
 		PhysicsBPLayerInterface	   m_bpLayerInterface;
 		EntityWorld*			   m_world = nullptr;
+		Vector<JPH::BodyID>		   m_addedBodyIDs;
 	};
 } // namespace Lina

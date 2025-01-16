@@ -26,30 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Physics/CommonPhysics.hpp"
-#include <Jolt/Jolt.h>
-#include <Jolt/Physics/Body/MotionType.h>
+#pragma once
 
 namespace Lina
 {
-	JPH::Vec3 ToJoltVec3(const Vector3& v)
-	{
-		return JPH::Vec3(v.x, v.y, v.z);
-	}
 
-	JPH::Quat ToJoltQuat(const Quaternion& q)
-	{
-		return JPH::Quat(q.x, q.y, q.z, q.w);
-	}
-
-	JPH::EMotionType ToJoltMotionType(const PhysicsBodyType& type)
-	{
-		if (type == PhysicsBodyType::Static)
-			return JPH::EMotionType::Static;
-
-		if (type == PhysicsBodyType::Kinematic)
-			return JPH::EMotionType::Kinematic;
-
-		return JPH::EMotionType::Dynamic;
-	}
 } // namespace Lina

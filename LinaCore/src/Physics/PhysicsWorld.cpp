@@ -31,6 +31,13 @@ SOFTWARE.
 #include "Common/System/SystemInfo.hpp"
 #include "Core/World/EntityWorld.hpp"
 
+#include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
+#include <Jolt/Physics/Collision/Shape/PlaneShape.h>
+#include <Jolt/Physics/Collision/Shape/CylinderShape.h>
+
 namespace Lina
 {
 	PhysicsWorld::PhysicsWorld(EntityWorld* ew) : m_world(ew)
@@ -44,6 +51,81 @@ namespace Lina
 
 	PhysicsWorld::~PhysicsWorld()
 	{
+	}
+
+	void PhysicsWorld::AddAllBodies()
+	{
+		JPH::BodyInterface& bodyInterface = m_physicsSystem.GetBodyInterface();
+
+		Vector<JPH::Body*> bodyPtrs;
+		bodyPtrs.reserve(m_world->GetActiveEntityCount());
+
+		m_world->ViewEntities([&](Entity* e, uint32 idx) -> bool {
+			const EntityPhysicsSettings& phySettings = e->GetPhysicsSettings();
+			if (phySettings.bodyType == PhysicsBodyType::None)
+				return false;
+
+			bodyPtrs.push_back(CreateBodyForEntity(e));
+			return false;
+		});
+
+		const size_t bodySz = bodyPtrs.size();
+		m_addedBodyIDs.resize(bodySz);
+		for (size_t i = 0; i < bodySz; i++)
+			m_addedBodyIDs[i] = bodyPtrs[i]->GetID();
+
+		const JPH::BodyInterface::AddState addState = bodyInterface.AddBodiesPrepare(m_addedBodyIDs.data(), static_cast<int32>(m_addedBodyIDs.size()));
+		bodyInterface.AddBodiesFinalize(m_addedBodyIDs.data(), static_cast<int32>(m_addedBodyIDs.size()), addState, JPH::EActivation::DontActivate);
+	}
+
+	void PhysicsWorld::RemoveAllBodies()
+	{
+		JPH::BodyInterface& bodyInterface = m_physicsSystem.GetBodyInterface();
+		bodyInterface.RemoveBodies(m_addedBodyIDs.data(), static_cast<int32>(m_addedBodyIDs.size()));
+	}
+
+	JPH::Body* PhysicsWorld::CreateBodyForEntity(Entity* e)
+	{
+		JPH::BodyInterface&		  bodyInterface = m_physicsSystem.GetBodyInterface();
+		JPH::BodyCreationSettings settings		= {};
+
+		const EntityPhysicsSettings& phySettings = e->GetPhysicsSettings();
+
+		JPH::Ref<JPH::Shape> shapeRef;
+
+		if (phySettings.shapeType == PhysicsShapeType::Box)
+		{
+			JPH::BoxShapeSettings boxShapeSettings(ToJoltVec3(phySettings.shapeExtents * e->GetScale()));
+			shapeRef = boxShapeSettings.Create().Get();
+		}
+		else if (phySettings.shapeType == PhysicsShapeType::Capsule)
+		{
+			JPH::CapsuleShapeSettings capsuleShapeSettings(phySettings.height * 0.5f, phySettings.radius);
+			shapeRef = capsuleShapeSettings.Create().Get();
+		}
+		else if (phySettings.shapeType == PhysicsShapeType::Cylinder)
+		{
+			JPH::CylinderShapeSettings cylinderShapeSettings(phySettings.height * 0.5f, phySettings.radius);
+			shapeRef = cylinderShapeSettings.Create().Get();
+		}
+		else if (phySettings.shapeType == PhysicsShapeType::Plane)
+		{
+			JPH::PlaneShapeSettings plane(JPH::Plane(ToJoltVec3(Vector3::Up), 1.0f));
+			shapeRef = plane.Create().Get();
+		}
+		else if (phySettings.shapeType == PhysicsShapeType::Sphere)
+		{
+			JPH::SphereShapeSettings sphere(phySettings.radius);
+			shapeRef = sphere.Create().Get();
+		}
+
+		settings.SetShape(shapeRef);
+		settings.mPosition	  = ToJoltVec3(e->GetPosition());
+		settings.mRotation	  = ToJoltQuat(e->GetRotation());
+		settings.mMotionType  = ToJoltMotionType(phySettings.bodyType);
+		settings.mObjectLayer = phySettings.bodyType == PhysicsBodyType::Static ? static_cast<uint16>(PhysicsObjectLayers::NonMoving) : static_cast<uint16>(PhysicsObjectLayers::Moving);
+
+		bodyInterface.CreateBody(settings);
 	}
 
 	void PhysicsWorld::Simulate()

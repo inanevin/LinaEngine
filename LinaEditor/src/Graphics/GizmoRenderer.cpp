@@ -197,23 +197,23 @@ namespace Lina::Editor
 
 			if (shapeType == PhysicsShapeType::Sphere)
 			{
-				shape.DrawWireframeSphere3D(pos, settings.radius, thickness, Theme::GetDef().accentSuccess);
+				shape.DrawWireframeSphere3D(pos, settings.radius * e->GetScale().Magnitude(), thickness, Theme::GetDef().accentSuccess);
 			}
 			else if (shapeType == PhysicsShapeType::Box)
 			{
-				shape.DrawWireframeCube3D(pos, settings.shapeExtents, thickness, Theme::GetDef().accentSuccess);
+				shape.DrawWireframeCube3D(pos, settings.shapeExtents * e->GetScale(), thickness, Theme::GetDef().accentSuccess);
 			}
 			else if (shapeType == PhysicsShapeType::Capsule)
 			{
-				shape.DrawWireframeCapsule3D(pos, settings.height, settings.radius, thickness, Theme::GetDef().accentSuccess);
+				shape.DrawWireframeCapsule3D(pos, settings.height * e->GetScale().y, settings.radius, thickness, Theme::GetDef().accentSuccess);
 			}
 			else if (shapeType == PhysicsShapeType::Cylinder)
 			{
-				shape.DrawWireframeCylinder3D(pos, settings.height, settings.radius, thickness, Theme::GetDef().accentSuccess);
+				shape.DrawWireframeCylinder3D(pos, settings.height * e->GetScale().y, settings.radius, thickness, Theme::GetDef().accentSuccess);
 			}
 			else if (shapeType == PhysicsShapeType::Plane)
 			{
-				shape.DrawWireframePlane3D(pos, settings.shapeExtents, thickness, Theme::GetDef().accentSuccess);
+				shape.DrawWireframePlane3D(pos, settings.shapeExtents * e->GetScale(), thickness, Theme::GetDef().accentSuccess);
 			}
 		}
 

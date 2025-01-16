@@ -31,8 +31,13 @@ SOFTWARE.
 #include "Common/SizeDefinitions.hpp"
 #include "Core/Physics/PhysicsMaterial.hpp"
 #include "Core/Reflection/CommonReflection.hpp"
-#include <Jolt/Jolt.h>
-#include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
+
+namespace JPH
+{
+	struct Vec3;
+	struct Quat;
+	enum class EMotionType : uint8;
+} // namespace JPH
 
 namespace Lina
 {
@@ -89,6 +94,10 @@ namespace Lina
 		}
 	};
 
+	extern JPH::Vec3		ToJoltVec3(const Vector3& v);
+	extern JPH::Quat		ToJoltQuat(const Quaternion& q);
+	extern JPH::EMotionType ToJoltMotionType(const PhysicsBodyType& type);
+
 	LINA_CLASS_BEGIN(PhysicsBodyType)
 	LINA_PROPERTY_STRING(PhysicsBodyType, 0, "None")
 	LINA_PROPERTY_STRING(PhysicsBodyType, 1, "Static")
@@ -111,7 +120,7 @@ namespace Lina
 	LINA_FIELD(EntityPhysicsSettings, radius, "Radius", FieldType::Float, 0)
 	LINA_FIELD(EntityPhysicsSettings, height, "Height", FieldType::Float, 0)
 	LINA_FIELD(EntityPhysicsSettings, material, "Material", FieldType::ResourceID, GetTypeID<PhysicsMaterial>())
-	LINA_FIELD_DEPENDENCY(EntityPhysicsSettings, shapeExtents, "shapeType", "1, 4")
+	LINA_FIELD_DEPENDENCY(EntityPhysicsSettings, shapeExtents, "shapeType", "1")
 	LINA_FIELD_DEPENDENCY(EntityPhysicsSettings, radius, "shapeType", "0, 2, 3")
 	LINA_FIELD_DEPENDENCY(EntityPhysicsSettings, height, "shapeType", "0, 2, 3")
 	LINA_CLASS_END(EntityPhysicsSettings)
