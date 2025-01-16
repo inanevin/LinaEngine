@@ -40,6 +40,8 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
+#include "Core/Physics/PhysicsWorld.hpp"
+#include "Core/Graphics/Renderers/PhysicsDebugRenderer.hpp"
 
 namespace Lina::Editor
 {
@@ -117,13 +119,13 @@ namespace Lina::Editor
 
 		OnWorldRendererCreateSizeRelative();
 		m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
-
-		m_physicsDebugRenderer.Initialize();
 	}
 
 	EditorWorldRenderer::~EditorWorldRenderer()
 	{
-		m_physicsDebugRenderer.Shutdown();
+		if (m_physicsDebugRenderer)
+			delete m_physicsDebugRenderer;
+		m_physicsDebugRenderer = nullptr;
 
 		m_worldSampler->DestroyHW();
 		m_rm->DestroyResource(m_worldSampler);
@@ -138,6 +140,14 @@ namespace Lina::Editor
 		{
 			auto& pfd = m_pfd[i];
 		}
+	}
+
+	void EditorWorldRenderer::CreatePhysicsRenderer()
+	{
+		if (m_physicsDebugRenderer)
+			return;
+
+		m_physicsDebugRenderer = new PhysicsDebugRenderer(&m_pass);
 	}
 
 	void EditorWorldRenderer::Tick(float delta)
@@ -200,6 +210,14 @@ namespace Lina::Editor
 		m_outlineRenderer.Tick(delta);
 		m_mousePickRenderer.Tick(delta);
 		m_gizmoRenderer.Tick(delta);
+
+		if (m_physicsDebugRenderer)
+		{
+			JPH::BodyManager::DrawSettings ds = {};
+			// ds.mDrawBoundingBox = true;
+			ds.mDrawShapeWireframe = true;
+			m_world->GetPhysicsWorld()->GetPhysicsSystem().DrawBodies(ds, m_physicsDebugRenderer);
+		}
 	}
 
 	void EditorWorldRenderer::SyncRender()
@@ -208,7 +226,9 @@ namespace Lina::Editor
 		m_mousePickRenderer.SyncRender();
 		m_pass.SyncRender();
 		m_gizmoRenderer.SyncRender();
-		m_physicsDebugRenderer.SyncRender();
+
+		if (m_physicsDebugRenderer)
+			m_physicsDebugRenderer->SyncRender();
 	}
 
 	void EditorWorldRenderer::UpdateBuffers(uint32 frameIndex)
@@ -237,7 +257,9 @@ namespace Lina::Editor
 			m_pass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(EditorWorldPassViewData));
 		}
 
-		m_physicsDebugRenderer.AddBuffersToUploadQueue(frameIndex, queue);
+		if (m_physicsDebugRenderer)
+			m_physicsDebugRenderer->AddBuffersToUploadQueue(frameIndex, queue);
+
 		m_mousePickRenderer.AddBuffersToUploadQueue(frameIndex, queue);
 		m_outlineRenderer.AddBuffersToUploadQueue(frameIndex, queue);
 		m_pass.AddBuffersToUploadQueue(frameIndex, queue);

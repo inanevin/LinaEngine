@@ -88,6 +88,7 @@ src/World/Components/CompCamera.cpp
 src/World/Components/CompModel.cpp
 src/World/Components/CompLight.cpp
 src/World/Animation/AnimationController.cpp
+src/World/WorldUtility.cpp
 
 # Physics
 src/Physics/PhysicsWorld.cpp
@@ -215,6 +216,7 @@ include/Core/World/Components/CompCamera.hpp
 include/Core/World/Components/CompModel.hpp
 include/Core/World/Components/CompLight.hpp
 include/Core/World/Animation/AnimationController.hpp
+include/Core/World/WorldUtility.hpp
 
 # Physics
 include/Core/Physics/PhysicsWorld.hpp

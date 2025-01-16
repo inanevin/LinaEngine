@@ -123,6 +123,13 @@ namespace Lina
 		UnloadResources(unloadList);
 	}
 
+	void ResourceManagerV2::FillResourcesOfSpace(ResourceID space, Vector<ResourceID>& outResources);
+	{
+		const HashSet<Resource*>& space = GetSpace(space);
+		for (Resource* r : space)
+			resources.push_back(r->GetID());
+	}
+
 	void ResourceManagerV2::AddListener(ResourceManagerListener* listener)
 	{
 		m_listeners.push_back(listener);

@@ -37,7 +37,6 @@ SOFTWARE.
 #include "Common/Memory/MemoryAllocatorPool.hpp"
 #include "Common/ObjectWrapper.hpp"
 #include "Common/Data/Deque.hpp"
-#include "Core/Physics/PhysicsWorld.hpp"
 #include "Core/World/CommonWorld.hpp"
 #include "Core/World/ComponentCache.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
@@ -50,6 +49,7 @@ namespace Lina
 	class Component;
 	class ProjectData;
 	class ResourceManagerV2;
+class PhysicsWorld;
 
 	class EntityWorld : public Resource
 	{
@@ -89,8 +89,8 @@ namespace Lina
 		Entity*			   CreateEntity(EntityID id, const String& name = "");
 		Entity*			   GetEntity(EntityID guid);
 		void			   DestroyEntity(Entity* e);
-		void			   GetComponents(Entity* e, Vector<Component*>& outComponents);
-		Component*		   GetComponent(Entity* e, TypeID tid);
+        void			   GetComponents(Entity* e, Vector<Component*>& outComponents) const;
+		Component*		   GetComponent(Entity* e, TypeID tid) const;
 		Component*		   AddComponent(Entity* e, TypeID tid);
 		virtual void	   SaveToStream(OStream& stream) const override;
 		virtual void	   LoadFromStream(IStream& stream) override;
@@ -159,6 +159,7 @@ namespace Lina
 			const TypeID tid = GetTypeID<T>();
 
 			auto it = linatl::find_if(m_componentCaches.begin(), m_componentCaches.end(), [tid](const ComponentCachePair& pair) -> bool { return tid == pair.tid; });
+            
 			if (it == m_componentCaches.end())
 			{
 				ComponentCache<T>* cache = new ComponentCache<T>();
@@ -217,6 +218,11 @@ namespace Lina
 		{
 			return m_rm;
 		}
+        
+        inline PhysicsWorld* GetPhysicsWorld()
+        {
+            return m_physicsWorld;
+        }
 
 	private:
 		void BeginPlay();
@@ -227,6 +233,8 @@ namespace Lina
 		void OnCreateComponent(Component* c, Entity* e);
 		void OnDestroyComponent(Component* c, Entity* e);
 		void DestroyComponentCaches();
+        ComponentCacheBase* GetCache(TypeID tid);
+        ComponentCacheBase* GetCache(TypeID tid) const;
 
 	private:
 		struct ComponentCachePair
@@ -240,7 +248,7 @@ namespace Lina
 		AllocatorBucket<Entity, 1000> m_entityBucket;
 		Vector<ComponentCachePair>	  m_componentCaches;
 		EntityID					  m_entityGUIDCounter = 1;
-		PhysicsWorld				  m_physicsWorld;
+		PhysicsWorld*				  m_physicsWorld = nullptr;
 		Bitmask32					  m_flags = 0;
 		Vector<EntityWorldListener*>  m_listeners;
 		GfxSettings					  m_gfxSettings;

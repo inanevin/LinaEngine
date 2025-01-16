@@ -96,6 +96,7 @@ namespace Lina::Editor
 	void EntityDetails::SetWorld(EntityWorld* w)
 	{
 		m_world = w;
+		m_selectedEntities.clear();
 		RefreshDetails();
 	}
 
@@ -107,10 +108,13 @@ namespace Lina::Editor
 
 	void EntityDetails::RefreshDetails()
 	{
-		m_noDetailsText->GetFlags().Set(WF_HIDE, !m_selectedEntities.empty());
+		m_noDetailsText->GetFlags().Set(WF_HIDE, !m_selectedEntities.empty() && m_world);
 
 		m_layout->DeallocAllChildren();
 		m_layout->RemoveAllChildren();
+
+		if (!m_world)
+			return;
 
 		if (m_selectedEntities.empty())
 			return;

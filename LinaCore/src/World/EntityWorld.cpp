@@ -39,6 +39,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/Data/ModelNode.hpp"
 #include "Core/World/Components/CompModel.hpp"
+#include "Core/World/WorldUtility.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Resources/ResourceCache.hpp"
 
@@ -46,12 +47,16 @@ SOFTWARE.
 
 #include "Common/Serialization/Serialization.hpp"
 #include "Core/Application.hpp"
+#include "Core/Physics/PhysicsWorld.hpp"
 
 namespace Lina
 {
 #define ENTITY_VEC_SIZE_CHUNK 2000
 
-	EntityWorld::EntityWorld(ResourceID id, const String& name) : Resource(id, GetTypeID<EntityWorld>(), name), m_worldInput(&Application::GetLGX()->GetInput(), &m_screen), m_physicsWorld(this){};
+	EntityWorld::EntityWorld(ResourceID id, const String& name) : Resource(id, GetTypeID<EntityWorld>(), name), m_worldInput(&Application::GetLGX()->GetInput(), &m_screen)
+	{
+		m_physicsWorld = new PhysicsWorld(this);
+	};
 
 	EntityWorld::~EntityWorld()
 	{
@@ -61,6 +66,10 @@ namespace Lina
 			return false;
 		});
 		DestroyComponentCaches();
+
+		if (m_physicsWorld)
+			delete m_physicsWorld;
+		m_physicsWorld = nullptr;
 	}
 
 	void EntityWorld::Initialize(ResourceManagerV2* rm)
@@ -72,7 +81,34 @@ namespace Lina
 	{
 		for (const ComponentCachePair& pair : m_componentCaches)
 			delete pair.cache;
+
 		m_componentCaches.clear();
+	}
+
+	ComponentCacheBase* EntityWorld::GetCache(TypeID tid)
+	{
+		auto it = linatl::find_if(m_componentCaches.begin(), m_componentCaches.end(), [tid](const ComponentCachePair& pair) -> bool { return pair.tid == tid; });
+
+		if (it == m_componentCaches.end())
+		{
+			MetaType*			type  = ReflectionSystem::Get().Resolve(tid);
+			void*				ptr	  = type->GetFunction<void*(EntityWorld*)>("CreateComponentCache"_hs)(this);
+			ComponentCacheBase* cache = static_cast<ComponentCacheBase*>(ptr);
+			m_componentCaches.push_back({
+				.tid   = tid,
+				.cache = cache,
+			});
+			return cache;
+		}
+
+		return it->cache;
+	}
+
+	ComponentCacheBase* EntityWorld::GetCache(TypeID tid) const
+	{
+		auto it = linatl::find_if(m_componentCaches.begin(), m_componentCaches.end(), [tid](const ComponentCachePair& pair) -> bool { return pair.tid == tid; });
+		LINA_ASSERT(it != m_componentCaches.end(), "");
+		return it->cache;
 	}
 
 	void EntityWorld::Tick(float delta)
@@ -80,8 +116,11 @@ namespace Lina
 		for (EntityWorldListener* l : m_listeners)
 			l->OnWorldTick(delta, m_playMode);
 
-		if (m_playMode != PlayMode::None)
+		if (m_playMode == PlayMode::Play)
 			TickPlay(delta);
+
+		if (m_playMode == PlayMode::Physics)
+			m_physicsWorld->Simulate(delta);
 
 		GetCache<CompModel>()->GetBucket().View([delta](CompModel* comp, uint32 idx) -> bool {
 			comp->GetAnimationController().TickAnimation(delta);
@@ -91,6 +130,12 @@ namespace Lina
 
 	void EntityWorld::SetPlayMode(PlayMode playmode)
 	{
+		if (m_playMode != PlayMode::Physics && playmode == PlayMode::Physics)
+			m_physicsWorld->Begin();
+
+		if (m_playMode == PlayMode::Physics && playmode == PlayMode::None)
+			m_physicsWorld->End();
+
 		if (m_playMode != PlayMode::Play && playmode == PlayMode::Play)
 			BeginPlay();
 
@@ -102,10 +147,12 @@ namespace Lina
 
 	void EntityWorld::BeginPlay()
 	{
+		m_physicsWorld->Begin();
 	}
 
 	void EntityWorld::EndPlay()
 	{
+		m_physicsWorld->End();
 		m_playMode = PlayMode::None;
 	}
 
@@ -145,7 +192,7 @@ namespace Lina
 		DestroyEntityData(e);
 	}
 
-	void EntityWorld::GetComponents(Entity* e, Vector<Component*>& outComponents)
+	void EntityWorld::GetComponents(Entity* e, Vector<Component*>& outComponents) const
 	{
 		for (const ComponentCachePair& p : m_componentCaches)
 		{
@@ -155,16 +202,14 @@ namespace Lina
 		}
 	}
 
-	Component* EntityWorld::GetComponent(Entity* e, TypeID tid)
+	Component* EntityWorld::GetComponent(Entity* e, TypeID tid) const
 	{
-		auto it = linatl::find_if(m_componentCaches.begin(), m_componentCaches.end(), [tid](const ComponentCachePair& pair) -> bool { return pair.tid == tid; });
-		return it->cache->Get(e);
+		return GetCache(tid)->Get(e);
 	}
 
 	Component* EntityWorld::AddComponent(Entity* e, TypeID tid)
 	{
-		auto	   it = linatl::find_if(m_componentCaches.begin(), m_componentCaches.end(), [tid](const ComponentCachePair& pair) -> bool { return pair.tid == tid; });
-		Component* c  = it->cache->CreateRaw();
+		Component* c = GetCache(tid)->CreateRaw();
 		OnCreateComponent(c, e);
 		return c;
 	}
@@ -185,40 +230,10 @@ namespace Lina
 			pair.cache->Destroy(c);
 		}
 
+		if (e->GetPhysicsBody())
+			m_physicsWorld->DestroyBodyForEntity(e);
+
 		m_entityBucket.Free(e);
-	}
-
-	void EntityWorld::SaveToStream(OStream& stream) const
-	{
-		Resource::SaveToStream(stream);
-		stream << VERSION;
-		stream << m_entityGUIDCounter;
-		stream << m_gfxSettings;
-
-		const uint32 entitiesSize = m_entityBucket.GetActiveItemCount();
-		stream << entitiesSize;
-
-		m_entityBucket.View([&](Entity* e, uint32 index) -> bool {
-			e->SaveToStream(stream);
-			return false;
-		});
-
-		m_entityBucket.View([&](Entity* e, uint32 index) -> bool {
-			if (e->GetParent() != nullptr)
-				stream << e->m_guid;
-			else
-				stream << 0;
-			return false;
-		});
-
-		const uint32 cacheSize = static_cast<uint32>(m_componentCaches.size());
-		stream << cacheSize;
-
-		for (const ComponentCachePair& pair : m_componentCaches)
-		{
-			stream << pair.tid;
-			pair.cache->SaveToStream(stream);
-		}
 	}
 
 	bool EntityWorld::LoadFromFile(const String& path)
@@ -242,54 +257,34 @@ namespace Lina
 		stream >> version;
 		stream >> m_entityGUIDCounter;
 		stream >> m_gfxSettings;
-
 		m_entityBucket.Clear();
 
-		uint32 entitiesSize = 0;
-		stream >> entitiesSize;
-		Vector<Entity*> tempEntities;
-		tempEntities.resize(static_cast<size_t>(entitiesSize));
+		Vector<Entity*> entities;
+		WorldUtility::LoadEntitiesFromStream(stream, this, entities);
 
-		for (uint32 i = 0; i < entitiesSize; i++)
-		{
-			Entity* e = CreateEntity(0, "");
-			e->LoadFromStream(stream);
-			tempEntities[i] = e;
-		}
+		m_physicsWorld->EnsurePhysicsBodies();
+	}
 
-		for (uint32 i = 0; i < entitiesSize; i++)
-		{
-			EntityID parentGUID = 0;
-			stream >> parentGUID;
+	void EntityWorld::SaveToStream(OStream& stream) const
+	{
+		Resource::SaveToStream(stream);
+		stream << VERSION;
+		stream << m_entityGUIDCounter;
+		stream << m_gfxSettings;
 
-			if (parentGUID != 0)
-			{
-				Entity* parent = m_entityBucket.Find([parentGUID](Entity* e) -> bool { return e->m_guid == parentGUID; });
-				if (parent != nullptr)
-					parent->AddChild(tempEntities[i]);
-			}
-		}
+		const uint32	entitiesSize = m_entityBucket.GetActiveItemCount();
+		Vector<Entity*> entities;
+		entities.reserve(entitiesSize);
+		m_entityBucket.View([&](Entity* e, uint32 index) -> bool {
+			entities.push_back(e);
+			return false;
+		});
 
-		uint32 cachesSize = 0;
-		stream >> cachesSize;
+		Vector<Entity*> roots;
+		roots.reserve(entities.size());
+		WorldUtility::ExtractRoots(entities, roots);
 
-		for (uint32 i = 0; i < cachesSize; i++)
-		{
-			TypeID tid = 0;
-			stream >> tid;
-
-			MetaType*			type  = ReflectionSystem::Get().Resolve(tid);
-			void*				ptr	  = type->GetFunction<void*(EntityWorld*)>("CreateComponentCache"_hs)(this);
-			ComponentCacheBase* cache = static_cast<ComponentCacheBase*>(ptr);
-			cache->LoadFromStream(stream, tempEntities);
-
-			m_componentCaches.push_back({tid, cache});
-
-			cache->ForEach([this](Component* c) {
-				OnCreateComponent(c, c->m_entity);
-				c->StoreReferences();
-			});
-		}
+		WorldUtility::SaveEntitiesToStream(stream, this, roots);
 	}
 
 	void EntityWorld::AddListener(EntityWorldListener* listener)

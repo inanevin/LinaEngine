@@ -31,7 +31,8 @@ SOFTWARE.
 namespace Lina
 {
 	class ResourceUploadQueue;
-}
+	class RenderPass;
+} // namespace Lina
 
 #ifdef JPH_DEBUG_RENDERER
 
@@ -44,14 +45,9 @@ namespace Lina
 	class PhysicsDebugRenderer : public JPH::DebugRenderer
 	{
 	public:
-		PhysicsDebugRenderer()
-		{
-			JPH::DebugRenderer::Initialize();
-		}
-		virtual ~PhysicsDebugRenderer() = default;
+		PhysicsDebugRenderer(RenderPass* pass);
+		virtual ~PhysicsDebugRenderer();
 
-		void Initialize();
-		void Shutdown();
 		void SyncRender();
 		void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue);
 
@@ -71,6 +67,30 @@ namespace Lina
 								  JPH::DebugRenderer::EDrawMode			 inDrawMode	  = JPH::DebugRenderer::EDrawMode::Solid) override;
 
 	private:
+		/// Implementation specific batch object
+		class BatchImpl : public JPH::RefTargetVirtual
+		{
+		public:
+			JPH_OVERRIDE_NEW_DELETE
+
+			virtual void AddRef() override
+			{
+				++mRefCount;
+			}
+			virtual void Release() override
+			{
+				if (--mRefCount == 0)
+					delete this;
+			}
+
+			JPH::Array<JPH::DebugRenderer::Triangle> mTriangles;
+
+		private:
+			JPH::atomic<uint32> mRefCount = 0;
+		};
+
+	private:
+		RenderPass*	  m_targetPass = nullptr;
 		ShapeRenderer m_shapeRenderer;
 	};
 
@@ -83,7 +103,7 @@ namespace Lina
 	class PhysicsDebugRenderer
 	{
 	public:
-		void Initialize(){};
+		void Initialize(RenderPass* targetPass){};
 		void Shutdown(){};
 		void SyncRender(){};
 		void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue){};

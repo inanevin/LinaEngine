@@ -36,9 +36,10 @@ SOFTWARE.
 #include "Editor/Widgets/Compound/EntityDetails.hpp"
 #include "Editor/Graphics/EditorWorldRenderer.hpp"
 #include "Editor/World/EditorCamera.hpp"
-#include "Editor/World/WorldUtility.hpp"
+#include "Editor/World/EditorWorldUtility.hpp"
 #include "Editor/Widgets/EditorRoot.hpp"
 
+#include "Core/World/WorldUtility.hpp"
 #include "Core/GUI/Widgets/Layout/Popup.hpp"
 #include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
@@ -394,6 +395,11 @@ namespace Lina::Editor
 		m_world			= renderer ? m_worldRenderer->GetWorld() : nullptr;
 		m_overlayControls.baseWidget->GetFlags().Set(WF_HIDE, m_world == nullptr);
 
+		if (m_world && m_world->GetID() != 0)
+		{
+			m_ewr->CreatePhysicsRenderer();
+		}
+
 		if (m_ewr)
 			m_ewr->GetGizmoRenderer().GetSettings().drawOrientation = true;
 
@@ -422,7 +428,7 @@ namespace Lina::Editor
 			return;
 
 		// Input setup
-		const bool worldHasFocus = m_playMode == PlayMode::None && m_manager->GetControlsOwner() == this && m_lgxWindow->HasFocus();
+		const bool worldHasFocus = m_playMode != PlayMode::Play && m_manager->GetControlsOwner() == this && m_lgxWindow->HasFocus();
 		m_camera->SetIsActive(worldHasFocus);
 		m_camera->SetIsWheelActive(m_isHovered && m_lgxWindow->HasFocus());
 
@@ -473,7 +479,7 @@ namespace Lina::Editor
 		if (m_worldRenderer == nullptr)
 			return;
 
-		if (m_playMode != PlayMode::None)
+		if (m_playMode == PlayMode::Play)
 			return;
 
 		m_manager->SetClip(m_rect);
@@ -603,7 +609,7 @@ namespace Lina::Editor
 		const Vector2 size	= GetEndFromMargins() - GetStartFromMargins();
 		const Vector3 point = Camera::ScreenToWorld(world->GetWorldCamera(), mp, size, 0.97f);
 
-		const Vector<Entity*> entities = WorldUtility::AddResourcesToWorld(m_editor, m_world, payloadItems, point);
+		const Vector<Entity*> entities = EditorWorldUtility::AddResourcesToWorld(m_editor, m_world, payloadItems, point);
 
 		EditorActionEntitiesCreated::Create(m_editor, m_world, entities);
 		EditorActionEntitySelection::Create(m_editor, m_world->GetID(), entities, true, true);
@@ -851,7 +857,7 @@ namespace Lina::Editor
 
 		m_selectedEntities = selection;
 		m_selectedRoots.resize(0);
-		WorldUtility::ExtractRoots(m_world, m_selectedEntities, m_selectedRoots);
+		WorldUtility::ExtractRoots(m_selectedEntities, m_selectedRoots);
 
 		m_ewr->SetSelectedEntities(m_selectedEntities);
 		CalculateAverageGizmoPosition();
@@ -884,11 +890,17 @@ namespace Lina::Editor
 	void WorldController::StartPlaying(PlayMode mode)
 	{
 		m_playMode = mode;
-		m_overlayControls.baseWidget->GetFlags().Set(WF_HIDE);
-		m_lgxWindow->SetWrapMouse(true);
-		m_lgxWindow->SetMouseVisible(false);
-		m_editor->GetEditorRoot()->SetIsPlaying(true);
+
+		if (mode == PlayMode::Play)
+		{
+			m_overlayControls.baseWidget->GetFlags().Set(WF_HIDE);
+			m_lgxWindow->SetWrapMouse(true);
+			m_lgxWindow->SetMouseVisible(false);
+		}
+
 		m_ewr->GetGizmoRenderer().GetSettings().drawOrientation = false;
+		m_editor->GetEditorRoot()->SetIsPlaying(true);
+		m_world->SetPlayMode(m_playMode);
 	}
 
 	void WorldController::StopPlaying()
@@ -899,6 +911,8 @@ namespace Lina::Editor
 		m_lgxWindow->SetMouseVisible(true);
 		m_editor->GetEditorRoot()->SetIsPlaying(false);
 		m_ewr->GetGizmoRenderer().GetSettings().drawOrientation = true;
+
+		m_world->SetPlayMode(m_playMode);
 	}
 
 	void WorldController::SelectGizmo(GizmoMode gizmo)
@@ -950,7 +964,7 @@ namespace Lina::Editor
 	void WorldController::DuplicateSelection()
 	{
 		Vector<Entity*> entities;
-		WorldUtility::DuplicateEntities(m_editor, m_world, m_selectedEntities, entities);
+		WorldUtility::DuplicateEntities(m_world, m_selectedEntities, entities);
 		EditorActionEntitiesCreated::Create(m_editor, m_world, entities);
 		EditorActionEntitySelection::Create(m_editor, m_world->GetID(), entities, true, true);
 		EditorActionCollective::Create(m_editor, 2);

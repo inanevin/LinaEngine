@@ -36,6 +36,11 @@ SOFTWARE.
 #include "Common/Math/AABB.hpp"
 #include "Core/Physics/CommonPhysics.hpp"
 
+namespace JPH
+{
+	class Body;
+}
+
 namespace Lina
 {
 	class EntityWorld;
@@ -167,6 +172,11 @@ namespace Lina
 			return m_physicsSettings;
 		}
 
+		inline JPH::Body* GetPhysicsBody() const
+		{
+			return m_physicsBody;
+		}
+
 	private:
 		void UpdateGlobalPosition();
 		void UpdateLocalPosition();
@@ -180,6 +190,7 @@ namespace Lina
 
 	private:
 		friend class EntityWorld;
+		friend class PhysicsWorld;
 
 		Entity()  = default;
 		~Entity() = default;
@@ -197,6 +208,7 @@ namespace Lina
 		AABB				  m_totalAABB;
 		InterfaceUserData	  m_interfaceUserData = {};
 		EntityPhysicsSettings m_physicsSettings	  = {};
+		JPH::Body*			  m_physicsBody		  = nullptr;
 	};
 
 } // namespace Lina

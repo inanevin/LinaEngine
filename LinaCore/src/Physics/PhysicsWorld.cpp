@@ -53,6 +53,33 @@ namespace Lina
 	{
 	}
 
+	void PhysicsWorld::Begin()
+	{
+		AddAllBodies();
+	}
+
+	void PhysicsWorld::End()
+	{
+		RemoveAllBodies();
+	}
+
+	void PhysicsWorld::EnsurePhysicsBodies()
+	{
+		m_world->ViewEntities([&](Entity* e, uint32 idx) -> bool {
+			const EntityPhysicsSettings& phySettings = e->GetPhysicsSettings();
+			if (phySettings.bodyType == PhysicsBodyType::None)
+			{
+				if (e->GetPhysicsBody())
+					DestroyBodyForEntity(e);
+				return false;
+			}
+
+			if (e->GetPhysicsBody() == nullptr)
+				CreateBodyForEntity(e);
+			return false;
+		});
+	}
+
 	void PhysicsWorld::AddAllBodies()
 	{
 		JPH::BodyInterface& bodyInterface = m_physicsSystem.GetBodyInterface();
@@ -61,11 +88,8 @@ namespace Lina
 		bodyPtrs.reserve(m_world->GetActiveEntityCount());
 
 		m_world->ViewEntities([&](Entity* e, uint32 idx) -> bool {
-			const EntityPhysicsSettings& phySettings = e->GetPhysicsSettings();
-			if (phySettings.bodyType == PhysicsBodyType::None)
-				return false;
-
-			bodyPtrs.push_back(CreateBodyForEntity(e));
+			if (e->GetPhysicsBody())
+				bodyPtrs.push_back(e->GetPhysicsBody());
 			return false;
 		});
 
@@ -76,16 +100,21 @@ namespace Lina
 
 		const JPH::BodyInterface::AddState addState = bodyInterface.AddBodiesPrepare(m_addedBodyIDs.data(), static_cast<int32>(m_addedBodyIDs.size()));
 		bodyInterface.AddBodiesFinalize(m_addedBodyIDs.data(), static_cast<int32>(m_addedBodyIDs.size()), addState, JPH::EActivation::DontActivate);
+
+		LINA_TRACE("Added bodies to world! {0}", m_addedBodyIDs.size());
 	}
 
 	void PhysicsWorld::RemoveAllBodies()
 	{
 		JPH::BodyInterface& bodyInterface = m_physicsSystem.GetBodyInterface();
 		bodyInterface.RemoveBodies(m_addedBodyIDs.data(), static_cast<int32>(m_addedBodyIDs.size()));
+		LINA_TRACE("Removed bodies from world! {0}", m_addedBodyIDs.size());
 	}
 
 	JPH::Body* PhysicsWorld::CreateBodyForEntity(Entity* e)
 	{
+		LINA_ASSERT(e->GetPhysicsBody() == nullptr, "");
+
 		JPH::BodyInterface&		  bodyInterface = m_physicsSystem.GetBodyInterface();
 		JPH::BodyCreationSettings settings		= {};
 
@@ -125,11 +154,24 @@ namespace Lina
 		settings.mMotionType  = ToJoltMotionType(phySettings.bodyType);
 		settings.mObjectLayer = phySettings.bodyType == PhysicsBodyType::Static ? static_cast<uint16>(PhysicsObjectLayers::NonMoving) : static_cast<uint16>(PhysicsObjectLayers::Moving);
 
-		bodyInterface.CreateBody(settings);
+		JPH::Body* body	 = bodyInterface.CreateBody(settings);
+		e->m_physicsBody = body;
+
+		LINA_TRACE("Creted physics body for entity {0}", e->GetName());
 	}
 
-	void PhysicsWorld::Simulate()
+	void PhysicsWorld::DestroyBodyForEntity(Entity* e)
 	{
+		JPH::BodyInterface& bodyInterface = m_physicsSystem.GetBodyInterface();
+		bodyInterface.DestroyBody(e->GetPhysicsBody()->GetID());
+		e->m_physicsBody = nullptr;
+		LINA_TRACE("Removed physics body for entity {0}", e->GetName());
+	}
+
+	void PhysicsWorld::Simulate(float dt)
+	{
+		const int cCollisionSteps = 1;
+		m_physicsSystem.Update(dt, cCollisionSteps, &m_tempAllocator, &m_jobSystem);
 	}
 
 	JPH::ValidateResult PhysicsWorld::OnContactValidate(const JPH::Body& inBody1, const JPH::Body& inBody2, JPH::RVec3Arg inBaseOffset, const JPH::CollideShapeResult& inCollisionResult)

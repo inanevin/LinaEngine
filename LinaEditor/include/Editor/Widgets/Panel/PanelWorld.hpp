@@ -53,6 +53,7 @@ namespace Lina::Editor
 
 		virtual void Construct() override;
 		virtual void Destruct() override;
+		virtual void PreTick() override;
 
 		inline WorldDisplayer* GetDisplayer() const
 		{
@@ -69,6 +70,8 @@ namespace Lina::Editor
 		Editor*			m_editor		 = nullptr;
 		WorldDisplayer* m_worldDisplayer = nullptr;
 		EntityWorld*	m_world			 = nullptr;
+		ResourceID		m_lastID		 = 0;
+		bool			m_firstTick		 = false;
 	};
 
 	LINA_WIDGET_BEGIN(PanelWorld, Hidden)

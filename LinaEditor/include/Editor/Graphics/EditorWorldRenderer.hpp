@@ -32,7 +32,6 @@ SOFTWARE.
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
 #include "Core/Graphics/Pipeline/Buffer.hpp"
 #include "Core/Graphics/Renderers/WorldRendererListener.hpp"
-#include "Core/Graphics/Renderers/PhysicsDebugRenderer.hpp"
 #include "Editor/Graphics/GizmoRenderer.hpp"
 #include "Editor/Graphics/MousePickRenderer.hpp"
 #include "Editor/Graphics/OutlineSelectionRenderer.hpp"
@@ -45,6 +44,7 @@ namespace Lina
 	class ResourceManagerV2;
 	class EntityWorld;
 	class TextureSampler;
+	class PhysicsDebugRenderer;
 } // namespace Lina
 
 namespace LinaGX
@@ -78,6 +78,7 @@ namespace Lina::Editor
 		void SyncRender();
 		void UpdateBuffers(uint32 frameIndex);
 		void Render(uint32 frameIndex);
+		void CreatePhysicsRenderer();
 
 		virtual void OnWorldRendererCreateSizeRelative() override;
 		virtual void OnWorldRendererDestroySizeRelative() override;
@@ -132,7 +133,7 @@ namespace Lina::Editor
 		MousePickRenderer		 m_mousePickRenderer;
 		OutlineSelectionRenderer m_outlineRenderer;
 		GizmoRenderer			 m_gizmoRenderer;
-		PhysicsDebugRenderer	 m_physicsDebugRenderer;
+		PhysicsDebugRenderer*	 m_physicsDebugRenderer = nullptr;
 
 		Shader*			m_gridShader			 = nullptr;
 		Shader*			m_worldSampleShader		 = nullptr;

@@ -38,6 +38,7 @@ namespace Lina
 		stream << m_floats;
 		stream << m_strings;
 		stream << m_int32s;
+		stream << m_resIDs;
 	}
 
 	void ParameterCollection::LoadFromStream(IStream& stream)
@@ -49,6 +50,7 @@ namespace Lina
 		stream >> m_floats;
 		stream >> m_strings;
 		stream >> m_int32s;
+		stream >> m_resIDs;
 	}
 
 	void ParameterCollection::SetParamUint8(StringID sid, uint8 val)
@@ -158,6 +160,28 @@ namespace Lina
 			return it->val;
 
 		m_strings.push_back({.sid = sid, .val = defaultVal});
+		return defaultVal;
+	}
+
+	void ParameterCollection::SetParamResourceID(StringID sid, ResourceID val)
+	{
+		auto it = linatl::find_if(m_resIDs.begin(), m_resIDs.end(), [sid](const ColResourceID& col) -> bool { return col.sid == sid; });
+		if (it != m_resIDs.end())
+		{
+			it->val = val;
+			return;
+		}
+
+		m_resIDs.push_back({.sid = sid, .val = val});
+	}
+
+	ResourceID ParameterCollection::GetParamResourceID(StringID sid, ResourceID defaultVal)
+	{
+		auto it = linatl::find_if(m_resIDs.begin(), m_resIDs.end(), [sid](const ColResourceID& col) -> bool { return col.sid == sid; });
+		if (it != m_resIDs.end())
+			return it->val;
+
+		m_resIDs.push_back({.sid = sid, .val = defaultVal});
 		return defaultVal;
 	}
 

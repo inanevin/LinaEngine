@@ -30,16 +30,19 @@ SOFTWARE.
 
 #include "Core/Graphics/Renderers/PhysicsDebugRenderer.hpp"
 #include "Core/Physics/CommonPhysics.hpp"
+#include "Core/Graphics/Pipeline/RenderPass.hpp"
 
 namespace Lina
 {
 
-	void PhysicsDebugRenderer::Initialize()
+	PhysicsDebugRenderer::PhysicsDebugRenderer(RenderPass* targetPass)
 	{
+		m_targetPass = targetPass;
+		JPH::DebugRenderer::Initialize();
 		m_shapeRenderer.Initialize();
 	}
 
-	void PhysicsDebugRenderer::Shutdown()
+	PhysicsDebugRenderer::~PhysicsDebugRenderer()
 	{
 		m_shapeRenderer.Shutdown();
 	}
@@ -56,6 +59,8 @@ namespace Lina
 
 	void PhysicsDebugRenderer::DrawTriangle(JPH::RVec3Arg inV1, JPH::RVec3Arg inV2, JPH::RVec3Arg inV3, JPH::ColorArg inColor, JPH::DebugRenderer::ECastShadow inCastShadow)
 	{
+		const RenderPass::InstancedDraw draw = {};
+		// m_targetPass->AddDrawCall(draw);
 	}
 
 	void PhysicsDebugRenderer::DrawLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, JPH::ColorArg inColor)
@@ -77,14 +82,60 @@ namespace Lina
 											JPH::DebugRenderer::ECastShadow		   inCastShadow,
 											JPH::DebugRenderer::EDrawMode		   inDrawMode)
 	{
+		// Figure out which LOD to use
+		const JPH::DebugRenderer::LOD* lod = inGeometry->mLODs.data();
+
+		// Draw the batch
+		const BatchImpl* batch = static_cast<const BatchImpl*>(lod->mTriangleBatch.GetPtr());
+		for (const JPH::DebugRenderer::Triangle& triangle : batch->mTriangles)
+		{
+			JPH::RVec3 v0	 = inModelMatrix * JPH::Vec3(triangle.mV[0].mPosition);
+			JPH::RVec3 v1	 = inModelMatrix * JPH::Vec3(triangle.mV[1].mPosition);
+			JPH::RVec3 v2	 = inModelMatrix * JPH::Vec3(triangle.mV[2].mPosition);
+			JPH::Color color = inModelColor * triangle.mV[0].mColor;
+
+			switch (inDrawMode)
+			{
+			case EDrawMode::Wireframe:
+				DrawLine(v0, v1, color);
+				DrawLine(v1, v2, color);
+				DrawLine(v2, v0, color);
+				break;
+
+			case EDrawMode::Solid:
+				DrawTriangle(v0, v1, v2, color, inCastShadow);
+				break;
+			}
+		}
 	}
 
 	JPH::DebugRenderer::Batch PhysicsDebugRenderer::CreateTriangleBatch(const JPH::DebugRenderer::Vertex* inVertices, int inVertexCount, const uint32* inIndices, int inIndexCount)
 	{
+		BatchImpl* batch = new BatchImpl;
+		if (inVertices == nullptr || inVertexCount == 0 || inIndices == nullptr || inIndexCount == 0)
+			return batch;
+
+		// Convert indexed triangle list to triangle list
+		batch->mTriangles.resize(inIndexCount / 3);
+		for (size_t t = 0; t < batch->mTriangles.size(); ++t)
+		{
+			JPH::DebugRenderer::Triangle& triangle = batch->mTriangles[t];
+			triangle.mV[0]						   = inVertices[inIndices[t * 3 + 0]];
+			triangle.mV[1]						   = inVertices[inIndices[t * 3 + 1]];
+			triangle.mV[2]						   = inVertices[inIndices[t * 3 + 2]];
+		}
+
+		return batch;
 	}
 
 	JPH::DebugRenderer::Batch PhysicsDebugRenderer::CreateTriangleBatch(const JPH::DebugRenderer::Triangle* inTriangles, int inTriangleCount)
 	{
+		BatchImpl* batch = new BatchImpl;
+		if (inTriangles == nullptr || inTriangleCount == 0)
+			return batch;
+
+		batch->mTriangles.assign(inTriangles, inTriangles + inTriangleCount);
+		return batch;
 	}
 
 } // namespace Lina

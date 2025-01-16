@@ -34,7 +34,8 @@ SOFTWARE.
 #include "Editor/Editor.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Actions/EditorActionEntity.hpp"
-#include "Editor/World/WorldUtility.hpp"
+#include "Editor/World/EditorWorldUtility.hpp"
+#include "Core/World/WorldUtility.hpp"
 #include "Core/World/Components/CompLight.hpp"
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
@@ -143,7 +144,7 @@ namespace Lina::Editor
 		controller->GetProps().onDuplicate = [this]() {
 			const Vector<Entity*> selection = m_controller->GetSelectedUserData<Entity>();
 			Vector<Entity*>		  entities;
-			WorldUtility::DuplicateEntities(m_editor, m_world, selection, entities);
+			WorldUtility::DuplicateEntities(m_world, selection, entities);
 			EditorActionEntitiesCreated::Create(m_editor, m_world, entities);
 			EditorActionEntitySelection::Create(m_editor, m_world->GetID(), entities, true, true);
 			EditorActionCollective::Create(m_editor, 2);
@@ -336,7 +337,7 @@ namespace Lina::Editor
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Duplicate)))
 		{
 			Vector<Entity*> entities;
-			WorldUtility::DuplicateEntities(m_editor, m_world, selection, entities);
+			WorldUtility::DuplicateEntities(m_world, selection, entities);
 			EditorActionEntitiesCreated::Create(m_editor, m_world, entities);
 			EditorActionEntitySelection::Create(m_editor, m_world->GetID(), entities, true, true);
 			EditorActionCollective::Create(m_editor, 2);

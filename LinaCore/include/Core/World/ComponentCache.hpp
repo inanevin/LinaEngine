@@ -49,7 +49,7 @@ namespace Lina
 
 		virtual void	   LoadFromStream(IStream& stream, const Vector<Entity*>& entities) = 0;
 		virtual void	   SaveToStream(OStream& stream)									= 0;
-		virtual Component* Get(Entity* e)													= 0;
+		virtual Component* Get(Entity* e) const												= 0;
 		virtual void	   Destroy(Entity* e)												= 0;
 		virtual void	   Destroy(Component* c)											= 0;
 		virtual void	   ForEach(Delegate<void(Component* c)>&& cb)						= 0;
@@ -94,7 +94,7 @@ namespace Lina
 				m_componentBucket.Free(component);
 		}
 
-		virtual T* Get(Entity* e) override
+		virtual T* Get(Entity* e) const override
 		{
 			T* component = nullptr;
 			m_componentBucket.View([&](T* comp, uint32 index) -> bool {

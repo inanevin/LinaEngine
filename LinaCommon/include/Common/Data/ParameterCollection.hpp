@@ -115,6 +115,20 @@ namespace Lina
 			}
 		};
 
+		struct ColResourceID
+		{
+			StringID   sid = 0;
+			ResourceID val = 0;
+			void	   SaveToStream(OStream& stream) const
+			{
+				stream << sid << val;
+			}
+			void LoadFromStream(IStream& stream)
+			{
+				stream >> sid >> val;
+			}
+		};
+
 	public:
 		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);
@@ -134,11 +148,15 @@ namespace Lina
 		void   SetParamString(StringID sid, const String& val);
 		String GetParamString(StringID sid, const String& defaultVal = "");
 
+		void	   SetParamResourceID(StringID sid, ResourceID val);
+		ResourceID GetParamResourceID(StringID sid, ResourceID defaultVal = 0);
+
 	public:
-		Vector<ColUint8>  m_uint8s;
-		Vector<ColUint32> m_uint32s;
-		Vector<ColInt32>  m_int32s;
-		Vector<ColFloat>  m_floats;
-		Vector<ColString> m_strings;
+		Vector<ColUint8>	  m_uint8s;
+		Vector<ColUint32>	  m_uint32s;
+		Vector<ColInt32>	  m_int32s;
+		Vector<ColFloat>	  m_floats;
+		Vector<ColString>	  m_strings;
+		Vector<ColResourceID> m_resIDs;
 	};
 } // namespace Lina

@@ -40,7 +40,7 @@ SOFTWARE.
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Serialization/Serialization.hpp"
 #include "Editor/Actions/EditorActionEntity.hpp"
-#include "Editor/World/WorldUtility.hpp"
+#include "Editor/World/EditorWorldUtility.hpp"
 
 namespace Lina::Editor
 {
@@ -85,6 +85,14 @@ namespace Lina::Editor
 	{
 		WorldData worldData = {};
 
+		String resourcePath = "";
+		if (id != 0)
+		{
+			resourcePath = m_editor->GetProjectManager().GetProjectData()->GetResourcePath(id);
+			if (!FileSystem::FileOrPathExists(resourcePath))
+				return;
+		}
+
 		EntityWorld*		 world				 = new EntityWorld(id, "");
 		WorldRenderer*		 worldRenderer		 = new WorldRenderer(&m_editor->GetApp()->GetGfxContext(), &m_editor->GetApp()->GetResourceManager(), world, Vector2ui(4, 4), "WorldRenderer: " + world->GetName());
 		EditorWorldRenderer* editorWorldRenderer = new EditorWorldRenderer(m_editor, m_editor->GetApp()->GetLGX(), worldRenderer);
@@ -92,25 +100,7 @@ namespace Lina::Editor
 
 		if (id != 0)
 		{
-			const String resourcePath = m_editor->GetProjectManager().GetProjectData()->GetResourcePath(id);
-
-			if (!FileSystem::FileOrPathExists(resourcePath))
-			{
-				LINA_ERR("Can not open world with id {0}", id);
-				delete world;
-				delete worldRenderer;
-				delete editorWorldRenderer;
-				return nullptr;
-			}
-
-			IStream stream = Serialization::LoadFromFile(resourcePath.c_str());
-			world->LoadFromStream(stream);
-			stream.Destroy();
-
-			HashSet<ResourceID> defaultResources = {
-
-			};
-			world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), defaultResources, world->GetID());
+			EditorWorldUtility::OpenWorldFromFile(m_editor, world);
 		}
 
 		m_editor->GetApp()->JoinRender();

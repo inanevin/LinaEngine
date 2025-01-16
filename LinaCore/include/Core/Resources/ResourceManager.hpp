@@ -59,6 +59,7 @@ namespace Lina
 		void			   UnloadResources(const ResourceDefinitionList& resources);
 		void			   ReloadResourceHW(const HashSet<Resource*>& resources);
 		void			   UnloadResourceSpace(uint64 id);
+		void			   FillResourcesOfSpace(ResourceID space, Vector<ResourceID>& outResources);
 
 		void AddListener(ResourceManagerListener* listener);
 		void RemoveListener(ResourceManagerListener* listener);

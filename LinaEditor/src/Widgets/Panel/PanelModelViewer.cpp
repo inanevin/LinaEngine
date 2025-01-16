@@ -43,7 +43,7 @@ SOFTWARE.
 #include "Editor/EditorLocale.hpp"
 #include "Core/Application.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
-#include "Editor/World/WorldUtility.hpp"
+#include "Editor/World/EditorWorldUtility.hpp"
 
 namespace Lina::Editor
 {
@@ -107,7 +107,7 @@ namespace Lina::Editor
 		if (!m_skyMaterial)
 		{
 			m_skyMaterial = m_resourceManager->CreateResource<Material>(m_resourceManager->ConsumeResourceID(), "ModelViewerSkyMaterial", m_resourceSpace);
-			WorldUtility::SetupDefaultSkyMaterial(m_skyMaterial, m_resourceManager);
+			EditorWorldUtility::SetupDefaultSkyMaterial(m_skyMaterial, m_resourceManager);
 			m_world->GetGfxSettings().skyMaterial = m_skyMaterial->GetID();
 			m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 		}
@@ -248,7 +248,7 @@ namespace Lina::Editor
 			m_world->DestroyEntity(m_displayEntity);
 
 		Model* model	= static_cast<Model*>(m_resource);
-		m_displayEntity = WorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, model, model->GetMeta().materials);
+		m_displayEntity = EditorWorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, model, model->GetMeta().materials);
 		m_compModel		= m_world->GetComponent<CompModel>(m_displayEntity);
 		m_compModel->GetAnimationController().SelectAnimation(m_displayAnimation);
 		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {}, m_resourceSpace);

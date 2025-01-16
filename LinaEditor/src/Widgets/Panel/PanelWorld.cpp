@@ -34,13 +34,16 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
 #include "Editor/Widgets/Compound/EntityBrowser.hpp"
 #include "Editor/Widgets/Compound/EntityDetails.hpp"
+#include "Editor/World/EditorWorldUtility.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Editor/Graphics/EditorWorldRenderer.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Math/Math.hpp"
+#include "Core/Meta/ProjectData.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
+#include "Core/Physics/PhysicsWorld.hpp"
 #include "Core/Application.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
@@ -62,12 +65,31 @@ namespace Lina::Editor
 		AddChild(m_worldDisplayer);
 
 		m_editor->GetWorldManager().AddListener(this);
+
+		const ResourceID id = m_editor->GetSettings().GetParams().GetParamResourceID("LastWorld"_hs);
+		m_lastID			= id;
 	}
 
 	void PanelWorld::Destruct()
 	{
-		m_editor->GetWorldManager().CloseWorld(m_world);
+		if (m_world != nullptr)
+		{
+			EditorWorldUtility::SaveWorldToFile(m_editor, m_world);
+			m_editor->GetWorldManager().CloseWorld(m_world);
+		}
+
 		m_editor->GetWorldManager().RemoveListener(this);
+	}
+
+	void PanelWorld::PreTick()
+	{
+		if (!m_firstTick)
+		{
+			m_firstTick = true;
+
+			if (m_lastID != 0)
+				m_editor->GetWorldManager().OpenWorld(m_lastID);
+		}
 	}
 
 	void PanelWorld::OnWorldManagerOpenedWorld(EditorWorldRenderer* wr)
@@ -75,8 +97,16 @@ namespace Lina::Editor
 		EntityWorld* world = wr->GetWorldRenderer()->GetWorld();
 		if (world->GetID() == 0)
 			return;
+
+		if (m_world)
+		{
+			EditorWorldUtility::SaveWorldToFile(m_editor, m_world);
+			m_editor->GetWorldManager().CloseWorld(m_world);
+		}
+
 		m_world = wr->GetWorldRenderer()->GetWorld();
 		m_worldDisplayer->DisplayWorld(wr, WorldCameraType::FreeMove);
+		m_editor->GetSettings().GetParams().SetParamResourceID("LastWorld"_hs, m_world->GetID());
 	}
 
 	void PanelWorld::OnWorldManagerClosingWorld(EditorWorldRenderer* wr)

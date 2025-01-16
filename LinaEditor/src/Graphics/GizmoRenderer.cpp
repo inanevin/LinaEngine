@@ -125,7 +125,7 @@ namespace Lina::Editor
 
 	void GizmoRenderer::Tick(float delta)
 	{
-		DrawPhysicsWireframes();
+		// DrawPhysicsWireframes();
 		DrawLightWireframes();
 		DrawLightIcons(m_targetPass, 0);
 		DrawLightIcons(&m_mousePickRenderer->GetRenderPass(), "StaticEntityID"_hs);

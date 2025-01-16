@@ -26,35 +26,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Physics/CommonPhysics.hpp"
-#include <Jolt/Jolt.h>
-#include <Jolt/Physics/Body/MotionType.h>
+#pragma once
+
+#include "Common/Math/Vector.hpp"
 
 namespace Lina
 {
-	JPH::Vec3 ToJoltVec3(const Vector3& v)
+	class Material;
+	class ResourceManagerV2;
+	class Model;
+	class Entity;
+	class EntityWorld;
+	struct ResourceDirectory;
+
+	class WorldUtility
 	{
-		return JPH::Vec3(v.x, v.y, v.z);
-	}
-
-	JPH::Quat ToJoltQuat(const Quaternion& q)
-	{
-		return JPH::Quat(q.x, q.y, q.z, q.w);
-	}
-
-	JPH::EMotionType ToJoltMotionType(const PhysicsBodyType& type)
-	{
-		if (type == PhysicsBodyType::Static)
-			return JPH::EMotionType::Static;
-
-		if (type == PhysicsBodyType::Kinematic)
-			return JPH::EMotionType::Kinematic;
-
-		return JPH::EMotionType::Dynamic;
-	}
-
-	Vector3 FromJoltVec3(const JPH::Vec3& v)
-	{
-		return Vector3(v.GetX(), v.GetY(), v.GetZ());
-	}
+	public:
+		static void FixEntityIDsToNew(EntityWorld* world, const Vector<Entity*>& entities);
+		static void SaveEntitiesToStream(OStream& stream, const EntityWorld* world, const Vector<Entity*>& entities, Entity* parent = nullptr);
+		static void LoadEntitiesFromStream(IStream& stream, EntityWorld* world, Vector<Entity*>& outEntities);
+		static void DuplicateEntities(EntityWorld* world, const Vector<Entity*>& srcEntities, Vector<Entity*>& outEntities);
+		static void ExtractRoots(const Vector<Entity*>& entities, Vector<Entity*>& roots);
+	};
 } // namespace Lina

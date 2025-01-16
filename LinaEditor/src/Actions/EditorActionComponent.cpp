@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Editor/Actions/EditorActionComponent.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/Widgets/World/WorldController.hpp"
-#include "Editor/World/WorldUtility.hpp"
+#include "Editor/World/EditorWorldUtility.hpp"
 #include "Core/World/Entity.hpp"
 #include "Core/World/Component.hpp"
 #include "Core/Application.hpp"

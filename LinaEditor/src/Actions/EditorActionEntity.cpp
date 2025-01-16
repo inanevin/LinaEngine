@@ -29,9 +29,11 @@ SOFTWARE.
 #include "Editor/Actions/EditorActionEntity.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/Widgets/World/WorldController.hpp"
-#include "Editor/World/WorldUtility.hpp"
+#include "Editor/World/EditorWorldUtility.hpp"
+#include "Core/World/WorldUtility.hpp"
 #include "Core/World/Entity.hpp"
 #include "Core/World/Component.hpp"
+#include "Core/Physics/PhysicsWorld.hpp"
 
 namespace Lina::Editor
 {
@@ -205,7 +207,7 @@ namespace Lina::Editor
 		action->m_worldId					= world->GetID();
 
 		Vector<Entity*> roots;
-		WorldUtility::ExtractRoots(world, entities, roots);
+		WorldUtility::ExtractRoots(entities, roots);
 		WorldUtility::SaveEntitiesToStream(action->m_stream, world, roots);
 
 		for (Entity* e : roots)
@@ -239,6 +241,8 @@ namespace Lina::Editor
 			stream.Destroy();
 		}
 
+		world->GetPhysicsWorld()->EnsurePhysicsBodies();
+
 		editor->GetWorldManager().BroadcastEntityHierarchyChanged(world);
 	}
 
@@ -248,7 +252,7 @@ namespace Lina::Editor
 		action->m_worldId				 = world->GetID();
 
 		Vector<Entity*> roots;
-		WorldUtility::ExtractRoots(world, entities, roots);
+		WorldUtility::ExtractRoots(entities, roots);
 		WorldUtility::SaveEntitiesToStream(action->m_stream, world, roots);
 
 		for (Entity* e : roots)
@@ -280,6 +284,8 @@ namespace Lina::Editor
 			stream.Create(m_stream.GetDataRaw(), m_stream.GetCurrentSize());
 			WorldUtility::LoadEntitiesFromStream(stream, world, entities);
 			stream.Destroy();
+
+			world->GetPhysicsWorld()->EnsurePhysicsBodies();
 		}
 
 		editor->GetWorldManager().BroadcastEntityHierarchyChanged(world);
@@ -403,6 +409,8 @@ namespace Lina::Editor
 				i++;
 			}
 		}
+
+		world->GetPhysicsWorld()->EnsurePhysicsBodies();
 
 		if (type != ExecType::Create)
 			editor->GetWorldManager().BroadcastEntityPhysicsSettingsChanged(world);

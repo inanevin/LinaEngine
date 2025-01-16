@@ -44,7 +44,7 @@ namespace Lina::Editor
 {
 	class Editor;
 
-	class WorldUtility
+	class EditorWorldUtility
 	{
 	public:
 		static void			   SetupDefaultSkyMaterial(Material* mat, ResourceManagerV2* rm);
@@ -52,10 +52,7 @@ namespace Lina::Editor
 		static void			   LoadModelAndMaterials(Editor* editor, ResourceID model, ResourceID resourceSpace);
 		static Vector<Entity*> AddResourcesToWorld(Editor* editor, EntityWorld* world, const Vector<ResourceDirectory*>& dirs, const Vector3& pos);
 
-		static void FixEntityIDsToNew(EntityWorld* world, const Vector<Entity*>& entities);
-		static void SaveEntitiesToStream(OStream& stream, EntityWorld* world, const Vector<Entity*>& entities, Entity* parent = nullptr);
-		static void LoadEntitiesFromStream(IStream& stream, EntityWorld* world, Vector<Entity*>& outEntities);
-		static void DuplicateEntities(Editor* editor, EntityWorld* world, const Vector<Entity*>& srcEntities, Vector<Entity*>& outEntities);
-		static void ExtractRoots(EntityWorld* world, const Vector<Entity*>& entities, Vector<Entity*>& roots);
+		static void SaveWorldToFile(Editor* editor, EntityWorld* world);
+		static void OpenWorldFromFile(Editor* editor, EntityWorld* world);
 	};
 } // namespace Lina::Editor
