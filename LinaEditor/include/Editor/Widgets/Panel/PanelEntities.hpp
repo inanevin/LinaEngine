@@ -54,6 +54,8 @@ namespace Lina::Editor
 		virtual void PreTick() override;
 		virtual void Tick(float dt) override;
 
+		void SetWorld(EntityWorld* world);
+
 	protected:
 		virtual void OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities, StringID source) override;
 		virtual void OnWorldManagerEntityHierarchyChanged(EntityWorld* w) override;

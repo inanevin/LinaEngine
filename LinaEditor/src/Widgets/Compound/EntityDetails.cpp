@@ -97,6 +97,10 @@ namespace Lina::Editor
 	{
 		m_world = w;
 		m_selectedEntities.clear();
+
+		if (w)
+			m_selectedEntities = m_editor->GetWorldManager().GetWorldData(w).selectedEntities;
+
 		RefreshDetails();
 	}
 

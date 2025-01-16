@@ -214,6 +214,9 @@ namespace Lina::Editor
 	void EntityBrowser::SetWorld(EntityWorld* w)
 	{
 		m_world = w;
+		m_selectedEntities.clear();
+		if (w)
+			m_selectedEntities = m_editor->GetWorldManager().GetWorldData(w).selectedEntities;
 		RefreshEntities();
 	}
 

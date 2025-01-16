@@ -294,7 +294,9 @@ namespace Lina
 
 		HashSet<ResourceID> worldResources;
 		CollectResourceNeeds(worldResources);
-		m_rm->FillResourcesOfSpace(m_id, worldResources);
+
+		if (m_rm)
+			m_rm->FillResourcesOfSpace(m_id, worldResources);
 
 		Vector<ResourceID> worldResourcesToSave;
 		worldResourcesToSave.reserve(worldResources.size());
@@ -387,6 +389,7 @@ namespace Lina
 			project, materialDependencies, [](uint32 loaded, Resource* current) {}, m_id);
 		allLoaded.insert(matNeeds.begin(), matNeeds.end());
 
+		RefreshAllComponentReferences();
 		return allLoaded;
 	}
 
@@ -403,6 +406,16 @@ namespace Lina
 			for (Component* c : comps)
 				c->StoreReferences();
 		}
+	}
+
+	void EntityWorld::RefreshAllComponentReferences()
+	{
+		m_entityBucket.View([this](Entity* e, uint32 idx) -> bool {
+			Vector<Component*> comps;
+			GetComponents(e, comps);
+			for (Component* c : comps)
+				c->StoreReferences();
+		});
 	}
 
 	LINA_CLASS_BEGIN(EntityWorldGfxSettings)

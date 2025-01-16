@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Widgets/Compound/EntityBrowser.hpp"
 #include "Editor/Widgets/Compound/EntityDetails.hpp"
+#include "Editor/Widgets/Panel/PanelWorld.hpp"
 #include "Editor/Graphics/EditorWorldRenderer.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/World/EntityWorld.hpp"
@@ -55,10 +56,13 @@ namespace Lina::Editor
 		m_entityDetails->SetAlignedPos(Vector2::Zero);
 		m_entityDetails->SetAlignedSize(Vector2::One);
 		AddChild(m_entityDetails);
-
-		EntityWorld* w = m_editor->GetWorldManager().GetFirstGameWorld();
-		if (w)
-			m_entityDetails->SetWorld(w);
+        
+        Panel* panel = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::World, 0);
+        if(panel)
+        {
+            EntityWorld* w = static_cast<PanelWorld*>(panel)->GetWorld();
+            SetWorld(w);
+        }
 
 		m_editor->GetWorldManager().AddListener(this);
 	}
@@ -76,14 +80,11 @@ namespace Lina::Editor
 	{
 	}
 
-	bool PanelDetails::OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData)
-	{
-		return true;
-	}
-
-	void PanelDetails::OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData)
-	{
-	}
+    void PanelDetails::SetWorld(EntityWorld *world)
+    {
+        m_entityDetails->SetWorld(world);
+        m_entityDetails->RefreshDetails();
+    }
 
 	void PanelDetails::OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities, StringID source)
 	{

@@ -166,15 +166,4 @@ namespace Lina::Editor
 		return *it;
 	}
 
-	EntityWorld* EditorWorldManager::GetFirstGameWorld()
-	{
-		for (const WorldData& wd : m_worlds)
-		{
-			if (wd.world->GetID() != 0)
-				return wd.world;
-		}
-
-		return nullptr;
-	}
-
 } // namespace Lina::Editor

@@ -100,6 +100,7 @@ namespace Lina
 		void			   CollectResourceNeeds(HashSet<ResourceID>& outResources) const;
 		HashSet<Resource*> LoadMissingResources(ResourceManagerV2& rm, ProjectData* project, const HashSet<ResourceID>& extraResources);
 		void			   RefreshComponentReferences(const Vector<Entity*>& entities);
+		void			   RefreshAllComponentReferences();
 
 		void Tick(float delta);
 		void SetPlayMode(PlayMode playmode);

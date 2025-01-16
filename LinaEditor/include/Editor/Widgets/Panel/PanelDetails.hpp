@@ -29,7 +29,6 @@ SOFTWARE.
 #pragma once
 
 #include "Editor/Widgets/Panel/Panel.hpp"
-#include "Core/GUI/Widgets/Compound/FileMenu.hpp"
 #include "Editor/World/EditorWorldManager.hpp"
 
 namespace Lina
@@ -44,7 +43,7 @@ namespace Lina::Editor
 	class Editor;
 	class EntityDetails;
 
-	class PanelDetails : public Panel, public FileMenuListener, public EditorWorldManagerListener
+	class PanelDetails : public Panel, public EditorWorldManagerListener
 	{
 	public:
 		PanelDetails() : Panel(PanelType::Details){};
@@ -55,8 +54,7 @@ namespace Lina::Editor
 		virtual void PreTick() override;
 		virtual void Tick(float dt) override;
 
-		virtual bool OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData) override;
-		virtual void OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
+		void SetWorld(EntityWorld* world);
 
 	protected:
 		virtual void OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities, StringID source) override;

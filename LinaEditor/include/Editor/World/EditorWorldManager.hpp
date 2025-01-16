@@ -73,7 +73,6 @@ namespace Lina::Editor
 
 		EditorWorldRenderer* CreateEditorWorld();
 		void				 DestroyEditorWorld(EntityWorld* world);
-		EntityWorld*		 GetFirstGameWorld();
 
 		EntityWorld* GetWorld(ResourceID id);
 		WorldData&	 GetWorldData(EntityWorld* world);

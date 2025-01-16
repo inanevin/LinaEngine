@@ -32,12 +32,14 @@ SOFTWARE.
 #include "Editor/Widgets/World/WorldDisplayer.hpp"
 #include "Editor/Widgets/World/WorldController.hpp"
 #include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
+#include "Editor/Widgets/Panel/PanelEntities.hpp"
+#include "Editor/Widgets/Panel/PanelDetails.hpp"
 #include "Editor/Widgets/Compound/EntityBrowser.hpp"
 #include "Editor/Widgets/Compound/EntityDetails.hpp"
 #include "Editor/World/EditorWorldUtility.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Editor/Graphics/EditorWorldRenderer.hpp"
-#include "Common/Platform/LinaVGIncl.hpp"
+#include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Math/Math.hpp"
 #include "Core/Meta/ProjectData.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
@@ -67,23 +69,23 @@ namespace Lina::Editor
 		m_editor->GetWorldManager().AddListener(this);
 
 		const ResourceID id = m_editor->GetSettings().GetParams().GetParamResourceID("LastWorld"_hs);
-        m_worldToOpen = id;
-        m_openWorld = id;
+		m_worldToOpen		= id;
+		m_openWorld			= true;
 	}
 
 	void PanelWorld::Destruct()
 	{
-        CloseWorld();
+		CloseWorld();
 		m_editor->GetWorldManager().RemoveListener(this);
 	}
 
 	void PanelWorld::PreTick()
 	{
-        if(m_openWorld)
-        {
-            m_openWorld = false;
-            OpenWorld(m_worldToOpen);
-        }
+		if (m_openWorld)
+		{
+			m_openWorld = false;
+			OpenWorld(m_worldToOpen);
+		}
 	}
 
 	void PanelWorld::OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities, StringID source)
@@ -100,25 +102,39 @@ namespace Lina::Editor
 			return;
 	}
 
-    void PanelWorld::OpenWorld(ResourceID id)
-    {
-        CloseWorld();
-        
-        EditorWorldRenderer* ewr = m_editor->GetWorldManager().CreateEditorWorld();
-        m_world = ewr->GetWorldRenderer()->GetWorld();
-        m_worldDisplayer->DisplayWorld(ewr, WorldCameraType::FreeMove);
-        m_editor->GetSettings().GetParams().SetParamResourceID("LastWorld"_hs, m_world->GetID());
-        m_world->LoadFromFile(m_editor->GetProjectManager().GetProjectData()->GetResourcePath(id));
-        m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {});
-    }
-    
-    void PanelWorld::CloseWorld()
-    {
-        if(!m_world)
-            return;
-        
-        m_world->SaveToFileAsBinary(m_editor->GetProjectManager().GetProjectData()->GetResourcePath(m_world->GetID()));
-        m_editor->GetWorldManager().DestroyEditorWorld(m_world);
-        m_world = nullptr;
-    }
+	void PanelWorld::OpenWorld(ResourceID id)
+	{
+		const String path = m_editor->GetProjectManager().GetProjectData()->GetResourcePath(id);
+		if (!FileSystem::FileOrPathExists(path))
+			return;
+
+		CloseWorld();
+
+		EditorWorldRenderer* ewr = m_editor->GetWorldManager().CreateEditorWorld();
+		m_world					 = ewr->GetWorldRenderer()->GetWorld();
+		m_worldDisplayer->DisplayWorld(ewr, WorldCameraType::FreeMove);
+		m_editor->GetSettings().GetParams().SetParamResourceID("LastWorld"_hs, m_world->GetID());
+		m_world->LoadFromFile(path);
+		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {});
+		m_world->RefreshAllComponentReferences();
+
+		Panel* panelEntities = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::Entities, 0);
+		Panel* panelDetails	 = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::Details, 0);
+
+		if (panelEntities)
+			static_cast<PanelEntities*>(panelEntities->SetWorld(m_world));
+
+		if (panelDetails)
+			static_cast<PanelDetails*>(panelDetails->SetWorld(m_world));
+	}
+
+	void PanelWorld::CloseWorld()
+	{
+		if (!m_world)
+			return;
+
+		m_world->SaveToFileAsBinary(m_editor->GetProjectManager().GetProjectData()->GetResourcePath(m_world->GetID()));
+		m_editor->GetWorldManager().DestroyEditorWorld(m_world);
+		m_world = nullptr;
+	}
 } // namespace Lina::Editor

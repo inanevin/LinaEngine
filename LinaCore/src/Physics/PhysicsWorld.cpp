@@ -93,6 +93,9 @@ namespace Lina
 			return false;
 		});
 
+		if (bodyPtrs.empty())
+			return;
+
 		const size_t bodySz = bodyPtrs.size();
 		m_addedBodyIDs.resize(bodySz);
 		for (size_t i = 0; i < bodySz; i++)

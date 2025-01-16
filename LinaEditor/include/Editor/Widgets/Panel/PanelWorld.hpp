@@ -66,6 +66,11 @@ namespace Lina::Editor
 			m_openWorld	  = true;
 		}
 
+		inline EntityWorld* GetWorld() const
+		{
+			return m_world;
+		}
+
 	protected:
 		virtual void OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities, StringID source) override;
 		virtual void OnWorldManagerEntityHierarchyChanged(EntityWorld* w) override;

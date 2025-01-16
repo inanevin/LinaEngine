@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelEntities.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Widgets/Compound/EntityBrowser.hpp"
+#include "Editor/Widgets/Panel/PanelWorld.hpp"
 #include "Editor/Graphics/EditorWorldRenderer.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 
@@ -50,10 +51,12 @@ namespace Lina::Editor
 		m_browser->SetAlignedSize(Vector2(1.0f, 1.0f));
 		AddChild(m_browser);
 
-		EntityWorld* w = m_editor->GetWorldManager().GetFirstGameWorld();
-
-		if (w)
-			m_browser->SetWorld(w);
+		Panel* panel = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::World, 0);
+		if (panel)
+		{
+			EntityWorld* w = static_cast<PanelWorld*>(panel)->GetWorld();
+			SetWorld(w);
+		}
 
 		m_editor->GetWorldManager().AddListener(this);
 	}
@@ -69,6 +72,12 @@ namespace Lina::Editor
 
 	void PanelEntities::Tick(float dt)
 	{
+	}
+
+	void PanelEntities::SetWorld(EntityWorld* world)
+	{
+		m_browser->SetWorld(world);
+		m_browser->RefreshEntities();
 	}
 
 	void PanelEntities::OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities, StringID source)
