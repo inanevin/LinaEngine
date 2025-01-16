@@ -81,27 +81,14 @@ namespace Lina::Editor
 		m_listeners.erase(linatl::find(m_listeners.begin(), m_listeners.end(), listener));
 	}
 
-	EditorWorldRenderer* EditorWorldManager::OpenWorld(ResourceID id)
+	EditorWorldRenderer* EditorWorldManager::CreateEditorWorld()
 	{
 		WorldData worldData = {};
 
-		String resourcePath = "";
-		if (id != 0)
-		{
-			resourcePath = m_editor->GetProjectManager().GetProjectData()->GetResourcePath(id);
-			if (!FileSystem::FileOrPathExists(resourcePath))
-				return;
-		}
-
-		EntityWorld*		 world				 = new EntityWorld(id, "");
+		EntityWorld*		 world				 = new EntityWorld(0, "");
 		WorldRenderer*		 worldRenderer		 = new WorldRenderer(&m_editor->GetApp()->GetGfxContext(), &m_editor->GetApp()->GetResourceManager(), world, Vector2ui(4, 4), "WorldRenderer: " + world->GetName());
 		EditorWorldRenderer* editorWorldRenderer = new EditorWorldRenderer(m_editor, m_editor->GetApp()->GetLGX(), worldRenderer);
 		world->Initialize(&m_editor->GetApp()->GetResourceManager());
-
-		if (id != 0)
-		{
-			EditorWorldUtility::OpenWorldFromFile(m_editor, world);
-		}
 
 		m_editor->GetApp()->JoinRender();
 		m_editor->GetEditorRenderer().AddWorldRenderer(worldRenderer, editorWorldRenderer);
@@ -112,13 +99,10 @@ namespace Lina::Editor
 			.editorWorldRenderer = editorWorldRenderer,
 		});
 
-		for (EditorWorldManagerListener* l : m_listeners)
-			l->OnWorldManagerOpenedWorld(editorWorldRenderer);
-
 		return editorWorldRenderer;
 	}
 
-	void EditorWorldManager::CloseWorld(EntityWorld* world)
+	void EditorWorldManager::DestroyEditorWorld(EntityWorld* world)
 	{
 		auto it = linatl::find_if(m_worlds.begin(), m_worlds.end(), [world](const WorldData& wd) -> bool { return wd.world == world; });
 
@@ -128,13 +112,12 @@ namespace Lina::Editor
 			return;
 		}
 
-		m_editor->GetApp()->GetResourceManager().UnloadResourceSpace(world->GetID());
+		if (world->GetID() != 0)
+			m_editor->GetApp()->GetResourceManager().UnloadResourceSpace(world->GetID());
+
 		m_editor->GetApp()->JoinRender();
 
 		WorldData& data = *it;
-
-		for (EditorWorldManagerListener* l : m_listeners)
-			l->OnWorldManagerClosingWorld(data.editorWorldRenderer);
 
 		m_editor->GetEditorRenderer().RemoveWorldRenderer(data.worldRenderer);
 		delete data.worldRenderer;

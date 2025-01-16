@@ -343,7 +343,7 @@ namespace Lina::Editor
 				panelResView->RebuildContents();
 			}
 
-			matViewer->GetWorld()->LoadMissingResources(editor->GetApp()->GetResourceManager(), editor->GetProjectManager().GetProjectData(), {}, m_resourceSpace);
+			matViewer->GetWorld()->LoadMissingResources(editor->GetApp()->GetResourceManager(), editor->GetProjectManager().GetProjectData(), {});
 		}
 
 		editor->GetApp()->GetResourceManager().ReloadResourceHW({mat});
@@ -416,7 +416,7 @@ namespace Lina::Editor
 			matViewer->SetupWorld();
 			panelResView->UpdateResourceProperties();
 			panelResView->RebuildContents();
-			matViewer->GetWorld()->LoadMissingResources(editor->GetApp()->GetResourceManager(), editor->GetProjectManager().GetProjectData(), {}, m_resourceSpace);
+			matViewer->GetWorld()->LoadMissingResources(editor->GetApp()->GetResourceManager(), editor->GetProjectManager().GetProjectData(), {});
 		}
 
 		mat->SaveToFileAsBinary(editor->GetProjectManager().GetProjectData()->GetResourcePath(mat->GetID()));
@@ -564,7 +564,7 @@ namespace Lina::Editor
 				panelResView->RebuildContents();
 			}
 
-			modelViewer->GetWorld()->LoadMissingResources(editor->GetApp()->GetResourceManager(), editor->GetProjectManager().GetProjectData(), {}, m_resourceSpace);
+			modelViewer->GetWorld()->LoadMissingResources(editor->GetApp()->GetResourceManager(), editor->GetProjectManager().GetProjectData(), {});
 			modelViewer->SetupWorld();
 		}
 

@@ -73,8 +73,9 @@ namespace Lina::Editor
 		if (m_world)
 			return;
 
-		EditorWorldRenderer* ewr = m_editor->GetWorldManager().OpenWorld(0);
+		EditorWorldRenderer* ewr = m_editor->GetWorldManager().CreateEditorWorld();
 		m_world					 = ewr->GetWorldRenderer()->GetWorld();
+		m_world->SetID(m_resourceSpace);
 		m_worldDisplayer->DisplayWorld(ewr, WorldCameraType::Orbit);
 
 		m_world->GetGfxSettings().skyModel = EDITOR_MODEL_SKYSPHERE_ID;
@@ -101,7 +102,7 @@ namespace Lina::Editor
 			m_editor->SaveSettings();
 		}
 
-		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), initialResources, m_resourceSpace);
+		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), initialResources);
 		m_world->Initialize(m_resourceManager);
 
 		if (!m_skyMaterial)
@@ -126,7 +127,7 @@ namespace Lina::Editor
 		m_previousStream.Destroy();
 
 		if (m_world)
-			m_editor->GetWorldManager().CloseWorld(m_world);
+			m_editor->GetWorldManager().DestroyEditorWorld(m_world);
 
 		m_world = nullptr;
 	}
@@ -251,7 +252,7 @@ namespace Lina::Editor
 		m_displayEntity = EditorWorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, model, model->GetMeta().materials);
 		m_compModel		= m_world->GetComponent<CompModel>(m_displayEntity);
 		m_compModel->GetAnimationController().SelectAnimation(m_displayAnimation);
-		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {}, m_resourceSpace);
+		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {});
 		m_displayEntity->SetPosition(Vector3(0.0f, -0.1f, 0.0f));
 	}
 

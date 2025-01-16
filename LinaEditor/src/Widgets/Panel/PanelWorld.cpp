@@ -67,54 +67,23 @@ namespace Lina::Editor
 		m_editor->GetWorldManager().AddListener(this);
 
 		const ResourceID id = m_editor->GetSettings().GetParams().GetParamResourceID("LastWorld"_hs);
-		m_lastID			= id;
+        m_worldToOpen = id;
+        m_openWorld = id;
 	}
 
 	void PanelWorld::Destruct()
 	{
-		if (m_world != nullptr)
-		{
-			EditorWorldUtility::SaveWorldToFile(m_editor, m_world);
-			m_editor->GetWorldManager().CloseWorld(m_world);
-		}
-
+        CloseWorld();
 		m_editor->GetWorldManager().RemoveListener(this);
 	}
 
 	void PanelWorld::PreTick()
 	{
-		if (!m_firstTick)
-		{
-			m_firstTick = true;
-
-			if (m_lastID != 0)
-				m_editor->GetWorldManager().OpenWorld(m_lastID);
-		}
-	}
-
-	void PanelWorld::OnWorldManagerOpenedWorld(EditorWorldRenderer* wr)
-	{
-		EntityWorld* world = wr->GetWorldRenderer()->GetWorld();
-		if (world->GetID() == 0)
-			return;
-
-		if (m_world)
-		{
-			EditorWorldUtility::SaveWorldToFile(m_editor, m_world);
-			m_editor->GetWorldManager().CloseWorld(m_world);
-		}
-
-		m_world = wr->GetWorldRenderer()->GetWorld();
-		m_worldDisplayer->DisplayWorld(wr, WorldCameraType::FreeMove);
-		m_editor->GetSettings().GetParams().SetParamResourceID("LastWorld"_hs, m_world->GetID());
-	}
-
-	void PanelWorld::OnWorldManagerClosingWorld(EditorWorldRenderer* wr)
-	{
-		if (wr->GetWorldRenderer()->GetWorld() != m_world)
-			return;
-		m_world = nullptr;
-		m_worldDisplayer->DisplayWorld(nullptr, WorldCameraType::FreeMove);
+        if(m_openWorld)
+        {
+            m_openWorld = false;
+            OpenWorld(m_worldToOpen);
+        }
 	}
 
 	void PanelWorld::OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities, StringID source)
@@ -131,4 +100,25 @@ namespace Lina::Editor
 			return;
 	}
 
+    void PanelWorld::OpenWorld(ResourceID id)
+    {
+        CloseWorld();
+        
+        EditorWorldRenderer* ewr = m_editor->GetWorldManager().CreateEditorWorld();
+        m_world = ewr->GetWorldRenderer()->GetWorld();
+        m_worldDisplayer->DisplayWorld(ewr, WorldCameraType::FreeMove);
+        m_editor->GetSettings().GetParams().SetParamResourceID("LastWorld"_hs, m_world->GetID());
+        m_world->LoadFromFile(m_editor->GetProjectManager().GetProjectData()->GetResourcePath(id));
+        m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {});
+    }
+    
+    void PanelWorld::CloseWorld()
+    {
+        if(!m_world)
+            return;
+        
+        m_world->SaveToFileAsBinary(m_editor->GetProjectManager().GetProjectData()->GetResourcePath(m_world->GetID()));
+        m_editor->GetWorldManager().DestroyEditorWorld(m_world);
+        m_world = nullptr;
+    }
 } // namespace Lina::Editor

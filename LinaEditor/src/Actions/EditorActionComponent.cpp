@@ -119,7 +119,7 @@ namespace Lina::Editor
 
 		for (Component* c : comps)
 		{
-			wd.world->LoadMissingResources(editor->GetApp()->GetResourceManager(), editor->GetProjectManager().GetProjectData(), {}, m_worldId);
+			wd.world->LoadMissingResources(editor->GetApp()->GetResourceManager(), editor->GetProjectManager().GetProjectData(), {});
 			c->StoreReferences();
 		}
 

@@ -369,7 +369,7 @@ namespace Lina::Editor
 		EntityWorld::GfxSettings& gfxSettings = m_world->GetGfxSettings();
 
 		CommonWidgets::BuildClassReflection(layout, &gfxSettings, ReflectionSystem::Get().Meta<EntityWorld::GfxSettings>());
-		layout->GetCallbacks().onEditEnded = [this]() { m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {}, m_world->GetID()); };
+		layout->GetCallbacks().onEditEnded = [this]() { m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {}); };
 
 		m_manager->AddToForeground(layout);
 		const float startY = m_overlayControls.topToolbar->GetPosY() + m_overlayControls.topToolbar->GetSizeY() + m_overlayControls.topToolbar->GetWidgetProps().outlineThickness + Theme::GetDef().baseIndentInner * 0.5f;

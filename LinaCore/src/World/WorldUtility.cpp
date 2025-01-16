@@ -111,7 +111,6 @@ namespace Lina
 				stream >> tid;
 				Component* c = world->AddComponent(e, tid);
 				c->LoadFromStream(stream);
-				c->StoreReferences();
 			}
 
 			outEntities.push_back(e);
@@ -142,6 +141,7 @@ namespace Lina
 		IStream inStream;
 		inStream.Create(stream.GetDataRaw(), stream.GetCurrentSize());
 		LoadEntitiesFromStream(inStream, world, outEntities);
+		world->RefreshComponentReferences(outEntities);
 
 		FixEntityIDsToNew(world, outEntities);
 

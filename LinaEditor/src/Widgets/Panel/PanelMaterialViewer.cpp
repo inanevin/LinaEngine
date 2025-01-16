@@ -81,8 +81,9 @@ namespace Lina::Editor
 		if (m_world)
 			return;
 
-		EditorWorldRenderer* ewr = m_editor->GetWorldManager().OpenWorld(0);
+		EditorWorldRenderer* ewr = m_editor->GetWorldManager().CreateEditorWorld();
 		m_world					 = ewr->GetWorldRenderer()->GetWorld();
+		m_world->SetID(m_resourceSpace);
 		m_worldDisplayer->DisplayWorld(ewr, WorldCameraType::Orbit);
 
 		// Resource set up.
@@ -100,7 +101,7 @@ namespace Lina::Editor
 			m_resource->GetID(),
 		};
 
-		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), initialResources, m_resourceSpace);
+		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), initialResources);
 
 		if (!m_defaultSky)
 		{
@@ -125,7 +126,7 @@ namespace Lina::Editor
 		m_previousStream.Destroy();
 
 		if (m_world)
-			m_editor->GetWorldManager().CloseWorld(m_world);
+			m_editor->GetWorldManager().DestroyEditorWorld(m_world);
 		m_world = nullptr;
 	}
 

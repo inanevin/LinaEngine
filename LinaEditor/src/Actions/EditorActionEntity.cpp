@@ -238,6 +238,7 @@ namespace Lina::Editor
 			IStream			stream;
 			stream.Create(m_stream.GetDataRaw(), m_stream.GetCurrentSize());
 			WorldUtility::LoadEntitiesFromStream(stream, world, entities);
+			world->RefreshComponentReferences(entities);
 			stream.Destroy();
 		}
 
@@ -283,6 +284,7 @@ namespace Lina::Editor
 			IStream			stream;
 			stream.Create(m_stream.GetDataRaw(), m_stream.GetCurrentSize());
 			WorldUtility::LoadEntitiesFromStream(stream, world, entities);
+			world->RefreshComponentReferences(entities);
 			stream.Destroy();
 
 			world->GetPhysicsWorld()->EnsurePhysicsBodies();

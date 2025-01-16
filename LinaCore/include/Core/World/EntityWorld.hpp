@@ -97,8 +97,9 @@ namespace Lina
 		virtual bool	   LoadFromFile(const String& path) override;
 		void			   AddListener(EntityWorldListener* listener);
 		void			   RemoveListener(EntityWorldListener* listener);
-		void			   CollectResourceNeeds(HashSet<ResourceID>& outResources);
-		HashSet<Resource*> LoadMissingResources(ResourceManagerV2& rm, ProjectData* project, const HashSet<ResourceID>& extraResources, uint64 resourceSpace);
+		void			   CollectResourceNeeds(HashSet<ResourceID>& outResources) const;
+		HashSet<Resource*> LoadMissingResources(ResourceManagerV2& rm, ProjectData* project, const HashSet<ResourceID>& extraResources);
+		void			   RefreshComponentReferences(const Vector<Entity*>& entities);
 
 		void Tick(float delta);
 		void SetPlayMode(PlayMode playmode);
@@ -258,9 +259,10 @@ namespace Lina
 		SimulationSettings			  m_simulationSettings = {};
 		ResourceManagerV2*			  m_rm				   = nullptr;
 
-		float	 m_elapsedTime		  = 0.0f;
-		float	 m_interpolationAlpha = 0.0f;
-		PlayMode m_playMode			  = PlayMode::None;
+		float				m_elapsedTime		 = 0.0f;
+		float				m_interpolationAlpha = 0.0f;
+		PlayMode			m_playMode			 = PlayMode::None;
+		HashSet<ResourceID> m_loadedResourceNeeds;
 	};
 
 	LINA_RESOURCE_BEGIN(EntityWorld)

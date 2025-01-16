@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Editor/Widgets/Layout/ItemController.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
+#include "Editor/Widgets/Panel/PanelWorld.hpp"
 #include "Editor/Resources/ResourcePipeline.hpp"
 #include "Editor/IO/ThumbnailGenerator.hpp"
 #include "Editor/IO/ExtensionSupport.hpp"
@@ -208,8 +209,8 @@ namespace Lina::Editor
 			}
 			else if (item->resourceTID == GetTypeID<EntityWorld>())
 			{
-				m_editor->GetWindowPanelManager().OpenPanel(PanelType::World, 0, this);
-				m_editor->GetWorldManager().OpenWorld(item->resourceID);
+				Panel* panel = m_editor->GetWindowPanelManager().OpenPanel(PanelType::World, 0, this);
+				static_cast<PanelWorld*>(panel)->SetWorldToOpen(item->resourceID);
 			}
 		};
 

@@ -60,18 +60,26 @@ namespace Lina::Editor
 			return m_worldDisplayer;
 		}
 
+		inline void SetWorldToOpen(ResourceID id)
+		{
+			m_worldToOpen = id;
+			m_openWorld	  = true;
+		}
+
 	protected:
-		virtual void OnWorldManagerOpenedWorld(EditorWorldRenderer* wr) override;
-		virtual void OnWorldManagerClosingWorld(EditorWorldRenderer* wr) override;
 		virtual void OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities, StringID source) override;
 		virtual void OnWorldManagerEntityHierarchyChanged(EntityWorld* w) override;
+
+	private:
+		void OpenWorld(ResourceID id);
+		void CloseWorld();
 
 	private:
 		Editor*			m_editor		 = nullptr;
 		WorldDisplayer* m_worldDisplayer = nullptr;
 		EntityWorld*	m_world			 = nullptr;
-		ResourceID		m_lastID		 = 0;
-		bool			m_firstTick		 = false;
+		ResourceID		m_worldToOpen	 = 0;
+		bool			m_openWorld		 = false;
 	};
 
 	LINA_WIDGET_BEGIN(PanelWorld, Hidden)

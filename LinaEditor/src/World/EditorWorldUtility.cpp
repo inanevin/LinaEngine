@@ -116,52 +116,13 @@ namespace Lina::Editor
 
 				Model*	model  = rm.GetResource<Model>(dir->resourceID);
 				Entity* entity = EditorWorldUtility::AddModelToWorld(world->ConsumeEntityGUID(), world, model, model->GetMeta().materials);
-				world->LoadMissingResources(rm, editor->GetProjectManager().GetProjectData(), {}, world->GetID());
+				world->LoadMissingResources(rm, editor->GetProjectManager().GetProjectData(), {});
 				entity->SetPosition(pos);
 				entities.push_back(entity);
 			}
 		}
 
 		return entities;
-	}
-
-	void EditorWorldUtility::SaveWorldToFile(Editor* editor, EntityWorld* world)
-	{
-		const String path = editor->GetProjectManager().GetProjectData()->GetResourcePath(world->GetID());
-
-		OStream				stream;
-		HashSet<ResourceID> resources;
-		editor->GetApp()->GetResourceManager().FillResourcesOfSpace(world->GetID(), resources);
-		world->CollectResourceNeeds(resources);
-
-		Vector<ResourceID> toSave;
-		for (ResourceID id : resources)
-			toSave.push_back(id);
-		stream << toSave;
-
-		world->SaveToStream(stream);
-
-		Serialization::SaveToFile(path.c_str(), stream);
-		stream.Destroy();
-	}
-
-	void EditorWorldUtility::OpenWorldFromFile(Editor* editor, EntityWorld* world)
-	{
-		const String resourcePath = editor->GetProjectManager().GetProjectData()->GetResourcePath(world->GetID());
-		if (!FileSystem::FileOrPathExists(resourcePath))
-			return;
-
-		HashSet<ResourceID> neededResources;
-		Vector<ResourceID>	worldResources;
-		IStream				stream = Serialization::LoadFromFile(resourcePath.c_str());
-		stream >> worldResources;
-
-		for (ResourceID id : worldResources)
-			neededResources.insert(id);
-
-		world->LoadMissingResources(editor->GetApp()->GetResourceManager(), editor->GetProjectManager().GetProjectData(), neededResources, world->GetID());
-		world->LoadFromStream(stream);
-		stream.Destroy();
 	}
 
 } // namespace Lina::Editor

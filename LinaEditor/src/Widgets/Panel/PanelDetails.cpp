@@ -85,22 +85,6 @@ namespace Lina::Editor
 	{
 	}
 
-	void PanelDetails::OnWorldManagerOpenedWorld(EditorWorldRenderer* wr)
-	{
-		EntityWorld* world = wr->GetWorldRenderer()->GetWorld();
-		if (world->GetID() == 0)
-			return;
-		m_entityDetails->SetWorld(wr->GetWorldRenderer()->GetWorld());
-	}
-
-	void PanelDetails::OnWorldManagerClosingWorld(EditorWorldRenderer* wr)
-	{
-		EntityWorld* world = wr->GetWorldRenderer()->GetWorld();
-		if (world->GetID() == 0)
-			return;
-		m_entityDetails->SetWorld(nullptr);
-	}
-
 	void PanelDetails::OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities, StringID source)
 	{
 		if (w->GetID() == 0)

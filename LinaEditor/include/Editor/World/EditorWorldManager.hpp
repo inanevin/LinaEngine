@@ -46,8 +46,6 @@ namespace Lina::Editor
 	class EditorWorldManagerListener
 	{
 	public:
-		virtual void OnWorldManagerOpenedWorld(EditorWorldRenderer* wr){};
-		virtual void OnWorldManagerClosingWorld(EditorWorldRenderer* wr){};
 		virtual void OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities, StringID source){};
 		virtual void OnWorldManagerEntityHierarchyChanged(EntityWorld* w){};
 		virtual void OnWorldManagerEntityPhysicsSettingsChanged(EntityWorld* w){};
@@ -73,8 +71,8 @@ namespace Lina::Editor
 		void AddListener(EditorWorldManagerListener* listener);
 		void RemoveListener(EditorWorldManagerListener* listener);
 
-		EditorWorldRenderer* OpenWorld(ResourceID id);
-		void				 CloseWorld(EntityWorld* world);
+		EditorWorldRenderer* CreateEditorWorld();
+		void				 DestroyEditorWorld(EntityWorld* world);
 		EntityWorld*		 GetFirstGameWorld();
 
 		EntityWorld* GetWorld(ResourceID id);

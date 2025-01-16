@@ -262,6 +262,12 @@ namespace Lina
 		Vector<Entity*> entities;
 		WorldUtility::LoadEntitiesFromStream(stream, this, entities);
 
+		Vector<ResourceID> resourcesToLoad;
+		stream >> resourcesToLoad;
+
+		for (ResourceID id : resourcesToLoad)
+			m_loadedResourceNeeds.insert(id);
+
 		m_physicsWorld->EnsurePhysicsBodies();
 	}
 
@@ -285,6 +291,16 @@ namespace Lina
 		WorldUtility::ExtractRoots(entities, roots);
 
 		WorldUtility::SaveEntitiesToStream(stream, this, roots);
+
+		HashSet<ResourceID> worldResources;
+		CollectResourceNeeds(worldResources);
+		m_rm->FillResourcesOfSpace(m_id, worldResources);
+
+		Vector<ResourceID> worldResourcesToSave;
+		worldResourcesToSave.reserve(worldResources.size());
+		for (ResourceID id : worldResources)
+			worldResourcesToSave.push_back(id);
+		stream << worldResourcesToSave;
 	}
 
 	void EntityWorld::AddListener(EntityWorldListener* listener)
@@ -312,7 +328,7 @@ namespace Lina
 			l->OnComponentRemoved(c);
 	}
 
-	void EntityWorld::CollectResourceNeeds(HashSet<ResourceID>& outResources)
+	void EntityWorld::CollectResourceNeeds(HashSet<ResourceID>& outResources) const
 	{
 		for (const ComponentCachePair& pair : m_componentCaches)
 			pair.cache->ForEach([&](Component* c) { c->CollectReferences(outResources); });
@@ -321,17 +337,20 @@ namespace Lina
 		outResources.insert(m_gfxSettings.skyModel);
 	}
 
-	HashSet<Resource*> EntityWorld::LoadMissingResources(ResourceManagerV2& rm, ProjectData* project, const HashSet<ResourceID>& extraResources, uint64 resourceSpace)
+	HashSet<Resource*> EntityWorld::LoadMissingResources(ResourceManagerV2& rm, ProjectData* project, const HashSet<ResourceID>& extraResources)
 	{
 		HashSet<ResourceID> resources = extraResources;
 		CollectResourceNeeds(resources);
+
+		for (ResourceID id : m_loadedResourceNeeds)
+			resources.insert(id);
 
 		HashSet<Resource*> allLoaded;
 
 		// First load whatever is requested + needed by the components.
 		if (!resources.empty())
 			allLoaded = rm.LoadResourcesFromProject(
-				project, resources, [](uint32 loaded, Resource* current) {}, resourceSpace);
+				project, resources, [](uint32 loaded, Resource* current) {}, m_id);
 
 		// Load materials required by the models.
 		HashSet<ResourceID>	  modelMaterials;
@@ -343,7 +362,7 @@ namespace Lina
 			return false;
 		});
 		HashSet<Resource*> modelNeeds = rm.LoadResourcesFromProject(
-			project, modelMaterials, [](uint32 loaded, Resource* current) {}, resourceSpace);
+			project, modelMaterials, [](uint32 loaded, Resource* current) {}, m_id);
 		allLoaded.insert(modelNeeds.begin(), modelNeeds.end());
 
 		// Load shaders, textures and samplers required by the materials.
@@ -365,10 +384,25 @@ namespace Lina
 		});
 
 		HashSet<Resource*> matNeeds = rm.LoadResourcesFromProject(
-			project, materialDependencies, [](uint32 loaded, Resource* current) {}, resourceSpace);
+			project, materialDependencies, [](uint32 loaded, Resource* current) {}, m_id);
 		allLoaded.insert(matNeeds.begin(), matNeeds.end());
 
 		return allLoaded;
+	}
+
+	void EntityWorld::RefreshComponentReferences(const Vector<Entity*>& entities)
+	{
+		for (Entity* e : entities)
+		{
+			const Vector<Entity*>& children = e->GetChildren();
+			RefreshComponentReferences(children);
+
+			Vector<Component*> comps;
+			GetComponents(e, comps);
+
+			for (Component* c : comps)
+				c->StoreReferences();
+		}
 	}
 
 	LINA_CLASS_BEGIN(EntityWorldGfxSettings)

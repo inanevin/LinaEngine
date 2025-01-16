@@ -51,8 +51,5 @@ namespace Lina::Editor
 		static Entity*		   AddModelToWorld(EntityID guid, EntityWorld* world, Model* model, const Vector<ResourceID>& materials);
 		static void			   LoadModelAndMaterials(Editor* editor, ResourceID model, ResourceID resourceSpace);
 		static Vector<Entity*> AddResourcesToWorld(Editor* editor, EntityWorld* world, const Vector<ResourceDirectory*>& dirs, const Vector3& pos);
-
-		static void SaveWorldToFile(Editor* editor, EntityWorld* world);
-		static void OpenWorldFromFile(Editor* editor, EntityWorld* world);
 	};
 } // namespace Lina::Editor
