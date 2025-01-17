@@ -235,7 +235,7 @@ namespace Lina::Editor
 			if (m_filter != Filter::None)
 				return false;
 
-			return dir->userData.directoryType == 0;
+			return true;
 		};
 
 		controller->GetProps().onDuplicate = [this]() {

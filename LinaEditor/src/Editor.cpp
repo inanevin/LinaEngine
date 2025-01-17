@@ -178,13 +178,13 @@ namespace Lina::Editor
 		SurfaceRenderer* rend = m_windowPanelManager.GetSurfaceRenderer(window->GetSID());
 
 		LinaGX::Input& lgxInput = m_app->GetLGX()->GetInput();
-		if (keycode == LINAGX_KEY_Z && inputAction != LinaGX::InputAction::Released && lgxInput.GetKey(LINAGX_KEY_LCTRL))
+		if (!m_isPlaying && keycode == LINAGX_KEY_Z && inputAction != LinaGX::InputAction::Released && lgxInput.GetKey(LINAGX_KEY_LCTRL))
 		{
 			m_editorActionManager.Undo();
 			return;
 		}
 
-		if (keycode == LINAGX_KEY_Y && inputAction != LinaGX::InputAction::Released && lgxInput.GetKey(LINAGX_KEY_LCTRL))
+		if (!m_isPlaying && keycode == LINAGX_KEY_Y && inputAction != LinaGX::InputAction::Released && lgxInput.GetKey(LINAGX_KEY_LCTRL))
 		{
 			m_editorActionManager.Redo();
 			return;
@@ -318,6 +318,12 @@ namespace Lina::Editor
 	{
 		m_settings.GetLayout().StoreLayout();
 		m_settings.SaveToFile();
+	}
+
+	void Editor::SetIsPlaying(bool isPlaying)
+	{
+		m_isPlaying = isPlaying;
+		m_editorRoot->SetIsPlaying(isPlaying);
 	}
 
 } // namespace Lina::Editor

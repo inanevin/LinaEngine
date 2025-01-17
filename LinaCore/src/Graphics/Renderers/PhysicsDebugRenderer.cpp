@@ -30,14 +30,17 @@ SOFTWARE.
 
 #include "Core/Graphics/Renderers/PhysicsDebugRenderer.hpp"
 #include "Core/Physics/CommonPhysics.hpp"
+#include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
 
 namespace Lina
 {
 
-	PhysicsDebugRenderer::PhysicsDebugRenderer(RenderPass* targetPass)
+	PhysicsDebugRenderer::PhysicsDebugRenderer(RenderPass* targetPass, Shader* shapeShader)
 	{
-		m_targetPass = targetPass;
+		m_targetPass  = targetPass;
+		m_shaderShape = shapeShader;
+
 		JPH::DebugRenderer::Initialize();
 		m_shapeRenderer.Initialize();
 	}
@@ -55,6 +58,16 @@ namespace Lina
 	void PhysicsDebugRenderer::AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue)
 	{
 		m_shapeRenderer.AddBuffersToUploadQueue(frameIndex, queue);
+	}
+
+	void PhysicsDebugRenderer::BeginDraws()
+	{
+		m_shapeRenderer.StartBatch();
+	}
+
+	void PhysicsDebugRenderer::SubmitDraws()
+	{
+		m_shapeRenderer.SubmitBatch(*m_targetPass, 0, m_shaderShape->GetGPUHandle());
 	}
 
 	void PhysicsDebugRenderer::DrawTriangle(JPH::RVec3Arg inV1, JPH::RVec3Arg inV2, JPH::RVec3Arg inV3, JPH::ColorArg inColor, JPH::DebugRenderer::ECastShadow inCastShadow)

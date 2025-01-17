@@ -44,7 +44,6 @@ namespace Lina
 	public:
 		struct Runtime
 		{
-			bool isDirty = false;
 		};
 
 		static constexpr uint32 VERSION = 0;
@@ -68,16 +67,6 @@ namespace Lina
 		inline const String& GetProjectName() const
 		{
 			return m_projectName;
-		}
-
-		inline void SetDirty(bool isDirty)
-		{
-			m_runtime.isDirty = isDirty;
-		}
-
-		inline bool GetIsDirty() const
-		{
-			return m_runtime.isDirty;
 		}
 
 		inline ResourceDirectory& GetResourceRoot()

@@ -57,4 +57,9 @@ namespace Lina
 	{
 		return Vector3(v.GetX(), v.GetY(), v.GetZ());
 	}
+
+	Quaternion FromJoltQuat(const JPH::Quat& q)
+	{
+		return Quaternion(q.GetX(), q.GetY(), q.GetZ(), q.GetW());
+	}
 } // namespace Lina

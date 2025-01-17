@@ -242,8 +242,6 @@ namespace Lina::Editor
 			stream.Destroy();
 		}
 
-		world->GetPhysicsWorld()->EnsurePhysicsBodies();
-
 		editor->GetWorldManager().BroadcastEntityHierarchyChanged(world);
 	}
 
@@ -286,8 +284,6 @@ namespace Lina::Editor
 			WorldUtility::LoadEntitiesFromStream(stream, world, entities);
 			world->RefreshComponentReferences(entities);
 			stream.Destroy();
-
-			world->GetPhysicsWorld()->EnsurePhysicsBodies();
 		}
 
 		editor->GetWorldManager().BroadcastEntityHierarchyChanged(world);
@@ -411,8 +407,6 @@ namespace Lina::Editor
 				i++;
 			}
 		}
-
-		world->GetPhysicsWorld()->EnsurePhysicsBodies();
 
 		if (type != ExecType::Create)
 			editor->GetWorldManager().BroadcastEntityPhysicsSettingsChanged(world);

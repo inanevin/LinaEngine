@@ -115,7 +115,6 @@ namespace Lina::Editor
 
 		EditorWorldRenderer* ewr = m_editor->GetWorldManager().CreateEditorWorld();
 		m_world					 = ewr->GetWorldRenderer()->GetWorld();
-		m_worldDisplayer->DisplayWorld(ewr, WorldCameraType::FreeMove);
 		m_world->LoadFromFile(path);
 		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {});
 		m_world->RefreshAllComponentReferences();
@@ -133,7 +132,7 @@ namespace Lina::Editor
 			static_cast<PanelDetails*>(panelDetails)->SetWorld(m_world);
 
 		m_editor->GetSettings().GetParams().SetParamResourceID("LastWorld"_hs, m_world->GetID());
-		m_editor->SaveSettings();
+		m_worldDisplayer->DisplayWorld(ewr, WorldCameraType::FreeMove);
 	}
 
 	void PanelWorld::CloseWorld()

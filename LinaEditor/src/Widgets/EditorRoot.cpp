@@ -122,15 +122,6 @@ namespace Lina::Editor
 		projectName->GetWidgetProps().rounding		   = 0.0f;
 		titleBar->AddChild(projectName);
 
-		Icon* saveIcon			  = m_manager->Allocate<Icon>("SaveIcon");
-		saveIcon->GetProps().icon = ICON_SAVE;
-		saveIcon->GetFlags().Set(WF_POS_ALIGN_Y);
-		saveIcon->SetAlignedPosY(0.5f);
-		saveIcon->SetAnchorY(Anchor::Center);
-		saveIcon->GetProps().color				 = Theme::GetDef().accentWarn;
-		saveIcon->GetWidgetProps().colorDisabled = Theme::GetDef().silent0;
-		projectName->AddChild(saveIcon);
-
 		Text* projectNameText = m_manager->Allocate<Text>("ProjectNameText");
 		projectNameText->GetFlags().Set(WF_POS_ALIGN_Y);
 		projectNameText->SetAlignedPosY(0.5f);
@@ -158,7 +149,6 @@ namespace Lina::Editor
 		DirectionalLayout::Construct();
 
 		m_panelArea		  = panelArea;
-		m_saveIcon		  = saveIcon;
 		m_fileMenu		  = fm;
 		m_windowButtons	  = wb;
 		m_projectNameText = projectNameText;
@@ -184,16 +174,6 @@ namespace Lina::Editor
 
 	void EditorRoot::Tick(float delta)
 	{
-		auto* projectData = Editor::Get()->GetProjectManager().GetProjectData();
-
-		if (projectData)
-		{
-			if (m_saveIcon->GetFlags().IsSet(WF_DISABLED) && projectData->GetIsDirty())
-				m_saveIcon->GetFlags().Remove(WF_DISABLED);
-			else if (!m_saveIcon->GetFlags().IsSet(WF_DISABLED) && !projectData->GetIsDirty())
-				m_saveIcon->GetFlags().Set(WF_DISABLED);
-		}
-
 		const Color targetColor							 = m_isPlaying ? Theme::GetDef().accentSuccess : (m_lgxWindow->HasFocus() ? Theme::GetDef().accentPrimary0 : Theme::GetDef().background2);
 		m_titleBar->GetWidgetProps().colorBackground.end = Math::Lerp(m_titleBar->GetWidgetProps().colorBackground.end, targetColor, delta * COLOR_SPEED);
 

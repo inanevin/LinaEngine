@@ -216,6 +216,7 @@ namespace Lina::Editor
 		SelectionControls m_selectionControls = {};
 		OverlayControls	  m_overlayControls	  = {};
 		PlayMode		  m_playMode		  = PlayMode::None;
+		OStream			  m_savedWorld;
 	};
 
 	LINA_WIDGET_BEGIN(WorldController, Hidden)

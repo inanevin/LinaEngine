@@ -99,6 +99,9 @@ namespace Lina::Editor
 		void SaveSettings();
 		void RequestExit();
 
+		// Play
+		void SetIsPlaying(bool isPlaying);
+
 		inline EntityWorld* GetCurrentWorld() const
 		{
 			return m_currentWorld;
@@ -164,6 +167,7 @@ namespace Lina::Editor
 		EditorTaskManager	m_taskManager;
 		EditorResources		m_editorResources;
 		EditorWorldManager	m_worldManager;
+		bool				m_isPlaying = false;
 	};
 
 } // namespace Lina::Editor

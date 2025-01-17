@@ -47,6 +47,7 @@ namespace Lina
 		const uint cMaxBodyPairs		  = 1024;
 		const uint cMaxContactConstraints = 1024;
 		m_physicsSystem.Init(cMaxBodies, cNumBodyMutexes, cMaxBodyPairs, cMaxContactConstraints, m_bpLayerInterface, m_objectBPLayerFilter, m_layerFilter);
+		m_physicsSystem.SetGravity(JPH::Vec3Arg(0.0f, -9.8f, 0.0f));
 	};
 
 	PhysicsWorld::~PhysicsWorld()
@@ -55,12 +56,17 @@ namespace Lina
 
 	void PhysicsWorld::Begin()
 	{
+		EnsurePhysicsBodies();
 		AddAllBodies();
 	}
 
 	void PhysicsWorld::End()
 	{
+
 		RemoveAllBodies();
+
+		for (Entity* e : m_addedBodies)
+			DestroyBodyForEntity(e);
 	}
 
 	void PhysicsWorld::EnsurePhysicsBodies()
@@ -84,37 +90,50 @@ namespace Lina
 	{
 		JPH::BodyInterface& bodyInterface = m_physicsSystem.GetBodyInterface();
 
-		Vector<JPH::Body*> bodyPtrs;
-		bodyPtrs.reserve(m_world->GetActiveEntityCount());
-
+		m_addedBodies.resize(0);
 		m_world->ViewEntities([&](Entity* e, uint32 idx) -> bool {
 			if (e->GetPhysicsBody())
-				bodyPtrs.push_back(e->GetPhysicsBody());
+			{
+				m_addedBodies.push_back(e);
+			}
 			return false;
 		});
 
-		if (bodyPtrs.empty())
+		const size_t bodySz = m_addedBodies.size();
+		if (bodySz == 0)
 			return;
 
-		const size_t bodySz = bodyPtrs.size();
-		m_addedBodyIDs.resize(bodySz);
+		Vector<JPH::BodyID> bodyIDs;
+		bodyIDs.resize(bodySz);
+
 		for (size_t i = 0; i < bodySz; i++)
-			m_addedBodyIDs[i] = bodyPtrs[i]->GetID();
+		{
+			JPH::Body* body = m_addedBodies.at(i)->GetPhysicsBody();
+			bodyIDs[i]		= body->GetID();
+			body->SetLinearVelocity(JPH::Vec3(0.2f, 0.0f, 0.0f));
+		}
 
-		const JPH::BodyInterface::AddState addState = bodyInterface.AddBodiesPrepare(m_addedBodyIDs.data(), static_cast<int32>(m_addedBodyIDs.size()));
-		bodyInterface.AddBodiesFinalize(m_addedBodyIDs.data(), static_cast<int32>(m_addedBodyIDs.size()), addState, JPH::EActivation::DontActivate);
+		const JPH::BodyInterface::AddState addState = bodyInterface.AddBodiesPrepare(bodyIDs.data(), static_cast<int32>(bodySz));
+		bodyInterface.AddBodiesFinalize(bodyIDs.data(), static_cast<int32>(bodySz), addState, JPH::EActivation::Activate);
 
-		LINA_TRACE("Added bodies to world! {0}", m_addedBodyIDs.size());
+		LINA_TRACE("Added bodies to world! {0}", bodyIDs.size());
 	}
 
 	void PhysicsWorld::RemoveAllBodies()
 	{
-		if (m_addedBodyIDs.empty())
+		if (m_addedBodies.empty())
 			return;
 
+		const size_t		bodySz = m_addedBodies.size();
+		Vector<JPH::BodyID> bodyIDs;
+		bodyIDs.resize(bodySz);
+
+		for (size_t i = 0; i < bodySz; i++)
+			bodyIDs[i] = m_addedBodies.at(i)->GetPhysicsBody()->GetID();
+
 		JPH::BodyInterface& bodyInterface = m_physicsSystem.GetBodyInterface();
-		bodyInterface.RemoveBodies(m_addedBodyIDs.data(), static_cast<int32>(m_addedBodyIDs.size()));
-		LINA_TRACE("Removed bodies from world! {0}", m_addedBodyIDs.size());
+		bodyInterface.RemoveBodies(bodyIDs.data(), static_cast<int32>(bodyIDs.size()));
+		LINA_TRACE("Removed bodies from world! {0}", bodySz);
 	}
 
 	JPH::Body* PhysicsWorld::CreateBodyForEntity(Entity* e)
@@ -155,6 +174,9 @@ namespace Lina
 		}
 
 		settings.SetShape(shapeRef);
+		settings.mGravityFactor = phySettings.gravityMultiplier;
+		// settings.mMassPropertiesOverride.mMass = phySettings.mass;
+		// settings.mOverrideMassProperties = JPH::EOverrideMassProperties::MassAndInertiaProvided;
 		settings.mPosition	  = ToJoltVec3(e->GetPosition());
 		settings.mRotation	  = ToJoltQuat(e->GetRotation());
 		settings.mMotionType  = ToJoltMotionType(phySettings.bodyType);
@@ -178,6 +200,19 @@ namespace Lina
 	{
 		const int cCollisionSteps = 1;
 		m_physicsSystem.Update(dt, cCollisionSteps, &m_tempAllocator, &m_jobSystem);
+
+		m_world->ViewEntities([](Entity* e, uint32 idx) -> bool {
+			JPH::Body* body = e->GetPhysicsBody();
+
+			if (body)
+			{
+				const Vector3	 p = FromJoltVec3(body->GetCenterOfMassPosition());
+				const Quaternion q = FromJoltQuat(body->GetRotation());
+				e->SetPosition(p);
+				e->SetRotation(q);
+			}
+			return false;
+		});
 	}
 
 	JPH::ValidateResult PhysicsWorld::OnContactValidate(const JPH::Body& inBody1, const JPH::Body& inBody2, JPH::RVec3Arg inBaseOffset, const JPH::CollideShapeResult& inCollisionResult)

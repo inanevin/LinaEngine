@@ -184,7 +184,6 @@ namespace Lina::Editor
 
 	void ProjectManager::SaveProjectChanges()
 	{
-		m_currentProject->SetDirty(false);
 		m_currentProject->SaveToFile();
 	}
 

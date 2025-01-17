@@ -32,6 +32,7 @@ namespace Lina
 {
 	class ResourceUploadQueue;
 	class RenderPass;
+	class Shader;
 } // namespace Lina
 
 #ifdef JPH_DEBUG_RENDERER
@@ -45,9 +46,11 @@ namespace Lina
 	class PhysicsDebugRenderer : public JPH::DebugRenderer
 	{
 	public:
-		PhysicsDebugRenderer(RenderPass* pass);
+		PhysicsDebugRenderer(RenderPass* pass, Shader* shapeShader);
 		virtual ~PhysicsDebugRenderer();
 
+		void BeginDraws();
+		void SubmitDraws();
 		void SyncRender();
 		void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue);
 
@@ -90,7 +93,8 @@ namespace Lina
 		};
 
 	private:
-		RenderPass*	  m_targetPass = nullptr;
+		Shader*		  m_shaderShape = nullptr;
+		RenderPass*	  m_targetPass	= nullptr;
 		ShapeRenderer m_shapeRenderer;
 	};
 
@@ -103,7 +107,7 @@ namespace Lina
 	class PhysicsDebugRenderer
 	{
 	public:
-		void Initialize(RenderPass* targetPass){};
+		void Initialize(RenderPass* targetPass, ResourceManagerV2*){};
 		void Shutdown(){};
 		void SyncRender(){};
 		void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue){};

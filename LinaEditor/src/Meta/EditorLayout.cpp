@@ -82,8 +82,15 @@ namespace Lina::Editor
 		// Entities
 		wl.dockWidgets.push_back({
 			.alignedPos	 = Vector2::Zero,
-			.alignedSize = Vector2(0.2f, 0.6f),
+			.alignedSize = Vector2(0.2f, 0.3f),
 			.panels		 = {{.panelType = PanelType::Entities}},
+		});
+
+		// Details
+		wl.dockWidgets.push_back({
+			.alignedPos	 = Vector2(0.0f, 0.3f),
+			.alignedSize = Vector2(0.2f, 0.3f),
+			.panels		 = {{.panelType = PanelType::Details}},
 		});
 
 		// Resource directory browser
@@ -96,28 +103,29 @@ namespace Lina::Editor
 		// World
 		wl.dockWidgets.push_back({
 			.alignedPos	 = Vector2(0.2f, 0.0f),
-			.alignedSize = Vector2(0.8f, 0.82f),
+			.alignedSize = Vector2(0.8f, 0.8f),
 			.panels		 = {{.panelType = PanelType::World}},
 		});
 
 		// Log
 		wl.dockWidgets.push_back({
-			.alignedPos	 = Vector2(0.2f, 0.82f),
-			.alignedSize = Vector2(0.8f, 0.18f),
-			.panels		 = {{.panelType = PanelType::Log}},
+			.alignedPos	 = Vector2(0.2f, 0.8f),
+			.alignedSize = Vector2(0.8f, 0.2f),
+			.panels		 = {{.panelType = PanelType::Log},
+							{
+								.panelType = PanelType::Performance,
+						}},
 		});
 
-		/*
-		OStream resExtra;
-		PanelResourceBrowser::SaveLayoutDefaults(resExtra);
-		PanelData panelRes = {
-			.panelType = PanelType::ResourceBrowser,
-		};
-		resExtra.WriteTo(panelRes.layoutData);
-		resExtra.Destroy();
-		 */
+		// Border: Entities | Details
+		wl.dockWidgets.push_back({
+			.alignedPos	  = Vector2(0.0, 0.3f),
+			.alignedSize  = Vector2(0.2f, 0.0f),
+			.isBorder	  = true,
+			.isHorizontal = true,
+		});
 
-		// Border: Entities | Resources
+		// Border: Details | Browser
 		wl.dockWidgets.push_back({
 			.alignedPos	  = Vector2(0.0, 0.6f),
 			.alignedSize  = Vector2(0.2f, 0.0f),
@@ -127,7 +135,7 @@ namespace Lina::Editor
 
 		// Border: World | Log
 		wl.dockWidgets.push_back({
-			.alignedPos	  = Vector2(0.2f, 0.82f),
+			.alignedPos	  = Vector2(0.2f, 0.8f),
 			.alignedSize  = Vector2(0.8f, 0.0f),
 			.isBorder	  = true,
 			.isHorizontal = true,
@@ -220,6 +228,7 @@ namespace Lina::Editor
 							stream.Destroy();
 						}
 					}
+
 					area->SetSelected(area->GetPanels().at(dockWidget.selectedPanel));
 				}
 			}

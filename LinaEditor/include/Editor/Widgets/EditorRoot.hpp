@@ -78,7 +78,6 @@ namespace Lina::Editor
 		Text*			   m_projectNameText = nullptr;
 		Widget*			   m_panelArea		 = nullptr;
 		DirectionalLayout* m_titleBar		 = nullptr;
-		Icon*			   m_saveIcon		 = nullptr;
 		Icon*			   m_linaIcon		 = nullptr;
 		EntityWorld*	   m_currentWorld	 = nullptr;
 		bool			   m_isPlaying		 = false;

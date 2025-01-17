@@ -76,21 +76,23 @@ namespace Lina
 
 	struct EntityPhysicsSettings
 	{
-		PhysicsBodyType	 bodyType	  = PhysicsBodyType::None;
-		PhysicsShapeType shapeType	  = PhysicsShapeType::Box;
-		Vector3			 shapeExtents = Vector3(0.5f, 0.5f, 0.5f);
-		float			 radius		  = 0.5f;
-		float			 height		  = 1.0f;
-		ResourceID		 material	  = 0;
+		PhysicsBodyType	 bodyType		   = PhysicsBodyType::None;
+		PhysicsShapeType shapeType		   = PhysicsShapeType::Box;
+		Vector3			 shapeExtents	   = Vector3(0.5f, 0.5f, 0.5f);
+		float			 radius			   = 0.5f;
+		float			 height			   = 1.0f;
+		float			 mass			   = 1.0f;
+		float			 gravityMultiplier = 1.0f;
+		ResourceID		 material		   = 0;
 
 		void SaveToStream(OStream& stream) const
 		{
-			stream << bodyType << shapeType << shapeExtents << radius << height << material;
+			stream << bodyType << shapeType << shapeExtents << radius << height << material << gravityMultiplier << mass;
 		}
 
 		void LoadFromStream(IStream& stream)
 		{
-			stream >> bodyType >> shapeType >> shapeExtents >> radius >> height >> material;
+			stream >> bodyType >> shapeType >> shapeExtents >> radius >> height >> material >> gravityMultiplier >> mass;
 		}
 	};
 
@@ -98,6 +100,7 @@ namespace Lina
 	extern JPH::Quat		ToJoltQuat(const Quaternion& q);
 	extern JPH::EMotionType ToJoltMotionType(const PhysicsBodyType& type);
 	extern Vector3			FromJoltVec3(const JPH::Vec3& v);
+	extern Quaternion		FromJoltQuat(const JPH::Quat& q);
 
 	LINA_CLASS_BEGIN(PhysicsBodyType)
 	LINA_PROPERTY_STRING(PhysicsBodyType, 0, "None")
@@ -120,6 +123,8 @@ namespace Lina
 	LINA_FIELD(EntityPhysicsSettings, shapeExtents, "Shape Extents", FieldType::Vector3, 0)
 	LINA_FIELD(EntityPhysicsSettings, radius, "Radius", FieldType::Float, 0)
 	LINA_FIELD(EntityPhysicsSettings, height, "Height", FieldType::Float, 0)
+	LINA_FIELD(EntityPhysicsSettings, mass, "Mass", FieldType::Float, 0)
+	LINA_FIELD(EntityPhysicsSettings, gravityMultiplier, "Gravity Multiplier", FieldType::Float, 0)
 	LINA_FIELD(EntityPhysicsSettings, material, "Material", FieldType::ResourceID, GetTypeID<PhysicsMaterial>())
 	LINA_FIELD_DEPENDENCY(EntityPhysicsSettings, shapeExtents, "shapeType", "1")
 	LINA_FIELD_DEPENDENCY(EntityPhysicsSettings, radius, "shapeType", "0, 2, 3")

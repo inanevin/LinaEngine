@@ -267,8 +267,6 @@ namespace Lina
 
 		for (ResourceID id : resourcesToLoad)
 			m_loadedResourceNeeds.insert(id);
-
-		m_physicsWorld->EnsurePhysicsBodies();
 	}
 
 	void EntityWorld::SaveToStream(OStream& stream) const

@@ -38,8 +38,8 @@ namespace Lina
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			PerFrameData& pfd = m_pfd[i];
-			pfd.vtxBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, sizeof(Line3DVertex) * 10000, "ShapeRenderer Vtx");
-			pfd.idxBuffer.Create(LinaGX::ResourceTypeHint::TH_IndexBuffer, sizeof(uint16) * 30000, "ShapeRenderer Idx");
+			pfd.vtxBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, sizeof(Line3DVertex) * 120000, "ShapeRenderer Vtx");
+			pfd.idxBuffer.Create(LinaGX::ResourceTypeHint::TH_IndexBuffer, sizeof(uint16) * 200000, "ShapeRenderer Idx");
 		}
 	}
 

@@ -379,6 +379,9 @@ namespace Lina::Editor
 
 	void WorldController::Destruct()
 	{
+		if (m_savedWorld.GetCurrentSize() != 0)
+			m_savedWorld.Destroy();
+
 		m_editor->GetWindowPanelManager().RemovePayloadListener(this);
 
 		if (m_worldRenderer)
@@ -889,22 +892,26 @@ namespace Lina::Editor
 
 	void WorldController::StartPlaying(PlayMode mode)
 	{
+		m_world->SaveToStream(m_savedWorld);
 		m_playMode = mode;
 		m_overlayControls.baseWidget->GetFlags().Set(WF_HIDE);
 		m_lgxWindow->SetWrapMouse(true);
 		m_lgxWindow->SetMouseVisible(false);
 		m_ewr->GetGizmoRenderer().GetSettings().drawOrientation = false;
-		m_editor->GetEditorRoot()->SetIsPlaying(true);
+		m_editor->SetIsPlaying(true);
 		m_world->SetPlayMode(m_playMode);
 	}
 
 	void WorldController::StopPlaying()
 	{
+		m_world->LoadFromStream(m_savedWorld);
+		m_savedWorld.Destroy();
+
 		m_playMode = PlayMode::None;
 		m_overlayControls.baseWidget->GetFlags().Set(WF_HIDE, false);
 		m_lgxWindow->SetWrapMouse(false);
 		m_lgxWindow->SetMouseVisible(true);
-		m_editor->GetEditorRoot()->SetIsPlaying(false);
+		m_editor->SetIsPlaying(false);
 		m_ewr->GetGizmoRenderer().GetSettings().drawOrientation = true;
 
 		m_world->SetPlayMode(m_playMode);

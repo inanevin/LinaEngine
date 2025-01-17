@@ -86,6 +86,6 @@ namespace Lina
 		PhysicsObjectBPLayerFilter m_objectBPLayerFilter;
 		PhysicsBPLayerInterface	   m_bpLayerInterface;
 		EntityWorld*			   m_world = nullptr;
-		Vector<JPH::BodyID>		   m_addedBodyIDs;
+		Vector<Entity*>			   m_addedBodies;
 	};
 } // namespace Lina
