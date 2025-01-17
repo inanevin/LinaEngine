@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Core/World/EntityWorld.hpp"
 
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
@@ -66,7 +67,6 @@ namespace Lina
 
 	void PhysicsWorld::End()
 	{
-
 		RemoveAllBodies();
 
 		for (Entity* e : m_addedBodies)
@@ -136,6 +136,7 @@ namespace Lina
 
 		JPH::BodyInterface& bodyInterface = m_physicsSystem.GetBodyInterface();
 		bodyInterface.RemoveBodies(bodyIDs.data(), static_cast<int32>(bodyIDs.size()));
+		m_addedBodies.clear();
 		LINA_TRACE("Removed bodies from world! {0}", bodySz);
 	}
 
@@ -177,10 +178,10 @@ namespace Lina
 		}
 
 		settings.SetShape(shapeRef);
-		settings.mGravityFactor = phySettings.gravityMultiplier;
-		// settings.mMassPropertiesOverride.mMass = phySettings.mass;
+		settings.mGravityFactor				   = phySettings.gravityMultiplier;
+		settings.mMassPropertiesOverride.mMass = phySettings.mass;
 		// settings.mOverrideMassProperties = JPH::EOverrideMassProperties::MassAndInertiaProvided;
-		settings.mPosition	  = ToJoltVec3(e->GetPosition());
+		settings.mPosition	  = ToJoltVec3(e->GetPosition() + phySettings.offset);
 		settings.mRotation	  = ToJoltQuat(e->GetRotation());
 		settings.mMotionType  = ToJoltMotionType(phySettings.bodyType);
 		settings.mObjectLayer = phySettings.bodyType == PhysicsBodyType::Static ? static_cast<uint16>(PhysicsObjectLayers::NonMoving) : static_cast<uint16>(PhysicsObjectLayers::Moving);
@@ -194,6 +195,14 @@ namespace Lina
 	void PhysicsWorld::DestroyBodyForEntity(Entity* e)
 	{
 		JPH::BodyInterface& bodyInterface = m_physicsSystem.GetBodyInterface();
+
+		auto it = linatl::find_if(m_addedBodies.begin(), m_addedBodies.end(), [e](Entity* ent) -> bool { return ent == e; });
+		if (it != m_addedBodies.end())
+		{
+			bodyInterface.RemoveBody((*it)->GetPhysicsBody()->GetID());
+			m_addedBodies.erase(it);
+		}
+
 		bodyInterface.DestroyBody(e->GetPhysicsBody()->GetID());
 		e->m_physicsBody = nullptr;
 		LINA_TRACE("Removed physics body for entity {0}", e->GetName());
@@ -209,7 +218,7 @@ namespace Lina
 			JPH::Body*		 body = e->GetPhysicsBody();
 			const Vector3	 p	  = FromJoltVec3(body->GetCenterOfMassPosition());
 			const Quaternion q	  = FromJoltQuat(body->GetRotation());
-			e->SetPosition(p);
+			e->SetPosition(p - e->GetPhysicsSettings().offset);
 			e->SetRotation(q);
 		}
 	}

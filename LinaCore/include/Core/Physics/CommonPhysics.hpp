@@ -79,6 +79,7 @@ namespace Lina
 	{
 		PhysicsBodyType	 bodyType		   = PhysicsBodyType::None;
 		PhysicsShapeType shapeType		   = PhysicsShapeType::Box;
+		Vector3			 offset			   = Vector3::Zero;
 		Vector3			 shapeExtents	   = Vector3(0.5f, 0.5f, 0.5f);
 		float			 radius			   = 0.5f;
 		float			 height			   = 1.0f;
@@ -88,12 +89,12 @@ namespace Lina
 
 		void SaveToStream(OStream& stream) const
 		{
-			stream << bodyType << shapeType << shapeExtents << radius << height << material << gravityMultiplier << mass;
+			stream << bodyType << shapeType << shapeExtents << radius << height << material << gravityMultiplier << mass << offset;
 		}
 
 		void LoadFromStream(IStream& stream)
 		{
-			stream >> bodyType >> shapeType >> shapeExtents >> radius >> height >> material >> gravityMultiplier >> mass;
+			stream >> bodyType >> shapeType >> shapeExtents >> radius >> height >> material >> gravityMultiplier >> mass >> offset;
 		}
 	};
 
@@ -135,6 +136,7 @@ namespace Lina
 	LINA_FIELD(EntityPhysicsSettings, shapeExtents, "Shape Extents", FieldType::Vector3, 0)
 	LINA_FIELD(EntityPhysicsSettings, radius, "Radius", FieldType::Float, 0)
 	LINA_FIELD(EntityPhysicsSettings, height, "Height", FieldType::Float, 0)
+	LINA_FIELD(EntityPhysicsSettings, offset, "Offset", FieldType::Vector3, 0)
 	LINA_FIELD(EntityPhysicsSettings, mass, "Mass", FieldType::Float, 0)
 	LINA_FIELD(EntityPhysicsSettings, gravityMultiplier, "Gravity Multiplier", FieldType::Float, 0)
 	LINA_FIELD(EntityPhysicsSettings, material, "Material", FieldType::ResourceID, GetTypeID<PhysicsMaterial>())
