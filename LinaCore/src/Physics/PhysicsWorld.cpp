@@ -260,6 +260,9 @@ namespace Lina
 
 	void PhysicsWorld::OnContactAdded(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings)
 	{
+		if (m_contactListeners.empty())
+			return;
+
 		Entity*		   e1 = GetEntityFromBodyID(inBody1.GetID());
 		Entity*		   e2 = GetEntityFromBodyID(inBody2.GetID());
 		const Vector3& p1 = FromJoltVec3(inManifold.GetWorldSpaceContactPointOn1(inBody1.GetID().GetIndex()));
@@ -271,10 +274,27 @@ namespace Lina
 
 	void PhysicsWorld::OnContactPersisted(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings)
 	{
+		if (m_contactListeners.empty())
+			return;
+
+		Entity*		   e1 = GetEntityFromBodyID(inBody1.GetID());
+		Entity*		   e2 = GetEntityFromBodyID(inBody2.GetID());
+		const Vector3& p1 = FromJoltVec3(inManifold.GetWorldSpaceContactPointOn1(inBody1.GetID().GetIndex()));
+		const Vector3& p2 = FromJoltVec3(inManifold.GetWorldSpaceContactPointOn1(inBody2.GetID().GetIndex()));
+
+		for (PhysicsContactListener* list : m_contactListeners)
+			list->OnContact(e1, e2, p1, p2);
 	}
 
 	void PhysicsWorld::OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePair)
 	{
+		if (m_contactListeners.empty())
+			return;
+		Entity* e1 = GetEntityFromBodyID(inSubShapePair.GetBody1ID());
+		Entity* e2 = GetEntityFromBodyID(inSubShapePair.GetBody2ID());
+
+		for (PhysicsContactListener* list : m_contactListeners)
+			list->OnContactEnd(e1, e2);
 	}
 
 	void PhysicsWorld::OnBodyActivated(const JPH::BodyID& inBodyID, uint64 inBodyUserData)

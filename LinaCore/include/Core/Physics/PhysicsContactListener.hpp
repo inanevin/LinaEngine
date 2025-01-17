@@ -36,6 +36,7 @@ namespace Lina
 	{
 	public:
 		virtual void OnContactBegin(Entity* e1, Entity* e2, const Vector3& p1, const Vector3& p2) = 0;
+		virtual void OnContact(Entity* e1, Entity* e2, const Vector3& p1, const Vector3& p2)	  = 0;
 		virtual void OnContactEnd(Entity* e1, Entity* e2)										  = 0;
 	};
 } // namespace Lina

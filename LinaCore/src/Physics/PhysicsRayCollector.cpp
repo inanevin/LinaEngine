@@ -41,8 +41,8 @@ namespace Lina
 
 	bool PhysicsRayCollector::CastRay(PhysicsWorld* world, const Vector3& position, const Vector3& normDirection, float maxDistance, RayResult& outRayResult)
 	{
-        m_results.clear();
-        
+		m_results.clear();
+
 		const Vector3	   direction = normDirection * maxDistance;
 		JPH::RRayCast	   ray(ToJoltVec3(position), ToJoltVec3(direction));
 		JPH::RayCastResult ioHit;
@@ -50,9 +50,9 @@ namespace Lina
 
 		if (hit)
 		{
-			const Vector3		   hitPoint	   = position + normDirection * ioHit.mFraction;
+			const Vector3 hitPoint = position + normDirection * ioHit.mFraction;
 			outRayResult.hitPoints.push_back(hitPoint);
-            outRayResult.hitEntities.push_back(world->GetEntityFromBodyID(ioHit.mBodyID));
+			outRayResult.hitEntities.push_back(world->GetEntityFromBodyID(ioHit.mBodyID));
 			outRayResult.hitDistances.push_back(ioHit.mFraction * direction.Magnitude());
 		}
 
@@ -61,7 +61,7 @@ namespace Lina
 
 	bool PhysicsRayCollector::CastRayAll(PhysicsWorld* world, const Vector3& position, const Vector3& normDirection, float maxDistance, RayResult& outRayResult)
 	{
-        m_results.clear();
+		m_results.clear();
 
 		const Vector3 direction = normDirection * maxDistance;
 		JPH::RRayCast ray(ToJoltVec3(position), ToJoltVec3(direction));
@@ -73,7 +73,7 @@ namespace Lina
 		{
 			const Vector3 hitPoint = position + normDirection * res.mFraction;
 			outRayResult.hitPoints.push_back(hitPoint);
-            outRayResult.hitEntities.push_back(world->GetEntityFromBodyID(res.mBodyID));
+			outRayResult.hitEntities.push_back(world->GetEntityFromBodyID(res.mBodyID));
 			outRayResult.hitDistances.push_back(res.mFraction * direction.Magnitude());
 		}
 
@@ -87,7 +87,7 @@ namespace Lina
 
 	bool PhysicsBroadphaseCollector::CastRay(PhysicsWorld* world, const Vector3& position, const Vector3& normDirection, float maxDistance, RayResult& outRayResult)
 	{
-        m_results.clear();
+		m_results.clear();
 
 		const Vector3 direction = normDirection * maxDistance;
 		JPH::RayCast  ray(ToJoltVec3(position), ToJoltVec3(direction));
@@ -99,7 +99,7 @@ namespace Lina
 		{
 			const Vector3 hitPoint = position + normDirection * res.mFraction;
 			outRayResult.hitPoints.push_back(hitPoint);
-            outRayResult.hitEntities.push_back(world->GetEntityFromBodyID(res.mBodyID));
+			outRayResult.hitEntities.push_back(world->GetEntityFromBodyID(res.mBodyID));
 			outRayResult.hitDistances.push_back(res.mFraction * direction.Magnitude());
 		}
 
