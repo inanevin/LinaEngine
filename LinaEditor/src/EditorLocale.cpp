@@ -205,6 +205,7 @@ namespace Lina::Editor
 		{LocaleStr::SnapOptions, "Snapping settings"},
 		{LocaleStr::WorldOptions, "World settings"},
 		{LocaleStr::CameraOptions, "Camera settings"},
+		{LocaleStr::PhysicsOptions, "Physics settings"},
 		{LocaleStr::ResetTransform, "Reset Transform"},
 		{LocaleStr::Physics, "Physics"},
 		{LocaleStr::NoEntityDetails, "No entity selected for details."},

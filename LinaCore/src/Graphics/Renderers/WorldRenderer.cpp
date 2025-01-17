@@ -617,7 +617,7 @@ namespace Lina
 			};
 			m_deferredPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataDeferredPass));
 
-			EntityWorld::GfxSettings& gfx = m_world->GetGfxSettings();
+			WorldGfxSettings& gfx = m_world->GetGfxSettings();
 
 			const GPUDataForwardPass fw = {
 				.view				  = worldCam.GetView(),

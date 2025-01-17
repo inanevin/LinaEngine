@@ -59,26 +59,6 @@ namespace Lina
 			uint32 targetUpdateTicks = 60;
 		};
 
-		struct GfxSettings
-		{
-			ResourceID skyMaterial;
-			ResourceID skyModel;
-			Color	   ambientTop		= Color::White;
-			Color	   ambientMid		= Color::White;
-			Color	   ambientBot		= Color::White;
-			float	   ambientIntensity = 1.0f;
-
-			void SaveToStream(OStream& stream) const
-			{
-				stream << skyMaterial << skyModel << ambientTop << ambientMid << ambientBot << ambientIntensity;
-			}
-
-			void LoadFromStream(IStream& stream)
-			{
-				stream >> skyMaterial >> skyModel >> ambientTop >> ambientMid >> ambientBot >> ambientIntensity;
-			}
-		};
-
 		static constexpr uint32 VERSION = 0;
 
 		EntityWorld(const EntityWorld& other) = delete;
@@ -186,7 +166,7 @@ namespace Lina
 			return m_flags;
 		}
 
-		inline GfxSettings& GetGfxSettings()
+		inline WorldGfxSettings& GetGfxSettings()
 		{
 			return m_gfxSettings;
 		}
@@ -226,6 +206,11 @@ namespace Lina
 			return m_physicsWorld;
 		}
 
+		inline WorldPhysicsOptions& GetPhysicsOptions()
+		{
+			return m_physicsOptions;
+		}
+
 	private:
 		void BeginPlay();
 		void EndPlay();
@@ -253,7 +238,7 @@ namespace Lina
 		PhysicsWorld*				  m_physicsWorld	  = nullptr;
 		Bitmask32					  m_flags			  = 0;
 		Vector<EntityWorldListener*>  m_listeners;
-		GfxSettings					  m_gfxSettings;
+		WorldGfxSettings			  m_gfxSettings;
 		Screen						  m_screen = {};
 		WorldInput					  m_worldInput;
 		Camera						  m_camera			   = {};
@@ -264,6 +249,7 @@ namespace Lina
 		float				m_interpolationAlpha = 0.0f;
 		PlayMode			m_playMode			 = PlayMode::None;
 		HashSet<ResourceID> m_loadedResourceNeeds;
+		WorldPhysicsOptions m_physicsOptions = {};
 	};
 
 	LINA_RESOURCE_BEGIN(EntityWorld)

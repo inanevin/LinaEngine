@@ -138,19 +138,19 @@ namespace Lina
 
 	void ShapeRenderer::DrawWireframeCube3D(const Vector3& center, const Vector3& extents, float thickness, const ColorGrad& color)
 	{
-		const Vector3 p0 = center - extents * 0.5f;
-		const Vector3 p1 = p0 + Vector3(0, extents.y, 0);
-		const Vector3 p2 = p1 + Vector3(0, 0, extents.z);
-		const Vector3 p3 = p2 + Vector3(0, -extents.y, 0);
+		const Vector3 p0 = center - extents;
+		const Vector3 p1 = p0 + Vector3(0, extents.y * 2, 0);
+		const Vector3 p2 = p1 + Vector3(0, 0, extents.z * 2);
+		const Vector3 p3 = p2 + Vector3(0, -extents.y * 2, 0);
 		DrawLine3D(p0, p1, thickness, color);
 		DrawLine3D(p1, p2, thickness, color);
 		DrawLine3D(p2, p3, thickness, color);
 		DrawLine3D(p0, p3, thickness, color);
 
-		const Vector3 pr0 = p0 + Vector3(extents.x, 0, 0);
-		const Vector3 pr1 = p1 + Vector3(extents.x, 0, 0);
-		const Vector3 pr2 = p2 + Vector3(extents.x, 0, 0);
-		const Vector3 pr3 = p3 + Vector3(extents.x, 0, 0);
+		const Vector3 pr0 = p0 + Vector3(extents.x * 2, 0, 0);
+		const Vector3 pr1 = p1 + Vector3(extents.x * 2, 0, 0);
+		const Vector3 pr2 = p2 + Vector3(extents.x * 2, 0, 0);
+		const Vector3 pr3 = p3 + Vector3(extents.x * 2, 0, 0);
 		DrawLine3D(pr0, pr1, thickness, color);
 		DrawLine3D(pr1, pr2, thickness, color);
 		DrawLine3D(pr2, pr3, thickness, color);

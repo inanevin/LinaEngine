@@ -208,6 +208,7 @@ namespace Lina::Editor
 		SnapOptions,
 		WorldOptions,
 		CameraOptions,
+		PhysicsOptions,
 		ResetTransform,
 		Physics,
 		NoEntityDetails,

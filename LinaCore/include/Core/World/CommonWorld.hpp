@@ -28,10 +28,9 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef WorldCommon_HPP
-#define WorldCommon_HPP
-
 #include "Common/Data/Bitmask.hpp"
+#include "Core/Graphics/Resource/Material.hpp"
+#include "Core/Graphics/Resource/Model.hpp"
 
 namespace Lina
 {
@@ -60,6 +59,34 @@ namespace Lina
 		WORLD_FLAGS_LOADING = 1 << 1,
 	};
 
-} // namespace Lina
+	struct WorldGfxSettings
+	{
+		ResourceID skyMaterial;
+		ResourceID skyModel;
+		Color	   ambientTop		= Color::White;
+		Color	   ambientMid		= Color::White;
+		Color	   ambientBot		= Color::White;
+		float	   ambientIntensity = 1.0f;
 
-#endif
+		void SaveToStream(OStream& stream) const
+		{
+			stream << skyMaterial << skyModel << ambientTop << ambientMid << ambientBot << ambientIntensity;
+		}
+
+		void LoadFromStream(IStream& stream)
+		{
+			stream >> skyMaterial >> skyModel >> ambientTop >> ambientMid >> ambientBot >> ambientIntensity;
+		}
+	};
+
+	LINA_CLASS_BEGIN(WorldGfxSettings)
+	LINA_FIELD(WorldGfxSettings, skyMaterial, "Sky Material", FieldType::ResourceID, GetTypeID<Material>())
+	LINA_FIELD(WorldGfxSettings, skyModel, "Sky Model", FieldType::ResourceID, GetTypeID<Model>())
+	LINA_FIELD(WorldGfxSettings, ambientTop, "Ambient Top", FieldType::Color, 0)
+	LINA_FIELD(WorldGfxSettings, ambientMid, "Ambient Mid", FieldType::Color, 0)
+	LINA_FIELD(WorldGfxSettings, ambientBot, "Ambient Bottom", FieldType::Color, 0)
+	LINA_FIELD(WorldGfxSettings, ambientIntensity, "Ambient Intensity", FieldType::Float, 0)
+	LINA_FIELD_LIMITS(WorldGfxSettings, ambientIntensity, 0.0f, 5.0f, 0.1f)
+	LINA_CLASS_END(WorldGfxSettings)
+
+} // namespace Lina

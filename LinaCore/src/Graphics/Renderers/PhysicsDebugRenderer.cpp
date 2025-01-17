@@ -93,6 +93,10 @@ namespace Lina
 	{
 		m_shapeRenderer.SubmitBatch(*m_targetPass, 0, m_shaderShape->GetGPUHandle());
 
+		const uint32 ic = static_cast<uint32>(m_cpuDrawData.triangleIndices.size());
+		if (ic == 0)
+			return;
+
 		const RenderPass::InstancedDraw draw = {
 			.vertexBuffers = {&m_pfd[0].triangleVtxBuffer, &m_pfd[1].triangleVtxBuffer},
 			.indexBuffers  = {&m_pfd[0].triangleIdxBuffer, &m_pfd[1].triangleIdxBuffer},
@@ -101,7 +105,7 @@ namespace Lina
 			.baseVertex	   = 0,
 			.vertexCount   = static_cast<uint32>(m_cpuDrawData.triangleVertices.size()),
 			.baseIndex	   = 0,
-			.indexCount	   = static_cast<uint32>(m_cpuDrawData.triangleIndices.size()),
+			.indexCount	   = ic,
 			.instanceCount = 1,
 			.baseInstance  = 0,
 			.pushConstant  = 0,

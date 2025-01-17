@@ -416,14 +416,4 @@ namespace Lina
 		});
 	}
 
-	LINA_CLASS_BEGIN(EntityWorldGfxSettings)
-	LINA_FIELD(EntityWorld::GfxSettings, skyMaterial, "Sky Material", FieldType::ResourceID, GetTypeID<Material>())
-	LINA_FIELD(EntityWorld::GfxSettings, skyModel, "Sky Model", FieldType::ResourceID, GetTypeID<Model>())
-	LINA_FIELD(EntityWorld::GfxSettings, ambientTop, "Ambient Top", FieldType::Color, 0)
-	LINA_FIELD(EntityWorld::GfxSettings, ambientMid, "Ambient Mid", FieldType::Color, 0)
-	LINA_FIELD(EntityWorld::GfxSettings, ambientBot, "Ambient Bottom", FieldType::Color, 0)
-	LINA_FIELD(EntityWorld::GfxSettings, ambientIntensity, "Ambient Intensity", FieldType::Float, 0)
-	LINA_FIELD_LIMITS(EntityWorld::GfxSettings, ambientIntensity, 0.0f, 5.0f, 0.1f)
-	LINA_CLASS_END(EntityWorldGfxSettings)
-
 } // namespace Lina

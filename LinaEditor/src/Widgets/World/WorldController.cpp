@@ -50,10 +50,12 @@ SOFTWARE.
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
+#include "Core/Physics/PhysicsWorld.hpp"
 #include "Core/Application.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/System/SystemInfo.hpp"
 #include "Editor/Actions/EditorActionEntity.hpp"
+#include "Editor/Actions/EditorActionWorld.hpp"
 
 #include <LinaGX/Core/InputMappings.hpp>
 #include <glm/gtx/intersect.hpp>
@@ -315,6 +317,12 @@ namespace Lina::Editor
 
 		CommonWidgets::BuildClassReflection(layout, &m_overlayControls.snappingOptions, ReflectionSystem::Get().Meta<SnappingOptions>());
 
+		layout->GetCallbacks().onEditStarted = [this]() { m_overlayControls.oldSnappingOptions = m_overlayControls.snappingOptions; };
+
+		layout->GetCallbacks().onEditEnded = []() {
+
+		};
+
 		m_manager->AddToForeground(layout);
 		const float startY = m_overlayControls.topToolbar->GetPosY() + m_overlayControls.topToolbar->GetSizeY() + m_overlayControls.topToolbar->GetWidgetProps().outlineThickness + Theme::GetDef().baseIndentInner * 0.5f;
 		layout->SetPos(Vector2(m_overlayControls.topToolbar->GetPosX(), startY));
@@ -338,6 +346,8 @@ namespace Lina::Editor
 		m_overlayControls.cameraOptions.angularBoost  = m_camera->GetAngularBoost();
 
 		CommonWidgets::BuildClassReflection(layout, &m_overlayControls.cameraOptions, ReflectionSystem::Get().Meta<CameraOptions>());
+
+		layout->GetCallbacks().onEditStarted = [this]() { m_overlayControls.oldCameraOptions = m_overlayControls.cameraOptions; };
 
 		layout->GetCallbacks().onEditEnded = [this]() {
 			m_editor->GetSettings().GetParams().SetParamFloat("CamMoveBoost"_hs, m_overlayControls.cameraOptions.movementBoost);
@@ -366,10 +376,43 @@ namespace Lina::Editor
 		layout->GetWidgetProps().rounding		  = 0.05f;
 		layout->GetProps().direction			  = DirectionOrientation::Vertical;
 
-		EntityWorld::GfxSettings& gfxSettings = m_world->GetGfxSettings();
+		// Gfx
+		{
+			WorldGfxSettings& gfxSettings = m_world->GetGfxSettings();
 
-		CommonWidgets::BuildClassReflection(layout, &gfxSettings, ReflectionSystem::Get().Meta<EntityWorld::GfxSettings>());
-		layout->GetCallbacks().onEditEnded = [this]() { m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {}); };
+			DirectionalLayout* gfxLayout = m_manager->Allocate<DirectionalLayout>("GfxLayout");
+			gfxLayout->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);
+			gfxLayout->SetAlignedPosX(0.0f);
+			gfxLayout->SetAlignedSize(Vector2::One);
+			gfxLayout->GetWidgetProps().childPadding = layout->GetWidgetProps().childPadding;
+
+			gfxLayout->GetCallbacks().onEditStarted = [this]() { m_overlayControls.oldGfxSettings = m_world->GetGfxSettings(); };
+
+			gfxLayout->GetCallbacks().onEditEnded = [this]() { m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {}); };
+
+			layout->AddChild(gfxLayout);
+			CommonWidgets::BuildClassReflection(gfxLayout, &gfxSettings, ReflectionSystem::Get().Meta<WorldGfxSettings>());
+		}
+
+		layout->AddChild(CommonWidgets::BuildSeperator(layout));
+
+		// Physics
+		{
+			WorldPhysicsOptions& phySettings = m_world->GetPhysicsOptions();
+
+			DirectionalLayout* phyLayout = m_manager->Allocate<DirectionalLayout>("GfxLayout");
+			phyLayout->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);
+			phyLayout->SetAlignedPosX(0.0f);
+			phyLayout->SetAlignedSize(Vector2::One);
+			phyLayout->GetWidgetProps().childPadding = layout->GetWidgetProps().childPadding;
+			phyLayout->GetCallbacks().onEditStarted	 = [this]() { m_overlayControls.oldPhysicsOptions = m_world->GetPhysicsOptions(); };
+			phyLayout->GetCallbacks().onEditEnded	 = [this]() {
+
+			};
+
+			layout->AddChild(phyLayout);
+			CommonWidgets::BuildClassReflection(phyLayout, &phySettings, ReflectionSystem::Get().Meta<WorldPhysicsOptions>());
+		}
 
 		m_manager->AddToForeground(layout);
 		const float startY = m_overlayControls.topToolbar->GetPosY() + m_overlayControls.topToolbar->GetSizeY() + m_overlayControls.topToolbar->GetWidgetProps().outlineThickness + Theme::GetDef().baseIndentInner * 0.5f;

@@ -50,6 +50,7 @@ namespace Lina
 		PhysicsWorld(EntityWorld* world);
 		virtual ~PhysicsWorld();
 
+        void SetPhysicsOptions(const WorldPhysicsOptions& opts);
 		void Begin();
 		void End();
 		void EnsurePhysicsBodies();
@@ -57,6 +58,7 @@ namespace Lina
 		void AddAllBodies();
 		void RemoveAllBodies();
 		void Simulate(float dt);
+        
 
 		JPH::Body* CreateBodyForEntity(Entity* e);
 		void	   DestroyBodyForEntity(Entity* e);

@@ -97,6 +97,15 @@ namespace Lina
 		}
 	};
 
+	struct WorldPhysicsOptions
+	{
+		Vector3 gravity = Vector3(0.0f, -9.81f, 0.0f);
+	};
+
+	LINA_CLASS_BEGIN(WorldPhysicsOptions);
+	LINA_FIELD(WorldPhysicsOptions, gravity, "Gravity", FieldType::Vector3, 0)
+	LINA_CLASS_END(WorldPhysicsOptions);
+
 	extern JPH::Vec3		ToJoltVec3(const Vector3& v);
 	extern JPH::Quat		ToJoltQuat(const Quaternion& q);
 	extern JPH::EMotionType ToJoltMotionType(const PhysicsBodyType& type);
@@ -117,7 +126,7 @@ namespace Lina
 	LINA_PROPERTY_STRING(PhysicsShapeType, 1, "Box")
 	LINA_PROPERTY_STRING(PhysicsShapeType, 2, "Capsule")
 	LINA_PROPERTY_STRING(PhysicsShapeType, 3, "Cylinder")
-	LINA_PROPERTY_STRING(PhysicsShapeType, 4, "Plane")
+	LINA_PROPERTY_STRING(PhysicsShapeType, 4, "Infinite Plane")
 	LINA_CLASS_END(PhysicsShapeType)
 
 	LINA_CLASS_BEGIN(EntityPhysicsSettings)

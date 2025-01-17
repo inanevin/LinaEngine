@@ -125,7 +125,7 @@ namespace Lina::Editor
 
 	void GizmoRenderer::Tick(float delta)
 	{
-		// DrawPhysicsWireframes();
+		DrawPhysicsWireframes();
 		DrawLightWireframes();
 		DrawLightIcons(m_targetPass, 0);
 		DrawLightIcons(&m_mousePickRenderer->GetRenderPass(), "StaticEntityID"_hs);
@@ -227,7 +227,6 @@ namespace Lina::Editor
 			}
 			else if (shapeType == PhysicsShapeType::Plane)
 			{
-				m_shapeRenderer.DrawWireframePlane3D(pos, settings.shapeExtents * e->GetScale(), thickness, Theme::GetDef().accentSuccess);
 			}
 		}
 

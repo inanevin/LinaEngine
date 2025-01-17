@@ -47,11 +47,15 @@ namespace Lina
 		const uint cMaxBodyPairs		  = 1024;
 		const uint cMaxContactConstraints = 1024;
 		m_physicsSystem.Init(cMaxBodies, cNumBodyMutexes, cMaxBodyPairs, cMaxContactConstraints, m_bpLayerInterface, m_objectBPLayerFilter, m_layerFilter);
-		m_physicsSystem.SetGravity(JPH::Vec3Arg(0.0f, -9.8f, 0.0f));
 	};
 
 	PhysicsWorld::~PhysicsWorld()
 	{
+	}
+
+	void PhysicsWorld::SetPhysicsOptions(const WorldPhysicsOptions& opts)
+	{
+		m_physicsSystem.SetGravity(ToJoltVec3(opts.gravity));
 	}
 
 	void PhysicsWorld::Begin()
