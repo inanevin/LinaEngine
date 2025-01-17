@@ -147,7 +147,7 @@ namespace Lina::Editor
 		if (m_physicsDebugRenderer)
 			return;
 
-		m_physicsDebugRenderer = new PhysicsDebugRenderer(&m_pass, m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_LINE3D_ID));
+		m_physicsDebugRenderer = new PhysicsDebugRenderer(&m_pass, m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_LINE3D_ID), m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_DEBUG_PHYSICS_ID));
 	}
 
 	void EditorWorldRenderer::Tick(float delta)
@@ -215,7 +215,7 @@ namespace Lina::Editor
 		{
 			JPH::BodyManager::DrawSettings ds = {};
 			// ds.mDrawBoundingBox = true;
-			ds.mDrawShapeWireframe = true;
+			// ds.mDrawShapeWireframe = true;
 
 			m_physicsDebugRenderer->BeginDraws();
 			m_world->GetPhysicsWorld()->GetPhysicsSystem().DrawBodies(ds, m_physicsDebugRenderer);

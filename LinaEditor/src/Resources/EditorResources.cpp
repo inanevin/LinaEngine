@@ -195,6 +195,11 @@ namespace Lina::Editor
 				.tid  = GetTypeID<Shader>(),
 			},
 			{
+				.id	  = EDITOR_SHADER_WORLD_DEBUG_PHYSICS_ID,
+				.name = EDITOR_SHADER_WORLD_DEBUG_PHYSICS_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
+			{
 				.id	  = EDITOR_SHADER_WORLD_SAMPLE_ID,
 				.name = EDITOR_SHADER_WORLD_SAMPLE_PATH,
 				.tid  = GetTypeID<Shader>(),

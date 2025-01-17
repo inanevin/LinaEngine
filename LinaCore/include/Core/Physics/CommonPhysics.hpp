@@ -36,6 +36,7 @@ namespace JPH
 {
 	struct Vec3;
 	struct Quat;
+	class Color;
 	enum class EMotionType : uint8;
 } // namespace JPH
 
@@ -99,8 +100,10 @@ namespace Lina
 	extern JPH::Vec3		ToJoltVec3(const Vector3& v);
 	extern JPH::Quat		ToJoltQuat(const Quaternion& q);
 	extern JPH::EMotionType ToJoltMotionType(const PhysicsBodyType& type);
+	extern JPH::Color		ToJoltColor(const Color& c);
 	extern Vector3			FromJoltVec3(const JPH::Vec3& v);
 	extern Quaternion		FromJoltQuat(const JPH::Quat& q);
+	extern Color			FromJoltColor(const JPH::Color& c);
 
 	LINA_CLASS_BEGIN(PhysicsBodyType)
 	LINA_PROPERTY_STRING(PhysicsBodyType, 0, "None")

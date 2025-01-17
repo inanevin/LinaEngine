@@ -904,9 +904,6 @@ namespace Lina::Editor
 
 	void WorldController::StopPlaying()
 	{
-		m_world->LoadFromStream(m_savedWorld);
-		m_savedWorld.Destroy();
-
 		m_playMode = PlayMode::None;
 		m_overlayControls.baseWidget->GetFlags().Set(WF_HIDE, false);
 		m_lgxWindow->SetWrapMouse(false);
@@ -915,6 +912,13 @@ namespace Lina::Editor
 		m_ewr->GetGizmoRenderer().GetSettings().drawOrientation = true;
 
 		m_world->SetPlayMode(m_playMode);
+
+		IStream stream;
+		stream.Create(m_savedWorld.GetDataRaw(), m_savedWorld.GetCurrentSize());
+		m_world->LoadFromStream(stream);
+		m_world->RefreshAllComponentReferences();
+		stream.Destroy();
+		m_savedWorld.Destroy();
 	}
 
 	void WorldController::SelectGizmo(GizmoMode gizmo)

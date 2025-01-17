@@ -110,7 +110,6 @@ namespace Lina
 		{
 			JPH::Body* body = m_addedBodies.at(i)->GetPhysicsBody();
 			bodyIDs[i]		= body->GetID();
-			body->SetLinearVelocity(JPH::Vec3(0.2f, 0.0f, 0.0f));
 		}
 
 		const JPH::BodyInterface::AddState addState = bodyInterface.AddBodiesPrepare(bodyIDs.data(), static_cast<int32>(bodySz));
@@ -201,18 +200,14 @@ namespace Lina
 		const int cCollisionSteps = 1;
 		m_physicsSystem.Update(dt, cCollisionSteps, &m_tempAllocator, &m_jobSystem);
 
-		m_world->ViewEntities([](Entity* e, uint32 idx) -> bool {
-			JPH::Body* body = e->GetPhysicsBody();
-
-			if (body)
-			{
-				const Vector3	 p = FromJoltVec3(body->GetCenterOfMassPosition());
-				const Quaternion q = FromJoltQuat(body->GetRotation());
-				e->SetPosition(p);
-				e->SetRotation(q);
-			}
-			return false;
-		});
+		for (Entity* e : m_addedBodies)
+		{
+			JPH::Body*		 body = e->GetPhysicsBody();
+			const Vector3	 p	  = FromJoltVec3(body->GetCenterOfMassPosition());
+			const Quaternion q	  = FromJoltQuat(body->GetRotation());
+			e->SetPosition(p);
+			e->SetRotation(q);
+		}
 	}
 
 	JPH::ValidateResult PhysicsWorld::OnContactValidate(const JPH::Body& inBody1, const JPH::Body& inBody2, JPH::RVec3Arg inBaseOffset, const JPH::CollideShapeResult& inCollisionResult)

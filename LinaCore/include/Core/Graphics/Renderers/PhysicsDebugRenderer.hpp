@@ -45,8 +45,22 @@ namespace Lina
 {
 	class PhysicsDebugRenderer : public JPH::DebugRenderer
 	{
+
+	private:
+		struct PerFrameData
+		{
+			Buffer triangleVtxBuffer;
+			Buffer triangleIdxBuffer;
+		};
+
+		struct DrawData
+		{
+			Vector<PhysicsDebugVertex> triangleVertices;
+			Vector<uint16>			   triangleIndices;
+		};
+
 	public:
-		PhysicsDebugRenderer(RenderPass* pass, Shader* shapeShader);
+		PhysicsDebugRenderer(RenderPass* pass, Shader* shapeShader, Shader* shaderTriangle);
 		virtual ~PhysicsDebugRenderer();
 
 		void BeginDraws();
@@ -93,8 +107,12 @@ namespace Lina
 		};
 
 	private:
-		Shader*		  m_shaderShape = nullptr;
-		RenderPass*	  m_targetPass	= nullptr;
+		PerFrameData  m_pfd[FRAMES_IN_FLIGHT];
+		DrawData	  m_cpuDrawData	   = {};
+		DrawData	  m_gpuDrawData	   = {};
+		Shader*		  m_shaderShape	   = nullptr;
+		Shader*		  m_shaderTriangle = nullptr;
+		RenderPass*	  m_targetPass	   = nullptr;
 		ShapeRenderer m_shapeRenderer;
 	};
 
@@ -107,7 +125,7 @@ namespace Lina
 	class PhysicsDebugRenderer
 	{
 	public:
-		void Initialize(RenderPass* targetPass, ResourceManagerV2*){};
+		void Initialize(RenderPass* targetPass, Shader*, Shader*){};
 		void Shutdown(){};
 		void SyncRender(){};
 		void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue){};

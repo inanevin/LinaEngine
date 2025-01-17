@@ -80,6 +80,7 @@ namespace Lina::Editor
 #define EDITOR_SHADER_WORLD_ORIENT_GIZMO_PATH		   "Resources/Editor/Shaders/World/OrientationGizmo.linashader"
 #define EDITOR_SHADER_GUI_SWAPCHAIN_PATH			   "Resources/Editor/Shaders/GUI/Swapchain.linashader"
 #define EDITOR_SHADER_WORLD_BILLBOARD_SDF_PATH		   "Resources/Editor/Shaders/World/BillboardSDF.linashader"
+#define EDITOR_SHADER_WORLD_DEBUG_PHYSICS_PATH		   "Resources/Editor/Shaders/World/DebugPhysics.linashader"
 
 #define EDITOR_SHADER_GUI_DEFAULT_ID				 RESOURCE_ID_EDITOR_SHADERS
 #define EDITOR_SHADER_GUI_COLOR_WHEEL_ID			 RESOURCE_ID_EDITOR_SHADERS + 1
@@ -105,6 +106,7 @@ namespace Lina::Editor
 #define EDITOR_SHADER_WORLD_ORIENT_GIZMO_ID			 RESOURCE_ID_EDITOR_SHADERS + 21
 #define EDITOR_SHADER_GUI_SWAPCHAIN_ID				 RESOURCE_ID_EDITOR_SHADERS + 22
 #define EDITOR_SHADER_WORLD_BILLBOARD_SDF_ID		 RESOURCE_ID_EDITOR_SHADERS + 23
+#define EDITOR_SHADER_WORLD_DEBUG_PHYSICS_ID		 RESOURCE_ID_EDITOR_SHADERS + 24
 
 // Textures
 #define EDITOR_TEXTURE_CHECKERED_PATH				 "Resources/Editor/Textures/Checkered.png"

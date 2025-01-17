@@ -181,6 +181,12 @@ namespace Lina
 		float	padding[22];
 	};
 
+	struct PhysicsDebugVertex
+	{
+		Vector3 position;
+		Vector4 color;
+	};
+
 	template <typename T, int N> struct BufferedGroup
 	{
 		T* items[N];

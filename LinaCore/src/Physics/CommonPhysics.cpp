@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Core/Physics/CommonPhysics.hpp"
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Body/MotionType.h>
+#include <Jolt/Core/Color.h>
 
 namespace Lina
 {
@@ -61,5 +62,16 @@ namespace Lina
 	Quaternion FromJoltQuat(const JPH::Quat& q)
 	{
 		return Quaternion(q.GetX(), q.GetY(), q.GetZ(), q.GetW());
+	}
+
+	Color FromJoltColor(const JPH::Color& c)
+	{
+		JPH::Vec4 v = c.ToVec4();
+		return Color(v.GetX(), v.GetY(), v.GetZ(), v.GetW());
+	}
+
+	JPH::Color ToJoltColor(const Color& c)
+	{
+		return JPH::Color(c.x, c.y, c.z, c.w);
 	}
 } // namespace Lina

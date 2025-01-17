@@ -32,31 +32,55 @@ SOFTWARE.
 #include "Core/Physics/CommonPhysics.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
+#include "Core/Graphics/ResourceUploadQueue.hpp"
 
 namespace Lina
 {
 
-	PhysicsDebugRenderer::PhysicsDebugRenderer(RenderPass* targetPass, Shader* shapeShader)
+	PhysicsDebugRenderer::PhysicsDebugRenderer(RenderPass* targetPass, Shader* shapeShader, Shader* shaderTriangle)
 	{
-		m_targetPass  = targetPass;
-		m_shaderShape = shapeShader;
+		m_targetPass	 = targetPass;
+		m_shaderShape	 = shapeShader;
+		m_shaderTriangle = shaderTriangle;
 
 		JPH::DebugRenderer::Initialize();
 		m_shapeRenderer.Initialize();
+
+		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+		{
+			PerFrameData& pfd = m_pfd[i];
+			pfd.triangleVtxBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, sizeof(PhysicsDebugVertex) * 50000, "PhyDebugRenderer Vertices");
+			pfd.triangleIdxBuffer.Create(LinaGX::ResourceTypeHint::TH_IndexBuffer, sizeof(uint16) * 80000, "PhyDebugRenderer Indices");
+		}
 	}
 
 	PhysicsDebugRenderer::~PhysicsDebugRenderer()
 	{
+		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+		{
+			PerFrameData& pfd = m_pfd[i];
+			pfd.triangleVtxBuffer.Destroy();
+			pfd.triangleIdxBuffer.Destroy();
+		}
+
 		m_shapeRenderer.Shutdown();
 	}
 
 	void PhysicsDebugRenderer::SyncRender()
 	{
+		m_gpuDrawData = m_cpuDrawData;
+		m_cpuDrawData.triangleVertices.resize(0);
+		m_cpuDrawData.triangleIndices.resize(0);
 		m_shapeRenderer.SyncRender();
 	}
 
 	void PhysicsDebugRenderer::AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue)
 	{
+		PerFrameData& currentFrame = m_pfd[frameIndex];
+		currentFrame.triangleVtxBuffer.BufferData(0, (uint8*)m_gpuDrawData.triangleVertices.data(), sizeof(PhysicsDebugVertex) * m_gpuDrawData.triangleVertices.size());
+		currentFrame.triangleIdxBuffer.BufferData(0, (uint8*)m_gpuDrawData.triangleIndices.data(), sizeof(uint16) * m_gpuDrawData.triangleIndices.size());
+		queue.AddBufferRequest(&currentFrame.triangleVtxBuffer);
+		queue.AddBufferRequest(&currentFrame.triangleIdxBuffer);
 		m_shapeRenderer.AddBuffersToUploadQueue(frameIndex, queue);
 	}
 
@@ -68,12 +92,42 @@ namespace Lina
 	void PhysicsDebugRenderer::SubmitDraws()
 	{
 		m_shapeRenderer.SubmitBatch(*m_targetPass, 0, m_shaderShape->GetGPUHandle());
+
+		const RenderPass::InstancedDraw draw = {
+			.vertexBuffers = {&m_pfd[0].triangleVtxBuffer, &m_pfd[1].triangleVtxBuffer},
+			.indexBuffers  = {&m_pfd[0].triangleIdxBuffer, &m_pfd[1].triangleIdxBuffer},
+			.vertexSize	   = sizeof(PhysicsDebugVertex),
+			.shaderHandle  = m_shaderTriangle->GetGPUHandle(),
+			.baseVertex	   = 0,
+			.vertexCount   = static_cast<uint32>(m_cpuDrawData.triangleVertices.size()),
+			.baseIndex	   = 0,
+			.indexCount	   = static_cast<uint32>(m_cpuDrawData.triangleIndices.size()),
+			.instanceCount = 1,
+			.baseInstance  = 0,
+			.pushConstant  = 0,
+		};
+
+		m_targetPass->AddDrawCall(draw);
 	}
 
 	void PhysicsDebugRenderer::DrawTriangle(JPH::RVec3Arg inV1, JPH::RVec3Arg inV2, JPH::RVec3Arg inV3, JPH::ColorArg inColor, JPH::DebugRenderer::ECastShadow inCastShadow)
 	{
-		const RenderPass::InstancedDraw draw = {};
-		// m_targetPass->AddDrawCall(draw);
+		const uint16 sz = static_cast<uint16>(m_cpuDrawData.triangleVertices.size());
+		m_cpuDrawData.triangleVertices.push_back({
+			.position = FromJoltVec3(inV1),
+			.color	  = FromJoltColor(inColor),
+		});
+		m_cpuDrawData.triangleVertices.push_back({
+			.position = FromJoltVec3(inV2),
+			.color	  = FromJoltColor(inColor),
+		});
+		m_cpuDrawData.triangleVertices.push_back({
+			.position = FromJoltVec3(inV3),
+			.color	  = FromJoltColor(inColor),
+		});
+		m_cpuDrawData.triangleIndices.push_back(sz);
+		m_cpuDrawData.triangleIndices.push_back(sz + 1);
+		m_cpuDrawData.triangleIndices.push_back(sz + 2);
 	}
 
 	void PhysicsDebugRenderer::DrawLine(JPH::RVec3Arg inFrom, JPH::RVec3Arg inTo, JPH::ColorArg inColor)
