@@ -41,12 +41,12 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-	EditorActionWorldSnappingChanged* EditorActionWorldSnappingChanged::Create(Editor* editor, EntityWorld* world, const SnappingOptions& prevOptions, const SnappingOptions& currentOptions)
+	EditorActionWorldSnappingChanged* EditorActionWorldSnappingChanged::Create(Editor* editor, EntityWorld* world, const WorldSnapSettings& prevOptions, const WorldSnapSettings& currentOptions)
 	{
 		EditorActionWorldSnappingChanged* action = new EditorActionWorldSnappingChanged();
 		action->m_worldId						 = world->GetID();
-		action->m_prevOptions					 = prevOptions;
-		action->m_currentOptions				 = currentOptions;
+		action->m_prevSettings					 = prevOptions;
+		action->m_currentSettings				 = currentOptions;
 		editor->GetEditorActionManager().AddToStack(action);
 		return action;
 	}
@@ -65,26 +65,26 @@ namespace Lina::Editor
 
 		if (type == ExecType::Undo)
 		{
-			wc->SetSnappingOptions(m_prevOptions);
+			wc->SetSnappingSettings(m_prevSettings);
 		}
 		else if (type == ExecType::Redo)
 		{
-			wc->SetSnappingOptions(m_currentOptions);
+			wc->SetSnappingSettings(m_currentSettings);
 		}
 	}
 
-	EditorActionWorldCameraOptionsChanged* EditorActionWorldCameraOptionsChanged::Create(Editor* editor, EntityWorld* world, const CameraOptions& prevOptions, const CameraOptions& currentOptions)
+	EditorActionWorldCameraSettingsChanged* EditorActionWorldCameraSettingsChanged::Create(Editor* editor, EntityWorld* world, const WorldCameraSettings& prevOptions, const WorldCameraSettings& currentOptions)
 	{
 
-		EditorActionWorldCameraOptionsChanged* action = new EditorActionWorldCameraOptionsChanged();
-		action->m_worldId							  = world->GetID();
-		action->m_prevOptions						  = prevOptions;
-		action->m_currentOptions					  = currentOptions;
+		EditorActionWorldCameraSettingsChanged* action = new EditorActionWorldCameraSettingsChanged();
+		action->m_worldId							   = world->GetID();
+		action->m_prevSettings						   = prevOptions;
+		action->m_currentSettings					   = currentOptions;
 		editor->GetEditorActionManager().AddToStack(action);
 		return action;
 	}
 
-	void EditorActionWorldCameraOptionsChanged::Execute(Editor* editor, ExecType type)
+	void EditorActionWorldCameraSettingsChanged::Execute(Editor* editor, ExecType type)
 	{
 		EntityWorld* world = editor->GetWorldManager().GetWorld(m_worldId);
 		if (!world)
@@ -98,11 +98,11 @@ namespace Lina::Editor
 
 		if (type == ExecType::Undo)
 		{
-			wc->SetCameraOptions(m_prevOptions);
+			wc->SetCameraSettings(m_prevSettings);
 		}
 		else if (type == ExecType::Redo)
 		{
-			wc->SetCameraOptions(m_currentOptions);
+			wc->SetCameraSettings(m_currentSettings);
 		}
 	}
 
@@ -111,8 +111,8 @@ namespace Lina::Editor
 
 		EditorActionWorldGfxChanged* action = new EditorActionWorldGfxChanged();
 		action->m_worldId					= world->GetID();
-		action->m_prevOptions				= prevOptions;
-		action->m_currentOptions			= currentOptions;
+		action->m_prevSettings				= prevOptions;
+		action->m_currentSettings			= currentOptions;
 		editor->GetEditorActionManager().AddToStack(action);
 		return action;
 	}
@@ -125,11 +125,11 @@ namespace Lina::Editor
 
 		if (type == ExecType::Undo)
 		{
-			world->GetGfxSettings() = m_prevOptions;
+			world->GetGfxSettings() = m_prevSettings;
 		}
 		else if (type == ExecType::Redo)
 		{
-			world->GetGfxSettings() = m_currentOptions;
+			world->GetGfxSettings() = m_currentSettings;
 		}
 
 		world->LoadMissingResources(editor->GetApp()->GetResourceManager(), editor->GetProjectManager().GetProjectData(), {});
@@ -140,8 +140,8 @@ namespace Lina::Editor
 
 		EditorActionWorldPhysicsSettingsChanged* action = new EditorActionWorldPhysicsSettingsChanged();
 		action->m_worldId								= world->GetID();
-		action->m_prevOptions							= prevOptions;
-		action->m_currentOptions						= currentOptions;
+		action->m_prevSettings							= prevOptions;
+		action->m_currentSettings						= currentOptions;
 		editor->GetEditorActionManager().AddToStack(action);
 		return action;
 	}
@@ -154,14 +154,14 @@ namespace Lina::Editor
 
 		if (type == ExecType::Undo)
 		{
-			world->GetPhysicsOptions() = m_prevOptions;
+			world->GetPhysicsSettings() = m_prevSettings;
 		}
 		else if (type == ExecType::Redo)
 		{
-			world->GetPhysicsOptions() = m_currentOptions;
+			world->GetPhysicsSettings() = m_currentSettings;
 		}
 
-		world->GetPhysicsWorld()->SetPhysicsOptions(world->GetPhysicsOptions());
+		world->GetPhysicsWorld()->SetPhysicsSettings(world->GetPhysicsSettings());
 	}
 
 } // namespace Lina::Editor

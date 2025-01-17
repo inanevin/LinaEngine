@@ -50,7 +50,7 @@ namespace Lina
 		PhysicsWorld(EntityWorld* world);
 		virtual ~PhysicsWorld();
 
-		void SetPhysicsOptions(const WorldPhysicsSettings& opts);
+		void SetPhysicsSettings(const WorldPhysicsSettings& opts);
 		void Begin();
 		void End();
 		void EnsurePhysicsBodies();

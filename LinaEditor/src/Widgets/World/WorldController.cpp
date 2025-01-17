@@ -74,8 +74,8 @@ namespace Lina::Editor
 		m_gizmoControls.type						  = static_cast<GizmoMode>(m_editor->GetSettings().GetParams().GetParamUint8("GizmoType"_hs, 0));
 		m_gizmoControls.locality					  = static_cast<GizmoLocality>(m_editor->GetSettings().GetParams().GetParamUint8("GizmoLocality"_hs, 0));
 		m_gizmoControls.snapping					  = static_cast<GizmoSnapping>(m_editor->GetSettings().GetParams().GetParamUint8("GizmoSnapping"_hs, 0));
-		m_overlayControls.cameraOptions.movementBoost = m_editor->GetSettings().GetParams().GetParamFloat("CamMoveBoost"_hs, 1.0f);
-		m_overlayControls.cameraOptions.angularBoost  = m_editor->GetSettings().GetParams().GetParamFloat("CamAngBoost"_hs, 1.0f);
+		m_overlayControls.cameraSettings.movementBoost = m_editor->GetSettings().GetParams().GetParamFloat("CamMoveBoost"_hs, 1.0f);
+		m_overlayControls.cameraSettings.angularBoost  = m_editor->GetSettings().GetParams().GetParamFloat("CamAngBoost"_hs, 1.0f);
 
 		GetWidgetProps().childMargins.left	 = Theme::GetDef().baseIndent;
 		GetWidgetProps().childMargins.top	 = Theme::GetDef().baseIndent;
@@ -315,10 +315,10 @@ namespace Lina::Editor
 		layout->GetWidgetProps().rounding		  = 0.05f;
 		layout->GetProps().direction			  = DirectionOrientation::Vertical;
 
-		CommonWidgets::BuildClassReflection(layout, &m_overlayControls.snappingOptions, ReflectionSystem::Get().Meta<SnappingOptions>());
+		CommonWidgets::BuildClassReflection(layout, &m_overlayControls.snappingSettings, ReflectionSystem::Get().Meta<WorldSnapSettings>());
 
-		layout->GetCallbacks().onEditStarted = [this]() { m_overlayControls.oldSnappingOptions = m_overlayControls.snappingOptions; };
-		layout->GetCallbacks().onEditEnded	 = [this]() { EditorActionWorldSnappingChanged::Create(m_editor, m_world, m_overlayControls.oldSnappingOptions, m_overlayControls.snappingOptions); };
+		layout->GetCallbacks().onEditStarted = [this]() { m_overlayControls.oldSnappingOptions = m_overlayControls.snappingSettings; };
+		layout->GetCallbacks().onEditEnded	 = [this]() { EditorActionWorldSnappingChanged::Create(m_editor, m_world, m_overlayControls.oldSnappingOptions, m_overlayControls.snappingSettings); };
 
 		m_manager->AddToForeground(layout);
 		const float startY = m_overlayControls.topToolbar->GetPosY() + m_overlayControls.topToolbar->GetSizeY() + m_overlayControls.topToolbar->GetWidgetProps().outlineThickness + Theme::GetDef().baseIndentInner * 0.5f;
@@ -339,13 +339,13 @@ namespace Lina::Editor
 		layout->GetWidgetProps().rounding		  = 0.05f;
 		layout->GetProps().direction			  = DirectionOrientation::Vertical;
 
-		m_overlayControls.cameraOptions.movementBoost = m_camera->GetMovementBoost();
-		m_overlayControls.cameraOptions.angularBoost  = m_camera->GetAngularBoost();
+		m_overlayControls.cameraSettings.movementBoost = m_camera->GetMovementBoost();
+		m_overlayControls.cameraSettings.angularBoost  = m_camera->GetAngularBoost();
 
-		CommonWidgets::BuildClassReflection(layout, &m_overlayControls.cameraOptions, ReflectionSystem::Get().Meta<CameraOptions>());
+		CommonWidgets::BuildClassReflection(layout, &m_overlayControls.cameraSettings, ReflectionSystem::Get().Meta<WorldCameraSettings>());
 
-		layout->GetCallbacks().onEditStarted = [this]() { m_overlayControls.oldCameraOptions = m_overlayControls.cameraOptions; };
-		layout->GetCallbacks().onEditEnded	 = [this]() { EditorActionWorldCameraOptionsChanged::Create(m_editor, m_world, m_overlayControls.oldCameraOptions, m_overlayControls.cameraOptions); };
+		layout->GetCallbacks().onEditStarted = [this]() { m_overlayControls.oldCameraOptions = m_overlayControls.cameraSettings; };
+		layout->GetCallbacks().onEditEnded	 = [this]() { EditorActionWorldCameraSettingsChanged::Create(m_editor, m_world, m_overlayControls.oldCameraOptions, m_overlayControls.cameraSettings); };
 
 		m_manager->AddToForeground(layout);
 		const float startY = m_overlayControls.topToolbar->GetPosY() + m_overlayControls.topToolbar->GetSizeY() + m_overlayControls.topToolbar->GetWidgetProps().outlineThickness + Theme::GetDef().baseIndentInner * 0.5f;
@@ -388,15 +388,15 @@ namespace Lina::Editor
 
 		// Physics
 		{
-			WorldPhysicsSettings& phySettings = m_world->GetPhysicsOptions();
+			WorldPhysicsSettings& phySettings = m_world->GetPhysicsSettings();
 
 			DirectionalLayout* phyLayout = m_manager->Allocate<DirectionalLayout>("GfxLayout");
 			phyLayout->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);
 			phyLayout->SetAlignedPosX(0.0f);
 			phyLayout->SetAlignedSize(Vector2::One);
 			phyLayout->GetWidgetProps().childPadding = layout->GetWidgetProps().childPadding;
-			phyLayout->GetCallbacks().onEditStarted	 = [this]() { m_overlayControls.oldPhysicsOptions = m_world->GetPhysicsOptions(); };
-			phyLayout->GetCallbacks().onEditEnded	 = [this]() { EditorActionWorldPhysicsSettingsChanged::Create(m_editor, m_world, m_overlayControls.oldPhysicsOptions, m_world->GetPhysicsOptions()); };
+			phyLayout->GetCallbacks().onEditStarted	 = [this]() { m_overlayControls.oldPhysicsOptions = m_world->GetPhysicsSettings(); };
+			phyLayout->GetCallbacks().onEditEnded	 = [this]() { EditorActionWorldPhysicsSettingsChanged::Create(m_editor, m_world, m_overlayControls.oldPhysicsOptions, m_world->GetPhysicsSettings()); };
 
 			layout->AddChild(phyLayout);
 			CommonWidgets::BuildClassReflection(phyLayout, &phySettings, ReflectionSystem::Get().Meta<WorldPhysicsSettings>());
@@ -1160,7 +1160,7 @@ namespace Lina::Editor
 				const Vector3 normal1 = locality == GizmoLocality::World ? Vector3::Up : targetAxisWorld.Cross(selection.at(0)->GetRotation().GetForward());
 				rayHit0				  = ray(mp, normal0, hitPoint0, hitDistance0);
 				rayHit1				  = ray(mp, normal1, hitPoint1, hitDistance1);
-				snapValue			  = m_overlayControls.snappingOptions.directionalSnap.x;
+				snapValue			  = m_overlayControls.snappingSettings.directionalSnap.x;
 			}
 			else if (m_gizmoControls.motionAxis == GizmoAxis::Y)
 			{
@@ -1169,7 +1169,7 @@ namespace Lina::Editor
 				const Vector3 normal1 = locality == GizmoLocality::World ? Vector3::Right : targetAxisWorld.Cross(selection.at(0)->GetRotation().GetForward());
 				rayHit0				  = ray(mp, normal0, hitPoint0, hitDistance0);
 				rayHit1				  = ray(mp, normal1, hitPoint1, hitDistance1);
-				snapValue			  = m_overlayControls.snappingOptions.directionalSnap.y;
+				snapValue			  = m_overlayControls.snappingSettings.directionalSnap.y;
 			}
 			else if (m_gizmoControls.motionAxis == GizmoAxis::Z)
 			{
@@ -1178,7 +1178,7 @@ namespace Lina::Editor
 				const Vector3 normal1 = locality == GizmoLocality::World ? Vector3::Right : targetAxisWorld.Cross(selection.at(0)->GetRotation().GetRight());
 				rayHit0				  = ray(mp, normal0, hitPoint0, hitDistance0);
 				rayHit1				  = ray(mp, normal1, hitPoint1, hitDistance1);
-				snapValue			  = m_overlayControls.snappingOptions.directionalSnap.z;
+				snapValue			  = m_overlayControls.snappingSettings.directionalSnap.z;
 			}
 			else if (m_gizmoControls.motionAxis == GizmoAxis::Center)
 			{
@@ -1250,7 +1250,7 @@ namespace Lina::Editor
 
 				scaleAmt  = getScaleAmt(ta);
 				scaleAxis = Vector3::Right;
-				snapValue = m_overlayControls.snappingOptions.directionalSnap.x;
+				snapValue = m_overlayControls.snappingSettings.directionalSnap.x;
 			}
 			else if (m_gizmoControls.motionAxis == GizmoAxis::Y)
 			{
@@ -1259,7 +1259,7 @@ namespace Lina::Editor
 
 				scaleAmt  = getScaleAmt(ta);
 				scaleAxis = Vector3::Up;
-				snapValue = m_overlayControls.snappingOptions.directionalSnap.y;
+				snapValue = m_overlayControls.snappingSettings.directionalSnap.y;
 			}
 			else if (m_gizmoControls.motionAxis == GizmoAxis::Z)
 			{
@@ -1268,7 +1268,7 @@ namespace Lina::Editor
 
 				scaleAmt  = getScaleAmt(ta);
 				scaleAxis = Vector3::Forward;
-				snapValue = m_overlayControls.snappingOptions.directionalSnap.z;
+				snapValue = m_overlayControls.snappingSettings.directionalSnap.z;
 			}
 			else if (m_gizmoControls.motionAxis == GizmoAxis::Center)
 			{
@@ -1276,7 +1276,7 @@ namespace Lina::Editor
 				scaleAmt					   = mouseDir.Normalized().Dot(Vector2(1, -1)) * mouseDir.Magnitude() * 0.005f;
 				scaleAxis					   = Vector3::One;
 				rendererSettings.visualizeAxis = false;
-				snapValue					   = m_overlayControls.snappingOptions.directionalSnap.x;
+				snapValue					   = m_overlayControls.snappingSettings.directionalSnap.x;
 			}
 
 			const size_t sz = selection.size();
@@ -1354,7 +1354,7 @@ namespace Lina::Editor
 			rendererSettings.angle0 = angle0;
 			rendererSettings.angle1 = angle1;
 
-			const float snapValue = m_overlayControls.snappingOptions.angularSnap;
+			const float snapValue = m_overlayControls.snappingSettings.angularSnap;
 			if (m_gizmoControls.snapping == GizmoSnapping::Step && !Math::Equals(snapValue, 0.0f, 0.0001f))
 			{
 				const float desired = Math::RoundToFloat(deltaAngle / snapValue) * snapValue;
@@ -1473,18 +1473,18 @@ namespace Lina::Editor
 		m_selectionControls.localityButton->GetWidgetProps().tooltip   = m_gizmoControls.usedLocality == GizmoLocality::World ? Locale::GetStr(LocaleStr::LocalityWorld) : Locale::GetStr(LocaleStr::LocalityLocal);
 	}
 
-	void WorldController::SetCameraOptions(const CameraOptions& opts)
+	void WorldController::SetCameraSettings(const WorldCameraSettings& settings)
 	{
-		m_overlayControls.cameraOptions = opts;
-		m_editor->GetSettings().GetParams().SetParamFloat("CamMoveBoost"_hs, m_overlayControls.cameraOptions.movementBoost);
-		m_editor->GetSettings().GetParams().SetParamFloat("CamAngBoost"_hs, m_overlayControls.cameraOptions.angularBoost);
-		m_camera->SetMovementBoost(m_overlayControls.cameraOptions.movementBoost);
-		m_camera->SetAngularBoost(m_overlayControls.cameraOptions.angularBoost);
+		m_overlayControls.cameraSettings = settings;
+		m_editor->GetSettings().GetParams().SetParamFloat("CamMoveBoost"_hs, m_overlayControls.cameraSettings.movementBoost);
+		m_editor->GetSettings().GetParams().SetParamFloat("CamAngBoost"_hs, m_overlayControls.cameraSettings.angularBoost);
+		m_camera->SetMovementBoost(m_overlayControls.cameraSettings.movementBoost);
+		m_camera->SetAngularBoost(m_overlayControls.cameraSettings.angularBoost);
 		m_editor->SaveSettings();
 	}
 
-	void WorldController::SetSnappingOptions(const SnappingOptions& opts)
+	void WorldController::SetSnappingSettings(const WorldSnapSettings& settings)
 	{
-		m_overlayControls.snappingOptions = opts;
+		m_overlayControls.snappingSettings = opts;
 	}
 } // namespace Lina::Editor

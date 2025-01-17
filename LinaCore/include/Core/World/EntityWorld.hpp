@@ -206,9 +206,9 @@ namespace Lina
 			return m_physicsWorld;
 		}
 
-		inline WorldPhysicsSettings& GetPhysicsOptions()
+		inline WorldPhysicsSettings& GetPhysicsSettings()
 		{
-			return m_physicsOptions;
+			return m_physicsSettings;
 		}
 
 	private:
@@ -249,7 +249,7 @@ namespace Lina
 		float				 m_interpolationAlpha = 0.0f;
 		PlayMode			 m_playMode			  = PlayMode::None;
 		HashSet<ResourceID>	 m_loadedResourceNeeds;
-		WorldPhysicsSettings m_physicsOptions = {};
+		WorldPhysicsSettings m_physicsSettings = {};
 	};
 
 	LINA_RESOURCE_BEGIN(EntityWorld)

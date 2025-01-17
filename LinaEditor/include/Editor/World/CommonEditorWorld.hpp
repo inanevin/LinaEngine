@@ -85,28 +85,28 @@ namespace Lina::Editor
 		Key
 	};
 
-	struct SnappingOptions
+	struct WorldSnapSettings
 	{
 		Vector3 directionalSnap = Vector3::Zero;
 		float	angularSnap		= 0.0f;
 	};
 
 	LINA_CLASS_BEGIN(SnappingOptions);
-	LINA_FIELD(SnappingOptions, directionalSnap, "Directional Snap", FieldType::Vector3, 0)
-	LINA_FIELD(SnappingOptions, angularSnap, "Angular Snap", FieldType::Float, 0)
+	LINA_FIELD(WorldSnapSettings, directionalSnap, "Directional Snap", FieldType::Vector3, 0)
+	LINA_FIELD(WorldSnapSettings, angularSnap, "Angular Snap", FieldType::Float, 0)
 	LINA_CLASS_END(SnappingOptions);
 
-	struct CameraOptions
+	struct WorldCameraSettings
 	{
 		float movementBoost = 1.0f;
 		float angularBoost	= 1.0f;
 	};
 
 	LINA_CLASS_BEGIN(CameraOptions);
-	LINA_FIELD(CameraOptions, movementBoost, "Movement Boost", FieldType::Float, 0)
-	LINA_FIELD(CameraOptions, angularBoost, "Angular Boost", FieldType::Float, 0)
-	LINA_FIELD_LIMITS(CameraOptions, movementBoost, 0.1f, 3.0f, 0.1f)
-	LINA_FIELD_LIMITS(CameraOptions, angularBoost, 0.1f, 3.0f, 0.1f)
+	LINA_FIELD(WorldCameraSettings, movementBoost, "Movement Boost", FieldType::Float, 0)
+	LINA_FIELD(WorldCameraSettings, angularBoost, "Angular Boost", FieldType::Float, 0)
+	LINA_FIELD_LIMITS(WorldCameraSettings, movementBoost, 0.1f, 3.0f, 0.1f)
+	LINA_FIELD_LIMITS(WorldCameraSettings, angularBoost, 0.1f, 3.0f, 0.1f)
 	LINA_CLASS_END(CameraOptions);
 
 } // namespace Lina::Editor

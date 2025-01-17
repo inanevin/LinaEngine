@@ -50,28 +50,28 @@ namespace Lina::Editor
 		EditorActionWorldSnappingChanged()			= default;
 		virtual ~EditorActionWorldSnappingChanged() = default;
 
-		static EditorActionWorldSnappingChanged* Create(Editor* editor, EntityWorld* world, const SnappingOptions& prevOptions, const SnappingOptions& currentOptions);
+		static EditorActionWorldSnappingChanged* Create(Editor* editor, EntityWorld* world, const WorldSnapSettings& prevSettings, const WorldSnapSettings& currentSettings);
 		virtual void							 Execute(Editor* editor, ExecType type) override;
 
 	private:
-		SnappingOptions m_prevOptions	 = {};
-		SnappingOptions m_currentOptions = {};
-		uint64			m_worldId		 = 0;
+		WorldSnapSettings m_prevSettings	= {};
+		WorldSnapSettings m_currentSettings = {};
+		uint64			  m_worldId			= 0;
 	};
 
-	class EditorActionWorldCameraOptionsChanged : public EditorAction
+	class EditorActionWorldCameraSettingsChanged : public EditorAction
 	{
 	public:
-		EditorActionWorldCameraOptionsChanged()			 = default;
-		virtual ~EditorActionWorldCameraOptionsChanged() = default;
+		EditorActionWorldCameraSettingsChanged()		  = default;
+		virtual ~EditorActionWorldCameraSettingsChanged() = default;
 
-		static EditorActionWorldCameraOptionsChanged* Create(Editor* editor, EntityWorld* world, const CameraOptions& prevOptions, const CameraOptions& currentOptions);
-		virtual void								  Execute(Editor* editor, ExecType type) override;
+		static EditorActionWorldCameraSettingsChanged* Create(Editor* editor, EntityWorld* world, const WorldCameraSettings& prevSettings, const WorldCameraSettings& currentSettings);
+		virtual void								   Execute(Editor* editor, ExecType type) override;
 
 	private:
-		CameraOptions m_prevOptions	   = {};
-		CameraOptions m_currentOptions = {};
-		uint64		  m_worldId		   = 0;
+		WorldCameraSettings m_prevSettings	  = {};
+		WorldCameraSettings m_currentSettings = {};
+		uint64				m_worldId		  = 0;
 	};
 
 	class EditorActionWorldGfxChanged : public EditorAction
@@ -80,13 +80,13 @@ namespace Lina::Editor
 		EditorActionWorldGfxChanged()		   = default;
 		virtual ~EditorActionWorldGfxChanged() = default;
 
-		static EditorActionWorldGfxChanged* Create(Editor* editor, EntityWorld* world, const WorldGfxSettings& prevOptions, const WorldGfxSettings& currentOptions);
+		static EditorActionWorldGfxChanged* Create(Editor* editor, EntityWorld* world, const WorldGfxSettings& prevSettings, const WorldGfxSettings& currentSettings);
 		virtual void						Execute(Editor* editor, ExecType type) override;
 
 	private:
-		WorldGfxSettings m_prevOptions	  = {};
-		WorldGfxSettings m_currentOptions = {};
-		uint64			 m_worldId		  = 0;
+		WorldGfxSettings m_prevSettings	   = {};
+		WorldGfxSettings m_currentSettings = {};
+		uint64			 m_worldId		   = 0;
 	};
 
 	class EditorActionWorldPhysicsSettingsChanged : public EditorAction
@@ -95,12 +95,12 @@ namespace Lina::Editor
 		EditorActionWorldPhysicsSettingsChanged()		   = default;
 		virtual ~EditorActionWorldPhysicsSettingsChanged() = default;
 
-		static EditorActionWorldPhysicsSettingsChanged* Create(Editor* editor, EntityWorld* world, const WorldPhysicsSettings& prevOptions, const WorldPhysicsSettings& currentOptions);
+		static EditorActionWorldPhysicsSettingsChanged* Create(Editor* editor, EntityWorld* world, const WorldPhysicsSettings& prevSettings, const WorldPhysicsSettings& currentSettings);
 		virtual void									Execute(Editor* editor, ExecType type) override;
 
 	private:
-		WorldPhysicsSettings m_prevOptions	  = {};
-		WorldPhysicsSettings m_currentOptions = {};
-		uint64				 m_worldId		  = 0;
+		WorldPhysicsSettings m_prevSettings	   = {};
+		WorldPhysicsSettings m_currentSettings = {};
+		uint64				 m_worldId		   = 0;
 	};
 } // namespace Lina::Editor
