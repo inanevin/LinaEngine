@@ -97,14 +97,14 @@ namespace Lina
 		}
 	};
 
-	struct WorldPhysicsOptions
+	struct WorldPhysicsSettings
 	{
 		Vector3 gravity = Vector3(0.0f, -9.81f, 0.0f);
 	};
 
-	LINA_CLASS_BEGIN(WorldPhysicsOptions);
-	LINA_FIELD(WorldPhysicsOptions, gravity, "Gravity", FieldType::Vector3, 0)
-	LINA_CLASS_END(WorldPhysicsOptions);
+	LINA_CLASS_BEGIN(WorldPhysicsSettings);
+	LINA_FIELD(WorldPhysicsSettings, gravity, "Gravity", FieldType::Vector3, 0)
+	LINA_CLASS_END(WorldPhysicsSettings);
 
 	extern JPH::Vec3		ToJoltVec3(const Vector3& v);
 	extern JPH::Quat		ToJoltQuat(const Quaternion& q);

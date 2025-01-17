@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Common/Data/String.hpp"
 #include "Editor/World/CommonEditorWorld.hpp"
 #include "Core/World/CommonWorld.hpp"
+#include "Core/Physics/CommonPhysics.hpp"
 
 namespace Lina
 {
@@ -49,7 +50,7 @@ namespace Lina::Editor
 		EditorActionWorldSnappingChanged()			= default;
 		virtual ~EditorActionWorldSnappingChanged() = default;
 
-		static EditorActionWorldSnappingChanged* Create(Editor* editor, EntityWorld* world, const SnappingOptions& prevOptions);
+		static EditorActionWorldSnappingChanged* Create(Editor* editor, EntityWorld* world, const SnappingOptions& prevOptions, const SnappingOptions& currentOptions);
 		virtual void							 Execute(Editor* editor, ExecType type) override;
 
 	private:
@@ -58,13 +59,28 @@ namespace Lina::Editor
 		uint64			m_worldId		 = 0;
 	};
 
+	class EditorActionWorldCameraOptionsChanged : public EditorAction
+	{
+	public:
+		EditorActionWorldCameraOptionsChanged()			 = default;
+		virtual ~EditorActionWorldCameraOptionsChanged() = default;
+
+		static EditorActionWorldCameraOptionsChanged* Create(Editor* editor, EntityWorld* world, const CameraOptions& prevOptions, const CameraOptions& currentOptions);
+		virtual void								  Execute(Editor* editor, ExecType type) override;
+
+	private:
+		CameraOptions m_prevOptions	   = {};
+		CameraOptions m_currentOptions = {};
+		uint64		  m_worldId		   = 0;
+	};
+
 	class EditorActionWorldGfxChanged : public EditorAction
 	{
 	public:
 		EditorActionWorldGfxChanged()		   = default;
 		virtual ~EditorActionWorldGfxChanged() = default;
 
-		static EditorActionWorldGfxChanged* Create(Editor* editor, EntityWorld* world, const WorldGfxSettings& prevOptions);
+		static EditorActionWorldGfxChanged* Create(Editor* editor, EntityWorld* world, const WorldGfxSettings& prevOptions, const WorldGfxSettings& currentOptions);
 		virtual void						Execute(Editor* editor, ExecType type) override;
 
 	private:
@@ -73,4 +89,18 @@ namespace Lina::Editor
 		uint64			 m_worldId		  = 0;
 	};
 
+	class EditorActionWorldPhysicsSettingsChanged : public EditorAction
+	{
+	public:
+		EditorActionWorldPhysicsSettingsChanged()		   = default;
+		virtual ~EditorActionWorldPhysicsSettingsChanged() = default;
+
+		static EditorActionWorldPhysicsSettingsChanged* Create(Editor* editor, EntityWorld* world, const WorldPhysicsSettings& prevOptions, const WorldPhysicsSettings& currentOptions);
+		virtual void									Execute(Editor* editor, ExecType type) override;
+
+	private:
+		WorldPhysicsSettings m_prevOptions	  = {};
+		WorldPhysicsSettings m_currentOptions = {};
+		uint64				 m_worldId		  = 0;
+	};
 } // namespace Lina::Editor

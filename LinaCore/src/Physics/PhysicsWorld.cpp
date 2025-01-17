@@ -53,7 +53,7 @@ namespace Lina
 	{
 	}
 
-	void PhysicsWorld::SetPhysicsOptions(const WorldPhysicsOptions& opts)
+	void PhysicsWorld::SetPhysicsOptions(const WorldPhysicsSettings& opts)
 	{
 		m_physicsSystem.SetGravity(ToJoltVec3(opts.gravity));
 	}

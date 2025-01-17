@@ -206,7 +206,7 @@ namespace Lina
 			return m_physicsWorld;
 		}
 
-		inline WorldPhysicsOptions& GetPhysicsOptions()
+		inline WorldPhysicsSettings& GetPhysicsOptions()
 		{
 			return m_physicsOptions;
 		}
@@ -245,11 +245,11 @@ namespace Lina
 		SimulationSettings			  m_simulationSettings = {};
 		ResourceManagerV2*			  m_rm				   = nullptr;
 
-		float				m_elapsedTime		 = 0.0f;
-		float				m_interpolationAlpha = 0.0f;
-		PlayMode			m_playMode			 = PlayMode::None;
-		HashSet<ResourceID> m_loadedResourceNeeds;
-		WorldPhysicsOptions m_physicsOptions = {};
+		float				 m_elapsedTime		  = 0.0f;
+		float				 m_interpolationAlpha = 0.0f;
+		PlayMode			 m_playMode			  = PlayMode::None;
+		HashSet<ResourceID>	 m_loadedResourceNeeds;
+		WorldPhysicsSettings m_physicsOptions = {};
 	};
 
 	LINA_RESOURCE_BEGIN(EntityWorld)

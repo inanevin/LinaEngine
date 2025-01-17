@@ -123,10 +123,10 @@ namespace Lina::Editor
 			SnappingOptions snappingOptions = {};
 			CameraOptions	cameraOptions	= {};
 
-			SnappingOptions		oldSnappingOptions = {};
-			CameraOptions		oldCameraOptions   = {};
-			WorldGfxSettings	oldGfxSettings	   = {};
-			WorldPhysicsOptions oldPhysicsOptions  = {};
+			SnappingOptions		 oldSnappingOptions = {};
+			CameraOptions		 oldCameraOptions	= {};
+			WorldGfxSettings	 oldGfxSettings		= {};
+			WorldPhysicsSettings oldPhysicsOptions	= {};
 		};
 
 	public:
@@ -167,6 +167,10 @@ namespace Lina::Editor
 		void SelectGizmo(GizmoMode gizmo);
 		void SelectGizmoLocality(GizmoLocality locality);
 		void SelectGizmoSnap(GizmoSnapping snapping);
+
+		// World
+		void SetCameraOptions(const CameraOptions& opts);
+		void SetSnappingOptions(const SnappingOptions& opts);
 
 		inline EditorCamera* GetWorldCamera()
 		{
