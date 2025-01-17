@@ -58,7 +58,6 @@ namespace Lina::Editor
 		struct WorldData
 		{
 			EntityWorld*		 world				 = nullptr;
-			WorldRenderer*		 worldRenderer		 = nullptr;
 			EditorWorldRenderer* editorWorldRenderer = nullptr;
 			Vector<Entity*>		 selectedEntities	 = {};
 		};

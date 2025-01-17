@@ -89,13 +89,13 @@ namespace Lina::Editor
 		WorldRenderer*		 worldRenderer		 = new WorldRenderer(&m_editor->GetApp()->GetGfxContext(), &m_editor->GetApp()->GetResourceManager(), world, Vector2ui(4, 4), "WorldRenderer: " + world->GetName());
 		EditorWorldRenderer* editorWorldRenderer = new EditorWorldRenderer(m_editor, m_editor->GetApp()->GetLGX(), worldRenderer);
 		world->Initialize(&m_editor->GetApp()->GetResourceManager());
+		world->SetWorldRenderer(worldRenderer);
 
 		m_editor->GetApp()->JoinRender();
 		m_editor->GetEditorRenderer().AddWorldRenderer(worldRenderer, editorWorldRenderer);
 
 		m_worlds.push_back({
 			.world				 = world,
-			.worldRenderer		 = worldRenderer,
 			.editorWorldRenderer = editorWorldRenderer,
 		});
 
@@ -119,8 +119,9 @@ namespace Lina::Editor
 
 		WorldData& data = *it;
 
-		m_editor->GetEditorRenderer().RemoveWorldRenderer(data.worldRenderer);
-		delete data.worldRenderer;
+		WorldRenderer* worldRenderer = data.world->GetWorldRenderer();
+		m_editor->GetEditorRenderer().RemoveWorldRenderer(worldRenderer);
+		delete worldRenderer;
 		delete data.editorWorldRenderer;
 		delete data.world;
 

@@ -50,6 +50,7 @@ namespace Lina
 	class ProjectData;
 	class ResourceManagerV2;
 	class PhysicsWorld;
+	class WorldRenderer;
 
 	class EntityWorld : public Resource
 	{
@@ -65,25 +66,32 @@ namespace Lina
 		EntityWorld(ResourceID id, const String& name);
 		~EntityWorld();
 
-		void			   Initialize(ResourceManagerV2* rm);
-		Entity*			   CreateEntity(EntityID id, const String& name = "");
-		Entity*			   GetEntity(EntityID guid);
-		void			   DestroyEntity(Entity* e);
-		void			   GetComponents(Entity* e, Vector<Component*>& outComponents) const;
-		Component*		   GetComponent(Entity* e, TypeID tid) const;
-		Component*		   AddComponent(Entity* e, TypeID tid);
+		void Initialize(ResourceManagerV2* rm);
+		void Tick(float delta);
+		void SetPlayMode(PlayMode playmode);
+
+		// Resource
 		virtual void	   SaveToStream(OStream& stream) const override;
 		virtual void	   LoadFromStream(IStream& stream) override;
 		virtual bool	   LoadFromFile(const String& path) override;
-		void			   AddListener(EntityWorldListener* listener);
-		void			   RemoveListener(EntityWorldListener* listener);
 		void			   CollectResourceNeeds(HashSet<ResourceID>& outResources) const;
 		HashSet<Resource*> LoadMissingResources(ResourceManagerV2& rm, ProjectData* project, const HashSet<ResourceID>& extraResources);
-		void			   RefreshComponentReferences(const Vector<Entity*>& entities);
-		void			   RefreshAllComponentReferences();
 
-		void Tick(float delta);
-		void SetPlayMode(PlayMode playmode);
+		// Entity
+		Entity* CreateEntity(EntityID id, const String& name = "");
+		Entity* GetEntity(EntityID guid);
+		void	DestroyEntity(Entity* e);
+
+		// Components
+		void	   GetComponents(Entity* e, Vector<Component*>& outComponents) const;
+		Component* GetComponent(Entity* e, TypeID tid) const;
+		Component* AddComponent(Entity* e, TypeID tid);
+		void	   RefreshComponentReferences(const Vector<Entity*>& entities);
+		void	   RefreshAllComponentReferences();
+
+		// Misc
+		void AddListener(EntityWorldListener* listener);
+		void RemoveListener(EntityWorldListener* listener);
 
 		template <typename T> T* GetComponent(Entity* e)
 		{
@@ -211,11 +219,20 @@ namespace Lina
 			return m_physicsSettings;
 		}
 
-	private:
-		void BeginPlay();
-		void EndPlay();
-		void TickPlay(float deltaTime);
+		inline void SetWorldRenderer(WorldRenderer* wr)
+		{
+			m_worldRenderer = wr;
+		}
 
+		inline WorldRenderer* GetWorldRenderer() const
+		{
+			return m_worldRenderer;
+		}
+
+	private:
+		void				BeginPlay();
+		void				EndPlay();
+		void				TickPlay(float deltaTime);
 		void				DestroyEntityData(Entity* e);
 		void				OnCreateComponent(Component* c, Entity* e);
 		void				OnDestroyComponent(Component* c, Entity* e);
@@ -250,6 +267,7 @@ namespace Lina
 		PlayMode			 m_playMode			  = PlayMode::None;
 		HashSet<ResourceID>	 m_loadedResourceNeeds;
 		WorldPhysicsSettings m_physicsSettings = {};
+		WorldRenderer*		 m_worldRenderer   = nullptr;
 	};
 
 	LINA_RESOURCE_BEGIN(EntityWorld)

@@ -77,40 +77,6 @@ namespace Lina
 		m_rm = rm;
 	}
 
-	void EntityWorld::DestroyComponentCaches()
-	{
-		for (const ComponentCachePair& pair : m_componentCaches)
-			delete pair.cache;
-
-		m_componentCaches.clear();
-	}
-
-	ComponentCacheBase* EntityWorld::GetCache(TypeID tid)
-	{
-		auto it = linatl::find_if(m_componentCaches.begin(), m_componentCaches.end(), [tid](const ComponentCachePair& pair) -> bool { return pair.tid == tid; });
-
-		if (it == m_componentCaches.end())
-		{
-			MetaType*			type  = ReflectionSystem::Get().Resolve(tid);
-			void*				ptr	  = type->GetFunction<void*(EntityWorld*)>("CreateComponentCache"_hs)(this);
-			ComponentCacheBase* cache = static_cast<ComponentCacheBase*>(ptr);
-			m_componentCaches.push_back({
-				.tid   = tid,
-				.cache = cache,
-			});
-			return cache;
-		}
-
-		return it->cache;
-	}
-
-	ComponentCacheBase* EntityWorld::GetCache(TypeID tid) const
-	{
-		auto it = linatl::find_if(m_componentCaches.begin(), m_componentCaches.end(), [tid](const ComponentCachePair& pair) -> bool { return pair.tid == tid; });
-		LINA_ASSERT(it != m_componentCaches.end(), "");
-		return it->cache;
-	}
-
 	void EntityWorld::Tick(float delta)
 	{
 		for (EntityWorldListener* l : m_listeners)
@@ -143,97 +109,6 @@ namespace Lina
 			EndPlay();
 
 		m_playMode = playmode;
-	}
-
-	void EntityWorld::BeginPlay()
-	{
-		m_physicsWorld->Begin();
-	}
-
-	void EntityWorld::EndPlay()
-	{
-		m_physicsWorld->End();
-		m_playMode = PlayMode::None;
-	}
-
-	void EntityWorld::TickPlay(float deltaTime)
-	{
-	}
-
-	Entity* EntityWorld::CreateEntity(EntityID id, const String& name)
-	{
-		Entity* e  = m_entityBucket.Allocate();
-		e->m_guid  = id;
-		e->m_world = this;
-		e->m_name  = name;
-		return e;
-	}
-
-	Entity* EntityWorld::GetEntity(EntityID guid)
-	{
-		Entity* ret = nullptr;
-		m_entityBucket.View([&](Entity* e, uint32 idx) -> bool {
-			if (e->GetGUID() == guid)
-			{
-				ret = e;
-				return true;
-			}
-
-			return false;
-		});
-
-		return ret;
-	}
-
-	void EntityWorld::DestroyEntity(Entity* e)
-	{
-		if (e->m_parent != nullptr)
-			e->m_parent->RemoveChild(e);
-		DestroyEntityData(e);
-	}
-
-	void EntityWorld::GetComponents(Entity* e, Vector<Component*>& outComponents) const
-	{
-		for (const ComponentCachePair& p : m_componentCaches)
-		{
-			Component* c = GetComponent(e, p.tid);
-			if (c != nullptr)
-				outComponents.push_back(c);
-		}
-	}
-
-	Component* EntityWorld::GetComponent(Entity* e, TypeID tid) const
-	{
-		return GetCache(tid)->Get(e);
-	}
-
-	Component* EntityWorld::AddComponent(Entity* e, TypeID tid)
-	{
-		Component* c = GetCache(tid)->CreateRaw();
-		OnCreateComponent(c, e);
-		return c;
-	}
-
-	void EntityWorld::DestroyEntityData(Entity* e)
-	{
-		for (auto child : e->m_children)
-			DestroyEntityData(child);
-
-		for (const ComponentCachePair& pair : m_componentCaches)
-		{
-			Component* c = pair.cache->Get(e);
-
-			if (c == nullptr)
-				continue;
-
-			OnDestroyComponent(c, e);
-			pair.cache->Destroy(c);
-		}
-
-		if (e->GetPhysicsBody())
-			m_physicsWorld->DestroyBodyForEntity(e);
-
-		m_entityBucket.Free(e);
 	}
 
 	bool EntityWorld::LoadFromFile(const String& path)
@@ -303,31 +178,6 @@ namespace Lina
 		stream << worldResourcesToSave;
 	}
 
-	void EntityWorld::AddListener(EntityWorldListener* listener)
-	{
-		m_listeners.push_back(listener);
-	}
-
-	void EntityWorld::RemoveListener(EntityWorldListener* listener)
-	{
-		m_listeners.erase(linatl::find_if(m_listeners.begin(), m_listeners.end(), [listener](EntityWorldListener* list) -> bool { return list == listener; }));
-	}
-
-	void EntityWorld::OnCreateComponent(Component* c, Entity* e)
-	{
-		c->m_world			 = this;
-		c->m_entity			 = e;
-		c->m_resourceManager = m_rm;
-		for (auto* l : m_listeners)
-			l->OnComponentAdded(c);
-	}
-
-	void EntityWorld::OnDestroyComponent(Component* c, Entity* e)
-	{
-		for (auto* l : m_listeners)
-			l->OnComponentRemoved(c);
-	}
-
 	void EntityWorld::CollectResourceNeeds(HashSet<ResourceID>& outResources) const
 	{
 		for (const ComponentCachePair& pair : m_componentCaches)
@@ -391,6 +241,60 @@ namespace Lina
 		return allLoaded;
 	}
 
+	Entity* EntityWorld::CreateEntity(EntityID id, const String& name)
+	{
+		Entity* e  = m_entityBucket.Allocate();
+		e->m_guid  = id;
+		e->m_world = this;
+		e->m_name  = name;
+		return e;
+	}
+
+	Entity* EntityWorld::GetEntity(EntityID guid)
+	{
+		Entity* ret = nullptr;
+		m_entityBucket.View([&](Entity* e, uint32 idx) -> bool {
+			if (e->GetGUID() == guid)
+			{
+				ret = e;
+				return true;
+			}
+
+			return false;
+		});
+
+		return ret;
+	}
+
+	void EntityWorld::DestroyEntity(Entity* e)
+	{
+		if (e->m_parent != nullptr)
+			e->m_parent->RemoveChild(e);
+		DestroyEntityData(e);
+	}
+
+	void EntityWorld::GetComponents(Entity* e, Vector<Component*>& outComponents) const
+	{
+		for (const ComponentCachePair& p : m_componentCaches)
+		{
+			Component* c = GetComponent(e, p.tid);
+			if (c != nullptr)
+				outComponents.push_back(c);
+		}
+	}
+
+	Component* EntityWorld::GetComponent(Entity* e, TypeID tid) const
+	{
+		return GetCache(tid)->Get(e);
+	}
+
+	Component* EntityWorld::AddComponent(Entity* e, TypeID tid)
+	{
+		Component* c = GetCache(tid)->CreateRaw();
+		OnCreateComponent(c, e);
+		return c;
+	}
+
 	void EntityWorld::RefreshComponentReferences(const Vector<Entity*>& entities)
 	{
 		for (Entity* e : entities)
@@ -414,6 +318,102 @@ namespace Lina
 			for (Component* c : comps)
 				c->StoreReferences();
 		});
+	}
+
+	void EntityWorld::AddListener(EntityWorldListener* listener)
+	{
+		m_listeners.push_back(listener);
+	}
+
+	void EntityWorld::RemoveListener(EntityWorldListener* listener)
+	{
+		m_listeners.erase(linatl::find_if(m_listeners.begin(), m_listeners.end(), [listener](EntityWorldListener* list) -> bool { return list == listener; }));
+	}
+
+	void EntityWorld::BeginPlay()
+	{
+		m_physicsWorld->Begin();
+	}
+
+	void EntityWorld::EndPlay()
+	{
+		m_physicsWorld->End();
+		m_playMode = PlayMode::None;
+	}
+
+	void EntityWorld::TickPlay(float deltaTime)
+	{
+	}
+
+	void EntityWorld::DestroyEntityData(Entity* e)
+	{
+		for (auto child : e->m_children)
+			DestroyEntityData(child);
+
+		for (const ComponentCachePair& pair : m_componentCaches)
+		{
+			Component* c = pair.cache->Get(e);
+
+			if (c == nullptr)
+				continue;
+
+			OnDestroyComponent(c, e);
+			pair.cache->Destroy(c);
+		}
+
+		if (e->GetPhysicsBody())
+			m_physicsWorld->DestroyBodyForEntity(e);
+
+		m_entityBucket.Free(e);
+	}
+
+	void EntityWorld::OnCreateComponent(Component* c, Entity* e)
+	{
+		c->m_world			 = this;
+		c->m_entity			 = e;
+		c->m_resourceManager = m_rm;
+		for (auto* l : m_listeners)
+			l->OnComponentAdded(c);
+	}
+
+	void EntityWorld::OnDestroyComponent(Component* c, Entity* e)
+	{
+		for (auto* l : m_listeners)
+			l->OnComponentRemoved(c);
+	}
+
+	void EntityWorld::DestroyComponentCaches()
+	{
+		for (const ComponentCachePair& pair : m_componentCaches)
+			delete pair.cache;
+
+		m_componentCaches.clear();
+	}
+
+	ComponentCacheBase* EntityWorld::GetCache(TypeID tid)
+	{
+		auto it = linatl::find_if(m_componentCaches.begin(), m_componentCaches.end(), [tid](const ComponentCachePair& pair) -> bool { return pair.tid == tid; });
+
+		if (it == m_componentCaches.end())
+		{
+			MetaType*			type  = ReflectionSystem::Get().Resolve(tid);
+			void*				ptr	  = type->GetFunction<void*(EntityWorld*)>("CreateComponentCache"_hs)(this);
+			ComponentCacheBase* cache = static_cast<ComponentCacheBase*>(ptr);
+			m_componentCaches.push_back({
+				.tid   = tid,
+				.cache = cache,
+			});
+			return cache;
+		}
+
+		return it->cache;
+	}
+
+	ComponentCacheBase* EntityWorld::GetCache(TypeID tid) const
+	{
+		auto it = linatl::find_if(m_componentCaches.begin(), m_componentCaches.end(), [tid](const ComponentCachePair& pair) -> bool { return pair.tid == tid; });
+		LINA_ASSERT(it != m_componentCaches.end(), "");
+		return it->cache;
 	}
 
 } // namespace Lina
