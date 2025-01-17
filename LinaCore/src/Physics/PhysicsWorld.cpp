@@ -229,14 +229,6 @@ namespace Lina
 			e->SetPosition(p - e->GetPhysicsSettings().offset);
 			e->SetRotation(q);
 		}
-
-		RayResult res;
-		CastRayAll(m_world->GetWorldCamera().GetPosition(), m_world->GetWorldCamera().GetRotation().GetForward(), 2.05f, res);
-
-		for (Entity* e : res.hitEntities)
-		{
-			LINA_TRACE("HIT ENTITY {0}", e->GetGUID());
-		}
 	}
 
 	bool PhysicsWorld::CastRay(const Vector3& position, const Vector3& normDirection, float maxDistance, RayResult& outRayResult)
