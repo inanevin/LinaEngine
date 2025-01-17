@@ -71,9 +71,9 @@ namespace Lina::Editor
 		m_editor	= Editor::Get();
 		m_worldFont = m_editor->GetApp()->GetResourceManager().GetResource<Font>(EDITOR_FONT_PLAY_BIG_ID);
 		m_editor->GetWindowPanelManager().AddPayloadListener(this);
-		m_gizmoControls.type						  = static_cast<GizmoMode>(m_editor->GetSettings().GetParams().GetParamUint8("GizmoType"_hs, 0));
-		m_gizmoControls.locality					  = static_cast<GizmoLocality>(m_editor->GetSettings().GetParams().GetParamUint8("GizmoLocality"_hs, 0));
-		m_gizmoControls.snapping					  = static_cast<GizmoSnapping>(m_editor->GetSettings().GetParams().GetParamUint8("GizmoSnapping"_hs, 0));
+		m_gizmoControls.type						   = static_cast<GizmoMode>(m_editor->GetSettings().GetParams().GetParamUint8("GizmoType"_hs, 0));
+		m_gizmoControls.locality					   = static_cast<GizmoLocality>(m_editor->GetSettings().GetParams().GetParamUint8("GizmoLocality"_hs, 0));
+		m_gizmoControls.snapping					   = static_cast<GizmoSnapping>(m_editor->GetSettings().GetParams().GetParamUint8("GizmoSnapping"_hs, 0));
 		m_overlayControls.cameraSettings.movementBoost = m_editor->GetSettings().GetParams().GetParamFloat("CamMoveBoost"_hs, 1.0f);
 		m_overlayControls.cameraSettings.angularBoost  = m_editor->GetSettings().GetParams().GetParamFloat("CamAngBoost"_hs, 1.0f);
 
@@ -317,8 +317,14 @@ namespace Lina::Editor
 
 		CommonWidgets::BuildClassReflection(layout, &m_overlayControls.snappingSettings, ReflectionSystem::Get().Meta<WorldSnapSettings>());
 
-		layout->GetCallbacks().onEditStarted = [this]() { m_overlayControls.oldSnappingOptions = m_overlayControls.snappingSettings; };
-		layout->GetCallbacks().onEditEnded	 = [this]() { EditorActionWorldSnappingChanged::Create(m_editor, m_world, m_overlayControls.oldSnappingOptions, m_overlayControls.snappingSettings); };
+		layout->GetCallbacks().onEditStarted = [this]() {
+			LINA_TRACE("EDIT STARTED");
+			m_overlayControls.oldSnappingSettings = m_overlayControls.snappingSettings;
+		};
+		layout->GetCallbacks().onEditEnded = [this]() {
+			LINA_TRACE("EDIT ENDED ACTIONS ENT");
+			EditorActionWorldSnappingChanged::Create(m_editor, m_world, m_overlayControls.oldSnappingSettings, m_overlayControls.snappingSettings);
+		};
 
 		m_manager->AddToForeground(layout);
 		const float startY = m_overlayControls.topToolbar->GetPosY() + m_overlayControls.topToolbar->GetSizeY() + m_overlayControls.topToolbar->GetWidgetProps().outlineThickness + Theme::GetDef().baseIndentInner * 0.5f;
@@ -375,10 +381,14 @@ namespace Lina::Editor
 			gfxLayout->SetAlignedPosX(0.0f);
 			gfxLayout->SetAlignedSize(Vector2::One);
 			gfxLayout->GetWidgetProps().childPadding = layout->GetWidgetProps().childPadding;
+			gfxLayout->GetProps().direction			 = DirectionOrientation::Vertical;
 
 			gfxLayout->GetCallbacks().onEditStarted = [this]() { m_overlayControls.oldGfxSettings = m_world->GetGfxSettings(); };
 
-			gfxLayout->GetCallbacks().onEditEnded = [this]() { EditorActionWorldGfxChanged::Create(m_editor, m_world, m_overlayControls.oldGfxSettings, m_world->GetGfxSettings()); };
+			gfxLayout->GetCallbacks().onEditEnded = [this]() {
+				EditorActionWorldGfxChanged::Create(m_editor, m_world, m_overlayControls.oldGfxSettings, m_world->GetGfxSettings());
+				m_overlayControls.oldGfxSettings = m_world->GetGfxSettings();
+			};
 
 			layout->AddChild(gfxLayout);
 			CommonWidgets::BuildClassReflection(gfxLayout, &gfxSettings, ReflectionSystem::Get().Meta<WorldGfxSettings>());
@@ -395,8 +405,12 @@ namespace Lina::Editor
 			phyLayout->SetAlignedPosX(0.0f);
 			phyLayout->SetAlignedSize(Vector2::One);
 			phyLayout->GetWidgetProps().childPadding = layout->GetWidgetProps().childPadding;
+			phyLayout->GetProps().direction			 = DirectionOrientation::Vertical;
 			phyLayout->GetCallbacks().onEditStarted	 = [this]() { m_overlayControls.oldPhysicsOptions = m_world->GetPhysicsSettings(); };
-			phyLayout->GetCallbacks().onEditEnded	 = [this]() { EditorActionWorldPhysicsSettingsChanged::Create(m_editor, m_world, m_overlayControls.oldPhysicsOptions, m_world->GetPhysicsSettings()); };
+			phyLayout->GetCallbacks().onEditEnded	 = [this]() {
+				   EditorActionWorldPhysicsSettingsChanged::Create(m_editor, m_world, m_overlayControls.oldPhysicsOptions, m_world->GetPhysicsSettings());
+				   m_overlayControls.oldPhysicsOptions = m_world->GetPhysicsSettings();
+			};
 
 			layout->AddChild(phyLayout);
 			CommonWidgets::BuildClassReflection(phyLayout, &phySettings, ReflectionSystem::Get().Meta<WorldPhysicsSettings>());
@@ -1485,6 +1499,6 @@ namespace Lina::Editor
 
 	void WorldController::SetSnappingSettings(const WorldSnapSettings& settings)
 	{
-		m_overlayControls.snappingSettings = opts;
+		m_overlayControls.snappingSettings = settings;
 	}
 } // namespace Lina::Editor

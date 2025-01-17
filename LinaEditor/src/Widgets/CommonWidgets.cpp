@@ -567,8 +567,10 @@ namespace Lina::Editor
 		line->SetAlignedPosX(0.0f);
 		line->SetAlignedSizeX(1.0f);
 		line->SetFixedSizeY(Theme::GetDef().baseBorderThickness);
-		line->GetWidgetProps().drawBackground  = true;
-		line->GetWidgetProps().colorBackground = Theme::GetDef().background0;
+		line->GetWidgetProps().drawBackground	= true;
+		line->GetWidgetProps().outlineThickness = 0.0f;
+		line->GetWidgetProps().rounding			= 0.0f;
+		line->GetWidgetProps().colorBackground	= Theme::GetDef().background0;
 		return line;
 	}
 

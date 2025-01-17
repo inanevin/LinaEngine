@@ -104,10 +104,17 @@ namespace Lina
 		void		  StartEditing();
 		void		  UpdateTextFromValue();
 		const String& GetValueStr() const;
-		virtual void  OnGrabbedControls(bool fw, Widget* w) override
+
+		virtual void OnGrabbedControls(bool fw, Widget* w) override
 		{
 			StartEditing();
 			SelectAll();
+		}
+
+		virtual void OnLostControls(Widget* newOwner) override
+		{
+			if (m_isEditing)
+				EndEditing(true);
 		}
 
 		inline Properties& GetProps()

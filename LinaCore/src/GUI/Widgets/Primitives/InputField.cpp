@@ -105,13 +105,6 @@ namespace Lina
 			m_middlePressed = false;
 		}
 
-		const bool hasControls = m_manager->IsControlsOwner(this);
-
-		if (!hasControls && m_isEditing)
-		{
-			EndEditing(true);
-		}
-
 		// Number field slider movement.
 		if (m_middlePressed && !m_isEditing && m_props.isNumberField && m_props.valuePtr)
 		{
@@ -499,6 +492,12 @@ namespace Lina
 
 	bool InputField::OnMouse(uint32 button, LinaGX::InputAction action)
 	{
+        if(m_isEditing && !GetIsHovered())
+        {
+            EndEditing(true);
+            return true;
+        }
+        
 		// Catch middle press
 		if (m_props.isNumberField && button == LINAGX_MOUSE_MIDDLE && action == LinaGX::InputAction::Pressed && m_isHovered)
 		{

@@ -209,7 +209,6 @@ namespace Lina::Editor
 
 		m_outlineRenderer.Tick(delta);
 		m_mousePickRenderer.Tick(delta);
-		m_gizmoRenderer.Tick(delta);
 
 		if (m_physicsDebugRenderer)
 		{
@@ -221,6 +220,8 @@ namespace Lina::Editor
 			m_world->GetPhysicsWorld()->GetPhysicsSystem().DrawBodies(ds, m_physicsDebugRenderer);
 			m_physicsDebugRenderer->SubmitDraws();
 		}
+
+		m_gizmoRenderer.Tick(delta);
 	}
 
 	void EditorWorldRenderer::SyncRender()

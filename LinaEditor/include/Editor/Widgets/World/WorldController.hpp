@@ -123,10 +123,10 @@ namespace Lina::Editor
 			WorldSnapSettings	snappingSettings = {};
 			WorldCameraSettings cameraSettings	 = {};
 
-			WorldSnapSettings	 oldSnappingOptions = {};
-			WorldCameraSettings	 oldCameraOptions	= {};
-			WorldGfxSettings	 oldGfxSettings		= {};
-			WorldPhysicsSettings oldPhysicsOptions	= {};
+			WorldSnapSettings	 oldSnappingSettings = {};
+			WorldCameraSettings	 oldCameraOptions	 = {};
+			WorldGfxSettings	 oldGfxSettings		 = {};
+			WorldPhysicsSettings oldPhysicsOptions	 = {};
 		};
 
 	public:

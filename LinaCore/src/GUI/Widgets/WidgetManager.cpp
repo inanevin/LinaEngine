@@ -323,6 +323,14 @@ namespace Lina
 			}
 		}
 
+		Widget* co = GetControlsOwner();
+
+		if (co)
+		{
+			if (PassMouse(co, button, inputAction))
+				return;
+		}
+
 		Vector<Widget*> sortedChildren = m_foregroundRoot->GetChildren();
 		linatl::sort(sortedChildren.begin(), sortedChildren.end(), [](Widget* w, Widget* other) -> bool { return w->GetDrawOrder() > other->GetDrawOrder(); });
 		for (Widget* child : sortedChildren)
@@ -982,6 +990,7 @@ namespace Lina
 		if (next)
 		{
 			GrabControls(next);
+			owner->OnLostControls(next);
 			next->OnGrabbedControls(true, owner);
 		}
 	}

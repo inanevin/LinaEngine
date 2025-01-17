@@ -232,6 +232,10 @@ namespace Lina
 
 		};
 
+		virtual void OnLostControls(Widget* newControls){
+
+		};
+
 		virtual void DebugDraw(int32 drawOrder);
 		virtual void PreTick(){};
 		virtual void CalculateSize(float delta){};
