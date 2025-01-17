@@ -221,6 +221,7 @@ include/Core/World/WorldUtility.hpp
 
 # Physics
 include/Core/Physics/PhysicsWorld.hpp
+include/Core/Physics/PhysicsContactListener.hpp
 include/Core/Physics/PhysicsMaterial.hpp
 include/Core/Physics/PhysicsBackend.hpp
 include/Core/Physics/CommonPhysics.hpp

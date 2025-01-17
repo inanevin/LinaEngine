@@ -213,6 +213,9 @@ namespace Lina::Editor
 		if (m_physicsDebugRenderer)
 		{
 			JPH::BodyManager::DrawSettings ds = {};
+			ds.mDrawShape					  = true;
+			ds.mDrawVelocity				  = true;
+
 			// ds.mDrawBoundingBox = true;
 			// ds.mDrawShapeWireframe = true;
 

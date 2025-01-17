@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Common/System/SystemInfo.hpp"
 #include "Core/World/EntityWorld.hpp"
+#include "Core/Physics/PhysicsContactListener.hpp"
 
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Collision/RayCast.h>
@@ -52,6 +53,7 @@ namespace Lina
 		const uint cMaxBodyPairs		  = 1024;
 		const uint cMaxContactConstraints = 1024;
 		m_physicsSystem.Init(cMaxBodies, cNumBodyMutexes, cMaxBodyPairs, cMaxContactConstraints, m_bpLayerInterface, m_objectBPLayerFilter, m_layerFilter);
+		m_physicsSystem.SetContactListener(this);
 	};
 
 	PhysicsWorld::~PhysicsWorld()
@@ -228,14 +230,13 @@ namespace Lina
 			e->SetRotation(q);
 		}
 
-		const float		   distance = 5.0f;
-		const Vector3	   dir		= m_world->GetWorldCamera().GetRotation().GetForward() * distance;
-		JPH::RRayCast	   in(ToJoltVec3(m_world->GetWorldCamera().GetPosition()), ToJoltVec3(dir));
-		JPH::RayCastResult io;
-		// io.mFraction = 0.5f;
+		RayResult res;
+		CastRayAll(m_world->GetWorldCamera().GetPosition(), m_world->GetWorldCamera().GetRotation().GetForward(), 2.05f, res);
 
-		const bool hit = m_physicsSystem.GetNarrowPhaseQuery().CastRay(in, io);
-		LINA_TRACE("{0} {1} {2}", hit, io.mBodyID.GetIndex(), io.mFraction);
+		for (Entity* e : res.hitEntities)
+		{
+			LINA_TRACE("HIT ENTITY {0}", e->GetGUID());
+		}
 	}
 
 	bool PhysicsWorld::CastRay(const Vector3& position, const Vector3& normDirection, float maxDistance, RayResult& outRayResult)
@@ -259,6 +260,13 @@ namespace Lina
 
 	void PhysicsWorld::OnContactAdded(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings)
 	{
+		Entity*		   e1 = GetEntityFromBodyID(inBody1.GetID());
+		Entity*		   e2 = GetEntityFromBodyID(inBody2.GetID());
+		const Vector3& p1 = FromJoltVec3(inManifold.GetWorldSpaceContactPointOn1(inBody1.GetID().GetIndex()));
+		const Vector3& p2 = FromJoltVec3(inManifold.GetWorldSpaceContactPointOn1(inBody2.GetID().GetIndex()));
+
+		for (PhysicsContactListener* list : m_contactListeners)
+			list->OnContactBegin(e1, e2, p1, p2);
 	}
 
 	void PhysicsWorld::OnContactPersisted(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings)
@@ -275,6 +283,23 @@ namespace Lina
 
 	void PhysicsWorld::OnBodyDeactivated(const JPH::BodyID& inBodyID, uint64 inBodyUserData)
 	{
+	}
+
+	void PhysicsWorld::AddContactListener(PhysicsContactListener* list)
+	{
+		m_contactListeners.push_back(list);
+	}
+
+	void PhysicsWorld::RemoveContactListener(PhysicsContactListener* list)
+	{
+		auto it = linatl::find_if(m_contactListeners.begin(), m_contactListeners.end(), [list](PhysicsContactListener* l) -> bool { return l == list; });
+		m_contactListeners.erase(it);
+	}
+
+	Entity* PhysicsWorld::GetEntityFromBodyID(const JPH::BodyID& id)
+	{
+		auto it = linatl::find_if(m_addedBodies.begin(), m_addedBodies.end(), [&](Entity* e) -> bool { return e->GetPhysicsBody()->GetID() == id; });
+		return *it;
 	}
 
 } // namespace Lina

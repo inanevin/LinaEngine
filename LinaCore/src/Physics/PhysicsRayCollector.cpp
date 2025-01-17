@@ -41,6 +41,8 @@ namespace Lina
 
 	bool PhysicsRayCollector::CastRay(PhysicsWorld* world, const Vector3& position, const Vector3& normDirection, float maxDistance, RayResult& outRayResult)
 	{
+        m_results.clear();
+        
 		const Vector3	   direction = normDirection * maxDistance;
 		JPH::RRayCast	   ray(ToJoltVec3(position), ToJoltVec3(direction));
 		JPH::RayCastResult ioHit;
@@ -48,11 +50,9 @@ namespace Lina
 
 		if (hit)
 		{
-			const Vector<Entity*>& addedBodies = world->GetAddedBodies();
 			const Vector3		   hitPoint	   = position + normDirection * ioHit.mFraction;
 			outRayResult.hitPoints.push_back(hitPoint);
-			auto it = linatl::find_if(addedBodies.begin(), addedBodies.end(), [&](Entity* e) -> bool { return e->GetPhysicsBody()->GetID() == ioHit.mBodyID; });
-			outRayResult.hitEntities.push_back(*it);
+            outRayResult.hitEntities.push_back(world->GetEntityFromBodyID(ioHit.mBodyID));
 			outRayResult.hitDistances.push_back(ioHit.mFraction * direction.Magnitude());
 		}
 
@@ -61,19 +61,19 @@ namespace Lina
 
 	bool PhysicsRayCollector::CastRayAll(PhysicsWorld* world, const Vector3& position, const Vector3& normDirection, float maxDistance, RayResult& outRayResult)
 	{
+        m_results.clear();
+
 		const Vector3 direction = normDirection * maxDistance;
 		JPH::RRayCast ray(ToJoltVec3(position), ToJoltVec3(direction));
 
 		JPH::RayCastSettings settings;
 		world->GetPhysicsSystem().GetNarrowPhaseQuery().CastRay(ray, settings, *this);
-		const Vector<Entity*>& addedBodies = world->GetAddedBodies();
 
 		for (const JPH::RayCastResult& res : m_results)
 		{
 			const Vector3 hitPoint = position + normDirection * res.mFraction;
 			outRayResult.hitPoints.push_back(hitPoint);
-			auto it = linatl::find_if(addedBodies.begin(), addedBodies.end(), [&](Entity* e) -> bool { return e->GetPhysicsBody()->GetID() == res.mBodyID; });
-			outRayResult.hitEntities.push_back(*it);
+            outRayResult.hitEntities.push_back(world->GetEntityFromBodyID(res.mBodyID));
 			outRayResult.hitDistances.push_back(res.mFraction * direction.Magnitude());
 		}
 
@@ -87,20 +87,19 @@ namespace Lina
 
 	bool PhysicsBroadphaseCollector::CastRay(PhysicsWorld* world, const Vector3& position, const Vector3& normDirection, float maxDistance, RayResult& outRayResult)
 	{
+        m_results.clear();
+
 		const Vector3 direction = normDirection * maxDistance;
 		JPH::RayCast  ray(ToJoltVec3(position), ToJoltVec3(direction));
 
 		JPH::RayCastSettings settings;
-		m_results.clear();
 		world->GetPhysicsSystem().GetBroadPhaseQuery().CastRay(ray, *this);
 
-		const Vector<Entity*>& addedBodies = world->GetAddedBodies();
 		for (const JPH::BroadPhaseCastResult& res : m_results)
 		{
 			const Vector3 hitPoint = position + normDirection * res.mFraction;
 			outRayResult.hitPoints.push_back(hitPoint);
-			auto it = linatl::find_if(addedBodies.begin(), addedBodies.end(), [&](Entity* e) -> bool { return e->GetPhysicsBody()->GetID() == res.mBodyID; });
-			outRayResult.hitEntities.push_back(*it);
+            outRayResult.hitEntities.push_back(world->GetEntityFromBodyID(res.mBodyID));
 			outRayResult.hitDistances.push_back(res.mFraction * direction.Magnitude());
 		}
 

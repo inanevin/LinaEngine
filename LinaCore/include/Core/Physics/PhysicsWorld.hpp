@@ -44,6 +44,7 @@ namespace Lina
 {
 	class EntityWorld;
 	class Entity;
+	class PhysicsContactListener;
 
 	class PhysicsWorld : public JPH::ContactListener, public JPH::BodyActivationListener
 	{
@@ -60,9 +61,15 @@ namespace Lina
 		void RemoveAllBodies();
 		void Simulate(float dt);
 
+		Entity* GetEntityFromBodyID(const JPH::BodyID& id);
+
 		bool CastRayFast(const Vector3& position, const Vector3& normDirection, float maxDistance, RayResult& outRayResult);
 		bool CastRay(const Vector3& position, const Vector3& normDirection, float maxDistance, RayResult& outRayResult);
 		bool CastRayAll(const Vector3& position, const Vector3& normDirection, float maxDistance, RayResult& outRayResult);
+
+		// Contact
+		void AddContactListener(PhysicsContactListener* list);
+		void RemoveContactListener(PhysicsContactListener* list);
 
 		JPH::Body* CreateBodyForEntity(Entity* e);
 		void	   DestroyBodyForEntity(Entity* e);
@@ -88,17 +95,17 @@ namespace Lina
 		}
 
 	private:
-	private:
 		JPH::PhysicsSystem		 m_physicsSystem;
 		JPH::TempAllocatorImpl	 m_tempAllocator = JPH::TempAllocatorImpl(10 * 1024 * 1024);
 		JPH::JobSystemThreadPool m_jobSystem	 = JPH::JobSystemThreadPool(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, JPH::thread::hardware_concurrency() - 1);
 
-		PhysicsLayerFilter		   m_layerFilter;
-		PhysicsObjectBPLayerFilter m_objectBPLayerFilter;
-		PhysicsBPLayerInterface	   m_bpLayerInterface;
-		EntityWorld*			   m_world = nullptr;
-		Vector<Entity*>			   m_addedBodies;
-		PhysicsRayCollector		   m_rayCollector;
-		PhysicsBroadphaseCollector m_broadphaseCollector;
+		PhysicsLayerFilter				m_layerFilter;
+		PhysicsObjectBPLayerFilter		m_objectBPLayerFilter;
+		PhysicsBPLayerInterface			m_bpLayerInterface;
+		EntityWorld*					m_world = nullptr;
+		Vector<Entity*>					m_addedBodies;
+		PhysicsRayCollector				m_rayCollector;
+		PhysicsBroadphaseCollector		m_broadphaseCollector;
+		Vector<PhysicsContactListener*> m_contactListeners;
 	};
 } // namespace Lina
