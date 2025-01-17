@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/Physics/PhysicsLayerFilter.hpp"
 #include "Core/Physics/PhysicsBPLayerInterface.hpp"
 #include "Core/Physics/PhysicsObjectBPLayerFilter.hpp"
+#include "Core/Physics/PhysicsRayCollector.hpp"
 
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/PhysicsSystem.h>
@@ -59,6 +60,10 @@ namespace Lina
 		void RemoveAllBodies();
 		void Simulate(float dt);
 
+		bool CastRayFast(const Vector3& position, const Vector3& normDirection, float maxDistance, RayResult& outRayResult);
+		bool CastRay(const Vector3& position, const Vector3& normDirection, float maxDistance, RayResult& outRayResult);
+		bool CastRayAll(const Vector3& position, const Vector3& normDirection, float maxDistance, RayResult& outRayResult);
+
 		JPH::Body* CreateBodyForEntity(Entity* e);
 		void	   DestroyBodyForEntity(Entity* e);
 
@@ -77,6 +82,11 @@ namespace Lina
 			return m_physicsSystem;
 		}
 
+		inline const Vector<Entity*>& GetAddedBodies() const
+		{
+			return m_addedBodies;
+		}
+
 	private:
 	private:
 		JPH::PhysicsSystem		 m_physicsSystem;
@@ -88,5 +98,7 @@ namespace Lina
 		PhysicsBPLayerInterface	   m_bpLayerInterface;
 		EntityWorld*			   m_world = nullptr;
 		Vector<Entity*>			   m_addedBodies;
+		PhysicsRayCollector		   m_rayCollector;
+		PhysicsBroadphaseCollector m_broadphaseCollector;
 	};
 } // namespace Lina

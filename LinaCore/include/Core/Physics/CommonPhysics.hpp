@@ -42,6 +42,7 @@ namespace JPH
 
 namespace Lina
 {
+	class Entity;
 
 	enum class PhysicsBroadPhaseLayers : uint16
 	{
@@ -101,6 +102,13 @@ namespace Lina
 	struct WorldPhysicsSettings
 	{
 		Vector3 gravity = Vector3(0.0f, -9.81f, 0.0f);
+	};
+
+	struct RayResult
+	{
+		Vector<Entity*> hitEntities;
+		Vector<Vector3> hitPoints;
+		Vector<float>	hitDistances;
 	};
 
 	LINA_CLASS_BEGIN(WorldPhysicsSettings);

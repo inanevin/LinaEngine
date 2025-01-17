@@ -32,6 +32,10 @@ SOFTWARE.
 #include "Core/World/EntityWorld.hpp"
 
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
+#include <Jolt/Physics/Collision/RayCast.h>
+#include <Jolt/Physics/Collision/CollisionCollector.h>
+#include <Jolt/Physics/Collision/Shape/Shape.h>
+#include <Jolt/Physics/Collision/CastResult.h>
 #include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
@@ -63,6 +67,8 @@ namespace Lina
 	{
 		EnsurePhysicsBodies();
 		AddAllBodies();
+
+		m_physicsSystem.OptimizeBroadPhase();
 	}
 
 	void PhysicsWorld::End()
@@ -221,6 +227,30 @@ namespace Lina
 			e->SetPosition(p - e->GetPhysicsSettings().offset);
 			e->SetRotation(q);
 		}
+
+		const float		   distance = 5.0f;
+		const Vector3	   dir		= m_world->GetWorldCamera().GetRotation().GetForward() * distance;
+		JPH::RRayCast	   in(ToJoltVec3(m_world->GetWorldCamera().GetPosition()), ToJoltVec3(dir));
+		JPH::RayCastResult io;
+		// io.mFraction = 0.5f;
+
+		const bool hit = m_physicsSystem.GetNarrowPhaseQuery().CastRay(in, io);
+		LINA_TRACE("{0} {1} {2}", hit, io.mBodyID.GetIndex(), io.mFraction);
+	}
+
+	bool PhysicsWorld::CastRay(const Vector3& position, const Vector3& normDirection, float maxDistance, RayResult& outRayResult)
+	{
+		return m_rayCollector.CastRay(this, position, normDirection, maxDistance, outRayResult);
+	}
+
+	bool PhysicsWorld::CastRayFast(const Vector3& position, const Vector3& normDirection, float maxDistance, RayResult& outRayResult)
+	{
+		return m_broadphaseCollector.CastRay(this, position, normDirection, maxDistance, outRayResult);
+	}
+
+	bool PhysicsWorld::CastRayAll(const Vector3& position, const Vector3& normDirection, float maxDistance, RayResult& outRayResult)
+	{
+		return m_rayCollector.CastRayAll(this, position, normDirection, maxDistance, outRayResult);
 	}
 
 	JPH::ValidateResult PhysicsWorld::OnContactValidate(const JPH::Body& inBody1, const JPH::Body& inBody2, JPH::RVec3Arg inBaseOffset, const JPH::CollideShapeResult& inCollisionResult)

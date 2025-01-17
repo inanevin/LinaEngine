@@ -98,6 +98,7 @@ src/Physics/CommonPhysics.cpp
 src/Physics/PhysicsLayerFilter.cpp
 src/Physics/PhysicsBPLayerInterface.cpp
 src/Physics/PhysicsObjectBPLayerFilter.cpp
+src/Physics/PhysicsRayCollector.cpp
 
 # GUI
 src/GUI/Theme.cpp
@@ -226,6 +227,7 @@ include/Core/Physics/CommonPhysics.hpp
 include/Core/Physics/PhysicsLayerFilter.hpp
 include/Core/Physics/PhysicsBPLayerInterface.hpp
 include/Core/Physics/PhysicsObjectBPLayerFilter.hpp
+include/Core/Physics/PhysicsRayCollector.hpp
 
 # GUI
 include/Core/GUI/CommonGUI.hpp
