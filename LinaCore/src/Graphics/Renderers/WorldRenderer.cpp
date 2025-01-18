@@ -600,6 +600,19 @@ namespace Lina
 			}
 		}
 
+        
+#ifdef JPH_DEBUG_RENDERER
+        if (m_physicsDebugRenderer)
+        {
+            JPH::BodyManager::DrawSettings ds = {};
+            ds.mDrawShape                      = true;
+            ds.mDrawVelocity                  = true;
+            m_physicsDebugRenderer->BeginDraws();
+            m_world->GetPhysicsWorld()->GetPhysicsSystem().DrawBodies(ds, m_physicsDebugRenderer);
+            m_physicsDebugRenderer->SubmitDraws();
+        }
+#endif
+        
 		DrawCollector::CollectCompModels(m_compModels, m_forwardPass, m_resourceManagerV2, this, m_gfxContext, {.allowedShaderTypes = {ShaderType::ForwardSurface}});
 
 		m_shapeRenderer.StartBatch();
@@ -609,17 +622,6 @@ namespace Lina
 
 		m_shapeRenderer.SubmitBatch(m_forwardPass, 0, m_shaderDebugLine->GetGPUHandle());
 
-#ifdef JPH_DEBUG_RENDERER
-		if (m_physicsDebugRenderer)
-		{
-			JPH::BodyManager::DrawSettings ds = {};
-			ds.mDrawShape					  = true;
-			ds.mDrawVelocity				  = true;
-			m_physicsDebugRenderer->BeginDraws();
-			m_world->GetPhysicsWorld()->GetPhysicsSystem().DrawBodies(ds, m_physicsDebugRenderer);
-			m_physicsDebugRenderer->SubmitDraws();
-		}
-#endif
 	}
 
 	void WorldRenderer::SyncRender()

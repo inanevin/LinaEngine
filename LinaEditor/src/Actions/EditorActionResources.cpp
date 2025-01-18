@@ -401,10 +401,9 @@ namespace Lina::Editor
 			{
 				panelResView->UpdateResourceProperties();
 				panelResView->RebuildContents();
+				matViewer->SetupWorld();
 			}
 		}
-
-		editor->GetApp()->GetResourceManager().ReloadResourceHW({mat});
 	}
 
 	EditorActionResourceMaterialShader* EditorActionResourceMaterialShader::Create(Editor* editor, ResourceID resourceID, uint64 resourceSpace, ResourceID prevShader, ResourceID newShader, const OStream& prevStream)

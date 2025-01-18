@@ -37,8 +37,12 @@ SOFTWARE.
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
+#include "Core/World/Components/CompLight.hpp"
 #include "Core/Application.hpp"
 #include "Core/World/EntityWorld.hpp"
+
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/Body/Body.h>
 
 namespace Lina::Editor
 {
@@ -65,7 +69,11 @@ namespace Lina::Editor
 		m_previousStream.Destroy();
 
 		if (m_world)
+		{
 			m_editor->GetWorldManager().DestroyEditorWorld(m_world);
+			m_resourceManager->DestroyResource(m_floorMaterial);
+			m_resourceManager->DestroyResource(m_objectMaterial);
+		}
 		m_world = nullptr;
 	}
 
@@ -85,19 +93,58 @@ namespace Lina::Editor
 
 		const HashSet<ResourceID> initialResources = {
 			m_resource->GetID(),
+			EDITOR_TEXTURE_PROTOTYPE_DARK_ID,
 		};
 
 		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), initialResources);
-
 		m_world->Initialize(m_resourceManager);
+
+		m_floorMaterial	 = m_resourceManager->CreateResource<Material>(m_resourceManager->ConsumeResourceID());
+		m_objectMaterial = m_resourceManager->CreateResource<Material>(m_resourceManager->ConsumeResourceID());
+		m_floorMaterial->SetShader(m_resourceManager->GetResource<Shader>(ENGINE_SHADER_DEFAULT_OPAQUE_SURFACE_ID));
+		m_objectMaterial->SetShader(m_resourceManager->GetResource<Shader>(ENGINE_SHADER_DEFAULT_OPAQUE_SURFACE_ID));
+
+		m_floorMaterial->SetProperty("color"_hs, Vector4::One);
+		m_floorMaterial->SetProperty("txtAlbedo"_hs,
+									 LinaTexture2D{
+										 .texture = EDITOR_TEXTURE_PROTOTYPE_DARK_ID,
+										 .sampler = ENGINE_SAMPLER_DEFAULT_ID,
+									 });
+		m_floorMaterial->SetProperty("txtNormal"_hs,
+									 LinaTexture2D{
+										 .texture = EDITOR_TEXTURE_PROTOTYPE_DARK_ID,
+										 .sampler = ENGINE_SAMPLER_DEFAULT_ID,
+									 });
+		m_floorMaterial->SetProperty("tilingAndOffset"_hs, Vector4(10.0f, 10.0f, 0.0f, 0.0f));
+
+		m_objectMaterial->SetProperty("color"_hs, Vector4::One);
+		m_objectMaterial->SetProperty("txtAlbedo"_hs,
+									  LinaTexture2D{
+										  .texture = EDITOR_TEXTURE_CHECKERED_ID,
+										  .sampler = ENGINE_SAMPLER_DEFAULT_ID,
+									  });
+		m_objectMaterial->SetProperty("txtNormal"_hs,
+									  LinaTexture2D{
+										  .texture = EDITOR_TEXTURE_CHECKERED_ID,
+										  .sampler = ENGINE_SAMPLER_DEFAULT_ID,
+									  });
+		m_objectMaterial->SetProperty("tilingAndOffset"_hs, Vector4(1.0f, 1.0f, 0.0f, 0.0f));
 
 		ResourceManagerV2& rm = m_editor->GetApp()->GetResourceManager();
 
-		Entity* floor = EditorWorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(ENGINE_MODEL_PLANE_ID), {ENGINE_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
+		Entity* floor = EditorWorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(ENGINE_MODEL_PLANE_ID), {m_floorMaterial->GetID()});
 
 		floor->GetPhysicsSettings().bodyType  = PhysicsBodyType::Static;
 		floor->GetPhysicsSettings().shapeType = PhysicsShapeType::Plane;
+		floor->SetScale(Vector3(10, 10, 10));
+		floor->SetPosition(Vector3(0.0f, 0.1f, 0.0f));
 
+		m_world->GetGfxSettings().ambientIntensity = 0.1f;
+
+		Entity*	   lightE = m_world->CreateEntity(m_world->ConsumeEntityGUID());
+		CompLight* light  = m_world->AddComponent<CompLight>(lightE);
+		lightE->SetPosition(Vector3(-1.0f, 1.0f, 0.0f));
+		light->SetType(LightType::Point);
 		SetupWorld();
 
 		StoreEditorActionBuffer();
@@ -123,7 +170,7 @@ namespace Lina::Editor
 	void PanelPhysicsMaterialViewer::SetupWorld()
 	{
 		if (m_world->GetPlayMode() == PlayMode::Physics)
-			m_world->SetPlayMode(PlayMode::Physics);
+			m_world->SetPlayMode(PlayMode::None);
 
 		ResourceManagerV2& rm = m_editor->GetApp()->GetResourceManager();
 
@@ -136,25 +183,24 @@ namespace Lina::Editor
 		if (m_displayEntity)
 			m_world->DestroyEntity(m_displayEntity);
 
-		m_displayEntity = m_world->CreateEntity(m_world->ConsumeEntityGUID(), "");
-
-		Material* displayMaterial = rm.GetResource<Material>(ENGINE_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID);
-
 		if (m_displayModel == DisplayModel::Cube)
 		{
-			m_displayEntity									= EditorWorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(ENGINE_MODEL_CUBE_ID), {ENGINE_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
+			m_displayEntity									= EditorWorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(ENGINE_MODEL_CUBE_ID), {m_objectMaterial->GetID()});
 			m_displayEntity->GetPhysicsSettings().shapeType = PhysicsShapeType::Box;
 		}
 		else if (m_displayModel == DisplayModel::Sphere)
 		{
-			m_displayEntity									= EditorWorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(ENGINE_MODEL_SPHERE_ID), {ENGINE_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
+			m_displayEntity									= EditorWorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(ENGINE_MODEL_SPHERE_ID), {m_objectMaterial->GetID()});
 			m_displayEntity->GetPhysicsSettings().shapeType = PhysicsShapeType::Sphere;
 		}
 
-		m_displayEntity->SetPosition(Vector3(0.0f, 1.0f, 0.0f));
+		m_displayEntity->SetPosition(Vector3(0.0f, 1.8f, 0.0f));
 		m_displayEntity->GetPhysicsSettings().bodyType = PhysicsBodyType::Dynamic;
+		m_displayEntity->GetPhysicsSettings().material = mat->GetID();
 
 		m_world->SetPlayMode(PlayMode::Physics);
+
+		m_displayEntity->GetPhysicsBody()->AddForce(ToJoltVec3(Vector3(10, 15, 0.0f)));
 	}
 
 	void PanelPhysicsMaterialViewer::RebuildContents()

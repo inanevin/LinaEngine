@@ -76,11 +76,13 @@ namespace Lina::Editor
 		EntityWorld*	m_world			 = nullptr;
 		WorldDisplayer* m_worldDisplayer = nullptr;
 		Entity*			m_displayEntity	 = nullptr;
+		Material*		m_floorMaterial	 = nullptr;
+		Material*		m_objectMaterial = nullptr;
 	};
 
 	LINA_CLASS_BEGIN(PanelPhysicsMaterialViewerDisplayModel)
 	LINA_PROPERTY_STRING(PanelPhysicsMaterialViewer::DisplayModel, 0, "Sphere")
-	LINA_PROPERTY_STRING(PanelPhysicsMaterialViewer::DisplayModel, 0, "Cube")
+	LINA_PROPERTY_STRING(PanelPhysicsMaterialViewer::DisplayModel, 1, "Cube")
 	LINA_CLASS_END(PanelPhysicsMaterialViewerDisplayModel)
 
 	LINA_WIDGET_BEGIN(PanelPhysicsMaterialViewer, Hidden)
