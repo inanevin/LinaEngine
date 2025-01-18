@@ -180,17 +180,17 @@ namespace Lina
 
 	void EntityWorld::CollectResourceNeeds(HashSet<ResourceID>& outResources) const
 	{
-        outResources.insert(ENGINE_MODEL_CUBE_ID);
-        outResources.insert(ENGINE_MODEL_SPHERE_ID);
-        outResources.insert(ENGINE_MODEL_CYLINDER_ID);
-        outResources.insert(ENGINE_MODEL_CAPSULE_ID);
-        outResources.insert(ENGINE_MODEL_PLANE_ID);
-        outResources.insert(ENGINE_MODEL_QUAD_ID);
-        outResources.insert(ENGINE_MODEL_SKYSPHERE_ID);
-        outResources.insert(ENGINE_MODEL_SKYCUBE_ID);
-        outResources.insert(ENGINE_SHADER_LIGHTING_QUAD_ID);
-        outResources.insert(ENGINE_SHADER_WORLD_DEBUG_LINE_ID);
-        
+		outResources.insert(ENGINE_MODEL_CUBE_ID);
+		outResources.insert(ENGINE_MODEL_SPHERE_ID);
+		outResources.insert(ENGINE_MODEL_CYLINDER_ID);
+		outResources.insert(ENGINE_MODEL_CAPSULE_ID);
+		outResources.insert(ENGINE_MODEL_PLANE_ID);
+		outResources.insert(ENGINE_MODEL_QUAD_ID);
+		outResources.insert(ENGINE_MODEL_SKYSPHERE_ID);
+		outResources.insert(ENGINE_MODEL_SKYCUBE_ID);
+		outResources.insert(ENGINE_SHADER_LIGHTING_QUAD_ID);
+		outResources.insert(ENGINE_SHADER_WORLD_DEBUG_LINE_ID);
+
 		for (const ComponentCachePair& pair : m_componentCaches)
 			pair.cache->ForEach([&](Component* c) { c->CollectReferences(outResources); });
 

@@ -75,22 +75,22 @@ namespace Lina::Editor
 		}
 		else if (prop->propDef.type == ShaderPropertyType::Texture2D)
 		{
-			ResourceID textureID = EDITOR_TEXTURE_EMPTY_ALBEDO_ID;
+			ResourceID textureID = ENGINE_TEXTURE_EMPTY_ALBEDO_ID;
 
 			const String lowerName = UtilStr::ToLower(prop->propDef.name);
 
 			if (lowerName.find("normal") != String::npos)
-				textureID = EDITOR_TEXTURE_EMPTY_NORMAL_ID;
+				textureID = ENGINE_TEXTURE_EMPTY_NORMAL_ID;
 			else if (lowerName.find("ao") != String::npos)
-				textureID = EDITOR_TEXTURE_EMPTY_AO_ID;
+				textureID = ENGINE_TEXTURE_EMPTY_AO_ID;
 			else if (lowerName.find("metallic") != String::npos || lowerName.find("roughness") != String::npos)
-				textureID = EDITOR_TEXTURE_EMPTY_METALLIC_ROUGHNESS_ID;
+				textureID = ENGINE_TEXTURE_EMPTY_METALLIC_ROUGHNESS_ID;
 			else if (lowerName.find("emissive") != String::npos)
-				textureID = EDITOR_TEXTURE_EMPTY_EMISSIVE_ID;
+				textureID = ENGINE_TEXTURE_EMPTY_EMISSIVE_ID;
 
 			const LinaTexture2D txt = {
 				.texture = textureID,
-				.sampler = EDITOR_SAMPLER_DEFAULT_ID,
+				.sampler = ENGINE_SAMPLER_DEFAULT_ID,
 			};
 
 			MEMCPY(prop->data.data(), &txt, sizeof(LinaTexture2D));
@@ -347,28 +347,28 @@ namespace Lina::Editor
 					meta.materials[matIdx] = newID;
 
 					LinaTexture2D albedo = {
-						.texture = EDITOR_TEXTURE_EMPTY_ALBEDO_ID,
-						.sampler = EDITOR_SAMPLER_DEFAULT_ID,
+						.texture = ENGINE_TEXTURE_EMPTY_ALBEDO_ID,
+						.sampler = ENGINE_SAMPLER_DEFAULT_ID,
 					};
 
 					LinaTexture2D normal = {
-						.texture = EDITOR_TEXTURE_EMPTY_NORMAL_ID,
-						.sampler = EDITOR_SAMPLER_DEFAULT_ID,
+						.texture = ENGINE_TEXTURE_EMPTY_NORMAL_ID,
+						.sampler = ENGINE_SAMPLER_DEFAULT_ID,
 					};
 
 					LinaTexture2D metallicRoughness = {
-						.texture = EDITOR_TEXTURE_EMPTY_METALLIC_ROUGHNESS_ID,
-						.sampler = EDITOR_SAMPLER_DEFAULT_ID,
+						.texture = ENGINE_TEXTURE_EMPTY_METALLIC_ROUGHNESS_ID,
+						.sampler = ENGINE_SAMPLER_DEFAULT_ID,
 					};
 
 					LinaTexture2D ao = {
-						.texture = EDITOR_TEXTURE_EMPTY_AO_ID,
-						.sampler = EDITOR_SAMPLER_DEFAULT_ID,
+						.texture = ENGINE_TEXTURE_EMPTY_AO_ID,
+						.sampler = ENGINE_SAMPLER_DEFAULT_ID,
 					};
 
 					LinaTexture2D emissive = {
-						.texture = EDITOR_TEXTURE_EMPTY_EMISSIVE_ID,
-						.sampler = EDITOR_SAMPLER_DEFAULT_ID,
+						.texture = ENGINE_TEXTURE_EMPTY_EMISSIVE_ID,
+						.sampler = ENGINE_SAMPLER_DEFAULT_ID,
 					};
 
 					for (auto [textureType, textureIndex] : def.textureIndices)

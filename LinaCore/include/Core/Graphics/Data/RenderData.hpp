@@ -104,17 +104,17 @@ namespace Lina
 		Vector4 ambientTop;
 		Vector4 ambientMid;
 		Vector4 ambientBot;
-        Vector4 cameraPositionAndNear;
-        Vector4 cameraDirectionAndFar;
-        Vector4 sizeAndMouse;
+		Vector4 cameraPositionAndNear;
+		Vector4 cameraDirectionAndFar;
+		Vector4 sizeAndMouse;
 		uint32	gBufAlbedo;
 		uint32	gBufPositionMetallic;
 		uint32	gBufNormalRoughness;
 		uint32	gBufSampler;
 		uint32	lightCount;
-        float padding0;
-        float padding1;
-        float padding2;
+		float	padding0;
+		float	padding1;
+		float	padding2;
 	};
 
 	struct GPUMaterialGUI

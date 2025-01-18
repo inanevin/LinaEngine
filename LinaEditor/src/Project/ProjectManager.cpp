@@ -363,24 +363,24 @@ namespace Lina::Editor
 					.id	  = ENGINE_MODEL_CAPSULE_ID,
 				},
 				{
-					.path = EDITOR_TEXTURE_EMPTY_ALBEDO_PATH,
-					.id	  = EDITOR_TEXTURE_EMPTY_ALBEDO_ID,
+					.path = ENGINE_TEXTURE_EMPTY_ALBEDO_PATH,
+					.id	  = ENGINE_TEXTURE_EMPTY_ALBEDO_ID,
 				},
 				{
-					.path = EDITOR_TEXTURE_EMPTY_NORMAL_PATH,
-					.id	  = EDITOR_TEXTURE_EMPTY_NORMAL_ID,
+					.path = ENGINE_TEXTURE_EMPTY_NORMAL_PATH,
+					.id	  = ENGINE_TEXTURE_EMPTY_NORMAL_ID,
 				},
 				{
-					.path = EDITOR_TEXTURE_EMPTY_AO_PATH,
-					.id	  = EDITOR_TEXTURE_EMPTY_AO_ID,
+					.path = ENGINE_TEXTURE_EMPTY_AO_PATH,
+					.id	  = ENGINE_TEXTURE_EMPTY_AO_ID,
 				},
 				{
-					.path = EDITOR_TEXTURE_EMPTY_METALLIC_ROUGHNESS_PATH,
-					.id	  = EDITOR_TEXTURE_EMPTY_METALLIC_ROUGHNESS_ID,
+					.path = ENGINE_TEXTURE_EMPTY_METALLIC_ROUGHNESS_PATH,
+					.id	  = ENGINE_TEXTURE_EMPTY_METALLIC_ROUGHNESS_ID,
 				},
 				{
-					.path = EDITOR_TEXTURE_EMPTY_EMISSIVE_PATH,
-					.id	  = EDITOR_TEXTURE_EMPTY_EMISSIVE_ID,
+					.path = ENGINE_TEXTURE_EMPTY_EMISSIVE_PATH,
+					.id	  = ENGINE_TEXTURE_EMPTY_EMISSIVE_ID,
 				},
 			};
 
@@ -409,10 +409,10 @@ namespace Lina::Editor
 				importedEngineResource->userData.directoryType = static_cast<uint32>(ResourceDirectoryType::EngineResource);
 
 			// Custom sampler.
-			if (root->FindResourceDirectory(EDITOR_SAMPLER_DEFAULT_ID) == nullptr)
+			if (root->FindResourceDirectory(ENGINE_SAMPLER_DEFAULT_ID) == nullptr)
 			{
-				task->progressText	   = EDITOR_SAMPLER_DEFAULT_PATH;
-				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, EDITOR_SAMPLER_DEFAULT_PATH, GetTypeID<TextureSampler>(), EDITOR_SAMPLER_DEFAULT_ID);
+				task->progressText	   = ENGINE_SAMPLER_DEFAULT_PATH;
+				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, ENGINE_SAMPLER_DEFAULT_PATH, GetTypeID<TextureSampler>(), ENGINE_SAMPLER_DEFAULT_ID);
 
 				if (dir)
 					dir->userData.directoryType = static_cast<uint32>(ResourceDirectoryType::EngineResource);

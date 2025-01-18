@@ -48,8 +48,9 @@ namespace Lina
 #define ENGINE_SHADER_LIGHTING_QUAD_PATH	"Resources/Core/Shaders/Lighting/LightingQuad.linashader"
 #define ENGINE_SHADER_WORLD_DEBUG_LINE_PATH "Resources/Core/Shaders/World/DebugLine.linashader"
 
-#define RESOURCE_ID_ENGINE_MODELS							RESOURCE_ID_ENGINE_SPACE + 100
-#define RESOURCE_ID_ENGINE_TEXTURESRESOURCE_ID_ENGINE_SPACE +200
+#define RESOURCE_ID_ENGINE_MODELS	RESOURCE_ID_ENGINE_SPACE + 100
+#define RESOURCE_ID_ENGINE_TEXTURES RESOURCE_ID_ENGINE_SPACE + 200
+#define RESOURCE_ID_ENGINE_SAMPLERS RESOURCE_ID_ENGINE_SPACE + 300
 
 #define ENGINE_MODEL_CUBE_ID	  RESOURCE_ID_ENGINE_MODELS
 #define ENGINE_MODEL_CYLINDER_ID  RESOURCE_ID_ENGINE_MODELS + 1
@@ -60,26 +61,30 @@ namespace Lina
 #define ENGINE_MODEL_CAPSULE_ID	  RESOURCE_ID_ENGINE_MODELS + 6
 #define ENGINE_MODEL_QUAD_ID	  RESOURCE_ID_ENGINE_MODELS + 7
 
-#define ENGINE_MODEL_CUBE_PATH		"Resources/Editor/Models/Cube.glb"
-#define ENGINE_MODEL_CYLINDER_PATH	"Resources/Editor/Models/Cylinder.glb"
-#define ENGINE_MODEL_SPHERE_PATH	"Resources/Editor/Models/Sphere.glb"
-#define ENGINE_MODEL_SKYCUBE_PATH	"Resources/Editor/Models/SkyCube.glb"
-#define ENGINE_MODEL_PLANE_PATH		"Resources/Editor/Models/Plane.glb"
-#define ENGINE_MODEL_SKYSPHERE_PATH "Resources/Editor/Models/SkySphere.glb"
-#define ENGINE_MODEL_CAPSULE_PATH	"Resources/Editor/Models/Capsule.glb"
-#define ENGINE_MODEL_QUAD_PATH		"Resources/Editor/Models/Quad.glb"
+#define ENGINE_MODEL_CUBE_PATH		"Resources/Engine/Models/Cube.glb"
+#define ENGINE_MODEL_CYLINDER_PATH	"Resources/Engine/Models/Cylinder.glb"
+#define ENGINE_MODEL_SPHERE_PATH	"Resources/Engine/Models/Sphere.glb"
+#define ENGINE_MODEL_SKYCUBE_PATH	"Resources/Engine/Models/SkyCube.glb"
+#define ENGINE_MODEL_PLANE_PATH		"Resources/Engine/Models/Plane.glb"
+#define ENGINE_MODEL_SKYSPHERE_PATH "Resources/Engine/Models/SkySphere.glb"
+#define ENGINE_MODEL_CAPSULE_PATH	"Resources/Engine/Models/Capsule.glb"
+#define ENGINE_MODEL_QUAD_PATH		"Resources/Engine/Models/Quad.glb"
 
-#define ENGINE_TEXTURE_EMPTY_ALBEDO_PATH			 "Resources/Editor/Textures/EmptyAlbedo.png"
-#define ENGINE_TEXTURE_EMPTY_NORMAL_PATH			 "Resources/Editor/Textures/EmptyNormal.png"
-#define ENGINE_TEXTURE_EMPTY_METALLIC_ROUGHNESS_PATH "Resources/Editor/Textures/EmptyMetallicRoughness.png"
-#define ENGINE_TEXTURE_EMPTY_AO_PATH				 "Resources/Editor/Textures/EmptyAO.png"
-#define ENGINE_TEXTURE_EMPTY_EMISSIVE_PATH			 "Resources/Editor/Textures/EmptyEmissive.png"
+#define ENGINE_TEXTURE_EMPTY_ALBEDO_PATH			 "Resources/Engine/Textures/EmptyAlbedo.png"
+#define ENGINE_TEXTURE_EMPTY_NORMAL_PATH			 "Resources/Engine/Textures/EmptyNormal.png"
+#define ENGINE_TEXTURE_EMPTY_METALLIC_ROUGHNESS_PATH "Resources/Engine/Textures/EmptyMetallicRoughness.png"
+#define ENGINE_TEXTURE_EMPTY_AO_PATH				 "Resources/Engine/Textures/EmptyAO.png"
+#define ENGINE_TEXTURE_EMPTY_EMISSIVE_PATH			 "Resources/Engine/Textures/EmptyEmissive.png"
 
 #define ENGINE_TEXTURE_EMPTY_ALBEDO_ID			   RESOURCE_ID_ENGINE_TEXTURES + 0
 #define ENGINE_TEXTURE_EMPTY_NORMAL_ID			   RESOURCE_ID_ENGINE_TEXTURES + 1
 #define ENGINE_TEXTURE_EMPTY_METALLIC_ROUGHNESS_ID RESOURCE_ID_ENGINE_TEXTURES + 2
 #define ENGINE_TEXTURE_EMPTY_AO_ID				   RESOURCE_ID_ENGINE_TEXTURES + 3
 #define ENGINE_TEXTURE_EMPTY_EMISSIVE_ID		   RESOURCE_ID_ENGINE_TEXTURES + 4
+
+// Samplers
+#define ENGINE_SAMPLER_DEFAULT_PATH "DefaultSampler"
+#define ENGINE_SAMPLER_DEFAULT_ID	RESOURCE_ID_ENGINE_SAMPLERS
 
 	enum class PackageType
 	{
