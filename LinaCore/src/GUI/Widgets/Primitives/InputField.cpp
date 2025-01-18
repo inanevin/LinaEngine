@@ -495,7 +495,7 @@ namespace Lina
 		if (m_isEditing && !GetIsHovered())
 		{
 			EndEditing(true);
-			return true;
+			return false;
 		}
 
 		// Catch middle press

@@ -42,19 +42,20 @@ SOFTWARE.
 #include "Core/World/Components/CompModel.hpp"
 #include "Core/World/Components/CompLight.hpp"
 #include "Core/Resources/ResourceManager.hpp"
-
+#include "Core/Application.hpp"
+#include "Core/Graphics/Renderers/DrawCollector.hpp"
+#include "Core/Graphics/Renderers/PhysicsDebugRenderer.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
-
+#include "Common/Math/Math.hpp"
 #include "Common/System/SystemInfo.hpp"
 #include "Common/Profiling/Profiler.hpp"
-#include "Core/Application.hpp"
+#include "Core/Physics/PhysicsWorld.hpp"
 
+#include <Jolt/Jolt.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include <Common/Math/Math.hpp>
 #include <LinaGX/Core/InputMappings.hpp>
-#include "Core/Graphics/Renderers/DrawCollector.hpp"
 
 namespace Lina
 {
@@ -158,10 +159,18 @@ namespace Lina
 		m_guiBackend.Initialize(m_resourceManagerV2);
 		CreateSizeRelativeResources();
 		m_shapeRenderer.Initialize();
+
+#ifdef JPH_DEBUG_RENDERER
+		m_physicsDebugRenderer = new PhysicsDebugRenderer(&m_forwardPass, m_resourceManagerV2->GetResource<Shader>(ENGINE_SHADER_WORLD_DEBUG_LINE_ID), m_resourceManagerV2->GetResource<Shader>(ENGINE_SHADER_WORLD_DEBUG_TRIANGLE_ID));
+#endif
 	}
 
 	WorldRenderer::~WorldRenderer()
 	{
+#ifdef JPH_DEBUG_RENDERER
+		delete m_physicsDebugRenderer;
+#endif
+		m_physicsDebugRenderer = nullptr;
 		m_shapeRenderer.Shutdown();
 		m_gBufSampler->DestroyHW();
 		m_resourceManagerV2->DestroyResource(m_gBufSampler);
@@ -602,6 +611,17 @@ namespace Lina
 			m_shapeRenderer.DrawLine3D(l.p1, l.p2, l.thickness, l.color);
 
 		m_shapeRenderer.SubmitBatch(m_forwardPass, 0, m_shaderDebugLine->GetGPUHandle());
+
+#ifdef JPH_DEBUG_RENDERER
+		JPH::BodyManager::DrawSettings ds = {};
+		ds.mDrawShape					  = true;
+		ds.mDrawVelocity				  = true;
+		// ds.mDrawBoundingBox = true;
+		// ds.mDrawShapeWireframe = true;
+		m_physicsDebugRenderer->BeginDraws();
+		m_world->GetPhysicsWorld()->GetPhysicsSystem().DrawBodies(ds, m_physicsDebugRenderer);
+		m_physicsDebugRenderer->SubmitDraws();
+#endif
 	}
 
 	void WorldRenderer::SyncRender()
@@ -618,6 +638,10 @@ namespace Lina
 		m_shapeRenderer.SyncRender();
 		m_deferredPass.SyncRender();
 		m_forwardPass.SyncRender();
+
+#ifdef JPH_DEBUG_RENDERER
+		m_physicsDebugRenderer->SyncRender();
+#endif
 	}
 
 	void WorldRenderer::UpdateBuffers(uint32 frameIndex)
@@ -688,6 +712,10 @@ namespace Lina
 		m_forwardPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
 
 		m_shapeRenderer.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+
+#ifdef JPH_DEBUG_RENDERER
+		m_physicsDebugRenderer->AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+#endif
 	}
 
 	void WorldRenderer::FlushTransfers(uint32 frameIndex)

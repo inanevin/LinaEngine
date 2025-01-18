@@ -81,9 +81,8 @@ namespace Lina::Editor
 		if (m_world)
 			return;
 
-		EditorWorldRenderer* ewr = m_editor->GetWorldManager().CreateEditorWorld();
+		EditorWorldRenderer* ewr = m_editor->GetWorldManager().CreateEditorWorld(m_resourceSpace);
 		m_world					 = ewr->GetWorldRenderer()->GetWorld();
-		m_world->SetID(m_resourceSpace);
 		m_worldDisplayer->DisplayWorld(ewr, WorldCameraType::Orbit);
 
 		const HashSet<ResourceID> initialResources = {

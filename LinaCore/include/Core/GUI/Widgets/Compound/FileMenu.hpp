@@ -40,6 +40,7 @@ namespace Lina
 	class FileMenu;
 	class Text;
 	class Icon;
+	class FileMenuPopup;
 
 	class FileMenuItem : public DirectionalLayout
 	{
@@ -63,6 +64,8 @@ namespace Lina
 
 		virtual void Initialize() override;
 		virtual void PreTick() override;
+
+		virtual bool OnMouse(uint32 action, LinaGX::InputAction act) override;
 
 		inline Icon* GetHeaderIcon() const
 		{
@@ -111,21 +114,13 @@ namespace Lina
 		struct FileMenuProperties
 		{
 			Vector<String> buttons;
-
-			void SaveToStream(OStream& stream) const
-			{
-			}
-
-			void LoadFromStream(IStream& stream)
-			{
-			}
 		};
 
-		virtual void	   Construct() override;
-		virtual void	   Initialize() override;
-		virtual void	   PreTick() override;
-		DirectionalLayout* CreatePopup(const Vector2& pos, const Vector<FileMenuItem::Data>& subItemData);
-		void			   CreateItems(StringID sid, const Vector2& position, void* userData = nullptr);
+		virtual void   Construct() override;
+		virtual void   Initialize() override;
+		virtual void   PreTick() override;
+		FileMenuPopup* CreatePopup(const Vector2& pos, const Vector<FileMenuItem::Data>& subItemData);
+		void		   CreateItems(StringID sid, const Vector2& position, void* userData = nullptr);
 
 		inline FileMenuProperties& GetFileMenuProps()
 		{
@@ -150,9 +145,25 @@ namespace Lina
 		DirectionalLayout* m_subPopup	   = nullptr;
 	};
 
-	LINA_WIDGET_BEGIN(FileMenu, Compound)
+	class FileMenuPopup : public DirectionalLayout
+	{
+	public:
+		virtual void Construct() override;
+
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction act);
+
+	private:
+		friend class FileMenu;
+		FileMenu* m_ownerMenu = nullptr;
+	};
+
+	LINA_WIDGET_BEGIN(FileMenuPopup, Hidden)
+	LINA_CLASS_END(FileMenuPopup)
+
+	LINA_WIDGET_BEGIN(FileMenu, Hidden)
 	LINA_CLASS_END(FileMenu)
 
-	LINA_WIDGET_BEGIN(FileMenuItem, Compound)
+	LINA_WIDGET_BEGIN(FileMenuItem, Hidden)
 	LINA_CLASS_END(FileMenuItem)
+
 } // namespace Lina

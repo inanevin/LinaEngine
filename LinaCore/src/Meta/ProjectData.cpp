@@ -83,13 +83,16 @@ namespace Lina
 		dir->parent = parent;
 		parent->SortChildren();
 
+		LINA_TRACE("Created resource directory {0} {1}, parent {2} {3}", dir->name, (void*)dir, parent->name, (void*)parent);
 		return dir;
 	}
 
 	void ProjectData::DestroyResourceDirectory(ResourceDirectory* dir)
 	{
 		ResourceDirectory* parent = dir->parent;
-		auto			   it	  = linatl::find_if(parent->children.begin(), parent->children.end(), [dir](ResourceDirectory* c) -> bool { return c == dir; });
+		LINA_TRACE("Destroying resource directory {0} {1}, parent {2} {3}", dir->name, (void*)dir, parent->name, (void*)parent);
+
+		auto it = linatl::find_if(parent->children.begin(), parent->children.end(), [dir](ResourceDirectory* c) -> bool { return c == dir; });
 		parent->children.erase(it);
 		parent->SortChildren();
 

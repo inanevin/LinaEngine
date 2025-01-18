@@ -61,8 +61,8 @@ namespace Lina
 
 	struct WorldGfxSettings
 	{
-        ResourceID skyMaterial = ENGINE_MATERIAL_DEFAULT_SKY_ID;
-        ResourceID skyModel = ENGINE_MODEL_SKYSPHERE_ID;
+		ResourceID skyMaterial		= ENGINE_MATERIAL_DEFAULT_SKY_ID;
+		ResourceID skyModel			= ENGINE_MODEL_SKYSPHERE_ID;
 		Color	   ambientTop		= Color::White;
 		Color	   ambientMid		= Color::White;
 		Color	   ambientBot		= Color::White;

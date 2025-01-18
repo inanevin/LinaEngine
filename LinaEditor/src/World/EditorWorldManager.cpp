@@ -81,11 +81,13 @@ namespace Lina::Editor
 		m_listeners.erase(linatl::find(m_listeners.begin(), m_listeners.end(), listener));
 	}
 
-	EditorWorldRenderer* EditorWorldManager::CreateEditorWorld()
+	EditorWorldRenderer* EditorWorldManager::CreateEditorWorld(ResourceID space)
 	{
 		WorldData worldData = {};
 
-		EntityWorld*		 world				 = new EntityWorld(0, "");
+		EntityWorld* world = new EntityWorld(space, "");
+		world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {});
+
 		WorldRenderer*		 worldRenderer		 = new WorldRenderer(&m_editor->GetApp()->GetGfxContext(), &m_editor->GetApp()->GetResourceManager(), world, Vector2ui(4, 4), "WorldRenderer: " + world->GetName());
 		EditorWorldRenderer* editorWorldRenderer = new EditorWorldRenderer(m_editor, m_editor->GetApp()->GetLGX(), worldRenderer);
 		world->Initialize(&m_editor->GetApp()->GetResourceManager());

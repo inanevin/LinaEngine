@@ -401,7 +401,6 @@ namespace Lina::Editor
 			};
 
 			ResourceDirectory* root = &m_currentProject->GetResourceRoot();
-
 			// Recreate resources everytime.
 			Vector<ResourceDirectory*> engineResources;
 			for (ResourceDirectory* c : root->children)

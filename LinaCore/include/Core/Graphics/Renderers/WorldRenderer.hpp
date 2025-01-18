@@ -55,6 +55,7 @@ namespace Lina
 	class EntityWorld;
 	class Screen;
 	class GfxContext;
+	class PhysicsDebugRenderer;
 
 	class WorldRenderer
 	{
@@ -281,6 +282,7 @@ namespace Lina
 		DrawData					   m_cpuDrawData = {};
 		DrawData					   m_gpuDrawData = {};
 		Vector<CompModel*>			   m_skinnedModels;
+		PhysicsDebugRenderer*		   m_physicsDebugRenderer = nullptr;
 
 		LinaVG::Drawer m_lvgDrawer;
 		ShapeRenderer  m_shapeRenderer;

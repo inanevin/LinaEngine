@@ -304,23 +304,12 @@ namespace Lina
 
 	void WidgetManager::OnMouse(uint32 button, LinaGX::InputAction inputAction)
 	{
-		if ((inputAction == LinaGX::InputAction::Pressed) && !m_foregroundRoot->GetChildren().empty())
+		Vector<Widget*> sortedChildren = m_foregroundRoot->GetChildren();
+		linatl::sort(sortedChildren.begin(), sortedChildren.end(), [](Widget* w, Widget* other) -> bool { return w->GetDrawOrder() > other->GetDrawOrder(); });
+		for (Widget* child : sortedChildren)
 		{
-			Vector<Widget*> removeList;
-			for (auto* c : m_foregroundRoot->GetChildren())
-			{
-				if (!c->GetIsHovered())
-				{
-					if (!c->GetFlags().IsSet(WF_FOREGROUND_BLOCKER) && !c->GetFlags().IsSet(WF_TOOLTIP))
-						removeList.push_back(c);
-				}
-			}
-
-			for (auto* w : removeList)
-			{
-				RemoveFromForeground(w);
-				Deallocate(w);
-			}
+			if (PassMouse(child, button, inputAction))
+				return;
 		}
 
 		Widget* co = GetControlsOwner();
@@ -331,19 +320,8 @@ namespace Lina
 				return;
 		}
 
-		Vector<Widget*> sortedChildren = m_foregroundRoot->GetChildren();
-		linatl::sort(sortedChildren.begin(), sortedChildren.end(), [](Widget* w, Widget* other) -> bool { return w->GetDrawOrder() > other->GetDrawOrder(); });
-		for (Widget* child : sortedChildren)
-		{
-			if (PassMouse(child, button, inputAction))
-				return;
-		}
-
-		if (button == LINAGX_MOUSE_0 && inputAction == LinaGX::InputAction::Pressed && m_controlOwner != nullptr && !m_controlOwner->GetIsHovered())
-			ReleaseControls(m_controlOwner);
-
-		if (!sortedChildren.empty())
-			return;
+		// if (button == LINAGX_MOUSE_0 && inputAction == LinaGX::InputAction::Pressed && m_controlOwner != nullptr && !m_controlOwner->GetIsHovered())
+		//	ReleaseControls(m_controlOwner);
 
 		PassMouse(m_rootWidget, button, inputAction);
 	}

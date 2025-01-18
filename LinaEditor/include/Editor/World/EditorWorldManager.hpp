@@ -70,7 +70,7 @@ namespace Lina::Editor
 		void AddListener(EditorWorldManagerListener* listener);
 		void RemoveListener(EditorWorldManagerListener* listener);
 
-		EditorWorldRenderer* CreateEditorWorld();
+		EditorWorldRenderer* CreateEditorWorld(ResourceID space);
 		void				 DestroyEditorWorld(EntityWorld* world);
 
 		EntityWorld* GetWorld(ResourceID id);

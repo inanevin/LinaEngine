@@ -443,11 +443,6 @@ namespace Lina::Editor
 		m_world			= renderer ? m_worldRenderer->GetWorld() : nullptr;
 		m_overlayControls.baseWidget->GetFlags().Set(WF_HIDE, m_world == nullptr);
 
-		if (m_world && m_world->GetID() != 0)
-		{
-			m_ewr->CreatePhysicsRenderer();
-		}
-
 		if (m_ewr)
 			m_ewr->GetGizmoRenderer().GetSettings().drawOrientation = true;
 

@@ -134,6 +134,24 @@ namespace Lina
 		}
 	}
 
+	bool FileMenuItem::OnMouse(uint32 action, LinaGX::InputAction act)
+	{
+		if (m_listener->OnFileMenuItemClicked(this, sid, subItem.userData))
+		{
+			m_manager->AddToKillList(popup);
+			// const bool same = m_subPopup == popup;
+
+			// if (m_subPopup)
+			//{
+			//     m_manager->AddToKillList(m_subPopup);
+			//     m_subPopup = nullptr;
+			// }
+			//
+			// if (!same)
+			//    m_manager->AddToKillList(popup);
+		}
+	}
+
 	void FileMenu::Construct()
 	{
 		GetProps().direction = DirectionOrientation::Horizontal;
@@ -212,14 +230,17 @@ namespace Lina
 		};
 	}
 
-	DirectionalLayout* FileMenu::CreatePopup(const Vector2& pos, const Vector<FileMenuItem::Data>& subItemData)
+	FileMenuPopup* FileMenu::CreatePopup(const Vector2& pos, const Vector<FileMenuItem::Data>& subItemData)
 	{
-		DirectionalLayout* popup = WidgetUtility::BuildLayoutForPopups(this);
-		popup->SetPos(pos);
+		FileMenuPopup* popup = m_manager->Allocate<FileMenuPopup>();
+		popup->GetFlags().Set(WF_SIZE_Y_TOTAL_CHILDREN);
+		popup->SetAlignedSizeY(1.0f);
+		popup->GetWidgetProps().drawBackground		= true;
+		popup->GetWidgetProps().childMargins.top	= Theme::GetDef().baseIndentInner;
+		popup->GetWidgetProps().childMargins.bottom = Theme::GetDef().baseIndentInner;
 
 		m_manager->AddToForeground(popup);
-
-		float totalHeight = popup->GetWidgetProps().childMargins.top + popup->GetWidgetProps().childMargins.bottom;
+		popup->SetPos(pos);
 
 		for (const auto& subItem : subItemData)
 		{
@@ -241,35 +262,13 @@ namespace Lina
 			else
 				it->SetFixedSizeY(Theme::GetDef().baseItemHeight * 0.5f);
 
-			totalHeight += it->GetFixedSizeY() + popup->GetWidgetProps().childPadding * m_manager->GetScalingFactor();
-
 			it->GetWidgetProps().colorBackground = Color(0, 0, 0, 0);
 			it->GetWidgetProps().childPadding	 = Theme::GetDef().baseIndent;
 			it->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X);
 			it->SetAlignedSizeX(1.0f);
 			it->SetAlignedPosX(0.0f);
-
-			const StringID sid = TO_SID(subItem.text);
-
-			it->GetProps().onClicked = [sid, popup, subItem, this]() {
-				if (m_listener->OnFileMenuItemClicked(this, sid, subItem.userData))
-				{
-					const bool same = m_subPopup == popup;
-
-					if (m_subPopup)
-					{
-						m_manager->AddToKillList(m_subPopup);
-						m_subPopup = nullptr;
-					}
-
-					if (!same)
-						m_manager->AddToKillList(popup);
-				}
-			};
-
 			it->Initialize();
 			m_manager->SetDisabledRecursively(it, subItem.isDisabled);
-
 			popup->AddChild(it);
 		}
 
@@ -300,11 +299,23 @@ namespace Lina
 
 		popup->SetSizeX(Math::Max(Theme::GetDef().baseItemHeight * 8, (maxTextSize + popup->GetWidgetProps().childMargins.left + popup->GetWidgetProps().childMargins.right) * 1.25f));
 
-		const float windowHeight = m_manager->GetSize().y;
-
-		if (pos.y + totalHeight > windowHeight)
-			popup->SetPosY(windowHeight - totalHeight - 10);
 		return popup;
+	}
+
+	void FileMenuPopup::Construct()
+	{
+		GetProps().direction = DirectionOrientation::Vertical;
+	}
+
+	bool FileMenuPopup::OnMouse(uint32 button, LinaGX::InputAction act)
+	{
+		if (!m_isHovered)
+		{
+			m_manager->AddToKillList(this);
+			return true;
+		}
+
+		return false;
 	}
 
 } // namespace Lina
