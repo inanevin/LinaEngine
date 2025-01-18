@@ -67,15 +67,16 @@ namespace Lina
 
 	WorldRenderer::WorldRenderer(GfxContext* context, ResourceManagerV2* rm, EntityWorld* world, const Vector2ui& viewSize, const String& name, Buffer* snapshotBuffers, bool standaloneSubmit)
 	{
-		m_name					 = name.empty() ? "WorldRenderer" : name;
-		m_gfxContext			 = context;
-		m_standaloneSubmit		 = standaloneSubmit;
-		m_snapshotBuffer		 = snapshotBuffers;
-		m_world					 = world;
-		m_size					 = viewSize;
-		m_resourceManagerV2		 = rm;
-		m_gBufSampler			 = m_resourceManagerV2->CreateResource<TextureSampler>(m_resourceManagerV2->ConsumeResourceID(), name + " Sampler");
-		m_deferredLightingShader = m_resourceManagerV2->GetResource<Shader>(ENGINE_SHADER_LIGHTING_QUAD_ID);
+		m_name				 = name.empty() ? "WorldRenderer" : name;
+		m_gfxContext		 = context;
+		m_standaloneSubmit	 = standaloneSubmit;
+		m_snapshotBuffer	 = snapshotBuffers;
+		m_world				 = world;
+		m_size				 = viewSize;
+		m_resourceManagerV2	 = rm;
+		m_gBufSampler		 = m_resourceManagerV2->CreateResource<TextureSampler>(m_resourceManagerV2->ConsumeResourceID(), name + " Sampler");
+		m_shaderLightingQuad = m_resourceManagerV2->GetResource<Shader>(ENGINE_SHADER_LIGHTING_QUAD_ID);
+		m_shaderDebugLine	 = m_resourceManagerV2->GetResource<Shader>(ENGINE_SHADER_WORLD_DEBUG_LINE_ID);
 
 		LinaGX::SamplerDesc gBufSampler = {
 			.anisotropy = 1,
@@ -156,10 +157,12 @@ namespace Lina
 
 		m_guiBackend.Initialize(m_resourceManagerV2);
 		CreateSizeRelativeResources();
+		m_shapeRenderer.Initialize();
 	}
 
 	WorldRenderer::~WorldRenderer()
 	{
+		m_shapeRenderer.Shutdown();
 		m_gBufSampler->DestroyHW();
 		m_resourceManagerV2->DestroyResource(m_gBufSampler);
 
@@ -384,6 +387,16 @@ namespace Lina
 		return idx;
 	}
 
+	void WorldRenderer::AddDebugLine(const Vector3& p1, const Vector3& p2, float thickness, const ColorGrad& color)
+	{
+		m_debugLines.push_back({
+			.p1		   = p1,
+			.p2		   = p2,
+			.thickness = thickness,
+			.color	   = color,
+		});
+	}
+
 	void WorldRenderer::StartLinaVGBatch()
 	{
 		m_currentLvgStartIndex	= static_cast<uint32>(m_cpuDrawData.lvgIndices.size());
@@ -533,7 +546,7 @@ namespace Lina
 		// Lighting Quad
 		{
 			const RenderPass::InstancedDraw lightingQuad = {
-				.shaderHandle  = m_deferredLightingShader->GetGPUHandle(),
+				.shaderHandle  = m_shaderLightingQuad->GetGPUHandle(),
 				.vertexCount   = 3,
 				.instanceCount = 1,
 			};
@@ -582,6 +595,13 @@ namespace Lina
 		}
 
 		DrawCollector::CollectCompModels(m_compModels, m_forwardPass, m_resourceManagerV2, this, m_gfxContext, {.allowedShaderTypes = {ShaderType::ForwardSurface}});
+
+		m_shapeRenderer.StartBatch();
+
+		for (const LineData& l : m_debugLines)
+			m_shapeRenderer.DrawLine3D(l.p1, l.p2, l.thickness, l.color);
+
+		m_shapeRenderer.SubmitBatch(m_forwardPass, 0, m_shaderDebugLine->GetGPUHandle());
 	}
 
 	void WorldRenderer::SyncRender()
@@ -593,7 +613,9 @@ namespace Lina
 		m_cpuDrawData.lvgIndices.resize(0);
 		m_cpuDrawData.lvgVertices.resize(0);
 		m_cpuDrawData.lights.resize(0);
+		m_debugLines.resize(0);
 
+		m_shapeRenderer.SyncRender();
 		m_deferredPass.SyncRender();
 		m_forwardPass.SyncRender();
 	}
@@ -620,27 +642,24 @@ namespace Lina
 			WorldGfxSettings& gfx = m_world->GetGfxSettings();
 
 			const GPUDataForwardPass fw = {
-				.view				  = worldCam.GetView(),
-				.proj				  = worldCam.GetProjection(),
-				.viewProj			  = worldCam.GetViewProj(),
-				.ambientTop			  = Color(gfx.ambientTop.x, gfx.ambientTop.y, gfx.ambientTop.z, gfx.ambientIntensity),
-				.ambientMid			  = gfx.ambientMid,
-				.ambientBot			  = gfx.ambientBot,
-				.gBufAlbedo			  = currentFrame.gBufAlbedo->GetBindlessIndex(),
-				.gBufPositionMetallic = currentFrame.gBufPosition->GetBindlessIndex(),
-				.gBufNormalRoughness  = currentFrame.gBufNormal->GetBindlessIndex(),
-				.gBufSampler		  = m_gBufSampler->GetBindlessIndex(),
-				.lightCount			  = static_cast<uint32>(m_gpuDrawData.lights.size()),
+				.view				   = worldCam.GetView(),
+				.proj				   = worldCam.GetProjection(),
+				.viewProj			   = worldCam.GetViewProj(),
+				.ambientTop			   = Color(gfx.ambientTop.x, gfx.ambientTop.y, gfx.ambientTop.z, gfx.ambientIntensity),
+				.ambientMid			   = gfx.ambientMid,
+				.ambientBot			   = gfx.ambientBot,
+				.cameraPositionAndNear = Vector4(worldCam.GetPosition(), worldCam.GetZNear()),
+				.cameraDirectionAndFar = Vector4(worldCam.GetRotation().GetForward(), worldCam.GetZFar()),
+				.sizeAndMouse		   = Vector4(m_size.x, m_size.y, m_world->GetInput().GetMousePosition().x, m_world->GetInput().GetMousePosition().y),
+				.gBufAlbedo			   = currentFrame.gBufAlbedo->GetBindlessIndex(),
+				.gBufPositionMetallic  = currentFrame.gBufPosition->GetBindlessIndex(),
+				.gBufNormalRoughness   = currentFrame.gBufNormal->GetBindlessIndex(),
+				.gBufSampler		   = m_gBufSampler->GetBindlessIndex(),
+				.lightCount			   = static_cast<uint32>(m_gpuDrawData.lights.size()),
 			};
 
-			m_forwardPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&fw, sizeof(GPUDataForwardPass));
-			// const Vector3& camPos	   = worldCam.GetPosition();
-			// const Vector3& camDir	   = worldCam.GetRotation().GetForward();
-			// view.viewProj			   = view.proj * view.view;
-			// view.cameraPositionAndNear = Vector4(camPos.x, camPos.y, camPos.z, worldCam.GetZNear());
-			// view.cameraDirectionAndFar = Vector4(camDir.x, camDir.y, camDir.z, worldCam.GetZFar());
-			// view.size				   = Vector2(static_cast<float>(m_size.x), static_cast<float>(m_size.y));
-			// view.mouse				   = m_world->GetInput().GetMousePositionRatio();
+			const size_t sz = sizeof(GPUDataForwardPass);
+			m_forwardPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&fw, sz);
 		}
 
 		size_t entityIdx = 0;
@@ -660,7 +679,6 @@ namespace Lina
 
 		m_uploadQueue.AddBufferRequest(&currentFrame.lvgVtxBuffer);
 		m_uploadQueue.AddBufferRequest(&currentFrame.lvgIdxBuffer);
-
 		m_uploadQueue.AddBufferRequest(&currentFrame.argumentsBuffer);
 		m_uploadQueue.AddBufferRequest(&currentFrame.boneBuffer);
 		m_uploadQueue.AddBufferRequest(&currentFrame.entityBuffer);
@@ -668,6 +686,8 @@ namespace Lina
 
 		m_deferredPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
 		m_forwardPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+
+		m_shapeRenderer.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
 	}
 
 	void WorldRenderer::FlushTransfers(uint32 frameIndex)

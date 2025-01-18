@@ -335,32 +335,32 @@ namespace Lina::Editor
 					.id	  = EDITOR_SHADER_DEFAULT_SKY_ID,
 				},
 				{
-					.path = EDITOR_MODEL_CUBE_PATH,
-					.id	  = EDITOR_MODEL_CUBE_ID,
+					.path = ENGINE_MODEL_CUBE_PATH,
+					.id	  = ENGINE_MODEL_CUBE_ID,
 				},
 				{
-					.path = EDITOR_MODEL_SPHERE_PATH,
-					.id	  = EDITOR_MODEL_SPHERE_ID,
+					.path = ENGINE_MODEL_SPHERE_PATH,
+					.id	  = ENGINE_MODEL_SPHERE_ID,
 				},
 				{
-					.path = EDITOR_MODEL_CYLINDER_PATH,
-					.id	  = EDITOR_MODEL_CYLINDER_ID,
+					.path = ENGINE_MODEL_CYLINDER_PATH,
+					.id	  = ENGINE_MODEL_CYLINDER_ID,
 				},
 				{
-					.path = EDITOR_MODEL_PLANE_PATH,
-					.id	  = EDITOR_MODEL_PLANE_ID,
+					.path = ENGINE_MODEL_PLANE_PATH,
+					.id	  = ENGINE_MODEL_PLANE_ID,
 				},
 				{
-					.path = EDITOR_MODEL_SKYCUBE_PATH,
-					.id	  = EDITOR_MODEL_SKYCUBE_ID,
+					.path = ENGINE_MODEL_SKYCUBE_PATH,
+					.id	  = ENGINE_MODEL_SKYCUBE_ID,
 				},
 				{
-					.path = EDITOR_MODEL_SKYSPHERE_PATH,
-					.id	  = EDITOR_MODEL_SKYSPHERE_ID,
+					.path = ENGINE_MODEL_SKYSPHERE_PATH,
+					.id	  = ENGINE_MODEL_SKYSPHERE_ID,
 				},
 				{
-					.path = EDITOR_MODEL_CAPSULE_PATH,
-					.id	  = EDITOR_MODEL_CAPSULE_ID,
+					.path = ENGINE_MODEL_CAPSULE_PATH,
+					.id	  = ENGINE_MODEL_CAPSULE_ID,
 				},
 				{
 					.path = EDITOR_TEXTURE_EMPTY_ALBEDO_PATH,
@@ -413,6 +413,16 @@ namespace Lina::Editor
 			{
 				task->progressText	   = EDITOR_SAMPLER_DEFAULT_PATH;
 				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, EDITOR_SAMPLER_DEFAULT_PATH, GetTypeID<TextureSampler>(), EDITOR_SAMPLER_DEFAULT_ID);
+
+				if (dir)
+					dir->userData.directoryType = static_cast<uint32>(ResourceDirectoryType::EngineResource);
+			}
+
+			// Custom physics material
+			if (root->FindResourceDirectory(EDITOR_PHY_MATERIAL_DEFAULT_ID) == nullptr)
+			{
+				task->progressText	   = EDITOR_PHY_MATERIAL_DEFAULT_PATH;
+				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, EDITOR_PHY_MATERIAL_DEFAULT_PATH, GetTypeID<PhysicsMaterial>(), EDITOR_PHY_MATERIAL_DEFAULT_ID);
 
 				if (dir)
 					dir->userData.directoryType = static_cast<uint32>(ResourceDirectoryType::EngineResource);

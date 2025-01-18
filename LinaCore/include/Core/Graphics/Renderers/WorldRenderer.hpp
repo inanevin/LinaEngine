@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Core/Graphics/Pipeline/Buffer.hpp"
+#include "Core/Graphics/Renderers/ShapeRenderer.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
 #include "Core/Graphics/ResourceUploadQueue.hpp"
@@ -80,6 +81,14 @@ namespace Lina
 			Buffer lvgIdxBuffer;
 		};
 
+		struct LineData
+		{
+			Vector3	  p1		= Vector3::Zero;
+			Vector3	  p2		= Vector3::Zero;
+			float	  thickness = 1.0f;
+			ColorGrad color		= Color::White;
+		};
+
 	public:
 		struct DrawData
 		{
@@ -110,6 +119,8 @@ namespace Lina
 		uint32 GetArgumentCount();
 		uint32 PushEntity(const GPUEntity& e, const EntityIdent& ident);
 		uint32 PushArgument(const GPUDrawArguments& args);
+
+		void AddDebugLine(const Vector3& p1, const Vector3& p2, float thickness, const ColorGrad& color);
 
 		void			StartLinaVGBatch();
 		LinaVG::Drawer* GetLVGDrawer()
@@ -232,6 +243,11 @@ namespace Lina
 			return m_cpuDrawData;
 		}
 
+		inline ShapeRenderer& GetShapeRenderer()
+		{
+			return m_shapeRenderer;
+		}
+
 	private:
 		void CalculateSkinning(const Vector<CompModel*>& comps);
 
@@ -247,15 +263,16 @@ namespace Lina
 		ResourceManagerV2*			   m_resourceManagerV2 = nullptr;
 		LinaGX::Instance*			   m_lgx			   = nullptr;
 		ResourceUploadQueue			   m_uploadQueue;
-		PerFrameData				   m_pfd[FRAMES_IN_FLIGHT]	= {};
-		RenderPass					   m_deferredPass			= {};
-		RenderPass					   m_forwardPass			= {};
-		Vector2ui					   m_size					= Vector2ui::Zero;
-		EntityWorld*				   m_world					= nullptr;
-		TextureSampler*				   m_gBufSampler			= nullptr;
-		Shader*						   m_deferredLightingShader = nullptr;
-		Buffer*						   m_snapshotBuffer			= nullptr;
-		bool						   m_standaloneSubmit		= false;
+		PerFrameData				   m_pfd[FRAMES_IN_FLIGHT] = {};
+		RenderPass					   m_deferredPass		   = {};
+		RenderPass					   m_forwardPass		   = {};
+		Vector2ui					   m_size				   = Vector2ui::Zero;
+		EntityWorld*				   m_world				   = nullptr;
+		TextureSampler*				   m_gBufSampler		   = nullptr;
+		Shader*						   m_shaderLightingQuad	   = nullptr;
+		Shader*						   m_shaderDebugLine	   = nullptr;
+		Buffer*						   m_snapshotBuffer		   = nullptr;
+		bool						   m_standaloneSubmit	   = false;
 		GfxContext*					   m_gfxContext;
 		String						   m_name = "";
 		JobExecutor					   m_executor;
@@ -266,9 +283,11 @@ namespace Lina
 		Vector<CompModel*>			   m_skinnedModels;
 
 		LinaVG::Drawer m_lvgDrawer;
+		ShapeRenderer  m_shapeRenderer;
 
-		uint32 m_currentLvgStartVertex = 0;
-		uint32 m_currentLvgStartIndex  = 0;
+		uint32			 m_currentLvgStartVertex = 0;
+		uint32			 m_currentLvgStartIndex	 = 0;
+		Vector<LineData> m_debugLines;
 	};
 
 } // namespace Lina

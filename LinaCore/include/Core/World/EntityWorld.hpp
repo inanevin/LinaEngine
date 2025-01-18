@@ -229,6 +229,11 @@ namespace Lina
 			return m_worldRenderer;
 		}
 
+		inline PlayMode GetPlayMode() const
+		{
+			return m_playMode;
+		}
+
 	private:
 		void				BeginPlay();
 		void				EndPlay();

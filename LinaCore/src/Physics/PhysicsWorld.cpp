@@ -31,6 +31,8 @@ SOFTWARE.
 #include "Common/System/SystemInfo.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Physics/PhysicsContactListener.hpp"
+#include "Core/Physics/PhysicsMaterial.hpp"
+#include "Core/Resources/ResourceManager.hpp"
 
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <Jolt/Physics/Collision/RayCast.h>
@@ -184,6 +186,12 @@ namespace Lina
 			JPH::SphereShapeSettings sphere(phySettings.radius);
 			shapeRef = sphere.Create().Get();
 		}
+
+		PhysicsMaterial* mat	 = m_world->GetResourceManager()->GetResource<PhysicsMaterial>(phySettings.material);
+		settings.mRestitution	 = mat->GetRestitution();
+		settings.mFriction		 = mat->GetFriction();
+		settings.mAngularDamping = mat->GetAngularDamping();
+		settings.mLinearDamping	 = mat->GetLinearDamping();
 
 		settings.SetShape(shapeRef);
 		settings.mGravityFactor				   = phySettings.gravityMultiplier;

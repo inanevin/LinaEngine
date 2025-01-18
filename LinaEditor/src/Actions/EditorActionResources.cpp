@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
 #include "Editor/Widgets/Panel/PanelFontViewer.hpp"
 #include "Editor/Widgets/Panel/PanelMaterialViewer.hpp"
+#include "Editor/Widgets/Panel/PanelPhysicsMaterialViewer.hpp"
 #include "Editor/Widgets/Panel/PanelModelViewer.hpp"
 #include "Editor/Widgets/Panel/PanelTextureViewer.hpp"
 #include "Editor/Widgets/Panel/PanelPhysicsMaterialViewer.hpp"
@@ -344,6 +345,63 @@ namespace Lina::Editor
 			}
 
 			matViewer->GetWorld()->LoadMissingResources(editor->GetApp()->GetResourceManager(), editor->GetProjectManager().GetProjectData(), {});
+		}
+
+		editor->GetApp()->GetResourceManager().ReloadResourceHW({mat});
+	}
+
+	/*
+	** PHYSICS MATERIAL
+	*/
+
+	EditorActionResourcePhysicsMaterial* EditorActionResourcePhysicsMaterial::Create(Editor* editor, ResourceID resourceID, uint64 resourceSpace, const OStream& prevStream, const OStream& newStream)
+	{
+		EditorActionResourcePhysicsMaterial* action = new EditorActionResourcePhysicsMaterial();
+		action->m_resourceID						= resourceID;
+		action->m_resourceSpace						= resourceSpace;
+		action->m_prevStream.WriteRaw(prevStream.GetDataRaw(), prevStream.GetCurrentSize());
+		action->m_newStream.WriteRaw(newStream.GetDataRaw(), newStream.GetCurrentSize());
+		editor->GetEditorActionManager().AddToStack(action);
+		return action;
+	}
+
+	void EditorActionResourcePhysicsMaterial::Execute(Editor* editor, ExecType type)
+	{
+		Resource* res = editor->GetApp()->GetResourceManager().GetIfExists<PhysicsMaterial>(m_resourceID);
+		if (res == nullptr)
+			return;
+
+		Panel*				 panel		  = editor->GetWindowPanelManager().FindPanelOfType(PanelType::PhysicsMaterialViewer, m_resourceID);
+		PanelResourceViewer* panelResView = panel ? static_cast<PanelPhysicsMaterialViewer*>(panel) : nullptr;
+		PhysicsMaterial*	 mat		  = editor->GetApp()->GetResourceManager().GetResource<PhysicsMaterial>(m_resourceID);
+
+		if (type == ExecType::Undo)
+		{
+			IStream stream;
+			stream.Create(m_prevStream.GetDataRaw(), m_prevStream.GetCurrentSize());
+			mat->LoadFromStream(stream);
+			stream.Destroy();
+		}
+		else if (type == ExecType::Redo)
+		{
+			IStream stream;
+			stream.Create(m_newStream.GetDataRaw(), m_newStream.GetCurrentSize());
+			mat->LoadFromStream(stream);
+			stream.Destroy();
+		}
+
+		mat->SaveToFileAsBinary(editor->GetProjectManager().GetProjectData()->GetResourcePath(mat->GetID()));
+
+		if (panelResView)
+		{
+			panelResView->StoreEditorActionBuffer();
+			PanelPhysicsMaterialViewer* matViewer = static_cast<PanelPhysicsMaterialViewer*>(panelResView);
+
+			if (type != ExecType::Create)
+			{
+				panelResView->UpdateResourceProperties();
+				panelResView->RebuildContents();
+			}
 		}
 
 		editor->GetApp()->GetResourceManager().ReloadResourceHW({mat});

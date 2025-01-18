@@ -26,52 +26,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Physics/PhysicsMaterial.hpp"
-#include "Common/Serialization/Serialization.hpp"
-#include "Common/Data/Streams.hpp"
+#include "Editor/Widgets/Panel/PanelProjectSettings.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 
-namespace Lina
+namespace Lina::Editor
 {
-
-	bool PhysicsMaterial::LoadFromFile(const String& path)
+	void PanelProjectSettings::Construct()
 	{
-		IStream stream = Serialization::LoadFromFile(path.c_str());
-
-		if (!stream.Empty())
-			LoadFromStream(stream);
-		else
-			return false;
-
-		stream.Destroy();
-		return true;
 	}
-
-	void PhysicsMaterial::LoadFromStream(IStream& stream)
-	{
-		Resource::LoadFromStream(stream);
-		uint32 version = 0;
-		stream >> version;
-		stream >> m_restitution >> m_friction >> m_angularDamping >> m_linearDamping;
-	}
-
-	void PhysicsMaterial::SaveToStream(OStream& stream) const
-	{
-		Resource::SaveToStream(stream);
-		stream << VERSION;
-		stream << m_restitution << m_friction << m_angularDamping << m_linearDamping;
-	}
-
-	void PhysicsMaterial::GenerateHW()
-	{
-		LINA_ASSERT(m_hwValid == false, "");
-		m_hwValid = true;
-	}
-
-	void PhysicsMaterial::DestroyHW()
-	{
-		LINA_ASSERT(m_hwValid, "");
-		m_hwValid		= false;
-		m_hwUploadValid = false;
-	}
-
-} // namespace Lina
+} // namespace Lina::Editor

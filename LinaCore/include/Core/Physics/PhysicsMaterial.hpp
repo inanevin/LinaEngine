@@ -48,11 +48,45 @@ namespace Lina
 		virtual void GenerateHW() override;
 		virtual void DestroyHW() override;
 
+		inline float GetRestitution() const
+		{
+			return m_restitution;
+		}
+
+		inline float GetFriction() const
+		{
+			return m_friction;
+		}
+
+		inline float GetAngularDamping() const
+		{
+			return m_angularDamping;
+		}
+
+		inline float GetLinearDamping() const
+		{
+			return m_linearDamping;
+		}
+
 	private:
 		ALLOCATOR_BUCKET_MEM;
+		LINA_REFLECTION_ACCESS(PhysicsMaterial)
+
+		float m_restitution	   = 0.0f;
+		float m_friction	   = 0.2f;
+		float m_angularDamping = 0.05f;
+		float m_linearDamping  = 0.05f;
 	};
 
 	LINA_RESOURCE_BEGIN(PhysicsMaterial)
+	LINA_FIELD(PhysicsMaterial, m_restitution, "Restitution", FieldType::Float, 0)
+	LINA_FIELD(PhysicsMaterial, m_friction, "Friction", FieldType::Float, 0)
+	LINA_FIELD(PhysicsMaterial, m_linearDamping, "Linear Damping", FieldType::Float, 0)
+	LINA_FIELD(PhysicsMaterial, m_angularDamping, "Angular Damping", FieldType::Float, 0)
+	LINA_FIELD_LIMITS(PhysicsMaterial, m_restitution, 0.0f, 1.0f, 0.1f)
+	LINA_FIELD_LIMITS(PhysicsMaterial, m_friction, 0.0f, 1.0f, 0.1f)
+	LINA_FIELD_LIMITS(PhysicsMaterial, m_linearDamping, 0.0f, 1.0f, 0.1f)
+	LINA_FIELD_LIMITS(PhysicsMaterial, m_angularDamping, 0.0f, 1.0f, 0.1f)
 	LINA_CLASS_END(PhysicsMaterial)
 
 } // namespace Lina

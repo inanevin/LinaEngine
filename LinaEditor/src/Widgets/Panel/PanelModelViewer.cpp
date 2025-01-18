@@ -81,11 +81,6 @@ namespace Lina::Editor
 		m_world->GetGfxSettings().skyModel = EDITOR_MODEL_SKYSPHERE_ID;
 
 		HashSet<ResourceID> initialResources = {
-			EDITOR_MODEL_CUBE_ID,
-			EDITOR_MODEL_SPHERE_ID,
-			EDITOR_MODEL_PLANE_ID,
-			EDITOR_MODEL_CYLINDER_ID,
-			EDITOR_MODEL_CAPSULE_ID,
 			EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID,
 			EDITOR_SHADER_DEFAULT_SKY_ID,
 			m_resource->GetID(),
@@ -166,6 +161,8 @@ namespace Lina::Editor
 		panelItems->GetCallbacks().onEditEnded	  = [this]() { m_compModel->GetAnimationController().SetSpeed(m_animationPreviewSpeed); };
 		m_inspector->AddChild(panelItems);
 		CommonWidgets::BuildClassReflection(panelItems, this, ReflectionSystem::Get().Resolve<PanelModelViewer>());
+
+		CommonWidgets::BuildSeperator(m_inspector);
 
 		Widget* animLayout = CommonWidgets::BuildFieldLayout(this, 0, Locale::GetStr(LocaleStr::PreviewAnimation), false);
 		Widget* rightSide  = animLayout->GetChildren().back();

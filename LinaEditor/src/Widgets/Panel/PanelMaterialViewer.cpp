@@ -91,11 +91,6 @@ namespace Lina::Editor
 		m_world->GetGfxSettings().skyMaterial = EDITOR_MATERIAL_DEFAULT_SKY_ID;
 
 		const HashSet<ResourceID> initialResources = {
-			EDITOR_MODEL_CUBE_ID,
-			EDITOR_MODEL_SPHERE_ID,
-			EDITOR_MODEL_PLANE_ID,
-			EDITOR_MODEL_CYLINDER_ID,
-			EDITOR_MODEL_CAPSULE_ID,
 			EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID,
 			EDITOR_SHADER_DEFAULT_SKY_ID,
 			m_resource->GetID(),
@@ -223,6 +218,8 @@ namespace Lina::Editor
 		m_inspector->AddChild(panelItems);
 		CommonWidgets::BuildClassReflection(panelItems, this, ReflectionSystem::Get().Resolve<PanelMaterialViewer>());
 
+		CommonWidgets::BuildSeperator(m_inspector);
+
 		Material* mat = static_cast<Material*>(m_resource);
 
 		Widget* shaderField						= CommonWidgets::BuildField(m_inspector,
@@ -239,68 +236,6 @@ namespace Lina::Editor
 		m_inspector->AddChild(shaderField);
 
 		m_propertyFoldValues.resize(mat->GetProperties().size());
-
-		/*
-
-		auto buildColorButton = [this](uint8* data, uint8 comps) -> Button* {
-			Button* b = m_manager->Allocate<Button>();
-			b->GetFlags().Set(WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
-			b->SetAlignedPosY(0.0f);
-			b->SetAlignedSize(Vector2::One);
-			b->CreateIcon(ICON_PALETTE);
-			b->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::SelectColor);
-			b->GetProps().onClicked		= [data, comps, this, b]() {
-				PanelColorWheel* panel = Editor::Get()->GetWindowPanelManager().OpenColorWheelPanel(b);
-				panel->SetListener(this);
-				m_colorWheel = panel;
-
-				if (comps == 3)
-				{
-					Vector3* v = reinterpret_cast<Vector3*>(data);
-					panel->GetWheel()->SetTargetColor(Color(v->x, v->y, v->z, 1.0f), false);
-					panel->GetWheel()->GetProps().trackColorv3 = v;
-				}
-				else if (comps == 4)
-				{
-					Vector4* v = reinterpret_cast<Vector4*>(data);
-					panel->GetWheel()->SetTargetColor(Color(v->x, v->y, v->z, v->w), false);
-					panel->GetWheel()->GetProps().trackColorv4 = v;
-				}
-
-				m_latestColorWheelComps = comps;
-				m_latestColorWheelData	= data;
-			};
-			return b;
-		};
-		auto buildFloatField = [this](Widget* srcToAdd, uint8* dataStart, uint8 fieldCount, bool isInt, bool isUnsigned) {
-			for (uint8 i = 0; i < fieldCount; i++)
-			{
-				InputField* inp				   = CommonWidgets::BuildFloatField(m_inspector, dataStart + i * sizeof(uint32), 32, isInt, isUnsigned, true, isUnsigned ? 0 : -1000.0f, 1000.0f, 0.1f);
-
-				inp->GetCallbacks().onEditEnded = [this](){
-					UpdateMaterial();
-				};
-
-				inp->GetCallbacks().onEdited = [this](){
-					m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
-				};
-
-				inp->GetProps().disableNumberSlider = true;
-				srcToAdd->AddChild(inp);
-			}
-		};
-
-		auto buildDefaultLayout = [this](const String& name) -> DirectionalLayout* {
-			DirectionalLayout* layout	 = static_cast<DirectionalLayout*>(CommonWidgets::BuildFieldLayoutWithRightSide(m_inspector, 0, name, false, nullptr, 0.6f));
-			DirectionalLayout* rightSide = Widget::GetWidgetOfType<DirectionalLayout>(layout);
-			m_inspector->AddChild(layout);
-			return rightSide;
-		};
-
-
-
-
-   */
 
 		auto setCb = [&](Widget* w) {
 			w->GetCallbacks().onEdited	  = [this]() { m_editor->GetApp()->GetGfxContext().MarkBindlessDirty(); };

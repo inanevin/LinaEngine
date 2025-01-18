@@ -34,7 +34,8 @@ SOFTWARE.
 
 namespace Lina
 {
-
+	class EntityWorld;
+	class Entity;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -45,23 +46,46 @@ namespace Lina::Editor
 	class PanelPhysicsMaterialViewer : public PanelResourceViewer
 	{
 	public:
+		enum class DisplayModel
+		{
+			Sphere,
+			Cube,
+		};
+
 		PanelPhysicsMaterialViewer() : PanelResourceViewer(PanelType::PhysicsMaterialViewer, GetTypeID<PhysicsMaterial>(), GetTypeID<PanelPhysicsMaterialViewer>()){};
 		virtual ~PanelPhysicsMaterialViewer() = default;
 
 		virtual void Construct() override;
+		virtual void Destruct() override;
 		virtual void Initialize() override;
+		virtual void StoreEditorActionBuffer() override;
+		virtual void UpdateResourceProperties() override;
+		virtual void RebuildContents() override;
+		void		 SetupWorld();
 
 	private:
-		void UpdatePhysicsMaterialProps();
+		void UpdateMaterial();
 
 	private:
 		LINA_REFLECTION_ACCESS(PanelPhysicsMaterialViewer);
 
-		String m_physicsMaterialName = "";
+		String		 m_materialName = "";
+		DisplayModel m_displayModel = DisplayModel::Sphere;
+		OStream		 m_previousStream;
+
+		EntityWorld*	m_world			 = nullptr;
+		WorldDisplayer* m_worldDisplayer = nullptr;
+		Entity*			m_displayEntity	 = nullptr;
 	};
 
+	LINA_CLASS_BEGIN(PanelPhysicsMaterialViewerDisplayModel)
+	LINA_PROPERTY_STRING(PanelPhysicsMaterialViewer::DisplayModel, 0, "Sphere")
+	LINA_PROPERTY_STRING(PanelPhysicsMaterialViewer::DisplayModel, 0, "Cube")
+	LINA_CLASS_END(PanelPhysicsMaterialViewerDisplayModel)
+
 	LINA_WIDGET_BEGIN(PanelPhysicsMaterialViewer, Hidden)
-	LINA_FIELD(PanelPhysicsMaterialViewer, m_physicsMaterialName, "Name", FieldType::StringFixed, 0)
+	LINA_FIELD(PanelPhysicsMaterialViewer, m_materialName, "Name", FieldType::StringFixed, 0)
+	LINA_FIELD(PanelPhysicsMaterialViewer, m_displayModel, "Display Model", FieldType::Enum, GetTypeID<PanelPhysicsMaterialViewer::DisplayModel>())
 	LINA_CLASS_END(PanelPhysicsMaterialViewer)
 
 } // namespace Lina::Editor

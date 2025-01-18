@@ -42,6 +42,7 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelMaterialViewer.hpp"
 #include "Editor/Widgets/Panel/PanelGenericSelector.hpp"
 #include "Editor/Widgets/Panel/PanelAudioViewer.hpp"
+#include "Editor/Widgets/Panel/PanelProjectSettings.hpp"
 #include "Editor/Widgets/Panel/PanelLog.hpp"
 #include "Editor/Widgets/Panel/PanelDetails.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
@@ -105,6 +106,9 @@ namespace Lina::Editor
 			break;
 		case PanelType::GenericSelector:
 			panel = source->GetWidgetManager()->Allocate<PanelGenericSelector>("Selector");
+			break;
+		case PanelType::ProjectSettings:
+			panel = source->GetWidgetManager()->Allocate<PanelProjectSettings>("Project");
 			break;
 		default:
 			LINA_ASSERT(false, "");

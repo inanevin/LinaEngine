@@ -220,6 +220,11 @@ namespace Lina::Editor
 				.tid  = GetTypeID<Shader>(),
 			},
 			{
+				.id	  = ENGINE_SHADER_WORLD_DEBUG_LINE_ID,
+				.name = ENGINE_SHADER_WORLD_DEBUG_LINE_PATH,
+				.tid  = GetTypeID<Shader>(),
+			},
+			{
 				.id	  = EDITOR_SHADER_WORLD_GIZMO_ROTATE_ID,
 				.name = EDITOR_SHADER_WORLD_GIZMO_ROTATE_PATH,
 				.tid  = GetTypeID<Shader>(),
