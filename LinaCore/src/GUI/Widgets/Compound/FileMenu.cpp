@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Common/Math/Math.hpp"
+#include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina
 {
@@ -126,30 +127,25 @@ namespace Lina
 
 				if (sibling->GetIsHovered())
 				{
-					m_manager->AddToKillList(m_subPopup);
-					m_subPopup = nullptr;
+					m_ownerMenu->KillSub(m_subPopup);
 					break;
 				}
 			}
 		}
 	}
 
-	bool FileMenuItem::OnMouse(uint32 action, LinaGX::InputAction act)
+	bool FileMenuItem::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
-		if (m_listener->OnFileMenuItemClicked(this, sid, subItem.userData))
-		{
-			m_manager->AddToKillList(popup);
-			// const bool same = m_subPopup == popup;
+		if (!m_isHovered)
+			return false;
 
-			// if (m_subPopup)
-			//{
-			//     m_manager->AddToKillList(m_subPopup);
-			//     m_subPopup = nullptr;
-			// }
-			//
-			// if (!same)
-			//    m_manager->AddToKillList(popup);
-		}
+		if (button != LINAGX_MOUSE_0)
+			return false;
+
+		if (act != LinaGX::InputAction::Released)
+			return false;
+
+		return m_ownerMenu->GetListener()->OnFileMenuItemClicked(m_ownerMenu, m_sid, m_ud);
 	}
 
 	void FileMenu::Construct()
@@ -239,8 +235,11 @@ namespace Lina
 		popup->GetWidgetProps().childMargins.top	= Theme::GetDef().baseIndentInner;
 		popup->GetWidgetProps().childMargins.bottom = Theme::GetDef().baseIndentInner;
 
-		m_manager->AddToForeground(popup);
 		popup->SetPos(pos);
+		popup->m_ownerMenu = this;
+		m_subPopups.push_back(popup);
+
+		m_manager->AddToForeground(popup);
 
 		for (const auto& subItem : subItemData)
 		{
@@ -268,6 +267,8 @@ namespace Lina
 			it->SetAlignedSizeX(1.0f);
 			it->SetAlignedPosX(0.0f);
 			it->Initialize();
+			it->m_ud  = subItem.userData;
+			it->m_sid = TO_SID(subItem.text);
 			m_manager->SetDisabledRecursively(it, subItem.isDisabled);
 			popup->AddChild(it);
 		}
@@ -298,8 +299,23 @@ namespace Lina
 		}
 
 		popup->SetSizeX(Math::Max(Theme::GetDef().baseItemHeight * 8, (maxTextSize + popup->GetWidgetProps().childMargins.left + popup->GetWidgetProps().childMargins.right) * 1.25f));
-
+		WidgetUtility::CorrectPopupPosition(popup);
 		return popup;
+	}
+
+	void FileMenu::ClearSubpopups()
+	{
+		for (Widget* w : m_subPopups)
+			m_manager->AddToKillList(w);
+		m_subPopups.clear();
+		m_subPopup = nullptr;
+	}
+
+	void FileMenu::KillSub(Widget* w)
+	{
+		m_subPopups.erase(linatl::find_if(m_subPopups.begin(), m_subPopups.end(), [w](Widget* sp) -> bool { return sp == w; }));
+		m_manager->AddToKillList(m_subPopup);
+		m_subPopup = nullptr;
 	}
 
 	void FileMenuPopup::Construct()
@@ -309,13 +325,22 @@ namespace Lina
 
 	bool FileMenuPopup::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
-		if (!m_isHovered)
+		if (!m_isHovered && act == LinaGX::InputAction::Pressed)
 		{
-			m_manager->AddToKillList(this);
+			m_ownerMenu->ClearSubpopups();
 			return true;
 		}
 
-		return false;
+		for (Widget* c : m_children)
+		{
+			if (c->OnMouse(button, act))
+			{
+				m_ownerMenu->ClearSubpopups();
+				return true;
+			}
+		}
+
+		return true;
 	}
 
 } // namespace Lina

@@ -64,13 +64,14 @@ if(MSVC)
   add_link_options($<$<CONFIG:DebugFAST>:/DEBUG>)
 else()
   add_compile_options($<$<CONFIG:DebugASAN>:-fsanitize=address>)
+  add_link_options(-fsanitize=address)
 endif()
 
-add_link_options($<$<CONFIG:DebugASAN>:/DEBUG>)
-add_link_options($<$<CONFIG:DebugProfile>:/DEBUG>)
-add_link_options($<$<CONFIG:DebugFAST>:/DEBUG>)
-add_link_options($<$<CONFIG:DebugASAN>:-fsanitize=address)
 
+# add_link_options($<$<CONFIG:DebugASAN>:/DEBUG>)
+# add_link_options($<$<CONFIG:DebugProfile>:/DEBUG>)
+# add_link_options($<$<CONFIG:DebugFAST>:/DEBUG>)
+# add_link_options($<$<CONFIG:DebugASAN>:-fsanitize=address)
 
 add_compile_definitions(LINA_VERSION_MAJOR=2)
 add_compile_definitions(LINA_VERSION_MINOR=0)

@@ -211,7 +211,7 @@ namespace Lina::Editor
 		m_inspector->AddChild(panelItems);
 		CommonWidgets::BuildClassReflection(panelItems, this, ReflectionSystem::Get().Resolve<PanelMaterialViewer>());
 
-		CommonWidgets::BuildSeperator(m_inspector);
+		m_inspector->AddChild(CommonWidgets::BuildSeperator(m_inspector));
 
 		Material* mat = static_cast<Material*>(m_resource);
 

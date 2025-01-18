@@ -316,8 +316,8 @@ namespace Lina::Editor
 		layout->GetWidgetProps().drawBackground			  = true;
 		layout->GetWidgetProps().colorBackgroundDirection = DirectionOrientation::Vertical;
 		layout->GetWidgetProps().colorBackground		  = Color(0.0f, 0.0f, 0.0f, 0.0f);
-		layout->GetWidgetProps().interpolateColor		  = true;
-		layout->GetWidgetProps().colorInterpolateSpeed	  = 20.0f;
+		// layout->GetWidgetProps().interpolateColor		  = true;
+		layout->GetWidgetProps().colorInterpolateSpeed = 20.0f;
 		layout->SetUserData(props.userData);
 		fold->AddChild(layout);
 
@@ -456,8 +456,8 @@ namespace Lina::Editor
 		layout->GetWidgetProps().drawBackground			  = true;
 		layout->GetWidgetProps().colorBackgroundDirection = DirectionOrientation::Vertical;
 		layout->GetWidgetProps().colorBackground		  = Color(0.0f, 0.0f, 0.0f, 0.0f);
-		layout->GetWidgetProps().interpolateColor		  = true;
-		layout->GetWidgetProps().colorInterpolateSpeed	  = 20.0f;
+		// layout->GetWidgetProps().interpolateColor		  = true;
+		layout->GetWidgetProps().colorInterpolateSpeed = 20.0f;
 		layout->SetUserData(props.userData);
 		fold->AddChild(layout);
 

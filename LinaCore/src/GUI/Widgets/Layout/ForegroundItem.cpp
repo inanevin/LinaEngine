@@ -26,53 +26,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#lina_variant
+#include "Core/GUI/Widgets/Layout/ForegroundItem.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
+#include <LinaGX/Core/InputMappings.hpp>
 
-#name : Default
-#blend: LINA_BLEND_NONE
-#depth: LINA_DEPTH_LESS
-#depth_target: LINA_TARGET_D32
-#target: LINA_TARGET_HDR
-#cull: LINA_CULL_NONE
-#face: LINA_FACE_CCW
-
-#lina_end
-
-#lina_vs
-
-#include "Resources/Core/Shaders/Common/GlobalData.linashader"
-#include "Resources/Core/Shaders/Common/RenderPass_Forward.linashader"
-
-layout (location = 0) in vec3 position;
-layout (location = 1) in vec4 color;
-
-layout (location = 0) out vec4 outColor;
-
-layout( push_constant ) uniform constants
+namespace Lina
 {
-	uint value0;
-} PushConstants;
+	bool ForegroundItem::OnMouse(uint32 button, LinaGX::InputAction action)
+	{
+		if (!m_isHovered && action == LinaGX::InputAction::Pressed)
+		{
+			m_manager->AddToKillList(this);
+			return true;
+		}
+		return false;
+	}
 
-void main()
-{
-    gl_Position = LINA_VIEW.viewProj * vec4(position, 1.0);
-    outColor = color;
-}
-
-#lina_end
-
-#lina_fs
-
-#include "Resources/Core/Shaders/Common/GlobalData.linashader"
-#include "Resources/Core/Shaders/Common/RenderPass_Forward.linashader"
-
-layout (location = 0) in vec4 inColor;
-
-layout (location = 0) out vec4 outFragColor;
-
-void main()
-{
-    outFragColor = inColor;
-}
-
-#lina_end
+} // namespace Lina

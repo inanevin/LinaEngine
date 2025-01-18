@@ -57,6 +57,8 @@ namespace Lina
 		static Button*			  BuildIconTextButton(Widget* src, const String& icon, const String& text);
 
 		static bool CheckIfCanShrinkWidgets(const Vector<Widget*>& widgets, float absAmount, bool isX, float minSize);
+
+		static void CorrectPopupPosition(Widget* w);
 	};
 
 } // namespace Lina

@@ -114,6 +114,12 @@ namespace Lina
 
 	bool Popup::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
+		if (!m_isHovered && act == LinaGX::InputAction::Pressed)
+		{
+			m_manager->AddToKillList(this);
+			return true;
+		}
+
 		if (button != LINAGX_MOUSE_0 || act != LinaGX::InputAction::Pressed)
 			return false;
 

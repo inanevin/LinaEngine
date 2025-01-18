@@ -312,6 +312,9 @@ namespace Lina
 				return;
 		}
 
+		if (button == LINAGX_MOUSE_0 && inputAction == LinaGX::InputAction::Pressed && m_controlOwner != nullptr && !m_controlOwner->GetIsHovered())
+			ReleaseControls(m_controlOwner);
+
 		Widget* co = GetControlsOwner();
 
 		if (co)
@@ -319,9 +322,6 @@ namespace Lina
 			if (PassMouse(co, button, inputAction))
 				return;
 		}
-
-		// if (button == LINAGX_MOUSE_0 && inputAction == LinaGX::InputAction::Pressed && m_controlOwner != nullptr && !m_controlOwner->GetIsHovered())
-		//	ReleaseControls(m_controlOwner);
 
 		PassMouse(m_rootWidget, button, inputAction);
 	}
@@ -530,7 +530,11 @@ namespace Lina
 		if (widget->GetFlags().IsSet(WF_HIDE))
 			return false;
 
-		if (!widget->GetFlags().IsSet(WF_DISABLED) && widget->OnMouse(button, inputAction) && !widget->GetFlags().IsSet(WF_MOUSE_PASSTHRU))
+		if (widget->GetFlags().IsSet(WF_DISABLED))
+			return false;
+
+		const bool mouseResult = widget->OnMouse(button, inputAction);
+		if (mouseResult && !widget->GetFlags().IsSet(WF_MOUSE_PASSTHRU))
 			return true;
 
 		for (auto* c : widget->GetChildren())
@@ -539,7 +543,7 @@ namespace Lina
 				return true;
 		}
 
-		return false;
+		return mouseResult;
 	}
 
 	bool WidgetManager::PassMouseWheel(Widget* widget, float amt)
@@ -623,6 +627,12 @@ namespace Lina
 	{
 		if (w->GetFlags().IsSet(WF_HIDE))
 			return;
+
+		if (w->GetFlags().IsSet(WF_SIZE_AFTER_CHILDREN))
+		{
+			for (auto* c : w->GetChildren())
+				PassCalculateSize(c, delta);
+		}
 
 		Vector<Widget*> expandingChildren;
 		Vector2			totalNonExpandingSize = Vector2::Zero;
@@ -795,8 +805,11 @@ namespace Lina
 		//	w->SetSizeY(Math::FloorToFloatEven(w->GetSizeY()));
 		// }
 
-		for (auto* c : w->GetChildren())
-			PassCalculateSize(c, delta);
+		if (!w->GetFlags().IsSet(WF_SIZE_AFTER_CHILDREN))
+		{
+			for (auto* c : w->GetChildren())
+				PassCalculateSize(c, delta);
+		}
 	}
 
 	void WidgetManager::PassTick(Widget* w, float delta)
@@ -953,6 +966,7 @@ namespace Lina
 		if (previous)
 		{
 			GrabControls(previous);
+			owner->OnLostControls(previous);
 			previous->OnGrabbedControls(false, owner);
 		}
 	}

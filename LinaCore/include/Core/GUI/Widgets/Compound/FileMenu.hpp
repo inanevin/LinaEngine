@@ -96,6 +96,8 @@ namespace Lina
 		Text*			   m_text		= nullptr;
 		Text*			   m_altText	= nullptr;
 		Icon*			   m_headerIcon = nullptr;
+		StringID		   m_sid		= 0;
+		void*			   m_ud			= nullptr;
 	};
 
 	class FileMenuListener
@@ -116,12 +118,13 @@ namespace Lina
 			Vector<String> buttons;
 		};
 
-		virtual void   Construct() override;
-		virtual void   Initialize() override;
-		virtual void   PreTick() override;
-		FileMenuPopup* CreatePopup(const Vector2& pos, const Vector<FileMenuItem::Data>& subItemData);
-		void		   CreateItems(StringID sid, const Vector2& position, void* userData = nullptr);
-
+		virtual void			   Construct() override;
+		virtual void			   Initialize() override;
+		virtual void			   PreTick() override;
+		FileMenuPopup*			   CreatePopup(const Vector2& pos, const Vector<FileMenuItem::Data>& subItemData);
+		void					   CreateItems(StringID sid, const Vector2& position, void* userData = nullptr);
+		void					   ClearSubpopups();
+		void					   KillSub(Widget* w);
 		inline FileMenuProperties& GetFileMenuProps()
 		{
 			return m_fileMenuProps;
@@ -143,6 +146,7 @@ namespace Lina
 		FileMenuListener*  m_listener	   = nullptr;
 		Vector<Button*>	   m_buttons	   = {};
 		DirectionalLayout* m_subPopup	   = nullptr;
+		Vector<Widget*>	   m_subPopups;
 	};
 
 	class FileMenuPopup : public DirectionalLayout
@@ -150,7 +154,7 @@ namespace Lina
 	public:
 		virtual void Construct() override;
 
-		virtual bool OnMouse(uint32 button, LinaGX::InputAction act);
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
 	private:
 		friend class FileMenu;

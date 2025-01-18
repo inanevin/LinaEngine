@@ -46,6 +46,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
+#include "Core/GUI/Widgets/Layout/ForegroundItem.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
@@ -304,38 +305,50 @@ namespace Lina::Editor
 
 	void WorldController::BuildSnappingOptions()
 	{
-		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
-		layout->GetFlags().Set(WF_SIZE_Y_TOTAL_CHILDREN);
-		layout->SetAlignedSizeY(1.0f);
-		layout->GetWidgetProps().childMargins	  = TBLR::Eq(Theme::GetDef().baseIndent);
-		layout->GetWidgetProps().childPadding	  = Theme::GetDef().baseIndent;
-		layout->GetWidgetProps().drawBackground	  = true;
-		layout->GetWidgetProps().colorBackground  = Theme::GetDef().background1;
-		layout->GetWidgetProps().outlineThickness = 0.0f;
-		layout->GetWidgetProps().rounding		  = 0.05f;
-		layout->GetProps().direction			  = DirectionOrientation::Vertical;
+		ForegroundItem* fgItem = m_manager->Allocate<ForegroundItem>("FgItem");
+		fgItem->GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_SIZE_Y_TOTAL_CHILDREN | WF_SIZE_AFTER_CHILDREN);
+		fgItem->SetAlignedSize(Vector2::One);
+		m_manager->AddToForeground(fgItem);
 
-		CommonWidgets::BuildClassReflection(layout, &m_overlayControls.snappingSettings, ReflectionSystem::Get().Meta<WorldSnapSettings>());
+		DirectionalLayout* popup = m_manager->Allocate<DirectionalLayout>("Layout");
+		popup->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_Y_TOTAL_CHILDREN);
+		popup->SetAlignedPos(Vector2::Zero);
+		popup->SetAlignedSizeY(1.0f);
+		popup->GetWidgetProps().childMargins	 = TBLR::Eq(Theme::GetDef().baseIndent);
+		popup->GetWidgetProps().childPadding	 = Theme::GetDef().baseIndent;
+		popup->GetWidgetProps().drawBackground	 = true;
+		popup->GetWidgetProps().colorBackground	 = Theme::GetDef().background1;
+		popup->GetWidgetProps().outlineThickness = 0.0f;
+		popup->GetWidgetProps().rounding		 = 0.05f;
+		popup->GetProps().direction				 = DirectionOrientation::Vertical;
 
-		layout->GetCallbacks().onEditStarted = [this]() {
+		CommonWidgets::BuildClassReflection(popup, &m_overlayControls.snappingSettings, ReflectionSystem::Get().Meta<WorldSnapSettings>());
+
+		popup->GetCallbacks().onEditStarted = [this]() {
 			LINA_TRACE("EDIT STARTED");
 			m_overlayControls.oldSnappingSettings = m_overlayControls.snappingSettings;
 		};
-		layout->GetCallbacks().onEditEnded = [this]() {
+		popup->GetCallbacks().onEditEnded = [this]() {
 			LINA_TRACE("EDIT ENDED ACTIONS ENT");
 			EditorActionWorldSnappingChanged::Create(m_editor, m_world, m_overlayControls.oldSnappingSettings, m_overlayControls.snappingSettings);
 		};
 
-		m_manager->AddToForeground(layout);
 		const float startY = m_overlayControls.topToolbar->GetPosY() + m_overlayControls.topToolbar->GetSizeY() + m_overlayControls.topToolbar->GetWidgetProps().outlineThickness + Theme::GetDef().baseIndentInner * 0.5f;
-		layout->SetPos(Vector2(m_overlayControls.topToolbar->GetPosX(), startY));
-		layout->SetSizeX(m_overlayControls.topToolbar->GetSizeX());
+		fgItem->SetPos(Vector2(m_overlayControls.topToolbar->GetPosX(), startY));
+		popup->SetSizeX(m_overlayControls.topToolbar->GetSizeX());
+		fgItem->AddChild(popup);
 	}
 
 	void WorldController::BuildCameraOptions()
 	{
+		ForegroundItem* fgItem = m_manager->Allocate<ForegroundItem>("FgItem");
+		fgItem->GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_SIZE_Y_TOTAL_CHILDREN | WF_SIZE_AFTER_CHILDREN);
+		fgItem->SetAlignedSize(Vector2::One);
+		m_manager->AddToForeground(fgItem);
+
 		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
-		layout->GetFlags().Set(WF_SIZE_Y_TOTAL_CHILDREN);
+		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_Y_TOTAL_CHILDREN);
+		layout->SetAlignedPos(Vector2::Zero);
 		layout->SetAlignedSizeY(1.0f);
 		layout->GetWidgetProps().childMargins	  = TBLR::Eq(Theme::GetDef().baseIndent);
 		layout->GetWidgetProps().childPadding	  = Theme::GetDef().baseIndent;
@@ -344,6 +357,7 @@ namespace Lina::Editor
 		layout->GetWidgetProps().outlineThickness = 0.0f;
 		layout->GetWidgetProps().rounding		  = 0.05f;
 		layout->GetProps().direction			  = DirectionOrientation::Vertical;
+		fgItem->AddChild(layout);
 
 		m_overlayControls.cameraSettings.movementBoost = m_camera->GetMovementBoost();
 		m_overlayControls.cameraSettings.angularBoost  = m_camera->GetAngularBoost();
@@ -353,16 +367,21 @@ namespace Lina::Editor
 		layout->GetCallbacks().onEditStarted = [this]() { m_overlayControls.oldCameraOptions = m_overlayControls.cameraSettings; };
 		layout->GetCallbacks().onEditEnded	 = [this]() { EditorActionWorldCameraSettingsChanged::Create(m_editor, m_world, m_overlayControls.oldCameraOptions, m_overlayControls.cameraSettings); };
 
-		m_manager->AddToForeground(layout);
 		const float startY = m_overlayControls.topToolbar->GetPosY() + m_overlayControls.topToolbar->GetSizeY() + m_overlayControls.topToolbar->GetWidgetProps().outlineThickness + Theme::GetDef().baseIndentInner * 0.5f;
-		layout->SetPos(Vector2(m_overlayControls.topToolbar->GetPosX(), startY));
+		fgItem->SetPos(Vector2(m_overlayControls.topToolbar->GetPosX(), startY));
 		layout->SetSizeX(m_overlayControls.topToolbar->GetSizeX());
 	}
 
 	void WorldController::BuildWorldOptions()
 	{
+		ForegroundItem* fgItem = m_manager->Allocate<ForegroundItem>("FgItem");
+		fgItem->GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_SIZE_Y_TOTAL_CHILDREN | WF_SIZE_AFTER_CHILDREN);
+		fgItem->SetAlignedSize(Vector2::One);
+		m_manager->AddToForeground(fgItem);
+
 		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
-		layout->GetFlags().Set(WF_SIZE_Y_TOTAL_CHILDREN);
+		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_Y_TOTAL_CHILDREN);
+		layout->SetAlignedPos(Vector2::Zero);
 		layout->SetAlignedSizeY(1.0f);
 		layout->GetWidgetProps().childMargins	  = TBLR::Eq(Theme::GetDef().baseIndent);
 		layout->GetWidgetProps().childPadding	  = Theme::GetDef().baseIndent;
@@ -371,6 +390,7 @@ namespace Lina::Editor
 		layout->GetWidgetProps().outlineThickness = 0.0f;
 		layout->GetWidgetProps().rounding		  = 0.05f;
 		layout->GetProps().direction			  = DirectionOrientation::Vertical;
+		fgItem->AddChild(layout);
 
 		// Gfx
 		{
@@ -416,9 +436,8 @@ namespace Lina::Editor
 			CommonWidgets::BuildClassReflection(phyLayout, &phySettings, ReflectionSystem::Get().Meta<WorldPhysicsSettings>());
 		}
 
-		m_manager->AddToForeground(layout);
 		const float startY = m_overlayControls.topToolbar->GetPosY() + m_overlayControls.topToolbar->GetSizeY() + m_overlayControls.topToolbar->GetWidgetProps().outlineThickness + Theme::GetDef().baseIndentInner * 0.5f;
-		layout->SetPos(Vector2(m_overlayControls.topToolbar->GetPosX(), startY));
+		fgItem->SetPos(Vector2(m_overlayControls.topToolbar->GetPosX(), startY));
 		layout->SetSizeX(m_overlayControls.topToolbar->GetSizeX());
 	}
 

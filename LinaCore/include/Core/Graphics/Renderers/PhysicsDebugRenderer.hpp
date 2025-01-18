@@ -129,6 +129,6 @@ namespace Lina
 		void Shutdown(){};
 		void SyncRender(){};
 		void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue){};
-    };
+	};
 } // namespace Lina
 #endif

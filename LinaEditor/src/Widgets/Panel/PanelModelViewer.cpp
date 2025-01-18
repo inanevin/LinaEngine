@@ -158,7 +158,7 @@ namespace Lina::Editor
 		m_inspector->AddChild(panelItems);
 		CommonWidgets::BuildClassReflection(panelItems, this, ReflectionSystem::Get().Resolve<PanelModelViewer>());
 
-		CommonWidgets::BuildSeperator(m_inspector);
+		m_inspector->AddChild(CommonWidgets::BuildSeperator(m_inspector));
 
 		Widget* animLayout = CommonWidgets::BuildFieldLayout(this, 0, Locale::GetStr(LocaleStr::PreviewAnimation), false);
 		Widget* rightSide  = animLayout->GetChildren().back();

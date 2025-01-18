@@ -107,6 +107,7 @@ namespace Lina
 		{
 			return m_scroll;
 		}
+
 		inline Properties& GetProps()
 		{
 			return m_props;

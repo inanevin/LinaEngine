@@ -203,4 +203,18 @@ namespace Lina
 		btn->Initialize();
 		return btn;
 	}
+
+	void WidgetUtility::CorrectPopupPosition(Widget* w)
+	{
+		const float xEnd  = w->GetPosX() + w->GetSizeX();
+		const float wxEnd = static_cast<float>(w->GetWindow()->GetSize().x) * w->GetWindow()->GetDPIScale();
+		if (xEnd > wxEnd)
+			w->SetPosX(w->GetPosX() - (xEnd - wxEnd));
+
+		const float yEnd  = w->GetPosY() + w->GetSizeY();
+		const float wyEnd = static_cast<float>(w->GetWindow()->GetSize().y) * w->GetWindow()->GetDPIScale();
+
+		if (yEnd > wyEnd)
+			w->SetPosY(w->GetPosY() - (yEnd - wyEnd));
+	}
 } // namespace Lina

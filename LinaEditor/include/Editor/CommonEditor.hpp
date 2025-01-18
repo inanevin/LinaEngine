@@ -114,8 +114,8 @@ namespace Lina::Editor
 #define EDITOR_MODEL_GIZMO_TRANSLATE_PATH		 "Resources/Editor/Models/GizmoTranslate.glb"
 #define EDITOR_MODEL_GIZMO_ROTATE_PATH			 "Resources/Editor/Models/GizmoRotate.glb"
 #define EDITOR_MODEL_GIZMO_SCALE_PATH			 "Resources/Editor/Models/GizmoScale.glb"
-#define EDITOR_MODEL_GIZMO_TRANSLATE_CENTER_PATH "Resources/Engine/Models/Sphere.glb"
-#define EDITOR_MODEL_GIZMO_SCALE_CENTER_PATH	 "Resources/Engine/Models/Cube.glb"
+#define EDITOR_MODEL_GIZMO_TRANSLATE_CENTER_PATH "Resources/Core/Models/Sphere.glb"
+#define EDITOR_MODEL_GIZMO_SCALE_CENTER_PATH	 "Resources/Core/Models/Cube.glb"
 #define EDITOR_MODEL_GIZMO_ROTATE_FULL_PATH		 "Resources/Editor/Models/GizmoRotateFull.glb"
 #define EDITOR_MODEL_GIZMO_ORIENTATION_PATH		 "Resources/Editor/Models/GizmoOrientation.glb"
 

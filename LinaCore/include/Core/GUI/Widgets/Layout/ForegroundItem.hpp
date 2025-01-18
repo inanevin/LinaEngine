@@ -26,53 +26,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#lina_variant
+#pragma once
 
-#name : Default
-#blend: LINA_BLEND_NONE
-#depth: LINA_DEPTH_LESS
-#depth_target: LINA_TARGET_D32
-#target: LINA_TARGET_HDR
-#cull: LINA_CULL_NONE
-#face: LINA_FACE_CCW
+#include "Core/GUI/Widgets/Widget.hpp"
+#include "Common/Tween/Tween.hpp"
 
-#lina_end
-
-#lina_vs
-
-#include "Resources/Core/Shaders/Common/GlobalData.linashader"
-#include "Resources/Core/Shaders/Common/RenderPass_Forward.linashader"
-
-layout (location = 0) in vec3 position;
-layout (location = 1) in vec4 color;
-
-layout (location = 0) out vec4 outColor;
-
-layout( push_constant ) uniform constants
+namespace Lina
 {
-	uint value0;
-} PushConstants;
 
-void main()
-{
-    gl_Position = LINA_VIEW.viewProj * vec4(position, 1.0);
-    outColor = color;
-}
+	class ForegroundItem : public Widget
+	{
+	public:
+		ForegroundItem()		  = default;
+		virtual ~ForegroundItem() = default;
 
-#lina_end
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
 
-#lina_fs
+	private:
+	};
 
-#include "Resources/Core/Shaders/Common/GlobalData.linashader"
-#include "Resources/Core/Shaders/Common/RenderPass_Forward.linashader"
+	LINA_WIDGET_BEGIN(ForegroundItem, Hidden)
+	LINA_CLASS_END(ForegroundItem)
 
-layout (location = 0) in vec4 inColor;
-
-layout (location = 0) out vec4 outFragColor;
-
-void main()
-{
-    outFragColor = inColor;
-}
-
-#lina_end
+} // namespace Lina

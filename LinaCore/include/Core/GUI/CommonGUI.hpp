@@ -87,6 +87,7 @@ namespace Lina
 		WF_TOOLTIP				 = 1 << 21,
 		WF_DISABLED				 = 1 << 22,
 		WF_TREEITEM				 = 1 << 23,
+		WF_SIZE_AFTER_CHILDREN	 = 1 << 24,
 	};
 
 	LINA_CLASS_BEGIN(WidgetFlags)
