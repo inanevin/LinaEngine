@@ -178,7 +178,7 @@ namespace Lina
 		}
 		else if (phySettings.shapeType == PhysicsShapeType::Plane)
 		{
-			JPH::PlaneShapeSettings plane(JPH::Plane(ToJoltVec3(Vector3::Up), 1.0f));
+			JPH::PlaneShapeSettings plane(JPH::Plane(ToJoltVec3(e->GetRotation().GetUp()), 1.0f));
 			shapeRef = plane.Create().Get();
 		}
 		else if (phySettings.shapeType == PhysicsShapeType::Sphere)
@@ -187,11 +187,11 @@ namespace Lina
 			shapeRef = sphere.Create().Get();
 		}
 
-		PhysicsMaterial* mat	 = m_world->GetResourceManager()->GetResource<PhysicsMaterial>(phySettings.material);
-		settings.mRestitution	 = mat->GetRestitution();
-		settings.mFriction		 = mat->GetFriction();
-		settings.mAngularDamping = mat->GetAngularDamping();
-		settings.mLinearDamping	 = mat->GetLinearDamping();
+		PhysicsMaterial* mat = m_world->GetResourceManager()->GetResource<PhysicsMaterial>(phySettings.material);
+		// settings.mRestitution	 = mat->GetRestitution();
+		// settings.mFriction		 = mat->GetFriction();
+		// settings.mAngularDamping = mat->GetAngularDamping();
+		// settings.mLinearDamping	 = mat->GetLinearDamping();
 
 		settings.SetShape(shapeRef);
 		settings.mGravityFactor				   = phySettings.gravityMultiplier;
@@ -205,7 +205,7 @@ namespace Lina
 		JPH::Body* body	 = bodyInterface.CreateBody(settings);
 		e->m_physicsBody = body;
 
-		LINA_TRACE("Creted physics body for entity {0}", e->GetName());
+		LINA_TRACE("Created physics body for entity {0}", e->GetName());
 	}
 
 	void PhysicsWorld::DestroyBodyForEntity(Entity* e)

@@ -615,8 +615,6 @@ namespace Lina
 			JPH::BodyManager::DrawSettings ds = {};
 			ds.mDrawShape					  = true;
 			ds.mDrawVelocity				  = true;
-			// ds.mDrawBoundingBox = true;
-			// ds.mDrawShapeWireframe = true;
 			m_physicsDebugRenderer->BeginDraws();
 			m_world->GetPhysicsWorld()->GetPhysicsSystem().DrawBodies(ds, m_physicsDebugRenderer);
 			m_physicsDebugRenderer->SubmitDraws();
