@@ -26,44 +26,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#include "Editor/Widgets/Panel/Panel.hpp"
-#include "Editor/CommonSettings.hpp"
-
-namespace Lina
-{
-	class DirectionalLayout;
-} // namespace Lina
+#include "Editor/Actions/EditorActionSettings.hpp"
+#include "Editor/Widgets/Panel/PanelProjectSettings.hpp"
+#include "Editor/Editor.hpp"
 
 namespace Lina::Editor
 {
-	class Editor;
 
-	class PanelProjectSettings : public Panel
+	EditorActionSettingsPackaging* EditorActionSettingsPackaging::Create(Editor* editor, const PackagingSettings& prevOptions, const PackagingSettings& currentOptions)
 	{
-	public:
-	public:
-		PanelProjectSettings() : Panel(PanelType::ProjectSettings){};
-		virtual ~PanelProjectSettings() = default;
+		EditorActionSettingsPackaging* action = new EditorActionSettingsPackaging();
+		action->m_prevSettings				  = prevOptions;
+		action->m_currentSettings			  = currentOptions;
+		editor->GetEditorActionManager().AddToStack(action);
+		return action;
+	}
 
-		virtual void Construct() override;
+	void EditorActionSettingsPackaging::Execute(Editor* editor, ExecType type)
+	{
+		Panel* panel = editor->GetWindowPanelManager().FindPanelOfType(PanelType::ProjectSettings, 0);
+		if (!panel)
+			return;
 
-		void SetSettingsPackaging(const PackagingSettings& settings);
-
-	private:
-	private:
-		LINA_REFLECTION_ACCESS(PanelProjectSettings);
-
-		Editor*			   m_editor = nullptr;
-		DirectionalLayout* m_layout = nullptr;
-		PackagingSettings  m_settingsPackaging;
-		PackagingSettings  m_oldSettingsPackaging;
-		bool			   m_foldPackaging = true;
-	};
-
-	LINA_WIDGET_BEGIN(PanelProjectSettings, Hidden)
-
-	LINA_CLASS_END(PanelProjectSettings)
-
+		if (type == ExecType::Undo)
+		{
+			static_cast<PanelProjectSettings*>(panel)->SetSettingsPackaging(m_prevSettings);
+		}
+		else if (type == ExecType::Redo)
+		{
+			static_cast<PanelProjectSettings*>(panel)->SetSettingsPackaging(m_currentSettings);
+		}
+	}
 } // namespace Lina::Editor

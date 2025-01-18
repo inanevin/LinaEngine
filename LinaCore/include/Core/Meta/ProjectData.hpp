@@ -97,9 +97,10 @@ namespace Lina
 		String									 m_projectName		 = "";
 		ResourceID								 m_resourceIDCounter = 1;
 		GUID									 m_globalGUIDCounter = 1;
-		ResourceDirectory						 m_rootDirectory	 = {
-									   .name	 = "Resources",
-									   .isFolder = true,
+		Vector<ResourceID>						 m_worldsToPackage;
+		ResourceDirectory						 m_rootDirectory = {
+								   .name	 = "Resources",
+								   .isFolder = true,
 		   };
 	};
 

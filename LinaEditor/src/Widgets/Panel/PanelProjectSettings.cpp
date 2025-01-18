@@ -27,11 +27,47 @@ SOFTWARE.
 */
 
 #include "Editor/Widgets/Panel/PanelProjectSettings.hpp"
+#include "Editor/Widgets/CommonWidgets.hpp"
+#include "Editor/EditorLocale.hpp"
+#include "Editor/Editor.hpp"
+#include "Editor/Actions/EditorActionSettings.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
+#include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
+#include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
+#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 
 namespace Lina::Editor
 {
 	void PanelProjectSettings::Construct()
+	{
+		m_editor = Editor::Get();
+
+		ScrollArea* scroll = m_manager->Allocate<ScrollArea>("Scroll");
+		scroll->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		scroll->SetAlignedPos(Vector2::Zero);
+		scroll->SetAlignedSize(Vector2::One);
+		scroll->GetProps().direction = DirectionOrientation::Vertical;
+		AddChild(scroll);
+
+		m_layout = m_manager->Allocate<DirectionalLayout>("Inspector");
+		m_layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		m_layout->SetAlignedPos(Vector2::Zero);
+		m_layout->SetAlignedSize(Vector2::One);
+		m_layout->GetProps().direction				 = DirectionOrientation::Vertical;
+		m_layout->GetWidgetProps().childPadding		 = Theme::GetDef().baseIndentInner;
+		m_layout->GetWidgetProps().clipChildren		 = true;
+		m_layout->GetWidgetProps().childMargins.left = Theme::GetDef().baseBorderThickness;
+		m_layout->GetWidgetProps().childMargins.top	 = Theme::GetDef().baseIndent;
+		scroll->AddChild(m_layout);
+
+		FoldLayout* foldPackaging = CommonWidgets::BuildFoldTitle(this, Locale::GetStr(LocaleStr::Packaging), &m_foldPackaging);
+		CommonWidgets::BuildClassReflection(foldPackaging, &m_settingsPackaging, ReflectionSystem::Get().Meta<PackagingSettings>());
+
+		foldPackaging->GetCallbacks().onEditStarted = [this]() { m_oldSettingsPackaging = m_settingsPackaging; };
+		foldPackaging->GetCallbacks().onEditEnded	= [this]() { EditorActionSettingsPackaging::Create(m_editor, m_oldSettingsPackaging, m_settingsPackaging); };
+	}
+
+	void PanelProjectSettings::SetSettingsPackaging(const PackagingSettings& settings)
 	{
 	}
 } // namespace Lina::Editor

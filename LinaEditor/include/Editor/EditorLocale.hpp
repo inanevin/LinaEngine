@@ -222,6 +222,9 @@ namespace Lina::Editor
 		LoadGamePlugin,
 		LoadGamePluginSuccess,
 		LoadGamePluginFail,
+		Packaging,
+		BuildPackage,
+		ProjectSettings,
 	};
 
 	class Locale

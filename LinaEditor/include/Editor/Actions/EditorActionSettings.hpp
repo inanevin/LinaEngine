@@ -28,42 +28,31 @@ SOFTWARE.
 
 #pragma once
 
-#include "Editor/Widgets/Panel/Panel.hpp"
+#include "EditorAction.hpp"
 #include "Editor/CommonSettings.hpp"
 
 namespace Lina
 {
-	class DirectionalLayout;
-} // namespace Lina
+	class Entity;
+	class EntityWorld;
+}; // namespace Lina
 
 namespace Lina::Editor
 {
 	class Editor;
 
-	class PanelProjectSettings : public Panel
+	class EditorActionSettingsPackaging : public EditorAction
 	{
 	public:
-	public:
-		PanelProjectSettings() : Panel(PanelType::ProjectSettings){};
-		virtual ~PanelProjectSettings() = default;
+		EditorActionSettingsPackaging()			 = default;
+		virtual ~EditorActionSettingsPackaging() = default;
 
-		virtual void Construct() override;
-
-		void SetSettingsPackaging(const PackagingSettings& settings);
+		static EditorActionSettingsPackaging* Create(Editor* editor, const PackagingSettings& prevSettings, const PackagingSettings& currentSettings);
+		virtual void						  Execute(Editor* editor, ExecType type) override;
 
 	private:
-	private:
-		LINA_REFLECTION_ACCESS(PanelProjectSettings);
-
-		Editor*			   m_editor = nullptr;
-		DirectionalLayout* m_layout = nullptr;
-		PackagingSettings  m_settingsPackaging;
-		PackagingSettings  m_oldSettingsPackaging;
-		bool			   m_foldPackaging = true;
+		PackagingSettings m_prevSettings	= {};
+		PackagingSettings m_currentSettings = {};
 	};
-
-	LINA_WIDGET_BEGIN(PanelProjectSettings, Hidden)
-
-	LINA_CLASS_END(PanelProjectSettings)
 
 } // namespace Lina::Editor

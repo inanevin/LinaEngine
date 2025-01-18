@@ -23,6 +23,7 @@ set(HEADERS
 
 # Core
 include/Editor/CommonEditor.hpp
+Include/Editor/CommonSettings.hpp
 include/Editor/PayloadListener.hpp
 include/Editor/EditorLocale.hpp
 include/Editor/Editor.hpp
@@ -33,6 +34,7 @@ include/Editor/Actions/EditorActionResources.hpp
 include/Editor/Actions/EditorActionEntity.hpp
 include/Editor/Actions/EditorActionComponent.hpp
 include/Editor/Actions/EditorActionWorld.hpp
+include/Editor/Actions/EditorActionSettings.hpp
 include/Editor/WindowPanelManager.hpp
 include/Editor/World/CommonEditorWorld.hpp
 include/Editor/World/EditorWorldManager.hpp
@@ -131,6 +133,7 @@ src/Actions/EditorActionResources.cpp
 src/Actions/EditorActionEntity.cpp
 src/Actions/EditorActionComponent.cpp
 src/Actions/EditorActionWorld.cpp
+src/Actions/EditorActionSettings.cpp
 src/EditorLocale.cpp
 src/Editor.cpp
 src/EditorTaskManager.cpp

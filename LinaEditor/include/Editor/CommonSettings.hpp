@@ -28,42 +28,20 @@ SOFTWARE.
 
 #pragma once
 
-#include "Editor/Widgets/Panel/Panel.hpp"
-#include "Editor/CommonSettings.hpp"
-
-namespace Lina
-{
-	class DirectionalLayout;
-} // namespace Lina
+#include "Common/Reflection/ClassReflection.hpp"
+#include "Core/World/EntityWorld.hpp"
 
 namespace Lina::Editor
 {
-	class Editor;
-
-	class PanelProjectSettings : public Panel
+	struct PackagingSettings
 	{
-	public:
-	public:
-		PanelProjectSettings() : Panel(PanelType::ProjectSettings){};
-		virtual ~PanelProjectSettings() = default;
-
-		virtual void Construct() override;
-
-		void SetSettingsPackaging(const PackagingSettings& settings);
-
-	private:
-	private:
-		LINA_REFLECTION_ACCESS(PanelProjectSettings);
-
-		Editor*			   m_editor = nullptr;
-		DirectionalLayout* m_layout = nullptr;
-		PackagingSettings  m_settingsPackaging;
-		PackagingSettings  m_oldSettingsPackaging;
-		bool			   m_foldPackaging = true;
+		Vector<ResourceID> worldIDsToPack;
+		String			   executableName = "Lina";
 	};
 
-	LINA_WIDGET_BEGIN(PanelProjectSettings, Hidden)
-
-	LINA_CLASS_END(PanelProjectSettings)
+	LINA_CLASS_BEGIN(PackagingSettings)
+	LINA_FIELD_VEC(PackagingSettings, worldIDsToPack, "Worlds", FieldType::ResourceID, ResourceID, GetTypeID<EntityWorld>());
+	LINA_FIELD(PackagingSettings, executableName, "Executable Name", FieldType::String, 0)
+	LINA_CLASS_END(PackagingSettings)
 
 } // namespace Lina::Editor
