@@ -44,7 +44,7 @@ namespace Lina::Editor
 	void EditorWorldUtility::SetupDefaultSkyMaterial(Material* mat, ResourceManagerV2* rm)
 	{
 		if (rm)
-			mat->SetShader(rm->GetResource<Shader>(EDITOR_SHADER_DEFAULT_SKY_ID));
+			mat->SetShader(rm->GetResource<Shader>(ENGINE_SHADER_DEFAULT_SKY_ID));
 		mat->SetProperty("skyColor"_hs, Vector3(0.38f, 0.521f, 0.807f));
 		mat->SetProperty("horizonColor"_hs, Vector3(0.386f, 0.521f, 0.807f));
 		mat->SetProperty("groundColor"_hs, Vector3(0.011f, 0.021f, 0.05f));

@@ -92,7 +92,6 @@ namespace Lina::Editor
 
 		const HashSet<ResourceID> initialResources = {
 			EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID,
-			EDITOR_SHADER_DEFAULT_SKY_ID,
 			m_resource->GetID(),
 		};
 

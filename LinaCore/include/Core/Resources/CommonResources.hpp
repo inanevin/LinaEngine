@@ -51,7 +51,14 @@ namespace Lina
 #define RESOURCE_ID_ENGINE_MODELS	RESOURCE_ID_ENGINE_SPACE + 100
 #define RESOURCE_ID_ENGINE_TEXTURES RESOURCE_ID_ENGINE_SPACE + 200
 #define RESOURCE_ID_ENGINE_SAMPLERS RESOURCE_ID_ENGINE_SPACE + 300
+#define RESOURCE_ID_ENGINE_SHADERS	RESOURCE_ID_ENGINE_SPACE + 320
+#define RESOURCE_ID_ENGINE_FONTS	RESOURCE_ID_ENGINE_SPACE + 400
 
+// Fonts
+#define ENGINE_FONT_ROBOTO_PATH "Resources/Engine/Fonts/Roboto-Regular.ttf"
+#define ENGINE_FONT_ROBOTO_ID	RESOURCE_ID_ENGINE_FONTS
+
+// Models
 #define ENGINE_MODEL_CUBE_ID	  RESOURCE_ID_ENGINE_MODELS
 #define ENGINE_MODEL_CYLINDER_ID  RESOURCE_ID_ENGINE_MODELS + 1
 #define ENGINE_MODEL_SPHERE_ID	  RESOURCE_ID_ENGINE_MODELS + 2
@@ -70,6 +77,7 @@ namespace Lina
 #define ENGINE_MODEL_CAPSULE_PATH	"Resources/Engine/Models/Capsule.glb"
 #define ENGINE_MODEL_QUAD_PATH		"Resources/Engine/Models/Quad.glb"
 
+// Textures
 #define ENGINE_TEXTURE_EMPTY_ALBEDO_PATH			 "Resources/Engine/Textures/EmptyAlbedo.png"
 #define ENGINE_TEXTURE_EMPTY_NORMAL_PATH			 "Resources/Engine/Textures/EmptyNormal.png"
 #define ENGINE_TEXTURE_EMPTY_METALLIC_ROUGHNESS_PATH "Resources/Engine/Textures/EmptyMetallicRoughness.png"
@@ -85,6 +93,19 @@ namespace Lina
 // Samplers
 #define ENGINE_SAMPLER_DEFAULT_PATH "DefaultSampler"
 #define ENGINE_SAMPLER_DEFAULT_ID	RESOURCE_ID_ENGINE_SAMPLERS
+
+// Shaders
+#define ENGINE_SHADER_DEFAULT_OPAQUE_SURFACE_PATH	   "Resources/Engine/Shaders/World/DefaultOpaqueSurface.linashader"
+#define ENGINE_SHADER_DEFAULT_TRANSPARENT_SURFACE_PATH "Resources/Engine/Shaders/World/DefaultTransparentSurface.linashader"
+#define ENGINE_SHADER_DEFAULT_SKY_PATH				   "Resources/Engine/Shaders/World/DefaultSky.linashader"
+#define ENGINE_SHADER_DEFAULT_POSTPROCESS_PATH		   "Resources/Engine/Shaders/World/DefaultPostProcess.linashader"
+#define ENGINE_SHADER_WORLD_DEBUG_PHYSICS_PATH		   "Resources/Engine/Shaders/World/PhysicsDebug.linashader"
+
+#define ENGINE_SHADER_DEFAULT_OPAQUE_SURFACE_ID		 RESOURCE_ID_ENGINE_SHADERS + 0
+#define ENGINE_SHADER_DEFAULT_TRANSPARENT_SURFACE_ID RESOURCE_ID_ENGINE_SHADERS + 1
+#define ENGINE_SHADER_DEFAULT_SKY_ID				 RESOURCE_ID_ENGINE_SHADERS + 2
+#define ENGINE_SHADER_DEFAULT_POSTPROCESS_ID		 RESOURCE_ID_ENGINE_SHADERS + 3
+#define ENGINE_SHADER_WORLD_DEBUG_PHYSICS_ID		 RESOURCE_ID_ENGINE_SHADERS + 4
 
 	enum class PackageType
 	{

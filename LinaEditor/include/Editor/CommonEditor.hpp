@@ -58,56 +58,44 @@ namespace Lina::Editor
 #define EDITOR_FONT_PLAY_VERY_BIG_ID RESOURCE_ID_EDITOR_FONTS + 6
 
 // Shaders
-#define EDITOR_SHADER_GUI_DEFAULT_PATH				   "Resources/Editor/Shaders/GUI/GUIDefault.linashader"
-#define EDITOR_SHADER_GUI_COLOR_WHEEL_PATH			   "Resources/Editor/Shaders/GUI/ColorWheel.linashader"
-#define EDITOR_SHADER_GUI_HUE_DISPLAY_PATH			   "Resources/Editor/Shaders/GUI/HueDisplay.linashader"
-#define EDITOR_SHADER_GUI_SDF_TEXT_PATH				   "Resources/Editor/Shaders/GUI/SDFText.linashader"
-#define EDITOR_SHADER_GUI_TEXT_PATH					   "Resources/Editor/Shaders/GUI/Text.linashader"
-#define EDITOR_SHADER_GUI_GLITCH_PATH				   "Resources/Editor/Shaders/GUI/GUIGlitch.linashader"
-#define EDITOR_SHADER_LINES_PATH					   "Resources/Editor/Shaders/Lines.linashader"
-#define EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_PATH	   "Resources/Editor/Shaders/DefaultOpaqueSurface.linashader"
-#define EDITOR_SHADER_DEFAULT_TRANSPARENT_SURFACE_PATH "Resources/Editor/Shaders/DefaultTransparentSurface.linashader"
-#define EDITOR_SHADER_DEFAULT_SKY_PATH				   "Resources/Editor/Shaders/DefaultSky.linashader"
-#define EDITOR_SHADER_GUI_DISPLAYTARGET_PATH		   "Resources/Editor/Shaders/GUI/DisplayTarget.linashader"
-#define EDITOR_SHADER_DEFAULT_POSTPROCESS_PATH		   "Resources/Editor/Shaders/DefaultPostProcess.linashader"
-#define EDITOR_SHADER_WORLD_GRID_PATH				   "Resources/Editor/Shaders/World/Grid.linashader"
-#define EDITOR_SHADER_WORLD_GIZMO_PATH				   "Resources/Editor/Shaders/World/Gizmo.linashader"
-#define EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_PATH	   "Resources/Editor/Shaders/World/OutlineFullscreen.linashader"
-#define EDITOR_SHADER_WORLD_LINE3D_PATH				   "Resources/Editor/Shaders/World/Line3D.linashader"
-#define EDITOR_SHADER_WORLD_LVG3D_PATH				   "Resources/Editor/Shaders/World/LinaVG3D.linashader"
-#define EDITOR_SHADER_WORLD_SAMPLE_PATH				   "Resources/Editor/Shaders/World/WorldSample.linashader"
-#define EDITOR_SHADER_WORLD_DEPTH_SAMPLE_PATH		   "Resources/Editor/Shaders/World/WorldSampleDepth.linashader"
-#define EDITOR_SHADER_WORLD_GIZMO_ROTATE_PATH		   "Resources/Editor/Shaders/World/GizmoRotate.linashader"
-#define EDITOR_SHADER_WORLD_ORIENT_GIZMO_PATH		   "Resources/Editor/Shaders/World/OrientationGizmo.linashader"
-#define EDITOR_SHADER_GUI_SWAPCHAIN_PATH			   "Resources/Editor/Shaders/GUI/Swapchain.linashader"
-#define EDITOR_SHADER_WORLD_BILLBOARD_SDF_PATH		   "Resources/Editor/Shaders/World/BillboardSDF.linashader"
-#define EDITOR_SHADER_WORLD_DEBUG_PHYSICS_PATH		   "Resources/Editor/Shaders/World/PhysicsDebug.linashader"
+#define EDITOR_SHADER_GUI_DEFAULT_PATH				"Resources/Editor/Shaders/GUI/GUIDefault.linashader"
+#define EDITOR_SHADER_GUI_COLOR_WHEEL_PATH			"Resources/Editor/Shaders/GUI/ColorWheel.linashader"
+#define EDITOR_SHADER_GUI_HUE_DISPLAY_PATH			"Resources/Editor/Shaders/GUI/HueDisplay.linashader"
+#define EDITOR_SHADER_GUI_SDF_TEXT_PATH				"Resources/Editor/Shaders/GUI/SDFText.linashader"
+#define EDITOR_SHADER_GUI_TEXT_PATH					"Resources/Editor/Shaders/GUI/Text.linashader"
+#define EDITOR_SHADER_GUI_GLITCH_PATH				"Resources/Editor/Shaders/GUI/GUIGlitch.linashader"
+#define EDITOR_SHADER_GUI_DISPLAYTARGET_PATH		"Resources/Editor/Shaders/GUI/DisplayTarget.linashader"
+#define EDITOR_SHADER_WORLD_GRID_PATH				"Resources/Editor/Shaders/World/Grid.linashader"
+#define EDITOR_SHADER_WORLD_GIZMO_PATH				"Resources/Editor/Shaders/World/Gizmo.linashader"
+#define EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_PATH "Resources/Editor/Shaders/World/OutlineFullscreen.linashader"
+#define EDITOR_SHADER_WORLD_LINE3D_PATH				"Resources/Editor/Shaders/World/Line3D.linashader"
+#define EDITOR_SHADER_WORLD_LVG3D_PATH				"Resources/Editor/Shaders/World/LinaVG3D.linashader"
+#define EDITOR_SHADER_WORLD_SAMPLE_PATH				"Resources/Editor/Shaders/World/WorldSample.linashader"
+#define EDITOR_SHADER_WORLD_DEPTH_SAMPLE_PATH		"Resources/Editor/Shaders/World/WorldSampleDepth.linashader"
+#define EDITOR_SHADER_WORLD_GIZMO_ROTATE_PATH		"Resources/Editor/Shaders/World/GizmoRotate.linashader"
+#define EDITOR_SHADER_WORLD_ORIENT_GIZMO_PATH		"Resources/Editor/Shaders/World/OrientationGizmo.linashader"
+#define EDITOR_SHADER_GUI_SWAPCHAIN_PATH			"Resources/Editor/Shaders/GUI/Swapchain.linashader"
+#define EDITOR_SHADER_WORLD_BILLBOARD_SDF_PATH		"Resources/Editor/Shaders/World/BillboardSDF.linashader"
 
-#define EDITOR_SHADER_GUI_DEFAULT_ID				 RESOURCE_ID_EDITOR_SHADERS
-#define EDITOR_SHADER_GUI_COLOR_WHEEL_ID			 RESOURCE_ID_EDITOR_SHADERS + 1
-#define EDITOR_SHADER_GUI_HUE_DISPLAY_ID			 RESOURCE_ID_EDITOR_SHADERS + 2
-#define EDITOR_SHADER_GUI_SDF_TEXT_ID				 RESOURCE_ID_EDITOR_SHADERS + 3
-#define EDITOR_SHADER_GUI_TEXT_ID					 RESOURCE_ID_EDITOR_SHADERS + 4
-#define EDITOR_SHADER_LINES_ID						 RESOURCE_ID_EDITOR_SHADERS + 5
-#define EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_ID		 RESOURCE_ID_EDITOR_SHADERS + 6
-#define EDITOR_SHADER_DEFAULT_TRANSPARENT_SURFACE_ID RESOURCE_ID_EDITOR_SHADERS + 7
-#define EDITOR_SHADER_DEFAULT_SKY_ID				 RESOURCE_ID_EDITOR_SHADERS + 8
-#define EDITOR_SHADER_GUI_DISPLAYTARGET_ID			 RESOURCE_ID_EDITOR_SHADERS + 9
-#define EDITOR_SHADER_DEFAULT_POSTPROCESS_ID		 RESOURCE_ID_EDITOR_SHADERS + 10
-#define EDITOR_SHADER_WORLD_GRID_ID					 RESOURCE_ID_EDITOR_SHADERS + 11
-#define EDITOR_SHADER_GUI_GLITCH_ID					 RESOURCE_ID_EDITOR_SHADERS + 12
-#define EDITOR_SHADER_WORLD_GIZMO_ID				 RESOURCE_ID_EDITOR_SHADERS + 13
-#define EDITOR_SHADER_WORLD_DEPRECATED				 RESOURCE_ID_EDITOR_SHADERS + 14
-#define EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_ID	 RESOURCE_ID_EDITOR_SHADERS + 15
-#define EDITOR_SHADER_WORLD_LINE3D_ID				 RESOURCE_ID_EDITOR_SHADERS + 16
-#define EDITOR_SHADER_WORLD_LVG3D_ID				 RESOURCE_ID_EDITOR_SHADERS + 17
-#define EDITOR_SHADER_WORLD_SAMPLE_ID				 RESOURCE_ID_EDITOR_SHADERS + 18
-#define EDITOR_SHADER_WORLD_DEPTH_SAMPLE_ID			 RESOURCE_ID_EDITOR_SHADERS + 19
-#define EDITOR_SHADER_WORLD_GIZMO_ROTATE_ID			 RESOURCE_ID_EDITOR_SHADERS + 20
-#define EDITOR_SHADER_WORLD_ORIENT_GIZMO_ID			 RESOURCE_ID_EDITOR_SHADERS + 21
-#define EDITOR_SHADER_GUI_SWAPCHAIN_ID				 RESOURCE_ID_EDITOR_SHADERS + 22
-#define EDITOR_SHADER_WORLD_BILLBOARD_SDF_ID		 RESOURCE_ID_EDITOR_SHADERS + 23
-#define EDITOR_SHADER_WORLD_DEBUG_PHYSICS_ID		 RESOURCE_ID_EDITOR_SHADERS + 24
+#define EDITOR_SHADER_GUI_DEFAULT_ID			  RESOURCE_ID_EDITOR_SHADERS
+#define EDITOR_SHADER_GUI_COLOR_WHEEL_ID		  RESOURCE_ID_EDITOR_SHADERS + 1
+#define EDITOR_SHADER_GUI_HUE_DISPLAY_ID		  RESOURCE_ID_EDITOR_SHADERS + 2
+#define EDITOR_SHADER_GUI_SDF_TEXT_ID			  RESOURCE_ID_EDITOR_SHADERS + 3
+#define EDITOR_SHADER_GUI_TEXT_ID				  RESOURCE_ID_EDITOR_SHADERS + 4
+#define EDITOR_SHADER_GUI_DISPLAYTARGET_ID		  RESOURCE_ID_EDITOR_SHADERS + 5
+#define EDITOR_SHADER_WORLD_GRID_ID				  RESOURCE_ID_EDITOR_SHADERS + 6
+#define EDITOR_SHADER_GUI_GLITCH_ID				  RESOURCE_ID_EDITOR_SHADERS + 7
+#define EDITOR_SHADER_WORLD_GIZMO_ID			  RESOURCE_ID_EDITOR_SHADERS + 8
+#define EDITOR_SHADER_WORLD_DEPRECATED			  RESOURCE_ID_EDITOR_SHADERS + 9
+#define EDITOR_SHADER_WORLD_OUTLINE_FULLSCREEN_ID RESOURCE_ID_EDITOR_SHADERS + 10
+#define EDITOR_SHADER_WORLD_LINE3D_ID			  RESOURCE_ID_EDITOR_SHADERS + 11
+#define EDITOR_SHADER_WORLD_LVG3D_ID			  RESOURCE_ID_EDITOR_SHADERS + 12
+#define EDITOR_SHADER_WORLD_SAMPLE_ID			  RESOURCE_ID_EDITOR_SHADERS + 13
+#define EDITOR_SHADER_WORLD_DEPTH_SAMPLE_ID		  RESOURCE_ID_EDITOR_SHADERS + 14
+#define EDITOR_SHADER_WORLD_GIZMO_ROTATE_ID		  RESOURCE_ID_EDITOR_SHADERS + 15
+#define EDITOR_SHADER_WORLD_ORIENT_GIZMO_ID		  RESOURCE_ID_EDITOR_SHADERS + 16
+#define EDITOR_SHADER_GUI_SWAPCHAIN_ID			  RESOURCE_ID_EDITOR_SHADERS + 17
+#define EDITOR_SHADER_WORLD_BILLBOARD_SDF_ID	  RESOURCE_ID_EDITOR_SHADERS + 18
 
 // Textures
 #define EDITOR_TEXTURE_CHECKERED_PATH		 "Resources/Editor/Textures/Checkered.png"

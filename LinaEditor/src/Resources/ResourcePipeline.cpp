@@ -170,7 +170,7 @@ namespace Lina::Editor
 		if (tid == GetTypeID<Material>())
 		{
 			Material		 mat(id, name);
-			const ResourceID targetShader = subType == 0 ? EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_ID : subType;
+			const ResourceID targetShader = subType == 0 ? ENGINE_SHADER_DEFAULT_OPAQUE_SURFACE_ID : subType;
 
 			IStream shaderStream = Serialization::LoadFromFile(project->GetResourcePath(targetShader).c_str());
 
@@ -289,8 +289,8 @@ namespace Lina::Editor
 
 				if (defaultShader == nullptr)
 				{
-					defaultShader = new Shader(EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_ID, EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_PATH);
-					defaultShader->LoadFromFile(EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_PATH);
+					defaultShader = new Shader(ENGINE_SHADER_DEFAULT_OPAQUE_SURFACE_ID, ENGINE_SHADER_DEFAULT_OPAQUE_SURFACE_PATH);
+					defaultShader->LoadFromFile(ENGINE_SHADER_DEFAULT_OPAQUE_SURFACE_PATH);
 				}
 
 				const Vector<ModelMaterial>&	   matDefs	   = model.GetMaterialDefs();

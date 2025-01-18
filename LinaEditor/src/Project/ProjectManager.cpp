@@ -319,20 +319,20 @@ namespace Lina::Editor
 
 			const Vector<ResourcePipeline::ResourceImportDef> desiredAssets = {
 				{
-					.path = EDITOR_FONT_ROBOTO_PATH,
-					.id	  = EDITOR_FONT_ROBOTO_ID,
+					.path = ENGINE_FONT_ROBOTO_PATH,
+					.id	  = ENGINE_FONT_ROBOTO_ID,
 				},
 				{
-					.path = EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_PATH,
-					.id	  = EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_ID,
+					.path = ENGINE_SHADER_DEFAULT_OPAQUE_SURFACE_PATH,
+					.id	  = ENGINE_SHADER_DEFAULT_OPAQUE_SURFACE_ID,
 				},
 				{
-					.path = EDITOR_SHADER_DEFAULT_TRANSPARENT_SURFACE_PATH,
-					.id	  = EDITOR_SHADER_DEFAULT_TRANSPARENT_SURFACE_ID,
+					.path = ENGINE_SHADER_DEFAULT_TRANSPARENT_SURFACE_PATH,
+					.id	  = ENGINE_SHADER_DEFAULT_TRANSPARENT_SURFACE_ID,
 				},
 				{
-					.path = EDITOR_SHADER_DEFAULT_SKY_PATH,
-					.id	  = EDITOR_SHADER_DEFAULT_SKY_ID,
+					.path = ENGINE_SHADER_DEFAULT_SKY_PATH,
+					.id	  = ENGINE_SHADER_DEFAULT_SKY_ID,
 				},
 				{
 					.path = ENGINE_MODEL_CUBE_PATH,
@@ -431,7 +431,7 @@ namespace Lina::Editor
 			if (root->FindResourceDirectory(EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID) == nullptr)
 			{
 				task->progressText	   = EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_PATH;
-				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID, EDITOR_SHADER_DEFAULT_OPAQUE_SURFACE_ID);
+				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID, ENGINE_SHADER_DEFAULT_OPAQUE_SURFACE_ID);
 
 				if (dir)
 					dir->userData.directoryType = static_cast<uint32>(ResourceDirectoryType::EngineResource);
@@ -442,7 +442,7 @@ namespace Lina::Editor
 			{
 				task->progressText = EDITOR_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_PATH;
 				ResourceDirectory* dir =
-					ResourcePipeline::SaveNewResource(m_currentProject, root, EDITOR_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_ID, EDITOR_SHADER_DEFAULT_TRANSPARENT_SURFACE_ID);
+					ResourcePipeline::SaveNewResource(m_currentProject, root, EDITOR_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_ID, ENGINE_SHADER_DEFAULT_TRANSPARENT_SURFACE_ID);
 
 				if (dir)
 					dir->userData.directoryType = static_cast<uint32>(ResourceDirectoryType::EngineResource);
@@ -451,7 +451,7 @@ namespace Lina::Editor
 			if (root->FindResourceDirectory(EDITOR_MATERIAL_DEFAULT_SKY_ID) == nullptr)
 			{
 				task->progressText	   = EDITOR_MATERIAL_DEFAULT_SKY_PATH;
-				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, EDITOR_MATERIAL_DEFAULT_SKY_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_SKY_ID, EDITOR_SHADER_DEFAULT_SKY_ID);
+				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, EDITOR_MATERIAL_DEFAULT_SKY_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_SKY_ID, ENGINE_SHADER_DEFAULT_SKY_ID);
 
 				if (dir)
 					dir->userData.directoryType = static_cast<uint32>(ResourceDirectoryType::EngineResource);
