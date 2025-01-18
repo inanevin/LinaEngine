@@ -96,10 +96,17 @@ namespace Lina
 		parent->children.erase(it);
 		parent->SortChildren();
 
-		for (ResourceDirectory* child : dir->children)
-			DestroyResourceDirectory(child);
-
+		FreeChildrenRecursive(dir);
 		m_directoryBucket.Free(dir);
+	}
+
+	void ProjectData::FreeChildrenRecursive(ResourceDirectory* dir)
+	{
+		for (ResourceDirectory* d : dir->children)
+		{
+			FreeChildrenRecursive(d);
+			m_directoryBucket.Free(d);
+		}
 	}
 
 	ResourceDirectory* ProjectData::DuplicateResourceDirectory(ResourceDirectory* parent, ResourceDirectory* dir)

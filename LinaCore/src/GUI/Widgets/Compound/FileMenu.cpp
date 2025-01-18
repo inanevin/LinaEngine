@@ -36,11 +36,36 @@ SOFTWARE.
 
 namespace Lina
 {
+
 	void FileMenuItem::Initialize()
 	{
 		if (m_initialized)
 			return;
+
 		Widget::Initialize();
+
+		m_layout = m_manager->Allocate<DirectionalLayout>("Layout");
+		m_layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		m_layout->SetAlignedPos(Vector2::Zero);
+		m_layout->SetAlignedSize(Vector2::One);
+		AddChild(m_layout);
+
+		if (!m_itemData.isDivider)
+		{
+			SetFixedSizeY(Theme::GetDef().baseItemHeight);
+			m_layout->GetWidgetProps().hoveredIsDifferentColor = true;
+			m_layout->GetWidgetProps().rounding				   = 0.0f;
+			m_layout->GetWidgetProps().outlineThickness		   = 0.0f;
+			m_layout->GetWidgetProps().drawBackground		   = true;
+			m_layout->GetWidgetProps().colorHovered			   = Theme::GetDef().accentPrimary1;
+			m_layout->GetWidgetProps().colorDisabled		   = Color(0.0f, 0.0f, 0.0f, 0.0f);
+			m_layout->GetWidgetProps().childMargins			   = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
+		}
+		else
+			SetFixedSizeY(Theme::GetDef().baseItemHeight * 0.5f);
+
+		m_layout->GetWidgetProps().colorBackground = Color(0, 0, 0, 0);
+		m_layout->GetWidgetProps().childPadding	   = Theme::GetDef().baseIndent;
 
 		if (m_itemData.isDivider)
 		{
@@ -53,7 +78,7 @@ namespace Lina
 			rect->GetWidgetProps().outlineThickness = 0.0f;
 			rect->GetWidgetProps().drawBackground	= true;
 			rect->GetWidgetProps().colorBackground	= Theme::GetDef().outlineColorBase;
-			AddChild(rect);
+			m_layout->AddChild(rect);
 			return;
 		}
 
@@ -68,7 +93,7 @@ namespace Lina
 			ic->GetProps().dynamicSizeScale	   = 0.8f;
 			ic->GetProps().dynamicSizeToParent = true;
 			m_headerIcon					   = ic;
-			AddChild(ic);
+			m_layout->AddChild(ic);
 		}
 		Text* txt = m_manager->Allocate<Text>("Text");
 		txt->GetFlags().Set(WF_POS_ALIGN_Y);
@@ -76,7 +101,7 @@ namespace Lina
 		txt->SetAnchorY(Anchor::Center);
 		txt->GetProps().text				= m_itemData.text;
 		txt->GetWidgetProps().colorDisabled = Theme::GetDef().silent2;
-		AddChild(txt);
+		m_layout->AddChild(txt);
 		m_text = txt;
 
 		if (m_itemData.hasDropdown)
@@ -88,7 +113,7 @@ namespace Lina
 			dd->SetAnchorY(Anchor::Center);
 			dd->GetProps().icon		 = m_itemData.dropdownIcon;
 			dd->GetProps().textScale = 0.35f;
-			AddChild(dd);
+			m_layout->AddChild(dd);
 		}
 
 		if (!m_itemData.altText.empty())
@@ -101,36 +126,63 @@ namespace Lina
 			altTxt->GetProps().text	 = m_itemData.altText;
 			altTxt->GetProps().font	 = Theme::GetDef().altFont;
 			altTxt->GetProps().color = Theme::GetDef().silent2;
-			AddChild(altTxt);
+			m_layout->AddChild(altTxt);
 			m_altText = altTxt;
 		}
+
+		if (m_dropdownPopup)
+			m_dropdownPopup->SetPos(GetRect().GetEnd() - Vector2(0, GetSizeY()));
+	}
+
+	float FileMenuItem::GetMaxSizeX()
+	{
+
+		auto* text		 = GetText();
+		auto* altText	 = GetAltText();
+		auto* headerIcon = GetHeaderIcon();
+
+		float size = 0.0f;
+
+		if (headerIcon)
+			size += headerIcon->GetSizeX() + m_layout->GetWidgetProps().childPadding * m_manager->GetScalingFactor();
+
+		if (text)
+			size += text->GetSizeX() + m_layout->GetWidgetProps().childPadding * m_manager->GetScalingFactor();
+
+		if (altText)
+			size += altText->GetSizeX() + m_layout->GetWidgetProps().childPadding * m_manager->GetScalingFactor();
+
+		return size;
 	}
 
 	void FileMenuItem::PreTick()
 	{
-		DirectionalLayout::PreTick();
 
-		if (m_itemData.hasDropdown && m_isHovered && m_subPopup == nullptr)
+		if (m_dropdownPopup)
 		{
-			Vector<Data> data;
-			m_ownerMenu->GetListener()->OnFileMenuGetItems(m_ownerMenu, TO_SID(m_itemData.text), data, m_itemData.userData);
-			m_subPopup							= m_ownerMenu->CreatePopup(Vector2(m_rect.GetEnd().x, GetPosY()), data);
-			m_subPopup->GetProps().onDestructed = [this]() { m_subPopup = nullptr; };
-		}
+			m_dropdownPopup->SetPos(GetRect().GetEnd() - Vector2(0, GetSizeY()));
 
-		if (m_subPopup != nullptr && !m_isHovered)
-		{
-			for (auto* sibling : m_parent->GetChildren())
+			if (m_isHovered)
 			{
-				if (sibling == this)
-					continue;
+				m_showDD = true;
+			}
 
-				if (sibling->GetIsHovered())
+			if (m_showDD)
+			{
+				for (auto* sibling : m_parent->GetChildren())
 				{
-					m_ownerMenu->KillSub(m_subPopup);
-					break;
+					if (sibling == this)
+						continue;
+
+					if (sibling->GetIsHovered())
+					{
+						m_showDD = false;
+						break;
+					}
 				}
 			}
+
+			m_dropdownPopup->GetFlags().Set(WF_HIDE, !m_showDD);
 		}
 	}
 
@@ -243,62 +295,35 @@ namespace Lina
 
 		for (const auto& subItem : subItemData)
 		{
-			FileMenuItem* it  = m_manager->Allocate<FileMenuItem>("FMItem");
-			it->m_ownerMenu	  = this;
-			it->GetItemData() = subItem;
-
-			if (!subItem.isDivider)
-			{
-				it->GetWidgetProps().hoveredIsDifferentColor = true;
-				it->GetWidgetProps().rounding				 = 0.0f;
-				it->GetWidgetProps().outlineThickness		 = 0.0f;
-				it->GetWidgetProps().drawBackground			 = true;
-				it->GetWidgetProps().colorHovered			 = Theme::GetDef().accentPrimary1;
-				it->GetWidgetProps().colorDisabled			 = Color(0.0f, 0.0f, 0.0f, 0.0f);
-				it->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-				it->GetWidgetProps().childMargins = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
-			}
-			else
-				it->SetFixedSizeY(Theme::GetDef().baseItemHeight * 0.5f);
-
-			it->GetWidgetProps().colorBackground = Color(0, 0, 0, 0);
-			it->GetWidgetProps().childPadding	 = Theme::GetDef().baseIndent;
+			FileMenuItem* it = m_manager->Allocate<FileMenuItem>("FMItem");
 			it->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X);
 			it->SetAlignedSizeX(1.0f);
 			it->SetAlignedPosX(0.0f);
+			it->m_ownerMenu	  = this;
+			it->GetItemData() = subItem;
 			it->Initialize();
 			it->m_ud  = subItem.userData;
 			it->m_sid = TO_SID(subItem.text);
 			m_manager->SetDisabledRecursively(it, subItem.isDisabled);
 			popup->AddChild(it);
+
+			if (subItem.hasDropdown)
+			{
+				Vector<FileMenuItem::Data> outData;
+				GetListener()->OnFileMenuGetItems(this, it->m_sid, outData, subItem.userData);
+				it->m_dropdownPopup = CreatePopup(pos, outData);
+			}
 		}
 
 		popup->Initialize();
 
-		float maxTextSize = 0.0f;
+		float maxSizeX = 0.0f;
 
-		for (const auto& c : popup->GetChildren())
-		{
-			auto* fmi		 = static_cast<FileMenuItem*>(c);
-			auto* text		 = fmi->GetText();
-			auto* altText	 = fmi->GetAltText();
-			auto* headerIcon = fmi->GetHeaderIcon();
+		for (Widget* c : popup->GetChildren())
+			maxSizeX = Math::Max(maxSizeX, static_cast<FileMenuItem*>(c)->GetMaxSizeX());
 
-			float size = 0.0f;
+		popup->SetSizeX(Math::Max(Theme::GetDef().baseItemHeight * 8, (maxSizeX + popup->GetWidgetProps().childMargins.left + popup->GetWidgetProps().childMargins.right) * 1.25f));
 
-			if (headerIcon)
-				size += headerIcon->GetSizeX() + fmi->GetWidgetProps().childPadding * m_manager->GetScalingFactor();
-
-			if (text)
-				size += text->GetSizeX() + fmi->GetWidgetProps().childPadding * m_manager->GetScalingFactor();
-
-			if (altText)
-				size += altText->GetSizeX() + fmi->GetWidgetProps().childPadding * m_manager->GetScalingFactor();
-
-			maxTextSize = Math::Max(maxTextSize, size);
-		}
-
-		popup->SetSizeX(Math::Max(Theme::GetDef().baseItemHeight * 8, (maxTextSize + popup->GetWidgetProps().childMargins.left + popup->GetWidgetProps().childMargins.right) * 1.25f));
 		WidgetUtility::CorrectPopupPosition(popup);
 		return popup;
 	}

@@ -42,7 +42,7 @@ namespace Lina
 	class Icon;
 	class FileMenuPopup;
 
-	class FileMenuItem : public DirectionalLayout
+	class FileMenuItem : public Widget
 	{
 
 	public:
@@ -67,6 +67,8 @@ namespace Lina
 
 		virtual bool OnMouse(uint32 action, LinaGX::InputAction act) override;
 
+		float GetMaxSizeX();
+
 		inline Icon* GetHeaderIcon() const
 		{
 			return m_headerIcon;
@@ -90,14 +92,19 @@ namespace Lina
 	private:
 		friend class FileMenu;
 
-		FileMenu*		   m_ownerMenu	= nullptr;
-		Data			   m_itemData	= {};
-		DirectionalLayout* m_subPopup	= nullptr;
-		Text*			   m_text		= nullptr;
-		Text*			   m_altText	= nullptr;
-		Icon*			   m_headerIcon = nullptr;
-		StringID		   m_sid		= 0;
-		void*			   m_ud			= nullptr;
+		DirectionalLayout* m_layout = nullptr;
+
+		FileMenu*		   m_ownerMenu	   = nullptr;
+		Data			   m_itemData	   = {};
+		DirectionalLayout* m_subPopup	   = nullptr;
+		Text*			   m_text		   = nullptr;
+		Text*			   m_altText	   = nullptr;
+		Icon*			   m_headerIcon	   = nullptr;
+		StringID		   m_sid		   = 0;
+		FileMenuPopup*	   m_dropdownPopup = nullptr;
+		void*			   m_ud			   = nullptr;
+
+		bool m_showDD = false;
 	};
 
 	class FileMenuListener

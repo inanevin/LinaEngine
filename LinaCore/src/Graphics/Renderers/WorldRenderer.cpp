@@ -159,16 +159,13 @@ namespace Lina
 		m_guiBackend.Initialize(m_resourceManagerV2);
 		CreateSizeRelativeResources();
 		m_shapeRenderer.Initialize();
-
-#ifdef JPH_DEBUG_RENDERER
-		m_physicsDebugRenderer = new PhysicsDebugRenderer(&m_forwardPass, m_resourceManagerV2->GetResource<Shader>(ENGINE_SHADER_WORLD_DEBUG_LINE_ID), m_resourceManagerV2->GetResource<Shader>(ENGINE_SHADER_WORLD_DEBUG_TRIANGLE_ID));
-#endif
 	}
 
 	WorldRenderer::~WorldRenderer()
 	{
 #ifdef JPH_DEBUG_RENDERER
-		delete m_physicsDebugRenderer;
+		if (m_physicsDebugRenderer)
+			delete m_physicsDebugRenderer;
 #endif
 		m_physicsDebugRenderer = nullptr;
 		m_shapeRenderer.Shutdown();
@@ -613,14 +610,17 @@ namespace Lina
 		m_shapeRenderer.SubmitBatch(m_forwardPass, 0, m_shaderDebugLine->GetGPUHandle());
 
 #ifdef JPH_DEBUG_RENDERER
-		JPH::BodyManager::DrawSettings ds = {};
-		ds.mDrawShape					  = true;
-		ds.mDrawVelocity				  = true;
-		// ds.mDrawBoundingBox = true;
-		// ds.mDrawShapeWireframe = true;
-		m_physicsDebugRenderer->BeginDraws();
-		m_world->GetPhysicsWorld()->GetPhysicsSystem().DrawBodies(ds, m_physicsDebugRenderer);
-		m_physicsDebugRenderer->SubmitDraws();
+		if (m_physicsDebugRenderer)
+		{
+			JPH::BodyManager::DrawSettings ds = {};
+			ds.mDrawShape					  = true;
+			ds.mDrawVelocity				  = true;
+			// ds.mDrawBoundingBox = true;
+			// ds.mDrawShapeWireframe = true;
+			m_physicsDebugRenderer->BeginDraws();
+			m_world->GetPhysicsWorld()->GetPhysicsSystem().DrawBodies(ds, m_physicsDebugRenderer);
+			m_physicsDebugRenderer->SubmitDraws();
+		}
 #endif
 	}
 
@@ -640,7 +640,19 @@ namespace Lina
 		m_forwardPass.SyncRender();
 
 #ifdef JPH_DEBUG_RENDERER
-		m_physicsDebugRenderer->SyncRender();
+		if (m_physicsDebugRenderer)
+			m_physicsDebugRenderer->SyncRender();
+
+#endif
+	}
+
+	void WorldRenderer::CreatePhysicsDebugRenderer()
+	{
+		if (m_physicsDebugRenderer)
+			return;
+
+#ifdef JPH_DEBUG_RENDERER
+		m_physicsDebugRenderer = new PhysicsDebugRenderer(&m_forwardPass, m_resourceManagerV2->GetResource<Shader>(ENGINE_SHADER_WORLD_DEBUG_LINE_ID), m_resourceManagerV2->GetResource<Shader>(ENGINE_SHADER_WORLD_DEBUG_TRIANGLE_ID));
 #endif
 	}
 
@@ -714,7 +726,9 @@ namespace Lina
 		m_shapeRenderer.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
 
 #ifdef JPH_DEBUG_RENDERER
-		m_physicsDebugRenderer->AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+		if (m_physicsDebugRenderer)
+			m_physicsDebugRenderer->AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+
 #endif
 	}
 

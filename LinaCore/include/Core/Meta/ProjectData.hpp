@@ -89,6 +89,9 @@ namespace Lina
 		}
 
 	private:
+		void FreeChildrenRecursive(ResourceDirectory* dir);
+
+	private:
 		AllocatorBucket<ResourceDirectory, 1000> m_directoryBucket;
 		Runtime									 m_runtime			 = {};
 		String									 m_projectName		 = "";

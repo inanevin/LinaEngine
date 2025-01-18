@@ -174,7 +174,7 @@ namespace Lina::Editor
 		m_inspector->AddChild(panelItems);
 		CommonWidgets::BuildClassReflection(panelItems, this, ReflectionSystem::Get().Resolve<PanelPhysicsMaterialViewer>());
 
-        m_inspector->AddChild(CommonWidgets::BuildSeperator(m_inspector));
+		m_inspector->AddChild(CommonWidgets::BuildSeperator(m_inspector));
 
 		DirectionalLayout* matItems = m_manager->Allocate<DirectionalLayout>();
 		matItems->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);

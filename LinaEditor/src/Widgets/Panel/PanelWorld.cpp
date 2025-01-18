@@ -115,6 +115,7 @@ namespace Lina::Editor
 
 		EditorWorldRenderer* ewr = m_editor->GetWorldManager().CreateEditorWorld(id);
 		m_world					 = ewr->GetWorldRenderer()->GetWorld();
+		ewr->GetWorldRenderer()->CreatePhysicsDebugRenderer();
 		m_world->LoadFromFile(path);
 		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {});
 		m_world->RefreshAllComponentReferences();

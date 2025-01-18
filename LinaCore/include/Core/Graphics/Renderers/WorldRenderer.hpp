@@ -112,6 +112,7 @@ namespace Lina
 		void CloseAndSend(uint32 frameIndex);
 		void Resize(const Vector2ui& newSize);
 		void SyncRender();
+		void CreatePhysicsDebugRenderer();
 
 		void AddListener(WorldRendererListener* listener);
 		void RemoveListener(WorldRendererListener* listener);
