@@ -86,7 +86,7 @@ namespace Lina
 		float			 height			   = 1.0f;
 		float			 mass			   = 1.0f;
 		float			 gravityMultiplier = 1.0f;
-		ResourceID		 material		   = 0;
+		ResourceID		 material		   = ENGINE_PHY_MATERIAL_DEFAULT_ID;
 
 		void SaveToStream(OStream& stream) const
 		{

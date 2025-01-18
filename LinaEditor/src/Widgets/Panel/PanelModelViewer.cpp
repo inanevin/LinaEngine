@@ -78,10 +78,8 @@ namespace Lina::Editor
 		m_world->SetID(m_resourceSpace);
 		m_worldDisplayer->DisplayWorld(ewr, WorldCameraType::Orbit);
 
-		m_world->GetGfxSettings().skyModel = EDITOR_MODEL_SKYSPHERE_ID;
-
 		HashSet<ResourceID> initialResources = {
-			EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID,
+			ENGINE_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID,
 			m_resource->GetID(),
 		};
 

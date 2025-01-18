@@ -86,12 +86,7 @@ namespace Lina::Editor
 		m_world->SetID(m_resourceSpace);
 		m_worldDisplayer->DisplayWorld(ewr, WorldCameraType::Orbit);
 
-		// Resource set up.
-		m_world->GetGfxSettings().skyModel	  = EDITOR_MODEL_SKYSPHERE_ID;
-		m_world->GetGfxSettings().skyMaterial = EDITOR_MATERIAL_DEFAULT_SKY_ID;
-
 		const HashSet<ResourceID> initialResources = {
-			EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID,
 			m_resource->GetID(),
 		};
 
@@ -179,18 +174,18 @@ namespace Lina::Editor
 			m_world->GetGfxSettings().skyMaterial = m_defaultSky->GetID();
 		}
 
-		const ResourceID displayMaterial = shaderType == ShaderType::Sky ? EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID : m_resource->GetID();
+		const ResourceID displayMaterial = shaderType == ShaderType::Sky ? ENGINE_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID : m_resource->GetID();
 
 		if (m_displayType == MaterialViewerDisplayType::Cube)
-			m_displayEntity = EditorWorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(EDITOR_MODEL_CUBE_ID), {displayMaterial});
+			m_displayEntity = EditorWorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(ENGINE_MODEL_CUBE_ID), {displayMaterial});
 		else if (m_displayType == MaterialViewerDisplayType::Sphere)
-			m_displayEntity = EditorWorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(EDITOR_MODEL_SPHERE_ID), {displayMaterial});
+			m_displayEntity = EditorWorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(ENGINE_MODEL_SPHERE_ID), {displayMaterial});
 		if (m_displayType == MaterialViewerDisplayType::Cylinder)
-			m_displayEntity = EditorWorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(EDITOR_MODEL_CYLINDER_ID), {displayMaterial});
+			m_displayEntity = EditorWorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(ENGINE_MODEL_CYLINDER_ID), {displayMaterial});
 		if (m_displayType == MaterialViewerDisplayType::Capsule)
-			m_displayEntity = EditorWorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(EDITOR_MODEL_CAPSULE_ID), {displayMaterial});
+			m_displayEntity = EditorWorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(ENGINE_MODEL_CAPSULE_ID), {displayMaterial});
 		if (m_displayType == MaterialViewerDisplayType::Plane)
-			m_displayEntity = EditorWorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(EDITOR_MODEL_PLANE_ID), {displayMaterial});
+			m_displayEntity = EditorWorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(ENGINE_MODEL_PLANE_ID), {displayMaterial});
 
 		m_displayEntity->SetPosition(Vector3(0.0f, -0.1f, 0.0f));
 	}

@@ -83,12 +83,7 @@ namespace Lina::Editor
 		m_world->SetID(m_resourceSpace);
 		m_worldDisplayer->DisplayWorld(ewr, WorldCameraType::Orbit);
 
-		// Resource set up.
-		m_world->GetGfxSettings().skyModel	  = EDITOR_MODEL_SKYSPHERE_ID;
-		m_world->GetGfxSettings().skyMaterial = EDITOR_MATERIAL_DEFAULT_SKY_ID;
-
 		const HashSet<ResourceID> initialResources = {
-			EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID,
 			m_resource->GetID(),
 		};
 
@@ -98,7 +93,7 @@ namespace Lina::Editor
 
 		ResourceManagerV2& rm = m_editor->GetApp()->GetResourceManager();
 
-		Entity* floor = EditorWorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(EDITOR_MODEL_PLANE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
+		Entity* floor = EditorWorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(ENGINE_MODEL_PLANE_ID), {ENGINE_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
 
 		floor->GetPhysicsSettings().bodyType  = PhysicsBodyType::Static;
 		floor->GetPhysicsSettings().shapeType = PhysicsShapeType::Plane;
@@ -143,16 +138,16 @@ namespace Lina::Editor
 
 		m_displayEntity = m_world->CreateEntity(m_world->ConsumeEntityGUID(), "");
 
-		Material* displayMaterial = rm.GetResource<Material>(EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID);
+		Material* displayMaterial = rm.GetResource<Material>(ENGINE_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID);
 
 		if (m_displayModel == DisplayModel::Cube)
 		{
-			m_displayEntity									= EditorWorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(EDITOR_MODEL_CUBE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
+			m_displayEntity									= EditorWorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(ENGINE_MODEL_CUBE_ID), {ENGINE_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
 			m_displayEntity->GetPhysicsSettings().shapeType = PhysicsShapeType::Box;
 		}
 		else if (m_displayModel == DisplayModel::Sphere)
 		{
-			m_displayEntity									= EditorWorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(EDITOR_MODEL_SPHERE_ID), {EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
+			m_displayEntity									= EditorWorldUtility::AddModelToWorld(m_world->ConsumeEntityGUID(), m_world, rm.GetResource<Model>(ENGINE_MODEL_SPHERE_ID), {ENGINE_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID});
 			m_displayEntity->GetPhysicsSettings().shapeType = PhysicsShapeType::Sphere;
 		}
 

@@ -102,7 +102,7 @@ namespace Lina::Editor
 		m_modelTranslateCenter	= m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_TRANSLATE_CENTER_ID);
 		m_modelScaleCenter		= m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_SCALE_CENTER_ID);
 		m_modelOrientationGizmo = m_rm->GetResource<Model>(EDITOR_MODEL_GIZMO_ORIENTATION_ID);
-		m_modelQuad				= m_rm->GetResource<Model>(EDITOR_MODEL_QUAD_ID);
+		m_modelQuad				= m_rm->GetResource<Model>(ENGINE_MODEL_QUAD_ID);
 
 		m_shapeRenderer.Initialize();
 

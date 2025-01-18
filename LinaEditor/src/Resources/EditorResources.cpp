@@ -195,11 +195,6 @@ namespace Lina::Editor
 				.tid  = GetTypeID<Shader>(),
 			},
 			{
-				.id	  = EDITOR_SHADER_WORLD_DEBUG_PHYSICS_ID,
-				.name = EDITOR_SHADER_WORLD_DEBUG_PHYSICS_PATH,
-				.tid  = GetTypeID<Shader>(),
-			},
-			{
 				.id	  = EDITOR_SHADER_WORLD_SAMPLE_ID,
 				.name = EDITOR_SHADER_WORLD_SAMPLE_PATH,
 				.tid  = GetTypeID<Shader>(),
@@ -217,11 +212,6 @@ namespace Lina::Editor
 			{
 				.id	  = ENGINE_SHADER_LIGHTING_QUAD_ID,
 				.name = ENGINE_SHADER_LIGHTING_QUAD_PATH,
-				.tid  = GetTypeID<Shader>(),
-			},
-			{
-				.id	  = ENGINE_SHADER_WORLD_DEBUG_LINE_ID,
-				.name = ENGINE_SHADER_WORLD_DEBUG_LINE_PATH,
 				.tid  = GetTypeID<Shader>(),
 			},
 			{
@@ -277,11 +267,6 @@ namespace Lina::Editor
 			{
 				.id	  = EDITOR_MODEL_GIZMO_ORIENTATION_ID,
 				.name = EDITOR_MODEL_GIZMO_ORIENTATION_PATH,
-				.tid  = GetTypeID<Model>(),
-			},
-			{
-				.id	  = EDITOR_MODEL_QUAD_ID,
-				.name = EDITOR_MODEL_QUAD_PATH,
 				.tid  = GetTypeID<Model>(),
 			},
 		};

@@ -43,19 +43,16 @@ namespace Lina
 #define RESOURCE_ID_CUSTOM_SPACE_MAX RESOURCE_ID_ENGINE_SPACE
 #define RESOURCE_ID_MAX				 RESOURCE_ID_CUSTOM_SPACE - 1
 
-#define ENGINE_SHADER_LIGHTING_QUAD_ID		RESOURCE_ID_ENGINE_SPACE
-#define ENGINE_SHADER_WORLD_DEBUG_LINE_ID	RESOURCE_ID_ENGINE_SPACE + 1
-#define ENGINE_SHADER_LIGHTING_QUAD_PATH	"Resources/Core/Shaders/Lighting/LightingQuad.linashader"
-#define ENGINE_SHADER_WORLD_DEBUG_LINE_PATH "Resources/Core/Shaders/World/DebugLine.linashader"
-
-#define RESOURCE_ID_ENGINE_MODELS	RESOURCE_ID_ENGINE_SPACE + 100
-#define RESOURCE_ID_ENGINE_TEXTURES RESOURCE_ID_ENGINE_SPACE + 200
-#define RESOURCE_ID_ENGINE_SAMPLERS RESOURCE_ID_ENGINE_SPACE + 300
-#define RESOURCE_ID_ENGINE_SHADERS	RESOURCE_ID_ENGINE_SPACE + 320
-#define RESOURCE_ID_ENGINE_FONTS	RESOURCE_ID_ENGINE_SPACE + 400
+#define RESOURCE_ID_ENGINE_MODELS		 RESOURCE_ID_ENGINE_SPACE + 100
+#define RESOURCE_ID_ENGINE_TEXTURES		 RESOURCE_ID_ENGINE_SPACE + 200
+#define RESOURCE_ID_ENGINE_SAMPLERS		 RESOURCE_ID_ENGINE_SPACE + 300
+#define RESOURCE_ID_ENGINE_SHADERS		 RESOURCE_ID_ENGINE_SPACE + 320
+#define RESOURCE_ID_ENGINE_FONTS		 RESOURCE_ID_ENGINE_SPACE + 400
+#define RESOURCE_ID_ENGINE_MATERIALS	 RESOURCE_ID_ENGINE_SPACE + 450
+#define RESOURCE_ID_ENGINE_PHY_MATERIALS RESOURCE_ID_ENGINE_SPACE + 480
 
 // Fonts
-#define ENGINE_FONT_ROBOTO_PATH "Resources/Engine/Fonts/Roboto-Regular.ttf"
+#define ENGINE_FONT_ROBOTO_PATH "Resources/Core/Fonts/Roboto-Regular.ttf"
 #define ENGINE_FONT_ROBOTO_ID	RESOURCE_ID_ENGINE_FONTS
 
 // Models
@@ -68,21 +65,21 @@ namespace Lina
 #define ENGINE_MODEL_CAPSULE_ID	  RESOURCE_ID_ENGINE_MODELS + 6
 #define ENGINE_MODEL_QUAD_ID	  RESOURCE_ID_ENGINE_MODELS + 7
 
-#define ENGINE_MODEL_CUBE_PATH		"Resources/Engine/Models/Cube.glb"
-#define ENGINE_MODEL_CYLINDER_PATH	"Resources/Engine/Models/Cylinder.glb"
-#define ENGINE_MODEL_SPHERE_PATH	"Resources/Engine/Models/Sphere.glb"
-#define ENGINE_MODEL_SKYCUBE_PATH	"Resources/Engine/Models/SkyCube.glb"
-#define ENGINE_MODEL_PLANE_PATH		"Resources/Engine/Models/Plane.glb"
-#define ENGINE_MODEL_SKYSPHERE_PATH "Resources/Engine/Models/SkySphere.glb"
-#define ENGINE_MODEL_CAPSULE_PATH	"Resources/Engine/Models/Capsule.glb"
-#define ENGINE_MODEL_QUAD_PATH		"Resources/Engine/Models/Quad.glb"
+#define ENGINE_MODEL_CUBE_PATH		"Resources/Core/Models/Cube.glb"
+#define ENGINE_MODEL_CYLINDER_PATH	"Resources/Core/Models/Cylinder.glb"
+#define ENGINE_MODEL_SPHERE_PATH	"Resources/Core/Models/Sphere.glb"
+#define ENGINE_MODEL_SKYCUBE_PATH	"Resources/Core/Models/SkyCube.glb"
+#define ENGINE_MODEL_PLANE_PATH		"Resources/Core/Models/Plane.glb"
+#define ENGINE_MODEL_SKYSPHERE_PATH "Resources/Core/Models/SkySphere.glb"
+#define ENGINE_MODEL_CAPSULE_PATH	"Resources/Core/Models/Capsule.glb"
+#define ENGINE_MODEL_QUAD_PATH		"Resources/Core/Models/Quad.glb"
 
 // Textures
-#define ENGINE_TEXTURE_EMPTY_ALBEDO_PATH			 "Resources/Engine/Textures/EmptyAlbedo.png"
-#define ENGINE_TEXTURE_EMPTY_NORMAL_PATH			 "Resources/Engine/Textures/EmptyNormal.png"
-#define ENGINE_TEXTURE_EMPTY_METALLIC_ROUGHNESS_PATH "Resources/Engine/Textures/EmptyMetallicRoughness.png"
-#define ENGINE_TEXTURE_EMPTY_AO_PATH				 "Resources/Engine/Textures/EmptyAO.png"
-#define ENGINE_TEXTURE_EMPTY_EMISSIVE_PATH			 "Resources/Engine/Textures/EmptyEmissive.png"
+#define ENGINE_TEXTURE_EMPTY_ALBEDO_PATH			 "Resources/Core/Textures/EmptyAlbedo.png"
+#define ENGINE_TEXTURE_EMPTY_NORMAL_PATH			 "Resources/Core/Textures/EmptyNormal.png"
+#define ENGINE_TEXTURE_EMPTY_METALLIC_ROUGHNESS_PATH "Resources/Core/Textures/EmptyMetallicRoughness.png"
+#define ENGINE_TEXTURE_EMPTY_AO_PATH				 "Resources/Core/Textures/EmptyAO.png"
+#define ENGINE_TEXTURE_EMPTY_EMISSIVE_PATH			 "Resources/Core/Textures/EmptyEmissive.png"
 
 #define ENGINE_TEXTURE_EMPTY_ALBEDO_ID			   RESOURCE_ID_ENGINE_TEXTURES + 0
 #define ENGINE_TEXTURE_EMPTY_NORMAL_ID			   RESOURCE_ID_ENGINE_TEXTURES + 1
@@ -95,17 +92,34 @@ namespace Lina
 #define ENGINE_SAMPLER_DEFAULT_ID	RESOURCE_ID_ENGINE_SAMPLERS
 
 // Shaders
-#define ENGINE_SHADER_DEFAULT_OPAQUE_SURFACE_PATH	   "Resources/Engine/Shaders/World/DefaultOpaqueSurface.linashader"
-#define ENGINE_SHADER_DEFAULT_TRANSPARENT_SURFACE_PATH "Resources/Engine/Shaders/World/DefaultTransparentSurface.linashader"
-#define ENGINE_SHADER_DEFAULT_SKY_PATH				   "Resources/Engine/Shaders/World/DefaultSky.linashader"
-#define ENGINE_SHADER_DEFAULT_POSTPROCESS_PATH		   "Resources/Engine/Shaders/World/DefaultPostProcess.linashader"
-#define ENGINE_SHADER_WORLD_DEBUG_PHYSICS_PATH		   "Resources/Engine/Shaders/World/PhysicsDebug.linashader"
+#define ENGINE_SHADER_DEFAULT_OPAQUE_SURFACE_PATH	   "Resources/Core/Shaders/World/DefaultOpaqueSurface.linashader"
+#define ENGINE_SHADER_DEFAULT_TRANSPARENT_SURFACE_PATH "Resources/Core/Shaders/World/DefaultTransparentSurface.linashader"
+#define ENGINE_SHADER_DEFAULT_SKY_PATH				   "Resources/Core/Shaders/World/DefaultSky.linashader"
+#define ENGINE_SHADER_DEFAULT_POSTPROCESS_PATH		   "Resources/Core/Shaders/World/DefaultPostProcess.linashader"
+#define ENGINE_SHADER_LIGHTING_QUAD_PATH			   "Resources/Core/Shaders/Lighting/LightingQuad.linashader"
+#define ENGINE_SHADER_WORLD_DEBUG_LINE_PATH			   "Resources/Core/Shaders/World/DebugLine.linashader"
+#define ENGINE_SHADER_WORLD_DEBUG_TRIANGLE_PATH		   "Resources/Core/Shaders/World/DebugTriangle.linashader"
 
 #define ENGINE_SHADER_DEFAULT_OPAQUE_SURFACE_ID		 RESOURCE_ID_ENGINE_SHADERS + 0
 #define ENGINE_SHADER_DEFAULT_TRANSPARENT_SURFACE_ID RESOURCE_ID_ENGINE_SHADERS + 1
 #define ENGINE_SHADER_DEFAULT_SKY_ID				 RESOURCE_ID_ENGINE_SHADERS + 2
 #define ENGINE_SHADER_DEFAULT_POSTPROCESS_ID		 RESOURCE_ID_ENGINE_SHADERS + 3
-#define ENGINE_SHADER_WORLD_DEBUG_PHYSICS_ID		 RESOURCE_ID_ENGINE_SHADERS + 4
+#define ENGINE_SHADER_LIGHTING_QUAD_ID				 RESOURCE_ID_ENGINE_SPACE + 4
+#define ENGINE_SHADER_WORLD_DEBUG_LINE_ID			 RESOURCE_ID_ENGINE_SPACE + 5
+#define ENGINE_SHADER_WORLD_DEBUG_TRIANGLE_ID		 RESOURCE_ID_ENGINE_SPACE + 6
+
+// Materials
+#define ENGINE_MATERIAL_DEFAULT_OPAQUE_OBJECT_PATH		"DefaultOpaqueMaterial"
+#define ENGINE_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_PATH "DefaultTransparentMaterial"
+#define ENGINE_MATERIAL_DEFAULT_SKY_PATH				"DefaultSkyMaterial"
+
+#define ENGINE_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID	  RESOURCE_ID_ENGINE_MATERIALS
+#define ENGINE_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_ID RESOURCE_ID_ENGINE_MATERIALS + 1
+#define ENGINE_MATERIAL_DEFAULT_SKY_ID				  RESOURCE_ID_ENGINE_MATERIALS + 2
+
+// Physical materials
+#define ENGINE_PHY_MATERIAL_DEFAULT_PATH "DefaultPhysicsMaterial"
+#define ENGINE_PHY_MATERIAL_DEFAULT_ID	 RESOURCE_ID_ENGINE_PHY_MATERIALS
 
 	enum class PackageType
 	{

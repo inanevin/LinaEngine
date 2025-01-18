@@ -189,7 +189,7 @@ namespace Lina::Editor
 			for (MaterialProperty* prop : mat.GetProperties())
 				TrySetMaterialProperty(prop);
 
-			if (mat.GetID() == EDITOR_MATERIAL_DEFAULT_SKY_ID)
+			if (mat.GetID() == ENGINE_MATERIAL_DEFAULT_SKY_ID)
 				EditorWorldUtility::SetupDefaultSkyMaterial(&mat, nullptr);
 
 			mat.SaveToFileAsBinary(path);
@@ -199,8 +199,8 @@ namespace Lina::Editor
 		{
 			EntityWorld world(id, name);
 			world.SetPath(path);
-			world.GetGfxSettings().skyMaterial = EDITOR_MATERIAL_DEFAULT_SKY_ID;
-			world.GetGfxSettings().skyModel	   = EDITOR_MODEL_SKYSPHERE_ID;
+			world.GetGfxSettings().skyMaterial = ENGINE_MATERIAL_DEFAULT_SKY_ID;
+			world.GetGfxSettings().skyModel	   = ENGINE_MODEL_SKYSPHERE_ID;
 			world.SaveToFileAsBinary(path);
 		}
 		else
@@ -415,7 +415,7 @@ namespace Lina::Editor
 				}
 
 				if (matDefs.empty())
-					meta.materials.push_back(EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID);
+					meta.materials.push_back(ENGINE_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID);
 
 				model.SaveToFileAsBinary(projectData->GetResourcePath(model.GetID()));
 				model.DestroyTextureDefs();

@@ -147,7 +147,7 @@ namespace Lina::Editor
 		if (m_physicsDebugRenderer)
 			return;
 
-		m_physicsDebugRenderer = new PhysicsDebugRenderer(&m_pass, m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_LINE3D_ID), m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_DEBUG_PHYSICS_ID));
+		m_physicsDebugRenderer = new PhysicsDebugRenderer(&m_pass, m_rm->GetResource<Shader>(EDITOR_SHADER_WORLD_LINE3D_ID), m_rm->GetResource<Shader>(ENGINE_SHADER_WORLD_DEBUG_TRIANGLE_ID));
 	}
 
 	void EditorWorldRenderer::Tick(float delta)

@@ -335,12 +335,28 @@ namespace Lina::Editor
 					.id	  = ENGINE_SHADER_DEFAULT_SKY_ID,
 				},
 				{
+					.path = ENGINE_SHADER_WORLD_DEBUG_LINE_PATH,
+					.id	  = ENGINE_SHADER_WORLD_DEBUG_LINE_ID,
+				},
+				{
+					.path = ENGINE_SHADER_WORLD_DEBUG_TRIANGLE_PATH,
+					.id	  = ENGINE_SHADER_WORLD_DEBUG_TRIANGLE_ID,
+				},
+				{
+					.path = ENGINE_SHADER_LIGHTING_QUAD_PATH,
+					.id	  = ENGINE_SHADER_LIGHTING_QUAD_ID,
+				},
+				{
 					.path = ENGINE_MODEL_CUBE_PATH,
 					.id	  = ENGINE_MODEL_CUBE_ID,
 				},
 				{
 					.path = ENGINE_MODEL_SPHERE_PATH,
 					.id	  = ENGINE_MODEL_SPHERE_ID,
+				},
+				{
+					.path = ENGINE_MODEL_QUAD_PATH,
+					.id	  = ENGINE_MODEL_QUAD_ID,
 				},
 				{
 					.path = ENGINE_MODEL_CYLINDER_PATH,
@@ -419,39 +435,39 @@ namespace Lina::Editor
 			}
 
 			// Custom physics material
-			if (root->FindResourceDirectory(EDITOR_PHY_MATERIAL_DEFAULT_ID) == nullptr)
+			if (root->FindResourceDirectory(ENGINE_PHY_MATERIAL_DEFAULT_ID) == nullptr)
 			{
-				task->progressText	   = EDITOR_PHY_MATERIAL_DEFAULT_PATH;
-				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, EDITOR_PHY_MATERIAL_DEFAULT_PATH, GetTypeID<PhysicsMaterial>(), EDITOR_PHY_MATERIAL_DEFAULT_ID);
+				task->progressText	   = ENGINE_PHY_MATERIAL_DEFAULT_PATH;
+				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, ENGINE_PHY_MATERIAL_DEFAULT_PATH, GetTypeID<PhysicsMaterial>(), ENGINE_PHY_MATERIAL_DEFAULT_ID);
 
 				if (dir)
 					dir->userData.directoryType = static_cast<uint32>(ResourceDirectoryType::EngineResource);
 			}
 
-			if (root->FindResourceDirectory(EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID) == nullptr)
+			if (root->FindResourceDirectory(ENGINE_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID) == nullptr)
 			{
-				task->progressText	   = EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_PATH;
-				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID, ENGINE_SHADER_DEFAULT_OPAQUE_SURFACE_ID);
+				task->progressText	   = ENGINE_MATERIAL_DEFAULT_OPAQUE_OBJECT_PATH;
+				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, ENGINE_MATERIAL_DEFAULT_OPAQUE_OBJECT_PATH, GetTypeID<Material>(), ENGINE_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID, ENGINE_SHADER_DEFAULT_OPAQUE_SURFACE_ID);
 
 				if (dir)
 					dir->userData.directoryType = static_cast<uint32>(ResourceDirectoryType::EngineResource);
 			}
 
 			// Custom material
-			if (root->FindResourceDirectory(EDITOR_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_ID) == nullptr)
+			if (root->FindResourceDirectory(ENGINE_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_ID) == nullptr)
 			{
-				task->progressText = EDITOR_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_PATH;
+				task->progressText = ENGINE_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_PATH;
 				ResourceDirectory* dir =
-					ResourcePipeline::SaveNewResource(m_currentProject, root, EDITOR_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_ID, ENGINE_SHADER_DEFAULT_TRANSPARENT_SURFACE_ID);
+					ResourcePipeline::SaveNewResource(m_currentProject, root, ENGINE_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_PATH, GetTypeID<Material>(), ENGINE_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_ID, ENGINE_SHADER_DEFAULT_TRANSPARENT_SURFACE_ID);
 
 				if (dir)
 					dir->userData.directoryType = static_cast<uint32>(ResourceDirectoryType::EngineResource);
 			}
 
-			if (root->FindResourceDirectory(EDITOR_MATERIAL_DEFAULT_SKY_ID) == nullptr)
+			if (root->FindResourceDirectory(ENGINE_MATERIAL_DEFAULT_SKY_ID) == nullptr)
 			{
-				task->progressText	   = EDITOR_MATERIAL_DEFAULT_SKY_PATH;
-				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, EDITOR_MATERIAL_DEFAULT_SKY_PATH, GetTypeID<Material>(), EDITOR_MATERIAL_DEFAULT_SKY_ID, ENGINE_SHADER_DEFAULT_SKY_ID);
+				task->progressText	   = ENGINE_MATERIAL_DEFAULT_SKY_PATH;
+				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, ENGINE_MATERIAL_DEFAULT_SKY_PATH, GetTypeID<Material>(), ENGINE_MATERIAL_DEFAULT_SKY_ID, ENGINE_SHADER_DEFAULT_SKY_ID);
 
 				if (dir)
 					dir->userData.directoryType = static_cast<uint32>(ResourceDirectoryType::EngineResource);

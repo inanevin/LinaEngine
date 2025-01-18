@@ -190,6 +190,7 @@ namespace Lina
 		outResources.insert(ENGINE_MODEL_SKYCUBE_ID);
 		outResources.insert(ENGINE_SHADER_LIGHTING_QUAD_ID);
 		outResources.insert(ENGINE_SHADER_WORLD_DEBUG_LINE_ID);
+		outResources.insert(ENGINE_SHADER_WORLD_DEBUG_TRIANGLE_ID);
 		outResources.insert(ENGINE_SHADER_DEFAULT_SKY_ID);
 		outResources.insert(ENGINE_SHADER_DEFAULT_OPAQUE_SURFACE_ID);
 		outResources.insert(ENGINE_SHADER_DEFAULT_TRANSPARENT_SURFACE_ID);
@@ -199,6 +200,11 @@ namespace Lina
 		outResources.insert(ENGINE_TEXTURE_EMPTY_NORMAL_ID);
 		outResources.insert(ENGINE_TEXTURE_EMPTY_EMISSIVE_ID);
 		outResources.insert(ENGINE_SAMPLER_DEFAULT_ID);
+		outResources.insert(ENGINE_FONT_ROBOTO_ID);
+		outResources.insert(ENGINE_MATERIAL_DEFAULT_SKY_ID);
+		outResources.insert(ENGINE_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID);
+		outResources.insert(ENGINE_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_ID);
+		outResources.insert(ENGINE_PHY_MATERIAL_DEFAULT_ID);
 
 		for (const ComponentCachePair& pair : m_componentCaches)
 			pair.cache->ForEach([&](Component* c) { c->CollectReferences(outResources); });
