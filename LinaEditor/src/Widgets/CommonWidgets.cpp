@@ -914,9 +914,11 @@ namespace Lina::Editor
 			duplicate->SetAlignedPosY(0.0f);
 			duplicate->SetAlignedSize(Vector2::One);
 			duplicate->CreateIcon(ICON_COPY);
-			duplicate->GetProps().onClicked = [j, fold, field, vectorPtr, meta, subType, elementIndex, disallowAddDelete]() {
+			duplicate->GetProps().onClicked = [j, duplicate, fold, field, vectorPtr, meta, subType, elementIndex, disallowAddDelete]() {
+				duplicate->PropagateCBOnEditStarted();
 				field->GetFunction<void(void*, int32)>("DuplicateElement"_hs)(vectorPtr, j);
 				RefreshVector(fold, field, vectorPtr, meta, subType, elementIndex, disallowAddDelete);
+				duplicate->PropagateCBOnEditEnded();
 			};
 			duplicate->GetFlags().Set(WF_DISABLED, disallowAddDelete);
 
@@ -927,9 +929,11 @@ namespace Lina::Editor
 			remove->SetAlignedPosY(0.0f);
 			remove->SetAlignedSize(Vector2::One);
 			remove->CreateIcon(ICON_MINUS);
-			remove->GetProps().onClicked = [j, fold, field, vectorPtr, meta, subType, elementIndex, disallowAddDelete]() {
+			remove->GetProps().onClicked = [j, remove, fold, field, vectorPtr, meta, subType, elementIndex, disallowAddDelete]() {
+				remove->PropagateCBOnEditStarted();
 				field->GetFunction<void(void*, int32)>("RemoveElement"_hs)(vectorPtr, j);
 				RefreshVector(fold, field, vectorPtr, meta, subType, elementIndex, disallowAddDelete);
+				remove->PropagateCBOnEditEnded();
 			};
 			remove->GetFlags().Set(WF_DISABLED, disallowAddDelete);
 			subFieldRightSide->AddChild(remove);
@@ -1191,10 +1195,12 @@ namespace Lina::Editor
 			newElem->SetAlignedPosY(0.0f);
 			newElem->SetAlignedSizeY(1.0f);
 			newElem->CreateIcon(ICON_PLUS);
-			newElem->GetProps().onClicked = [src, props, subType, fieldLayout, vectorPtr, disallowAddDelete]() {
+			newElem->GetProps().onClicked = [newElem, src, props, subType, fieldLayout, vectorPtr, disallowAddDelete]() {
+				newElem->PropagateCBOnEditStarted();
 				const uint32 vs = props.field->GetFunction<uint32(void*)>("GetVectorSize"_hs)(vectorPtr);
 				props.field->GetFunction<void(void*)>("AddNewElement"_hs)(vectorPtr);
 				CommonWidgets::RefreshVector(fieldLayout, props.field, vectorPtr, props.meta, subType, -1, disallowAddDelete);
+				newElem->PropagateCBOnEditEnded();
 			};
 			newElem->GetFlags().Set(WF_DISABLED, disallowAddDelete);
 			rightSide->AddChild(newElem);
@@ -1204,9 +1210,11 @@ namespace Lina::Editor
 			clear->SetAlignedPosY(0.0f);
 			clear->SetAlignedSizeY(1.0f);
 			clear->CreateIcon(ICON_TRASH);
-			clear->GetProps().onClicked = [src, props, subType, fieldLayout, vectorPtr, disallowAddDelete]() {
+			clear->GetProps().onClicked = [src, clear, props, subType, fieldLayout, vectorPtr, disallowAddDelete]() {
+				clear->PropagateCBOnEditStarted();
 				props.field->GetFunction<void(void*)>("ClearVector"_hs)(vectorPtr);
 				CommonWidgets::RefreshVector(fieldLayout, props.field, vectorPtr, props.meta, subType, -1, disallowAddDelete);
+				clear->PropagateCBOnEditEnded();
 			};
 			clear->GetFlags().Set(WF_DISABLED, disallowAddDelete);
 

@@ -151,6 +151,8 @@ namespace Lina
 
 		if (altText)
 			size += altText->GetSizeX() + m_layout->GetWidgetProps().childPadding * m_manager->GetScalingFactor();
+		else
+			size += Theme::GetDef().baseItemHeight * 2.0f;
 
 		return size;
 	}

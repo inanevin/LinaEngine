@@ -208,6 +208,8 @@ namespace Lina::Editor
 #define ICON_SPOTLIGHT			  "\u0032"
 #define ICON_SUN				  "\u0033"
 #define ICON_COG				  "\u0034"
+#define ICON_HAMMER				  "\u0035"
+#define ICON_SCROLL				  "\u0036"
 
 #define DOCK_DEFAULT_PERCENTAGE	  0.4f
 #define DOCKED_MIN_SIZE			  300.0f

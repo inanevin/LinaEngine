@@ -219,8 +219,10 @@ namespace Lina::Editor
 		{LocaleStr::LoadGamePlugin, "Hot Reload C++"},
 		{LocaleStr::LoadGamePluginSuccess, "Successfully loaded game plugin!"},
 		{LocaleStr::LoadGamePluginFail, "Failed loading game plugin!"},
-		{LocaleStr::Packaging, "Build Package"},
+		{LocaleStr::Packaging, "Packaging"},
+		{LocaleStr::BuildPackage, "Build Package"},
 		{LocaleStr::ProjectSettings, "Project Settings"},
+		{LocaleStr::ChooseWhereToPackage, "Choose where to package project."},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

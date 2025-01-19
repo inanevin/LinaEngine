@@ -225,6 +225,7 @@ namespace Lina::Editor
 		Packaging,
 		BuildPackage,
 		ProjectSettings,
+		ChooseWhereToPackage,
 	};
 
 	class Locale

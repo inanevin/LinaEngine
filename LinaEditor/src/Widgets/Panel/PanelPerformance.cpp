@@ -81,7 +81,7 @@ namespace Lina::Editor
 			},
 			{
 				.color	 = Theme::GetDef().foreground1,
-				.icon	 = ICON_CUBE,
+				.icon	 = ICON_HAMMER,
 				.tooltip = Locale::GetStr(LocaleStr::Resources),
 			},
 		};

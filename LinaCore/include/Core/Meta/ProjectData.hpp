@@ -37,15 +37,24 @@ SOFTWARE.
 namespace Lina
 {
 
-	// Version changes
+	struct PackagingSettings
+	{
+		Vector<ResourceID> worldIDsToPack;
+		String			   executableName = "Lina";
+
+		virtual void SaveToStream(OStream& stream)
+		{
+			stream << worldIDsToPack << executableName;
+		}
+		virtual void LoadFromStream(IStream& stream)
+		{
+			stream >> worldIDsToPack >> executableName;
+		}
+	};
 
 	class ProjectData : public Serializable
 	{
 	public:
-		struct Runtime
-		{
-		};
-
 		static constexpr uint32 VERSION = 0;
 
 		virtual void	   SaveToStream(OStream& out) override;
@@ -88,12 +97,16 @@ namespace Lina
 			return guid;
 		}
 
+		inline PackagingSettings& GetSettingsPackaging()
+		{
+			return m_settingsPackaging;
+		}
+
 	private:
 		void FreeChildrenRecursive(ResourceDirectory* dir);
 
 	private:
 		AllocatorBucket<ResourceDirectory, 1000> m_directoryBucket;
-		Runtime									 m_runtime			 = {};
 		String									 m_projectName		 = "";
 		ResourceID								 m_resourceIDCounter = 1;
 		GUID									 m_globalGUIDCounter = 1;
@@ -102,6 +115,7 @@ namespace Lina
 								   .name	 = "Resources",
 								   .isFolder = true,
 		   };
+		PackagingSettings m_settingsPackaging = {};
 	};
 
 } // namespace Lina

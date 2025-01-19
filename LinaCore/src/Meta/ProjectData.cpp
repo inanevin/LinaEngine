@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Core/Meta/ProjectData.hpp"
 #include "Common/Data/Streams.hpp"
+#include "Core/World/EntityWorld.hpp"
 
 #include "Common/FileSystem/FileSystem.hpp"
 
@@ -40,6 +41,7 @@ namespace Lina
 		in >> m_resourceIDCounter;
 		in >> m_projectName;
 		in >> m_globalGUIDCounter;
+		in >> m_settingsPackaging;
 		m_rootDirectory.LoadFromStream(in, this);
 	}
 
@@ -49,6 +51,7 @@ namespace Lina
 		out << m_resourceIDCounter;
 		out << m_projectName;
 		out << m_globalGUIDCounter;
+		out << m_settingsPackaging;
 		m_rootDirectory.SaveToStream(out);
 	}
 
@@ -141,4 +144,9 @@ namespace Lina
 		newParent->children.push_back(dir);
 		newParent->SortChildren();
 	}
+
+	LINA_CLASS_BEGIN(PackagingSettings)
+	LINA_FIELD_VEC(PackagingSettings, worldIDsToPack, "Worlds", FieldType::ResourceID, ResourceID, GetTypeID<EntityWorld>());
+	LINA_FIELD(PackagingSettings, executableName, "Executable Name", FieldType::String, 0)
+	LINA_CLASS_END(PackagingSettings)
 } // namespace Lina

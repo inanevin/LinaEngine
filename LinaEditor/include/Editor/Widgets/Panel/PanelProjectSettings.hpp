@@ -30,10 +30,12 @@ SOFTWARE.
 
 #include "Editor/Widgets/Panel/Panel.hpp"
 #include "Editor/CommonSettings.hpp"
+#include "Core/Meta/ProjectData.hpp"
 
 namespace Lina
 {
 	class DirectionalLayout;
+	class FoldLayout;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -52,14 +54,19 @@ namespace Lina::Editor
 		void SetSettingsPackaging(const PackagingSettings& settings);
 
 	private:
+		void PackageProjectToPath(const String& directory);
+		void BuildSettingsPackaging();
+
 	private:
 		LINA_REFLECTION_ACCESS(PanelProjectSettings);
 
-		Editor*			   m_editor = nullptr;
-		DirectionalLayout* m_layout = nullptr;
-		PackagingSettings  m_settingsPackaging;
-		PackagingSettings  m_oldSettingsPackaging;
-		bool			   m_foldPackaging = true;
+		Editor*			   m_editor				= nullptr;
+		DirectionalLayout* m_layout				= nullptr;
+		FoldLayout*		   m_foldPackaging		= nullptr;
+		bool			   m_foldValuePackaging = true;
+
+		PackagingSettings m_settingsPackaging;
+		PackagingSettings m_oldSettingsPackaging;
 	};
 
 	LINA_WIDGET_BEGIN(PanelProjectSettings, Hidden)

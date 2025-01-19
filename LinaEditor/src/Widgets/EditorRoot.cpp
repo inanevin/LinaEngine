@@ -341,10 +341,6 @@ namespace Lina::Editor
 					.text		= Locale::GetStr(LocaleStr::LoadGamePlugin),
 					.headerIcon = ICON_CODE,
 				},
-				FileMenuItem::Data{
-					.text		= Locale::GetStr(LocaleStr::ProjectSettings),
-					.headerIcon = ICON_COG,
-				},
 				FileMenuItem::Data{.isDivider = true},
 				FileMenuItem::Data{
 					.text = Locale::GetStr(LocaleStr::Exit),
@@ -356,13 +352,34 @@ namespace Lina::Editor
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Panels)))
 		{
 			outData = {
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Entities)},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Details)},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::World)},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Resources)},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Performance)},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::WidgetEditor)},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Log)},
+				FileMenuItem::Data{
+					.text		= Locale::GetStr(LocaleStr::Entities),
+					.headerIcon = ICON_CUBE,
+				},
+				FileMenuItem::Data{
+					.text		= Locale::GetStr(LocaleStr::Details),
+					.headerIcon = ICON_SEARCH,
+				},
+				FileMenuItem::Data{
+					.text		= Locale::GetStr(LocaleStr::World),
+					.headerIcon = ICON_GLOBE,
+				},
+				FileMenuItem::Data{
+					.text		= Locale::GetStr(LocaleStr::Resources),
+					.headerIcon = ICON_HAMMER,
+				},
+				FileMenuItem::Data{
+					.text		= Locale::GetStr(LocaleStr::Performance),
+					.headerIcon = ICON_GAUGE,
+				},
+				FileMenuItem::Data{
+					.text		= Locale::GetStr(LocaleStr::Log),
+					.headerIcon = ICON_SCROLL,
+				},
+				FileMenuItem::Data{
+					.text		= Locale::GetStr(LocaleStr::ProjectSettings),
+					.headerIcon = ICON_COG,
+				},
 				FileMenuItem::Data{.isDivider = true},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::ResetLayout)},
 			};

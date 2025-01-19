@@ -43,6 +43,7 @@ namespace Lina
 		m_text->SetAnchorX(Anchor::Center);
 		m_text->SetAnchorY(Anchor::Center);
 		GetWidgetProps().drawBackground			 = true;
+		GetWidgetProps().colorBackground		 = Theme::GetDef().background1;
 		GetWidgetProps().hoveredIsDifferentColor = true;
 		GetWidgetProps().pressedIsDifferentColor = true;
 		AddChild(m_text);

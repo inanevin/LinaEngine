@@ -29,7 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "EditorAction.hpp"
-#include "Editor/CommonSettings.hpp"
+#include "Core/Meta/ProjectData.hpp"
 
 namespace Lina
 {

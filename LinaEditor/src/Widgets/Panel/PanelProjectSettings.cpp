@@ -32,9 +32,12 @@ SOFTWARE.
 #include "Editor/Editor.hpp"
 #include "Editor/Actions/EditorActionSettings.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
+#include "Core/GUI/Widgets/Primitives/Button.hpp"
+#include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
+#include "Core/Platform/PlatformProcess.hpp"
 
 namespace Lina::Editor
 {
@@ -60,14 +63,70 @@ namespace Lina::Editor
 		m_layout->GetWidgetProps().childMargins.top	 = Theme::GetDef().baseIndent;
 		scroll->AddChild(m_layout);
 
-		FoldLayout* foldPackaging = CommonWidgets::BuildFoldTitle(this, Locale::GetStr(LocaleStr::Packaging), &m_foldPackaging);
-		CommonWidgets::BuildClassReflection(foldPackaging, &m_settingsPackaging, ReflectionSystem::Get().Meta<PackagingSettings>());
+		m_foldPackaging								  = CommonWidgets::BuildFoldTitle(this, Locale::GetStr(LocaleStr::Packaging), &m_foldValuePackaging);
+		m_foldPackaging->GetCallbacks().onEditStarted = [this]() { m_oldSettingsPackaging = m_settingsPackaging; };
+		m_foldPackaging->GetCallbacks().onEditEnded	  = [this]() {
+			  EditorActionSettingsPackaging::Create(m_editor, m_oldSettingsPackaging, m_settingsPackaging);
+			  m_editor->GetProjectManager().SaveProjectChanges();
+		};
+		m_layout->AddChild(m_foldPackaging);
 
-		foldPackaging->GetCallbacks().onEditStarted = [this]() { m_oldSettingsPackaging = m_settingsPackaging; };
-		foldPackaging->GetCallbacks().onEditEnded	= [this]() { EditorActionSettingsPackaging::Create(m_editor, m_oldSettingsPackaging, m_settingsPackaging); };
+		ProjectData* pj = m_editor->GetProjectManager().GetProjectData();
+		if (pj)
+			m_settingsPackaging = pj->GetSettingsPackaging();
+
+		BuildSettingsPackaging();
 	}
 
 	void PanelProjectSettings::SetSettingsPackaging(const PackagingSettings& settings)
 	{
+		m_settingsPackaging = settings;
+		BuildSettingsPackaging();
+		m_editor->GetProjectManager().GetProjectData()->GetSettingsPackaging() = m_settingsPackaging;
+		m_editor->GetProjectManager().SaveProjectChanges();
+	}
+
+	void PanelProjectSettings::BuildSettingsPackaging()
+	{
+		m_foldPackaging->DeallocAllChildren();
+		m_foldPackaging->RemoveAllChildren();
+
+		CommonWidgets::BuildClassReflection(m_foldPackaging, &m_settingsPackaging, ReflectionSystem::Get().Meta<PackagingSettings>());
+
+		Button* buttonPackage = m_manager->Allocate<Button>("Package");
+		buttonPackage->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+		buttonPackage->SetAlignedPosX(0.5f);
+		buttonPackage->SetAlignedSizeX(0.5f);
+		buttonPackage->SetAnchorX(Anchor::Center);
+		buttonPackage->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		buttonPackage->GetText()->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::BuildPackage));
+		buttonPackage->GetProps().onClicked = [this]() {
+			const String& path = PlatformProcess::SaveDialog({
+				.title		   = Locale::GetStr(LocaleStr::ChooseWhereToPackage),
+				.primaryButton = Locale::GetStr(LocaleStr::Select),
+				.mode		   = PlatformProcess::DialogMode::SelectDirectory,
+			});
+
+			PackageProjectToPath(path);
+		};
+		m_foldPackaging->AddChild(buttonPackage);
+
+		m_foldPackaging->Initialize();
+	}
+
+	void PanelProjectSettings::PackageProjectToPath(const String& directory)
+	{
+		EditorTask* task   = m_editor->GetTaskManager().CreateTask();
+		task->ownerWindow  = GetWindow();
+		task->title		   = Locale::GetStr(LocaleStr::Packaging);
+		task->progressText = Locale::GetStr(LocaleStr::Working);
+
+		task->task = [task]() { std::this_thread::sleep_for(std::chrono::microseconds(5000000)); };
+
+		task->onComplete = [task]() {
+
+		};
+
+		m_editor->GetTaskManager().AddTask(task);
 	}
 } // namespace Lina::Editor

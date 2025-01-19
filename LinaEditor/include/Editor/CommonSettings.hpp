@@ -33,15 +33,5 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	struct PackagingSettings
-	{
-		Vector<ResourceID> worldIDsToPack;
-		String			   executableName = "Lina";
-	};
-
-	LINA_CLASS_BEGIN(PackagingSettings)
-	LINA_FIELD_VEC(PackagingSettings, worldIDsToPack, "Worlds", FieldType::ResourceID, ResourceID, GetTypeID<EntityWorld>());
-	LINA_FIELD(PackagingSettings, executableName, "Executable Name", FieldType::String, 0)
-	LINA_CLASS_END(PackagingSettings)
 
 } // namespace Lina::Editor
