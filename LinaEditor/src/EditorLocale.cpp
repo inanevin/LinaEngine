@@ -223,6 +223,8 @@ namespace Lina::Editor
 		{LocaleStr::BuildPackage, "Build Package"},
 		{LocaleStr::ProjectSettings, "Project Settings"},
 		{LocaleStr::ChooseWhereToPackage, "Choose where to package project."},
+		{LocaleStr::Entity, "Entity"},
+		{LocaleStr::AddComponent, "Add Component"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

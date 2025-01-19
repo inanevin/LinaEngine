@@ -63,13 +63,7 @@ namespace Lina::Editor
 		m_layout->GetWidgetProps().childMargins.top	 = Theme::GetDef().baseIndent;
 		scroll->AddChild(m_layout);
 
-		m_foldPackaging								  = CommonWidgets::BuildFoldTitle(this, Locale::GetStr(LocaleStr::Packaging), &m_foldValuePackaging);
-		m_foldPackaging->GetCallbacks().onEditStarted = [this]() { m_oldSettingsPackaging = m_settingsPackaging; };
-		m_foldPackaging->GetCallbacks().onEditEnded	  = [this]() {
-			  EditorActionSettingsPackaging::Create(m_editor, m_oldSettingsPackaging, m_settingsPackaging);
-			  m_editor->GetProjectManager().SaveProjectChanges();
-		};
-		m_layout->AddChild(m_foldPackaging);
+		
 
 		ProjectData* pj = m_editor->GetProjectManager().GetProjectData();
 		if (pj)
@@ -88,9 +82,20 @@ namespace Lina::Editor
 
 	void PanelProjectSettings::BuildSettingsPackaging()
 	{
-		m_foldPackaging->DeallocAllChildren();
-		m_foldPackaging->RemoveAllChildren();
-
+        if(m_foldPackaging)
+        {
+            m_manager->Deallocate(m_foldPackaging);
+            m_layout->RemoveChild(m_foldPackaging);
+        }
+        
+        m_foldPackaging                                  = CommonWidgets::BuildFoldTitle(this, Locale::GetStr(LocaleStr::Packaging), &m_foldValuePackaging);
+        m_foldPackaging->GetCallbacks().onEditStarted = [this]() { m_oldSettingsPackaging = m_settingsPackaging; };
+        m_foldPackaging->GetCallbacks().onEditEnded      = [this]() {
+              EditorActionSettingsPackaging::Create(m_editor, m_oldSettingsPackaging, m_settingsPackaging);
+              m_editor->GetProjectManager().SaveProjectChanges();
+        };
+        m_layout->AddChild(m_foldPackaging);
+	
 		CommonWidgets::BuildClassReflection(m_foldPackaging, &m_settingsPackaging, ReflectionSystem::Get().Meta<PackagingSettings>());
 
 		Button* buttonPackage = m_manager->Allocate<Button>("Package");

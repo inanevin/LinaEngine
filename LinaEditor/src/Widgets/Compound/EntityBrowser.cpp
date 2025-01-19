@@ -363,6 +363,16 @@ namespace Lina::Editor
 			return true;
 		}
 
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::Entity)))
+		{
+			Entity* e = m_world->CreateEntity(m_world->ConsumeEntityGUID(), Locale::GetStr(LocaleStr::PointLight));
+			e->SetPosition(createPos);
+			EditorActionEntitiesCreated::Create(m_editor, m_world, {e});
+			EditorActionEntitySelection::Create(m_editor, m_world->GetID(), {e}, true, true);
+			EditorActionCollective::Create(m_editor, 2);
+			return true;
+		}
+
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::SpotLight)))
 		{
 			Entity* e = m_world->CreateEntity(m_world->ConsumeEntityGUID(), Locale::GetStr(LocaleStr::SpotLight));
@@ -457,9 +467,14 @@ namespace Lina::Editor
 		else if (sid == TO_SID(Locale::GetStr(LocaleStr::Create)))
 		{
 			outData = {
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::PointLight), .userData = userData},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::SpotLight), .userData = userData},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::DirectionalLight), .userData = userData},
+				FileMenuItem::Data{
+					.text		= Locale::GetStr(LocaleStr::Entity),
+					.headerIcon = ICON_CUBE,
+				},
+				FileMenuItem::Data{.isDivider = true},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::PointLight), .headerIcon = ICON_LIGHTBULB, .userData = userData},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::SpotLight), .headerIcon = ICON_SPOTLIGHT, .userData = userData},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::DirectionalLight), .headerIcon = ICON_SUN, .userData = userData},
 			};
 		}
 		else if (sid == TO_SID(Locale::GetStr(LocaleStr::Display)))

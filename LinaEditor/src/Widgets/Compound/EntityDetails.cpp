@@ -34,8 +34,10 @@ SOFTWARE.
 #include "Editor/Actions/EditorActionComponent.hpp"
 #include "Common/Math/Math.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
+#include "Core/GUI/Widgets/Layout/Popup.hpp"
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
 #include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
+#include "Core/GUI/Widgets/Primitives/Button.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
@@ -196,6 +198,29 @@ namespace Lina::Editor
 			foldTitle->GetCallbacks().onEditEnded = [this, c]() { StopEditingComponents(); };
 		}
 
+		Button* buttonAddComp = m_manager->Allocate<Button>("AddComp");
+		buttonAddComp->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+		buttonAddComp->SetAlignedPosX(0.5f);
+		buttonAddComp->SetAnchorX(Anchor::Center);
+		buttonAddComp->SetAlignedSizeX(0.5f);
+		buttonAddComp->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		buttonAddComp->GetText()->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::AddComponent));
+		buttonAddComp->GetProps().onClicked = [this]() {
+			Popup* popup = m_manager->Allocate<Popup>("Popup");
+			popup->SetPos(GetPos() + Vector2(0.0f, GetSizeY() + Theme::GetDef().baseOutlineThickness));
+			popup->GetProps().selectedIcon	= Theme::GetDef().iconCircleFilled;
+			popup->GetProps().closeOnSelect = true;
+
+			popup->GetProps().onSelectedItem = [this, popup](int32 idx, void* ud) {
+
+			};
+
+			popup->Initialize();
+
+			m_manager->AddToForeground(popup);
+			m_manager->GrabControls(popup);
+		};
+		m_layout->AddChild(buttonAddComp);
 		m_layout->Initialize();
 	}
 

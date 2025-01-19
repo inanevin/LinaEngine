@@ -91,7 +91,7 @@ namespace Lina
 
 			// c->GetFlags().Remove(WF_HIDE);
 			c->GetFlags().Remove(WF_POS_ALIGN_X);
-			c->SetPosX(x);
+			c->SetPosX(WidgetManager::CalculateAlignedPosX(c));
 
 			if (!c->GetFlags().IsSet(WF_HIDE))
 			{

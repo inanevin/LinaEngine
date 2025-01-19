@@ -97,6 +97,10 @@ namespace Lina
 		float	GetScalingFactor() const;
 		Vector2 GetMousePosition() const;
 
+		static float CalculateAlignedPosX(Widget* w);
+		static float CalculateAlignedPosY(Widget* w);
+		Widget*		 Allocate(TypeID tid, const String& debugName = "Widget");
+
 		inline Widget* GetRoot() const
 		{
 			return m_rootWidget;
@@ -124,8 +128,6 @@ namespace Lina
 		{
 			return m_lastControlsManager;
 		}
-
-		Widget* Allocate(TypeID tid, const String& debugName = "Widget");
 
 		template <typename T> T* Allocate(const String& debugName = "Widget")
 		{

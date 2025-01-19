@@ -204,7 +204,7 @@ namespace Lina::Editor
 #define ICON_VIDEO				  "\u002E"
 #define ICON_CUBES_STACKED		  "\u002F"
 #define ICON_CODE				  "\u0030"
-#define ICON_LIGHTBULD			  "\u0031"
+#define ICON_LIGHTBULB			  "\u0031"
 #define ICON_SPOTLIGHT			  "\u0032"
 #define ICON_SUN				  "\u0033"
 #define ICON_COG				  "\u0034"

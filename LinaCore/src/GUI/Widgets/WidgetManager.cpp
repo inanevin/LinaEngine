@@ -475,38 +475,35 @@ namespace Lina
 		m_killList.push_back(w);
 	}
 
-	namespace
+	float WidgetManager::CalculateAlignedPosX(Widget* w)
 	{
-		float CalculateAlignedPosX(Widget* w)
-		{
-			const Vector2 alignedPos = w->GetAlignedPos();
-			const Anchor  src		 = w->GetPosAlignmentSourceX();
-			const Vector2 start		 = w->GetParent()->GetStartFromMargins();
-			const Vector2 end		 = w->GetParent()->GetEndFromMargins();
-			const Vector2 sz		 = end - start;
-			if (src == Anchor::Center)
-				return start.x + sz.x * alignedPos.x - w->GetHalfSizeX();
-			else if (src == Anchor::End)
-				return start.x + sz.x * alignedPos.x - w->GetSizeX();
+		const Vector2 alignedPos = w->GetAlignedPos();
+		const Anchor  src		 = w->GetPosAlignmentSourceX();
+		const Vector2 start		 = w->GetParent()->GetStartFromMargins();
+		const Vector2 end		 = w->GetParent()->GetEndFromMargins();
+		const Vector2 sz		 = end - start;
+		if (src == Anchor::Center)
+			return start.x + sz.x * alignedPos.x - w->GetHalfSizeX();
+		else if (src == Anchor::End)
+			return start.x + sz.x * alignedPos.x - w->GetSizeX();
 
-			return start.x + sz.x * alignedPos.x;
-		}
+		return start.x + sz.x * alignedPos.x;
+	}
 
-		float CalculateAlignedPosY(Widget* w)
-		{
-			const Vector2 alignedPos = w->GetAlignedPos();
-			const Anchor  src		 = w->GetPosAlignmentSourceY();
-			const Vector2 start		 = w->GetParent()->GetStartFromMargins();
-			const Vector2 end		 = w->GetParent()->GetEndFromMargins();
-			const Vector2 sz		 = end - start;
-			if (src == Anchor::Center)
-				return start.y + sz.y * alignedPos.y - w->GetHalfSizeY();
-			else if (src == Anchor::End)
-				return start.y + sz.y * alignedPos.y - w->GetSizeY();
+	float WidgetManager::CalculateAlignedPosY(Widget* w)
+	{
+		const Vector2 alignedPos = w->GetAlignedPos();
+		const Anchor  src		 = w->GetPosAlignmentSourceY();
+		const Vector2 start		 = w->GetParent()->GetStartFromMargins();
+		const Vector2 end		 = w->GetParent()->GetEndFromMargins();
+		const Vector2 sz		 = end - start;
+		if (src == Anchor::Center)
+			return start.y + sz.y * alignedPos.y - w->GetHalfSizeY();
+		else if (src == Anchor::End)
+			return start.y + sz.y * alignedPos.y - w->GetSizeY();
 
-			return start.y + sz.y * alignedPos.y;
-		}
-	} // namespace
+		return start.y + sz.y * alignedPos.y;
+	}
 
 	bool WidgetManager::PassKey(Widget* widget, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
 	{
