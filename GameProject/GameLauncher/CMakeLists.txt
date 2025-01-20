@@ -20,57 +20,65 @@ project(GameLauncher)
 #--------------------------------------------------------------------
 
 set(SOURCES 
+src/Main.cpp
 )
 
 set(HEADERS
-src/Main.cpp
 )
 
 #--------------------------------------------------------------------
 # Create executable project
 #--------------------------------------------------------------------
 
-## WIN32 Console Subsystem
 if(WIN32)
-	add_executable(${PROJECT_NAME} WIN32 ${SOURCES} ${HEADERS})
-else()
-	add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+set(ICON ${PROJECT_SOURCE_DIR}/_Resources/${PROJECT_NAME}.rc)
 endif()
+
+if(APPLE)
+set(ICON ${PROJECT_SOURCE_DIR}/_Resources/${PROJECT_NAME}.icns)
+endif()
+
+# WIN32 Console Subsystem
+if(WIN32)
+	add_executable(${PROJECT_NAME} WIN32 ${SOURCES} ${HEADERS} ${ICON})
+else()
+	add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCES} ${HEADERS} ${ICON})
+endif()
+
 
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions
 #--------------------------------------------------------------------
-include(../CMake/ProjectSettings.cmake)
-include(../CMake/ExecutableSettings.cmake)
+include(CMake/ProjectSettings.cmake)
+include(CMake/CommonDefs.cmake)
+set(CMAKE_SHARED_LINKER_FLAGS_DEBUGFAST "${CMAKE_SHARED_LINKER_FLAGS_DEBUG}")
+set(CMAKE_SHARED_LINKER_FLAGS_DEBUGASAN "${CMAKE_SHARED_LINKER_FLAGS_DEBUG}")
+set(CMAKE_SHARED_LINKER_FLAGS_DEBUGPROFILE "${CMAKE_SHARED_LINKER_FLAGS_DEBUG}")
 
 #--------------------------------------------------------------------
 # Set include directories
 #--------------------------------------------------------------------
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCore/include)
 target_compile_definitions(${PROJECT_NAME} PUBLIC _ITERATOR_DEBUG_LEVEL=${LINA_ITERATOR_DEBUG_LEVEL})
+
 #--------------------------------------------------------------------
 # Links
 #--------------------------------------------------------------------
 target_link_libraries(${PROJECT_NAME} 
+PUBLIC Lina::Common
 PUBLIC Lina::Core
 )
 
-
-if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-  target_compile_options(${PROJECT_NAME} PRIVATE "/ZI")
-endif()
 
 include(../CMake/EditorSandboxCommands.cmake)
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio
 #--------------------------------------------------------------------
-if(MSVC_IDE)
-	foreach(source IN LISTS LINAGAMELAUNCHER_HEADERS LINAGAMELAUNCHER_SOURCES)
-		get_filename_component(source_path "${source}" PATH)
-		string(REPLACE "${LINAGAMELAUNCHER_SOURCE_DIR}" "" relative_source_path "${source_path}")
-		string(REPLACE "/" "\\" source_path_msvc "${relative_source_path}")
-				source_group("${source_path_msvc}" FILES "${source}")
-	endforeach()
-endif()
+include(CMake/CommonFunctions.cmake)
+group_sources(HEADERS SOURCES)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CustomTargets")
+set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT GameLaunncher)

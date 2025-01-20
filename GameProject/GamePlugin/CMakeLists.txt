@@ -52,7 +52,6 @@ src/GamePlugin.cpp
 #--------------------------------------------------------------------
 # Create project
 #--------------------------------------------------------------------
-## WIN32 Console Subsystem
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
 
 #--------------------------------------------------------------------
@@ -79,9 +78,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/Dependen
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/Dependencies/memory-allocators)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/Dependencies/LinaGX)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/Dependencies/LinaVG)
-
-
-
+target_compile_definitions(${PROJECT_NAME} PUBLIC _ITERATOR_DEBUG_LEVEL=${LINA_ITERATOR_DEBUG_LEVEL})
 
 #--------------------------------------------------------------------
 # Links
@@ -97,7 +94,6 @@ ${PROJECT_SOURCE_DIR}/Dependencies/lib//$<CONFIGURATION>/LinaCore.lib
 #--------------------------------------------------------------------
 include(CMake/CommonFunctions.cmake)
 group_sources(HEADERS SOURCES)
-
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CustomTargets")
 set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT GamePlugin)

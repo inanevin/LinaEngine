@@ -27,7 +27,6 @@
 # SOFTWARE.
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-set(TARGET_ARCHITECTURE "x64")
 
 add_compile_definitions($<$<CONFIG:Debug>:_ITERATOR_DEBUG_LEVEL=1>)
 add_compile_definitions($<$<CONFIG:Debug>:LINA_DEBUG=1>)
@@ -64,7 +63,7 @@ if(MSVC)
   add_link_options($<$<CONFIG:DebugFAST>:/DEBUG>)
 else()
   add_compile_options($<$<CONFIG:DebugASAN>:-fsanitize=address>)
-  add_link_options(-fsanitize=address)
+  # add_link_options(-fsanitize=address)
 endif()
 
 

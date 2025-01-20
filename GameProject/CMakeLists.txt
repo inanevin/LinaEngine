@@ -28,11 +28,7 @@
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 cmake_minimum_required (VERSION 3.10...3.31)
-
-set(TARGET_ARCHITECTURE "x64")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-
-project (Lina)
+project (GameProject)
 
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;DebugFAST;DebugASAN;DebugProfile;" CACHE STRING "" FORCE)
 set_property(GLOBAL PROPERTY DEBUG_CONFIGURATIONS "Debug;DebugFAST;DebugASAN;DebugProfile;")
@@ -52,12 +48,11 @@ include(CMake/CommonDefs.cmake)
 # Sub directories
 #--------------------------------------------------------------------
 
-include(Dependencies/Dependencies.cmake)
-add_subdirectory(LinaCommon)
-add_subdirectory(LinaCore)
-add_subdirectory(LinaEditor)
+add_subdirectory(LinaSDK)
+add_subdirectory(GamePlugin)
+add_subdirectory(GameLauncher)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CustomTargets")
-set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT LinaEditor)
+set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT GameLauncher)
 

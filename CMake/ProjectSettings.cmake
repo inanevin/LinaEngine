@@ -15,15 +15,6 @@ endif()
 #--------------------------------------------------------------------
 # Properties
 #--------------------------------------------------------------------
-
-set_target_properties(
-    ${PROJECT_NAME}
-      PROPERTIES 
-        CXX_STANDARD 23 
-        CXX_STANDARD_REQUIRED YES 
-        CXX_EXTENSIONS NO
-)
-target_compile_definitions(${PROJECT_NAME} PUBLIC _SILENCE_CXX20_CISO646_REMOVED_WARNING=1)
    
 # To be retrieved from git later.
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_BUILD=0)

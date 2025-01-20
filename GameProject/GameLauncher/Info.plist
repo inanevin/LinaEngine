@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleIconFile</key>
+	<string>${PROJECT_NAME}.icns</string>
+	<key>NSDownloadsFolderUsageDescription</key>
+	<string>${PROJECT_NAME} requires access to your downloads folder to open and save user settings.</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>${PROJECT_NAME} requires access to your documents folder to open and save user settings.</string>
+	<key>NSDesktopFolderUsageDescription</key>
+	<string>${PROJECT_NAME} requires access to your desktop folder to open and save files.</string>
+	<key>CFBundleDisplayName</key>
+	<string></string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.games</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>${PROJECT_NAME}</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.inanevin.Game.${PROJECT_NAME}</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>${PROJECT_NAME}</string>
+	<key>CFBundlePackageType</key>
+	<string></string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleSignature</key>
+	<string></string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>${MACOSX_DEPLOYMENT_TARGET}</string>
+	<key>NSMainNibFile</key>
+	<string>${PROJECT_NAME}</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+</dict>
+</plist>
