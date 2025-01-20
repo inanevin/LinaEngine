@@ -30,6 +30,7 @@ SOFTWARE.
 
 namespace Lina
 {
+
 	void ReflectionSystem::Destroy()
 	{
 		for (const MetaPair& pair : m_metaData)

@@ -81,6 +81,7 @@ namespace Lina
 		Entity* CreateEntity(EntityID id, const String& name = "");
 		Entity* GetEntity(EntityID guid);
 		void	DestroyEntity(Entity* e);
+		Entity* FindEntity(const String& name);
 
 		// Components
 		void	   GetComponents(Entity* e, Vector<Component*>& outComponents) const;

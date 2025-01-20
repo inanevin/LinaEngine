@@ -29,9 +29,6 @@
 
 cmake_minimum_required (VERSION 3.10...3.31)
 
-set(TARGET_ARCHITECTURE "x64")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-
 project (Lina)
 
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;DebugFAST;DebugASAN;DebugProfile;" CACHE STRING "" FORCE)

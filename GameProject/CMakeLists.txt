@@ -38,8 +38,8 @@ set_property(GLOBAL PROPERTY DEBUG_CONFIGURATIONS "Debug;DebugFAST;DebugASAN;Deb
 #--------------------------------------------------------------------
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 set(CMAKE_SUPPRESS_REGENERATION true)
 
 include(CMake/CommonDefs.cmake)
@@ -48,7 +48,9 @@ include(CMake/CommonDefs.cmake)
 # Sub directories
 #--------------------------------------------------------------------
 
-add_subdirectory(LinaSDK)
+include(Dependencies/Dependencies.cmake)
+add_subdirectory(LinaCommon)
+add_subdirectory(LinaCore)
 add_subdirectory(GamePlugin)
 add_subdirectory(GameLauncher)
 

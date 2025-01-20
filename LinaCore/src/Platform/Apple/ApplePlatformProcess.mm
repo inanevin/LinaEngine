@@ -225,42 +225,53 @@ namespace Lina
 		} while (ev);
 	}
 
-    Plugin* PlatformProcess::LoadPlugin(const String& name, PluginInterface* pInterface)
-	{
-		// void* handle = dlopen(name, RTLD_NOW);
-		// if (handle != NULL)
-		// {
-		//     CreatePluginFunc createPluginAddr = (CreatePluginFunc)dlsym(handle, "CreatePlugin");
-		//     if (createPluginAddr != NULL)
-		//     {
-		//         Plugin* plugin = createPluginAddr(engInterface, name);
-		//         dispatcher->AddListener(plugin);
-		//         plugin->OnAttached();
-		//         // Store the handle for later use (e.g., in a map like s_pluginHandles)
-		//     }
-		//     else
-		//     {
-		//         // Error handling: could not find the CreatePlugin function
-		//         std::string error = dlerror();
-		//         LINA_ERR("[macOS Platform Process] -> Could not load plugin create function! {0}", name);
-		//     }
-		// }
-		// else
-		// {
-		//     // Error handling: could not open the library
-		//     std::string error = dlerror();
-		//     LINA_ERR("[macOS Platform Process] -> Could not find plugin! {0}", name);
-		// }
-        return nullptr;
-	}
+    Plugin* PlatformProcess::LoadPlugin(const String& path, PluginInterface* pInterface)
+    {
+        void* handle = dlopen(path.c_str(), RTLD_LAZY);
+        if (!handle)
+        {
+            LINA_ERR("[macOS Platform Process] -> Could not find plugin! {}", path);
+            return nullptr;
+        }
 
-	void PlatformProcess::UnloadPlugin(Plugin* plugin)
-	{
-		// if (handle != NULL)
-		// {
-		//     dlclose(handle);
-		// }
-	}
+        using CreatePluginFunc = Plugin*(*)(const String&, void*, PluginInterface*);
+        CreatePluginFunc createPluginAddr = (CreatePluginFunc)dlsym(handle, "CreatePlugin");
+        if (!createPluginAddr)
+        {
+            LINA_ERR("[macOS Platform Process] -> Could not load plugin create function! {}", path);
+            dlclose(handle);
+            return nullptr;
+        }
+
+        Plugin* plugin = createPluginAddr(path, handle, pInterface);
+        if (plugin)
+            plugin->OnAttached();
+        
+        return plugin;
+    }
+
+    void PlatformProcess::UnloadPlugin(Plugin* plugin)
+    {
+        if (!plugin)
+        {
+            LINA_ERR("[Platform Process] -> Plugin is null, cannot unload.");
+            return;
+        }
+
+        void* handle = plugin->GetPlatformHandle();
+        if (!handle)
+        {
+            LINA_ERR("[Platform Process] -> Could not find the plugin to unload! {}", plugin->GetPath());
+            return;
+        }
+
+        using DestroyPluginFunc = void(*)(Plugin*);
+        DestroyPluginFunc destroyPluginAddr = (DestroyPluginFunc)dlsym(handle, "DestroyPlugin");
+        if (destroyPluginAddr)
+            destroyPluginAddr(plugin);
+
+        dlclose(handle);
+    }
 
 	void PlatformProcess::CopyToClipboard(const char* str)
 	{

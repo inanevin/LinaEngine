@@ -7,7 +7,7 @@
 # That's why we use this script to always build Lina and related Game projects with correct compiler,
 # compiler flags and alike. Always use this to generate project files.
 
-# Note: using -lc++ expects to have LLVM/lib/c++ folder where libc++ libraries will be in.
+# Note: using -lc++ in LDFLAGS expects to have LLVM/lib/c++ folder where libc++ libraries will be in.
 # This is unfortunately not the case when you download from github releases...
 
 if [ -z "$1" ]; then
@@ -25,7 +25,7 @@ CCOMPILER="$LLVM_DIR/bin/clang"
 CPPCOMPILER="$LLVM_DIR/bin/clang++"
 AR="$LLVM_DIR/bin/llvm-ar"
 RANLIB="$LLVM_DIR/bin/llvm-ranlib"
-LINKER="$LLVM_DIR/bin/lld"
+LINKER="$LLVM_DIR/bin/ld64.lld"
 LIBCXX_INCLUDE="$LLVM_DIR/include/c++/v1"
 LIBCXX_LIB="$LLVM_DIR/lib"
 
@@ -39,18 +39,29 @@ echo "Preventing LLVM dynamic libraries from Apple privacy protection..."
 sudo xattr -r -d com.apple.quarantine "$LIBCXX_LIB"/*.dylib
 sudo xattr -r -d com.apple.quarantine "$LLVM_DIR"/bin/clang
 sudo xattr -r -d com.apple.quarantine "$LLVM_DIR"/bin/clang++
+sudo xattr -r -d com.apple.quarantine "$LLVM_DIR"/bin/lld
 sudo codesign -s - "$LLVM_DIR"/bin/*
 sudo codesign -s - "$LLVM_DIR"/lib/*
 
 # Create the build directory if it doesn't exist
 mkdir -p "$BUILD_DIR"
 
-export CXXFLAGS="-std=c++23 -stdlib=libc++ -nostdinc++ -I$LIBCXX_INCLUDE"
-export LDFLAGS="-stdlib=libc++ -L$LIBCXX_LIB -lc++abi -Wl,-rpath,$LIBCXX_LIB"
-export CC="$CCOMPILER"
-export CXX="$CPPCOMPILER"
+unset LDFLAGS CFLAGS CXXFLAGS
 unset CMAKE_C_COMPILER
 unset CMAKE_CXX_COMPILER
+export CFLAGS=""
+export CXXFLAGS="-std=c++23 "
+export LDFLAGS="-fuse-ld="$LINKER""
+export CC="$CCOMPILER"
+export CXX="$CPPCOMPILER"
+
+# For using LLVM's libc++
+# Add -I$LIBCXX_INCLUDE to CFLAGS
+# Add -stdlib=libc++ -nostdinc++ -I$LIBCXX_INCLUDE to CXX FLAGS
+# Add -stdlib=libc++ -L$LIBCXX_LIB -lc++ -lc++abi -Wl,-rpath,$LIBCXX_LIB to LDFLAGS
+# Currently on MacOS this doesn't work, some errors with libc++ dylibs crashing app. 
+
+# -L$LIBCXX_LIB/unwind -lunwind
 
 # -fms-compatibility-version=19.1
 

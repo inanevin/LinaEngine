@@ -27,13 +27,24 @@ SOFTWARE.
 */
 
 #include "GamePlugin.hpp"
+#include "Core/System/PluginInterface.hpp"
+#include "Common/Reflection/ReflectionSystem.hpp"
+
+Lina::SystemInitializationInfo Lina::Lina_GetInitInfo()
+{
+	return {};
+}
 
 namespace Lina
 {
 	void GamePlugin::OnAttached()
 	{
+		Log::SetLog(m_interface->GetLog());
+		LINA_TRACE("GamePlugin -> Attached.");
 	}
+
 	void GamePlugin::OnDetached()
 	{
+		LINA_TRACE("GamePlugin -> Detaching.");
 	}
 } // namespace Lina

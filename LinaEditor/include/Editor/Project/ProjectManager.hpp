@@ -114,6 +114,11 @@ namespace Lina::Editor
 		void			   CollectReimportResources(ResourceDirectory* dir);
 		void			   CollectReimportResourcesRecursively(ResourceDirectory* dir);
 
+		inline Plugin* GetGamePlugin() const
+		{
+			return m_gamePlugin;
+		}
+
 	private:
 		void OnPressedOpenProject();
 		void OnPressedCreateProject();

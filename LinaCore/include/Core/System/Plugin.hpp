@@ -34,6 +34,8 @@ SOFTWARE.
 namespace Lina
 {
 	class PluginInterface;
+	class EntityWorld;
+	enum class PlayMode;
 
 	class Plugin
 	{
@@ -43,6 +45,7 @@ namespace Lina
 
 		virtual void OnAttached() = 0;
 		virtual void OnDetached() = 0;
+		virtual void OnSetPlayMode(EntityWorld* world, PlayMode mode){};
 
 		inline const String& GetPath()
 		{

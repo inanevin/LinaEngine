@@ -26,16 +26,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Lina.hpp"
+#include "Core/Lina.hpp"
 
-Lina::Application* LinaLaunchCreateApplication(Lina::SystemInitializationInfo& outInfo)
+Lina::SystemInitializationInfo Lina::Lina_GetInitInfo()
 {
-	outInfo = Lina::SystemInitializationInfo{
+	const Lina::SystemInitializationInfo outInfo = Lina::SystemInitializationInfo{
 		.appName	  = "Lina Game",
 		.windowWidth  = 800,
 		.windowHeight = 600,
-		.windowStyle  = LinaGX::WindowStyle::WindowedApplication,
+		.windowStyle  = Lina::WindowStyle::WindowedApplication,
 	};
 
-	return new Lina::Application();
+	return outInfo;
 }

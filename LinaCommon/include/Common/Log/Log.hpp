@@ -36,19 +36,19 @@ SOFTWARE.
 
 #ifdef LINA_DEBUG
 
-#define LINA_ERR(...)	   Lina::Log::LogMessage(Lina::LogLevel::LOG_LEVEL_ERROR, __VA_ARGS__)
-#define LINA_WARN(...)	   Lina::Log::LogMessage(Lina::LogLevel::LOG_LEVEL_WARNING, __VA_ARGS__)
-#define LINA_INFO(...)	   Lina::Log::LogMessage(Lina::LogLevel::LOG_LEVEL_INFO, __VA_ARGS__)
-#define LINA_TRACE(...)	   Lina::Log::LogMessage(Lina::LogLevel::LOG_LEVEL_TRACE, __VA_ARGS__)
-#define LINA_CRITICAL(...) Lina::Log::LogMessage(Lina::LogLevel::LOG_LEVEL_CRITICAL, __VA_ARGS__)
+#define LINA_ERR(...)	   Lina::Log::Instance()->LogMessage(Lina::LogLevel::LOG_LEVEL_ERROR, __VA_ARGS__)
+#define LINA_WARN(...)	   Lina::Log::Instance()->LogMessage(Lina::LogLevel::LOG_LEVEL_WARNING, __VA_ARGS__)
+#define LINA_INFO(...)	   Lina::Log::Instance()->LogMessage(Lina::LogLevel::LOG_LEVEL_INFO, __VA_ARGS__)
+#define LINA_TRACE(...)	   Lina::Log::Instance()->LogMessage(Lina::LogLevel::LOG_LEVEL_TRACE, __VA_ARGS__)
+#define LINA_CRITICAL(...) Lina::Log::Instance()->LogMessage(Lina::LogLevel::LOG_LEVEL_CRITICAL, __VA_ARGS__)
 
 #else
 
-#define LINA_ERR(...)	   Lina::Log::LogMessage(Lina::LogLevel::LOG_LEVEL_ERROR, __VA_ARGS__)
-#define LINA_WARN(...)	   Lina::Log::LogMessage(Lina::LogLevel::LOG_LEVEL_WARNING, __VA_ARGS__)
-#define LINA_INFO(...)	   Lina::Log::LogMessage(Lina::LogLevel::LOG_LEVEL_INFO, __VA_ARGS__)
-#define LINA_TRACE(...)	   Lina::Log::LogMessage(Lina::LogLevel::LOG_LEVEL_TRACE, __VA_ARGS__)
-#define LINA_CRITICAL(...) Lina::Log::LogMessage(Lina::LogLevel::LOG_LEVEL_CRITICAL, __VA_ARGS__)
+#define LINA_ERR(...)	   Lina::Log::Instance()->LogMessage(Lina::LogLevel::LOG_LEVEL_ERROR, __VA_ARGS__)
+#define LINA_WARN(...)	   Lina::Log::Instance()->LogMessage(Lina::LogLevel::LOG_LEVEL_WARNING, __VA_ARGS__)
+#define LINA_INFO(...)	   Lina::Log::Instance()->LogMessage(Lina::LogLevel::LOG_LEVEL_INFO, __VA_ARGS__)
+#define LINA_TRACE(...)	   Lina::Log::Instance()->LogMessage(Lina::LogLevel::LOG_LEVEL_TRACE, __VA_ARGS__)
+#define LINA_CRITICAL(...) Lina::Log::Instance()->LogMessage(Lina::LogLevel::LOG_LEVEL_CRITICAL, __VA_ARGS__)
 
 #endif
 
@@ -97,28 +97,40 @@ namespace Lina
 	public:
 		virtual void OnLog(LogLevel level, const char* msg) = 0;
 	};
+
 	class Log
 	{
 	public:
-		static void		   AddLogListener(LogListener* listener);
-		static void		   RemoveLogListener(LogListener* listener);
-		static void		   LogImpl(LogLevel level, const char* msg);
-		static const char* GetLogLevel(LogLevel level);
+		static Log* Instance()
+		{
+			return s_log;
+		}
 
-		template <typename... Args> static void LogMessage(LogLevel level, const Args&... args)
+		void		AddLogListener(LogListener* listener);
+		void		RemoveLogListener(LogListener* listener);
+		void		LogImpl(LogLevel level, const char* msg);
+		const char* GetLogLevel(LogLevel level);
+
+		template <typename... Args> void LogMessage(LogLevel level, const Args&... args)
 		{
 			LogImpl(level, fmt::format(args...).c_str());
 		}
 
-		inline static Mutex& GetLogMutex()
+		inline Mutex& GetLogMutex()
 		{
-			return s_logMtx;
+			return m_logMtx;
+		}
+
+		inline static void SetLog(Log* log)
+		{
+			s_log = log;
 		}
 
 	private:
+		static Log* s_log;
 		friend class Engine;
-		static Mutex				s_logMtx;
-		static Vector<LogListener*> s_logListeners;
+		Mutex				 m_logMtx;
+		Vector<LogListener*> m_logListeners;
 	};
 } // namespace Lina
 

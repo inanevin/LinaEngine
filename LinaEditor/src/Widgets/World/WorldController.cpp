@@ -53,6 +53,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Physics/PhysicsWorld.hpp"
 #include "Core/Application.hpp"
+#include "Core/System/Plugin.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/System/SystemInfo.hpp"
 #include "Editor/Actions/EditorActionEntity.hpp"
@@ -959,6 +960,10 @@ namespace Lina::Editor
 		m_ewr->GetGizmoRenderer().GetSettings().drawOrientation = false;
 		m_editor->SetIsPlaying(true);
 		m_world->SetPlayMode(m_playMode);
+        
+        Plugin* gp = m_editor->GetProjectManager().GetGamePlugin();
+        if(gp)
+            gp->OnSetPlayMode(m_world, mode);
 	}
 
 	void WorldController::StopPlaying()
@@ -978,6 +983,10 @@ namespace Lina::Editor
 		m_world->RefreshAllComponentReferences();
 		stream.Destroy();
 		m_savedWorld.Destroy();
+        
+        Plugin* gp = m_editor->GetProjectManager().GetGamePlugin();
+        if(gp)
+            gp->OnSetPlayMode(m_world, PlayMode::None);
 	}
 
 	void WorldController::SelectGizmo(GizmoMode gizmo)

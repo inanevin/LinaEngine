@@ -65,6 +65,7 @@ namespace Lina::Editor
 
 		m_editor = editor;
 		m_pluginInterface.SetReflectionSystem(&ReflectionSystem::Get());
+		m_pluginInterface.SetLog(Log::Instance());
 
 		m_primaryWidgetManager = &editor->GetWindowPanelManager().GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
 
@@ -195,11 +196,16 @@ namespace Lina::Editor
 
 	void ProjectManager::LoadGamePlugin(bool notifyError)
 	{
+
+		const String configuration = LINA_CONFIGURATION;
+
 #ifdef LINA_PLATFORM_WINDOWS
 
-		const String path = FileSystem::GetFilePath(m_currentProject->GetPath()) + "GamePlugin/bin/GamePlugin.dll";
+		const String path		   = FileSystem::GetFilePath(m_currentProject->GetPath()) + "GameProject/bin/" + configuration + "/GamePlugin.dll";
+		const String gamePluginOut = "Resources/Editor/_out/bin/" + configuration + "/GamePlugin.dll";
 #else
-		const String path = "";
+		const String path		   = FileSystem::GetFilePath(m_currentProject->GetPath()) + "GameProject/bin/" + configuration + "/libGamePlugin.dylib";
+		const String gamePluginOut = "Resources/Editor/_out/bin/" + configuration + "/libGamePlugin.dylib";
 #endif
 
 		auto notify = [&](bool success) {
@@ -230,9 +236,10 @@ namespace Lina::Editor
 		std::chrono::milliseconds d(100);
 		std::this_thread::sleep_for(d);
 
-		const String binDirectory = FileSystem::GetFilePath(m_currentProject->GetPath()) + "GamePlugin/bin";
+		const String binDirectory = FileSystem::GetFilePath(m_currentProject->GetPath()) + "GameProject/bin";
 		FileSystem::CopyDirectory(binDirectory, "Resources/Editor/_out/");
-		m_gamePlugin			 = PlatformProcess::LoadPlugin("Resources/Editor/_out/bin/GamePlugin.dll", &m_pluginInterface);
+
+		m_gamePlugin			 = PlatformProcess::LoadPlugin(gamePluginOut, &m_pluginInterface);
 		m_gamePluginLastModified = TO_SID(FileSystem::GetLastModifiedDate(path));
 
 		if (m_gamePlugin)
@@ -296,14 +303,17 @@ namespace Lina::Editor
 		task->task = [task, this, projectFile]() {
 			const String folder = FileSystem::GetFilePath(projectFile);
 
-			if (!FileSystem::FileOrPathExists(folder + "/GamePlugin"))
+			if (!FileSystem::FileOrPathExists(folder + "/GameProject"))
 			{
-				FileSystem::CopyDirectory("Resources/Editor/GamePlugin", folder);
+				FileSystem::CopyDirectory("Resources/Editor/GameProject", folder);
 			}
 			else
 			{
-				FileSystem::CopyDirectory("Resources/Editor/GamePlugin/Dependencies", folder + "/GamePlugin/");
-				FileSystem::CopyDirectory("Resources/Editor/GamePlugin/CMake", folder + "/GamePlugin/");
+				FileSystem::CopyDirectory("Resources/Editor/GameProject/Dependencies", folder + "/GameProject/");
+				FileSystem::CopyDirectory("Resources/Editor/GameProject/LinaCommon", folder + "/GameProject/");
+				FileSystem::CopyDirectory("Resources/Editor/GameProject/LinaCore", folder + "/GameProject/");
+				FileSystem::CopyDirectory("Resources/Editor/GameProject/LinaGX", folder + "/GameProject/");
+				FileSystem::CopyDirectory("Resources/Editor/GameProject/LinaVG", folder + "/GameProject/");
 			}
 
 			LoadGamePlugin(false);

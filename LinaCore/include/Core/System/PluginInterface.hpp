@@ -45,7 +45,18 @@ namespace Lina
 			return m_reflectionSystem;
 		}
 
+		inline void SetLog(Log* log)
+		{
+			m_log = log;
+		}
+
+		inline Log* GetLog()
+		{
+			return m_log;
+		}
+
 	private:
+		Log*			  m_log				 = nullptr;
 		ReflectionSystem* m_reflectionSystem = nullptr;
 	};
 } // namespace Lina

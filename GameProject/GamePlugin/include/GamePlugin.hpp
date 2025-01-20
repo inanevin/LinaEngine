@@ -28,14 +28,14 @@ SOFTWARE.
 
 #pragma once
 
-#include "Common/System/Plugin.hpp"
+#include "Core/System/Plugin.hpp"
 
 namespace Lina
 {
 	class GamePlugin : public Plugin
 	{
 	public:
-		GamePlugin(const Lina::String& name, void* platformHandle) : Plugin(name, platformHandle){};
+		GamePlugin(const String& path, void* platformHandle, PluginInterface* interface) : Plugin(path, platformHandle, interface){};
 		virtual ~GamePlugin() = default;
 
 		// Inherited via IPlugin

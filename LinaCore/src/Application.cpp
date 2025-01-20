@@ -41,9 +41,11 @@ SOFTWARE.
 namespace Lina
 {
 	LinaGX::Instance* Application::s_lgx = nullptr;
+	Log				  Application::s_log = {};
 
 	bool Application::Initialize(const SystemInitializationInfo& initInfo)
 	{
+		Log::SetLog(&s_log);
 		PlatformTime::Initialize();
 		SystemInfo::SetAppStartCPUMicroseconds(PlatformTime::GetCPUMicroseconds());
 		SystemInfo::SetAppStartCycles(PlatformTime::GetCPUCycles());

@@ -137,5 +137,7 @@ namespace Lina
 
 		// Time
 		int64 m_frameCapAccumulator = 0;
+
+		static Log s_log;
 	};
 } // namespace Lina

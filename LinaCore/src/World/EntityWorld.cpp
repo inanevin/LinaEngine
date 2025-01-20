@@ -299,6 +299,24 @@ namespace Lina
 		DestroyEntityData(e);
 	}
 
+	Entity* EntityWorld::FindEntity(const String& name)
+	{
+		const StringID sid	  = TO_SID(name);
+		Entity*		   entity = nullptr;
+
+		m_entityBucket.View([&](Entity* e, uint32 idx) -> bool {
+			if (TO_SID(e->GetName()) == sid)
+			{
+				entity = e;
+				return true;
+			}
+
+			return false;
+		});
+
+		return entity;
+	}
+
 	void EntityWorld::GetComponents(Entity* e, Vector<Component*>& outComponents) const
 	{
 		for (const ComponentCachePair& p : m_componentCaches)

@@ -279,7 +279,6 @@ include(${CMAKE_SOURCE_DIR}/CMake/CommonFunctions.cmake)
 group_sources(HEADERS SOURCES)
 
 # Copy Lina libraries to output for game dll
-
 include(${CMAKE_SOURCE_DIR}/Dependencies/DependenciesEditorPackaging.cmake)
 
 

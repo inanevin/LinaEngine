@@ -155,7 +155,7 @@ namespace Lina::Editor
 
 		AddChild(panelLayout);
 
-		Log::AddLogListener(this);
+		Log::Instance()->AddLogListener(this);
 
 		if (m_logLevels.empty())
 		{
@@ -192,12 +192,12 @@ namespace Lina::Editor
 		for (Widget* w : m_newLogs)
 			m_manager->Deallocate(w);
 		m_newLogs.clear();
-		Log::RemoveLogListener(this);
+		Log::Instance()->RemoveLogListener(this);
 	}
 
 	void PanelLog::PreTick()
 	{
-		LOCK_GUARD(Log::GetLogMutex());
+		LOCK_GUARD(Log::Instance()->GetLogMutex());
 
 		uint32 childSz = static_cast<uint32>(m_logLayout->GetChildren().size());
 

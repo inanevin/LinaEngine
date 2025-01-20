@@ -29,15 +29,24 @@ SOFTWARE.
 #include "GamePlugin.hpp"
 #include "GamePluginExports.hpp"
 
-#ifdef LINA_PLATFORM_WINDOWS
-
-#include <Windows.h>
-
 Lina::GamePlugin* g_plugin = nullptr;
 
-extern "C" GAMEPLUGIN_API Lina::Plugin* CreatePlugin(const Lina::String& name, void* platformHandle)
+extern "C" Lina::Plugin* CreatePlugin(const Lina::String& path, void* platformHandle, Lina::PluginInterface* pInterface)
 {
-	g_plugin = new Lina::GamePlugin(name, platformHandle);
+	g_plugin = new Lina::GamePlugin(path, platformHandle, pInterface);
+	return g_plugin;
+}
+
+extern "C" void DestroyPlugin(Lina::Plugin* plugin)
+{
+	delete plugin;
+}
+
+#ifdef LINA_PLATFORM_WINDOWS
+
+extern "C" GAMEPLUGIN_API Lina::Plugin* CreatePlugin(const Lina::String& path, void* platformHandle, Lina::PluginInterface* pInterface)
+{
+	g_plugin = new Lina::GamePlugin(path, platformHandle, pInterface);
 	return g_plugin;
 }
 
@@ -45,6 +54,8 @@ extern "C" GAMEPLUGIN_API void DestroyPlugin(Lina::Plugin* plugin)
 {
 	delete plugin;
 }
+
+#include <Windows.h>
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL,	 // handle to DLL module
 					DWORD	  fdwReason, // reason for calling function

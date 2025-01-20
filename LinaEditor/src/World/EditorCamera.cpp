@@ -47,6 +47,9 @@ namespace Lina::Editor
 		Camera& worldCamera = m_world->GetWorldCamera();
 		OnHandleCamera(delta);
 
+		if (!m_isActive)
+			return;
+
 		worldCamera.SetFOV(m_props.fov);
 		worldCamera.SetNear(m_props.zNear);
 		worldCamera.SetFar(m_props.zFar);
@@ -275,13 +278,17 @@ namespace Lina::Editor
 		const Quaternion yaw   = Quaternion::AngleAxis(m_yaw - m_yawPrev, Vector3::Up);
 
 		m_targetRotation = yaw * pitch * m_targetRotation;
-		m_absRotation	 = Quaternion::Slerp(m_absRotation, m_targetRotation, delta * m_angularSpeed);
+
+		if (m_isActive)
+			m_absRotation = Quaternion::Slerp(m_absRotation, m_targetRotation, delta * m_angularSpeed);
 
 		const Vector2 axis = m_controlsActive ? Vector2(input.GetKey(LINAGX_KEY_A) ? -1.0f : (input.GetKey(LINAGX_KEY_D) ? 1.0f : 0.0f), input.GetKey(LINAGX_KEY_S) ? -1.0f : (input.GetKey(LINAGX_KEY_W) ? 1.0f : 0.0f)) : Vector2::Zero;
 		const Vector3 move = (m_absRotation.GetForward() * axis.y + m_absRotation.GetRight() * axis.x) * delta * m_movementPower * m_movementBoost * shiftBoost;
 
 		const Vector3 targetPos = m_absPosition + move;
-		m_absPosition			= Vector3::Lerp(m_absPosition, targetPos, delta * m_movementSpeed);
+
+		if (m_isActive)
+			m_absPosition = Vector3::Lerp(m_absPosition, targetPos, delta * m_movementSpeed);
 	}
 
 	void FreeCamera::SyncCamera()
