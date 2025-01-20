@@ -100,11 +100,11 @@ namespace Lina::Editor
 			return m_angularBoost;
 		}
 
-        inline void SetCalculateCamera(bool calculateCamera)
-        {
-            m_calculateCamera = calculateCamera;
-        }
-        
+		inline void SetCalculateCamera(bool calculateCamera)
+		{
+			m_calculateCamera = calculateCamera;
+		}
+
 		inline void SetFocus(const Vector3& p, const Vector3& axis, FocusType type)
 		{
 			m_focusPoint = p;
@@ -113,18 +113,18 @@ namespace Lina::Editor
 		}
 
 	protected:
-		float			 m_angularBoost	 = 1.0f;
-		float			 m_movementBoost = 1.0f;
-		EntityWorld*	 m_world		 = nullptr;
-		CameraProperties m_props		 = {};
-		Vector3			 m_absPosition	 = Vector3::Zero;
-		Quaternion		 m_absRotation	 = Quaternion::Identity();
-		bool			 m_isActive		 = false;
-        bool m_calculateCamera = false;
-		bool			 m_wheelActive	 = false;
-		Vector3			 m_focusPoint	 = Vector3::Zero;
-		Vector3			 m_focusAxis	 = Vector3::Zero;
-		FocusType		 m_focusType	 = FocusType::None;
+		float			 m_angularBoost	   = 1.0f;
+		float			 m_movementBoost   = 1.0f;
+		EntityWorld*	 m_world		   = nullptr;
+		CameraProperties m_props		   = {};
+		Vector3			 m_absPosition	   = Vector3::Zero;
+		Quaternion		 m_absRotation	   = Quaternion::Identity();
+		bool			 m_isActive		   = false;
+		bool			 m_calculateCamera = false;
+		bool			 m_wheelActive	   = false;
+		Vector3			 m_focusPoint	   = Vector3::Zero;
+		Vector3			 m_focusAxis	   = Vector3::Zero;
+		FocusType		 m_focusType	   = FocusType::None;
 	};
 
 	class OrbitCamera : public EditorCamera
