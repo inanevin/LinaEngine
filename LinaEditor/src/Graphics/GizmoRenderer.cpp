@@ -130,11 +130,8 @@ namespace Lina::Editor
 		DrawLightIcons(m_targetPass, 0);
 		DrawLightIcons(&m_mousePickRenderer->GetRenderPass(), "StaticEntityID"_hs);
 
-		if (m_gizmoSettings.drawOrientation)
-		{
-			DrawOrientationGizmos(m_targetPass, 0, m_gizmoSettings.defaultShaderScale);
-			DrawOrientationGizmos(&m_mousePickRenderer->GetRenderPass(), "StaticEntityID"_hs, m_gizmoSettings.defaultShaderScale * 2);
-		}
+		DrawOrientationGizmos(m_targetPass, 0, m_gizmoSettings.defaultShaderScale);
+		DrawOrientationGizmos(&m_mousePickRenderer->GetRenderPass(), "StaticEntityID"_hs, m_gizmoSettings.defaultShaderScale * 2);
 
 		if (!m_gizmoSettings.draw)
 			return;

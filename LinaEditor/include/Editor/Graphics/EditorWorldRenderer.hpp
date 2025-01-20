@@ -118,6 +118,11 @@ namespace Lina::Editor
 			return m_pipelineLayout;
 		}
 
+		inline void SetRenderEnabled(bool enabled)
+		{
+			m_renderEnabled = enabled;
+		}
+
 	private:
 		Vector<Entity*>			 m_selectedEntities;
 		EntityWorld*			 m_world = nullptr;
@@ -138,5 +143,6 @@ namespace Lina::Editor
 		Material*		m_gridMaterial			 = nullptr;
 		TextureSampler* m_worldSampler			 = nullptr;
 		Vector2ui		m_size					 = Vector2ui::Zero;
+		bool			m_renderEnabled			 = true;
 	};
 } // namespace Lina::Editor

@@ -463,9 +463,6 @@ namespace Lina::Editor
 		m_world			= renderer ? m_worldRenderer->GetWorld() : nullptr;
 		m_overlayControls.baseWidget->GetFlags().Set(WF_HIDE, m_world == nullptr);
 
-		if (m_ewr)
-			m_ewr->GetGizmoRenderer().GetSettings().drawOrientation = true;
-
 		if (m_worldRenderer)
 		{
 			m_world->AddListener(this);
@@ -474,6 +471,7 @@ namespace Lina::Editor
 				m_camera = new OrbitCamera(m_world);
 			else if (cameraType == WorldCameraType::FreeMove)
 				m_camera = new FreeCamera(m_world);
+			m_camera->SetIsActive(true);
 		}
 	}
 
@@ -491,9 +489,10 @@ namespace Lina::Editor
 			return;
 
 		// Input setup
-		const bool worldHasFocus = m_playMode == PlayMode::None && m_manager->GetControlsOwner() == this && m_lgxWindow->HasFocus();
+		const bool worldHasFocus = m_manager->GetControlsOwner() == this && m_lgxWindow->HasFocus();
+		m_camera->SetCalculateCamera(m_playMode == PlayMode::None);
 		m_camera->SetIsActive(worldHasFocus);
-		m_camera->SetIsWheelActive(m_isHovered && m_lgxWindow->HasFocus());
+		m_camera->SetIsWheelActive(m_playMode == PlayMode::None && m_isHovered && m_lgxWindow->HasFocus());
 
 		if (m_selectionControls.rectSelectionWaitingResults)
 		{
@@ -700,6 +699,9 @@ namespace Lina::Editor
 		}
 
 		m_manager->GrabControls(this);
+
+		if (m_playMode != PlayMode::None)
+			return false;
 
 		if (m_selectionControls.isParenting)
 		{
@@ -957,9 +959,9 @@ namespace Lina::Editor
 		m_overlayControls.baseWidget->GetFlags().Set(WF_HIDE);
 		m_lgxWindow->SetWrapMouse(true);
 		m_lgxWindow->SetMouseVisible(false);
-		m_ewr->GetGizmoRenderer().GetSettings().drawOrientation = false;
 		m_editor->SetIsPlaying(true);
 		m_world->SetPlayMode(m_playMode);
+		m_ewr->SetRenderEnabled(false);
 
 		Plugin* gp = m_editor->GetProjectManager().GetGamePlugin();
 		if (gp)
@@ -973,8 +975,7 @@ namespace Lina::Editor
 		m_lgxWindow->SetWrapMouse(false);
 		m_lgxWindow->SetMouseVisible(true);
 		m_editor->SetIsPlaying(false);
-		m_ewr->GetGizmoRenderer().GetSettings().drawOrientation = true;
-
+		m_ewr->SetRenderEnabled(true);
 		m_world->SetPlayMode(m_playMode);
 
 		IStream stream;

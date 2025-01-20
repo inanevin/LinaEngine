@@ -100,6 +100,11 @@ namespace Lina::Editor
 			return m_angularBoost;
 		}
 
+        inline void SetCalculateCamera(bool calculateCamera)
+        {
+            m_calculateCamera = calculateCamera;
+        }
+        
 		inline void SetFocus(const Vector3& p, const Vector3& axis, FocusType type)
 		{
 			m_focusPoint = p;
@@ -115,6 +120,7 @@ namespace Lina::Editor
 		Vector3			 m_absPosition	 = Vector3::Zero;
 		Quaternion		 m_absRotation	 = Quaternion::Identity();
 		bool			 m_isActive		 = false;
+        bool m_calculateCamera = false;
 		bool			 m_wheelActive	 = false;
 		Vector3			 m_focusPoint	 = Vector3::Zero;
 		Vector3			 m_focusAxis	 = Vector3::Zero;

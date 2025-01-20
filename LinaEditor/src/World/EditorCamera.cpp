@@ -45,110 +45,22 @@ namespace Lina::Editor
 			return;
 
 		Camera& worldCamera = m_world->GetWorldCamera();
-		OnHandleCamera(delta);
 
-		if (!m_isActive)
-			return;
-
-		worldCamera.SetFOV(m_props.fov);
-		worldCamera.SetNear(m_props.zNear);
-		worldCamera.SetFar(m_props.zFar);
-		worldCamera.SetPosition(m_absPosition);
-		worldCamera.SetRotation(m_absRotation);
-		worldCamera.Calculate(sz);
-	}
-
-	/*
-	void EditorCamera::HandleFreeMovement(float delta)
-	{
-		WorldInput& worldInput = m_world->GetInput();
-
-		const bool canMoveRotate = worldInput.GetMouseButton(LINAGX_MOUSE_1);
-
-		const int	testFPS0   = 60;
-		const int	testFPS1   = 560;
-		const float testDelta  = 1 / (float)testFPS0;
-		const float testDelta1 = 1 / (float)testFPS1;
-		const float testMP	   = 10.0f;
-
-		float testMoveAmt0 = 0.0f;
-		float testMoveAmt1 = 0.0f;
-
-		float testTotalMove0 = 0.0f;
-		float testTotalMove1 = 0.0f;
-
-		for (int i = 0; i < testFPS0 * 10; i++)
+		if (m_isActive)
 		{
-			const float targetMove = testMP * testDelta;
-			testMoveAmt0		   = Math::Lerp(testMoveAmt0, targetMove, 10 * testDelta);
-			testTotalMove0 += testMoveAmt0;
+			OnHandleCamera(delta);
 		}
 
-		for (int i = 0; i < testFPS0 * 4; i++)
+		if (m_calculateCamera)
 		{
-			const float targetMove = testMP * testDelta;
-			testMoveAmt0		   = Math::Lerp(testMoveAmt0, 0.0f, 10 * testDelta);
-			testTotalMove0 += testMoveAmt0;
-		}
-
-		for (int i = 0; i < testFPS1 * 10; i++)
-		{
-			const float targetMove = testMP * testDelta1;
-			testMoveAmt1		   = Math::Lerp(testMoveAmt1, targetMove, 10 * testDelta1);
-			testTotalMove1 += testMoveAmt1;
-		}
-
-		for (int i = 0; i < testFPS1 * 4; i++)
-		{
-			const float targetMove = testMP * testDelta1;
-			testMoveAmt1		   = Math::Lerp(testMoveAmt1, 0.0f, 10 * testDelta1);
-			testTotalMove1 += testMoveAmt1;
-		}
-
-		// Handle movement.
-		{
-			Vector2 moveInput = Vector2::Zero;
-
-			if (worldInput.GetKey(LINAGX_KEY_D) && canMoveRotate)
-				moveInput.x = 1.0f;
-			else if (worldInput.GetKey(LINAGX_KEY_A) && canMoveRotate)
-				moveInput.x = -1.0f;
-			else
-				moveInput.x = 0.0f;
-
-			if (worldInput.GetKey(LINAGX_KEY_W) && canMoveRotate)
-				moveInput.y = 1.0f;
-			else if (worldInput.GetKey(LINAGX_KEY_S) && canMoveRotate)
-				moveInput.y = -1.0f;
-			else
-				moveInput.y = 0.0f;
-
-			const Vector2 targetMove   = m_movementPower * moveInput * delta;
-			m_usedMoveAmt			   = Math::EaseIn(m_usedMoveAmt, targetMove, m_movementEase * delta);
-			const Vector3 moveAddition = m_absRotation.GetRight() * m_usedMoveAmt.x + m_absRotation.GetForward() * m_usedMoveAmt.y;
-			m_absPosition += moveAddition;
-		}
-
-		// Handle rotation.
-		{
-			if (!canMoveRotate)
-				return;
-
-			LinaGX::Window* window			= m_world->GetScreen().GetOwnerWindow();
-			const uint32	dpi				= window == nullptr ? 0 : window->GetDPI();
-			const float		smoothingFactor = 0.5f;
-			const Vector2	deltaMouse		= worldInput.GetMouseDelta() * dpi;
-			const Vector2	usedDelta		= (m_previousMouseDelta * (1.0f - smoothingFactor) + deltaMouse * smoothingFactor) * 0.0001f * m_rotationPower;
-			m_previousMouseDelta			= deltaMouse;
-
-			m_targetAngles.y += usedDelta.x;
-			m_targetAngles.x += usedDelta.y;
-
-			m_usedAngles  = Vector3::Lerp(m_usedAngles, m_targetAngles, delta * m_rotationSpeed);
-			m_absRotation = Quaternion::PitchYawRoll(m_usedAngles);
+			worldCamera.SetFOV(m_props.fov);
+			worldCamera.SetNear(m_props.zNear);
+			worldCamera.SetFar(m_props.zFar);
+			worldCamera.SetPosition(m_absPosition);
+			worldCamera.SetRotation(m_absRotation);
+			worldCamera.Calculate(sz);
 		}
 	}
-	*/
 
 	OrbitCamera::OrbitCamera(EntityWorld* world) : EditorCamera(world)
 	{
@@ -170,16 +82,16 @@ namespace Lina::Editor
 
 		WorldInput& input = m_world->GetInput();
 
-		if (m_isActive && input.GetKeyDown(LINAGX_KEY_F))
+		if (input.GetKeyDown(LINAGX_KEY_F))
 		{
 			m_orbitProps.targetPoint = Vector3::Zero;
 		}
 
-		if (m_isActive && input.GetMouseButton(LINAGX_MOUSE_MIDDLE))
+		if (input.GetMouseButton(LINAGX_MOUSE_MIDDLE))
 		{
 			const Vector2 mouseDelta = input.GetMouseDeltaRelative();
 
-			if (m_isActive && input.GetKey(LINAGX_KEY_LSHIFT))
+			if (input.GetKey(LINAGX_KEY_LSHIFT))
 			{
 				const float	  panSpeed	= 0.5f;
 				const float	  cosY		= Math::Cos(m_yAngle);
@@ -252,16 +164,10 @@ namespace Lina::Editor
 
 		WorldInput& input = m_world->GetInput();
 
-		if (m_isActive && !m_controlsActive && input.GetMouseButton(LINAGX_MOUSE_1))
-		{
-			m_world->GetScreen().GetOwnerWindow()->SetWrapMouse(true);
+		if (!m_controlsActive && input.GetMouseButton(LINAGX_MOUSE_1))
 			m_controlsActive = true;
-		}
-		else if (m_controlsActive && (!input.GetMouseButton(LINAGX_MOUSE_1) || !m_isActive))
-		{
-			m_world->GetScreen().GetOwnerWindow()->SetWrapMouse(false);
+		else if (m_controlsActive && (!input.GetMouseButton(LINAGX_MOUSE_1)))
 			m_controlsActive = false;
-		}
 
 		const float shiftBoost = input.GetKey(LINAGX_KEY_LSHIFT) ? m_shiftBoost : 1.0f;
 
@@ -278,17 +184,13 @@ namespace Lina::Editor
 		const Quaternion yaw   = Quaternion::AngleAxis(m_yaw - m_yawPrev, Vector3::Up);
 
 		m_targetRotation = yaw * pitch * m_targetRotation;
-
-		if (m_isActive)
-			m_absRotation = Quaternion::Slerp(m_absRotation, m_targetRotation, delta * m_angularSpeed);
+		m_absRotation	 = Quaternion::Slerp(m_absRotation, m_targetRotation, delta * m_angularSpeed);
 
 		const Vector2 axis = m_controlsActive ? Vector2(input.GetKey(LINAGX_KEY_A) ? -1.0f : (input.GetKey(LINAGX_KEY_D) ? 1.0f : 0.0f), input.GetKey(LINAGX_KEY_S) ? -1.0f : (input.GetKey(LINAGX_KEY_W) ? 1.0f : 0.0f)) : Vector2::Zero;
 		const Vector3 move = (m_absRotation.GetForward() * axis.y + m_absRotation.GetRight() * axis.x) * delta * m_movementPower * m_movementBoost * shiftBoost;
 
 		const Vector3 targetPos = m_absPosition + move;
-
-		if (m_isActive)
-			m_absPosition = Vector3::Lerp(m_absPosition, targetPos, delta * m_movementSpeed);
+		m_absPosition			= Vector3::Lerp(m_absPosition, targetPos, delta * m_movementSpeed);
 	}
 
 	void FreeCamera::SyncCamera()

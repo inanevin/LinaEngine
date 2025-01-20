@@ -174,6 +174,9 @@ namespace Lina::Editor
 			m_pass.AddDrawCall(sampleWorldDepth);
 		}
 
+		if (!m_renderEnabled)
+			return;
+
 		// Grid
 		{
 			const GPUDrawArguments arg = {

@@ -66,7 +66,6 @@ namespace Lina::Editor
 		struct GizmoSettings
 		{
 			bool		  draw				 = false;
-			bool		  drawOrientation	 = false;
 			bool		  visualizeAxis		 = false;
 			EntityID	  hoveredEntityID	 = 0;
 			GizmoAxis	  focusedAxis		 = GizmoAxis::None;
