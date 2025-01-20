@@ -960,10 +960,10 @@ namespace Lina::Editor
 		m_ewr->GetGizmoRenderer().GetSettings().drawOrientation = false;
 		m_editor->SetIsPlaying(true);
 		m_world->SetPlayMode(m_playMode);
-        
-        Plugin* gp = m_editor->GetProjectManager().GetGamePlugin();
-        if(gp)
-            gp->OnSetPlayMode(m_world, mode);
+
+		Plugin* gp = m_editor->GetProjectManager().GetGamePlugin();
+		if (gp)
+			gp->OnSetPlayMode(m_world, mode);
 	}
 
 	void WorldController::StopPlaying()
@@ -983,10 +983,10 @@ namespace Lina::Editor
 		m_world->RefreshAllComponentReferences();
 		stream.Destroy();
 		m_savedWorld.Destroy();
-        
-        Plugin* gp = m_editor->GetProjectManager().GetGamePlugin();
-        if(gp)
-            gp->OnSetPlayMode(m_world, PlayMode::None);
+
+		Plugin* gp = m_editor->GetProjectManager().GetGamePlugin();
+		if (gp)
+			gp->OnSetPlayMode(m_world, PlayMode::None);
 	}
 
 	void WorldController::SelectGizmo(GizmoMode gizmo)
