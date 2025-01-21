@@ -53,9 +53,8 @@ namespace Lina
 	SystemInitializationInfo Lina_GetInitInfo()
 	{
 		LinaGX::MonitorInfo monitor = LinaGX::Window::GetPrimaryMonitorInfo();
-
-		const uint32 w = monitor.size.x / 4;
-		const uint32 h = static_cast<uint32>(static_cast<float>(w) * (static_cast<float>(monitor.size.y) / static_cast<float>(monitor.size.x)));
+		const uint32		w		= monitor.size.x / 4;
+		const uint32		h		= static_cast<uint32>(static_cast<float>(w) * (static_cast<float>(monitor.size.y) / static_cast<float>(monitor.size.x)));
 
 		LinaGX::VSyncStyle vsync;
 		vsync.dx12Vsync	  = LinaGX::DXVsync::EveryVBlank;
