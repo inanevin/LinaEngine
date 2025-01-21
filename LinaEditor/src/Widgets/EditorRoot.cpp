@@ -80,10 +80,12 @@ namespace Lina::Editor
 		lina->GetFlags().Set(WF_POS_ALIGN_Y);
 		lina->SetAlignedPosY(0.5f);
 		lina->SetAnchorY(Anchor::Center);
-		lina->GetProps().color.start   = Theme::GetDef().accentPrimary0;
-		lina->GetProps().color.end	   = Theme::GetDef().accentPrimary1;
-		lina->GetProps().isDynamic	   = false;
-		lina->GetWidgetProps().tooltip = tooltip;
+		lina->GetProps().color.start		 = Theme::GetDef().accentPrimary0;
+		lina->GetProps().color.end			 = Theme::GetDef().accentPrimary1;
+		lina->GetProps().isDynamic			 = false;
+		lina->GetProps().dynamicSizeScale	 = 0.8f;
+		lina->GetProps().dynamicSizeToParent = true;
+		lina->GetWidgetProps().tooltip		 = tooltip;
 		titleBar->AddChild(lina);
 
 		FileMenu* fm = m_manager->Allocate<FileMenu>("FileMenu");

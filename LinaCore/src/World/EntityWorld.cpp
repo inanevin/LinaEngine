@@ -361,6 +361,8 @@ namespace Lina
 			GetComponents(e, comps);
 			for (Component* c : comps)
 				c->StoreReferences();
+
+			return false;
 		});
 	}
 

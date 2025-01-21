@@ -44,7 +44,7 @@ namespace Lina
 		{
 		}
 
-		virtual uint GetNumBroadPhaseLayers() const override
+		virtual uint32 GetNumBroadPhaseLayers() const override
 		{
 			return PHYSICS_NUM_BP_LAYERS;
 		}

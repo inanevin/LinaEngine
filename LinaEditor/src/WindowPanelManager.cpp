@@ -360,6 +360,7 @@ namespace Lina::Editor
 		const float posx = requester->GetWindow()->GetPosition().x + requester->GetPos().x / requester->GetWindow()->GetDPIScale();
 		const float posy = requester->GetWindow()->GetPosition().y + (requester->GetPos().y + requester->GetSize().y) / requester->GetWindow()->GetDPIScale() + Theme::GetDef().baseIndent;
 		panel->GetWindow()->SetPosition({static_cast<int32>(posx), static_cast<int32>(posy)});
+		return panel;
 	}
 
 	Panel* WindowPanelManager::OpenPanel(PanelType type, ResourceID subData, Widget* requestingWidget)

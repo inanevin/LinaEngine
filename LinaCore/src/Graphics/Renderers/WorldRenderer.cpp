@@ -87,6 +87,8 @@ namespace Lina
 
 		m_deferredPass.Create(GfxHelpers::GetRenderPassDescription(RenderPassType::RENDER_PASS_DEFERRED));
 		m_forwardPass.Create(GfxHelpers::GetRenderPassDescription(RenderPassType::RENDER_PASS_FORWARD));
+		m_forwardPass.SetSize(m_size);
+		m_deferredPass.SetSize(m_size);
 
 		m_lvgDrawer.GetCallbacks().draw = BIND(&WorldRenderer::OnLinaVGDraw, this, std::placeholders::_1);
 

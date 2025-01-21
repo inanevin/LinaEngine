@@ -50,10 +50,10 @@ namespace Lina
 {
 	PhysicsWorld::PhysicsWorld(EntityWorld* ew) : m_world(ew)
 	{
-		const uint cMaxBodies			  = 1024;
-		const uint cNumBodyMutexes		  = 0;
-		const uint cMaxBodyPairs		  = 1024;
-		const uint cMaxContactConstraints = 1024;
+		const uint32 cMaxBodies				= 1024;
+		const uint32 cNumBodyMutexes		= 0;
+		const uint32 cMaxBodyPairs			= 1024;
+		const uint32 cMaxContactConstraints = 1024;
 		m_physicsSystem.Init(cMaxBodies, cNumBodyMutexes, cMaxBodyPairs, cMaxContactConstraints, m_bpLayerInterface, m_objectBPLayerFilter, m_layerFilter);
 		m_physicsSystem.SetContactListener(this);
 	};
@@ -206,6 +206,8 @@ namespace Lina
 		e->m_physicsBody = body;
 
 		LINA_TRACE("Created physics body for entity {0}", e->GetName());
+
+		return body;
 	}
 
 	void PhysicsWorld::DestroyBodyForEntity(Entity* e)
@@ -256,6 +258,7 @@ namespace Lina
 
 	JPH::ValidateResult PhysicsWorld::OnContactValidate(const JPH::Body& inBody1, const JPH::Body& inBody2, JPH::RVec3Arg inBaseOffset, const JPH::CollideShapeResult& inCollisionResult)
 	{
+		return {};
 	}
 
 	void PhysicsWorld::OnContactAdded(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings)

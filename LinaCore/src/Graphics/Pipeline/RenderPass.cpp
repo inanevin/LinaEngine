@@ -116,6 +116,12 @@ namespace Lina
 			.width	= m_size.x,
 			.height = m_size.y,
 		};
+
+		if (m_size.x == 0)
+		{
+			int a = 5;
+		}
+
 		auto& colorAttachments = m_pfd[frameIndex].colorAttachments;
 
 		LinaGX::CMDBeginRenderPass* rp = stream->AddCommand<LinaGX::CMDBeginRenderPass>();

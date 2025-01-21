@@ -215,7 +215,12 @@ namespace Lina::Editor
 										 m_rm,
 										 m_wr,
 										 &m_editor->GetApp()->GetGfxContext(),
-										 {.allowedShaderTypes = {ShaderType::DeferredSurface, ShaderType::ForwardSurface}, .useVariantOverride = true, .staticVariantOverride = "StaticEntityID"_hs, .skinnedVariantOverride = "SkinnedEntityID"_hs});
+										 {
+											 .useVariantOverride	 = true,
+											 .staticVariantOverride	 = "StaticEntityID"_hs,
+											 .skinnedVariantOverride = "SkinnedEntityID"_hs,
+											 .allowedShaderTypes	 = {ShaderType::DeferredSurface, ShaderType::ForwardSurface},
+										 });
 	}
 
 	void MousePickRenderer::Render(uint32 frameIndex, LinaGX::CommandStream* stream)

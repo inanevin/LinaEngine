@@ -40,7 +40,7 @@ namespace Lina::Editor
 	EditorActionComponentChanged* EditorActionComponentChanged::Create(Editor* editor, uint64 worldId, const Vector<Entity*>& entities, const Vector<TypeID>& comps, const Vector<OStream>& previousBuffers)
 	{
 		if (!(entities.size() == comps.size() && comps.size() == previousBuffers.size()))
-			return;
+			return nullptr;
 
 		EditorActionComponentChanged* action = new EditorActionComponentChanged();
 		action->m_entities.reserve(entities.size());

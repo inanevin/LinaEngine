@@ -565,6 +565,16 @@ namespace Lina::Editor
 		m_guiPass.End(currentFrame.gfxStream);
 		DEBUG_LABEL_END(currentFrame.gfxStream);
 
+		// Barrier2Read
+		{
+			LinaGX::CMDBarrier* barrier	 = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
+			barrier->srcStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
+			barrier->dstStageFlags		 = LinaGX::PSF_FragmentShader;
+			barrier->textureBarrierCount = 1;
+			barrier->textureBarriers	 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 1);
+			barrier->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.renderTarget->GetGPUHandle());
+		}
+
 		DEBUG_LABEL_BEGIN(currentFrame.gfxStream, "Surface Swapchain");
 		m_swapchainPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_editor->GetEditorRenderer().GetPipelineLayoutSwapchain(), 1);
 		m_swapchainPass.Begin(currentFrame.gfxStream, frameIndex);
@@ -572,14 +582,13 @@ namespace Lina::Editor
 		m_swapchainPass.End(currentFrame.gfxStream);
 		DEBUG_LABEL_END(currentFrame.gfxStream);
 
-		// Barrier to Present
+		// Barrier2Present
 		LinaGX::CMDBarrier* barrierToPresent  = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
 		barrierToPresent->srcStageFlags		  = LinaGX::PSF_ColorAttachment;
 		barrierToPresent->dstStageFlags		  = LinaGX::PSF_BottomOfPipe;
-		barrierToPresent->textureBarrierCount = 2;
-		barrierToPresent->textureBarriers	  = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 2);
+		barrierToPresent->textureBarrierCount = 1;
+		barrierToPresent->textureBarriers	  = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 1);
 		barrierToPresent->textureBarriers[0]  = GfxHelpers::GetTextureBarrierColor2Present(static_cast<uint32>(m_swapchain), true);
-		barrierToPresent->textureBarriers[1]  = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.renderTarget->GetGPUHandle());
 
 		// Close
 		m_lgx->CloseCommandStreams(&currentFrame.gfxStream, 1);

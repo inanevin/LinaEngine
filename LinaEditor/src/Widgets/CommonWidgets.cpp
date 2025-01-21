@@ -95,6 +95,8 @@ namespace Lina::Editor
 		iconMin->SetAlignedPos(Vector2(0.5f, 0.5f));
 		iconMin->SetAnchorX(Anchor::Center);
 		iconMin->SetAnchorY(Anchor::Center);
+		iconMin->GetProps().dynamicSizeScale	= 0.7f;
+		iconMin->GetProps().dynamicSizeToParent = true;
 		min->AddChild(iconMin);
 
 		Button* max								 = source->GetWidgetManager()->Allocate<Button>();
@@ -126,6 +128,8 @@ namespace Lina::Editor
 		iconMax->SetAlignedPos(Vector2(0.5f, 0.5f));
 		iconMax->SetAnchorX(Anchor::Center);
 		iconMax->SetAnchorY(Anchor::Center);
+		iconMax->GetProps().dynamicSizeScale	= 0.7f;
+		iconMax->GetProps().dynamicSizeToParent = true;
 		max->AddChild(iconMax);
 
 		Button* close							   = source->GetWidgetManager()->Allocate<Button>();
@@ -153,6 +157,8 @@ namespace Lina::Editor
 		iconClose->SetAlignedPos(Vector2(0.5f, 0.5f));
 		iconClose->SetAnchorX(Anchor::Center);
 		iconClose->SetAnchorY(Anchor::Center);
+		iconClose->GetProps().dynamicSizeScale	  = 0.7f;
+		iconClose->GetProps().dynamicSizeToParent = true;
 		close->AddChild(iconClose);
 
 		return layout;

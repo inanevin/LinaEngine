@@ -64,13 +64,10 @@ namespace Lina::Editor
 		m_icon->GetWidgetProps().hoveredIsDifferentColor = true;
 		m_icon->GetWidgetProps().pressedIsDifferentColor = true;
 		m_icon->GetProps().dynamicSizeToParent			 = true;
-		m_icon->GetProps().dynamicSizeScale				 = 0.7f;
-		m_icon->GetProps().color.start.w				 = 0.5f;
-		m_icon->GetProps().color.end.w					 = 0.5f;
-		m_icon->GetWidgetProps().colorHovered			 = Theme::GetDef().foreground0;
-		m_icon->GetWidgetProps().colorPressed			 = Theme::GetDef().foreground0;
-		m_icon->GetWidgetProps().colorPressed.start.w	 = 0.25f;
-		m_icon->GetWidgetProps().colorPressed.end.w		 = 0.25f;
+		m_icon->GetProps().dynamicSizeScale				 = 0.6f;
+		m_icon->GetProps().color						 = Theme::GetDef().foreground0.Darken(0.2f);
+		m_icon->GetWidgetProps().colorHovered			 = Theme::GetDef().accentPrimary0;
+		m_icon->GetWidgetProps().colorPressed			 = Theme::GetDef().foreground0.Darken(0.2f);
 		m_icon->GetWidgetProps().colorDisabled			 = Color(0.0f, 0.0f, 0.0f, 0.0f);
 		m_icon->GetProps().onClicked					 = [this]() { m_requestedClose = true; };
 		layout->AddChild(m_icon);

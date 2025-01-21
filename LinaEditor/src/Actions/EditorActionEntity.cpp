@@ -375,6 +375,7 @@ namespace Lina::Editor
 		action->m_worldId	  = world->GetID();
 		action->m_oldSettings = previousSettings;
 		editor->GetEditorActionManager().AddToStack(action);
+		return action;
 	}
 
 	void EditorActionEntityPhysicsSettingsChanged::Execute(Editor* editor, ExecType type)

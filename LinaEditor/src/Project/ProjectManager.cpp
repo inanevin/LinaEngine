@@ -309,11 +309,11 @@ namespace Lina::Editor
 			}
 			else
 			{
-				FileSystem::CopyDirectory("Resources/Editor/GameProject/Dependencies", folder + "/GameProject/");
-				FileSystem::CopyDirectory("Resources/Editor/GameProject/LinaCommon", folder + "/GameProject/");
-				FileSystem::CopyDirectory("Resources/Editor/GameProject/LinaCore", folder + "/GameProject/");
-				FileSystem::CopyDirectory("Resources/Editor/GameProject/LinaGX", folder + "/GameProject/");
-				FileSystem::CopyDirectory("Resources/Editor/GameProject/LinaVG", folder + "/GameProject/");
+				// FileSystem::CopyDirectory("Resources/Editor/GameProject/Dependencies", folder + "/GameProject/");
+				// FileSystem::CopyDirectory("Resources/Editor/GameProject/LinaCommon", folder + "/GameProject/");
+				// FileSystem::CopyDirectory("Resources/Editor/GameProject/LinaCore", folder + "/GameProject/");
+				// FileSystem::CopyDirectory("Resources/Editor/GameProject/LinaGX", folder + "/GameProject/");
+				// FileSystem::CopyDirectory("Resources/Editor/GameProject/LinaVG", folder + "/GameProject/");
 			}
 
 			LoadGamePlugin(false);

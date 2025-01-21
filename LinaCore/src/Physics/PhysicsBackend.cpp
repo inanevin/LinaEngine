@@ -62,7 +62,7 @@ namespace
 #ifdef JPH_ENABLE_ASSERTS
 
 	// Callback for asserts, connect this to your own assert handler if you have one
-	static bool AssertFailedImpl(const char* inExpression, const char* inMessage, const char* inFile, uint inLine)
+	static bool AssertFailedImpl(const char* inExpression, const char* inMessage, const char* inFile, uint32 inLine)
 	{
 		LINA_ASSERT(false, inExpression);
 		return true;

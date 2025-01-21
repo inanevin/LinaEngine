@@ -31,6 +31,9 @@ SOFTWARE.
 #include "Common/SizeDefinitions.hpp"
 #include "Core/Physics/PhysicsMaterial.hpp"
 #include "Core/Reflection/CommonReflection.hpp"
+#include "Common/Math/Vector.hpp"
+#include <Jolt/Jolt.h>
+#include <Jolt/Math/MathTypes.h>
 
 namespace JPH
 {

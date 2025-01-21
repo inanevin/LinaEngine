@@ -472,6 +472,9 @@ namespace Lina::Editor
 			else if (cameraType == WorldCameraType::FreeMove)
 				m_camera = new FreeCamera(m_world);
 			m_camera->SetIsActive(true);
+			m_camera->SetCalculateCamera(true);
+			m_manager->GrabControls(this);
+			m_lgxWindow->BringToFront();
 		}
 	}
 
