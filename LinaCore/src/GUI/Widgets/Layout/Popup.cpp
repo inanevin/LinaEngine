@@ -206,6 +206,8 @@ namespace Lina
 		Icon* icon			  = m_manager->Allocate<Icon>("IconBG");
 		icon->GetProps().icon = m_props.selectedIcon;
 		icon->GetFlags().Set(WF_POS_ALIGN_Y);
+		icon->GetProps().dynamicSizeScale	 = 0.8f;
+		icon->GetProps().dynamicSizeToParent = true;
 		icon->SetAlignedPosY(0.5f);
 		icon->SetAnchorY(Anchor::Center);
 		icon->GetProps().color = isSelected ? Theme::GetDef().accentPrimary1 : Theme::GetDef().foreground0;

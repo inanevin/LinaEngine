@@ -63,7 +63,8 @@ namespace Lina::Editor
 		m_icon->GetProps().icon							 = ICON_XMARK;
 		m_icon->GetWidgetProps().hoveredIsDifferentColor = true;
 		m_icon->GetWidgetProps().pressedIsDifferentColor = true;
-		m_icon->GetProps().textScale					 = 0.5f;
+		m_icon->GetProps().dynamicSizeToParent			 = true;
+		m_icon->GetProps().dynamicSizeScale				 = 0.7f;
 		m_icon->GetProps().color.start.w				 = 0.5f;
 		m_icon->GetProps().color.end.w					 = 0.5f;
 		m_icon->GetWidgetProps().colorHovered			 = Theme::GetDef().foreground0;
