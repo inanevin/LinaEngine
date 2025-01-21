@@ -22,7 +22,11 @@ add_subdirectory(LinaVG)
 ## target_compile_definitions(LinaGX PUBLIC _ITERATOR_DEBUG_LEVEL=${LINA_ITERATOR_DEBUG_LEVEL})
 ## target_compile_definitions(LinaVG PUBLIC _ITERATOR_DEBUG_LEVEL=${LINA_ITERATOR_DEBUG_LEVEL})
 
+# Jolt stuff
 set(CPP_RTTI_ENABLED ON CACHE BOOL "" FORCE)
+set(USE_STATIC_MSVC_RUNTIME_LIBRARY OFF CACHE BOOL "" FORCE)
+set(OVERRIDE_CXX_FLAGS OFF CACHE BOOL "" FORCE)
+set(OVERRIDE_MSVCCRT OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(Dependencies/JoltPhysics-5.2.0/Build)
 add_subdirectory(Dependencies/memory-allocators)
