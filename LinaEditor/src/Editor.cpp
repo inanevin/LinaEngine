@@ -59,7 +59,6 @@ namespace Lina
 		LinaGX::VSyncStyle vsync;
 		vsync.dx12Vsync	  = LinaGX::DXVsync::EveryVBlank;
 		vsync.vulkanVsync = LinaGX::VKVsync::FIFO;
-
 		return SystemInitializationInfo{
 			.appName	  = "Lina Editor",
 			.windowWidth  = w,
@@ -194,14 +193,20 @@ namespace Lina::Editor
 
 	void Editor::OnWindowMouse(LinaGX::Window* window, uint32 button, LinaGX::InputAction inputAction)
 	{
-		const Vector<LinaGX::Window*>& windows = m_windowPanelManager.GetSubWindows();
-
-		for (LinaGX::Window* w : windows)
+		if (inputAction == LinaGX::InputAction::Pressed && button == LINAGX_MOUSE_0)
 		{
-			if (w->GetUserFlags() & WindowFlags::WINDOW_FLAGS_FOCUS_LOST_DESTROY)
+			const Vector<LinaGX::Window*>& windows = m_windowPanelManager.GetSubWindows();
+
+			for (LinaGX::Window* w : windows)
 			{
-				if (window != w)
-					return;
+				if (w->GetUserFlags() & WindowFlags::WINDOW_FLAGS_FOCUS_LOST_DESTROY)
+				{
+					if (window != w)
+					{
+						m_windowPanelManager.CloseWindow(w->GetSID());
+						return;
+					}
+				}
 			}
 		}
 
@@ -228,8 +233,8 @@ namespace Lina::Editor
 
 		if (!gainedFocus)
 		{
-			if (window->GetUserFlags() & WindowFlags::WINDOW_FLAGS_FOCUS_LOST_DESTROY)
-				m_windowPanelManager.CloseWindow(window->GetSID());
+			// if (window->GetUserFlags() & WindowFlags::WINDOW_FLAGS_FOCUS_LOST_DESTROY)
+			// m_windowPanelManager.CloseWindow(window->GetSID());
 		}
 	}
 

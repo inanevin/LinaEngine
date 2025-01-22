@@ -26,53 +26,51 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "GamePlugin.hpp"
-#include "GamePluginExports.hpp"
+#pragma once
 
-Lina::GamePlugin* g_plugin = nullptr;
+#include "Core/World/Component.hpp"
 
-extern "C" Lina::Plugin* CreatePlugin(const Lina::String& path, void* platformHandle, Lina::PluginInterface* pInterface)
+namespace Lina
 {
-	g_plugin = new Lina::GamePlugin(path, platformHandle, pInterface);
-	return g_plugin;
-}
-
-extern "C" void DestroyPlugin(Lina::Plugin* plugin)
-{
-	delete plugin;
-}
-
-#ifdef LINA_PLATFORM_WINDOWS
-
-#include <Windows.h>
-
-BOOL WINAPI DllMain(HINSTANCE hinstDLL,	 // handle to DLL module
-					DWORD	  fdwReason, // reason for calling function
-					LPVOID	  lpReserved)	 // reserved
-{
-	// Perform actions based on the reason for calling.
-	switch (fdwReason)
+	class CompWidget : public Component
 	{
-	case DLL_PROCESS_ATTACH: {
+	public:
+		CompWidget() : Component(GetTypeID<CompWidget>(), 0) {};
 
-		break;
-	}
-	case DLL_THREAD_ATTACH:
-		// Do thread-specific initialization.
-		break;
+		virtual void CollectReferences(HashSet<ResourceID>& refs) override;
 
-	case DLL_THREAD_DETACH:
-		// Do thread-specific cleanup.
-		break;
+		virtual void SaveToStream(OStream& stream) const
+		{
+			stream << m_widget << m_is2D << m_size3D;
+		}
 
-	case DLL_PROCESS_DETACH:
-		// Perform any necessary cleanup.
-		break;
-	}
+		virtual void LoadFromStream(IStream& stream)
+		{
+			stream >> m_widget >> m_is2D >> m_size3D;
+		}
 
-	// Successful. If this is FALSE, the process will be terminated eventually
-	// https://docs.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-entry-point-function#entry-point-function-return-value
-	return TRUE;
-}
+		inline void SetWidget(ResourceID id)
+		{
+			m_widget = id;
+		}
 
-#endif
+		inline ResourceID GetWidget() const
+		{
+			return m_widget;
+		}
+
+	private:
+		LINA_REFLECTION_ACCESS(CompWidget);
+		ResourceID m_widget = 0;
+
+		bool	m_is2D	 = true;
+		Vector2 m_size3D = Vector2(10, 10);
+	};
+
+	LINA_COMPONENT_BEGIN(CompWidget, "Graphics")
+	LINA_FIELD(CompWidget, m_is2D, "Is 2D", FieldType::Boolean, 0)
+	LINA_FIELD(CompWidget, m_size3D, "3D Size", FieldType::Vector2, 0)
+	LINA_FIELD_DEPENDENCY_OP(CompWidget, m_size3D, "m_is2D", "0", "eq")
+	LINA_CLASS_END(CompWidget)
+
+} // namespace Lina

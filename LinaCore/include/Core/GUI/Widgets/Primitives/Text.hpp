@@ -40,7 +40,7 @@ namespace Lina
 	class Text : public Widget
 	{
 	public:
-		Text() : Widget(){};
+		Text() : Widget() {};
 		virtual ~Text() = default;
 
 		struct Properties
@@ -63,7 +63,7 @@ namespace Lina
 
 			void SaveToStream(OStream& stream) const
 			{
-				stream << color << customClip;
+				stream << font << color << customClip;
 				stream << text;
 				stream << textScale << wrapWidth << isDynamic << fetchCustomClipFromSelf << fetchWrapFromParent << fetchWrapFromParent << wordWrap;
 				stream << alignment;
@@ -71,7 +71,7 @@ namespace Lina
 
 			void LoadFromStream(IStream& stream)
 			{
-				stream >> color >> customClip;
+				stream >> font >> color >> customClip;
 				stream >> text;
 				stream >> textScale >> wrapWidth >> isDynamic >> fetchCustomClipFromSelf >> fetchWrapFromParent >> fetchWrapFromParent >> wordWrap;
 				stream >> alignment;
@@ -82,6 +82,7 @@ namespace Lina
 		virtual void CalculateSize(float delta) override;
 		virtual void Draw() override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
+		virtual void CollectResourceReferences(HashSet<ResourceID>& out) override;
 		void		 UpdateTextAndCalcSize(const String& txt);
 		void		 CalculateTextSize();
 
@@ -117,6 +118,7 @@ namespace Lina
 		float		  m_lastPressSeconds		= 0.0f;
 		bool		  m_waitingOnClickedDelay	= false;
 		float		  m_lastCalculatedWrapWidth = 0.0f;
+		ResourceID	  m_calculatedFont			= 0;
 	};
 
 	LINA_WIDGET_BEGIN(Text, Primitive)

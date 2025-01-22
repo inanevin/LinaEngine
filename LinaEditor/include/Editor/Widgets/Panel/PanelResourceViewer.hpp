@@ -37,6 +37,7 @@ namespace Lina
 	class Button;
 	class FoldLayout;
 	class Material;
+	class DirectionalLayout;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -47,16 +48,23 @@ namespace Lina::Editor
 	{
 	public:
 		PanelResourceViewer() = default;
-		PanelResourceViewer(PanelType type, TypeID resourceTID, TypeID panelTID, uint32 flags = 0) : Panel(type, flags), m_resourceTID(resourceTID), m_panelTID(panelTID){};
+		PanelResourceViewer(PanelType type, TypeID resourceTID, TypeID panelTID, uint32 flags = 0) : Panel(type, flags), m_resourceTID(resourceTID), m_panelTID(panelTID) {};
 		virtual ~PanelResourceViewer() = default;
 
 		virtual void Construct() override;
 		virtual void Destruct() override;
 		virtual void Initialize() override;
 
-		virtual void StoreEditorActionBuffer(){};
-		virtual void UpdateResourceProperties(){};
-		virtual void RebuildContents(){};
+		virtual void StoreEditorActionBuffer() {};
+		virtual void UpdateResourceProperties() {};
+		virtual void RebuildContents() {};
+
+		void AddResourceBGAndInspector(float horizontalStart);
+
+		inline Resource* GetResource() const
+		{
+			return m_resource;
+		}
 
 	protected:
 		Widget* BuildButtonLayout();
@@ -65,17 +73,18 @@ namespace Lina::Editor
 		void	DisableRecursively(Widget* parent);
 
 	protected:
-		Resource* m_resource	   = nullptr;
-		Widget*	  m_resourceBG	   = nullptr;
-		Widget*	  m_inspector	   = nullptr;
-		Editor*	  m_editor		   = nullptr;
-		TypeID	  m_resourceTID	   = 0;
-		TypeID	  m_panelTID	   = 0;
-		Button*	  m_saveButton	   = nullptr;
-		Button*	  m_reimportButton = nullptr;
-		bool	  m_previewOnly	   = false;
-		bool	  m_runtimeDirty   = false;
-		uint64	  m_resourceSpace  = 0;
+		DirectionalLayout* m_horizontal		= nullptr;
+		Resource*		   m_resource		= nullptr;
+		Widget*			   m_resourceBG		= nullptr;
+		Widget*			   m_inspector		= nullptr;
+		Editor*			   m_editor			= nullptr;
+		TypeID			   m_resourceTID	= 0;
+		TypeID			   m_panelTID		= 0;
+		Button*			   m_saveButton		= nullptr;
+		Button*			   m_reimportButton = nullptr;
+		bool			   m_previewOnly	= false;
+		bool			   m_runtimeDirty	= false;
+		uint64			   m_resourceSpace	= 0;
 	};
 
 } // namespace Lina::Editor

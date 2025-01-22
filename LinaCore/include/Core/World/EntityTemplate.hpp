@@ -26,53 +26,42 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "GamePlugin.hpp"
-#include "GamePluginExports.hpp"
+#pragma once
 
-Lina::GamePlugin* g_plugin = nullptr;
+#include "Core/Resources/Resource.hpp"
 
-extern "C" Lina::Plugin* CreatePlugin(const Lina::String& path, void* platformHandle, Lina::PluginInterface* pInterface)
+namespace Lina
 {
-	g_plugin = new Lina::GamePlugin(path, platformHandle, pInterface);
-	return g_plugin;
-}
+	class EntityWorld;
+	class Entity;
+	class EntityWorld;
 
-extern "C" void DestroyPlugin(Lina::Plugin* plugin)
-{
-	delete plugin;
-}
-
-#ifdef LINA_PLATFORM_WINDOWS
-
-#include <Windows.h>
-
-BOOL WINAPI DllMain(HINSTANCE hinstDLL,	 // handle to DLL module
-					DWORD	  fdwReason, // reason for calling function
-					LPVOID	  lpReserved)	 // reserved
-{
-	// Perform actions based on the reason for calling.
-	switch (fdwReason)
+	class EntityTemplate : public Resource
 	{
-	case DLL_PROCESS_ATTACH: {
+	public:
+		static constexpr uint32 VERSION = 0;
 
-		break;
-	}
-	case DLL_THREAD_ATTACH:
-		// Do thread-specific initialization.
-		break;
+		EntityTemplate(ResourceID id, const String& name) : Resource(id, GetTypeID<EntityTemplate>(), name) {};
+		~EntityTemplate() = default;
 
-	case DLL_THREAD_DETACH:
-		// Do thread-specific cleanup.
-		break;
+		virtual bool LoadFromFile(const String& path) override;
+		virtual void SaveToStream(OStream& stream) const override;
+		virtual void LoadFromStream(IStream& stream) override;
+		virtual void GenerateHW() override;
+		virtual void DestroyHW() override;
 
-	case DLL_PROCESS_DETACH:
-		// Perform any necessary cleanup.
-		break;
-	}
+		void			SetEntity(Entity* e);
+		Vector<Entity*> CreateFromStream(EntityWorld* w);
 
-	// Successful. If this is FALSE, the process will be terminated eventually
-	// https://docs.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-entry-point-function#entry-point-function-return-value
-	return TRUE;
-}
+	private:
+		ALLOCATOR_BUCKET_MEM;
+		LINA_REFLECTION_ACCESS(EntityTemplate)
 
-#endif
+		RawStream m_entityStream = {};
+	};
+
+	LINA_RESOURCE_BEGIN(EntityTemplate)
+
+	LINA_CLASS_END(EntityTemplate)
+
+} // namespace Lina

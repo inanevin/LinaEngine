@@ -125,4 +125,9 @@ namespace Lina
 		return false;
 	}
 
+	void Icon::CollectResourceReferences(HashSet<ResourceID>& out)
+	{
+		out.insert(m_props.font);
+	}
+
 } // namespace Lina

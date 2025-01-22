@@ -89,7 +89,7 @@ void main()
 #lina_fs
 
 #include "Resources/Core/Shaders/Common/GlobalData.linashader"
-#include "Resources/Editor/Shaders/Common/RenderPass_World.linashader"
+#include "Resources/Core/Shaders/Common/RenderPass_Forward.linashader"
 
 layout (location = 0) in vec4 inColor;
 

@@ -201,8 +201,8 @@ namespace Lina::Editor
 
 #ifdef LINA_PLATFORM_WINDOWS
 
-		const String path		   = FileSystem::GetFilePath(m_currentProject->GetPath()) + "GameProject/bin/" + configuration + "/GamePlugin.dll";
-		const String gamePluginOut = "Resources/Editor/_out/bin/" + configuration + "/GamePlugin.dll";
+		const String path		   = FileSystem::GetFilePath(m_currentProject->GetPath()) + "GameProject/bin/GamePlugin.dll";
+		const String gamePluginOut = "Resources/Editor/_out/bin/GamePlugin.dll";
 #else
 		const String path		   = FileSystem::GetFilePath(m_currentProject->GetPath()) + "GameProject/bin/" + configuration + "/libGamePlugin.dylib";
 		const String gamePluginOut = "Resources/Editor/_out/bin/" + configuration + "/libGamePlugin.dylib";

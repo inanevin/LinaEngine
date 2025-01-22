@@ -50,25 +50,30 @@ namespace Lina::Editor
 	{
 		m_editor = Editor::Get();
 
-		DirectionalLayout* horizontal = m_manager->Allocate<DirectionalLayout>("Horizontal");
-		horizontal->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		horizontal->SetAlignedPos(Vector2::Zero);
-		horizontal->SetAlignedSize(Vector2::One);
-		horizontal->GetProps().direction = DirectionOrientation::Horizontal;
-		horizontal->GetProps().mode		 = DirectionalLayout::Mode::Bordered;
-		AddChild(horizontal);
+		m_horizontal = m_manager->Allocate<DirectionalLayout>("Horizontal");
+		m_horizontal->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		m_horizontal->SetAlignedPos(Vector2::Zero);
+		m_horizontal->SetAlignedSize(Vector2::One);
+		m_horizontal->GetProps().direction = DirectionOrientation::Horizontal;
+		m_horizontal->GetProps().mode	   = DirectionalLayout::Mode::Bordered;
+		AddChild(m_horizontal);
 
+		AddResourceBGAndInspector(0.0f);
+	}
+
+	void PanelResourceViewer::AddResourceBGAndInspector(float horizontalStart)
+	{
 		Widget* bg = m_manager->Allocate<Widget>("BG");
 		bg->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		bg->SetAlignedPos(Vector2::Zero);
-		bg->SetAlignedSize(Vector2(0.7f, 1.0f));
+		bg->SetAlignedPos(Vector2(horizontalStart, 0.0f));
+		bg->SetAlignedSize(Vector2(0.7f - horizontalStart, 1.0f));
 		bg->GetWidgetProps().childMargins	  = TBLR::Eq(Theme::GetDef().baseIndent);
 		bg->GetWidgetProps().drawBackground	  = true;
 		bg->GetWidgetProps().colorBackground  = Theme::GetDef().background2;
 		bg->GetWidgetProps().outlineThickness = 0.0f;
 		bg->GetWidgetProps().rounding		  = 0.0f;
 		bg->GetWidgetProps().childMargins	  = TBLR::Eq(Theme::GetDef().baseIndent);
-		horizontal->AddChild(bg);
+		m_horizontal->AddChild(bg);
 
 		Widget* resBG = m_manager->Allocate<Widget>("ResBG");
 		resBG->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
@@ -87,7 +92,7 @@ namespace Lina::Editor
 		scroll->SetAlignedPos(Vector2(0.7f, 0.0f));
 		scroll->SetAlignedSize(Vector2(0.3f, 1.0f));
 		scroll->GetProps().direction = DirectionOrientation::Vertical;
-		horizontal->AddChild(scroll);
+		m_horizontal->AddChild(scroll);
 
 		DirectionalLayout* inspector = m_manager->Allocate<DirectionalLayout>("Inspector");
 		inspector->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
@@ -99,7 +104,6 @@ namespace Lina::Editor
 		inspector->GetWidgetProps().childMargins.left = Theme::GetDef().baseBorderThickness;
 		inspector->GetWidgetProps().childMargins.top  = Theme::GetDef().baseIndent;
 		scroll->AddChild(inspector);
-
 		m_resourceBG = resBG;
 		m_inspector	 = inspector;
 	}
@@ -138,7 +142,7 @@ namespace Lina::Editor
 
 		m_resourceSpace = m_subData;
 
-		m_editor->GetApp()->GetResourceManager().LoadResourcesFromProject(m_editor->GetProjectManager().GetProjectData(), {m_subData}, NULL, m_resourceSpace);
+		m_editor->GetApp()->GetResourceManager().LoadResourcesFromProject(m_editor->GetProjectManager().GetProjectData(), {m_subData}, NULL, m_resourceSpace, m_manager);
 		m_resource = m_editor->GetApp()->GetResourceManager().GetIfExists(m_resourceTID, m_subData);
 
 		if (resDir->userData.directoryType == static_cast<uint32>(ResourceDirectoryType::EngineResource))

@@ -497,6 +497,7 @@ namespace Lina
 				return false;
 
 			m_compLights.push_back(light);
+			return false;
 		});
 
 		const size_t lightsSz = m_compLights.size();
@@ -515,12 +516,11 @@ namespace Lina
 			const float		outerCutoff = compLight->GetOuterCutoff();
 			const float		radius		= compLight->GetRadius();
 			const float		falloff		= compLight->GetFalloff();
-
-			const GPUEntity entity = {
-				.model	  = compLight->GetEntity()->GetTransform().ToMatrix(),
-				.position = e->GetPosition(),
-				.forward  = e->GetRotation().GetForward(),
-			};
+			const GPUEntity entity		= {
+					 .model	   = compLight->GetEntity()->GetTransform().ToMatrix(),
+					 .position = e->GetPosition(),
+					 .forward  = e->GetRotation().GetForward(),
+			 };
 
 			const uint32 idx = PushEntity(entity,
 										  {
@@ -652,7 +652,7 @@ namespace Lina
 			return;
 
 #ifdef JPH_DEBUG_RENDERER
-		m_physicsDebugRenderer = new PhysicsDebugRenderer(&m_forwardPass, m_resourceManagerV2->GetResource<Shader>(ENGINE_SHADER_WORLD_DEBUG_LINE_ID), m_resourceManagerV2->GetResource<Shader>(ENGINE_SHADER_WORLD_DEBUG_TRIANGLE_ID));
+		m_physicsDebugRenderer = new PhysicsDebugRenderer(&m_forwardPass, m_shaderDebugLine, m_resourceManagerV2->GetResource<Shader>(ENGINE_SHADER_WORLD_DEBUG_TRIANGLE_ID));
 #endif
 	}
 

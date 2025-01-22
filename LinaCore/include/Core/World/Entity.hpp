@@ -84,9 +84,9 @@ namespace Lina
 		void SetVisible(bool isVisible);
 		bool GetVisible() const;
 
-		ObjectWrapper<EntityWorld> GetWorld()
+		EntityWorld* GetWorld() const
 		{
-			return ObjectWrapper<EntityWorld>(m_world);
+			return m_world;
 		}
 
 		inline const String& GetName()

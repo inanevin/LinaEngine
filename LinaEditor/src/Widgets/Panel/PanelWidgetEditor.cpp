@@ -27,732 +27,348 @@ SOFTWARE.
 */
 
 #include "Editor/Widgets/Panel/PanelWidgetEditor.hpp"
-#include "Editor/Widgets/Panel/PanelWidgetEditorProperties.hpp"
-#include "Editor/Widgets/Layout/ItemController.hpp"
-#include "Editor/Widgets/CommonWidgets.hpp"
 #include "Editor/Editor.hpp"
-#include "Editor/EditorLocale.hpp"
-#include "Core/Resources/ResourceDirectory.hpp"
-#include "Core/Graphics/Resource/GUIWidget.hpp"
-#include "Core/GUI/Widgets/WidgetUtility.hpp"
+#include "Editor/Actions/EditorActionWidget.hpp"
+#include "Editor/Widgets/CommonWidgets.hpp"
+#include "Editor/Widgets/Compound/WidgetBrowser.hpp"
+#include "Editor/Widgets/Layout/ItemController.hpp"
+#include "Editor/Actions/EditorActionResources.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
-#include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
-#include "Core/GUI/Widgets/Primitives/Button.hpp"
-#include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
-#include "Core/GUI/Widgets/Primitives/InputField.hpp"
+#include "Core/Application.hpp"
 #include "Core/Meta/ProjectData.hpp"
-#include "Core/Platform/PlatformProcess.hpp"
-#include "Editor/Widgets/Compound/WindowBar.hpp"
-#include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
-#include "Common/Platform/LinaVGIncl.hpp"
-#include <LinaGX/Core/InputMappings.hpp>
+#include "Common/Math/Math.hpp"
 
 namespace Lina::Editor
 {
+
+	namespace
+	{
+		bool ParentInList(const Vector<Widget*>& list, Widget* w)
+		{
+			Widget* parent = w->GetParent();
+			auto	it	   = linatl::find_if(list.begin(), list.end(), [parent](Widget* widg) -> bool { return parent == widg; });
+			if (it != list.end())
+				return true;
+
+			if (parent)
+				return ParentInList(list, parent);
+
+			return false;
+		}
+
+		Vector<Widget*> GetRoots(const Vector<Widget*>& widgets)
+		{
+			Vector<Widget*> roots;
+
+			for (Widget* w : widgets)
+			{
+				if (ParentInList(widgets, w))
+					continue;
+
+				roots.push_back(w);
+			}
+
+			return roots;
+		}
+
+		Vector<Widget*> RemoveRoot(const Vector<Widget*>& widgets, Widget* root)
+		{
+			Vector<Widget*> retVal;
+			retVal.reserve(widgets.size());
+			for (Widget* w : widgets)
+			{
+				if (w == root)
+					continue;
+				retVal.push_back(w);
+			}
+			return retVal;
+		}
+
+		void CollectReferences(HashSet<ResourceID>& list, Widget* root)
+		{
+			root->CollectResourceReferences(list);
+			for (Widget* c : root->GetChildren())
+				CollectReferences(list, c);
+		}
+
+		void FindMaxUniqueID(Widget* root, uint32& id)
+		{
+			id = Math::Max(root->GetUniqueID(), id);
+			for (Widget* c : root->GetChildren())
+			{
+				FindMaxUniqueID(c, id);
+			}
+		}
+
+	} // namespace
+
 	void PanelWidgetEditor::Construct()
 	{
-		m_editor = Editor::Get();
+		PanelResourceViewer::Construct();
 
-		DirectionalLayout* horizontal = m_manager->Allocate<DirectionalLayout>("Horizontal");
-		horizontal->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		horizontal->SetAlignedPos(Vector2::Zero);
-		horizontal->SetAlignedSize(Vector2::One);
-		horizontal->GetProps().direction = DirectionOrientation::Horizontal;
-		horizontal->GetProps().mode		 = DirectionalLayout::Mode::Bordered;
-		AddChild(horizontal);
+		m_horizontal->DeallocAllChildren();
+		m_horizontal->RemoveAllChildren();
 
-		DirectionalLayout* leftSide = m_manager->Allocate<DirectionalLayout>("Left");
-		leftSide->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		leftSide->SetAlignedPos(Vector2(0.0f, 0.0f));
-		leftSide->SetAlignedSize(Vector2(0.25f, 1.0f));
-		leftSide->GetProps().mode	   = DirectionalLayout::Mode::Bordered;
-		leftSide->GetProps().direction = DirectionOrientation::Vertical;
-		horizontal->AddChild(leftSide);
-
-		Widget* widgetsPanel = m_manager->Allocate<Widget>("WidgetsPanel");
-		widgetsPanel->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		widgetsPanel->SetAlignedPos(Vector2(0.0f, 0.0f));
-		widgetsPanel->SetAlignedSize(Vector2(1.0f, 0.5f));
-		widgetsPanel->GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent);
-		leftSide->AddChild(widgetsPanel);
-
-		ItemController* itemControllerWidgets = m_manager->Allocate<ItemController>("ItemController");
-		itemControllerWidgets->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		itemControllerWidgets->SetAlignedPos(Vector2::Zero);
-		itemControllerWidgets->SetAlignedSize(Vector2::One);
-		itemControllerWidgets->GetWidgetProps().drawBackground		 = true;
-		itemControllerWidgets->GetWidgetProps().dropshadow.enabled	 = true;
-		itemControllerWidgets->GetWidgetProps().dropshadow.isInner	 = true;
-		itemControllerWidgets->GetWidgetProps().dropshadow.direction = Direction::Top;
-		itemControllerWidgets->GetWidgetProps().dropshadow.color	 = Theme::GetDef().black;
-		itemControllerWidgets->GetWidgetProps().dropshadow.color.w	 = 0.25f;
-		itemControllerWidgets->GetWidgetProps().dropshadow.steps	 = 8;
-		itemControllerWidgets->GetWidgetProps().outlineThickness	 = 0.0f;
-		itemControllerWidgets->GetWidgetProps().colorBackground		 = Theme::GetDef().background0;
-		itemControllerWidgets->GetWidgetProps().childMargins		 = {.top = Theme::GetDef().baseIndentInner, .bottom = Theme::GetDef().baseIndentInner};
-
-		itemControllerWidgets->GetProps().onCreatePayload = [this]() {
-			// Widget*		root   = m_editor->GetWindowPanelManager().GetPayloadRoot();
-			// WidgetInfo* inf	   = static_cast<WidgetInfo*>(userdata);
-			// Text*		t	   = root->GetWidgetManager()->Allocate<Text>();
-			// t->GetProps().text = inf->title;
-			// t->Initialize();
-			// m_payloadCarryTID = inf->tid;
-			// Editor::Get()->GetWindowPanelManager().CreatePayload(t, PayloadType::WidgetEditorWidget, t->GetSize());
-		};
-
-		itemControllerWidgets->GetProps().onCheckCanCreatePayload = [](void* userdata) -> bool { return userdata != nullptr; };
-		m_widgetsController										  = itemControllerWidgets;
-		widgetsPanel->AddChild(itemControllerWidgets);
-
-		{
-			ScrollArea* scroll = m_manager->Allocate<ScrollArea>("Scroll");
-			scroll->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-			scroll->SetAlignedPos(Vector2::Zero);
-			scroll->SetAlignedSize(Vector2::One);
-			scroll->GetProps().direction = DirectionOrientation::Vertical;
-			itemControllerWidgets->AddChild(scroll);
-
-			DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("VerticalLayout");
-			layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-			layout->SetAlignedPos(Vector2::Zero);
-			layout->SetAlignedSize(Vector2::One);
-			layout->GetProps().direction		  = DirectionOrientation::Vertical;
-			layout->GetWidgetProps().clipChildren = true;
-			scroll->AddChild(layout);
-			m_widgetsLayout = layout;
-		}
-
-		DirectionalLayout* hierarchy = m_manager->Allocate<DirectionalLayout>("Hierarchy");
-		hierarchy->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		hierarchy->SetAlignedPos(Vector2(0.0f, 0.5f));
-		hierarchy->SetAlignedSize(Vector2(1.0f, 0.5f));
-		hierarchy->GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent);
-		hierarchy->GetProps().direction			 = DirectionOrientation::Vertical;
-		hierarchy->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
-		leftSide->AddChild(hierarchy);
-
-		DirectionalLayout* buttons = m_manager->Allocate<DirectionalLayout>("Buttons");
-		buttons->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-		buttons->SetAlignedSizeX(1.0f);
-		buttons->GetProps().direction = DirectionOrientation::Horizontal;
-		buttons->GetProps().mode	  = DirectionalLayout::Mode::EqualSizes;
-		buttons->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		buttons->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
-		hierarchy->AddChild(buttons);
-
-		Button* btnLoad = WidgetUtility::BuildIconTextButton(this, ICON_SAVE, Locale::GetStr(LocaleStr::Load));
-		btnLoad->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
-		btnLoad->SetAlignedPosY(0.5f);
-		btnLoad->SetAnchorY(Anchor::Center);
-		btnLoad->SetAlignedSizeY(1.0f);
-		btnLoad->GetProps().onClicked = [this]() {
-			CommonWidgets::ThrowResourceSelector(this, 0, GetTypeID<GUIWidget>());
-			/*
-			 [this](ResourceDirectory* dir) { CheckSaveCurrent([this, dir]() { OpenWidget(dir->resourceID); }); });
-			 */
-		};
-		buttons->AddChild(btnLoad);
-
-		Button* btnSave = WidgetUtility::BuildIconTextButton(this, ICON_SAVE, Locale::GetStr(LocaleStr::Save));
-		btnSave->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
-		btnSave->SetAlignedPosY(0.5f);
-		btnSave->SetAnchorY(Anchor::Center);
-		btnSave->SetAlignedSizeY(1.0f);
-		btnSave->GetProps().onClicked = [this]() {
-			if (m_currentWidget)
-				m_currentWidget->SaveToFileAsBinary(m_editor->GetProjectManager().GetProjectData()->GetResourcePath(m_currentWidget->GetID()));
-		};
-		buttons->AddChild(btnSave);
-
-		Button* btnExport = WidgetUtility::BuildIconTextButton(this, ICON_EXPORT, Locale::GetStr(LocaleStr::Export));
-		btnExport->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
-		btnExport->SetAlignedPosY(0.5f);
-		btnExport->SetAnchorY(Anchor::Center);
-		btnExport->SetAlignedSizeY(1.0f);
-		btnExport->GetProps().onClicked = [this]() {
-			const String fullPath = PlatformProcess::SaveDialog({
-				.title				   = Locale::GetStr(LocaleStr::Save),
-				.primaryButton		   = Locale::GetStr(LocaleStr::Save),
-				.extensionsDescription = "",
-				.extensions			   = {"linaresource"},
-				.mode				   = PlatformProcess::DialogMode::SelectFile,
-			});
-			m_currentWidget->SaveToFileAsBinary(fullPath);
-		};
-		buttons->AddChild(btnExport);
-
-		ItemController* itemControllerHierarchy = m_manager->Allocate<ItemController>("ItemController");
-		itemControllerHierarchy->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		itemControllerHierarchy->SetAlignedPosX(0.0f);
-		itemControllerHierarchy->SetAlignedSize(Vector2(1.0f, 0.0f));
-		itemControllerHierarchy->GetWidgetProps().drawBackground	   = true;
-		itemControllerHierarchy->GetWidgetProps().dropshadow.enabled   = true;
-		itemControllerHierarchy->GetWidgetProps().dropshadow.isInner   = true;
-		itemControllerHierarchy->GetWidgetProps().dropshadow.color	   = Theme::GetDef().black;
-		itemControllerHierarchy->GetWidgetProps().dropshadow.color.w   = 0.25f;
-		itemControllerHierarchy->GetWidgetProps().dropshadow.steps	   = 8;
-		itemControllerHierarchy->GetWidgetProps().dropshadow.direction = Direction::Top;
-		itemControllerHierarchy->GetWidgetProps().outlineThickness	   = 0.0f;
-		itemControllerHierarchy->GetWidgetProps().colorBackground	   = Theme::GetDef().background0;
-		itemControllerHierarchy->GetWidgetProps().childMargins		   = {.top = Theme::GetDef().baseIndentInner, .bottom = Theme::GetDef().baseIndentInner};
-		itemControllerHierarchy->GetContextMenu()->SetListener(this);
-		itemControllerHierarchy->GetProps().payloadType = PayloadType::WidgetEditorWidget;
-
-		itemControllerHierarchy->GetProps().onCreatePayload = [this]() {
-			// Widget* root		 = m_editor->GetWindowPanelManager().GetPayloadRoot();
-			// Widget* pickedWidget = static_cast<Widget*>(userdata);
-			// Text*	t			 = root->GetWidgetManager()->Allocate<Text>();
-			// t->GetProps().text	 = pickedWidget->GetWidgetProps().debugName;
-			// t->Initialize();
-			// m_payloadCarryWidget = pickedWidget;
-			// Editor::Get()->GetWindowPanelManager().CreatePayload(t, PayloadType::WidgetEditorWidget, t->GetSize());
-		};
-
-		itemControllerHierarchy->GetProps().onCheckCanCreatePayload = [this](void* ud) -> bool {
-			Widget* w = static_cast<Widget*>(ud);
-			if (w == &m_currentWidget->GetRoot())
-				return false;
-
-			return true;
-		};
-
-		itemControllerHierarchy->GetProps().onPayloadAccepted = [this](void* userdata) {
-			Widget* parent = userdata == nullptr ? &m_currentWidget->GetRoot() : static_cast<Widget*>(userdata);
-			AddPayloadToWidget(parent);
-		};
-		m_hierarchyController = itemControllerHierarchy;
-		hierarchy->AddChild(itemControllerHierarchy);
-
-		itemControllerHierarchy->GetProps().onDelete = [itemControllerHierarchy, this]() {
-			Vector<Widget*> selection = itemControllerHierarchy->GetSelectedUserData<Widget>();
-			RequestDelete(selection);
-		};
-
-		itemControllerHierarchy->GetProps().onDuplicate = [itemControllerHierarchy, this]() {
-			Vector<Widget*> selection = itemControllerHierarchy->GetSelectedUserData<Widget>();
-			RequestDuplicate(selection);
-		};
-
-		itemControllerHierarchy->GetProps().onItemRenamed = [itemControllerHierarchy, this](void* item) { RequestRename(static_cast<Widget*>(item)); };
-
-		itemControllerHierarchy->GetProps().onItemSelected = [this](void* userdata) {
-			Widget* w = static_cast<Widget*>(userdata);
-			m_propertiesArea->Refresh(w);
-		};
-
-		{
-			ScrollArea* scroll = m_manager->Allocate<ScrollArea>("Scroll");
-			scroll->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-			scroll->SetAlignedPos(Vector2::Zero);
-			scroll->SetAlignedSize(Vector2::One);
-			scroll->GetProps().direction = DirectionOrientation::Vertical;
-			itemControllerHierarchy->AddChild(scroll);
-
-			DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("VerticalLayout");
-			layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-			layout->SetAlignedPos(Vector2::Zero);
-			layout->SetAlignedSize(Vector2::One);
-			layout->GetProps().direction		  = DirectionOrientation::Vertical;
-			layout->GetWidgetProps().clipChildren = true;
-			scroll->AddChild(layout);
-			m_hierarchyLayout = layout;
-		}
-
-		Widget* gridArea = m_manager->Allocate<Widget>("Grid");
-		gridArea->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		gridArea->SetAlignedPos(Vector2(0.25f, 0.0f));
-		gridArea->SetAlignedSize(Vector2(0.5f, 1.0f));
-		gridArea->GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent * 2);
-		horizontal->AddChild(gridArea);
-		m_gridParent = gridArea;
-
-		PanelWidgetEditorProperties* propertiesArea = m_manager->Allocate<PanelWidgetEditorProperties>("Properties");
-		propertiesArea->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		propertiesArea->SetAlignedPos(Vector2(0.75f, 0.0f));
-		propertiesArea->SetAlignedSize(Vector2(0.25f, 1.0f));
-		horizontal->AddChild(propertiesArea);
-		m_propertiesArea = propertiesArea;
-
-		m_leftSide	  = leftSide;
-		m_leftSideTop = widgetsPanel;
-		m_leftSideBot = hierarchy;
-		m_middle	  = m_gridParent;
-		m_rightSide	  = m_propertiesArea;
-	}
-
-	void PanelWidgetEditor::PreDestruct()
-	{
-		if (m_currentWidget == nullptr)
-			return;
-
-		CloseCurrent(false);
-	}
-
-	void PanelWidgetEditor::SaveLayoutToStream(OStream& stream)
-	{
-		stream << m_leftSide->GetAlignedSizeX();
-		stream << m_leftSideTop->GetAlignedSizeY();
-		stream << m_middle->GetAlignedSizeX();
-		stream << m_lastOpenWidget;
-	}
-
-	void PanelWidgetEditor::LoadLayoutFromStream(IStream& stream)
-	{
-		float align0 = 0.0f, align1 = 0.0f, align2 = 0.0f;
-		stream >> align0 >> align1 >> align2;
-
-		m_leftSide->SetAlignedSizeX(align0);
-		m_middle->SetAlignedPosX(align0);
-		m_middle->SetAlignedSizeX(align2);
-		m_rightSide->SetAlignedPosX(align0 + align2);
-		m_rightSide->SetAlignedSizeX(1.0f - align0 - align2);
-		m_leftSideTop->SetAlignedSizeY(align1);
-		m_leftSideBot->SetAlignedPosY(align1);
-		m_leftSideBot->SetAlignedSizeY(1.0f - align1);
-
-		stream >> m_lastOpenWidget;
-		OpenWidget(m_lastOpenWidget);
+		m_browser = m_manager->Allocate<WidgetBrowser>("Browser");
+		m_browser->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		m_browser->SetAlignedPos(Vector2::Zero);
+		m_browser->SetAlignedSize(Vector2(0.3f, 1.0f));
+		m_browser->SetWidgetEditor(this);
+		m_horizontal->AddChild(m_browser);
+		AddResourceBGAndInspector(0.3f);
 	}
 
 	void PanelWidgetEditor::Initialize()
 	{
-		Widget::Initialize();
-		RefreshWidgets();
-	}
+		PanelResourceViewer::Initialize();
 
-	void PanelWidgetEditor::Tick(float delta)
-	{
+		if (!m_resource)
+			return;
+
+		GUIWidget* guiWidget = static_cast<GUIWidget*>(m_resource);
+		Widget*	   root		 = &guiWidget->GetRoot();
+		root->SetWidgetManager(m_manager);
+		m_resourceBG->AddChild(root);
+		root->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		root->SetAlignedPos(Vector2::Zero);
+		root->SetAlignedSize(Vector2::One);
+
+		if (root->GetWidgetProps().debugName.empty())
+			root->GetWidgetProps().debugName = "Root";
+
+		m_uniqueIDCounter = 0;
+		FindMaxUniqueID(root, m_uniqueIDCounter);
+
+		m_browser->SetRoot(root);
+		m_browser->RefreshWidgets();
+
+		//	StoreEditorActionBuffer();
+		//	UpdateResourceProperties();
+		//	RebuildContents();
 	}
 
 	void PanelWidgetEditor::Draw()
 	{
-		Vector<Widget*> selection = m_hierarchyController->GetSelectedUserData<Widget>();
-
 		LinaVG::StyleOptions opts;
-		opts.isFilled  = false;
-		opts.thickness = Theme::GetDef().baseOutlineThickness * 2.0f;
-		opts.color	   = Theme::GetDef().accentPrimary0.AsLVG4();
+		opts.isFilled = false;
+		opts.color	  = Theme::GetDef().foreground0.AsLVG4();
 
-		for (auto* w : selection)
+		for (Widget* w : m_selectedWidgets)
 		{
-			m_lvg->DrawRect(w->GetRect().pos.AsLVG(), w->GetRect().GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
+			m_lvg->DrawRect(w->GetPos().AsLVG(), w->GetRect().GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
 		}
 	}
 
-	void PanelWidgetEditor::RefreshWidgets()
+	void PanelWidgetEditor::StoreEditorActionBuffer()
 	{
-		m_widgetsLayout->DeallocAllChildren();
-		m_widgetsLayout->RemoveAllChildren();
-		m_widgetsController->ClearItems();
-		m_categories.clear();
+		GUIWidget* guiWidget = static_cast<GUIWidget*>(m_resource);
+		Widget*	   root		 = &guiWidget->GetRoot();
+		m_storedStream.Destroy();
+		root->SaveToStream(m_storedStream);
+	}
 
-		const Vector<MetaPair>& types = ReflectionSystem::Get().GetTypes();
-		for (const MetaPair& pair : types)
+	void PanelWidgetEditor::RebuildContents()
+	{
+		m_inspector->DeallocAllChildren();
+		m_inspector->RemoveAllChildren();
+
+		if (m_selectedWidgets.empty())
+			return;
+
+		GUIWidget* guiWidget = static_cast<GUIWidget*>(m_resource);
+		Widget*	   target	 = m_selectedWidgets.at(0);
+
+		DirectionalLayout* panelBase = m_manager->Allocate<DirectionalLayout>();
+		panelBase->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);
+		panelBase->SetAlignedSize(Vector2::One);
+		panelBase->SetAlignedPosX(0.0f);
+		panelBase->GetWidgetProps().childPadding = m_inspector->GetWidgetProps().childPadding;
+		panelBase->GetProps().direction			 = DirectionOrientation::Vertical;
+		panelBase->GetCallbacks().onEditEnded	 = [this]() {
+			   GUIWidget* guiWidget = static_cast<GUIWidget*>(m_resource);
+			   Widget*	  root		= &guiWidget->GetRoot();
+			   EditorActionWidgetChanged::Create(m_editor, m_resourceSpace, root, m_storedStream);
+		};
+		panelBase->GetCallbacks().onEditStarted = [this]() { StoreEditorActionBuffer(); };
+		m_inspector->AddChild(panelBase);
+		CommonWidgets::BuildClassReflection(panelBase, target, ReflectionSystem::Get().Resolve<Widget>());
+
+		if (target->GetTID() != GetTypeID<Widget>())
 		{
-			if (pair.type->HasProperty<uint32>("WidgetIdent"_hs))
-			{
-				const String title	  = pair.type->GetProperty<String>("Title"_hs);
-				const String category = pair.type->GetProperty<String>("Category"_hs);
-
-				if (category.compare("Hidden") == 0)
-					continue;
-
-				WidgetInfo widgetInfo = {
-					.title = title,
-					.tid   = pair.tid,
-				};
-
-				auto it = linatl::find_if(m_categories.begin(), m_categories.end(), [&category](const CategoryInfo& inf) -> bool { return inf.title.compare(category) == 0; });
-
-				if (it != m_categories.end())
-				{
-					it->widgets.push_back(widgetInfo);
-				}
-				else
-				{
-					m_categories.push_back({});
-					CategoryInfo& categoryInfo = m_categories.back();
-					categoryInfo.title		   = category;
-					categoryInfo.widgets.push_back(widgetInfo);
-				}
-			}
-		}
-
-		for (CategoryInfo& category : m_categories)
-		{
-			// Widget* cat = CommonWidgets::BuildDefaultFoldItem(this, nullptr, Theme::GetDef().baseIndent, "", Color::White, category.title, true, nullptr, true, true);
-			// m_widgetsController->AddItem(cat->GetChildren().front());
-			// m_widgetsLayout->AddChild(cat);
-
-			for (WidgetInfo& wif : category.widgets)
-			{
-				// Widget* wi = CommonWidgets::BuildDefaultListItem(this, &wif, Theme::GetDef().baseIndent * 2.0f, "", Color::White, wif.title, true);
-				// cat->AddChild(wi);
-				// m_widgetsController->AddItem(wi);
-			}
+			m_inspector->AddChild(CommonWidgets::BuildSeperator(m_inspector));
+			DirectionalLayout* panelSpec = m_manager->Allocate<DirectionalLayout>();
+			panelSpec->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);
+			panelSpec->SetAlignedSize(Vector2::One);
+			panelSpec->SetAlignedPosX(0.0f);
+			panelSpec->GetWidgetProps().childPadding = m_inspector->GetWidgetProps().childPadding;
+			panelSpec->GetProps().direction			 = DirectionOrientation::Vertical;
+			panelSpec->GetCallbacks().onEditEnded	 = [this]() {
+				   GUIWidget* guiWidget = static_cast<GUIWidget*>(m_resource);
+				   Widget*	  root		= &guiWidget->GetRoot();
+				   EditorActionWidgetChanged::Create(m_editor, m_resourceSpace, root, m_storedStream);
+				   RefreshResources();
+			};
+			panelSpec->GetCallbacks().onEditStarted = [this]() { StoreEditorActionBuffer(); };
+			m_inspector->AddChild(panelSpec);
+			CommonWidgets::BuildClassReflection(panelSpec, target, ReflectionSystem::Get().Resolve(target->GetTID()));
 		}
 	}
 
-	void PanelWidgetEditor::RefreshHierarchy()
+	void PanelWidgetEditor::SetSelectedWidgets(const Vector<Widget*>& selection)
 	{
-		m_hierarchyLayout->DeallocAllChildren();
-		m_hierarchyLayout->RemoveAllChildren();
-		m_hierarchyController->ClearItems();
-
-		if (m_currentWidget == nullptr)
-			return;
-
-		m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResourceDirectory(m_currentWidget->GetID());
-
-		Widget* sourceWidget = &m_currentWidget->GetRoot();
-		// Widget* rootInEditor = CommonWidgets::BuildDefaultFoldItem(this, sourceWidget, Theme::GetDef().baseIndent, "", Color::White, sourceWidget->GetWidgetProps().debugName, true, &sourceWidget->_fold, true);
-		//
-		// m_hierarchyController->AddItem(rootInEditor->GetChildren().front());
-		// m_hierarchyLayout->AddChild(rootInEditor);
-		//
-		// AddItemForWidget(rootInEditor, sourceWidget, Theme::GetDef().baseIndent * 2);
+		const Vector<Widget*> prev = m_selectedWidgets;
+		m_selectedWidgets		   = selection;
+		RebuildContents();
 	}
 
-	void PanelWidgetEditor::AddItemForWidget(Widget* rootInEditor, Widget* sourceWidget, float margin)
+	void PanelWidgetEditor::ChangeSelection(const Vector<Widget*>& selection)
 	{
-		for (Widget* c : sourceWidget->GetChildren())
+		m_selectedWidgets = selection;
+		RebuildContents();
+
+		m_browser->GetController()->UnselectAll();
+		for (Widget* w : m_selectedWidgets)
 		{
-			const std::type_info& typeInfo = typeid(c);
-			const String		  typeName = typeInfo.name();
-			// Widget*				  item	   = CommonWidgets::BuildDefaultFoldItem(this, c, margin, "", Color::White, c->GetWidgetProps().debugName, !c->GetChildren().empty(), &c->_fold, false);
-			//
-			// Text* classType			   = m_manager->Allocate<Text>();
-			// classType->GetProps().text = "(" + ReflectionSystem::Get().Resolve(c->GetTID())->GetProperty<String>("Title"_hs) + ")";
-			// classType->GetFlags().Set(WF_POS_ALIGN_Y);
-			// classType->SetAlignedPosY(0.5f);
-			// classType->SetAnchorY(Anchor::Center);
-			// classType->Initialize();
-			// item->GetChildren().front()->AddChild(classType);
-			//
-			// m_hierarchyController->AddItem(item->GetChildren().front());
-			// rootInEditor->AddChild(item);
-			// AddItemForWidget(item, c, margin + Theme::GetDef().baseIndent);
+			Widget* item = m_browser->GetController()->GetItem(w);
+			if (!item)
+				continue;
+			m_browser->GetController()->SelectItem(item, false, false, true);
 		}
 	}
 
-	void PanelWidgetEditor::CheckSaveCurrent(Delegate<void()>&& onAct)
+	void PanelWidgetEditor::Duplicate(const Vector<Widget*>& widgets)
 	{
-		if (m_currentWidget == nullptr)
-		{
-			onAct();
-			return;
-		}
+		GUIWidget*			  guiWidget	  = static_cast<GUIWidget*>(m_resource);
+		Widget*				  root		  = &guiWidget->GetRoot();
+		const Vector<Widget*> toDuplicate = RemoveRoot(widgets, root);
 
-		// GenericPopup* p = CommonWidgets::ThrowGenericPopup(Locale::GetStr(LocaleStr::SaveChanges), Locale::GetStr(LocaleStr::SaveChangesDesc), //ICON_LINA_LOGO, this);
-		// p->AddButton(GenericPopup::ButtonProps{
-		//	.text = Locale::GetStr(LocaleStr::Yes),
-		//	.onClicked =
-		//		[onAct, this, p]() {
-		//			CloseCurrent(true);
-		//			onAct();
-		//			m_manager->AddToKillList(p);
-		//		},
-		// });
-		//
-		// p->AddButton(GenericPopup::ButtonProps{
-		//	.text = Locale::GetStr(LocaleStr::No),
-		//	.onClicked =
-		//		[onAct, this, p]() {
-		//			CloseCurrent(false);
-		//			onAct();
-		//			m_manager->AddToKillList(p);
-		//		},
-		//});
-		//
-		// m_manager->AddToForeground(p);
-	}
-
-	void PanelWidgetEditor::OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData)
-	{
-		if (m_currentWidget == nullptr)
+		if (toDuplicate.empty())
 			return;
 
-		bool deleteDisabled	   = false;
-		bool duplicateDisabled = false;
-		bool renameDisabled	   = false;
+		StoreEditorActionBuffer();
 
-		Vector<Widget*> selection = m_hierarchyController->GetSelectedUserData<Widget>();
-
-		if (selection.empty())
-			return;
-
-		if (selection.size() > 1)
+		Vector<Widget*> duplicatedWidgets;
+		for (Widget* w : toDuplicate)
 		{
-			renameDisabled = true;
-		}
-
-		Widget* currentRoot = &m_currentWidget->GetRoot();
-
-		auto it = linatl::find_if(selection.begin(), selection.end(), [currentRoot](Widget* w) -> bool { return w == currentRoot; });
-		if (it != selection.end())
-		{
-			deleteDisabled	  = true;
-			duplicateDisabled = true;
-		}
-
-		if (sid == 0)
-		{
-			outData.push_back(FileMenuItem::Data{
-				.text		 = Locale::GetStr(LocaleStr::Rename),
-				.altText	 = "CTRL + R",
-				.hasDropdown = false,
-				.isDisabled	 = renameDisabled,
-				.userData	 = userData,
-			});
-
-			outData.push_back(FileMenuItem::Data{
-				.text		 = Locale::GetStr(LocaleStr::Refresh),
-				.hasDropdown = false,
-				.isDisabled	 = false,
-				.userData	 = userData,
-			});
-
-			outData.push_back(FileMenuItem::Data{.isDivider = true});
-
-			outData.push_back(FileMenuItem::Data{
-				.text		= Locale::GetStr(LocaleStr::Delete),
-				.altText	= "DEL",
-				.isDisabled = deleteDisabled,
-				.userData	= userData,
-			});
-			outData.push_back(FileMenuItem::Data{
-				.text		= Locale::GetStr(LocaleStr::Duplicate),
-				.altText	= "CTRL + D",
-				.isDisabled = duplicateDisabled,
-				.userData	= userData,
-			});
-		}
-	}
-
-	bool PanelWidgetEditor::OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData)
-	{
-		if (m_currentWidget == nullptr)
-			return false;
-
-		Vector<Widget*> selection = m_hierarchyController->GetSelectedUserData<Widget>();
-
-		if (sid == TO_SID(Locale::GetStr(LocaleStr::Rename)))
-		{
-			RequestRename(selection.front());
-			return true;
-		}
-
-		if (sid == TO_SID(Locale::GetStr(LocaleStr::Delete)))
-		{
-			RequestDelete(selection);
-			return true;
-		}
-
-		if (sid == TO_SID(Locale::GetStr(LocaleStr::Duplicate)))
-		{
-			RequestDuplicate(selection);
-			return true;
-		}
-
-		if (sid == TO_SID(Locale::GetStr(LocaleStr::Refresh)))
-		{
-			for (Widget* w : selection)
-				w->Initialize();
-			return true;
-		}
-
-		return false;
-	}
-
-	void PanelWidgetEditor::RequestDelete(Vector<Widget*> widgets)
-	{
-		Vector<Widget*> selection	= m_hierarchyController->GetSelectedUserData<Widget>();
-		Widget*			currentRoot = &m_currentWidget->GetRoot();
-
-		if (selection.empty())
-			return;
-
-		auto it = linatl::find_if(selection.begin(), selection.end(), [currentRoot](Widget* w) -> bool { return w == currentRoot; });
-		if (it != selection.end())
-		{
-			return;
-		}
-
-		Vector<Widget*> roots;
-		for (Widget* w : selection)
-		{
-			auto it = linatl::find_if(selection.begin(), selection.end(), [w](Widget* selected) -> bool { return selected == w->GetParent(); });
-			if (it == selection.end())
-				roots.push_back(w);
-		}
-
-		for (Widget* r : roots)
-		{
-			r->GetParent()->RemoveChild(r);
-			r->GetWidgetManager()->Deallocate(r);
-		}
-
-		RefreshHierarchy();
-	}
-
-	void PanelWidgetEditor::RequestDuplicate(Vector<Widget*> widgets)
-	{
-		Vector<Widget*> selection	= m_hierarchyController->GetSelectedUserData<Widget>();
-		Widget*			currentRoot = &m_currentWidget->GetRoot();
-
-		if (selection.empty())
-			return;
-
-		auto it = linatl::find_if(selection.begin(), selection.end(), [currentRoot](Widget* w) -> bool { return w == currentRoot; });
-		if (it != selection.end())
-		{
-			return;
-		}
-
-		Vector<Widget*> roots;
-		for (Widget* w : selection)
-		{
-			auto it = linatl::find_if(selection.begin(), selection.end(), [w](Widget* selected) -> bool { return selected == w->GetParent(); });
-			if (it == selection.end())
-				roots.push_back(w);
-		}
-
-		for (Widget* r : roots)
-		{
-			Widget* copy = r->GetWidgetManager()->Allocate(r->GetTID());
+			Widget* parent = w->GetParent();
 			OStream stream;
-			r->SaveToStream(stream);
+			w->SaveToStream(stream);
+
 			IStream istream;
 			istream.Create(stream.GetDataRaw(), stream.GetCurrentSize());
-			copy->LoadFromStream(istream);
 			stream.Destroy();
+
+			Widget* duplicated = m_manager->Allocate(w->GetTID(), w->GetWidgetProps().debugName);
+			duplicated->LoadFromStream(istream);
 			istream.Destroy();
-			r->GetParent()->AddChild(copy);
+			parent->AddChild(duplicated);
+			duplicatedWidgets.push_back(duplicated);
+			duplicated->SetUniqueID(m_uniqueIDCounter);
 		}
 
-		RefreshHierarchy();
+		EditorActionWidgetChanged::Create(m_editor, m_resourceSpace, root, m_storedStream);
+
+		m_browser->GetController()->UnselectAll();
+		for (Widget* duplicated : duplicatedWidgets)
+			m_browser->GetController()->SelectItem(m_browser->GetController()->GetItem(duplicated), false, false, true);
 	}
 
-	void PanelWidgetEditor::RequestRename(Widget* w)
+	void PanelWidgetEditor::Delete(const Vector<Widget*>& widgets)
 	{
-		Widget* parent = m_hierarchyController->GetItem(w);
-		Text*	text   = parent->GetWidgetOfType<Text>(parent);
+		GUIWidget*			  guiWidget = static_cast<GUIWidget*>(m_resource);
+		Widget*				  root		= &guiWidget->GetRoot();
+		const Vector<Widget*> selection = RemoveRoot(widgets, root);
+		const Vector<Widget*> toDelete	= GetRoots(selection);
 
-		InputField* inp = m_manager->Allocate<InputField>();
-		inp->GetFlags().Set(WF_USE_FIXED_SIZE_Y);
-		inp->GetText()->GetProps().text = text->GetProps().text;
-		inp->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		inp->SetSizeX(parent->GetSizeX());
-		inp->SetPos(text->GetParent()->GetPos());
-		inp->SetFixedSizeY(text->GetParent()->GetSizeY());
-		inp->Initialize();
-
-		inp->GetCallbacks().onEditEnded = [this, inp, w, text]() {
-			const String& str	  = inp->GetValueStr();
-			text->GetProps().text = str;
-			text->CalculateTextSize();
-			w->GetWidgetProps().debugName = str;
-			text->GetWidgetManager()->AddToKillList(inp);
-		};
-
-		text->GetWidgetManager()->AddToForeground(inp);
-		inp->StartEditing();
-		inp->SelectAll();
-
-		m_hierarchyController->SetFocus(true);
-		m_manager->GrabControls(inp);
-	}
-
-	void PanelWidgetEditor::OpenWidget(ResourceID id)
-	{
-		return;
-
-		m_propertiesArea->Refresh(nullptr);
-		// m_currentWidget = m_editor->GetApp()->GetResourceManager().OpenResource<GUIWidget>(m_editor->GetProjectManager().GetProjectData(), id, (void*)m_manager);
-
-		RefreshHierarchy();
-
-		if (m_currentWidget == nullptr)
+		if (toDelete.empty())
 			return;
 
-		m_lastOpenWidget = id;
+		StoreEditorActionBuffer();
 
-		Widget* root = &m_currentWidget->GetRoot();
-		m_gridParent->AddChild(root);
-		root->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		root->SetAlignedPos(Vector2::Zero);
-		root->SetAlignedSize(Vector2::One);
-		m_propertiesArea->Refresh(root);
-	}
-
-	void PanelWidgetEditor::CloseCurrent(bool save)
-	{
-		// if (save)
-		// 	m_editor->GetApp()->GetResourceManager().CloseResource(m_editor->GetProjectManager().GetProjectData(), m_currentWidget, true);
-		// else
-		// 	m_editor->GetApp()->GetResourceManager().CloseResource(m_editor->GetProjectManager().GetProjectData(), m_currentWidget, false);
-
-		m_gridParent->RemoveChild(&m_currentWidget->GetRoot());
-	}
-
-	bool PanelWidgetEditor::OnMouse(uint32 button, LinaGX::InputAction act)
-	{
-		if (act != LinaGX::InputAction::Pressed)
-			return false;
-
-		if (m_currentWidget == nullptr)
-			return false;
-
-		if (!m_currentWidget->GetRoot().GetIsHovered())
-			return false;
-
-		Widget* deepest = m_currentWidget->GetRoot().FindDeepestHovered();
-		m_hierarchyController->SelectItem(m_hierarchyController->GetItem(deepest), !m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LCTRL), false, true);
-		return true;
-	}
-
-	void PanelWidgetEditor::AddPayloadToWidget(Widget* target)
-	{
-		if (m_payloadCarryWidget != nullptr)
+		for (Widget* w : toDelete)
 		{
-			if (target == m_payloadCarryWidget)
-				return;
+			Widget* parent = w->GetParent();
+			parent->RemoveChild(w);
+			m_manager->Deallocate(w);
+		}
 
-			m_payloadCarryWidget->GetParent()->RemoveChild(m_payloadCarryWidget);
-			target->AddChild(m_payloadCarryWidget);
-			m_payloadCarryWidget->GetParent()->Initialize();
-			m_payloadCarryWidget = nullptr;
-			RefreshHierarchy();
+		EditorActionWidgetChanged::Create(m_editor, m_resourceSpace, root, m_storedStream);
+		m_browser->GetController()->SelectItem(m_browser->GetController()->GetItem(root), true, true, true);
+	}
+
+	void PanelWidgetEditor::Parent(const Vector<Widget*>& widgets, Widget* parent)
+	{
+		GUIWidget*			  guiWidget = static_cast<GUIWidget*>(m_resource);
+		Widget*				  root		= &guiWidget->GetRoot();
+		const Vector<Widget*> toParent	= RemoveRoot(widgets, root);
+
+		if (toParent.empty())
 			return;
-		}
 
-		Widget* w = m_manager->Allocate(m_payloadCarryTID);
-		w->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-		w->SetAlignedPos(Vector2::Zero);
-		w->SetAlignedSizeX(1.0f);
-		w->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		StoreEditorActionBuffer();
 
-		if (m_payloadCarryTID == GetTypeID<Text>())
+		for (Widget* w : toParent)
 		{
-			w->GetFlags() = 0;
-			w->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
-			static_cast<Text*>(w)->GetProps().text = "Text";
-			static_cast<Text*>(w)->CalculateTextSize();
-		}
-		else if (m_payloadCarryTID == GetTypeID<Icon>())
-		{
-			w->GetFlags() = 0;
-			w->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
-			static_cast<Icon*>(w)->GetProps().icon = ICON_LINA_LOGO;
-			static_cast<Icon*>(w)->CalculateIconSize();
+			if (w == parent)
+				continue;
+
+			w->GetParent()->RemoveChild(w);
+			parent->AddChild(w);
 		}
 
-		w->Initialize();
-		target->AddChild(w);
-		RefreshHierarchy();
-		m_hierarchyController->SelectItem(m_hierarchyController->GetItem(w), true, true, true);
+		EditorActionWidgetChanged::Create(m_editor, m_resourceSpace, root, m_storedStream);
 	}
+
+	void PanelWidgetEditor::SetStream(const RawStream& stream)
+	{
+		GUIWidget* guiWidget = static_cast<GUIWidget*>(m_resource);
+		Widget*	   root		 = &guiWidget->GetRoot();
+		IStream	   istream;
+		istream.Create(stream.GetRaw(), stream.GetSize());
+		root->LoadFromStream(istream);
+		istream.Destroy();
+	}
+
+	void PanelWidgetEditor::RefreshBrowser()
+	{
+		m_browser->RefreshWidgets();
+		GUIWidget* guiWidget = static_cast<GUIWidget*>(m_resource);
+		Widget*	   root		 = &guiWidget->GetRoot();
+	}
+
+	void PanelWidgetEditor::AddNew(Widget* w, Widget* parent)
+	{
+		GUIWidget* guiWidget = static_cast<GUIWidget*>(m_resource);
+		Widget*	   root		 = &guiWidget->GetRoot();
+
+		if (parent == nullptr)
+			parent = root;
+
+		StoreEditorActionBuffer();
+		parent->AddChild(w);
+		w->SetUniqueID(m_uniqueIDCounter++);
+
+		EditorActionWidgetChanged::Create(m_editor, m_resourceSpace, root, m_storedStream);
+		m_browser->GetController()->SelectItem(m_browser->GetController()->GetItem(w), true, true, true);
+		RefreshResources();
+	}
+
+	void PanelWidgetEditor::Rename(Widget* w, const String& name)
+	{
+		GUIWidget* guiWidget = static_cast<GUIWidget*>(m_resource);
+		Widget*	   root		 = &guiWidget->GetRoot();
+		StoreEditorActionBuffer();
+		w->GetWidgetProps().debugName = name;
+		EditorActionWidgetChanged::Create(m_editor, m_resourceSpace, root, m_storedStream);
+	}
+
+	void PanelWidgetEditor::RefreshResources()
+	{
+		HashSet<ResourceID> list;
+		CollectReferences(list, &static_cast<GUIWidget*>(m_resource)->GetRoot());
+		m_editor->GetApp()->GetResourceManager().LoadResourcesFromProject(m_editor->GetProjectManager().GetProjectData(), list, NULL, m_resourceSpace);
+	}
+
 } // namespace Lina::Editor

@@ -34,28 +34,31 @@ SOFTWARE.
 namespace Lina
 {
 	class DirectionalLayout;
-	class Entity;
-	class EntityWorld;
 } // namespace Lina
 
 namespace Lina::Editor
 {
 	class Editor;
 	class ItemController;
+	class PanelWidgetEditor;
 
-	class EntityBrowser : public Widget, public FileMenuListener
+	class WidgetBrowser : public Widget, public FileMenuListener
 	{
 
 	public:
-		EntityBrowser() : Widget() {};
-		virtual ~EntityBrowser() = default;
+		WidgetBrowser() : Widget() {};
+		virtual ~WidgetBrowser() = default;
 
 		virtual void Construct() override;
 
-		void RefreshEntities();
-		void SetWorld(EntityWorld* w);
-		void OnEntitySelectionChanged(const Vector<Entity*>& entities, bool applySelection);
-		void DropPayload(Entity* e);
+		void RefreshWidgets();
+		void DropPayload(Widget* w);
+		void SetRoot(Widget* w);
+
+		inline void SetWidgetEditor(PanelWidgetEditor* editor)
+		{
+			m_panelWidgetEditor = editor;
+		}
 
 		inline ItemController* GetController() const
 		{
@@ -63,18 +66,18 @@ namespace Lina::Editor
 		}
 
 	private:
-		void AddItem(Widget* parent, Entity* e, float margin);
-		void RequestRename(Entity* e);
-		bool ContainsSearchStrRecursive(Entity* e);
+		void AddItem(Widget* parent, Widget* w, float margin);
+		void RequestRename(Widget* w);
+		bool ContainsSearchStrRecursive(Widget* w);
 
 	protected:
 		virtual bool OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData) override;
 		virtual void OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
 
 	private:
-		Vector<Entity*>	   m_payloadItems;
-		Vector<Entity*>	   m_selectedEntities;
-		EntityWorld*	   m_world		= nullptr;
+		PanelWidgetEditor* m_panelWidgetEditor = nullptr;
+		Widget*			   m_root			   = nullptr;
+		Vector<Widget*>	   m_payloadItems;
 		Editor*			   m_editor		= nullptr;
 		ItemController*	   m_controller = nullptr;
 		DirectionalLayout* m_layout		= nullptr;
@@ -82,6 +85,6 @@ namespace Lina::Editor
 		uint32			   m_itemCtr	= 0;
 	};
 
-	LINA_WIDGET_BEGIN(EntityBrowser, Hidden)
-	LINA_CLASS_END(EntityBrowser)
+	LINA_WIDGET_BEGIN(WidgetBrowser, Hidden)
+	LINA_CLASS_END(WidgetBrowser)
 } // namespace Lina::Editor

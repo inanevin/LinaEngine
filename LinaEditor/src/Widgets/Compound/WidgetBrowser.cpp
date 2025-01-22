@@ -26,14 +26,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Editor/Widgets/Compound/EntityBrowser.hpp"
+#include "Editor/Widgets/Compound/WidgetBrowser.hpp"
 #include "Editor/Widgets/World/WorldController.hpp"
 #include "Editor/Widgets/World/WorldDisplayer.hpp"
 #include "Editor/Widgets/Layout/ItemController.hpp"
-#include "Editor/Widgets/Panel/PanelWorld.hpp"
+#include "Editor/Widgets/Panel/PanelWidgetEditor.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/EditorLocale.hpp"
-#include "Editor/Actions/EditorActionEntity.hpp"
+#include "Editor/Actions/EditorActionWidget.hpp"
 #include "Editor/World/EditorWorldUtility.hpp"
 #include "Core/World/WorldUtility.hpp"
 #include "Core/World/Components/CompLight.hpp"
@@ -42,13 +42,12 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
-#include "Core/World/EntityWorld.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
 
 namespace Lina::Editor
 {
-	void EntityBrowser::Construct()
+	void WidgetBrowser::Construct()
 	{
 		m_editor = Editor::Get();
 
@@ -81,7 +80,7 @@ namespace Lina::Editor
 		searchField->GetProps().placeHolderIcon = ICON_SEARCH;
 		searchField->GetCallbacks().onEdited	= [searchField, this]() {
 			   m_searchStr = searchField->GetText()->GetProps().text;
-			   RefreshEntities();
+			   RefreshWidgets();
 		};
 		header->AddChild(searchField);
 
@@ -110,61 +109,45 @@ namespace Lina::Editor
 		scroll->AddChild(controller);
 
 		controller->GetProps().onItemSelected = [this](void* ud) {
-			const Vector<Entity*> selection = m_controller->GetSelectedUserData<Entity>();
-
-			if (m_world)
-				EditorActionEntitySelection::Create(m_editor, m_world->GetID(), selection, true, true, "EntityList"_hs);
+			const Vector<Widget*> selection = m_controller->GetSelectedUserData<Widget>();
+			m_panelWidgetEditor->SetSelectedWidgets(selection);
 		};
 
 		controller->GetProps().onItemUnselected = [this](void* ud) {
-			const Vector<Entity*> selection = m_controller->GetSelectedUserData<Entity>();
-			if (m_world)
-				EditorActionEntitySelection::Create(m_editor, m_world->GetID(), selection, true, true, "EntityList"_hs);
+			const Vector<Widget*> selection = m_controller->GetSelectedUserData<Widget>();
+			m_panelWidgetEditor->SetSelectedWidgets(selection);
 		};
 
 		controller->GetProps().onItemRenamed = [this](void* ud) {
-			Entity* e = static_cast<Entity*>(ud);
-			RequestRename(e);
+			Widget* w = static_cast<Widget*>(ud);
+			RequestRename(w);
 		};
+
 		controller->GetProps().onDelete = [this]() {
-			const Vector<Entity*> selection = m_controller->GetSelectedUserData<Entity>();
-			EditorActionEntitySelection::Create(m_editor, m_world->GetID(), selection, false, true);
-			EditorActionEntityDelete::Create(m_editor, m_world, selection);
-			EditorActionCollective::Create(m_editor, 2);
-		};
-
-		controller->GetProps().onInteract = [this]() {
-			Panel* p = m_editor->GetWindowPanelManager().FindPanelOfType(PanelType::World, 0);
-			if (!p)
-				return;
-
-			static_cast<PanelWorld*>(p)->GetDisplayer()->GetController()->FocusSelected();
+			const Vector<Widget*> selection = m_controller->GetSelectedUserData<Widget>();
+			m_panelWidgetEditor->Delete(selection);
 		};
 
 		controller->GetProps().onDuplicate = [this]() {
-			const Vector<Entity*> selection = m_controller->GetSelectedUserData<Entity>();
-			Vector<Entity*>		  entities;
-			WorldUtility::DuplicateEntities(m_world, selection, entities);
-			EditorActionEntitiesCreated::Create(m_editor, m_world, entities);
-			EditorActionEntitySelection::Create(m_editor, m_world->GetID(), entities, true, true);
-			EditorActionCollective::Create(m_editor, 2);
+			const Vector<Widget*> selection = m_controller->GetSelectedUserData<Widget>();
+			m_panelWidgetEditor->Duplicate(selection);
 		};
 
-		controller->GetProps().payloadTypes			   = {PayloadType::EntitySelectable};
+		controller->GetProps().payloadTypes			   = {PayloadType::WidgetEditorWidget};
 		controller->GetProps().onCheckCanCreatePayload = [](void* ud) { return true; };
 		controller->GetProps().onCreatePayload		   = [this]() {
 			Widget*			root	 = m_editor->GetWindowPanelManager().GetPayloadRoot();
-			Vector<Entity*> payloads = m_controller->GetSelectedUserData<Entity>();
+			Vector<Widget*> payloads = m_controller->GetSelectedUserData<Widget>();
 
 			Text* t			   = root->GetWidgetManager()->Allocate<Text>();
-			t->GetProps().text = payloads.size() == 1 ? payloads.front()->GetName() : Locale::GetStr(LocaleStr::MultipleItems);
+			t->GetProps().text = payloads.size() == 1 ? payloads.front()->GetWidgetProps().debugName : Locale::GetStr(LocaleStr::MultipleItems);
 			t->Initialize();
 			t->SetUserData(payloads.at(0));
 
 			m_payloadItems = payloads;
-			Editor::Get()->GetWindowPanelManager().CreatePayload(t, PayloadType::EntitySelectable, t->GetSize());
+			Editor::Get()->GetWindowPanelManager().CreatePayload(t, PayloadType::WidgetEditorWidget, t->GetSize());
 		};
-		controller->GetProps().onPayloadAccepted = [this](void* ud, void* payloadUserData, PayloadType type) { DropPayload(static_cast<Entity*>(ud)); };
+		controller->GetProps().onPayloadAccepted = [this](void* ud, void* payloadUserData, PayloadType type) { DropPayload(static_cast<Widget*>(ud)); };
 
 		controller->GetContextMenu()->SetListener(this);
 
@@ -182,74 +165,44 @@ namespace Lina::Editor
 		m_layout	 = layout;
 	}
 
-	void EntityBrowser::RefreshEntities()
+	void WidgetBrowser::SetRoot(Widget* root)
+	{
+		m_root = root;
+		RefreshWidgets();
+	}
+
+	void WidgetBrowser::RefreshWidgets()
 	{
 		m_layout->DeallocAllChildren();
 		m_layout->RemoveAllChildren();
 		m_controller->ClearItems();
 		m_itemCtr = 0;
 
-		if (m_world == nullptr)
+		if (!m_searchStr.empty() && !ContainsSearchStrRecursive(m_root))
 			return;
 
-		Vector<Entity*> roots;
-		roots.reserve(m_world->GetActiveEntityCount());
-		m_world->ViewEntities([&](Entity* e, uint32 idx) -> bool {
-			if (e->GetParent() == nullptr)
-				roots.push_back(e);
-			return false;
-		});
-
-		for (Entity* root : roots)
-		{
-			if (!m_searchStr.empty() && !ContainsSearchStrRecursive(root))
-				continue;
-
-			AddItem(m_layout, root, Theme::GetDef().baseIndent);
-		}
-
+		AddItem(m_layout, m_root, Theme::GetDef().baseIndent);
 		m_controller->GatherItems(m_layout);
-		OnEntitySelectionChanged(m_selectedEntities, true);
 	}
 
-	void EntityBrowser::SetWorld(EntityWorld* w)
+	void WidgetBrowser::DropPayload(Widget* w)
 	{
-		m_world = w;
-		m_selectedEntities.clear();
-		if (w)
-			m_selectedEntities = m_editor->GetWorldManager().GetWorldData(w).selectedEntities;
-		RefreshEntities();
-	}
-
-	void EntityBrowser::OnEntitySelectionChanged(const Vector<Entity*>& entities, bool applySelection)
-	{
-		m_selectedEntities = entities;
-		if (!applySelection)
-			return;
-
-		m_controller->UnselectAll();
-		for (Entity* e : entities)
-			m_controller->SelectItem(m_controller->GetItem(e), false, false, true);
-	}
-
-	void EntityBrowser::DropPayload(Entity* e)
-	{
-		EditorActionEntityParenting::Create(m_editor, m_world, m_payloadItems, e);
+		m_panelWidgetEditor->Parent(m_payloadItems, w);
 		m_payloadItems.clear();
 	}
 
-	void EntityBrowser::AddItem(Widget* parent, Entity* e, float margin)
+	void WidgetBrowser::AddItem(Widget* parent, Widget* w, float margin)
 	{
-		const Vector<Entity*>& children = e->GetChildren();
+		const Vector<Widget*>& children = w->GetChildren();
 
 		const CommonWidgets::EntityItemProperties props = {
 			.icon		 = ICON_CUBE,
 			.iconColor	 = Theme::GetDef().foreground0,
-			.title		 = e->GetName(),
+			.title		 = w->GetWidgetProps().debugName,
 			.hasChildren = !children.empty(),
 			.margin		 = margin,
-			.unfoldValue = &e->GetInterfaceUserData().unfolded,
-			.userData	 = e,
+			.unfoldValue = nullptr,
+			.userData	 = w,
 		};
 
 		FoldLayout* layout = CommonWidgets::BuildEntityItem(this, props);
@@ -265,7 +218,7 @@ namespace Lina::Editor
 		//
 		// m_itemCtr++;
 
-		for (Entity* c : children)
+		for (Widget* c : children)
 		{
 			if (!m_searchStr.empty() && !ContainsSearchStrRecursive(c))
 				continue;
@@ -273,28 +226,27 @@ namespace Lina::Editor
 		}
 	}
 
-	void EntityBrowser::RequestRename(Entity* e)
+	void WidgetBrowser::RequestRename(Widget* w)
 	{
-		Widget* parent = m_controller->GetItem(e);
+		Widget* parent = m_controller->GetItem(w);
 		Text*	text   = parent->GetWidgetOfType<Text>(parent);
 
 		InputField* inp = m_manager->Allocate<InputField>("");
 		inp->GetFlags().Set(WF_USE_FIXED_SIZE_Y);
-		inp->GetText()->GetProps().text = e->GetName();
+		inp->GetText()->GetProps().text = w->GetWidgetProps().debugName;
 		inp->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		inp->SetSizeX(parent->GetSizeX());
 		inp->SetPos(text->GetParent()->GetPos());
 		inp->SetFixedSizeY(text->GetParent()->GetSizeY());
 		inp->Initialize();
 
-		inp->GetCallbacks().onEditEnded = [text, e, inp, this]() {
+		inp->GetCallbacks().onEditEnded = [text, w, inp, this]() {
 			const String& str	  = inp->GetValueStr();
 			text->GetProps().text = str;
 			text->CalculateTextSize();
 			text->GetWidgetManager()->AddToKillList(inp);
-			const String stored = e->GetName();
-			e->SetName(str);
-			EditorActionEntityNames::Create(m_editor, m_world->GetID(), {e}, {stored});
+			const String stored = w->GetWidgetProps().debugName;
+			m_panelWidgetEditor->Rename(w, str);
 		};
 
 		text->GetWidgetManager()->AddToForeground(inp);
@@ -305,12 +257,12 @@ namespace Lina::Editor
 		m_manager->GrabControls(inp);
 	}
 
-	bool EntityBrowser::ContainsSearchStrRecursive(Entity* e)
+	bool WidgetBrowser::ContainsSearchStrRecursive(Widget* w)
 	{
-		if (e->GetName().find(m_searchStr) != String::npos)
+		if (w->GetWidgetProps().debugName.find(m_searchStr) != String::npos)
 			return true;
 
-		for (Entity* c : e->GetChildren())
+		for (Widget* c : w->GetChildren())
 		{
 			if (ContainsSearchStrRecursive(c))
 				return true;
@@ -319,38 +271,69 @@ namespace Lina::Editor
 		return false;
 	}
 
-	bool EntityBrowser::OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData)
+	bool WidgetBrowser::OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData)
 	{
-		const Vector<Entity*> selection = m_controller->GetSelectedUserData<Entity>();
+		const Vector<Widget*> selection = m_controller->GetSelectedUserData<Widget>();
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Rename)))
 		{
-			Entity* e = selection.front();
-			RequestRename(e);
+			Widget* w = selection.front();
+			RequestRename(w);
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Delete)))
 		{
-			EditorActionEntitySelection::Create(m_editor, m_world->GetID(), selection, false, true);
-			EditorActionEntityDelete::Create(m_editor, m_world, selection);
-			EditorActionCollective::Create(m_editor, 2);
+			m_panelWidgetEditor->Delete(selection);
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Duplicate)))
 		{
-			Vector<Entity*> entities;
-			WorldUtility::DuplicateEntities(m_world, selection, entities);
-			EditorActionEntitiesCreated::Create(m_editor, m_world, entities);
-			EditorActionEntitySelection::Create(m_editor, m_world->GetID(), entities, true, true);
-			EditorActionCollective::Create(m_editor, 2);
+			m_panelWidgetEditor->Duplicate(selection);
 			return true;
 		}
 
-		const Vector3 cameraPos = m_world->GetWorldCamera().GetPosition() + m_world->GetWorldCamera().GetRotation().GetForward() * 1.0f;
-		const Vector3 createPos = selection.empty() ? cameraPos : selection.at(0)->GetPosition();
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::Widget)))
+		{
+			Widget* w = m_manager->Allocate<Widget>("Widget");
+			w->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+			w->SetAlignedPos(Vector2::Zero);
+			w->SetAlignedSize(Vector2::One);
+			m_panelWidgetEditor->AddNew(w, selection.empty() ? nullptr : selection.front());
+			return true;
+		}
 
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::Text)))
+		{
+			Text* w = m_manager->Allocate<Text>("Text");
+			w->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+			w->SetAlignedPos(Vector2::Zero);
+			w->UpdateTextAndCalcSize("Text");
+			w->GetProps().font = ENGINE_FONT_ROBOTO_ID;
+			m_panelWidgetEditor->AddNew(w, selection.empty() ? nullptr : selection.front());
+			return true;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::DirectionalLayout)))
+		{
+			DirectionalLayout* w = m_manager->Allocate<DirectionalLayout>("Layout");
+			w->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+			w->SetAlignedPos(Vector2::Zero);
+			m_panelWidgetEditor->AddNew(w, selection.empty() ? nullptr : selection.front());
+			return true;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::Button)))
+		{
+			Button* w = m_manager->Allocate<Button>("Button");
+			w->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+			w->SetAlignedPos(Vector2::Zero);
+			m_panelWidgetEditor->AddNew(w, selection.front());
+			return true;
+		}
+
+		/*
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::PointLight)))
 		{
 			Entity* e = m_world->CreateEntity(m_world->ConsumeEntityGUID(), Locale::GetStr(LocaleStr::PointLight));
@@ -400,16 +383,14 @@ namespace Lina::Editor
 			EditorActionCollective::Create(m_editor, 2);
 			return true;
 		}
+		*/
 
 		return false;
 	}
 
-	void EntityBrowser::OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData)
+	void WidgetBrowser::OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData)
 	{
-		if (!m_world)
-			return;
-
-		const Vector<Entity*> selection = m_controller->GetSelectedUserData<Entity>();
+		const Vector<Widget*> selection = m_controller->GetSelectedUserData<Widget>();
 
 		bool basicActionsDisabled = false;
 
@@ -456,26 +437,15 @@ namespace Lina::Editor
 			});
 
 			outData.push_back(FileMenuItem::Data{.isDivider = true});
-
-			outData.push_back(FileMenuItem::Data{
-				.text		  = Locale::GetStr(LocaleStr::Display),
-				.dropdownIcon = ICON_ARROW_RIGHT,
-				.hasDropdown  = true,
-				.isDisabled	  = basicActionsDisabled,
-				.userData	  = userData,
-			});
 		}
 		else if (sid == TO_SID(Locale::GetStr(LocaleStr::Create)))
 		{
 			outData = {
-				FileMenuItem::Data{
-					.text		= Locale::GetStr(LocaleStr::Entity),
-					.headerIcon = ICON_CUBE,
-				},
-				FileMenuItem::Data{.isDivider = true},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::PointLight), .headerIcon = ICON_LIGHTBULB, .userData = userData},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::SpotLight), .headerIcon = ICON_SPOTLIGHT, .userData = userData},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::DirectionalLight), .headerIcon = ICON_SUN, .userData = userData},
+
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Widget), .userData = userData},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Text), .userData = userData},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::DirectionalLayout), .userData = userData},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Button), .userData = userData},
 			};
 		}
 		else if (sid == TO_SID(Locale::GetStr(LocaleStr::Display)))

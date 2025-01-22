@@ -72,7 +72,6 @@ namespace Lina
 				stream >> color;
 				stream >> icon;
 				stream >> font >> textScale >> isDynamic;
-				;
 				stream >> dynamicSizeToParent >> dynamicSizeScale;
 			}
 		};
@@ -81,6 +80,7 @@ namespace Lina
 		virtual void CalculateSize(float dt) override;
 		virtual void Draw() override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
+		virtual void CollectResourceReferences(HashSet<ResourceID>& out) override;
 
 		void CalculateIconSize();
 

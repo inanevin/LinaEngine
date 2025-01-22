@@ -38,7 +38,7 @@ SOFTWARE.
 #include "Common/ObjectWrapper.hpp"
 #include "Common/Data/Deque.hpp"
 #include "Core/World/CommonWorld.hpp"
-#include "Core/World/ComponentCache.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
 
@@ -66,7 +66,7 @@ namespace Lina
 		EntityWorld(ResourceID id, const String& name);
 		~EntityWorld();
 
-		void Initialize(ResourceManagerV2* rm);
+		void Initialize(ResourceManagerV2* rm, LinaGX::Window* window);
 		void Tick(float delta);
 		void SetPlayMode(PlayMode playmode);
 
@@ -235,6 +235,11 @@ namespace Lina
 			return m_playMode;
 		}
 
+		inline WidgetManager& GetWidgetManager()
+		{
+			return m_widgetManager;
+		}
+
 	private:
 		void				BeginPlay();
 		void				EndPlay();
@@ -274,6 +279,8 @@ namespace Lina
 		HashSet<ResourceID>	 m_loadedResourceNeeds;
 		WorldPhysicsSettings m_physicsSettings = {};
 		WorldRenderer*		 m_worldRenderer   = nullptr;
+		WidgetManager		 m_widgetManager;
+		LinaVG::Drawer		 m_lvgDrawer = {};
 	};
 
 	LINA_RESOURCE_BEGIN(EntityWorld)

@@ -38,6 +38,10 @@ namespace Lina
 	struct ResourceDirectory;
 } // namespace Lina
 
+namespace LinaGX
+{
+	class Window;
+}
 namespace Lina::Editor
 {
 	class Editor;
@@ -46,10 +50,10 @@ namespace Lina::Editor
 	class EditorWorldManagerListener
 	{
 	public:
-		virtual void OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities, StringID source){};
-		virtual void OnWorldManagerEntityHierarchyChanged(EntityWorld* w){};
-		virtual void OnWorldManagerEntityPhysicsSettingsChanged(EntityWorld* w){};
-		virtual void OnWorldManagerComponentsDataChanged(EntityWorld* w){};
+		virtual void OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities, StringID source) {};
+		virtual void OnWorldManagerEntityHierarchyChanged(EntityWorld* w) {};
+		virtual void OnWorldManagerEntityPhysicsSettingsChanged(EntityWorld* w) {};
+		virtual void OnWorldManagerComponentsDataChanged(EntityWorld* w) {};
 	};
 
 	class EditorWorldManager
@@ -70,7 +74,7 @@ namespace Lina::Editor
 		void AddListener(EditorWorldManagerListener* listener);
 		void RemoveListener(EditorWorldManagerListener* listener);
 
-		EditorWorldRenderer* CreateEditorWorld(ResourceID space);
+		EditorWorldRenderer* CreateEditorWorld(ResourceID space, LinaGX::Window* window);
 		void				 DestroyEditorWorld(EntityWorld* world);
 
 		EntityWorld* GetWorld(ResourceID id);

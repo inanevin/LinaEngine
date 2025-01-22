@@ -51,11 +51,11 @@ namespace Lina
 			ResourceCacheBase* cache = nullptr;
 		};
 
-		ResourceManagerV2(){};
-		~ResourceManagerV2(){};
+		ResourceManagerV2() {};
+		~ResourceManagerV2() {};
 
 		HashSet<Resource*> LoadResourcesFromFile(const ResourceDefinitionList& resourceDef, Delegate<void(uint32 loaded, const ResourceDef& currentItem)> onProgress, uint64 resourceSpace = 0);
-		HashSet<Resource*> LoadResourcesFromProject(ProjectData* project, const HashSet<ResourceID>& resources, Delegate<void(uint32 loaded, Resource* currentItem)> onProgress, uint64 resourceSpace = 0);
+		HashSet<Resource*> LoadResourcesFromProject(ProjectData* project, const HashSet<ResourceID>& resources, Delegate<void(uint32 loaded, Resource* currentItem)> onProgress, uint64 resourceSpace = 0, void* subData = nullptr);
 		void			   UnloadResources(const ResourceDefinitionList& resources);
 		void			   ReloadResourceHW(const HashSet<Resource*>& resources);
 		void			   UnloadResourceSpace(uint64 id);

@@ -203,7 +203,7 @@ namespace Lina
 		return resources;
 	}
 
-	HashSet<Resource*> ResourceManagerV2::LoadResourcesFromProject(ProjectData* project, const HashSet<ResourceID>& resources, Delegate<void(uint32 loaded, Resource* currentItem)> onProgress, uint64 resourceSpace)
+	HashSet<Resource*> ResourceManagerV2::LoadResourcesFromProject(ProjectData* project, const HashSet<ResourceID>& resources, Delegate<void(uint32 loaded, Resource* currentItem)> onProgress, uint64 resourceSpace, void* subData)
 	{
 		CheckLock();
 
@@ -261,6 +261,7 @@ namespace Lina
 				continue;
 			}
 
+			res->SetSubdata(subData);
 			res->LoadFromStream(stream);
 			stream.Destroy();
 

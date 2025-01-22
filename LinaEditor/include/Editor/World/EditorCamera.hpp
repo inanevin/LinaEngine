@@ -51,7 +51,7 @@ namespace Lina::Editor
 			PointAxis,
 		};
 
-		EditorCamera(EntityWorld* world) : m_world(world){};
+		EditorCamera(EntityWorld* world) : m_world(world) {};
 		virtual ~EditorCamera() = default;
 
 		struct CameraProperties
@@ -174,13 +174,12 @@ namespace Lina::Editor
 
 		float	   m_yaw			= 0.0f;
 		float	   m_pitch			= 0.0f;
-		float	   m_movementPower	= 40.0f;
-		float	   m_movementSpeed	= 40.0f;
 		float	   m_angularPower	= 10.0f;
 		float	   m_angularSpeed	= 40.0f;
 		float	   m_yawPrev		= 0.0f;
 		float	   m_pitchPrev		= 0.0f;
 		bool	   m_controlsActive = false;
 		Quaternion m_targetRotation = Quaternion::Identity();
+		Vector2	   m_movementAxis	= Vector2::Zero;
 	};
 } // namespace Lina::Editor

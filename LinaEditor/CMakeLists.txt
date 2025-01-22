@@ -32,6 +32,7 @@ include/Editor/Actions/EditorActionManager.hpp
 include/Editor/Actions/EditorAction.hpp
 include/Editor/Actions/EditorActionResources.hpp
 include/Editor/Actions/EditorActionEntity.hpp
+include/Editor/Actions/EditorActionWidget.hpp
 include/Editor/Actions/EditorActionComponent.hpp
 include/Editor/Actions/EditorActionWorld.hpp
 include/Editor/Actions/EditorActionSettings.hpp
@@ -73,6 +74,7 @@ include/Editor/Widgets/Compound/TabRow.hpp
 include/Editor/Widgets/Compound/IconTabs.hpp
 include/Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp
 include/Editor/Widgets/Compound/EntityBrowser.hpp
+include/Editor/Widgets/Compound/WidgetBrowser.hpp
 include/Editor/Widgets/Compound/EntityDetails.hpp
 include/Editor/Widgets/Compound/WindowBar.hpp
 include/Editor/Widgets/Docking/DockArea.hpp
@@ -131,6 +133,7 @@ src/Actions/EditorActionManager.cpp
 src/Actions/EditorAction.cpp
 src/Actions/EditorActionResources.cpp
 src/Actions/EditorActionEntity.cpp
+src/Actions/EditorActionWidget.cpp
 src/Actions/EditorActionComponent.cpp
 src/Actions/EditorActionWorld.cpp
 src/Actions/EditorActionSettings.cpp
@@ -173,6 +176,7 @@ src/Widgets/Compound/Table.cpp
 src/Widgets/Compound/IconTabs.cpp
 src/Widgets/Compound/ResourceDirectoryBrowser.cpp
 src/Widgets/Compound/EntityBrowser.cpp
+src/Widgets/Compound/WidgetBrowser.cpp
 src/Widgets/Compound/EntityDetails.cpp
 src/Widgets/Compound/WindowBar.cpp
 src/Widgets/Docking/DockWidget.cpp
@@ -279,6 +283,6 @@ include(${CMAKE_SOURCE_DIR}/CMake/CommonFunctions.cmake)
 group_sources(HEADERS SOURCES)
 
 # Copy Lina libraries to output for game dll
-include(${CMAKE_SOURCE_DIR}/Dependencies/DependenciesEditorPackaging.cmake)
+# include(${CMAKE_SOURCE_DIR}/Dependencies/DependenciesEditorPackaging.cmake)
 
 

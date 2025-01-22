@@ -86,7 +86,7 @@ namespace Lina::Editor
 		if (m_world)
 			return;
 
-		EditorWorldRenderer* ewr = m_editor->GetWorldManager().CreateEditorWorld(m_resourceSpace);
+		EditorWorldRenderer* ewr = m_editor->GetWorldManager().CreateEditorWorld(m_resourceSpace, m_lgxWindow);
 		m_world					 = ewr->GetWorldRenderer()->GetWorld();
 		m_world->SetID(m_resourceSpace);
 		m_worldDisplayer->DisplayWorld(ewr, WorldCameraType::Orbit);
@@ -97,7 +97,6 @@ namespace Lina::Editor
 		};
 
 		m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), initialResources);
-		m_world->Initialize(m_resourceManager);
 
 		m_floorMaterial	 = m_resourceManager->CreateResource<Material>(m_resourceManager->ConsumeResourceID());
 		m_objectMaterial = m_resourceManager->CreateResource<Material>(m_resourceManager->ConsumeResourceID());

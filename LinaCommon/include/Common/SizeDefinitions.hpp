@@ -83,4 +83,5 @@ namespace Lina
 {
 	typedef uint64 EntityID;
 	typedef uint64 ResourceID;
+	typedef uint64 WidgetID;
 } // namespace Lina

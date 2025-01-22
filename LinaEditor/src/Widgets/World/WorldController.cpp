@@ -366,7 +366,10 @@ namespace Lina::Editor
 		CommonWidgets::BuildClassReflection(layout, &m_overlayControls.cameraSettings, ReflectionSystem::Get().Meta<WorldCameraSettings>());
 
 		layout->GetCallbacks().onEditStarted = [this]() { m_overlayControls.oldCameraOptions = m_overlayControls.cameraSettings; };
-		layout->GetCallbacks().onEditEnded	 = [this]() { EditorActionWorldCameraSettingsChanged::Create(m_editor, m_world, m_overlayControls.oldCameraOptions, m_overlayControls.cameraSettings); };
+		layout->GetCallbacks().onEditEnded	 = [this]() {
+			  SetCameraSettings(m_overlayControls.cameraSettings);
+			  EditorActionWorldCameraSettingsChanged::Create(m_editor, m_world, m_overlayControls.oldCameraOptions, m_overlayControls.cameraSettings);
+		};
 
 		const float startY = m_overlayControls.topToolbar->GetPosY() + m_overlayControls.topToolbar->GetSizeY() + m_overlayControls.topToolbar->GetWidgetProps().outlineThickness + Theme::GetDef().baseIndentInner * 0.5f;
 		fgItem->SetPos(Vector2(m_overlayControls.topToolbar->GetPosX(), startY));

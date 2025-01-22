@@ -33,8 +33,12 @@ SOFTWARE.
 #include "Core/Application.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
+#include "Core/Graphics/Resource/GUIWidget.hpp"
 #include "Core/World/Components/CompModel.hpp"
+#include "Core/World/Components/CompWidget.hpp"
 #include "Core/World/EntityWorld.hpp"
+#include "Core/World/WorldUtility.hpp"
+#include "Core/World/EntityTemplate.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Common/Serialization/Serialization.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
@@ -119,6 +123,32 @@ namespace Lina::Editor
 				world->LoadMissingResources(rm, editor->GetProjectManager().GetProjectData(), {});
 				entity->SetPosition(pos);
 				entities.push_back(entity);
+			}
+			else if (dir->resourceTID == GetTypeID<EntityTemplate>())
+			{
+				EntityTemplate tmp(0, "");
+				const String   path	  = editor->GetProjectManager().GetProjectData()->GetResourcePath(dir->resourceID);
+				IStream		   stream = Serialization::LoadFromFile(path.c_str());
+				tmp.LoadFromStream(stream);
+
+				Vector<Entity*> ents = tmp.CreateFromStream(world);
+				WorldUtility::FixEntityIDsToNew(world, ents);
+				if (!ents.empty())
+					ents.at(0)->SetPosition(pos);
+				stream.Destroy();
+
+				world->LoadMissingResources(rm, editor->GetProjectManager().GetProjectData(), {});
+
+				entities = ents;
+			}
+			else if (dir->resourceTID == GetTypeID<GUIWidget>())
+			{
+				Entity* e = world->CreateEntity(world->ConsumeEntityGUID(), dir->name);
+				e->SetPosition(pos);
+				CompWidget* comp = world->AddComponent<CompWidget>(e);
+				comp->SetWidget(dir->resourceID);
+				world->LoadMissingResources(rm, editor->GetProjectManager().GetProjectData(), {});
+				entities.push_back(e);
 			}
 		}
 

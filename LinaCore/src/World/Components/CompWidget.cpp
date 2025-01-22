@@ -26,53 +26,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "GamePlugin.hpp"
-#include "GamePluginExports.hpp"
+#include "Core/World/Components/CompWidget.hpp"
+#include "Core/Resources/ResourceManager.hpp"
 
-Lina::GamePlugin* g_plugin = nullptr;
-
-extern "C" Lina::Plugin* CreatePlugin(const Lina::String& path, void* platformHandle, Lina::PluginInterface* pInterface)
+namespace Lina
 {
-	g_plugin = new Lina::GamePlugin(path, platformHandle, pInterface);
-	return g_plugin;
-}
-
-extern "C" void DestroyPlugin(Lina::Plugin* plugin)
-{
-	delete plugin;
-}
-
-#ifdef LINA_PLATFORM_WINDOWS
-
-#include <Windows.h>
-
-BOOL WINAPI DllMain(HINSTANCE hinstDLL,	 // handle to DLL module
-					DWORD	  fdwReason, // reason for calling function
-					LPVOID	  lpReserved)	 // reserved
-{
-	// Perform actions based on the reason for calling.
-	switch (fdwReason)
+	void CompWidget::CollectReferences(HashSet<ResourceID>& refs)
 	{
-	case DLL_PROCESS_ATTACH: {
-
-		break;
-	}
-	case DLL_THREAD_ATTACH:
-		// Do thread-specific initialization.
-		break;
-
-	case DLL_THREAD_DETACH:
-		// Do thread-specific cleanup.
-		break;
-
-	case DLL_PROCESS_DETACH:
-		// Perform any necessary cleanup.
-		break;
+		refs.insert(m_widget);
 	}
 
-	// Successful. If this is FALSE, the process will be terminated eventually
-	// https://docs.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-entry-point-function#entry-point-function-return-value
-	return TRUE;
-}
-
-#endif
+} // namespace Lina

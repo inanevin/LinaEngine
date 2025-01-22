@@ -45,7 +45,7 @@ namespace Lina
 		if (m_props.fetchWrapFromParent)
 			m_props.wrapWidth = m_parent->GetSizeX();
 
-		const bool calculate = !Math::Equals(m_lastCalculatedWrapWidth, m_props.wrapWidth, 2.0f) || !Math::Equals(m_manager->GetScalingFactor(), m_calculatedUIScaling, 0.01f);
+		const bool calculate = m_calculatedFont != m_props.font || !Math::Equals(m_lastCalculatedWrapWidth, m_props.wrapWidth, 2.0f) || !Math::Equals(m_manager->GetScalingFactor(), m_calculatedUIScaling, 0.01f);
 		if (calculate)
 			CalculateTextSize();
 	}
@@ -116,6 +116,7 @@ namespace Lina
 		m_lvgFont				  = font->GetFont(uiScaling);
 		m_calculatedUIScaling	  = uiScaling;
 		m_lastCalculatedWrapWidth = m_props.wrapWidth;
+		m_calculatedFont		  = m_props.font;
 
 		if (m_lvgFont == nullptr)
 			return;
@@ -171,5 +172,10 @@ namespace Lina
 		}
 
 		return false;
+	}
+
+	void Text::CollectResourceReferences(HashSet<ResourceID>& out)
+	{
+		out.insert(m_props.font);
 	}
 } // namespace Lina

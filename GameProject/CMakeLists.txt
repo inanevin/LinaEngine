@@ -33,6 +33,9 @@ project (GameProject)
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;DebugFAST;DebugASAN;DebugProfile;" CACHE STRING "" FORCE)
 set_property(GLOBAL PROPERTY DEBUG_CONFIGURATIONS "Debug;DebugFAST;DebugASAN;DebugProfile;")
 
+set(TARGET_ARCHITECTURE "x64")
+set(CMAKE_CXX_STANDARD 23)
+
 #--------------------------------------------------------------------
 # Options & Definitions
 #--------------------------------------------------------------------

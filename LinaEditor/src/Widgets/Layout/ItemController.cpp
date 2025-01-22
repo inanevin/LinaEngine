@@ -515,7 +515,8 @@ namespace Lina::Editor
 
 	void ItemController::OnPayloadStarted(PayloadType type, Widget* payload)
 	{
-		if (type != m_props.payloadType)
+		auto it = linatl::find_if(m_props.payloadTypes.begin(), m_props.payloadTypes.end(), [type](PayloadType pt) -> bool { return pt == type; });
+		if (it == m_props.payloadTypes.end())
 			return;
 
 		m_payloadActive					  = true;
@@ -526,7 +527,8 @@ namespace Lina::Editor
 
 	void ItemController::OnPayloadEnded(PayloadType type, Widget* payload)
 	{
-		if (type != m_props.payloadType)
+		auto it = linatl::find_if(m_props.payloadTypes.begin(), m_props.payloadTypes.end(), [type](PayloadType pt) -> bool { return pt == type; });
+		if (it == m_props.payloadTypes.end())
 			return;
 
 		m_payloadActive					  = false;
@@ -535,7 +537,8 @@ namespace Lina::Editor
 
 	bool ItemController::OnPayloadDropped(PayloadType type, Widget* payload)
 	{
-		if (type != m_props.payloadType)
+		auto it = linatl::find_if(m_props.payloadTypes.begin(), m_props.payloadTypes.end(), [type](PayloadType pt) -> bool { return pt == type; });
+		if (it == m_props.payloadTypes.end())
 			return false;
 
 		m_payloadActive = false;
@@ -545,7 +548,7 @@ namespace Lina::Editor
 			if (w->GetIsHovered())
 			{
 				if (m_props.onPayloadAccepted)
-					m_props.onPayloadAccepted(w->GetUserData());
+					m_props.onPayloadAccepted(w->GetUserData(), payload->GetUserData(), type);
 				return true;
 			}
 		}
@@ -553,7 +556,7 @@ namespace Lina::Editor
 		if (m_isHovered)
 		{
 			if (m_props.onPayloadAccepted)
-				m_props.onPayloadAccepted(nullptr);
+				m_props.onPayloadAccepted(nullptr, payload->GetUserData(), type);
 			return true;
 		}
 

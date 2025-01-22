@@ -81,7 +81,7 @@ namespace Lina::Editor
 		if (m_world)
 			return;
 
-		EditorWorldRenderer* ewr = m_editor->GetWorldManager().CreateEditorWorld(m_resourceSpace);
+		EditorWorldRenderer* ewr = m_editor->GetWorldManager().CreateEditorWorld(m_resourceSpace, m_lgxWindow);
 		m_world					 = ewr->GetWorldRenderer()->GetWorld();
 		m_worldDisplayer->DisplayWorld(ewr, WorldCameraType::Orbit);
 
@@ -98,7 +98,6 @@ namespace Lina::Editor
 			m_editor->GetApp()->GetGfxContext().MarkBindlessDirty();
 		}
 
-		m_world->Initialize(m_resourceManager);
 		SetupWorld();
 
 		StoreShaderID();

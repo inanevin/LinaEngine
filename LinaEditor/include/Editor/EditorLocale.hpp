@@ -228,6 +228,11 @@ namespace Lina::Editor
 		ChooseWhereToPackage,
 		Entity,
 		AddComponent,
+		Widget,
+		Text,
+		Icon,
+		DirectionalLayout,
+		Button,
 	};
 
 	class Locale

@@ -83,10 +83,12 @@ src/World/ComponentCache.cpp
 src/World/Screen.cpp
 src/World/WorldInput.cpp
 src/World/EntityWorld.cpp
+src/World/EntityTemplate.cpp
 src/World/Camera.cpp
 src/World/Components/CompCamera.cpp
 src/World/Components/CompModel.cpp
 src/World/Components/CompLight.cpp
+src/World/Components/CompWidget.cpp
 src/World/Animation/AnimationController.cpp
 src/World/WorldUtility.cpp
 
@@ -211,12 +213,14 @@ include/Core/World/ComponentCache.hpp
 include/Core/World/Screen.hpp
 include/Core/World/WorldInput.hpp
 include/Core/World/EntityWorld.hpp
+include/Core/World/EntityTemplate.hpp
 include/Core/World/EntityWorldListener.hpp
 include/Core/World/CommonWorld.hpp
 include/Core/World/Camera.hpp
 include/Core/World/Components/CompCamera.hpp
 include/Core/World/Components/CompModel.hpp
 include/Core/World/Components/CompLight.hpp
+include/Core/World/Components/CompWidget.hpp
 include/Core/World/Animation/AnimationController.hpp
 include/Core/World/WorldUtility.hpp
 

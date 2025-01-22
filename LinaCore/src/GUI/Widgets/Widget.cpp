@@ -363,6 +363,14 @@ namespace Lina
 		return false;
 	}
 
+	void Widget::CollectResourceReferencesRecursive(HashSet<ResourceID>& out)
+	{
+		CollectResourceReferences(out);
+
+		for (Widget* c : m_children)
+			c->CollectResourceReferencesRecursive(out);
+	}
+
 	void DropshadowProps::SaveToStream(OStream& stream) const
 	{
 		stream << static_cast<uint32>(DS_VERSION);
@@ -454,6 +462,7 @@ namespace Lina
 		stream << m_alignedSize;
 		stream << m_fixedSize;
 		stream << m_anchorX << m_anchorY;
+		stream << m_uniqueID;
 
 		const uint32 childSz = static_cast<uint32>(m_children.size());
 		stream << childSz;
@@ -479,6 +488,7 @@ namespace Lina
 		stream >> m_alignedSize;
 		stream >> m_fixedSize;
 		stream >> m_anchorX >> m_anchorY;
+		stream >> m_uniqueID;
 
 		uint32 childSz = 0;
 		stream >> childSz;
@@ -613,6 +623,22 @@ namespace Lina
 				return c;
 
 			Widget* found = c->FindChildWithUserdata(ud);
+
+			if (found)
+				return found;
+		}
+
+		return nullptr;
+	}
+
+	Widget* Widget::FindChildWithUniqueID(uint32 id)
+	{
+		for (Widget* c : m_children)
+		{
+			if (c->GetUniqueID() == id)
+				return c;
+
+			Widget* found = c->FindChildWithUniqueID(id);
 
 			if (found)
 				return found;

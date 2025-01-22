@@ -1,3 +1,4 @@
+
 /*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
@@ -28,82 +29,52 @@ SOFTWARE.
 
 #pragma once
 
-#include "Editor/Widgets/Panel/Panel.hpp"
-#include "Core/GUI/Widgets/Compound/FileMenu.hpp"
+#include "Editor/Widgets/Panel/PanelResourceViewer.hpp"
+#include "Core/Graphics/Resource/GUIWidget.hpp"
 
 namespace Lina
 {
-	class GUIWidget;
-	class DirectionalLayout;
+	class Text;
 } // namespace Lina
 
 namespace Lina::Editor
 {
 	class Editor;
-	class ItemController;
-	class PanelWidgetEditorProperties;
+	class WidgetBrowser;
 
-	class PanelWidgetEditor : public Panel, public FileMenuListener
+	class PanelWidgetEditor : public PanelResourceViewer
 	{
-	private:
-		struct WidgetInfo
-		{
-			String title = "";
-			TypeID tid	 = 0;
-		};
-
-		struct CategoryInfo
-		{
-			String			   title = "";
-			Vector<WidgetInfo> widgets;
-		};
-
 	public:
-		PanelWidgetEditor() : Panel(PanelType::WidgetEditor){};
+		PanelWidgetEditor() : PanelResourceViewer(PanelType::WidgetEditor, GetTypeID<GUIWidget>(), GetTypeID<PanelWidgetEditor>()) {};
 		virtual ~PanelWidgetEditor() = default;
 
 		virtual void Construct() override;
-		virtual void PreDestruct() override;
 		virtual void Initialize() override;
-		virtual void Tick(float delta) override;
 		virtual void Draw() override;
-		virtual void LoadLayoutFromStream(IStream& stream) override;
-		virtual void SaveLayoutToStream(OStream& stream) override;
-		virtual bool OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData) override;
-		virtual void OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
-		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
+
+		virtual void StoreEditorActionBuffer() override;
+		virtual void RebuildContents() override;
+
+		void SetSelectedWidgets(const Vector<Widget*>& selection);
+		void ChangeSelection(const Vector<Widget*>& selection);
+
+		void Duplicate(const Vector<Widget*>& widgets);
+		void Delete(const Vector<Widget*>& widgets);
+		void Parent(const Vector<Widget*>& widgets, Widget* parent);
+		void SetStream(const RawStream& stream);
+		void RefreshBrowser();
+		void AddNew(Widget* w, Widget* parent);
+		void Rename(Widget* w, const String& name);
 
 	private:
-		void RefreshWidgets();
-		void RefreshHierarchy();
-		void CheckSaveCurrent(Delegate<void()>&& onAct);
-		void AddItemForWidget(Widget* rootInEditor, Widget* sourceWidget, float margin);
-		void RequestDelete(Vector<Widget*> widgets);
-		void RequestDuplicate(Vector<Widget*> widgets);
-		void RequestRename(Widget* w);
-		void OpenWidget(ResourceID id);
-		void CloseCurrent(bool save);
-		void AddPayloadToWidget(Widget* target);
+		void RefreshResources();
 
 	private:
-		ResourceID					 m_lastOpenWidget	  = 0;
-		Widget*						 m_gridParent		  = nullptr;
-		Widget*						 m_payloadCarryWidget = nullptr;
-		Vector<CategoryInfo>		 m_categories;
-		TypeID						 m_payloadCarryTID	   = 0;
-		Editor*						 m_editor			   = nullptr;
-		GUIWidget*					 m_currentWidget	   = nullptr;
-		ItemController*				 m_widgetsController   = nullptr;
-		ItemController*				 m_hierarchyController = nullptr;
-		DirectionalLayout*			 m_widgetsLayout	   = nullptr;
-		DirectionalLayout*			 m_hierarchyLayout	   = nullptr;
-		PanelWidgetEditorProperties* m_propertiesArea	   = nullptr;
-
-		Widget* m_leftSide	  = nullptr;
-		Widget* m_leftSideTop = nullptr;
-		Widget* m_leftSideBot = nullptr;
-		Widget* m_middle	  = nullptr;
-		Widget* m_rightSide	  = nullptr;
+		LINA_REFLECTION_ACCESS(PanelWidgetEditor);
+		WidgetBrowser*	m_browser		  = nullptr;
+		Vector<Widget*> m_selectedWidgets = {};
+		OStream			m_storedStream	  = {};
+		uint32			m_uniqueIDCounter = 0;
 	};
 
 	LINA_WIDGET_BEGIN(PanelWidgetEditor, Hidden)

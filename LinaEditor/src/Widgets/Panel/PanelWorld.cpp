@@ -113,7 +113,7 @@ namespace Lina::Editor
 
 		CloseWorld();
 
-		EditorWorldRenderer* ewr = m_editor->GetWorldManager().CreateEditorWorld(id);
+		EditorWorldRenderer* ewr = m_editor->GetWorldManager().CreateEditorWorld(id, m_lgxWindow);
 		m_world					 = ewr->GetWorldRenderer()->GetWorld();
 		ewr->GetWorldRenderer()->CreatePhysicsDebugRenderer();
 		m_world->LoadFromFile(path);

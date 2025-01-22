@@ -50,7 +50,6 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
-#include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Audio/Audio.hpp"
 #include "Core/Graphics/Resource/TextureSampler.hpp"
 #include "Core/World/EntityWorld.hpp"
@@ -61,6 +60,8 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Layout/Popup.hpp"
+#include "Core/World/EntityTemplate.hpp"
+#include "Common/Serialization/Serialization.hpp"
 
 namespace Lina::Editor
 {
@@ -200,8 +201,9 @@ namespace Lina::Editor
 			{
 				m_editor->GetWindowPanelManager().OpenPanel(PanelType::MaterialViewer, item->resourceID, this);
 			}
-			else if (item->resourceTID == GetTypeID<Shader>())
+			else if (item->resourceTID == GetTypeID<GUIWidget>())
 			{
+				m_editor->GetWindowPanelManager().OpenPanel(PanelType::WidgetEditor, item->resourceID, this);
 			}
 			else if (item->resourceTID == GetTypeID<Audio>())
 			{
@@ -214,7 +216,7 @@ namespace Lina::Editor
 			}
 		};
 
-		controller->GetProps().payloadType	   = PayloadType::Resource;
+		controller->GetProps().payloadTypes	   = {PayloadType::Resource, PayloadType::EntitySelectable};
 		controller->GetProps().onCreatePayload = [this]() {
 			Widget*					   root		= m_editor->GetWindowPanelManager().GetPayloadRoot();
 			Vector<ResourceDirectory*> payloads = m_controller->GetSelectedUserData<ResourceDirectory>();
@@ -227,7 +229,12 @@ namespace Lina::Editor
 			Editor::Get()->GetWindowPanelManager().CreatePayload(t, PayloadType::Resource, t->GetSize());
 		};
 
-		controller->GetProps().onPayloadAccepted = [this](void* ud) { DropPayload(static_cast<ResourceDirectory*>(ud)); };
+		controller->GetProps().onPayloadAccepted = [this](void* ud, void* payloadUserData, PayloadType type) {
+			if (type == PayloadType::Resource)
+				DropPayload(static_cast<ResourceDirectory*>(ud));
+			else
+				DropPayload(static_cast<ResourceDirectory*>(ud), static_cast<Entity*>(payloadUserData));
+		};
 
 		controller->GetProps().onCheckCanCreatePayload = [this](void* ud) {
 			ResourceDirectory* dir = static_cast<ResourceDirectory*>(ud);
@@ -849,6 +856,36 @@ namespace Lina::Editor
 		m_editor->GetProjectManager().SaveProjectChanges();
 	}
 
+	void ResourceDirectoryBrowser::DropPayload(ResourceDirectory* target, Entity* entity)
+	{
+		if (target == &m_linaAssets)
+			return;
+
+		if (target == nullptr)
+			target = &m_editor->GetProjectManager().GetProjectData()->GetResourceRoot();
+
+		ResourceDirectory* edir = nullptr;
+		if (!target->isFolder)
+		{
+			if (target->resourceTID != GetTypeID<EntityTemplate>())
+				return;
+
+			edir	   = target;
+			edir->name = entity->GetName();
+		}
+		else
+			edir = ResourcePipeline::SaveNewResource(m_editor->GetProjectManager().GetProjectData(), target, entity->GetName(), GetTypeID<EntityTemplate>());
+
+		const String path	 = m_editor->GetProjectManager().GetProjectData()->GetResourcePath(edir->resourceID);
+		IStream		 istream = Serialization::LoadFromFile(path.c_str());
+
+		EntityTemplate tmp(0, "");
+		tmp.LoadFromStream(istream);
+		tmp.SetEntity(entity);
+		tmp.SaveToFileAsBinary(path);
+		RefreshDirectory();
+	}
+
 	void ResourceDirectoryBrowser::DropPayload(ResourceDirectory* target)
 	{
 		if (target == &m_linaAssets)
@@ -860,7 +897,7 @@ namespace Lina::Editor
 		if (!target->isFolder)
 			return;
 
-		if (CheckIfContainsEngineResource({target}))
+		if (CheckIfContainsEngineResource(m_payloadItems))
 			return;
 
 		Vector<GUID> previousParents;

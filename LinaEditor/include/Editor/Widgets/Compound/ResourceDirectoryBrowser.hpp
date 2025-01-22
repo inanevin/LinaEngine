@@ -38,6 +38,7 @@ namespace Lina
 {
 	class DirectionalLayout;
 	struct ResourceDirectory;
+	class Entity;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -107,6 +108,7 @@ namespace Lina::Editor
 		void RequestDuplicate(Vector<ResourceDirectory*> dirs);
 		void DeleteItems(Vector<ResourceDirectory*> dirs);
 		void DropPayload(ResourceDirectory* target);
+		void DropPayload(ResourceDirectory* target, Entity* entity);
 		bool CheckIfContainsSearchStr(ResourceDirectory* dir);
 		bool CheckIfContainsEngineResource(const Vector<ResourceDirectory*>& dirs);
 		bool IsChildInFavs(ResourceDirectory* dir) const;

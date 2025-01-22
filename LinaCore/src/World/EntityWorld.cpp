@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/TextureSampler.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
+#include "Core/Graphics/Resource/GUIWidget.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/Data/ModelNode.hpp"
 #include "Core/World/Components/CompModel.hpp"
@@ -60,6 +61,8 @@ namespace Lina
 
 	EntityWorld::~EntityWorld()
 	{
+		m_widgetManager.Shutdown();
+
 		m_entityBucket.View([this](Entity* e, uint32 index) -> bool {
 			if (e->GetParent() == nullptr)
 				DestroyEntity(e);
@@ -72,9 +75,11 @@ namespace Lina
 		m_physicsWorld = nullptr;
 	}
 
-	void EntityWorld::Initialize(ResourceManagerV2* rm)
+	void EntityWorld::Initialize(ResourceManagerV2* rm, LinaGX::Window* window)
 	{
 		m_rm = rm;
+		m_screen.SetOwnerWindow(window);
+		m_widgetManager.Initialize(m_rm, m_screen.GetOwnerWindow(), &m_lvgDrawer);
 	}
 
 	void EntityWorld::Tick(float delta)
@@ -225,8 +230,7 @@ namespace Lina
 
 		// First load whatever is requested + needed by the components.
 		if (!resources.empty())
-			allLoaded = rm.LoadResourcesFromProject(
-				project, resources, [](uint32 loaded, Resource* current) {}, m_id);
+			allLoaded = rm.LoadResourcesFromProject(project, resources, [](uint32 loaded, Resource* current) {}, m_id, &m_widgetManager);
 
 		// Load materials required by the models.
 		HashSet<ResourceID>	  modelMaterials;
@@ -237,8 +241,7 @@ namespace Lina
 
 			return false;
 		});
-		HashSet<Resource*> modelNeeds = rm.LoadResourcesFromProject(
-			project, modelMaterials, [](uint32 loaded, Resource* current) {}, m_id);
+		HashSet<Resource*> modelNeeds = rm.LoadResourcesFromProject(project, modelMaterials, [](uint32 loaded, Resource* current) {}, m_id);
 		allLoaded.insert(modelNeeds.begin(), modelNeeds.end());
 
 		// Load shaders, textures and samplers required by the materials.
@@ -259,9 +262,18 @@ namespace Lina
 			return false;
 		});
 
-		HashSet<Resource*> matNeeds = rm.LoadResourcesFromProject(
-			project, materialDependencies, [](uint32 loaded, Resource* current) {}, m_id);
+		HashSet<Resource*> matNeeds = rm.LoadResourcesFromProject(project, materialDependencies, [](uint32 loaded, Resource* current) {}, m_id);
 		allLoaded.insert(matNeeds.begin(), matNeeds.end());
+
+		HashSet<ResourceID>		  widgetRequirements;
+		ResourceCache<GUIWidget>* widgetCache = rm.GetCache<GUIWidget>();
+		widgetCache->View([&widgetRequirements](GUIWidget* gw, uint32 idx) -> bool {
+			Widget* root = &gw->GetRoot();
+			root->CollectResourceReferencesRecursive(widgetRequirements);
+			return false;
+		});
+		HashSet<Resource*> widgetNeeds = rm.LoadResourcesFromProject(project, widgetRequirements, NULL, m_id, &m_widgetManager);
+		allLoaded.insert(widgetNeeds.begin(), widgetNeeds.end());
 
 		RefreshAllComponentReferences();
 		return allLoaded;

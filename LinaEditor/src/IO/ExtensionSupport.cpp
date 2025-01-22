@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Core/Audio/Audio.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Physics/PhysicsMaterial.hpp"
+#include "Core/World/EntityTemplate.hpp"
 #include "Common/Reflection/ReflectionSystem.hpp"
 
 namespace Lina::Editor
@@ -49,6 +50,10 @@ namespace Lina::Editor
 		ref.Meta<Material>()->AddProperty<String>("DisplayName"_hs, "Material");
 		ref.Meta<Material>()->AddProperty<Color>("Color"_hs, Theme::GetDef().accentPrimary2);
 		ref.Meta<Material>()->AddProperty<String>("TypeAbbv"_hs, "M");
+
+		ref.Meta<EntityTemplate>()->AddProperty<String>("DisplayName"_hs, "Entity Template");
+		ref.Meta<EntityTemplate>()->AddProperty<Color>("Color"_hs, Theme::GetDef().accentOrange);
+		ref.Meta<EntityTemplate>()->AddProperty<String>("TypeAbbv"_hs, "ET");
 
 		ref.Meta<Model>()->AddProperty<String>("DisplayName"_hs, "Model");
 		ref.Meta<Model>()->AddProperty<Color>("Color"_hs, Theme::GetDef().accentSecondary);

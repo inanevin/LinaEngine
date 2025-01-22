@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Core/GUI/CommonGUI.hpp"
 #include "Core/GUI/Theme.hpp"
 #include "Common/Data/Bitmask.hpp"
+#include "Common/Data/HashSet.hpp"
 #include "Common/Tween/Tween.hpp"
 #include "Core/Reflection/WidgetReflection.hpp"
 
@@ -180,27 +181,16 @@ namespace Lina
 		Delegate<void()> onEditEnded;
 	};
 
-	/*
-	struct TransformProps
-	{
-		Rect rect = Rect();
-		Vector2 alignedSize = Vector2::Zero;
-		Vector2 alignedPos	= Vector2::Zero;
-		Vector2 fixedSize	= Vector2::Zero;
-		Anchor	anchorX		= Anchor::Start;
-		Anchor	anchorY		= Anchor::Start;
-	};
-	*/
 	class Widget
 	{
 	public:
-		Widget(Bitmask32 flags = 0) : m_flags(flags), m_tid(GetTypeID<Widget>()){};
+		Widget(Bitmask32 flags = 0) : m_flags(flags), m_tid(GetTypeID<Widget>()) {};
 		virtual ~Widget() = default;
 
 		virtual void Initialize();
-		virtual void Construct(){};
-		virtual void Destruct(){};
-		virtual void PreDestruct(){};
+		virtual void Construct() {};
+		virtual void Destruct() {};
+		virtual void PreDestruct() {};
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action)
 		{
 			return false;
@@ -228,21 +218,22 @@ namespace Lina
 			return nullptr;
 		}
 
-		virtual void OnGrabbedControls(bool isForward, Widget* prevControls){
+		virtual void OnGrabbedControls(bool isForward, Widget* prevControls) {
 
 		};
 
-		virtual void OnLostControls(Widget* newControls){
+		virtual void OnLostControls(Widget* newControls) {
 
 		};
 
 		virtual void DebugDraw(int32 drawOrder);
-		virtual void PreTick(){};
-		virtual void CalculateSize(float delta){};
-		virtual void Tick(float delta){};
-		virtual void Draw(){};
+		virtual void PreTick() {};
+		virtual void CalculateSize(float delta) {};
+		virtual void Tick(float delta) {};
+		virtual void Draw() {};
 		virtual void SaveToStream(OStream& stream) const;
 		virtual void LoadFromStream(IStream& stream);
+		virtual void CollectResourceReferences(HashSet<ResourceID>& out) {};
 
 		void	SetWidgetManager(WidgetManager* wm);
 		void	DrawDropshadow();
@@ -260,9 +251,11 @@ namespace Lina
 		Vector2 GetMonitorSize();
 		Vector2 GetWindowPos();
 		Widget* FindChildWithUserdata(void* ud);
+		Widget* FindChildWithUniqueID(uint32 uniqueID);
 		Widget* FindChildWithDebugName(const String& name);
 		Widget* FindDeepestHovered();
 		bool	ShouldSkipDrawOutsideWindow() const;
+		void	CollectResourceReferencesRecursive(HashSet<ResourceID>& out);
 
 		bool IsWidgetInHierarchy(Widget* widget);
 		void CheckClipChildren();
@@ -501,6 +494,16 @@ namespace Lina
 			return m_callbacks;
 		}
 
+		inline void SetUniqueID(uint32 id)
+		{
+			m_uniqueID = id;
+		}
+
+		inline uint32 GetUniqueID()
+		{
+			return m_uniqueID;
+		}
+
 		V2_GET_MUTATE(FixedSize, m_fixedSize);
 		V2_GET_MUTATE(AlignedSize, m_alignedSize);
 		V2_INCREMENTERS(AlignedSize, m_alignedSize);
@@ -557,6 +560,7 @@ namespace Lina
 		bool						m_initialized			= false;
 		Vector<Widget*>				m_addChildRequests;
 		WidgetCallbacks				m_callbacks = {};
+		uint32						m_uniqueID	= 0;
 	};
 
 	LINA_WIDGET_BEGIN(Widget, General)

@@ -225,6 +225,11 @@ namespace Lina::Editor
 		{LocaleStr::ChooseWhereToPackage, "Choose where to package project."},
 		{LocaleStr::Entity, "Entity"},
 		{LocaleStr::AddComponent, "Add Component"},
+		{LocaleStr::Widget, "Widget"},
+		{LocaleStr::Text, "Text"},
+		{LocaleStr::Icon, "Icon"},
+		{LocaleStr::DirectionalLayout, "DirectionalLayout"},
+		{LocaleStr::Button, "Button"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

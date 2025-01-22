@@ -804,6 +804,7 @@ namespace Lina::Editor
 			icn->GetFlags().Set(WF_POS_ALIGN_Y);
 			icn->SetAlignedPosY(0.5f);
 			icn->SetAnchorY(Anchor::Center);
+		
 			// icn->GetFlags().Set(WF_HIDE, i != dependencies - 1);
 			layout->AddChild(icn);
 		}
@@ -818,7 +819,7 @@ namespace Lina::Editor
 			icn->SetAnchorY(Anchor::Center);
 			icn->GetProps().icon	  = *foldVal ? ICON_ARROW_DOWN : ICON_ARROW_RIGHT;
 			icn->GetProps().color	  = Theme::GetDef().foreground0;
-			icn->GetProps().textScale = 0.35f;
+			icn->GetProps().textScale = 0.3f;
 			dummyParent->AddChild(icn);
 			fold->GetProps().onFoldChanged = [icn](bool unfolded) { icn->GetProps().icon = unfolded ? ICON_ARROW_DOWN : ICON_ARROW_RIGHT; };
 		}

@@ -45,36 +45,24 @@ namespace Lina::Editor
 	{
 
 	public:
-		ItemController() : Widget(WF_CONTROLLABLE){};
+		ItemController() : Widget(WF_CONTROLLABLE) {};
 		virtual ~ItemController() = default;
 
 		struct Properties
 		{
-			Delegate<void(void* userData)> onItemSelected;
-			Delegate<void(void* userData)> onItemUnselected;
-			Delegate<void()>			   onDuplicate;
-			Delegate<void()>			   onDelete;
-			Delegate<void()>			   onInteract;
-			Delegate<void(void* userdata)> onItemRenamed;
-			Delegate<void()>			   onCreatePayload;
-			Delegate<bool(void* userdata)> onCheckCanCreatePayload;
-			Delegate<void(void* userdata)> onPayloadAccepted;
-			Color						   colorDeadItem  = Color(0.0f, 0.0f, 0.0f, 0.0f);
-			ColorGrad					   colorSelected  = {Theme::GetDef().accentPrimary0, Theme::GetDef().accentPrimary1};
-			ColorGrad					   colorUnfocused = {Theme::GetDef().silent0, Theme::GetDef().silent1};
-			PayloadType					   payloadType	  = PayloadType::None;
-
-			void SaveToStream(OStream& stream) const
-			{
-				stream << colorDeadItem << colorSelected << colorUnfocused;
-				stream << payloadType;
-			}
-
-			void LoadFromStream(IStream& stream)
-			{
-				stream >> colorDeadItem >> colorSelected >> colorUnfocused;
-				stream >> payloadType;
-			}
+			Delegate<void(void* userData)>									   onItemSelected;
+			Delegate<void(void* userData)>									   onItemUnselected;
+			Delegate<void()>												   onDuplicate;
+			Delegate<void()>												   onDelete;
+			Delegate<void()>												   onInteract;
+			Delegate<void(void* userdata)>									   onItemRenamed;
+			Delegate<void()>												   onCreatePayload;
+			Delegate<bool(void* userdata)>									   onCheckCanCreatePayload;
+			Delegate<void(void* userdata, void* payloadUserData, PayloadType)> onPayloadAccepted;
+			Color															   colorDeadItem  = Color(0.0f, 0.0f, 0.0f, 0.0f);
+			ColorGrad														   colorSelected  = {Theme::GetDef().accentPrimary0, Theme::GetDef().accentPrimary1};
+			ColorGrad														   colorUnfocused = {Theme::GetDef().silent0, Theme::GetDef().silent1};
+			Vector<PayloadType>												   payloadTypes;
 		};
 
 		void	ClearItems();
@@ -132,18 +120,6 @@ namespace Lina::Editor
 		virtual LinaGX::Window* OnPayloadGetWindow() override
 		{
 			return m_lgxWindow;
-		}
-
-		virtual void SaveToStream(OStream& stream) const override
-		{
-			Widget::SaveToStream(stream);
-			stream << m_props;
-		}
-
-		virtual void LoadFromStream(IStream& stream) override
-		{
-			Widget::LoadFromStream(stream);
-			stream >> m_props;
 		}
 
 	private:
