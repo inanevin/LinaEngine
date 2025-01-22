@@ -517,8 +517,6 @@ namespace Lina::Editor
 	{
 		Camera& cam = m_world->GetWorldCamera();
 
-		m_worldRenderer->StartLinaVGBatch();
-
 		Model*				   model	  = m_modelRotateCircle;
 		const PrimitiveStatic& prim		  = model->GetAllMeshes().at(0).primitivesStatic.at(0);
 		const uint32		   baseVertex = prim._vertexOffset;

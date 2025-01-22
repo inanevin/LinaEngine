@@ -50,7 +50,7 @@ namespace Lina
 		ShaderPropertyDefinition propDef;
 		Span<uint8>				 data;
 
-		MaterialProperty(){};
+		MaterialProperty() {};
 		MaterialProperty(const MaterialProperty& other)		 = delete;
 		MaterialProperty& operator=(MaterialProperty const&) = delete;
 
@@ -87,7 +87,7 @@ namespace Lina
 	public:
 		static constexpr uint32 VERSION = 0;
 
-		Material(ResourceID id, const String& name) : Resource(id, GetTypeID<Material>(), name){};
+		Material(ResourceID id, const String& name) : Resource(id, GetTypeID<Material>(), name) {};
 		virtual ~Material();
 		virtual bool   LoadFromFile(const String& path) override;
 		virtual void   SaveToStream(OStream& stream) const override;
@@ -106,8 +106,20 @@ namespace Lina
 			LINA_ASSERT(it != m_properties.end(), "Property not found!");
 			MaterialProperty* prop = *it;
 			LINA_ASSERT(sizeof(T) <= prop->data.size(), "");
-
 			MEMCPY(prop->data.data(), &val, sizeof(T));
+		}
+
+		template <typename T> bool HasProperty(StringID sid)
+		{
+			auto it = linatl::find_if(m_properties.begin(), m_properties.end(), [sid](MaterialProperty* p) -> bool { return p->propDef.sid == sid; });
+			return it != m_properties.end();
+		}
+
+		template <typename T> T* GetProperty(StringID sid)
+		{
+			auto			  it = linatl::find_if(m_properties.begin(), m_properties.end(), [sid](MaterialProperty* p) -> bool { return p->propDef.sid == sid; });
+			MaterialProperty* p	 = (*it);
+			return reinterpret_cast<T*>(p->data.data());
 		}
 
 		inline ResourceID GetShader() const

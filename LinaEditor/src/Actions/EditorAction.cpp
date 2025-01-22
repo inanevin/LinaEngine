@@ -38,11 +38,12 @@ namespace Lina::Editor
 		m_actions.clear();
 	}
 
-	EditorActionCollective* EditorActionCollective::Create(Editor* editor, uint32 lastActions)
+	EditorActionCollective* EditorActionCollective::Create(Editor* editor, uint32 lastActions, bool sameOrder)
 	{
 		EditorActionCollective* collective = new EditorActionCollective();
 		editor->GetEditorActionManager().PopLastActions(lastActions, collective->m_actions);
 		editor->GetEditorActionManager().AddToStack(collective);
+		collective->m_sameOrderUndo = sameOrder;
 		return collective;
 	}
 
@@ -50,8 +51,17 @@ namespace Lina::Editor
 	{
 		if (type == ExecType::Undo)
 		{
-			for (EditorAction* act : m_actions)
-				act->Execute(editor, ExecType::Undo);
+			if (m_sameOrderUndo)
+			{
+				const int32 sz = static_cast<int32>(m_actions.size());
+				for (int32 i = sz - 1; i > -1; i--)
+					m_actions.at(i)->Execute(editor, ExecType::Undo);
+			}
+			else
+			{
+				for (EditorAction* act : m_actions)
+					act->Execute(editor, ExecType::Undo);
+			}
 		}
 		else if (type == ExecType::Redo)
 		{

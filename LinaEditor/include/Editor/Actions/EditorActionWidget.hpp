@@ -47,7 +47,7 @@ namespace Lina::Editor
 		EditorActionWidgetSelection()		   = default;
 		virtual ~EditorActionWidgetSelection() = default;
 
-		static EditorActionWidgetSelection* Create(Editor* editor, ResourceID id, const Vector<Widget*>& previous, const Vector<Widget*>& current);
+		static EditorActionWidgetSelection* Create(Editor* editor, ResourceID id, const Vector<Widget*>& selection);
 		virtual void						Execute(Editor* editor, ExecType type) override;
 
 	private:

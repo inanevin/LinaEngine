@@ -101,6 +101,7 @@ namespace Lina
 		Matrix4 view;
 		Matrix4 proj;
 		Matrix4 viewProj;
+		Matrix4 orthoProj;
 		Vector4 ambientTop;
 		Vector4 ambientMid;
 		Vector4 ambientBot;

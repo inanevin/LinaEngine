@@ -28,12 +28,39 @@ SOFTWARE.
 
 #include "Core/World/Components/CompWidget.hpp"
 #include "Core/Resources/ResourceManager.hpp"
+#include "Core/Graphics/Resource/GUIWidget.hpp"
+#include "Core/World/EntityWorld.hpp"
 
 namespace Lina
 {
+	CompWidget::~CompWidget()
+	{
+		if (m_widgetManager.GetRoot())
+			m_widgetManager.Shutdown();
+	}
+
 	void CompWidget::CollectReferences(HashSet<ResourceID>& refs)
 	{
 		refs.insert(m_widget);
+	}
+
+	void CompWidget::StoreReferences()
+	{
+		m_widgetPtr = m_resourceManager->GetIfExists<GUIWidget>(m_widget);
+		if (!m_widgetPtr)
+			return;
+
+		m_widgetManager.Initialize(m_resourceManager, m_world->GetScreen().GetOwnerWindow(), &m_world->GetLVGDrawer());
+
+		m_widgetManager.GetRoot()->DeallocAllChildren();
+		m_widgetManager.GetRoot()->RemoveAllChildren();
+
+		Widget*			 root	= m_widgetManager.GetRoot();
+		const RawStream& stream = m_widgetPtr->GetStream();
+		IStream			 istream;
+		istream.Create(stream.GetRaw(), stream.GetSize());
+		root->LoadFromStream(istream);
+		istream.Destroy();
 	}
 
 } // namespace Lina

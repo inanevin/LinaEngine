@@ -48,23 +48,24 @@ struct LinaLight
 
 layout(set = 1, binding = 0) uniform ViewData
 {
-	mat4 view; // 16 - 0
-	mat4 proj; // 16 - 64
-	mat4 viewProj; // 16 - 128
-	vec4 ambientTop; // 16 - 192
-	vec4 ambientMid; // 16 - 208
-	vec4 ambientBot; // 16 - 224
-	vec4 cameraPositionAndNear; // 16 - 240
-	vec4 cameraDirectionAndFar; // 16 - 256
-	vec4 sizeAndMouse; // 16 - 272
-	uint gBufColorMaterialID; // 4 - 288
-	uint gBufPosition; // 4 - 292
-	uint gBufNormal; // 4 - 296
-	uint gBufSampler; // 4 - 300
-	uint lightCount; // 4 - 304
-	float padding0; // 4 - 308
-	float padding1; // 4 - 312
-	float padding2; // 4 - 316
+	mat4 view;
+	mat4 proj;
+	mat4 viewProj; 
+	mat4 projOrtho; 
+	vec4 ambientTop;
+	vec4 ambientMid; 
+	vec4 ambientBot; 
+	vec4 cameraPositionAndNear; 
+	vec4 cameraDirectionAndFar; 
+	vec4 sizeAndMouse; 
+	uint gBufColorMaterialID; 
+	uint gBufPosition; 
+	uint gBufNormal; 
+	uint gBufSampler; 
+	uint lightCount;
+	float padding0; 
+	float padding1; 
+	float padding2; 
 } LINA_VIEW; // 320
 
 layout(set = 1, binding = 1) readonly buffer DrawArgumentsBuffer

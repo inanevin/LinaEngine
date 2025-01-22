@@ -74,7 +74,9 @@ namespace Lina
 				continue;
 
 			Model* model = rm->GetIfExists<Model>(comp->GetModel());
-			LINA_ASSERT(model, "");
+
+			if (!model)
+				continue;
 
 			Vector<Material*>		  materials;
 			const Vector<ResourceID>& materialIDs = comp->GetMaterials();
@@ -98,7 +100,9 @@ namespace Lina
 					const PrimitiveStatic& prim = primsStatic.at(j);
 
 					Material* targetMaterial = filter.useMaterialOverride ? rm->GetResource<Material>(filter.materialOverride) : prim.materialIndex >= materials.size() ? nullptr : materials[prim.materialIndex];
-					LINA_ASSERT(targetMaterial, "");
+
+					if (!targetMaterial)
+						continue;
 
 					if (!filter.allowedShaderTypes.empty())
 					{
@@ -148,7 +152,9 @@ namespace Lina
 					const PrimitiveSkinned& prim = primsSkinned.at(j);
 
 					Material* targetMaterial = filter.useMaterialOverride ? rm->GetResource<Material>(filter.materialOverride) : prim.materialIndex >= materials.size() ? nullptr : materials[prim.materialIndex];
-					LINA_ASSERT(targetMaterial, "");
+
+					if (!targetMaterial)
+						continue;
 
 					if (!filter.allowedShaderTypes.empty())
 					{

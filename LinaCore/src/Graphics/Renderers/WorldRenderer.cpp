@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Core/Graphics/Renderers/WorldRendererListener.hpp"
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
+#include "Core/Graphics/Resource/GUIWidget.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
@@ -38,9 +39,11 @@ SOFTWARE.
 #include "Core/Graphics/Data/ModelNode.hpp"
 #include "Core/Graphics/Data/Mesh.hpp"
 #include "Core/Graphics/Pipeline/View.hpp"
+#include "Core/GUI/Widgets/Widget.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/World/Components/CompModel.hpp"
 #include "Core/World/Components/CompLight.hpp"
+#include "Core/World/Components/CompWidget.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Application.hpp"
 #include "Core/Graphics/Renderers/DrawCollector.hpp"
@@ -68,16 +71,18 @@ namespace Lina
 
 	WorldRenderer::WorldRenderer(GfxContext* context, ResourceManagerV2* rm, EntityWorld* world, const Vector2ui& viewSize, const String& name, Buffer* snapshotBuffers, bool standaloneSubmit)
 	{
-		m_name				 = name.empty() ? "WorldRenderer" : name;
-		m_gfxContext		 = context;
-		m_standaloneSubmit	 = standaloneSubmit;
-		m_snapshotBuffer	 = snapshotBuffers;
-		m_world				 = world;
-		m_size				 = viewSize;
-		m_resourceManagerV2	 = rm;
-		m_gBufSampler		 = m_resourceManagerV2->CreateResource<TextureSampler>(m_resourceManagerV2->ConsumeResourceID(), name + " Sampler");
-		m_shaderLightingQuad = m_resourceManagerV2->GetResource<Shader>(ENGINE_SHADER_LIGHTING_QUAD_ID);
-		m_shaderDebugLine	 = m_resourceManagerV2->GetResource<Shader>(ENGINE_SHADER_WORLD_DEBUG_LINE_ID);
+		m_name										= name.empty() ? "WorldRenderer" : name;
+		m_gfxContext								= context;
+		m_standaloneSubmit							= standaloneSubmit;
+		m_snapshotBuffer							= snapshotBuffers;
+		m_world										= world;
+		m_size										= viewSize;
+		m_resourceManagerV2							= rm;
+		m_gBufSampler								= m_resourceManagerV2->CreateResource<TextureSampler>(m_resourceManagerV2->ConsumeResourceID(), name + " Sampler");
+		m_shaderLightingQuad						= m_resourceManagerV2->GetResource<Shader>(ENGINE_SHADER_LIGHTING_QUAD_ID);
+		m_shaderDebugLine							= m_resourceManagerV2->GetResource<Shader>(ENGINE_SHADER_WORLD_DEBUG_LINE_ID);
+		m_samplerGUIText							= m_resourceManagerV2->GetResource<TextureSampler>(ENGINE_SAMPLER_GUI_TEXT_ID);
+		m_world->GetLVGDrawer().GetCallbacks().draw = BIND(&WorldRenderer::OnWorldLVGDraw, this, std::placeholders::_1);
 
 		LinaGX::SamplerDesc gBufSampler = {
 			.anisotropy = 1,
@@ -89,8 +94,6 @@ namespace Lina
 		m_forwardPass.Create(GfxHelpers::GetRenderPassDescription(RenderPassType::RENDER_PASS_FORWARD));
 		m_forwardPass.SetSize(m_size);
 		m_deferredPass.SetSize(m_size);
-
-		m_lvgDrawer.GetCallbacks().draw = BIND(&WorldRenderer::OnLinaVGDraw, this, std::placeholders::_1);
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -158,7 +161,6 @@ namespace Lina
 			});
 		}
 
-		m_guiBackend.Initialize(m_resourceManagerV2);
 		CreateSizeRelativeResources();
 		m_shapeRenderer.Initialize();
 	}
@@ -173,8 +175,6 @@ namespace Lina
 		m_shapeRenderer.Shutdown();
 		m_gBufSampler->DestroyHW();
 		m_resourceManagerV2->DestroyResource(m_gBufSampler);
-
-		m_guiBackend.Shutdown();
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -405,51 +405,63 @@ namespace Lina
 		});
 	}
 
-	void WorldRenderer::StartLinaVGBatch()
+	void WorldRenderer::OnWorldLVGDraw(LinaVG::DrawBuffer* buf)
 	{
-		m_currentLvgStartIndex	= static_cast<uint32>(m_cpuDrawData.lvgIndices.size());
-		m_currentLvgStartVertex = static_cast<uint32>(m_cpuDrawData.lvgVertices.size());
-	}
+		const uint32	 vtxCount = static_cast<uint32>(buf->vertexBuffer.m_size);
+		const uint32	 idxCount = static_cast<uint32>(buf->indexBuffer.m_size);
+		const ResourceID id		  = buf->uid;
+		Material*		 mat	  = m_resourceManagerV2->GetResource<Material>(id);
+		Shader*			 shader	  = m_resourceManagerV2->GetResource<Shader>(mat->GetShader());
 
-	void WorldRenderer::EndLinaVGBatch(RenderPass& pass, uint32 pushConstantValue, uint32 shaderHandle)
-	{
-		m_lvgDrawer.FlushBuffers();
-		m_lvgDrawer.ResetFrame();
+		if (buf->shapeType == LinaVG::DrawBufferShapeType::Text || buf->shapeType == LinaVG::DrawBufferShapeType::SDFText)
+		{
+			GUIBackend* guiBackend = m_gfxContext->GetGUIBackend();
 
-		const uint32 ic = static_cast<uint32>(m_cpuDrawData.lvgIndices.size()) - m_currentLvgStartIndex;
+			if (mat->HasProperty<LinaTexture2D>("diffuse"_hs))
+			{
+				LinaTexture2D* txt = mat->GetProperty<LinaTexture2D>("diffuse"_hs);
 
-		if (ic == 0)
-			return;
+				LinaVG::Atlas* atlas   = static_cast<LinaVG::Atlas*>(buf->textureHandle);
+				Texture*	   texture = guiBackend->GetFontTexture(atlas).texture;
+				if (txt->texture != texture->GetID())
+				{
+					mat->SetProperty<LinaTexture2D>("diffuse"_hs,
+													{
+														.texture = texture->GetID(),
+														.sampler = m_samplerGUIText->GetID(),
+													});
+					m_gfxContext->MarkBindlessDirty();
+				}
+			}
+		}
 
-		const RenderPass::InstancedDraw draw = {
-			.vertexBuffers = {&m_pfd[0].lvgVtxBuffer, &m_pfd[1].lvgVtxBuffer},
-			.indexBuffers  = {&m_pfd[0].lvgIdxBuffer, &m_pfd[1].lvgIdxBuffer},
+		RenderPass::InstancedDraw drawCall = {
+			.vertexBuffers =
+				{
+					&m_pfd[0].lvgVtxBuffer,
+					&m_pfd[1].lvgVtxBuffer,
+				},
+			.indexBuffers =
+				{
+					&m_pfd[0].lvgIdxBuffer,
+					&m_pfd[1].lvgIdxBuffer,
+				},
 			.vertexSize	   = sizeof(LinaVG::Vertex),
-			.shaderHandle  = shaderHandle,
-			.baseVertex	   = 0,
-			.baseIndex	   = m_currentLvgStartIndex,
-			.indexCount	   = ic,
+			.shaderHandle  = shader->GetGPUHandle(),
+			.baseVertex	   = static_cast<uint32>(m_cpuDrawData.lvgVertices.size()),
+			.vertexCount   = vtxCount,
+			.baseIndex	   = static_cast<uint32>(m_cpuDrawData.lvgIndices.size()),
+			.indexCount	   = idxCount,
 			.instanceCount = 1,
-			.pushConstant  = pushConstantValue,
+			.baseInstance  = 0,
+			.pushConstant  = mat->GetBindlessIndex(),
+			.clip		   = Recti(buf->clip.x, buf->clip.y, buf->clip.z, buf->clip.w),
+			.useScissors   = true,
 		};
 
-		pass.AddDrawCall(draw);
-	}
-
-	void WorldRenderer::OnLinaVGDraw(LinaVG::DrawBuffer* buffer)
-	{
-		const uint32 baseVertex = static_cast<uint32>(m_cpuDrawData.lvgVertices.size());
-		const uint32 indexCount = static_cast<uint32>(buffer->indexBuffer.m_size);
-		const uint32 startIndex = static_cast<uint32>(m_cpuDrawData.lvgIndices.size());
-
-		const size_t currentVtx = m_cpuDrawData.lvgVertices.size();
-		const size_t currentIdx = m_cpuDrawData.lvgIndices.size();
-
-		m_cpuDrawData.lvgVertices.resize(currentVtx + buffer->vertexBuffer.m_size);
-		m_cpuDrawData.lvgIndices.resize(currentIdx + buffer->indexBuffer.m_size);
-
-		MEMCPY(m_cpuDrawData.lvgVertices.data() + currentVtx, buffer->vertexBuffer.m_data, buffer->vertexBuffer.m_size * sizeof(LinaVG::Vertex));
-		MEMCPY(m_cpuDrawData.lvgIndices.data() + currentIdx, buffer->indexBuffer.m_data, buffer->indexBuffer.m_size * sizeof(LinaVG::Index));
+		m_forwardPass.AddDrawCall(drawCall);
+		m_cpuDrawData.lvgVertices.insert(m_cpuDrawData.lvgVertices.end(), buf->vertexBuffer.m_data, buf->vertexBuffer.m_data + vtxCount);
+		m_cpuDrawData.lvgIndices.insert(m_cpuDrawData.lvgIndices.end(), buf->indexBuffer.m_data, buf->indexBuffer.m_data + idxCount);
 	}
 
 	void WorldRenderer::Resize(const Vector2ui& newSize)
@@ -472,6 +484,7 @@ namespace Lina
 			View		  cameraView;
 			m_forwardPass.GetView().SetView(camera.GetView());
 			m_deferredPass.GetView().SetView(camera.GetView());
+			m_forwardPass.GetView().SetView(camera.GetView());
 		}
 
 		m_compModels.resize(0);
@@ -616,6 +629,31 @@ namespace Lina
 
 		DrawCollector::CollectCompModels(m_compModels, m_forwardPass, m_resourceManagerV2, this, m_gfxContext, {.allowedShaderTypes = {ShaderType::ForwardSurface}});
 
+		m_compWidgets.resize(0);
+		m_world->GetCache<CompWidget>()->GetBucket().View([&](CompWidget* w, uint32 idx) -> bool {
+			if (!w->GetEntity()->GetVisible())
+				return false;
+
+			m_compWidgets.push_back(w);
+			return false;
+		});
+
+		LinaVG::Drawer& drawer = m_world->GetLVGDrawer();
+
+		for (CompWidget* w : m_compWidgets)
+		{
+			GUIWidget* guiWidget = w->GetWidgetPtr();
+			if (!guiWidget)
+				continue;
+
+			WidgetManager& manager = w->GetWidgetManager();
+			manager.PreTick();
+			manager.Tick(delta, m_size);
+			manager.Draw();
+			drawer.FlushBuffers();
+			drawer.ResetFrame();
+		}
+
 		m_shapeRenderer.StartBatch();
 
 		for (const LineData& l : m_debugLines)
@@ -662,18 +700,18 @@ namespace Lina
 		currentFrame.copySemaphore.ResetModified();
 		currentFrame.signalSemaphore.ResetModified();
 
-		// View data.
+		// Pass data.
 		{
 			Camera& worldCam = m_world->GetWorldCamera();
 			// const Vector2ui sz		 = m_world->GetScreen().GetRenderSize();
 			// 	worldCam.Calculate(m_size);
 
-			const GPUDataDeferredPass view = {
+			const GPUDataDeferredPass deferredPassData = {
 				.view	  = worldCam.GetView(),
 				.proj	  = worldCam.GetProjection(),
 				.viewProj = worldCam.GetViewProj(),
 			};
-			m_deferredPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataDeferredPass));
+			m_deferredPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&deferredPassData, sizeof(GPUDataDeferredPass));
 
 			WorldGfxSettings& gfx = m_world->GetGfxSettings();
 
@@ -681,6 +719,7 @@ namespace Lina
 				.view				   = worldCam.GetView(),
 				.proj				   = worldCam.GetProjection(),
 				.viewProj			   = worldCam.GetViewProj(),
+				.orthoProj			   = GfxHelpers::GetProjectionFromSize(m_size),
 				.ambientTop			   = Color(gfx.ambientTop.x, gfx.ambientTop.y, gfx.ambientTop.z, gfx.ambientIntensity),
 				.ambientMid			   = gfx.ambientMid,
 				.ambientBot			   = gfx.ambientBot,

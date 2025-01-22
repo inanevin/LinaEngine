@@ -29,15 +29,20 @@ SOFTWARE.
 #pragma once
 
 #include "Core/World/Component.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
+#include "Core/Graphics/Resource/GUIWidget.hpp"
 
 namespace Lina
 {
+
 	class CompWidget : public Component
 	{
 	public:
 		CompWidget() : Component(GetTypeID<CompWidget>(), 0) {};
+		virtual ~CompWidget();
 
 		virtual void CollectReferences(HashSet<ResourceID>& refs) override;
+		virtual void StoreReferences() override;
 
 		virtual void SaveToStream(OStream& stream) const
 		{
@@ -59,15 +64,28 @@ namespace Lina
 			return m_widget;
 		}
 
+		inline GUIWidget* GetWidgetPtr() const
+		{
+			return m_widgetPtr;
+		}
+
+		inline WidgetManager& GetWidgetManager()
+		{
+			return m_widgetManager;
+		}
+
 	private:
 		LINA_REFLECTION_ACCESS(CompWidget);
 		ResourceID m_widget = 0;
 
-		bool	m_is2D	 = true;
-		Vector2 m_size3D = Vector2(10, 10);
+		bool		  m_is2D		  = true;
+		Vector2		  m_size3D		  = Vector2(10, 10);
+		GUIWidget*	  m_widgetPtr	  = nullptr;
+		WidgetManager m_widgetManager = {};
 	};
 
 	LINA_COMPONENT_BEGIN(CompWidget, "Graphics")
+	LINA_FIELD(CompWidget, m_widget, "Widget", FieldType::ResourceID, GetTypeID<GUIWidget>())
 	LINA_FIELD(CompWidget, m_is2D, "Is 2D", FieldType::Boolean, 0)
 	LINA_FIELD(CompWidget, m_size3D, "3D Size", FieldType::Vector2, 0)
 	LINA_FIELD_DEPENDENCY_OP(CompWidget, m_size3D, "m_is2D", "0", "eq")

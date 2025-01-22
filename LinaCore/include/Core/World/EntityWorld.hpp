@@ -235,9 +235,9 @@ namespace Lina
 			return m_playMode;
 		}
 
-		inline WidgetManager& GetWidgetManager()
+		inline LinaVG::Drawer& GetLVGDrawer()
 		{
-			return m_widgetManager;
+			return m_lvgDrawer;
 		}
 
 	private:
@@ -279,7 +279,6 @@ namespace Lina
 		HashSet<ResourceID>	 m_loadedResourceNeeds;
 		WorldPhysicsSettings m_physicsSettings = {};
 		WorldRenderer*		 m_worldRenderer   = nullptr;
-		WidgetManager		 m_widgetManager;
 		LinaVG::Drawer		 m_lvgDrawer = {};
 	};
 

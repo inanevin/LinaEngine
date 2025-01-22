@@ -64,6 +64,10 @@ namespace Lina
 	void CompModel::StoreReferences()
 	{
 		m_modelPtr = m_resourceManager->GetResource<Model>(m_model);
+
+		if (!m_modelPtr)
+			return;
+
 		SetModel(m_modelPtr);
 	}
 } // namespace Lina

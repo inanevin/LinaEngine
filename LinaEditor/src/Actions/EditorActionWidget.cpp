@@ -30,20 +30,31 @@ SOFTWARE.
 #include "Editor/Editor.hpp"
 #include "Editor/Widgets/World/WorldController.hpp"
 #include "Editor/Widgets/Panel/PanelWidgetEditor.hpp"
+#include "Editor/Widgets/Panel/PanelWorld.hpp"
+#include "Core/World/EntityWorld.hpp"
+#include "Core/World/Components/CompWidget.hpp"
 #include "Core/Meta/ProjectData.hpp"
+#include "Core/Application.hpp"
 
 namespace Lina::Editor
 {
 
-	EditorActionWidgetSelection* EditorActionWidgetSelection::Create(Editor* editor, ResourceID id, const Vector<Widget*>& previous, const Vector<Widget*>& current)
+	EditorActionWidgetSelection* EditorActionWidgetSelection::Create(Editor* editor, ResourceID id, const Vector<Widget*>& selection)
 	{
+		Panel* panel = editor->GetWindowPanelManager().FindPanelOfType(PanelType::WidgetEditor, id);
+		if (!panel)
+			return nullptr;
+		PanelWidgetEditor* widgetEditor = static_cast<PanelWidgetEditor*>(panel);
+
 		EditorActionWidgetSelection* action = new EditorActionWidgetSelection();
 		action->m_resourceID				= id;
 
-		for (Widget* w : previous)
+		const Vector<Widget*>& currentSelection = widgetEditor->GetSelection();
+
+		for (Widget* w : currentSelection)
 			action->m_previous.push_back(w->GetUniqueID());
 
-		for (Widget* w : current)
+		for (Widget* w : selection)
 			action->m_current.push_back(w->GetUniqueID());
 
 		editor->GetEditorActionManager().AddToStack(action);
@@ -58,50 +69,44 @@ namespace Lina::Editor
 			return;
 
 		PanelWidgetEditor* widgetEditor = static_cast<PanelWidgetEditor*>(panel);
-		GUIWidget*		   guiWidget	= static_cast<GUIWidget*>(widgetEditor->GetResource());
-		Widget*			   root			= &guiWidget->GetRoot();
+		Widget*			   root			= widgetEditor->GetRoot();
 
 		if (type == ExecType::Undo)
 		{
-			Vector<Widget*> selection;
-
-			for (uint32 id : m_previous)
+			Vector<Widget*> toSelect;
+			for (WidgetID id : m_previous)
 			{
-				if (id == root->GetUniqueID())
+				if (root->GetUniqueID() == id)
 				{
-					selection.push_back(root);
+					toSelect.push_back(root);
 					continue;
 				}
 
-				Widget* w = root->FindChildWithUniqueID(id);
-
-				if (w)
-					selection.push_back(w);
+				Widget* s = root->FindChildWithUniqueID(id);
+				if (s)
+					toSelect.push_back(s);
 			}
 
-			widgetEditor->ChangeSelection(selection);
+			widgetEditor->ChangeSelection(toSelect);
 		}
-		else if (type == ExecType::Redo)
+		else if (type == ExecType::Redo || type == ExecType::Create)
 		{
-			Vector<Widget*> selection;
-
-			for (uint32 id : m_current)
+			Vector<Widget*> toSelect;
+			for (WidgetID id : m_current)
 			{
-				if (id == root->GetUniqueID())
+				if (root->GetUniqueID() == id)
 				{
-					selection.push_back(root);
+					toSelect.push_back(root);
 					continue;
 				}
 
-				Widget* w = root->FindChildWithUniqueID(id);
-
-				if (w)
-					selection.push_back(w);
+				Widget* s = root->FindChildWithUniqueID(id);
+				if (s)
+					toSelect.push_back(s);
 			}
 
-			widgetEditor->ChangeSelection(selection);
+			widgetEditor->ChangeSelection(toSelect);
 		}
-
 	}
 
 	EditorActionWidgetChanged* EditorActionWidgetChanged::Create(Editor* editor, ResourceID id, Widget* widget, OStream& prevStream)
@@ -123,18 +128,40 @@ namespace Lina::Editor
 		Panel* panel = editor->GetWindowPanelManager().FindPanelOfType(PanelType::WidgetEditor, m_resourceID);
 		if (!panel)
 			return;
-
 		PanelWidgetEditor* widgetEditor = static_cast<PanelWidgetEditor*>(panel);
 
-		if (type == ExecType::Undo)
-			widgetEditor->SetStream(m_prevStream);
-		else if (type == ExecType::Redo)
-			widgetEditor->SetStream(m_stream);
+		GUIWidget* w = static_cast<GUIWidget*>(widgetEditor->GetResource());
 
-		widgetEditor->RefreshBrowser();
+		if (type == ExecType::Undo)
+			w->SetStream(m_prevStream, widgetEditor->GetRoot());
+		else if (type == ExecType::Redo || type == ExecType::Create)
+			w->SetStream(m_stream, widgetEditor->GetRoot());
+
+		if (type == ExecType::Undo || type == ExecType::Redo)
+		{
+			widgetEditor->FetchRootFromResource();
+			widgetEditor->RefreshBrowser();
+		}
+
 		widgetEditor->StoreEditorActionBuffer();
 
-		GUIWidget* w = static_cast<GUIWidget*>(widgetEditor->GetResource());
+		Panel* panelW = editor->GetWindowPanelManager().FindPanelOfType(PanelType::World, 0);
+		if (panelW)
+		{
+			PanelWorld*	 pw = static_cast<PanelWorld*>(panelW);
+			EntityWorld* w	= pw->GetWorld();
+
+			if (w != nullptr)
+			{
+				w->LoadMissingResources(editor->GetApp()->GetResourceManager(), editor->GetProjectManager().GetProjectData(), {});
+				w->GetCache<CompWidget>()->GetBucket().View([this](CompWidget* cw, uint32 idx) -> bool {
+					if (cw->GetWidget() == m_resourceID)
+						cw->StoreReferences();
+					return false;
+				});
+			}
+		}
+
 		w->SaveToFileAsBinary(editor->GetProjectManager().GetProjectData()->GetResourcePath(w->GetID()));
 	}
 

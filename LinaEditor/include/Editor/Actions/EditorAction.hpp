@@ -42,8 +42,8 @@ namespace Lina::Editor
 			Redo
 		};
 
-		EditorAction(){};
-		virtual ~EditorAction(){};
+		EditorAction() {};
+		virtual ~EditorAction() {};
 
 		virtual void Execute(Editor* editor, ExecType type) = 0;
 	};
@@ -54,11 +54,12 @@ namespace Lina::Editor
 		EditorActionCollective() = default;
 		virtual ~EditorActionCollective();
 
-		static EditorActionCollective* Create(Editor* editor, uint32 lastActions);
+		static EditorActionCollective* Create(Editor* editor, uint32 lastActions, bool sameOrder = false);
 
 		virtual void Execute(Editor* editor, ExecType type) override;
 
 	private:
+		bool				  m_sameOrderUndo = false;
 		Vector<EditorAction*> m_actions;
 	};
 

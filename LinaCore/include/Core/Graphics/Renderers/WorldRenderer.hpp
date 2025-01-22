@@ -34,7 +34,7 @@ SOFTWARE.
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
 #include "Core/Graphics/ResourceUploadQueue.hpp"
 #include "Core/Graphics/MeshManager.hpp"
-#include "Core/Graphics/GUI/GUIBackend.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
 
 namespace LinaGX
 {
@@ -47,8 +47,10 @@ namespace Lina
 {
 	class CompModel;
 	class CompLight;
+	class CompWidget;
 	class Shader;
 	class Texture;
+	class TextureSampler;
 	class ResourceManagerV2;
 	class WorldRenderer;
 	class WorldRendererListener;
@@ -124,13 +126,7 @@ namespace Lina
 
 		void AddDebugLine(const Vector3& p1, const Vector3& p2, float thickness, const ColorGrad& color);
 
-		void			StartLinaVGBatch();
-		LinaVG::Drawer* GetLVGDrawer()
-		{
-			return &m_lvgDrawer;
-		}
-		void EndLinaVGBatch(RenderPass& pass, uint32 pushConstantValue, uint32 shaderHandle);
-		void OnLinaVGDraw(LinaVG::DrawBuffer* buffer);
+		void OnWorldLVGDraw(LinaVG::DrawBuffer* buf);
 
 		inline SemaphoreData GetSubmitSemaphore(uint32 frameIndex)
 		{
@@ -261,7 +257,6 @@ namespace Lina
 
 	private:
 		Vector<WorldRendererListener*> m_listeners;
-		GUIBackend					   m_guiBackend;
 		ResourceManagerV2*			   m_resourceManagerV2 = nullptr;
 		LinaGX::Instance*			   m_lgx			   = nullptr;
 		ResourceUploadQueue			   m_uploadQueue;
@@ -271,6 +266,7 @@ namespace Lina
 		Vector2ui					   m_size				   = Vector2ui::Zero;
 		EntityWorld*				   m_world				   = nullptr;
 		TextureSampler*				   m_gBufSampler		   = nullptr;
+		TextureSampler*				   m_samplerGUIText		   = nullptr;
 		Shader*						   m_shaderLightingQuad	   = nullptr;
 		Shader*						   m_shaderDebugLine	   = nullptr;
 		Buffer*						   m_snapshotBuffer		   = nullptr;
@@ -280,13 +276,13 @@ namespace Lina
 		JobExecutor					   m_executor;
 		Vector<CompModel*>			   m_compModels;
 		Vector<CompLight*>			   m_compLights;
+		Vector<CompWidget*>			   m_compWidgets;
 		DrawData					   m_cpuDrawData = {};
 		DrawData					   m_gpuDrawData = {};
 		Vector<CompModel*>			   m_skinnedModels;
 		PhysicsDebugRenderer*		   m_physicsDebugRenderer = nullptr;
 
-		LinaVG::Drawer m_lvgDrawer;
-		ShapeRenderer  m_shapeRenderer;
+		ShapeRenderer m_shapeRenderer;
 
 		uint32			 m_currentLvgStartVertex = 0;
 		uint32			 m_currentLvgStartIndex	 = 0;

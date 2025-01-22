@@ -37,27 +37,28 @@ namespace Lina
 	{
 
 	public:
-		GUIWidget(ResourceID id = 0, const String& name = "") : Resource(id, GetTypeID<GUIWidget>(), name){};
+		GUIWidget(ResourceID id = 0, const String& name = "") : Resource(id, GetTypeID<GUIWidget>(), name) {};
 
 		static constexpr uint32 VERSION = 0;
 
 		virtual ~GUIWidget();
-		virtual void SetSubdata(void* subdata) override;
-		virtual bool LoadFromFile(const String& path) override;
-		virtual void SaveToStream(OStream& stream) const override;
-		virtual void LoadFromStream(IStream& stream) override;
-		virtual void GenerateHW() override;
-		virtual void DestroyHW() override;
-		void		 ClearRoot();
+		virtual bool		LoadFromFile(const String& path) override;
+		virtual void		SaveToStream(OStream& stream) const override;
+		virtual void		LoadFromStream(IStream& stream) override;
+		virtual void		GenerateHW() override;
+		virtual void		DestroyHW() override;
+		void				SetStream(const RawStream& stream, Widget* root);
+		HashSet<ResourceID> GetResourceReferences();
 
-		inline Widget& GetRoot()
+		inline const RawStream& GetStream() const
 		{
-			return m_root;
+			return m_rootStream;
 		}
 
 	private:
 		ALLOCATOR_BUCKET_MEM;
-		Widget m_root;
+		Vector<ResourceID> m_references;
+		RawStream		   m_rootStream = {};
 	};
 
 	LINA_RESOURCE_BEGIN(GUIWidget);

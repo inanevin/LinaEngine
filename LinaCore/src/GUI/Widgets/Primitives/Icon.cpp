@@ -34,6 +34,11 @@ SOFTWARE.
 
 namespace Lina
 {
+	void Icon::Construct()
+	{
+		GetWidgetProps().material = ENGINE_MATERIAL_GUI_SDFTEXT_ID;
+	}
+
 	void Icon::Initialize()
 	{
 		CalculateIconSize();
@@ -63,6 +68,7 @@ namespace Lina
 		if (m_lvgFont == nullptr)
 			return;
 
+		m_textOptions.uniqueID	= m_widgetProps.material;
 		m_textOptions.color		= m_props.color.AsLVG();
 		m_textOptions.textScale = m_props.textScale;
 
@@ -127,6 +133,7 @@ namespace Lina
 
 	void Icon::CollectResourceReferences(HashSet<ResourceID>& out)
 	{
+		Widget::CollectResourceReferences(out);
 		out.insert(m_props.font);
 	}
 

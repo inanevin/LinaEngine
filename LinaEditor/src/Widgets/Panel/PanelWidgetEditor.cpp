@@ -86,13 +86,6 @@ namespace Lina::Editor
 			return retVal;
 		}
 
-		void CollectReferences(HashSet<ResourceID>& list, Widget* root)
-		{
-			root->CollectResourceReferences(list);
-			for (Widget* c : root->GetChildren())
-				CollectReferences(list, c);
-		}
-
 		void FindMaxUniqueID(Widget* root, uint32& id)
 		{
 			id = Math::Max(root->GetUniqueID(), id);
@@ -118,6 +111,12 @@ namespace Lina::Editor
 		m_browser->SetWidgetEditor(this);
 		m_horizontal->AddChild(m_browser);
 		AddResourceBGAndInspector(0.3f);
+
+		m_root = m_manager->Allocate<Widget>("Root");
+		m_root->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		m_root->SetAlignedPos(Vector2::Zero);
+		m_root->SetAlignedSize(Vector2::One);
+		m_resourceBG->AddChild(m_root);
 	}
 
 	void PanelWidgetEditor::Initialize()
@@ -127,26 +126,17 @@ namespace Lina::Editor
 		if (!m_resource)
 			return;
 
-		GUIWidget* guiWidget = static_cast<GUIWidget*>(m_resource);
-		Widget*	   root		 = &guiWidget->GetRoot();
-		root->SetWidgetManager(m_manager);
-		m_resourceBG->AddChild(root);
-		root->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		root->SetAlignedPos(Vector2::Zero);
-		root->SetAlignedSize(Vector2::One);
-
-		if (root->GetWidgetProps().debugName.empty())
-			root->GetWidgetProps().debugName = "Root";
+		FetchRootFromResource();
+		RefreshResources();
 
 		m_uniqueIDCounter = 0;
-		FindMaxUniqueID(root, m_uniqueIDCounter);
+		FindMaxUniqueID(m_root, m_uniqueIDCounter);
 
-		m_browser->SetRoot(root);
+		m_browser->SetRoot(m_root);
 		m_browser->RefreshWidgets();
 
-		//	StoreEditorActionBuffer();
-		//	UpdateResourceProperties();
-		//	RebuildContents();
+		StoreEditorActionBuffer();
+		RebuildContents();
 	}
 
 	void PanelWidgetEditor::Draw()
@@ -164,16 +154,17 @@ namespace Lina::Editor
 	void PanelWidgetEditor::StoreEditorActionBuffer()
 	{
 		GUIWidget* guiWidget = static_cast<GUIWidget*>(m_resource);
-		Widget*	   root		 = &guiWidget->GetRoot();
+		OStream	   stream;
+		m_root->SaveToStream(stream);
 		m_storedStream.Destroy();
-		root->SaveToStream(m_storedStream);
+		m_storedStream.WriteRaw(stream.GetDataRaw(), stream.GetCurrentSize());
+		stream.Destroy();
 	}
 
 	void PanelWidgetEditor::RebuildContents()
 	{
 		m_inspector->DeallocAllChildren();
 		m_inspector->RemoveAllChildren();
-
 		if (m_selectedWidgets.empty())
 			return;
 
@@ -188,8 +179,7 @@ namespace Lina::Editor
 		panelBase->GetProps().direction			 = DirectionOrientation::Vertical;
 		panelBase->GetCallbacks().onEditEnded	 = [this]() {
 			   GUIWidget* guiWidget = static_cast<GUIWidget*>(m_resource);
-			   Widget*	  root		= &guiWidget->GetRoot();
-			   EditorActionWidgetChanged::Create(m_editor, m_resourceSpace, root, m_storedStream);
+			   EditorActionWidgetChanged::Create(m_editor, m_resourceSpace, m_root, m_storedStream);
 		};
 		panelBase->GetCallbacks().onEditStarted = [this]() { StoreEditorActionBuffer(); };
 		m_inspector->AddChild(panelBase);
@@ -206,8 +196,7 @@ namespace Lina::Editor
 			panelSpec->GetProps().direction			 = DirectionOrientation::Vertical;
 			panelSpec->GetCallbacks().onEditEnded	 = [this]() {
 				   GUIWidget* guiWidget = static_cast<GUIWidget*>(m_resource);
-				   Widget*	  root		= &guiWidget->GetRoot();
-				   EditorActionWidgetChanged::Create(m_editor, m_resourceSpace, root, m_storedStream);
+				   EditorActionWidgetChanged::Create(m_editor, m_resourceSpace, m_root, m_storedStream);
 				   RefreshResources();
 			};
 			panelSpec->GetCallbacks().onEditStarted = [this]() { StoreEditorActionBuffer(); };
@@ -227,7 +216,6 @@ namespace Lina::Editor
 	{
 		m_selectedWidgets = selection;
 		RebuildContents();
-
 		m_browser->GetController()->UnselectAll();
 		for (Widget* w : m_selectedWidgets)
 		{
@@ -241,8 +229,7 @@ namespace Lina::Editor
 	void PanelWidgetEditor::Duplicate(const Vector<Widget*>& widgets)
 	{
 		GUIWidget*			  guiWidget	  = static_cast<GUIWidget*>(m_resource);
-		Widget*				  root		  = &guiWidget->GetRoot();
-		const Vector<Widget*> toDuplicate = RemoveRoot(widgets, root);
+		const Vector<Widget*> toDuplicate = RemoveRoot(widgets, m_root);
 
 		if (toDuplicate.empty())
 			return;
@@ -265,21 +252,19 @@ namespace Lina::Editor
 			istream.Destroy();
 			parent->AddChild(duplicated);
 			duplicatedWidgets.push_back(duplicated);
-			duplicated->SetUniqueID(m_uniqueIDCounter);
+			duplicated->SetUniqueID(++m_uniqueIDCounter);
 		}
 
-		EditorActionWidgetChanged::Create(m_editor, m_resourceSpace, root, m_storedStream);
-
-		m_browser->GetController()->UnselectAll();
-		for (Widget* duplicated : duplicatedWidgets)
-			m_browser->GetController()->SelectItem(m_browser->GetController()->GetItem(duplicated), false, false, true);
+		RefreshBrowser();
+		EditorActionWidgetChanged::Create(m_editor, m_resourceSpace, m_root, m_storedStream);
+		EditorActionWidgetSelection::Create(m_editor, m_resourceSpace, duplicatedWidgets);
+		EditorActionCollective::Create(m_editor, 2, true);
 	}
 
 	void PanelWidgetEditor::Delete(const Vector<Widget*>& widgets)
 	{
 		GUIWidget*			  guiWidget = static_cast<GUIWidget*>(m_resource);
-		Widget*				  root		= &guiWidget->GetRoot();
-		const Vector<Widget*> selection = RemoveRoot(widgets, root);
+		const Vector<Widget*> selection = RemoveRoot(widgets, m_root);
 		const Vector<Widget*> toDelete	= GetRoots(selection);
 
 		if (toDelete.empty())
@@ -294,15 +279,16 @@ namespace Lina::Editor
 			m_manager->Deallocate(w);
 		}
 
-		EditorActionWidgetChanged::Create(m_editor, m_resourceSpace, root, m_storedStream);
-		m_browser->GetController()->SelectItem(m_browser->GetController()->GetItem(root), true, true, true);
+		RefreshBrowser();
+		EditorActionWidgetChanged::Create(m_editor, m_resourceSpace, m_root, m_storedStream);
+		EditorActionWidgetSelection::Create(m_editor, m_resourceSpace, {m_root});
+		EditorActionCollective::Create(m_editor, 2, true);
 	}
 
 	void PanelWidgetEditor::Parent(const Vector<Widget*>& widgets, Widget* parent)
 	{
 		GUIWidget*			  guiWidget = static_cast<GUIWidget*>(m_resource);
-		Widget*				  root		= &guiWidget->GetRoot();
-		const Vector<Widget*> toParent	= RemoveRoot(widgets, root);
+		const Vector<Widget*> toParent	= RemoveRoot(widgets, m_root);
 
 		if (toParent.empty())
 			return;
@@ -318,57 +304,61 @@ namespace Lina::Editor
 			parent->AddChild(w);
 		}
 
-		EditorActionWidgetChanged::Create(m_editor, m_resourceSpace, root, m_storedStream);
-	}
-
-	void PanelWidgetEditor::SetStream(const RawStream& stream)
-	{
-		GUIWidget* guiWidget = static_cast<GUIWidget*>(m_resource);
-		Widget*	   root		 = &guiWidget->GetRoot();
-		IStream	   istream;
-		istream.Create(stream.GetRaw(), stream.GetSize());
-		root->LoadFromStream(istream);
-		istream.Destroy();
+		RefreshBrowser();
+		EditorActionWidgetChanged::Create(m_editor, m_resourceSpace, m_root, m_storedStream);
+		EditorActionWidgetSelection::Create(m_editor, m_resourceSpace, widgets);
+		EditorActionCollective::Create(m_editor, 2, true);
 	}
 
 	void PanelWidgetEditor::RefreshBrowser()
 	{
 		m_browser->RefreshWidgets();
-		GUIWidget* guiWidget = static_cast<GUIWidget*>(m_resource);
-		Widget*	   root		 = &guiWidget->GetRoot();
 	}
 
 	void PanelWidgetEditor::AddNew(Widget* w, Widget* parent)
 	{
 		GUIWidget* guiWidget = static_cast<GUIWidget*>(m_resource);
-		Widget*	   root		 = &guiWidget->GetRoot();
 
 		if (parent == nullptr)
-			parent = root;
+			parent = m_root;
 
-		StoreEditorActionBuffer();
 		parent->AddChild(w);
-		w->SetUniqueID(m_uniqueIDCounter++);
+		w->SetUniqueID(++m_uniqueIDCounter);
+		RefreshBrowser();
 
-		EditorActionWidgetChanged::Create(m_editor, m_resourceSpace, root, m_storedStream);
-		m_browser->GetController()->SelectItem(m_browser->GetController()->GetItem(w), true, true, true);
+		EditorActionWidgetChanged::Create(m_editor, m_resourceSpace, m_root, m_storedStream);
+		EditorActionWidgetSelection::Create(m_editor, m_resourceSpace, {w});
+		EditorActionCollective::Create(m_editor, 2, true);
 		RefreshResources();
+		m_browser->GetController()->SelectItem(m_browser->GetController()->GetItem(w), true, true, true);
 	}
 
 	void PanelWidgetEditor::Rename(Widget* w, const String& name)
 	{
-		GUIWidget* guiWidget = static_cast<GUIWidget*>(m_resource);
-		Widget*	   root		 = &guiWidget->GetRoot();
-		StoreEditorActionBuffer();
+		GUIWidget* guiWidget		  = static_cast<GUIWidget*>(m_resource);
 		w->GetWidgetProps().debugName = name;
-		EditorActionWidgetChanged::Create(m_editor, m_resourceSpace, root, m_storedStream);
+		EditorActionWidgetChanged::Create(m_editor, m_resourceSpace, m_root, m_storedStream);
 	}
 
 	void PanelWidgetEditor::RefreshResources()
 	{
-		HashSet<ResourceID> list;
-		CollectReferences(list, &static_cast<GUIWidget*>(m_resource)->GetRoot());
-		m_editor->GetApp()->GetResourceManager().LoadResourcesFromProject(m_editor->GetProjectManager().GetProjectData(), list, NULL, m_resourceSpace);
+		HashSet<ResourceID> refs;
+		m_root->CollectResourceReferencesRecursive(refs);
+		m_editor->GetApp()->GetResourceManager().LoadResourcesFromProject(m_editor->GetProjectManager().GetProjectData(), refs, NULL, m_resourceSpace);
+	}
+
+	void PanelWidgetEditor::FetchRootFromResource()
+	{
+		GUIWidget*		 guiWidget	= static_cast<GUIWidget*>(m_resource);
+		const RawStream& rootStream = guiWidget->GetStream();
+
+		if (!rootStream.IsEmpty())
+		{
+			IStream stream;
+			stream.Create(rootStream.GetRaw(), rootStream.GetSize());
+			m_root->LoadFromStream(stream);
+			stream.Destroy();
+		}
 	}
 
 } // namespace Lina::Editor

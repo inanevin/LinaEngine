@@ -804,7 +804,7 @@ namespace Lina::Editor
 			icn->GetFlags().Set(WF_POS_ALIGN_Y);
 			icn->SetAlignedPosY(0.5f);
 			icn->SetAnchorY(Anchor::Center);
-		
+
 			// icn->GetFlags().Set(WF_HIDE, i != dependencies - 1);
 			layout->AddChild(icn);
 		}
@@ -1505,7 +1505,16 @@ namespace Lina::Editor
 		startButton->SetAlignedSize(Vector2::One);
 		startButton->CreateIcon(ICON_PALETTE);
 		startButton->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::StartColor);
-		startButton->GetProps().onClicked	  = [startButton]() { PanelColorWheel* panel = Editor::Get()->GetWindowPanelManager().OpenColorWheelPanel(startButton); };
+		startButton->GetProps().onClicked	  = [startButton, color]() {
+			PanelColorWheel* pcw = Editor::Get()->GetWindowPanelManager().OpenColorWheelPanel(startButton);
+
+			pcw->GetWheel()->SetTargetColor(color->start);
+			pcw->GetCallbacks().onEdited = [color, pcw, startButton]() {
+				const Color col = pcw->GetWheel()->GetEditedColor().SRGB2Linear();
+			};
+			pcw->GetCallbacks().onEditEnded = [startButton]() { startButton->PropagateCBOnEditEnded(); };
+
+		};
 		layout->AddChild(startButton);
 
 		Button* middleButton = wm->Allocate<Button>();
@@ -1514,7 +1523,17 @@ namespace Lina::Editor
 		middleButton->SetAlignedSize(Vector2::One);
 		middleButton->CreateIcon(ICON_PALETTE);
 		middleButton->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::Both);
-		middleButton->GetProps().onClicked	   = [middleButton]() { PanelColorWheel* panel = Editor::Get()->GetWindowPanelManager().OpenColorWheelPanel(middleButton); };
+		middleButton->GetProps().onClicked	   = [middleButton, color]() {
+			PanelColorWheel* pcw = Editor::Get()->GetWindowPanelManager().OpenColorWheelPanel(middleButton);
+			pcw->GetWheel()->SetTargetColor(color->start);
+			pcw->GetCallbacks().onEdited = [color, pcw, middleButton]() {
+				const Color col = pcw->GetWheel()->GetEditedColor().SRGB2Linear();
+				color->start	= col;
+				color->end		= col;
+			};
+
+			pcw->GetCallbacks().onEditEnded = [middleButton]() { middleButton->PropagateCBOnEditEnded(); };
+		};
 		layout->AddChild(middleButton);
 
 		Button* endButton = wm->Allocate<Button>();
@@ -1523,7 +1542,15 @@ namespace Lina::Editor
 		endButton->SetAlignedSize(Vector2::One);
 		endButton->CreateIcon(ICON_PALETTE);
 		endButton->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::EndColor);
-		endButton->GetProps().onClicked		= [endButton]() { PanelColorWheel* panel = Editor::Get()->GetWindowPanelManager().OpenColorWheelPanel(endButton); };
+		endButton->GetProps().onClicked		= [endButton, color]() {
+			PanelColorWheel* pcw = Editor::Get()->GetWindowPanelManager().OpenColorWheelPanel(endButton);
+			pcw->GetWheel()->SetTargetColor(color->start);
+			pcw->GetCallbacks().onEdited = [color, pcw, endButton]() {
+				const Color col = pcw->GetWheel()->GetEditedColor().SRGB2Linear();
+				color->end		= col;
+			};
+			pcw->GetCallbacks().onEditEnded = [endButton]() { endButton->PropagateCBOnEditEnded(); };
+		};
 		layout->AddChild(endButton);
 
 		ColorField* cf = wm->Allocate<ColorField>();

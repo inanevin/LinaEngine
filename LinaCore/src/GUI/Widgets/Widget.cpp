@@ -29,11 +29,11 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Core/Graphics/Utility/TextureAtlas.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
+#include "Core/Graphics/Resource/Material.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Data/CommonData.hpp"
 #include "Common/Math/Math.hpp"
-#include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/System/SystemInfo.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
@@ -209,6 +209,7 @@ namespace Lina
 
 			opts.rounding = m_widgetProps.rounding = m_widgetProps.rounding;
 			opts.userData						   = m_widgetProps.lvgUserData;
+			opts.uniqueID						   = m_widgetProps.material;
 
 			ColorGrad mainColor = m_widgetProps.altColorsToggled ? m_widgetProps.colorBackgroundAlt : m_widgetProps.colorBackground;
 
@@ -419,6 +420,7 @@ namespace Lina
 		stream << onlyRound;
 		stream << childrenClipOffset;
 		stream << aaEnabled;
+		stream << material;
 	}
 
 	void WidgetProps::LoadFromStream(IStream& stream)
@@ -449,6 +451,7 @@ namespace Lina
 		stream >> onlyRound;
 		stream >> childrenClipOffset;
 		stream >> aaEnabled;
+		stream >> material;
 	}
 
 	void Widget::SaveToStream(OStream& stream) const
@@ -463,6 +466,7 @@ namespace Lina
 		stream << m_fixedSize;
 		stream << m_anchorX << m_anchorY;
 		stream << m_uniqueID;
+		stream << _fold;
 
 		const uint32 childSz = static_cast<uint32>(m_children.size());
 		stream << childSz;
@@ -489,6 +493,7 @@ namespace Lina
 		stream >> m_fixedSize;
 		stream >> m_anchorX >> m_anchorY;
 		stream >> m_uniqueID;
+		stream >> _fold;
 
 		uint32 childSz = 0;
 		stream >> childSz;
@@ -501,6 +506,11 @@ namespace Lina
 			c->LoadFromStream(stream);
 			AddChild(c);
 		}
+	}
+
+	void Widget::CollectResourceReferences(HashSet<ResourceID>& out)
+	{
+		out.insert(m_widgetProps.material);
 	}
 
 	void Widget::DrawBorders()
@@ -755,5 +765,62 @@ namespace Lina
 		else if (m_parent)
 			m_parent->PropagateCBOnEditEnded();
 	}
+
+	LINA_CLASS_BEGIN(WidgetProps)
+	LINA_FIELD(WidgetProps, material, "Material", FieldType::ResourceID, GetTypeID<Material>())
+	LINA_FIELD(WidgetProps, drawOrderIncrement, "Draw Order Increment", FieldType::Int32, 0);
+	LINA_FIELD(WidgetProps, debugName, "Debug Name", FieldType::String, 0);
+	LINA_FIELD(WidgetProps, tooltip, "Tooltip", FieldType::String, 0);
+	LINA_FIELD(WidgetProps, clipChildren, "Clip Children", FieldType::Boolean, 0);
+	LINA_FIELD(WidgetProps, drawBackground, "Draw Background", FieldType::Boolean, 0);
+	LINA_FIELD(WidgetProps, backgroundIsCentralGradient, "Central Gradient", FieldType::Boolean, 0);
+	LINA_FIELD(WidgetProps, interpolateColor, "Interpolate Color", FieldType::Boolean, 0);
+	LINA_FIELD(WidgetProps, colorInterpolateSpeed, "Color Interpolate Speed", FieldType::Float, 0);
+	LINA_FIELD(WidgetProps, colorBackgroundDirection, "Background Direction", FieldType::Enum, GetTypeID<DirectionOrientation>());
+	LINA_FIELD(WidgetProps, colorBackground, "Background Color", FieldType::ColorGrad, 0);
+	LINA_FIELD(WidgetProps, colorBackgroundAlt, "Alt Background Color", FieldType::ColorGrad, 0);
+	LINA_FIELD(WidgetProps, colorOutline, "Outline Color", FieldType::ColorGrad, 0);
+	LINA_FIELD(WidgetProps, colorOutlineControls, "Outline Color in Control", FieldType::ColorGrad, 0);
+	LINA_FIELD(WidgetProps, colorDisabled, "Disabled Color", FieldType::ColorGrad, 0);
+	LINA_FIELD(WidgetProps, hoveredIsDifferentColor, "Use Hovered Color", FieldType::Boolean, 0);
+	LINA_FIELD(WidgetProps, colorHovered, "Hovered Color", FieldType::ColorGrad, 0);
+	LINA_FIELD(WidgetProps, pressedIsDifferentColor, "Use Pressed Color", FieldType::Boolean, 0);
+	LINA_FIELD(WidgetProps, colorPressed, "Pressed Color", FieldType::ColorGrad, 0);
+	LINA_FIELD(WidgetProps, outlineThickness, "Outline Thickness", FieldType::Float, 0);
+	LINA_FIELD(WidgetProps, outlineIsInner, "Inner Outline", FieldType::Boolean, 0);
+	LINA_FIELD(WidgetProps, rounding, "Rounding", FieldType::Float, 0);
+	LINA_FIELD(WidgetProps, fitTexture, "Fit Texture", FieldType::Boolean, 0);
+	LINA_FIELD(WidgetProps, textureTiling, "Texture Tiling", FieldType::Vector2, 0);
+	LINA_FIELD(WidgetProps, activeTextureTiling, "Active Texture Tiling", FieldType::Boolean, 0);
+	LINA_FIELD(WidgetProps, borderThickness, "Border Thicknesses", FieldType::TBLR, 0);
+	LINA_FIELD(WidgetProps, colorBorders, "Border Color", FieldType::Color, 0);
+	LINA_FIELD(WidgetProps, childMargins, "Child Margins", FieldType::TBLR, 0);
+	LINA_FIELD(WidgetProps, childPadding, "Child Padding", FieldType::Float, 0);
+	LINA_FIELD(WidgetProps, childrenClipOffset, "Custom Clip Rect", FieldType::Rect, 0);
+	LINA_FIELD_VEC(WidgetProps, onlyRound, "Only Round", FieldType::Int32, int32, 0);
+	LINA_FIELD(WidgetProps, dropshadow, "Dropshadow Props", FieldType::UserClass, GetTypeID<DropshadowProps>());
+
+	LINA_FIELD_DEPENDENCY(WidgetProps, backgroundIsCentralGradient, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, interpolateColor, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, colorInterpolateSpeed, "interpolateColor", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, colorBackgroundDirection, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, colorBackground, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, colorBackgroundAlt, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, colorOutline, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, colorOutlineControls, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, colorDisabled, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, hoveredIsDifferentColor, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, colorHovered, "hoveredIsDifferentColor", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, pressedIsDifferentColor, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, colorPressed, "pressedIsDifferentColor", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, outlineThickness, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, outlineIsInner, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, rounding, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, fitTexture, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, textureTiling, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, activeTextureTiling, "drawBackground", "1");
+	LINA_FIELD_DEPENDENCY(WidgetProps, childrenClipOffset, "clipChildren", "1");
+
+	LINA_CLASS_END(WidgetProps)
 
 } // namespace Lina

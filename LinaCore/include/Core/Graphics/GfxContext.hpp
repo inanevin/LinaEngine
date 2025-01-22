@@ -106,6 +106,11 @@ namespace Lina
 			return m_meshManagerDefault;
 		}
 
+		inline GUIBackend* GetGUIBackend() const
+		{
+			return m_guiBackend;
+		}
+
 	private:
 		Application*		m_app		 = nullptr;
 		ResourceManagerV2*	m_rm		 = nullptr;

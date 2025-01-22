@@ -162,7 +162,7 @@ namespace Lina
 		}
 		catch (const std::exception& e)
 		{
-			LINA_ERR("Exception: StringToFloat() string: {0} - decimals: {1} - {2}", str, outDecimals, e.what());
+			// LINA_ERR("Exception: StringToFloat() string: {0} - decimals: {1} - {2}", str, outDecimals, e.what());
 			return 0.0f;
 		}
 	}
@@ -175,7 +175,7 @@ namespace Lina
 		}
 		catch (const std::exception& e)
 		{
-			LINA_ERR("Exception: StringToInt() string: {0} - {1}", str, e.what());
+			// LINA_ERR("Exception: StringToInt() string: {0} - {1}", str, e.what());
 			return 0;
 		}
 	}
@@ -188,7 +188,7 @@ namespace Lina
 		}
 		catch (const std::exception& e)
 		{
-			LINA_ERR("Exception: StringToInt() string: {0} - {1}", str, e.what());
+			// LINA_ERR("Exception: StringToInt() string: {0} - {1}", str, e.what());
 			return 0;
 		}
 	}

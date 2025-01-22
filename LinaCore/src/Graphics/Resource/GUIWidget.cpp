@@ -34,14 +34,7 @@ namespace Lina
 {
 	GUIWidget::~GUIWidget()
 	{
-	}
-
-	void GUIWidget::SetSubdata(void* subdata)
-	{
-		if (subdata == nullptr)
-			return;
-		WidgetManager* wm = static_cast<WidgetManager*>(subdata);
-		m_root.SetWidgetManager(wm);
+		m_rootStream.Destroy();
 	}
 
 	bool GUIWidget::LoadFromFile(const String& path)
@@ -61,7 +54,12 @@ namespace Lina
 	{
 		Resource::SaveToStream(stream);
 		stream << VERSION;
-		stream << m_root;
+		stream << m_references;
+
+		const uint32 sz = static_cast<uint32>(m_rootStream.GetSize());
+		stream << sz;
+		if (sz != 0)
+			stream.WriteRaw(m_rootStream.GetRaw(), m_rootStream.GetSize());
 	}
 
 	void GUIWidget::LoadFromStream(IStream& stream)
@@ -69,12 +67,18 @@ namespace Lina
 		Resource::LoadFromStream(stream);
 		uint32 version = 0;
 		stream >> version;
-		stream >> m_root;
-	}
+		stream >> m_references;
 
-	void GUIWidget::ClearRoot()
-	{
-		m_root.RemoveAllChildren();
+		uint32 sz = 0;
+		stream >> sz;
+
+		m_rootStream.Destroy();
+
+		if (sz > 0)
+		{
+			m_rootStream.Create(stream.GetDataCurrent(), static_cast<size_t>(sz));
+			stream.SkipBy(static_cast<size_t>(sz));
+		}
 	}
 
 	void GUIWidget::GenerateHW()
@@ -90,4 +94,23 @@ namespace Lina
 		m_hwUploadValid = false;
 	}
 
+	void GUIWidget::SetStream(const RawStream& stream, Widget* root)
+	{
+		m_rootStream.Destroy();
+		m_rootStream.Create(stream.GetRaw(), stream.GetSize());
+		HashSet<ResourceID> refs;
+		root->CollectResourceReferencesRecursive(refs);
+
+		m_references.resize(0);
+		for (ResourceID id : refs)
+			m_references.push_back(id);
+	}
+
+	HashSet<ResourceID> GUIWidget::GetResourceReferences()
+	{
+		HashSet<ResourceID> refs;
+		for (ResourceID id : m_references)
+			refs.insert(id);
+		return refs;
+	}
 } // namespace Lina

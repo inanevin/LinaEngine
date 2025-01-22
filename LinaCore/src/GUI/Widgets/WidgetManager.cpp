@@ -52,14 +52,19 @@ namespace Lina
 
 	void WidgetManager::Initialize(ResourceManagerV2* resourceManager, LinaGX::Window* window, LinaVG::Drawer* drawer)
 	{
-		m_resourceManagerV2							 = resourceManager;
-		m_lvg										 = drawer;
-		m_window									 = window;
-		m_rootWidget								 = Allocate<Widget>();
-		m_rootWidget->GetWidgetProps().debugName	 = "Root";
-		m_foregroundRoot							 = Allocate<Widget>();
-		m_foregroundRoot->GetWidgetProps().debugName = "ForegroundRoot";
-		m_defaultFont								 = resourceManager->GetResource<Font>(Theme::GetDef().defaultFont);
+		m_resourceManagerV2 = resourceManager;
+		m_lvg				= drawer;
+		m_window			= window;
+
+		if (!m_rootWidget)
+		{
+			m_rootWidget								 = Allocate<Widget>();
+			m_rootWidget->GetWidgetProps().debugName	 = "Root";
+			m_foregroundRoot							 = Allocate<Widget>();
+			m_foregroundRoot->GetWidgetProps().debugName = "ForegroundRoot";
+		}
+
+		m_defaultFont = resourceManager->GetResource<Font>(Theme::GetDef().defaultFont);
 	}
 
 	void WidgetManager::InitializeWidget(Widget* w)

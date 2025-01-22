@@ -76,6 +76,7 @@ namespace Lina
 			}
 		};
 
+		virtual void Construct() override;
 		virtual void Initialize() override;
 		virtual void CalculateSize(float dt) override;
 		virtual void Draw() override;

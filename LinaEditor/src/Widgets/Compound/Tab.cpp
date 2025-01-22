@@ -149,7 +149,7 @@ namespace Lina::Editor
 			selectionRect.color = Theme::GetDef().silent0.AsLVG4();
 
 		selectionRect.color.start.w = selectionRect.color.end.w = m_alpha;
-		m_lvg->DrawRect(m_selectionRect.pos.AsLVG(), m_selectionRect.GetEnd().AsLVG(), selectionRect, 0.0f, drawOrder);
+		m_lvg->DrawRect(m_selectionRect.pos.AsLVG(), m_selectionRect.GetEnd().AsLVG(), selectionRect, 0.0f, drawOrder + 1);
 	}
 
 	bool Tab::OnMouse(uint32 button, LinaGX::InputAction action)

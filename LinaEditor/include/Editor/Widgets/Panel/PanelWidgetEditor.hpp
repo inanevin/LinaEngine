@@ -61,10 +61,20 @@ namespace Lina::Editor
 		void Duplicate(const Vector<Widget*>& widgets);
 		void Delete(const Vector<Widget*>& widgets);
 		void Parent(const Vector<Widget*>& widgets, Widget* parent);
-		void SetStream(const RawStream& stream);
 		void RefreshBrowser();
 		void AddNew(Widget* w, Widget* parent);
 		void Rename(Widget* w, const String& name);
+		void FetchRootFromResource();
+
+		inline Widget* GetRoot() const
+		{
+			return m_root;
+		}
+
+		inline const Vector<Widget*>& GetSelection() const
+		{
+			return m_selectedWidgets;
+		}
 
 	private:
 		void RefreshResources();
@@ -75,6 +85,7 @@ namespace Lina::Editor
 		Vector<Widget*> m_selectedWidgets = {};
 		OStream			m_storedStream	  = {};
 		uint32			m_uniqueIDCounter = 0;
+		Widget*			m_root			  = nullptr;
 	};
 
 	LINA_WIDGET_BEGIN(PanelWidgetEditor, Hidden)

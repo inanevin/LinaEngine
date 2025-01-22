@@ -35,6 +35,11 @@ SOFTWARE.
 
 namespace Lina
 {
+	void Text::Construct()
+	{
+		GetWidgetProps().material = ENGINE_MATERIAL_GUI_TEXT_ID;
+	}
+
 	void Text::Initialize()
 	{
 		CalculateTextSize();
@@ -89,6 +94,7 @@ namespace Lina
 		opts.alignment		= m_props.alignment;
 		opts.wrapWidth		= m_props.wrapWidth;
 		opts.newLineSpacing = 0.0f;
+		opts.uniqueID		= m_widgetProps.material;
 
 		if (GetFlags().IsSet(WF_DISABLED))
 			opts.color = m_widgetProps.colorDisabled.AsLVG();
@@ -176,6 +182,7 @@ namespace Lina
 
 	void Text::CollectResourceReferences(HashSet<ResourceID>& out)
 	{
+		Widget::CollectResourceReferences(out);
 		out.insert(m_props.font);
 	}
 } // namespace Lina

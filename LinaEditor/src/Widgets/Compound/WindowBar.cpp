@@ -59,6 +59,8 @@ namespace Lina::Editor
 			icon->GetFlags().Set(WF_POS_ALIGN_Y);
 			icon->SetAlignedPosY(0.5f);
 			icon->SetAnchorY(Anchor::Center);
+			icon->GetProps().dynamicSizeScale	 = 0.7f;
+			icon->GetProps().dynamicSizeToParent = true;
 			AddChild(icon);
 		}
 

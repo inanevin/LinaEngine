@@ -61,15 +61,13 @@ namespace Lina
 
 	EntityWorld::~EntityWorld()
 	{
-		m_widgetManager.Shutdown();
-
 		m_entityBucket.View([this](Entity* e, uint32 index) -> bool {
 			if (e->GetParent() == nullptr)
 				DestroyEntity(e);
 			return false;
 		});
-		DestroyComponentCaches();
 
+		DestroyComponentCaches();
 		if (m_physicsWorld)
 			delete m_physicsWorld;
 		m_physicsWorld = nullptr;
@@ -79,7 +77,6 @@ namespace Lina
 	{
 		m_rm = rm;
 		m_screen.SetOwnerWindow(window);
-		m_widgetManager.Initialize(m_rm, m_screen.GetOwnerWindow(), &m_lvgDrawer);
 	}
 
 	void EntityWorld::Tick(float delta)
@@ -199,16 +196,24 @@ namespace Lina
 		outResources.insert(ENGINE_SHADER_DEFAULT_SKY_ID);
 		outResources.insert(ENGINE_SHADER_DEFAULT_OPAQUE_SURFACE_ID);
 		outResources.insert(ENGINE_SHADER_DEFAULT_TRANSPARENT_SURFACE_ID);
+		outResources.insert(ENGINE_SHADER_GUI_DEFAULT_ID);
+		outResources.insert(ENGINE_SHADER_GUI_TEXT_ID);
+		outResources.insert(ENGINE_SHADER_GUI_SDFTEXT_ID);
 		outResources.insert(ENGINE_TEXTURE_EMPTY_AO_ID);
 		outResources.insert(ENGINE_TEXTURE_EMPTY_ALBEDO_ID);
 		outResources.insert(ENGINE_TEXTURE_EMPTY_METALLIC_ROUGHNESS_ID);
 		outResources.insert(ENGINE_TEXTURE_EMPTY_NORMAL_ID);
 		outResources.insert(ENGINE_TEXTURE_EMPTY_EMISSIVE_ID);
 		outResources.insert(ENGINE_SAMPLER_DEFAULT_ID);
+		outResources.insert(ENGINE_SAMPLER_GUI_ID);
+		outResources.insert(ENGINE_SAMPLER_GUI_TEXT_ID);
 		outResources.insert(ENGINE_FONT_ROBOTO_ID);
 		outResources.insert(ENGINE_MATERIAL_DEFAULT_SKY_ID);
 		outResources.insert(ENGINE_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID);
 		outResources.insert(ENGINE_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_ID);
+		outResources.insert(ENGINE_MATERIAL_GUI_DEFAULT_ID);
+		outResources.insert(ENGINE_MATERIAL_GUI_TEXT_ID);
+		outResources.insert(ENGINE_MATERIAL_GUI_SDFTEXT_ID);
 		outResources.insert(ENGINE_PHY_MATERIAL_DEFAULT_ID);
 
 		for (const ComponentCachePair& pair : m_componentCaches)
@@ -230,7 +235,19 @@ namespace Lina
 
 		// First load whatever is requested + needed by the components.
 		if (!resources.empty())
-			allLoaded = rm.LoadResourcesFromProject(project, resources, [](uint32 loaded, Resource* current) {}, m_id, &m_widgetManager);
+			allLoaded = rm.LoadResourcesFromProject(project, resources, [](uint32 loaded, Resource* current) {}, m_id);
+
+		// Widget needs, fonts, textures and materials.
+		HashSet<ResourceID>		  widgetRequirements;
+		ResourceCache<GUIWidget>* widgetCache = rm.GetCache<GUIWidget>();
+		widgetCache->View([&widgetRequirements](GUIWidget* gw, uint32 idx) -> bool {
+			const HashSet<ResourceID> refs = gw->GetResourceReferences();
+			for (ResourceID id : refs)
+				widgetRequirements.insert(id);
+			return false;
+		});
+		HashSet<Resource*> widgetNeeds = rm.LoadResourcesFromProject(project, widgetRequirements, NULL, m_id);
+		allLoaded.insert(widgetNeeds.begin(), widgetNeeds.end());
 
 		// Load materials required by the models.
 		HashSet<ResourceID>	  modelMaterials;
@@ -261,19 +278,8 @@ namespace Lina
 			}
 			return false;
 		});
-
 		HashSet<Resource*> matNeeds = rm.LoadResourcesFromProject(project, materialDependencies, [](uint32 loaded, Resource* current) {}, m_id);
 		allLoaded.insert(matNeeds.begin(), matNeeds.end());
-
-		HashSet<ResourceID>		  widgetRequirements;
-		ResourceCache<GUIWidget>* widgetCache = rm.GetCache<GUIWidget>();
-		widgetCache->View([&widgetRequirements](GUIWidget* gw, uint32 idx) -> bool {
-			Widget* root = &gw->GetRoot();
-			root->CollectResourceReferencesRecursive(widgetRequirements);
-			return false;
-		});
-		HashSet<Resource*> widgetNeeds = rm.LoadResourcesFromProject(project, widgetRequirements, NULL, m_id, &m_widgetManager);
-		allLoaded.insert(widgetNeeds.begin(), widgetNeeds.end());
 
 		RefreshAllComponentReferences();
 		return allLoaded;

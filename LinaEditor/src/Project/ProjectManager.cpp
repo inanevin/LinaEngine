@@ -356,6 +356,18 @@ namespace Lina::Editor
 					.id	  = ENGINE_SHADER_LIGHTING_QUAD_ID,
 				},
 				{
+					.path = ENGINE_SHADER_GUI_DEFAULT_PATH,
+					.id	  = ENGINE_SHADER_GUI_DEFAULT_ID,
+				},
+				{
+					.path = ENGINE_SHADER_GUI_TEXT_PATH,
+					.id	  = ENGINE_SHADER_GUI_TEXT_ID,
+				},
+				{
+					.path = ENGINE_SHADER_GUI_SDFTEXT_PATH,
+					.id	  = ENGINE_SHADER_GUI_SDFTEXT_ID,
+				},
+				{
 					.path = ENGINE_MODEL_CUBE_PATH,
 					.id	  = ENGINE_MODEL_CUBE_ID,
 				},
@@ -442,6 +454,26 @@ namespace Lina::Editor
 					dir->userData.directoryType = static_cast<uint32>(ResourceDirectoryType::EngineResource);
 			}
 
+			// Custom sampler.
+			if (root->FindResourceDirectory(ENGINE_SAMPLER_GUI_ID) == nullptr)
+			{
+				task->progressText	   = ENGINE_SAMPLER_GUI_PATH;
+				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, ENGINE_SAMPLER_GUI_PATH, GetTypeID<TextureSampler>(), ENGINE_SAMPLER_GUI_ID);
+
+				if (dir)
+					dir->userData.directoryType = static_cast<uint32>(ResourceDirectoryType::EngineResource);
+			}
+
+			// Custom sampler.
+			if (root->FindResourceDirectory(ENGINE_SAMPLER_GUI_TEXT_ID) == nullptr)
+			{
+				task->progressText	   = ENGINE_SAMPLER_GUI_TEXT_PATH;
+				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, ENGINE_SAMPLER_GUI_TEXT_PATH, GetTypeID<TextureSampler>(), ENGINE_SAMPLER_GUI_TEXT_ID);
+
+				if (dir)
+					dir->userData.directoryType = static_cast<uint32>(ResourceDirectoryType::EngineResource);
+			}
+
 			// Custom physics material
 			if (root->FindResourceDirectory(ENGINE_PHY_MATERIAL_DEFAULT_ID) == nullptr)
 			{
@@ -476,6 +508,34 @@ namespace Lina::Editor
 			{
 				task->progressText	   = ENGINE_MATERIAL_DEFAULT_SKY_PATH;
 				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, ENGINE_MATERIAL_DEFAULT_SKY_PATH, GetTypeID<Material>(), ENGINE_MATERIAL_DEFAULT_SKY_ID, ENGINE_SHADER_DEFAULT_SKY_ID);
+
+				if (dir)
+					dir->userData.directoryType = static_cast<uint32>(ResourceDirectoryType::EngineResource);
+			}
+
+
+			if (root->FindResourceDirectory(ENGINE_MATERIAL_GUI_DEFAULT_ID) == nullptr)
+			{
+				task->progressText	   = ENGINE_MATERIAL_GUI_DEFAULT_PATH;
+				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, ENGINE_MATERIAL_GUI_DEFAULT_PATH, GetTypeID<Material>(), ENGINE_MATERIAL_GUI_DEFAULT_ID, ENGINE_SHADER_GUI_DEFAULT_ID);
+
+				if (dir)
+					dir->userData.directoryType = static_cast<uint32>(ResourceDirectoryType::EngineResource);
+			}
+
+			if (root->FindResourceDirectory(ENGINE_MATERIAL_GUI_TEXT_ID) == nullptr)
+			{
+				task->progressText	   = ENGINE_MATERIAL_GUI_TEXT_PATH;
+				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, ENGINE_MATERIAL_GUI_TEXT_PATH, GetTypeID<Material>(), ENGINE_MATERIAL_GUI_TEXT_ID, ENGINE_SHADER_GUI_TEXT_ID);
+
+				if (dir)
+					dir->userData.directoryType = static_cast<uint32>(ResourceDirectoryType::EngineResource);
+			}
+
+			if (root->FindResourceDirectory(ENGINE_MATERIAL_GUI_SDFTEXT_ID) == nullptr)
+			{
+				task->progressText	   = ENGINE_MATERIAL_GUI_SDFTEXT_PATH;
+				ResourceDirectory* dir = ResourcePipeline::SaveNewResource(m_currentProject, root, ENGINE_MATERIAL_GUI_SDFTEXT_PATH, GetTypeID<Material>(), ENGINE_MATERIAL_GUI_SDFTEXT_ID, ENGINE_SHADER_GUI_SDFTEXT_ID);
 
 				if (dir)
 					dir->userData.directoryType = static_cast<uint32>(ResourceDirectoryType::EngineResource);

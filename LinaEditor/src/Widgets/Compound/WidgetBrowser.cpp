@@ -201,7 +201,7 @@ namespace Lina::Editor
 			.title		 = w->GetWidgetProps().debugName,
 			.hasChildren = !children.empty(),
 			.margin		 = margin,
-			.unfoldValue = nullptr,
+			.unfoldValue = &w->_fold,
 			.userData	 = w,
 		};
 
