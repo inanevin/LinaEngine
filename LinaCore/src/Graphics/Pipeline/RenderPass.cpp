@@ -176,7 +176,25 @@ namespace Lina
 
 		bool scissorsWasSet = false;
 
-		for (const InstancedDraw& draw : m_gpuData.drawCalls)
+		m_usedDraws.resize(0);
+		m_sortedDraws.resize(0);
+		const Vector3 viewPos = m_view.GetPosition();
+
+		for (InstancedDraw& draw : m_gpuData.drawCalls)
+		{
+			if (!draw.sortOrder)
+				m_usedDraws.push_back(draw);
+			else
+			{
+				draw._sortDistance = draw.sortPosition.Distance(viewPos);
+				m_sortedDraws.push_back(draw);
+			}
+		}
+
+		linatl::sort(m_sortedDraws.begin(), m_sortedDraws.end(), [](const InstancedDraw& d0, const InstancedDraw& d1) -> bool { return d0._sortDistance > d1._sortDistance; });
+		m_usedDraws.insert(m_usedDraws.end(), m_sortedDraws.begin(), m_sortedDraws.end());
+
+		for (const InstancedDraw& draw : m_usedDraws)
 		{
 			checkPipeline(draw.shaderHandle);
 

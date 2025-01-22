@@ -53,6 +53,8 @@ namespace Lina
 			uint32			 baseIndex	  = 0;
 			uint32			 indexCount	  = 0;
 			Vector<Instance> instances;
+			Vector3			 sortPosition = Vector3::Zero;
+			bool			 sort		  = false;
 
 			bool operator==(const Call& other) const
 			{
@@ -119,6 +121,9 @@ namespace Lina
 					else
 						shader = rm->GetResource<Shader>(targetMaterial->GetShader());
 
+					if (targetMaterial->GetShaderType() != ShaderType::ForwardSurface && targetMaterial->GetShaderType() != ShaderType::DeferredSurface)
+						continue;
+
 					const uint32 shaderHandle = filter.useVariantOverride ? shader->GetGPUHandle(filter.staticVariantOverride) : shader->GetGPUHandle("Static"_hs);
 
 					const Instance instance = {
@@ -135,11 +140,13 @@ namespace Lina
 						.baseIndex	  = prim._indexOffset,
 						.indexCount	  = static_cast<uint32>(prim.indices.size()),
 						.instances	  = {instance},
+						.sortPosition = entity->GetPosition(),
+						.sort		  = filter.distanceSort,
 					};
 
 					auto it = linatl::find_if(calls.begin(), calls.end(), [call](const Call& other) -> bool { return other == call; });
 
-					if (it != calls.end())
+					if (it != calls.end() && !filter.distanceSort)
 						it->instances.push_back(instance);
 					else
 						calls.push_back(call);
@@ -171,6 +178,9 @@ namespace Lina
 					else
 						shader = rm->GetResource<Shader>(targetMaterial->GetShader());
 
+					if (targetMaterial->GetShaderType() != ShaderType::ForwardSurface && targetMaterial->GetShaderType() != ShaderType::DeferredSurface)
+						continue;
+
 					const uint32 shaderHandle = filter.useVariantOverride ? shader->GetGPUHandle(filter.skinnedVariantOverride) : shader->GetGPUHandle("Skinned"_hs);
 
 					const Instance instance = {
@@ -187,11 +197,13 @@ namespace Lina
 						.baseIndex	  = prim._indexOffset,
 						.indexCount	  = static_cast<uint32>(prim.indices.size()),
 						.instances	  = {instance},
+						.sortPosition = entity->GetPosition(),
+						.sort		  = filter.distanceSort,
 					};
 
 					auto it = linatl::find_if(calls.begin(), calls.end(), [call](const Call& other) -> bool { return other == call; });
 
-					if (it != calls.end())
+					if (it != calls.end() && !filter.distanceSort)
 						it->instances.push_back(instance);
 					else
 						calls.push_back(call);
@@ -252,6 +264,8 @@ namespace Lina
 				.indexCount	   = call.indexCount,
 				.instanceCount = static_cast<uint32>(call.instances.size()),
 				.pushConstant  = argsStart,
+				.sortOrder	   = call.sort,
+				.sortPosition  = call.sortPosition,
 			};
 
 			pass.AddDrawCall(draw);

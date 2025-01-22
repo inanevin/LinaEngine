@@ -764,7 +764,7 @@ namespace Lina::Editor
 			}
 		}
 
-		return false;
+		return true;
 	}
 
 	bool WorldController::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act)

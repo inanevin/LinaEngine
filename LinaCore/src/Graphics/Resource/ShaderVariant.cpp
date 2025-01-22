@@ -51,6 +51,7 @@ namespace Lina
 		stream << msaaSamples;
 		stream << vertexWrap << fragWrap << renderPass << renderPassName;
 		stream << componentFlags;
+		stream << depthMode << blendMode;
 
 		const uint32 size = static_cast<uint32>(_compileData.size());
 		stream << size;
@@ -77,6 +78,7 @@ namespace Lina
 		stream >> msaaSamples;
 		stream >> vertexWrap >> fragWrap >> renderPass >> renderPassName;
 		stream >> componentFlags;
+		stream >> depthMode >> blendMode;
 
 		uint32 size = 0;
 		stream >> size;

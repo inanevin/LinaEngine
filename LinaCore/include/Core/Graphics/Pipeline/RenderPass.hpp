@@ -75,6 +75,9 @@ namespace Lina
 			uint32									pushConstant  = 0;
 			Recti									clip		  = {};
 			bool									useScissors	  = false;
+			bool									sortOrder	  = false;
+			Vector3									sortPosition  = Vector3::Zero;
+			float									_sortDistance = 0.0f;
 		};
 
 		struct RenderingData
@@ -144,8 +147,10 @@ namespace Lina
 		View					  m_view = {};
 		PerFrameData			  m_pfd[FRAMES_IN_FLIGHT];
 		HashMap<StringID, uint32> m_bufferIndices;
-		RenderingData			  m_gpuData = {};
-		RenderingData			  m_cpuData = {};
-		Vector2ui				  m_size	= {};
+		RenderingData			  m_gpuData		= {};
+		RenderingData			  m_cpuData		= {};
+		Vector2ui				  m_size		= {};
+		Vector<InstancedDraw>	  m_usedDraws	= {};
+		Vector<InstancedDraw>	  m_sortedDraws = {};
 	};
 } // namespace Lina

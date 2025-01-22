@@ -50,15 +50,15 @@ namespace Lina
 		if (m_props.fetchWrapFromParent)
 			m_props.wrapWidth = m_parent->GetSizeX();
 
-		const bool calculate = m_calculatedFont != m_props.font || !Math::Equals(m_lastCalculatedWrapWidth, m_props.wrapWidth, 2.0f) || !Math::Equals(m_manager->GetScalingFactor(), m_calculatedUIScaling, 0.01f);
-		if (calculate)
-			CalculateTextSize();
+		// const bool calculate = m_calculatedFont != m_props.font || !Math::Equals(m_lastCalculatedWrapWidth, m_props.wrapWidth, 2.0f) || !Math::Equals(m_manager->GetScalingFactor(), m_calculatedUIScaling, 0.01f);
+		// if (calculate)
+		CalculateTextSize();
 	}
 
 	void Text::Draw()
 	{
-		if (!Math::Equals(m_manager->GetScalingFactor(), m_calculatedUIScaling, 0.01f))
-			CalculateTextSize();
+		// if (!Math::Equals(m_manager->GetScalingFactor(), m_calculatedUIScaling, 0.01f))
+		// CalculateTextSize();
 
 		if (m_props.fetchCustomClipFromParent && m_parent)
 		{
@@ -118,7 +118,7 @@ namespace Lina
 	void Text::CalculateTextSize()
 	{
 		const float uiScaling	  = m_manager->GetScalingFactor();
-		auto*		font		  = m_resourceManager->GetResource<Font>(m_props.font);
+		Font*		font		  = m_resourceManager->GetResource<Font>(m_props.font);
 		m_lvgFont				  = font->GetFont(uiScaling);
 		m_calculatedUIScaling	  = uiScaling;
 		m_lastCalculatedWrapWidth = m_props.wrapWidth;

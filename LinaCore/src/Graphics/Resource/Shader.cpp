@@ -45,10 +45,20 @@ namespace Lina
 		ClearVariantCompileData();
 	}
 
+	uint32 Shader::GetGPUHandle(DepthTesting depthMode)
+	{
+		for (ShaderVariant& variant : m_meta.variants)
+		{
+			if (variant.depthMode == depthMode)
+				return GetGPUHandle(variant.id);
+		}
+		LINA_ASSERT(false, "");
+		return 0;
+	}
+
 	bool Shader::CompileVariants()
 	{
 		bool success = true;
-
 		for (ShaderVariant& variant : m_meta.variants)
 		{
 			for (LinaGX::ShaderCompileData& data : variant._compileData)
@@ -277,6 +287,7 @@ namespace Lina
 				.debugName				 = m_name.c_str(),
 			});
 
+		
 			m_gpuHandles.push_back({variant.id, handle});
 			for (LinaGX::ShaderCompileData& data : variant._compileData)
 				delete[] data.outBlob.ptr;

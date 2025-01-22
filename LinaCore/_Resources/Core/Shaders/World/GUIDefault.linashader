@@ -29,8 +29,26 @@ SOFTWARE.
 #lina_shader_gui
 
 #lina_variant
-#name : Default
+#name : 3D
+#vertex: Resources/Core/Shaders/Common/MainVertexGUI.linashader
+#frag: Resources/Core/Shaders/Common/MainFragSimple.linashader
+#pass: Resources/Core/Shaders/Common/RenderPass_Forward.linashader
 #blend: LINA_BLEND_ALPHA
+#depth: LINA_DEPTH_LESS
+#depth_target: LINA_TARGET_D32
+#depth_bias: 0.5
+#target: LINA_TARGET_HDR
+#cull: LINA_CULL_NONE
+#face: LINA_FACE_CCW
+#lina_end
+
+#lina_variant
+#name : 2D
+#vertex: Resources/Core/Shaders/Common/MainVertexGUI.linashader
+#frag: Resources/Core/Shaders/Common/MainFragSimple.linashader
+#pass: Resources/Core/Shaders/Common/RenderPass_Forward.linashader
+#blend: LINA_BLEND_ALPHA
+#depth: LINA_DEPTH_NONE
 #depth_target: LINA_TARGET_D32
 #target: LINA_TARGET_HDR
 #cull: LINA_CULL_NONE
@@ -39,43 +57,34 @@ SOFTWARE.
 
 #lina_vs
 
-#include "Resources/Core/Shaders/Common/GlobalData.linashader"
-#include "Resources/Core/Shaders/Common/RenderPass_Forward.linashader"
-
-layout (location = 0) in vec2 pos;
-layout (location = 1) in vec2 uv;
-layout (location = 2) in vec4 col;
-
 layout (location = 0) out vec4 outCol;
 layout (location = 1) out vec2 outUV;
 layout (location = 2) flat out uint outMaterialIndex;
 
-layout( push_constant ) uniform constants
+void LINA_VERTEX_MAIN(in LinaVertexInput inVertex, out LinaVertexOutput outVertex)
 {
-	uint argument0;
-} PushConstants;
-
-void main()
-{
-   outCol = col;
-   outUV = uv;
-   outMaterialIndex = PushConstants.argument0;
-   gl_Position = LINA_VIEW.projOrtho * vec4(pos.x, pos.y, 0.0f, 1.0);
+   outCol = inVertex.col;
+   outUV = inVertex.uv;
+   outMaterialIndex = inVertex.drawArguments.argument0;
+   if(inVertex.drawArguments.argument2 == 1)
+   {
+      LinaEntity entity = LINA_GET_ENTITY(inVertex.drawArguments.argument1);
+      vec3 worldPos = vec3(entity.modelMatrix * vec4(inVertex.pos.x , inVertex.pos.y, 0.0, 1.0));
+      outVertex.clipPosition = LINA_VIEW.viewProj * vec4(worldPos, 1.0);
+   }
+   else
+   {
+      outVertex.clipPosition = LINA_VIEW.projOrtho * vec4(inVertex.pos.x, inVertex.pos.y, 0.0f, 1.0);
+   }
 }
 
 #lina_end
 
 #lina_fs
 
-#include "Resources/Core/Shaders/Common/GlobalData.linashader"
-#include "Resources/Core/Shaders/Common/RenderPass_Forward.linashader"
-
 layout (location = 0) in vec4 inCol;
 layout (location = 1) in vec2 inUV;
 layout (location = 2) flat in uint inMaterialIndex;
-
-layout (location = 0) out vec4 outFragColor;
-
 
 struct LinaMaterial
 {
@@ -84,7 +93,7 @@ struct LinaMaterial
    LinaTexture2D diffuse;
 };
 
-void main()
+void LINA_FRAG_MAIN(out LinaFragOutput outFrag)
 {
    LinaMaterial material = LINA_GET_MATERIAL(inMaterialIndex);
 
@@ -97,7 +106,7 @@ void main()
       color *= sampledTexture;
    }
 
-   outFragColor = color;
+   outFrag.color = color;
 }
 
 

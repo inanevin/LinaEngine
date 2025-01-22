@@ -71,8 +71,8 @@ namespace Lina
 	class SemaphoreData
 	{
 	public:
-		SemaphoreData(){};
-		SemaphoreData(uint16 semaphore) : m_semaphore(semaphore){};
+		SemaphoreData() {};
+		SemaphoreData(uint16 semaphore) : m_semaphore(semaphore) {};
 
 		inline uint64* GetValuePtr()
 		{
@@ -142,6 +142,7 @@ namespace Lina
 		DeferredSurface,
 		ForwardSurface,
 		Sky,
+		GUI,
 		Custom,
 	};
 

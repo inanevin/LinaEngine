@@ -46,12 +46,12 @@ namespace Lina
 
 		virtual void SaveToStream(OStream& stream) const
 		{
-			stream << m_widget << m_is2D << m_size3D;
+			stream << m_widget << m_is3D << m_size3D;
 		}
 
 		virtual void LoadFromStream(IStream& stream)
 		{
-			stream >> m_widget >> m_is2D >> m_size3D;
+			stream >> m_widget >> m_is3D >> m_size3D;
 		}
 
 		inline void SetWidget(ResourceID id)
@@ -74,11 +74,21 @@ namespace Lina
 			return m_widgetManager;
 		}
 
+		inline bool GetIs3D() const
+		{
+			return m_is3D;
+		}
+
+		inline const Vector2& GetSize3D() const
+		{
+			return m_size3D;
+		}
+
 	private:
 		LINA_REFLECTION_ACCESS(CompWidget);
 		ResourceID m_widget = 0;
 
-		bool		  m_is2D		  = true;
+		bool		  m_is3D		  = true;
 		Vector2		  m_size3D		  = Vector2(10, 10);
 		GUIWidget*	  m_widgetPtr	  = nullptr;
 		WidgetManager m_widgetManager = {};
@@ -86,9 +96,9 @@ namespace Lina
 
 	LINA_COMPONENT_BEGIN(CompWidget, "Graphics")
 	LINA_FIELD(CompWidget, m_widget, "Widget", FieldType::ResourceID, GetTypeID<GUIWidget>())
-	LINA_FIELD(CompWidget, m_is2D, "Is 2D", FieldType::Boolean, 0)
+	LINA_FIELD(CompWidget, m_is3D, "Is 3D", FieldType::Boolean, 0)
 	LINA_FIELD(CompWidget, m_size3D, "3D Size", FieldType::Vector2, 0)
-	LINA_FIELD_DEPENDENCY_OP(CompWidget, m_size3D, "m_is2D", "0", "eq")
+	LINA_FIELD_DEPENDENCY_OP(CompWidget, m_size3D, "m_is3D", "1", "eq")
 	LINA_CLASS_END(CompWidget)
 
 } // namespace Lina

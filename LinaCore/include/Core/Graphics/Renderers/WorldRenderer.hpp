@@ -55,6 +55,7 @@ namespace Lina
 	class WorldRenderer;
 	class WorldRendererListener;
 	class EntityWorld;
+	class Entity;
 	class Screen;
 	class GfxContext;
 	class PhysicsDebugRenderer;
@@ -287,6 +288,8 @@ namespace Lina
 		uint32			 m_currentLvgStartVertex = 0;
 		uint32			 m_currentLvgStartIndex	 = 0;
 		Vector<LineData> m_debugLines;
+		Entity*			 m_currentLVGDrawEntity = nullptr;
+		bool			 m_currentLVGDraw3D		= false;
 	};
 
 } // namespace Lina

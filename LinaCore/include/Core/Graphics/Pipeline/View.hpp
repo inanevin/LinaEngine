@@ -45,8 +45,19 @@ namespace Lina
 			m_view = view;
 		}
 
+		inline const Vector3& GetPosition() const
+		{
+			return m_position;
+		}
+
+		inline void SetPosition(const Vector3& v)
+		{
+			m_position = v;
+		}
+
 	private:
-		Matrix4 m_view = Matrix4::Identity();
+		Vector3 m_position = Vector3::Zero;
+		Matrix4 m_view	   = Matrix4::Identity();
 		// HashSet<EntityID> m_visibleEntities;
 	};
 } // namespace Lina

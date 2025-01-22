@@ -435,6 +435,7 @@ namespace Lina
 
 	void ShaderPreprocessor::ApplyBlending(ShaderVariant& variant, BlendMode blendMode)
 	{
+		variant.blendMode = blendMode;
 		switch (blendMode)
 		{
 		case BlendMode::Opaque:
@@ -465,6 +466,8 @@ namespace Lina
 
 	void ShaderPreprocessor::ApplyDepth(ShaderVariant& variant, DepthTesting depth)
 	{
+		variant.depthMode = depth;
+
 		switch (depth)
 		{
 		case DepthTesting::None:
@@ -501,6 +504,9 @@ namespace Lina
 
 		if (str.find("#lina_shader_forward") != String::npos)
 			return ShaderType::ForwardSurface;
+
+		if (str.find("#lina_shader_gui") != String::npos)
+			return ShaderType::GUI;
 
 		return ShaderType::Custom;
 	}
@@ -677,6 +683,14 @@ namespace Lina
 				{
 					bool isMSAA			= false;
 					variant.depthFormat = GetTargetFromStr(lineValue, isMSAA);
+				}
+				else if (line.find("#depth_bias") != String::npos)
+				{
+					uint32 outDecimals		  = 0;
+					float  bias				  = UtilStr::StringToFloat(lineValue, outDecimals);
+					variant.depthBiasEnable	  = true;
+					variant.depthBiasConstant = bias;
+					variant.depthBiasClamp	  = bias * 2;
 				}
 				else if (line.find("#depth") != String::npos)
 				{

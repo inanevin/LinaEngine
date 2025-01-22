@@ -1,11 +1,11 @@
 /*
-This file is a part of: Lina Engine
-https://github.com/inanevin/LinaEngine
+This file is a part of: LinaGX
+https://github.com/inanevin/LinaGX
 
 Author: Inan Evin
 http://www.inanevin.com
 
-Copyright (c) [2018-] [Inan Evin]
+Copyright (c) [2023-] [Inan Evin]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,36 +26,46 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#lina_vs
 
-#include "Core/Graphics/Data/RenderData.hpp"
-#include "Core/Graphics/CommonGraphics.hpp"
+layout (location = 0) in vec2 pos;
+layout (location = 1) in vec2 uv;
+layout (location = 2) in vec4 col;
 
-namespace Lina
+struct LinaVertexInput
 {
-	class CompModel;
-	class ResourceManagerV2;
-	class RenderPass;
-	class WorldRenderer;
-	class GfxContext;
+   vec2 pos;
+   vec2 uv;
+   vec4 col;
+   DrawArguments drawArguments;
+};
 
-	class DrawCollector
-	{
-	public:
-		struct CollectionFilter
-		{
-			bool	   distanceSort			  = false;
-			bool	   useShaderOverride	  = false;
-			bool	   useVariantOverride	  = false;
-			bool	   useMaterialOverride	  = false;
-			ResourceID shaderOverride		  = 0;
-			ResourceID materialOverride		  = 0;
-			StringID   staticVariantOverride  = 0;
-			StringID   skinnedVariantOverride = 0;
+struct LinaVertexOutput
+{
+   vec4 clipPosition;
+};
 
-			Vector<ShaderType> allowedShaderTypes = {};
-		};
+layout( push_constant ) uniform constants
+{
+	uint value0;
+} PushConstants;
 
-		static void CollectCompModels(const Vector<CompModel*>& components, RenderPass& pass, ResourceManagerV2* rm, WorldRenderer* renderer, GfxContext* gfxContext, const CollectionFilter& filter);
-	};
-} // namespace Lina
+//##user_shader_injected_here
+
+void main()
+{
+    DrawArguments drawArguments = LINA_DRAW_ARGUMENTS.data[PushConstants.value0 + gl_InstanceIndex];
+
+    LinaVertexInput vertexInput;
+    vertexInput.pos = pos;
+    vertexInput.uv =  uv;
+    vertexInput.col = col;
+    vertexInput.drawArguments = drawArguments;
+
+    LinaVertexOutput vertexOutput;
+    LINA_VERTEX_MAIN(vertexInput, vertexOutput);
+
+   gl_Position = vertexOutput.clipPosition;
+}
+
+#lina_end

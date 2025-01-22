@@ -435,6 +435,18 @@ namespace Lina
 			}
 		}
 
+		const GPUDrawArguments args = {
+			.constant0 = mat->GetBindlessIndex(),
+			.constant1 = PushEntity(
+				{
+					.model = m_currentLVGDrawEntity->GetTransform().GetMatrix(),
+				},
+				{
+					.entityGUID = m_currentLVGDrawEntity->GetGUID(),
+				}),
+			.constant2 = m_currentLVGDraw3D ? (uint32)1 : 0,
+		};
+
 		RenderPass::InstancedDraw drawCall = {
 			.vertexBuffers =
 				{
@@ -447,22 +459,24 @@ namespace Lina
 					&m_pfd[1].lvgIdxBuffer,
 				},
 			.vertexSize	   = sizeof(LinaVG::Vertex),
-			.shaderHandle  = shader->GetGPUHandle(),
+			.shaderHandle  = m_currentLVGDraw3D ? shader->GetGPUHandle() : shader->GetGPUHandle(DepthTesting::None),
 			.baseVertex	   = static_cast<uint32>(m_cpuDrawData.lvgVertices.size()),
 			.vertexCount   = vtxCount,
 			.baseIndex	   = static_cast<uint32>(m_cpuDrawData.lvgIndices.size()),
 			.indexCount	   = idxCount,
 			.instanceCount = 1,
 			.baseInstance  = 0,
-			.pushConstant  = mat->GetBindlessIndex(),
+			.pushConstant  = PushArgument(args),
 			.clip		   = Recti(buf->clip.x, buf->clip.y, buf->clip.z, buf->clip.w),
 			.useScissors   = true,
+			.sortOrder	   = m_currentLVGDraw3D,
+			.sortPosition  = m_currentLVGDrawEntity->GetPosition(),
 		};
 
 		m_forwardPass.AddDrawCall(drawCall);
 		m_cpuDrawData.lvgVertices.insert(m_cpuDrawData.lvgVertices.end(), buf->vertexBuffer.m_data, buf->vertexBuffer.m_data + vtxCount);
 		m_cpuDrawData.lvgIndices.insert(m_cpuDrawData.lvgIndices.end(), buf->indexBuffer.m_data, buf->indexBuffer.m_data + idxCount);
-	}
+	} // namespace Lina
 
 	void WorldRenderer::Resize(const Vector2ui& newSize)
 	{
@@ -483,8 +497,9 @@ namespace Lina
 			const Camera& camera = m_world->GetWorldCamera();
 			View		  cameraView;
 			m_forwardPass.GetView().SetView(camera.GetView());
+			m_forwardPass.GetView().SetPosition(camera.GetPosition());
 			m_deferredPass.GetView().SetView(camera.GetView());
-			m_forwardPass.GetView().SetView(camera.GetView());
+			m_deferredPass.GetView().SetPosition(camera.GetPosition());
 		}
 
 		m_compModels.resize(0);
@@ -627,7 +642,7 @@ namespace Lina
 		}
 #endif
 
-		DrawCollector::CollectCompModels(m_compModels, m_forwardPass, m_resourceManagerV2, this, m_gfxContext, {.allowedShaderTypes = {ShaderType::ForwardSurface}});
+		DrawCollector::CollectCompModels(m_compModels, m_forwardPass, m_resourceManagerV2, this, m_gfxContext, {.distanceSort = true, .allowedShaderTypes = {ShaderType::ForwardSurface}});
 
 		m_compWidgets.resize(0);
 		m_world->GetCache<CompWidget>()->GetBucket().View([&](CompWidget* w, uint32 idx) -> bool {
@@ -646,9 +661,13 @@ namespace Lina
 			if (!guiWidget)
 				continue;
 
+			m_currentLVGDrawEntity = w->GetEntity();
+			m_currentLVGDraw3D	   = w->GetIs3D();
+			const Vector2ui sz3D   = w->GetSize3D();
+
 			WidgetManager& manager = w->GetWidgetManager();
 			manager.PreTick();
-			manager.Tick(delta, m_size);
+			manager.Tick(delta, m_currentLVGDraw3D ? sz3D : m_size);
 			manager.Draw();
 			drawer.FlushBuffers();
 			drawer.ResetFrame();

@@ -79,6 +79,7 @@ namespace Lina
 			if (m_isHovered && m_props.value)
 			{
 				*m_props.value = !*m_props.value;
+				PropagateCBOnEditStarted();
 				PropagateCBOnEdited();
 				PropagateCBOnEditEnded();
 			}
@@ -104,6 +105,7 @@ namespace Lina
 			if (m_props.value)
 			{
 				*m_props.value = !*m_props.value;
+				PropagateCBOnEditStarted();
 				PropagateCBOnEdited();
 				PropagateCBOnEditEnded();
 			}

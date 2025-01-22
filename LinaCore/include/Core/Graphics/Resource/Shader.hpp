@@ -72,7 +72,7 @@ namespace Lina
 	public:
 		static constexpr uint32 VERSION = 0;
 
-		Shader(ResourceID id, const String& name) : Resource(id, GetTypeID<Shader>(), name){};
+		Shader(ResourceID id, const String& name) : Resource(id, GetTypeID<Shader>(), name) {};
 		virtual ~Shader();
 
 		virtual bool LoadFromFile(const String& path) override;
@@ -84,6 +84,7 @@ namespace Lina
 		{
 			m_meta.LoadFromStream(stream);
 		}
+		uint32 GetGPUHandle(DepthTesting depthMode);
 
 		bool CompileVariants();
 
