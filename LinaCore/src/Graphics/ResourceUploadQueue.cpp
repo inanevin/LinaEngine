@@ -52,11 +52,14 @@ namespace Lina
 
 	void ResourceUploadQueue::AddTextureRequest(Texture* txt)
 	{
-		// No duplicates allowed
-		for (const auto& req : m_textureRequests)
+		// No duplicates allowed, override if existing
+		auto it = linatl::find_if(m_textureRequests.begin(), m_textureRequests.end(), [txt](const TextureUploadRequest& req) -> bool { return req.txt == txt; });
+		if (it != m_textureRequests.end())
 		{
-			if (req.txt == txt)
-				return;
+			for (LinaGX::TextureBuffer& buf : it->buffers)
+				delete[] buf.pixels;
+			it->buffers.clear();
+			m_textureRequests.erase(it);
 		}
 
 		TextureUploadRequest req;
