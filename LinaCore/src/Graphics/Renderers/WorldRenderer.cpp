@@ -631,7 +631,7 @@ namespace Lina
 		}
 
 #ifdef JPH_DEBUG_RENDERER
-		if (m_physicsDebugRenderer)
+		if (m_physicsDebugRenderer && m_drawPhysics)
 		{
 			JPH::BodyManager::DrawSettings ds = {};
 			ds.mDrawShape					  = true;

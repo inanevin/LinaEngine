@@ -49,6 +49,7 @@ SOFTWARE.
 #include "Common/Serialization/Serialization.hpp"
 #include "Core/Application.hpp"
 #include "Core/Physics/PhysicsWorld.hpp"
+#include "Core/World/EntityTemplate.hpp"
 
 namespace Lina
 {
@@ -73,9 +74,10 @@ namespace Lina
 		m_physicsWorld = nullptr;
 	}
 
-	void EntityWorld::Initialize(ResourceManagerV2* rm, LinaGX::Window* window)
+	void EntityWorld::Initialize(ResourceManagerV2* rm, LinaGX::Window* window, ProjectData* projectData)
 	{
-		m_rm = rm;
+		m_projectData = projectData;
+		m_rm		  = rm;
 		m_screen.SetOwnerWindow(window);
 
 		m_entityBucket.View([this, rm](Entity* e, uint32 idx) -> bool {
@@ -190,6 +192,13 @@ namespace Lina
 
 		m_entityBucket.View([&](Entity* e, uint32 idx) -> bool {
 			outResources.insert(e->GetPhysicsSettings().material);
+
+			const EntityParameters& params = e->GetParams();
+			for (const EntityParameter& p : params.params)
+			{
+				if (p.type == EntityParameterType::ResourceID)
+					outResources.insert(p.valRes);
+			}
 			return false;
 		});
 
@@ -327,6 +336,18 @@ namespace Lina
 		});
 
 		return entity;
+	}
+
+	Entity* EntityWorld::SpawnTemplate(EntityTemplate* tmp)
+	{
+		Vector<Entity*> ents = tmp->CreateFromStream(this);
+		WorldUtility::FixEntityIDsToNew(this, ents);
+		LoadMissingResources(*m_rm, m_projectData, {});
+
+		if (ents.empty())
+			return nullptr;
+
+		return ents.at(0);
 	}
 
 	void EntityWorld::GetComponents(Entity* e, Vector<Component*>& outComponents) const

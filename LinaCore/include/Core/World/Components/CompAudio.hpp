@@ -50,12 +50,12 @@ namespace Lina
 
 		virtual void SaveToStream(OStream& stream) const
 		{
-			stream << m_audio << m_is3D << m_isLooping << m_pitch << m_gain;
+			stream << m_audio << m_is3D << m_isLooping << m_pitch << m_gain << m_playOnBegin;
 		}
 
 		virtual void LoadFromStream(IStream& stream)
 		{
-			stream >> m_audio >> m_is3D >> m_isLooping >> m_pitch >> m_gain;
+			stream >> m_audio >> m_is3D >> m_isLooping >> m_pitch >> m_gain >> m_playOnBegin;
 		}
 
 		inline void SetAudio(ResourceID id)
@@ -85,10 +85,11 @@ namespace Lina
 		LINA_REFLECTION_ACCESS(CompAudio);
 		ResourceID m_audio = 0;
 
-		bool  m_is3D	  = true;
-		bool  m_isLooping = false;
-		float m_pitch	  = 1.0f;
-		float m_gain	  = 1.0f;
+		bool  m_playOnBegin = true;
+		bool  m_is3D		= true;
+		bool  m_isLooping	= false;
+		float m_pitch		= 1.0f;
+		float m_gain		= 1.0f;
 
 		Audio* m_audioPtr = nullptr;
 
@@ -98,6 +99,7 @@ namespace Lina
 
 	LINA_COMPONENT_BEGIN(CompAudio, "Audio")
 	LINA_FIELD(CompAudio, m_audio, "Widget", FieldType::ResourceID, GetTypeID<Audio>())
+	LINA_FIELD(CompAudio, m_playOnBegin, "Widget", FieldType::Boolean, GetTypeID<Audio>())
 	LINA_FIELD(CompAudio, m_is3D, "Is 3D", FieldType::Boolean, 0)
 	LINA_FIELD(CompAudio, m_isLooping, "Loop", FieldType::Boolean, 0)
 	LINA_FIELD(CompAudio, m_pitch, "Pitch", FieldType::Float, 0)

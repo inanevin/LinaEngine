@@ -51,6 +51,8 @@ namespace Lina
 	class ResourceManagerV2;
 	class PhysicsWorld;
 	class WorldRenderer;
+	class EntityTemplate;
+	class ProjectData;
 
 	class EntityWorld : public Resource
 	{
@@ -66,7 +68,7 @@ namespace Lina
 		EntityWorld(ResourceID id, const String& name);
 		~EntityWorld();
 
-		void Initialize(ResourceManagerV2* rm, LinaGX::Window* window);
+		void Initialize(ResourceManagerV2* rm, LinaGX::Window* window, ProjectData* projectData);
 		void Tick(float delta);
 		void SetPlayMode(PlayMode playmode);
 
@@ -82,6 +84,7 @@ namespace Lina
 		Entity* GetEntity(EntityID guid);
 		void	DestroyEntity(Entity* e);
 		Entity* FindEntity(const String& name);
+		Entity* SpawnTemplate(EntityTemplate* tmp);
 
 		// Components
 		void	   GetComponents(Entity* e, Vector<Component*>& outComponents) const;
@@ -285,6 +288,7 @@ namespace Lina
 		WorldPhysicsSettings m_physicsSettings = {};
 		WorldRenderer*		 m_worldRenderer   = nullptr;
 		LinaVG::Drawer		 m_lvgDrawer	   = {};
+		ProjectData*		 m_projectData	   = nullptr;
 	};
 
 	LINA_RESOURCE_BEGIN(EntityWorld)

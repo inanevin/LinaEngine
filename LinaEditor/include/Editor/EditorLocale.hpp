@@ -152,6 +152,7 @@ namespace Lina::Editor
 		Working,
 		WorkInProgressInAnotherWindow,
 		LoadingProjectData,
+		CopyingGameProjectFiles,
 		VerifyingProjectResources,
 		CreatingCoreResources,
 		Saving,

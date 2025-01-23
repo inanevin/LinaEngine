@@ -49,7 +49,8 @@ namespace Lina
 
 	void CompAudio::BeginPlay()
 	{
-		Play();
+		if (m_playOnBegin)
+			Play();
 	}
 
 	void CompAudio::CollectReferences(HashSet<ResourceID>& refs)

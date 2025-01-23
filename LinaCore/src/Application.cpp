@@ -229,7 +229,7 @@ namespace Lina
 	{
 		m_resourceManager.LoadResourcesFromProject(project, {id}, {}, id);
 		EntityWorld* world = m_resourceManager.GetResource<EntityWorld>(id);
-		world->Initialize(&m_resourceManager, window);
+		world->Initialize(&m_resourceManager, window, project);
 		world->LoadMissingResources(m_resourceManager, project, {});
 		WorldRenderer* wr = new WorldRenderer(&m_gfxContext, &m_resourceManager, world, window->GetSize(), world->GetName());
 		m_appDelegate->OnWorldLoaded(wr);

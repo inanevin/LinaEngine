@@ -247,6 +247,11 @@ namespace Lina
 			return m_shapeRenderer;
 		}
 
+		inline void SetDrawPhysics(bool df)
+		{
+			m_drawPhysics = true;
+		}
+
 	private:
 		void CalculateSkinning(const Vector<CompModel*>& comps);
 
@@ -290,6 +295,7 @@ namespace Lina
 		Vector<LineData> m_debugLines;
 		Entity*			 m_currentLVGDrawEntity = nullptr;
 		bool			 m_currentLVGDraw3D		= false;
+		bool			 m_drawPhysics			= false;
 	};
 
 } // namespace Lina

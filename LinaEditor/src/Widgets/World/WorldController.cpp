@@ -968,6 +968,7 @@ namespace Lina::Editor
 		m_editor->SetIsPlaying(true);
 		m_world->SetPlayMode(m_playMode);
 		m_ewr->SetRenderEnabled(false);
+		m_worldRenderer->SetDrawPhysics(mode == PlayMode::Physics);
 
 		Plugin* gp = m_editor->GetProjectManager().GetGamePlugin();
 		if (gp)

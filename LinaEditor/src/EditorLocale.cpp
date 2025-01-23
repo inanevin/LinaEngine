@@ -149,6 +149,7 @@ namespace Lina::Editor
 		{LocaleStr::Working, "Working"},
 		{LocaleStr::WorkInProgressInAnotherWindow, "Work in progress in another window."},
 		{LocaleStr::LoadingProjectData, "Loading project data..."},
+		{LocaleStr::CopyingGameProjectFiles, "Copying game project files..."},
 		{LocaleStr::VerifyingProjectResources, "Verifying project resources..."},
 		{LocaleStr::CreatingCoreResources, "Creating core resources..."},
 		{LocaleStr::Saving, "Saving..."},
