@@ -113,7 +113,7 @@ namespace Lina::Editor
 		float wheel = m_wheelActive ? input.GetMouseScroll() : 0.0f;
 
 #ifdef LINA_PLATFORM_APPLE
-		wheel *= 0.01f;
+		// wheel *= 0.01f;
 #endif
 		m_targetDistance -= wheel * delta * 120.0f;
 		m_targetDistance = Math::Clamp(m_targetDistance, m_orbitProps.minDistance, m_orbitProps.maxDistance);

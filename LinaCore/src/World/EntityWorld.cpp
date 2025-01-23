@@ -180,15 +180,39 @@ namespace Lina
 
 	void EntityWorld::CollectResourceNeeds(HashSet<ResourceID>& outResources) const
 	{
+		outResources.insert(ENGINE_MODEL_CUBE_ID);
+		outResources.insert(ENGINE_MODEL_SPHERE_ID);
+		outResources.insert(ENGINE_MODEL_CYLINDER_ID);
+		outResources.insert(ENGINE_MODEL_CAPSULE_ID);
+		outResources.insert(ENGINE_MODEL_PLANE_ID);
+		outResources.insert(ENGINE_MODEL_QUAD_ID);
+		outResources.insert(ENGINE_MODEL_SKYSPHERE_ID);
+		outResources.insert(ENGINE_MODEL_SKYCUBE_ID);
 		outResources.insert(ENGINE_SHADER_LIGHTING_QUAD_ID);
 		outResources.insert(ENGINE_SHADER_WORLD_DEBUG_LINE_ID);
 		outResources.insert(ENGINE_SHADER_WORLD_DEBUG_TRIANGLE_ID);
-		outResources.insert(ENGINE_SHADER_SWAPCHAIN_ID);
+		outResources.insert(ENGINE_SHADER_DEFAULT_SKY_ID);
+		outResources.insert(ENGINE_SHADER_DEFAULT_OPAQUE_SURFACE_ID);
+		outResources.insert(ENGINE_SHADER_DEFAULT_TRANSPARENT_SURFACE_ID);
+		outResources.insert(ENGINE_SHADER_GUI_DEFAULT_ID);
+		outResources.insert(ENGINE_SHADER_GUI_TEXT_ID);
+		outResources.insert(ENGINE_SHADER_GUI_SDFTEXT_ID);
+		outResources.insert(ENGINE_TEXTURE_EMPTY_AO_ID);
+		outResources.insert(ENGINE_TEXTURE_EMPTY_ALBEDO_ID);
+		outResources.insert(ENGINE_TEXTURE_EMPTY_METALLIC_ROUGHNESS_ID);
+		outResources.insert(ENGINE_TEXTURE_EMPTY_NORMAL_ID);
+		outResources.insert(ENGINE_TEXTURE_EMPTY_EMISSIVE_ID);
 		outResources.insert(ENGINE_SAMPLER_DEFAULT_ID);
 		outResources.insert(ENGINE_SAMPLER_GUI_ID);
 		outResources.insert(ENGINE_SAMPLER_GUI_TEXT_ID);
 		outResources.insert(ENGINE_FONT_ROBOTO_ID);
-		outResources.insert(ENGINE_MODEL_QUAD_ID);
+		outResources.insert(ENGINE_MATERIAL_DEFAULT_SKY_ID);
+		outResources.insert(ENGINE_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID);
+		outResources.insert(ENGINE_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_ID);
+		outResources.insert(ENGINE_MATERIAL_GUI_DEFAULT_ID);
+		outResources.insert(ENGINE_MATERIAL_GUI_TEXT_ID);
+		outResources.insert(ENGINE_MATERIAL_GUI_SDFTEXT_ID);
+		outResources.insert(ENGINE_PHY_MATERIAL_DEFAULT_ID);
 
 		m_entityBucket.View([&](Entity* e, uint32 idx) -> bool {
 			outResources.insert(e->GetPhysicsSettings().material);
@@ -221,7 +245,8 @@ namespace Lina
 
 		// First load whatever is requested + needed by the components.
 		if (!resources.empty())
-			allLoaded = rm.LoadResourcesFromProject(project, resources, [](uint32 loaded, Resource* current) {}, m_id);
+			allLoaded = rm.LoadResourcesFromProject(
+				project, resources, [](uint32 loaded, Resource* current) {}, m_id);
 
 		// Widget needs, fonts, textures and materials.
 		HashSet<ResourceID>		  widgetRequirements;
@@ -244,7 +269,8 @@ namespace Lina
 
 			return false;
 		});
-		HashSet<Resource*> modelNeeds = rm.LoadResourcesFromProject(project, modelMaterials, [](uint32 loaded, Resource* current) {}, m_id);
+		HashSet<Resource*> modelNeeds = rm.LoadResourcesFromProject(
+			project, modelMaterials, [](uint32 loaded, Resource* current) {}, m_id);
 		allLoaded.insert(modelNeeds.begin(), modelNeeds.end());
 
 		// Load shaders, textures and samplers required by the materials.
@@ -264,7 +290,8 @@ namespace Lina
 			}
 			return false;
 		});
-		HashSet<Resource*> matNeeds = rm.LoadResourcesFromProject(project, materialDependencies, [](uint32 loaded, Resource* current) {}, m_id);
+		HashSet<Resource*> matNeeds = rm.LoadResourcesFromProject(
+			project, materialDependencies, [](uint32 loaded, Resource* current) {}, m_id);
 		allLoaded.insert(matNeeds.begin(), matNeeds.end());
 
 		for (Resource* res : allLoaded)
