@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Core/World/Camera.hpp"
 #include "Common/Math/Math.hpp"
+#include <AL/al.h>
 
 namespace Lina
 {
@@ -79,5 +80,10 @@ namespace Lina
 
 		m_viewProj	  = m_projection * m_view;
 		m_viewProjInv = m_viewProj.Inverse();
+
+		const Vector3 fw			= m_worldRotation.GetForward();
+		ALfloat		  listenerOri[] = {fw.x, fw.y, fw.z, 0.0f, 1.0f, 0.0f};
+		alListener3f(AL_POSITION, m_worldPosition.x, m_worldPosition.y, m_worldPosition.z);
+		alListenerfv(AL_ORIENTATION, listenerOri);
 	}
 } // namespace Lina

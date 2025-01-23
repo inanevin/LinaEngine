@@ -92,22 +92,44 @@ namespace Lina
 			AL_CHECK_ERR(err);
 		}
 
-		// alListener3f(AL_POSITION, m_entity->GetPosition().x, m_entity->GetPosition().y, m_entity->GetPosition().z);
+		SetupProperties();
 
-		alSourcef(m_alSource, AL_PITCH, m_pitch);
-		AL_CHECK_ERR(err);
-
-		alSourcef(m_alSource, AL_GAIN, m_gain);
-		alSource3f(m_alSource, AL_POSITION, 0, 0, 0);
-		// alSource3f(m_alSource, AL_VELOCITY, 0, 0, 0);
-		alSourcei(m_alSource, AL_LOOPING, (ALint)m_isLooping);
 		alSourcePlay(m_alSource);
 		AL_CHECK_ERR(err);
-
 	}
 
 	void CompAudio::Stop()
 	{
+		alSourcePause(m_alSource);
+	}
+
+	void CompAudio::Pause()
+	{
+		alSourcePause(m_alSource);
+	}
+
+	void CompAudio::Rewind()
+	{
+		alSourceRewind(m_alSource);
+	}
+
+	void CompAudio::SetupProperties()
+	{
+		if (m_is3D)
+			alListener3f(AL_POSITION, m_entity->GetPosition().x, m_entity->GetPosition().y, m_entity->GetPosition().z);
+		else
+		{
+			const Vector3& camPos = m_world->GetWorldCamera().GetPosition();
+			alSource3f(m_alSource, AL_POSITION, camPos.x, camPos.y, camPos.z);
+		}
+		int err = 0;
+
+		alSourcef(m_alSource, AL_PITCH, m_pitch);
+		AL_CHECK_ERR(err);
+		alSourcef(m_alSource, AL_GAIN, m_gain);
+		AL_CHECK_ERR(err);
+		alSourcei(m_alSource, AL_LOOPING, (ALint)m_isLooping);
+		AL_CHECK_ERR(err);
 	}
 
 } // namespace Lina

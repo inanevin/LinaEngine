@@ -45,6 +45,8 @@ namespace Lina
 
 		void Play();
 		void Stop();
+		void Pause();
+		void Rewind();
 
 		virtual void SaveToStream(OStream& stream) const
 		{
@@ -75,6 +77,9 @@ namespace Lina
 		{
 			return m_is3D;
 		}
+
+	private:
+		void SetupProperties();
 
 	private:
 		LINA_REFLECTION_ACCESS(CompAudio);
