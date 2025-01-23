@@ -243,7 +243,7 @@ namespace Lina
 
 			if (!success)
 			{
-				LINA_ERR("Failed compiling shader form SPV!");
+				LINA_ERR("Failed compiling shader from SPV!");
 				continue;
 			}
 

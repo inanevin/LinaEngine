@@ -244,7 +244,7 @@ namespace Lina
 #endif
 
 #ifdef LINA_PLATFORM_APPLE
-		const String path = "GamePlugin.dylib";
+		const String path = "libGamePlugin.dylib";
 #endif
 
 		if (!FileSystem::FileOrPathExists(path))
