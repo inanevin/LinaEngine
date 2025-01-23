@@ -58,10 +58,11 @@ namespace Lina
 
 		for (const LinaGX::ShaderCompileData& data : _compileData)
 		{
+			const uint32 bsz = static_cast<uint32>(data.outBlob.size);
 			stream << data.stage;
 			stream << data.text;
 			stream << data.includePath;
-			stream << static_cast<uint32>(data.outBlob.size);
+			stream << bsz;
 			stream.WriteRaw(data.outBlob.ptr, data.outBlob.size);
 		}
 		SaveLinaGXShaderLayout(stream, _outLayout);

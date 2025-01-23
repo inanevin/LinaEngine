@@ -148,7 +148,7 @@ namespace Lina
 			bool  active = false;
 			stream >> stg;
 			stream >> active;
-			block.isActive.push_back(linatl::make_pair(static_cast<LinaGX::ShaderStage>(stg), false));
+			block.isActive.push_back(linatl::make_pair(static_cast<LinaGX::ShaderStage>(stg), active));
 		}
 	}
 

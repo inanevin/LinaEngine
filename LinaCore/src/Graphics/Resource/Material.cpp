@@ -180,6 +180,7 @@ namespace Lina
 
 	void Material::BufferDataInto(Buffer& buf, size_t padding, ResourceManagerV2* rm, GfxContext* context)
 	{
+
 		for (MaterialProperty* prop : m_properties)
 		{
 			if (prop->propDef.type == ShaderPropertyType::Texture2D)
@@ -193,14 +194,14 @@ namespace Lina
 				// 	texture = rm->GetIfExists<Texture>(ENGINE_TEXTURE_EMPTY_ALBEDO_ID);
 				// if (!sampler)
 				// 	sampler = rm->GetIfExists<TextureSampler>(ENGINE_SAMPLER_DEFAULT_ID);
-				// LINA_ASSERT(texture != nullptr && sampler != nullptr, "");
+				LINA_ASSERT(texture != nullptr && sampler != nullptr, "");
 
 				LinaTexture2DBinding binding = {
-					.textureIndex = texture ? texture->GetBindlessIndex() : 9,
+					.textureIndex = texture ? texture->GetBindlessIndex() : 0,
 					.samplerIndex = sampler ? sampler->GetBindlessIndex() : 0,
 				};
 
-				buf.BufferData(padding, (uint8*)&binding, sizeof(LinaTexture2D));
+				buf.BufferData(padding, (uint8*)&binding, sizeof(LinaTexture2DBinding));
 				padding += sizeof(LinaTexture2DBinding);
 			}
 			else

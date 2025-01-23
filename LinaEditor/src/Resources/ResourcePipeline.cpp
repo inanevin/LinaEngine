@@ -266,11 +266,11 @@ namespace Lina::Editor
 			auto loadDefault = [&]() {
 				MetaType* meta = ReflectionSystem::Get().Resolve(resourceTID);
 				Resource* res  = static_cast<Resource*>(meta->GetFunction<void*()>("Allocate"_hs)());
+				res->SetName(name);
+				res->SetPath(def.path);
 				if (res->LoadFromFile(def.path))
 				{
-					res->SetName(name);
 					res->SetID(def.id == 0 ? projectData->ConsumeResourceID() : def.id);
-					res->SetPath(def.path);
 					res->SaveToFileAsBinary(projectData->GetResourcePath(res->GetID()));
 					createDirectory(res->GetID());
 				}

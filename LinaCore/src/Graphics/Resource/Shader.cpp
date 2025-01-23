@@ -239,6 +239,7 @@ namespace Lina
 		// Create variants
 		for (ShaderVariant& variant : m_meta.variants)
 		{
+
 			const bool success = LinaGX::Instance::CompileShaderFromSPV(variant._compileData, variant._outLayout);
 
 			if (!success)
