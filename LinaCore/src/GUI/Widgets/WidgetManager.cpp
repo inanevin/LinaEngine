@@ -375,6 +375,7 @@ namespace Lina
 
 	void WidgetManager::DebugDraw(Widget* w)
 	{
+		/*
 		const bool drawRects = (m_window->GetInput()->GetKey(LINAGX_KEY_K));
 
 		if (!drawRects)
@@ -416,6 +417,7 @@ namespace Lina
 
 		if (drawRects)
 			w->DebugDraw(DEBUG_DRAW_ORDER);
+			*/
 	}
 
 	void WidgetManager::SetClip(const Rect& r)

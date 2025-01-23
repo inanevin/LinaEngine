@@ -68,7 +68,7 @@ namespace Lina
 				data.text = fullText;
 			}
 
-			success = LinaGX::Instance::CompileShader(variant._compileData, variant._outLayout);
+			success = LinaGX::Instance::CompileShaderToSPV(variant._compileData, variant._outLayout);
 
 			if (!success)
 			{
@@ -239,6 +239,14 @@ namespace Lina
 		// Create variants
 		for (ShaderVariant& variant : m_meta.variants)
 		{
+			const bool success = LinaGX::Instance::CompileShaderFromSPV(variant._compileData, variant._outLayout);
+
+			if (!success)
+			{
+				LINA_ERR("Failed compiling shader form SPV!");
+				continue;
+			}
+
 			LinaGX::ColorBlendAttachment blend = LinaGX::ColorBlendAttachment{
 				.blendEnabled		 = !variant.blendDisable,
 				.srcColorBlendFactor = variant.blendSrcFactor,
@@ -287,7 +295,6 @@ namespace Lina
 				.debugName				 = m_name.c_str(),
 			});
 
-		
 			m_gpuHandles.push_back({variant.id, handle});
 			for (LinaGX::ShaderCompileData& data : variant._compileData)
 				delete[] data.outBlob.ptr;

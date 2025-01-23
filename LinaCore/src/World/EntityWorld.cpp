@@ -167,6 +167,7 @@ namespace Lina
 
 		WorldUtility::SaveEntitiesToStream(stream, this, roots);
 
+
 		HashSet<ResourceID> worldResources;
 		CollectResourceNeeds(worldResources);
 
@@ -446,12 +447,19 @@ namespace Lina
 		c->m_world			 = this;
 		c->m_entity			 = e;
 		c->m_resourceManager = m_rm;
+
+		if (m_playMode == PlayMode::Play)
+			c->BeginPlay();
+
 		for (auto* l : m_listeners)
 			l->OnComponentAdded(c);
 	}
 
 	void EntityWorld::OnDestroyComponent(Component* c, Entity* e)
 	{
+		if (m_playMode == PlayMode::Play)
+			c->EndPlay();
+
 		for (auto* l : m_listeners)
 			l->OnComponentRemoved(c);
 	}
