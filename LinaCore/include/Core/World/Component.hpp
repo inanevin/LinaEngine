@@ -47,9 +47,11 @@ namespace Lina
 	class Component
 	{
 	public:
-		virtual void StoreReferences(){};
-		virtual void CollectReferences(HashSet<ResourceID>& refs){};
-		virtual void LoadFromStream(IStream& stream){};
+		virtual void BeginPlay() {};
+		virtual void EndPlay() {};
+		virtual void StoreReferences() {};
+		virtual void CollectReferences(HashSet<ResourceID>& refs) {};
+		virtual void LoadFromStream(IStream& stream) {};
 		virtual void SaveToStream(OStream& stream) const {};
 
 		inline Entity* GetEntity()
@@ -73,7 +75,7 @@ namespace Lina
 		template <typename U> friend class ComponentCache;
 
 		Component() = delete;
-		Component(TypeID typeID, uint32 flags = 0) : m_tid(typeID), m_flags(0){};
+		Component(TypeID typeID, uint32 flags = 0) : m_tid(typeID), m_flags(0) {};
 		virtual ~Component() = default;
 
 		ALLOCATOR_BUCKET_MEM;

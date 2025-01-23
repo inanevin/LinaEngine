@@ -30,6 +30,8 @@ SOFTWARE.
 #include "Core/World/Screen.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Math/Math.hpp"
+#include "Core/World/EntityWorld.hpp"
+#include "Core/World/Components/CompWidget.hpp"
 
 namespace Lina
 {
@@ -120,5 +122,52 @@ namespace Lina
 			return;
 
 		window->FreeMouse();
+	}
+
+	void WorldInput::OnKey(LinaGX::Window* window, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
+	{
+		if (window != m_screen->GetOwnerWindow())
+			return;
+
+		m_world->GetCache<CompWidget>()->GetBucket().View([&](CompWidget* widget, uint32 idx) -> bool {
+			if (widget->GetIs3D() || !widget->GetEntity()->GetVisible())
+				return false;
+			WidgetManager& wm = widget->GetWidgetManager();
+			wm.OnKey(keycode, scancode, inputAction);
+			return false;
+		});
+	}
+
+	void WorldInput::OnMouse(LinaGX::Window* window, uint32 button, LinaGX::InputAction inputAction)
+	{
+		m_world->GetCache<CompWidget>()->GetBucket().View([&](CompWidget* widget, uint32 idx) -> bool {
+			if (widget->GetIs3D() || !widget->GetEntity()->GetVisible())
+				return false;
+			WidgetManager& wm = widget->GetWidgetManager();
+			wm.OnMouse(button, inputAction);
+			return false;
+		});
+	}
+	void WorldInput::OnMouseWheel(LinaGX::Window* window, float amt)
+	{
+		m_world->GetCache<CompWidget>()->GetBucket().View([&](CompWidget* widget, uint32 idx) -> bool {
+			if (widget->GetIs3D() || !widget->GetEntity()->GetVisible())
+				return false;
+
+			WidgetManager& wm = widget->GetWidgetManager();
+			wm.OnMouseWheel(amt);
+			return false;
+		});
+	}
+	void WorldInput::OnMouseMove(LinaGX::Window* window, const LinaGX::LGXVector2& move)
+	{
+		m_world->GetCache<CompWidget>()->GetBucket().View([&](CompWidget* widget, uint32 idx) -> bool {
+			if (widget->GetIs3D() || !widget->GetEntity()->GetVisible())
+				return false;
+
+			WidgetManager& wm = widget->GetWidgetManager();
+			wm.OnMouseMove(move);
+			return false;
+		});
 	}
 } // namespace Lina

@@ -690,7 +690,7 @@ namespace Lina
 					float  bias				  = UtilStr::StringToFloat(lineValue, outDecimals);
 					variant.depthBiasEnable	  = true;
 					variant.depthBiasConstant = bias;
-					variant.depthBiasClamp	  = bias * 2;
+					// variant.depthBiasClamp	  = bias * 2;
 				}
 				else if (line.find("#depth") != String::npos)
 				{

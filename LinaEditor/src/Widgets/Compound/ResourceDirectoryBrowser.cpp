@@ -632,7 +632,7 @@ namespace Lina::Editor
 				.title				   = Locale::GetStr(LocaleStr::Import),
 				.primaryButton		   = Locale::GetStr(LocaleStr::Import),
 				.extensionsDescription = "",
-				.extensions			   = {"png", "jpg", "mp3", "glb", "gltf", "otf", "ttf", "linashader"},
+				.extensions			   = {"png", "jpg", "wav", "glb", "gltf", "otf", "ttf", "linashader"},
 				.mode				   = PlatformProcess::DialogMode::SelectFile,
 				.multiSelection		   = true,
 			});

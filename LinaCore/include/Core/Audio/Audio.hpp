@@ -41,7 +41,7 @@ namespace Lina
 			void LoadFromStream(IStream& in);
 		};
 
-		Audio(ResourceID id, const String& name) : Resource(id, GetTypeID<Audio>(), name){};
+		Audio(ResourceID id, const String& name) : Resource(id, GetTypeID<Audio>(), name) {};
 		virtual ~Audio();
 
 		static constexpr uint32 VERSION = 0;
@@ -57,9 +57,23 @@ namespace Lina
 			m_meta.LoadFromStream(stream);
 		}
 
+		inline uint32 GetHW() const
+		{
+			return m_buffer;
+		}
+
 	private:
 		ALLOCATOR_BUCKET_MEM;
-		Metadata m_meta = {};
+		Metadata			  m_meta	   = {};
+		uint32				  m_buffer	   = 0;
+		int32				  m_size	   = 0;
+		int32				  m_sampleRate = 0;
+		int32				  m_bitDepth   = 0;
+		int32				  m_samples	   = 0;
+		float				  m_length	   = 0.0f;
+		int32				  m_channels   = 0;
+		int32				  m_format	   = 0;
+		Vector<unsigned char> m_audioBuffer;
 	};
 
 	LINA_RESOURCE_BEGIN(Audio);

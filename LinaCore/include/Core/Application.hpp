@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Core/Graphics/GfxContext.hpp"
 #include "Core/Graphics/GUI/GUIBackend.hpp"
 #include "Core/Physics/PhysicsBackend.hpp"
+#include "Core/Audio/AudioBackend.hpp"
 
 namespace LinaGX
 {
@@ -49,8 +50,8 @@ namespace Lina
 	class Application
 	{
 	public:
-		Application() : m_executor(2){};
-		~Application(){};
+		Application() : m_executor(2) {};
+		~Application() {};
 
 		bool Initialize(const SystemInitializationInfo& initInfo);
 		void Tick();
@@ -134,6 +135,7 @@ namespace Lina
 		GfxContext				 m_gfxContext;
 		String					 m_exitReason = "";
 		PhysicsBackend			 m_physicsBackend;
+		AudioBackend			 m_audioBackend;
 
 		// Time
 		int64 m_frameCapAccumulator = 0;

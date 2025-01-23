@@ -85,7 +85,7 @@ namespace Lina::Editor
 
 		ref.Meta<Audio>()->AddProperty<String>("DisplayName"_hs, "Audio");
 		ref.Meta<Audio>()->AddProperty<Color>("Color"_hs, Theme::GetDef().accentWarn);
-		ref.Meta<Audio>()->AddProperty<String>("Extensions"_hs, "mp3");
+		ref.Meta<Audio>()->AddProperty<String>("Extensions"_hs, "wav");
 		ref.Meta<Audio>()->AddProperty<String>("TypeAbbv"_hs, "A");
 
 		ref.Meta<EntityWorld>()->AddProperty<String>("DisplayName"_hs, "World");

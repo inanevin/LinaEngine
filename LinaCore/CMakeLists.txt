@@ -21,7 +21,7 @@ project(LinaCore)
 set (SOURCES
 	
 # Audio
-src/Audio/AudioManager.cpp
+src/Audio/AudioBackend.cpp
 src/Audio/Audio.cpp
 
 # Core
@@ -89,6 +89,7 @@ src/World/Components/CompCamera.cpp
 src/World/Components/CompModel.cpp
 src/World/Components/CompLight.cpp
 src/World/Components/CompWidget.cpp
+src/World/Components/CompAudio.cpp
 src/World/Animation/AnimationController.cpp
 src/World/WorldUtility.cpp
 
@@ -141,9 +142,9 @@ include/Core/ApplicationDelegate.hpp
 include/Core/CommonCore.hpp
 
 # Audio
-include/Core/Audio/AudioManager.hpp
+include/Core/Audio/AudioBackend.hpp
 include/Core/Audio/Audio.hpp
-include/Core/Audio/miniaudio/miniaudio.h
+include/Core/Audio/Loaders/AudioFile.h
 
 # Platform
 include/Core/Platform/PlatformProcess.hpp
@@ -221,6 +222,7 @@ include/Core/World/Components/CompCamera.hpp
 include/Core/World/Components/CompModel.hpp
 include/Core/World/Components/CompLight.hpp
 include/Core/World/Components/CompWidget.hpp
+include/Core/World/Components/CompAudio.hpp
 include/Core/World/Animation/AnimationController.hpp
 include/Core/World/WorldUtility.hpp
 
@@ -312,10 +314,12 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/Dependenci
 target_link_libraries(${PROJECT_NAME} 
 	PUBLIC Lina::Common
 	PUBLIC Jolt
+	PUBLIC OpenAL::OpenAL
 )
 
 message("LinaCore -> LinaCommon has been linked.")
 message("LinaCore -> Jolt Physics has been linked.")
+message("LinaCore -> OpenAL has been linked.")
 
 if(APPLE)
 	target_link_libraries(${PROJECT_NAME}

@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/GUIWidget.hpp"
 #include "Core/World/Components/CompModel.hpp"
 #include "Core/World/Components/CompWidget.hpp"
+#include "Core/World/Components/CompAudio.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/World/WorldUtility.hpp"
 #include "Core/World/EntityTemplate.hpp"
@@ -147,6 +148,15 @@ namespace Lina::Editor
 				e->SetPosition(pos);
 				CompWidget* comp = world->AddComponent<CompWidget>(e);
 				comp->SetWidget(dir->resourceID);
+				world->LoadMissingResources(rm, editor->GetProjectManager().GetProjectData(), {});
+				entities.push_back(e);
+			}
+			else if (dir->resourceTID == GetTypeID<Audio>())
+			{
+				Entity* e = world->CreateEntity(world->ConsumeEntityGUID(), dir->name);
+				e->SetPosition(pos);
+				CompAudio* comp = world->AddComponent<CompAudio>(e);
+				comp->SetAudio(dir->resourceID);
 				world->LoadMissingResources(rm, editor->GetProjectManager().GetProjectData(), {});
 				entities.push_back(e);
 			}

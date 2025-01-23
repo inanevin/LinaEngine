@@ -54,7 +54,7 @@ namespace Lina
 {
 #define ENTITY_VEC_SIZE_CHUNK 2000
 
-	EntityWorld::EntityWorld(ResourceID id, const String& name) : Resource(id, GetTypeID<EntityWorld>(), name), m_worldInput(&Application::GetLGX()->GetInput(), &m_screen)
+	EntityWorld::EntityWorld(ResourceID id, const String& name) : Resource(id, GetTypeID<EntityWorld>(), name), m_worldInput(&Application::GetLGX()->GetInput(), &m_screen, this)
 	{
 		m_physicsWorld = new PhysicsWorld(this);
 	};
@@ -397,12 +397,22 @@ namespace Lina
 	void EntityWorld::BeginPlay()
 	{
 		m_physicsWorld->Begin();
+
+		for (ComponentCachePair& pair : m_componentCaches)
+		{
+			pair.cache->ForEach([](Component* c) { c->BeginPlay(); });
+		}
 	}
 
 	void EntityWorld::EndPlay()
 	{
 		m_physicsWorld->End();
 		m_playMode = PlayMode::None;
+
+		for (ComponentCachePair& pair : m_componentCaches)
+		{
+			pair.cache->ForEach([](Component* c) { c->EndPlay(); });
+		}
 	}
 
 	void EntityWorld::TickPlay(float deltaTime)

@@ -34,17 +34,19 @@ namespace LinaGX
 {
 	class Window;
 	class Input;
+	enum class InputAction;
 } // namespace LinaGX
 
 namespace Lina
 {
 	class Screen;
+	class EntityWorld;
 
 	class WorldInput
 	{
 	public:
 		WorldInput() = delete;
-		WorldInput(LinaGX::Input* inp, Screen* sc) : m_lgxInput(inp), m_screen(sc){};
+		WorldInput(LinaGX::Input* inp, Screen* sc, EntityWorld* world) : m_lgxInput(inp), m_screen(sc) {};
 
 		bool	GetKey(int32 button);
 		bool	GetKeyDown(int32 button);
@@ -60,6 +62,11 @@ namespace Lina
 		void	ConfineMouse();
 		void	ReleaseMouse();
 
+		void OnKey(LinaGX::Window* window, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction);
+		void OnMouse(LinaGX::Window* window, uint32 button, LinaGX::InputAction inputAction);
+		void OnMouseWheel(LinaGX::Window* window, float amt);
+		void OnMouseMove(LinaGX::Window* window, const LinaGX::LGXVector2&);
+
 		inline LinaGX::Input* GetRawLGXInput()
 		{
 			return m_lgxInput;
@@ -69,5 +76,6 @@ namespace Lina
 		Vector2		   m_lastMousePosition = Vector2::Zero;
 		LinaGX::Input* m_lgxInput		   = nullptr;
 		Screen*		   m_screen			   = nullptr;
+		EntityWorld*   m_world			   = nullptr;
 	};
 } // namespace Lina

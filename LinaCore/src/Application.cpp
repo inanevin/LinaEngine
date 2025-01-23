@@ -105,7 +105,7 @@ namespace Lina
 		}
 
 		m_physicsBackend.Initialize();
-
+		m_audioBackend.Initialize();
 		return true;
 	}
 
@@ -177,6 +177,7 @@ namespace Lina
 
 	void Application::Shutdown()
 	{
+		m_audioBackend.Shutdown();
 		m_physicsBackend.Shutdown();
 
 		JoinRender();

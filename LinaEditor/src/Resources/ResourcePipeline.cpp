@@ -234,7 +234,7 @@ namespace Lina::Editor
 
 			if (extSid == "png"_hs || extSid == "jpg"_hs || extSid == "jpeg"_hs)
 				resourceTID = GetTypeID<Texture>();
-			else if (extSid == "mp3"_hs)
+			else if (extSid == "wav"_hs)
 				resourceTID = GetTypeID<Audio>();
 			else if (extSid == "glb"_hs || extSid == "gtlf"_hs)
 				resourceTID = GetTypeID<Model>();

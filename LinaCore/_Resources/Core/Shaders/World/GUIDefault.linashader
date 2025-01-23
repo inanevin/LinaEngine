@@ -36,7 +36,6 @@ SOFTWARE.
 #blend: LINA_BLEND_ALPHA
 #depth: LINA_DEPTH_LESS
 #depth_target: LINA_TARGET_D32
-#depth_bias: 0.5
 #target: LINA_TARGET_HDR
 #cull: LINA_CULL_NONE
 #face: LINA_FACE_CCW

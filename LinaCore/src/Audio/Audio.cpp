@@ -27,17 +27,20 @@ SOFTWARE.
 */
 
 #include "Core/Audio/Audio.hpp"
-
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Data/Streams.hpp"
-
 #include "Common/Serialization/Serialization.hpp"
 #include "Core/Resources/ResourceManager.hpp"
-#include "Core/Audio/miniaudio/miniaudio.h"
-#include "Core/Audio/AudioManager.hpp"
+#include "Core/Audio/Loaders/AudioFile.h"
+#include <AL/al.h>
 
 namespace Lina
 {
+
+#define AL_CHECK_ERR(err)                                                                                                                                                                                                                                          \
+	err = alGetError();                                                                                                                                                                                                                                            \
+	if (err != AL_NO_ERROR)
+
 	void Audio::Metadata::SaveToStream(OStream& out) const
 	{
 	}
@@ -52,6 +55,48 @@ namespace Lina
 
 	bool Audio::LoadFromFile(const String& path)
 	{
+		AudioFile<int16> file;
+		file.load(path.c_str());
+
+		m_sampleRate = file.getSampleRate();
+		m_bitDepth	 = file.getBitDepth();
+		m_samples	 = file.getNumSamplesPerChannel();
+		m_length	 = file.getLengthInSeconds();
+		m_channels	 = file.getNumChannels();
+
+		m_format = 0;
+		if (m_bitDepth == 8)
+		{
+			if (m_channels == 1)
+				m_format = AL_FORMAT_MONO8;
+			else if (m_channels == 2)
+				m_format = AL_FORMAT_MONO16;
+		}
+		else if (m_bitDepth == 16)
+		{
+			if (m_channels == 1)
+				m_format = AL_FORMAT_MONO16;
+			else if (m_channels == 2)
+				m_format = AL_FORMAT_STEREO16;
+		}
+
+		if (m_format == 0)
+		{
+			LINA_ERR("Failed determining audio format!");
+			return false;
+		}
+
+		for (uint32 i = 0; i < m_samples; i++)
+		{
+			for (uint32 ch = 0; ch < m_channels; ch++)
+			{
+				int16_t sample = file.samples[ch][i];
+				m_audioBuffer.push_back(static_cast<unsigned char>(sample & 0xFF));		   // Low byte
+				m_audioBuffer.push_back(static_cast<unsigned char>((sample >> 8) & 0xFF)); // High byte
+			}
+		}
+
+		LINA_TRACE("Loaded audio: {0}, {1}, {2}, {3}", m_sampleRate, m_bitDepth, m_samples, m_length);
 		return true;
 	}
 
@@ -61,6 +106,8 @@ namespace Lina
 		uint32 version = 0;
 		stream >> version;
 		stream >> m_meta;
+		stream >> m_audioBuffer;
+		stream >> m_sampleRate >> m_bitDepth >> m_samples >> m_length >> m_channels >> m_format;
 	}
 
 	void Audio::SaveToStream(OStream& stream) const
@@ -68,6 +115,8 @@ namespace Lina
 		Resource::SaveToStream(stream);
 		stream << VERSION;
 		stream << m_meta;
+		stream << m_audioBuffer;
+		stream << m_sampleRate << m_bitDepth << m_samples << m_length << m_channels << m_format;
 	}
 
 	size_t Audio::GetSize() const
@@ -79,6 +128,13 @@ namespace Lina
 	{
 		LINA_ASSERT(m_hwValid == false, "");
 		m_hwValid = true;
+		int err	  = 0;
+		alGenBuffers((ALuint)1, &m_buffer);
+		AL_CHECK_ERR(err);
+		alBufferData(m_buffer, (ALenum)m_format, (ALvoid*)m_audioBuffer.data(), (ALsizei)m_audioBuffer.size(), (ALsizei)m_sampleRate);
+		AL_CHECK_ERR(err);
+
+		m_audioBuffer.clear();
 	}
 
 	void Audio::DestroyHW()
@@ -86,6 +142,7 @@ namespace Lina
 		LINA_ASSERT(m_hwValid, "");
 		m_hwValid		= false;
 		m_hwUploadValid = false;
+		alDeleteBuffers(1, &m_buffer);
 	}
 
 } // namespace Lina
