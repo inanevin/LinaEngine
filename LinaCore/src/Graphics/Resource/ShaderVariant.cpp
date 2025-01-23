@@ -62,7 +62,7 @@ namespace Lina
 			stream << data.text;
 			stream << data.includePath;
 			stream << static_cast<uint32>(data.outBlob.size);
-			stream.WriteRawEndianSafe(data.outBlob.ptr, data.outBlob.size);
+			stream.WriteRaw(data.outBlob.ptr, data.outBlob.size);
 		}
 		SaveLinaGXShaderLayout(stream, _outLayout);
 	}
@@ -98,7 +98,7 @@ namespace Lina
 			if (blob.size != 0)
 			{
 				blob.ptr = new uint8[blob.size];
-				stream.ReadToRawEndianSafe(blob.ptr, blob.size);
+				stream.ReadToRaw(blob.ptr, blob.size);
 			}
 
 			_compileData.push_back({.stage = stage, .text = text, .includePath = includePath, .outBlob = blob});
