@@ -333,12 +333,12 @@ namespace Lina
 
 	void Entity::SaveToStream(OStream& stream) const
 	{
-		stream << m_mask << m_transform << m_name << m_guid << m_physicsSettings;
+		stream << m_mask << m_transform << m_name << m_guid << m_physicsSettings << m_parameters;
 	}
 
 	void Entity::LoadFromStream(IStream& stream)
 	{
-		stream >> m_mask >> m_transform >> m_name >> m_guid >> m_physicsSettings;
+		stream >> m_mask >> m_transform >> m_name >> m_guid >> m_physicsSettings >> m_parameters;
 	}
 
 	void Entity::UpdateLocalRotation()
@@ -369,5 +369,12 @@ namespace Lina
 	bool Entity::GetVisible() const
 	{
 		return !m_mask.IsSet(EF_INVISIBLE);
+	}
+	EntityParameter* Entity::GetParameter(StringID sid)
+	{
+		auto it = linatl::find_if(m_parameters.params.begin(),m_parameters.params.end(), [sid](EntityParameter& param) -> bool { return param._sid == sid; });
+		if (it != m_parameters.params.end())
+			return &(*it);
+		return nullptr;
 	}
 } // namespace Lina

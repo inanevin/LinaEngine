@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Common/Data/String.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Core/Physics/CommonPhysics.hpp"
+#include "Core/World/CommonWorld.hpp"
 
 namespace Lina
 {
@@ -80,6 +81,8 @@ namespace Lina::Editor
 		void StopEditingComponents();
 		void StartEditingEntityPhysicsSettings();
 		void StopEditingEntityPhyiscsSettings();
+		void StartEditingEntityParams();
+		void StopEditingEntityParams();
 
 	private:
 		LINA_REFLECTION_ACCESS(EntityDetails);
@@ -93,10 +96,12 @@ namespace Lina::Editor
 		EntityWorld*				  m_world					= nullptr;
 		DummyDetails				  m_dummyDetails			= {};
 		bool						  m_physicsSettingsFold		= false;
+		bool						  m_paramsFold				= false;
 		Text*						  m_noDetailsText			= nullptr;
 		bool						  m_isEditing				= false;
 		Vector<OStream>				  m_editingComponentsBuffer = {};
 		Vector<Component*>			  m_editingComponents		= {};
+		Vector<EntityParameters>	  m_storedParams			= {};
 	};
 
 	LINA_WIDGET_BEGIN(EntityDetails, Hidden)

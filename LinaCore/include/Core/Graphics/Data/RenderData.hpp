@@ -47,6 +47,7 @@ namespace Lina
 	{
 		RENDER_PASS_DEFERRED = 0,
 		RENDER_PASS_FORWARD,
+		RENDER_PASS_SWAPCHAIN,
 		RENDER_PASS_UNKNOWN,
 	};
 
@@ -116,6 +117,14 @@ namespace Lina
 		float	padding0;
 		float	padding1;
 		float	padding2;
+	};
+
+	struct GPUDataSwapchainPass
+	{
+		uint32 textureIndex;
+		uint32 samplerIndex;
+		uint32 padding0;
+		uint32 padding1;
 	};
 
 	struct GPUMaterialGUI

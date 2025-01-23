@@ -15,15 +15,19 @@
 cmake_minimum_required (VERSION 3.10...3.31)
 project(GameLauncher)
 
+
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
 
 set(SOURCES 
-src/Main.cpp
+src/GameLauncher.cpp
+src/SwapchainRenderer.cpp
 )
 
 set(HEADERS
+include/GameLauncher.hpp
+include/SwapchainRenderer.hpp
 )
 
 #--------------------------------------------------------------------

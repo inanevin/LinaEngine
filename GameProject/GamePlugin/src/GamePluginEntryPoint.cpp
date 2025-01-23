@@ -31,20 +31,20 @@ SOFTWARE.
 
 Lina::GamePlugin* g_plugin = nullptr;
 
-extern "C" Lina::Plugin* CreatePlugin(const Lina::String& path, void* platformHandle, Lina::PluginInterface* pInterface)
+#ifdef LINA_PLATFORM_WINDOWS
+
+#include <Windows.h>
+
+extern "C" GAMEPLUGIN_API Lina::Plugin* CreatePlugin(const Lina::String& path, void* platformHandle, Lina::PluginInterface* pInterface)
 {
 	g_plugin = new Lina::GamePlugin(path, platformHandle, pInterface);
 	return g_plugin;
 }
 
-extern "C" void DestroyPlugin(Lina::Plugin* plugin)
+extern "C" GAMEPLUGIN_API void DestroyPlugin(Lina::Plugin* plugin)
 {
 	delete plugin;
 }
-
-#ifdef LINA_PLATFORM_WINDOWS
-
-#include <Windows.h>
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL,	 // handle to DLL module
 					DWORD	  fdwReason, // reason for calling function
@@ -73,6 +73,19 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL,	 // handle to DLL module
 	// Successful. If this is FALSE, the process will be terminated eventually
 	// https://docs.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-entry-point-function#entry-point-function-return-value
 	return TRUE;
+}
+
+#else
+
+extern "C" Lina::Plugin* CreatePlugin(const Lina::String& path, void* platformHandle, Lina::PluginInterface* pInterface)
+{
+	g_plugin = new Lina::GamePlugin(path, platformHandle, pInterface);
+	return g_plugin;
+}
+
+extern "C" void DestroyPlugin(Lina::Plugin* plugin)
+{
+	delete plugin;
 }
 
 #endif

@@ -26,18 +26,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#lina_variant
+#name : Default
+#blend: LINA_BLEND_NONE
+#depth: LINA_DEPTH_NONE
+#target: LINA_TARGET_SWAPCHAIN
+#cull: LINA_CULL_NONE
+#face: LINA_FACE_CCW
+#lina_end
+
 #lina_vs
 
 #include "Resources/Core/Shaders/Common/GlobalData.linashader"
-#include "Resources/Core/Shaders/Common/RenderPass_forwardtransparency.linashader"
+#include "Resources/Core/Shaders/Common/RenderPass_Swapchain.linashader"
 
-layout (location = 0) in vec2 pos;
-layout (location = 1) in vec2 uv;
-layout (location = 2) in vec4 col;
-
-layout (location = 0) out vec4 outCol;
-layout (location = 1) out vec2 outUV;
-layout (location = 2) flat out uint outDrawID;
+layout (location = 0) out vec2 outUV;
+layout (location = 1) flat out uint outTextureIndex;
+layout (location = 2) flat out uint outSamplerIndex;
 
 layout( push_constant ) uniform constants
 {
@@ -46,26 +51,33 @@ layout( push_constant ) uniform constants
 
 void main()
 {
-   DrawArguments argBuffer = LINA_DRAW_ARGUMENTS.data[PushConstants.value0 + gl_InstanceIndex];
-   uint entityID = argBuffer.entityID;
-   Object object = LINA_OBJECTS.data[entityID];
+   outUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
+   gl_Position =  vec4(outUV * 2.0f + -1.0f, 0.0f, 1.0f);
+   outUV.y = 1.0f - outUV.y;
 
-    outCol = col;
-    outUV = uv;
-    outDrawID = argBufferIndex;
-
-    GUIMaterialData material = LINA_GUI_MATERIALS.data[outDrawID];
-
-    vec3 worldPos = vec3(object.modelMatrix * vec4(pos.x , pos.y, 0.0, 1.0));
-    gl_Position = LINA_VIEW.proj * LINA_VIEW.view *  vec4(worldPos, 1.0);
+   outTextureIndex = LINA_PASS.textureIndex;
+   outSamplerIndex = LINA_PASS.samplerIndex;
 }
 
 #lina_end
 
 #lina_fs
 
+layout(location = 0) in vec2 inUV;
+layout (location = 1) flat in uint inTextureIndex;
+layout (location = 2) flat in uint inSamplerIndex;
+
+layout(location = 0) out vec4 outFragColor;
+
 #include "Resources/Core/Shaders/Common/GlobalData.linashader"
-#include "Resources/Core/Shaders/Common/RenderPass_forwardtransparency.linashader"
-#include "Resources/Core/Shaders/GUI/GUI_frag.linashader"
+#include "Resources/Core/Shaders/Common/RenderPass_Swapchain.linashader"
+
+void main()
+{
+   	LinaTexture2D txt;
+   	txt.txt = inTextureIndex;
+   	txt.smp = inSamplerIndex;
+	outFragColor = LINA_SAMPLE_TEXTURE(txt, inUV);
+}
 
 #lina_end

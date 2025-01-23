@@ -71,6 +71,7 @@ namespace Lina
 		TBLR,
 		Bitmask32,
 		ResourceID,
+		EntityID,
 	};
 
 	class ReflectionClassUtility

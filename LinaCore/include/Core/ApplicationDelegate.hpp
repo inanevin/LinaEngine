@@ -43,6 +43,7 @@ namespace Lina
 	class Application;
 	class System;
 	class SemaphoreData;
+	class WorldRenderer;
 
 	class ApplicationDelegate : public SystemEventListener
 	{
@@ -51,21 +52,24 @@ namespace Lina
 		virtual ~ApplicationDelegate() = default;
 
 		// Loop
-		virtual bool PreInitialize()
+		virtual bool PreInitialize(String& errString)
 		{
 			return true;
 		};
-		virtual bool Initialize()
+		virtual bool Initialize(String& errString)
 		{
 			return true;
 		};
-		virtual void PreTick(){};
-		virtual void Tick(float delta){};
-		virtual void Render(uint32 frameIndex){};
-		virtual void SyncRender(){};
-		virtual void PreShutdown(){};
-		virtual void Shutdown(){};
-		virtual void OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size){};
+		virtual void PostInitialize() {};
+		virtual void PreTick() {};
+		virtual void Tick(float delta) {};
+		virtual void Render(uint32 frameIndex) {};
+		virtual void SyncRender() {};
+		virtual void PreShutdown() {};
+		virtual void Shutdown() {};
+		virtual void OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size) {};
+		virtual void OnWorldLoaded(WorldRenderer* wr) {};
+		virtual void OnWorldUnloaded(ResourceID id) {};
 
 		// Resources
 		virtual bool FillResourceCustomMeta(ResourceID id, OStream& stream)

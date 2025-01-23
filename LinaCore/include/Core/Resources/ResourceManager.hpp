@@ -158,6 +158,16 @@ namespace Lina
 			m_locked = locked;
 		}
 
+		inline void SetUsePackages(const String& packagePath0, const String& packagePath1)
+		{
+			m_usePackages  = true;
+			m_packagePath0 = packagePath0;
+			m_packagePath1 = packagePath1;
+		}
+
+	private:
+		IStream GetResourceStream(ProjectData* project, ResourceDirectory* dir);
+
 	private:
 		struct SpacePair
 		{
@@ -177,7 +187,10 @@ namespace Lina
 		ResourceID						 m_customResourceID = RESOURCE_ID_CUSTOM_SPACE;
 		Vector<SpacePair>				 m_resourceSpaces;
 		Vector<CachePair>				 m_caches;
-		bool							 m_locked = false;
+		bool							 m_locked		= false;
+		bool							 m_usePackages	= false;
+		String							 m_packagePath0 = "";
+		String							 m_packagePath1 = "";
 	};
 
 } // namespace Lina

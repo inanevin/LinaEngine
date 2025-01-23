@@ -155,13 +155,16 @@ int main(int argc, char* argv[])
 
 		Lina::Application* linaApp = new Lina::Application();
 		[appDelegate setMyApp:linaApp];
-		const bool appInitOK = linaApp->Initialize(Lina::Lina_GetInitInfo());
+		Lina::String err = "";
+		const bool appInitOK = linaApp->Initialize(Lina::Lina_GetInitInfo(), err);
 
 		if (!appInitOK)
 		{
 			NSAlert* alert = [[NSAlert alloc] init];
 			[alert setMessageText:@"Error"];
-			[alert setInformativeText:@"Lina application initialization failed :/.\nCheck the logs for more information."];
+			NSString *errorMessage = [NSString stringWithCString:err.c_str() 
+                                   encoding:[NSString defaultCStringEncoding]];
+			[alert setInformativeText:errorMessage];
 			[alert setAlertStyle:NSAlertStyleCritical];
 			[alert addButtonWithTitle:@"OK"];
 			[alert runModal];

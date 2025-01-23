@@ -33,9 +33,11 @@ SOFTWARE.
 #include "Editor/Widgets/Compound/ColorWheelCompound.hpp"
 #include "Editor/Widgets/Panel/PanelColorWheel.hpp"
 #include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
+#include "Editor/Widgets/Compound/EntityBrowser.hpp"
 #include "Editor/Widgets/Compound/WindowBar.hpp"
 #include "Editor/Widgets/FX/ProgressCircleFill.hpp"
 #include "Editor/Widgets/Panel/PanelGenericSelector.hpp"
+#include "Editor/Widgets/Panel/PanelWorld.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/GUI/Widgets/Layout/Popup.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
@@ -64,6 +66,8 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
 #include "Core/Resources/ResourceDirectory.hpp"
 #include "Core/Application.hpp"
+#include "Core/World/Entity.hpp"
+#include "Core/World/EntityWorld.hpp"
 
 namespace Lina::Editor
 {
@@ -924,8 +928,8 @@ namespace Lina::Editor
 			duplicate->GetProps().onClicked = [j, duplicate, fold, field, vectorPtr, meta, subType, elementIndex, disallowAddDelete]() {
 				duplicate->PropagateCBOnEditStarted();
 				field->GetFunction<void(void*, int32)>("DuplicateElement"_hs)(vectorPtr, j);
-				RefreshVector(fold, field, vectorPtr, meta, subType, elementIndex, disallowAddDelete);
 				duplicate->PropagateCBOnEditEnded();
+				RefreshVector(fold, field, vectorPtr, meta, subType, elementIndex, disallowAddDelete);
 			};
 			duplicate->GetFlags().Set(WF_DISABLED, disallowAddDelete);
 
@@ -939,8 +943,8 @@ namespace Lina::Editor
 			remove->GetProps().onClicked = [j, remove, fold, field, vectorPtr, meta, subType, elementIndex, disallowAddDelete]() {
 				remove->PropagateCBOnEditStarted();
 				field->GetFunction<void(void*, int32)>("RemoveElement"_hs)(vectorPtr, j);
-				RefreshVector(fold, field, vectorPtr, meta, subType, elementIndex, disallowAddDelete);
 				remove->PropagateCBOnEditEnded();
+				RefreshVector(fold, field, vectorPtr, meta, subType, elementIndex, disallowAddDelete);
 			};
 			remove->GetFlags().Set(WF_DISABLED, disallowAddDelete);
 			subFieldRightSide->AddChild(remove);
@@ -1023,7 +1027,7 @@ namespace Lina::Editor
 
 				if (*currentResourceID == dir->resourceID)
 					return;
-
+				btn->PropagateCBOnEditStarted();
 				*currentResourceID = dir->resourceID;
 				btn->PropagateCBOnEditEnded();
 				thumb->GetWidgetProps().textureAtlas = Editor::Get()->GetProjectManager().GetThumbnail(dir);
@@ -1038,6 +1042,7 @@ namespace Lina::Editor
 
 				if (*currentResourceID != dir->resourceID)
 				{
+					btn->PropagateCBOnEditStarted();
 					*currentResourceID = dir->resourceID;
 					btn->PropagateCBOnEditEnded();
 				}
@@ -1051,6 +1056,122 @@ namespace Lina::Editor
 			if (dir != nullptr)
 			{
 				Widget* it = ic->GetItem(dir);
+				if (it)
+				{
+					ic->MakeVisibleRecursively(it);
+					ic->SelectItem(it, true, false);
+				}
+			}
+
+			panel->AddChild(dirBrowser);
+		};
+
+		return btn;
+	}
+
+	Widget* CommonWidgets::BuildEntityField(Widget* src, EntityID* currentEntityID)
+	{
+		WidgetManager* wm			 = src->GetWidgetManager();
+		Entity*		   currentEntity = nullptr;
+		EntityWorld*   world		 = nullptr;
+		Panel*		   panel		 = Editor::Get()->GetWindowPanelManager().FindPanelOfType(PanelType::World, 0);
+		if (panel)
+		{
+			world			   = static_cast<PanelWorld*>(panel)->GetWorld();
+			currentEntity	   = world ? world->GetEntity(*currentEntityID) : nullptr;
+		}
+
+		Button* btn = wm->Allocate<Button>();
+		btn->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		btn->SetAlignedSize(Vector2(0.0f, 1.0f));
+		btn->SetAlignedPosY(0.0f);
+		btn->RemoveText();
+
+		DirectionalLayout* layout				   = wm->Allocate<DirectionalLayout>("Layout");
+		layout->GetWidgetProps().childMargins.left = Theme::GetDef().baseIndent;
+		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		layout->SetAlignedPos(Vector2::Zero);
+		layout->SetAlignedSize(Vector2::One);
+		layout->GetWidgetProps().childPadding		= Theme::GetDef().baseIndent;
+		layout->GetWidgetProps().childMargins.left	= Theme::GetDef().baseIndent;
+		layout->GetWidgetProps().childMargins.right = Theme::GetDef().baseIndent;
+		btn->AddChild(layout);
+
+		Icon* icn = wm->Allocate<Icon>("Icon");
+		icn->GetFlags().Set(WF_POS_ALIGN_Y);
+		icn->SetAlignedPosY(0.5f);
+		icn->SetAnchorY(Anchor::Center);
+		icn->GetProps().icon				= ICON_CUBE;
+		icn->GetProps().dynamicSizeScale	= 0.7f;
+		icn->GetProps().dynamicSizeToParent = true;
+		layout->AddChild(icn);
+
+		Text* txt = wm->Allocate<Text>("Title");
+		txt->GetFlags().Set(WF_POS_ALIGN_Y);
+		txt->SetAlignedPosY(0.5f);
+		txt->SetAnchorY(Anchor::Center);
+		txt->GetProps().text = currentEntity ? currentEntity->GetName() : "NoEntity";
+		txt->CalculateTextSize();
+		txt->GetProps().fetchCustomClipFromParent = true;
+		txt->GetProps().isDynamic				  = true;
+		layout->AddChild(txt);
+
+		btn->GetProps().onClicked = [currentEntityID, btn, txt, currentEntity, world]() {
+			btn->PropagateCBOnEditStarted();
+
+			PanelGenericSelector* panel = static_cast<PanelGenericSelector*>(Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::GenericSelector, 0, nullptr));
+			panel->DeallocAllChildren();
+			panel->RemoveAllChildren();
+			const float width = panel->GetWindow()->GetMonitorSize().x * 0.25f;
+			panel->GetWindow()->SetSize({static_cast<uint32>(width), static_cast<uint32>(width * 1.15f)});
+
+			const float posx = static_cast<float>(btn->GetWindow()->GetPosition().x) + btn->GetRect().pos.x / btn->GetWindow()->GetDPIScale();
+			const float posy = static_cast<float>(btn->GetWindow()->GetPosition().y) + (btn->GetRect().pos.y + btn->GetRect().size.y) / btn->GetWindow()->GetDPIScale() + Theme::GetDef().baseIndent;
+
+			panel->GetWindow()->SetPosition({static_cast<int32>(posx), static_cast<int32>(posy)});
+
+			EntityBrowser* dirBrowser = panel->GetWidgetManager()->Allocate<EntityBrowser>();
+			dirBrowser->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+			dirBrowser->SetAlignedPos(Vector2::Zero);
+			dirBrowser->SetAlignedSize(Vector2(1.0f, 0.0f));
+
+			ItemController* ic = dirBrowser->GetItemController();
+			dirBrowser->SetWorld(world);
+
+			ic->GetProps().onItemSelected = [currentEntityID, btn, txt](void* item) {
+				if (item == nullptr)
+					return;
+
+				Entity* entity = static_cast<Entity*>(item);
+				if (*currentEntityID == entity->GetGUID())
+					return;
+
+				btn->PropagateCBOnEditStarted();
+				*currentEntityID = entity->GetGUID();
+				btn->PropagateCBOnEditEnded();
+				txt->UpdateTextAndCalcSize(entity->GetName());
+			};
+
+			ic->GetProps().onInteract = [ic, currentEntityID, btn, panel]() {
+				Vector<Entity*> dirs   = ic->GetSelectedUserData<Entity>();
+				Entity*			entity = dirs.front();
+
+				if (*currentEntityID != entity->GetGUID())
+				{
+					btn->PropagateCBOnEditStarted();
+					*currentEntityID = entity->GetGUID();
+					btn->PropagateCBOnEditEnded();
+				}
+
+				Editor::Get()->GetWindowPanelManager().CloseWindow(static_cast<StringID>(panel->GetWindow()->GetSID()));
+			};
+			dirBrowser->Initialize();
+
+			Entity* cEntity = nullptr;
+
+			if (cEntity != nullptr)
+			{
+				Widget* it = ic->GetItem(cEntity);
 				if (it)
 				{
 					ic->MakeVisibleRecursively(it);
@@ -1160,8 +1281,13 @@ namespace Lina::Editor
 		{
 			ResourceID*		   rid = reflectionValue.CastPtr<ResourceID>();
 			ResourceDirectory* dir = Editor::Get()->GetProjectManager().GetProjectData()->GetResourceRoot().FindResourceDirectory(*rid);
-			// modify rid somehow
-			Widget* f = BuildResourceField(src, rid, props.tid);
+			Widget*			   f   = BuildResourceField(src, rid, props.tid);
+			rightSide->AddChild(f);
+		}
+		else if (props.type == FieldType::EntityID)
+		{
+			EntityID* eid = reflectionValue.CastPtr<EntityID>();
+			Widget*	  f	  = BuildEntityField(src, eid);
 			rightSide->AddChild(f);
 		}
 		else if (props.type == FieldType::UserClass)
@@ -1509,11 +1635,8 @@ namespace Lina::Editor
 			PanelColorWheel* pcw = Editor::Get()->GetWindowPanelManager().OpenColorWheelPanel(startButton);
 
 			pcw->GetWheel()->SetTargetColor(color->start);
-			pcw->GetCallbacks().onEdited = [color, pcw, startButton]() {
-				const Color col = pcw->GetWheel()->GetEditedColor().SRGB2Linear();
-			};
+			pcw->GetCallbacks().onEdited	= [color, pcw, startButton]() { const Color col = pcw->GetWheel()->GetEditedColor().SRGB2Linear(); };
 			pcw->GetCallbacks().onEditEnded = [startButton]() { startButton->PropagateCBOnEditEnded(); };
-
 		};
 		layout->AddChild(startButton);
 

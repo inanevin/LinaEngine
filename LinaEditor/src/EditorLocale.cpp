@@ -230,6 +230,10 @@ namespace Lina::Editor
 		{LocaleStr::Icon, "Icon"},
 		{LocaleStr::DirectionalLayout, "DirectionalLayout"},
 		{LocaleStr::Button, "Button"},
+		{LocaleStr::GameProjectOutDoesntExist, "GameProject folder in the project directory does not have a 'bin' subfolder!"},
+		{LocaleStr::SuccessfullyPackagedProject, "Successfully packaged project!"},
+		{LocaleStr::Parameters, "Parameters"},
+		{LocaleStr::SavedWorld, "World saved successfully."},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

@@ -47,6 +47,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Physics/PhysicsWorld.hpp"
 #include "Core/Application.hpp"
+#include "Editor/Widgets/Popups/NotificationDisplayer.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor
@@ -89,6 +90,34 @@ namespace Lina::Editor
 			m_openWorld = false;
 			OpenWorld(m_worldToOpen);
 		}
+	}
+
+	void PanelWorld::SetWorldToOpen(ResourceID id)
+	{
+		if (m_world && m_world->GetID() == id)
+			return;
+		m_worldToOpen = id;
+		m_openWorld	  = true;
+	}
+
+	bool PanelWorld::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action)
+	{
+		if (!m_world)
+			return false;
+
+		if (action == LinaGX::InputAction::Pressed && keycode == LINAGX_KEY_S && m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LCTRL))
+		{
+			m_world->SaveToFileAsBinary(m_editor->GetProjectManager().GetProjectData()->GetResourcePath(m_world->GetID()));
+
+			NotificationDisplayer* notificationDisplayer = m_editor->GetWindowPanelManager().GetNotificationDisplayer(m_editor->GetWindowPanelManager().GetMainWindow());
+			notificationDisplayer->AddNotification({
+				.icon				= NotificationIcon::OK,
+				.title				= Locale::GetStr(LocaleStr::SavedWorld),
+				.autoDestroySeconds = 5,
+			});
+			return false;
+		}
+		return false;
 	}
 
 	void PanelWorld::OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities, StringID source)

@@ -79,6 +79,90 @@ namespace Lina
 		}
 	};
 
+	enum class EntityParameterType
+	{
+		Float,
+		Vector3,
+		Vector2,
+		Color,
+		String,
+		ResourceID,
+		EntityID,
+	};
+
+	struct EntityParameter
+	{
+		EntityParameterType type	  = EntityParameterType::Float;
+		String				name	  = "";
+		float				valF	  = 0.0f;
+		Vector3				valV3	  = Vector3::Zero;
+		Vector2				valV2	  = Vector2::Zero;
+		String				valStr	  = "";
+		Color				valCol	  = Color::White;
+		ResourceID			valRes	  = 0;
+		EntityID			valEntity = 0;
+
+		StringID _sid = 0;
+
+		void SaveToStream(OStream& stream) const
+		{
+			stream << type << name << _sid << valF << valV3 << valV2 << valStr << valCol << valRes << valEntity;
+		}
+
+		void LoadFromStream(IStream& stream)
+		{
+			stream >> type >> name >> _sid >> valF >> valV3 >> valV2 >> valStr >> valCol >> valRes >> valEntity;
+		}
+	};
+
+	struct EntityParameters
+	{
+		Vector<EntityParameter> params;
+
+		void SaveToStream(OStream& stream) const
+		{
+			stream << params;
+		}
+
+		void LoadFromStream(IStream& stream)
+		{
+			stream >> params;
+		}
+	};
+
+	LINA_CLASS_BEGIN(EntityParameterType);
+	LINA_PROPERTY_STRING(EntityParameterType, 0, "Float")
+	LINA_PROPERTY_STRING(EntityParameterType, 1, "Vector3")
+	LINA_PROPERTY_STRING(EntityParameterType, 2, "Vector2")
+	LINA_PROPERTY_STRING(EntityParameterType, 3, "Color")
+	LINA_PROPERTY_STRING(EntityParameterType, 4, "String")
+	LINA_PROPERTY_STRING(EntityParameterType, 5, "ResourceID")
+	LINA_PROPERTY_STRING(EntityParameterType, 6, "EntityID")
+	LINA_CLASS_END(EntityParameterType);
+
+	LINA_CLASS_BEGIN(EntityParameter)
+	LINA_FIELD(EntityParameter, type, "Type", FieldType::Enum, GetTypeID<EntityParameterType>())
+	LINA_FIELD(EntityParameter, name, "Name", FieldType::String, 0)
+	LINA_FIELD(EntityParameter, valF, "Value", FieldType::Float, 0)
+	LINA_FIELD(EntityParameter, valV3, "Value", FieldType::Vector3, 0)
+	LINA_FIELD(EntityParameter, valV2, "Value", FieldType::Vector2, 0)
+	LINA_FIELD(EntityParameter, valCol, "Value", FieldType::Color, 0)
+	LINA_FIELD(EntityParameter, valStr, "Value", FieldType::String, 0)
+	LINA_FIELD(EntityParameter, valRes, "Value", FieldType::ResourceID, 0)
+	LINA_FIELD(EntityParameter, valEntity, "Value", FieldType::EntityID, 0)
+	LINA_FIELD_DEPENDENCY(EntityParameter, valF, "type", "0");
+	LINA_FIELD_DEPENDENCY(EntityParameter, valV3, "type", "1");
+	LINA_FIELD_DEPENDENCY(EntityParameter, valV2, "type", "2");
+	LINA_FIELD_DEPENDENCY(EntityParameter, valCol, "type", "3");
+	LINA_FIELD_DEPENDENCY(EntityParameter, valStr, "type", "4");
+	LINA_FIELD_DEPENDENCY(EntityParameter, valRes, "type", "5");
+	LINA_FIELD_DEPENDENCY(EntityParameter, valEntity, "type", "6");
+	LINA_CLASS_END(EntityParameter)
+
+	LINA_CLASS_BEGIN(EntityParameters)
+	LINA_FIELD_VEC(EntityParameters, params, "Entity Parameters", FieldType::UserClass, EntityParameter, GetTypeID<EntityParameter>())
+	LINA_CLASS_END(EntityParameters)
+
 	LINA_CLASS_BEGIN(WorldGfxSettings)
 	LINA_FIELD(WorldGfxSettings, skyMaterial, "Sky Material", FieldType::ResourceID, GetTypeID<Material>())
 	LINA_FIELD(WorldGfxSettings, skyModel, "Sky Model", FieldType::ResourceID, GetTypeID<Model>())

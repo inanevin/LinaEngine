@@ -30,11 +30,6 @@ SOFTWARE.
 #include "Core/System/PluginInterface.hpp"
 #include "Common/Reflection/ReflectionSystem.hpp"
 
-Lina::SystemInitializationInfo Lina::Lina_GetInitInfo()
-{
-	return {};
-}
-
 namespace Lina
 {
 	void GamePlugin::OnAttached()

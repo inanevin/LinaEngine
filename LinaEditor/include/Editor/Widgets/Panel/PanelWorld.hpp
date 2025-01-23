@@ -48,22 +48,17 @@ namespace Lina::Editor
 	class PanelWorld : public Panel, public EditorWorldManagerListener
 	{
 	public:
-		PanelWorld() : Panel(PanelType::World){};
+		PanelWorld() : Panel(PanelType::World) {};
 		virtual ~PanelWorld() = default;
 
-		virtual void Construct() override;
-		virtual void Destruct() override;
-		virtual void PreTick() override;
-
+		virtual void		   Construct() override;
+		virtual void		   Destruct() override;
+		virtual void		   PreTick() override;
+		void				   SetWorldToOpen(ResourceID id);
+		virtual bool		   OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action) override;
 		inline WorldDisplayer* GetDisplayer() const
 		{
 			return m_worldDisplayer;
-		}
-
-		inline void SetWorldToOpen(ResourceID id)
-		{
-			m_worldToOpen = id;
-			m_openWorld	  = true;
 		}
 
 		inline EntityWorld* GetWorld() const

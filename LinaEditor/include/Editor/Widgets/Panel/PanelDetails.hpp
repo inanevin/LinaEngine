@@ -46,7 +46,7 @@ namespace Lina::Editor
 	class PanelDetails : public Panel, public EditorWorldManagerListener
 	{
 	public:
-		PanelDetails() : Panel(PanelType::Details){};
+		PanelDetails() : Panel(PanelType::Details) {};
 		virtual ~PanelDetails() = default;
 
 		virtual void Construct() override;
@@ -60,6 +60,7 @@ namespace Lina::Editor
 		virtual void OnWorldManagerEntitySelectionChanged(EntityWorld* w, const Vector<Entity*>& entities, StringID source) override;
 		virtual void OnWorldManagerEntityHierarchyChanged(EntityWorld* w) override;
 		virtual void OnWorldManagerEntityPhysicsSettingsChanged(EntityWorld* w) override;
+		virtual void OnWorldManagerEntityParamsChanged(EntityWorld* w) override;
 		virtual void OnWorldManagerComponentsDataChanged(EntityWorld* w) override;
 
 	private:

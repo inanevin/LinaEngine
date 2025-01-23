@@ -46,7 +46,7 @@ namespace Lina::Editor
 	{
 	public:
 	public:
-		PanelProjectSettings() : Panel(PanelType::ProjectSettings){};
+		PanelProjectSettings() : Panel(PanelType::ProjectSettings) {};
 		virtual ~PanelProjectSettings() = default;
 
 		virtual void Construct() override;
@@ -54,7 +54,7 @@ namespace Lina::Editor
 		void SetSettingsPackaging(const PackagingSettings& settings);
 
 	private:
-		void PackageProjectToPath(const String& directory);
+		void PackageProject();
 		void BuildSettingsPackaging();
 
 	private:

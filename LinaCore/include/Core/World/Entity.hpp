@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Common/ObjectWrapper.hpp"
 #include "Common/Math/AABB.hpp"
 #include "Core/Physics/CommonPhysics.hpp"
+#include "Core/World/CommonWorld.hpp"
 
 namespace JPH
 {
@@ -81,8 +82,9 @@ namespace Lina
 		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);
 
-		void SetVisible(bool isVisible);
-		bool GetVisible() const;
+		void			 SetVisible(bool isVisible);
+		bool			 GetVisible() const;
+		EntityParameter* GetParameter(StringID sid);
 
 		EntityWorld* GetWorld() const
 		{
@@ -177,6 +179,11 @@ namespace Lina
 			return m_physicsBody;
 		}
 
+		inline EntityParameters& GetParams()
+		{
+			return m_parameters;
+		}
+
 	private:
 		void UpdateGlobalPosition();
 		void UpdateLocalPosition();
@@ -209,6 +216,7 @@ namespace Lina
 		InterfaceUserData	  m_interfaceUserData = {};
 		EntityPhysicsSettings m_physicsSettings	  = {};
 		JPH::Body*			  m_physicsBody		  = nullptr;
+		EntityParameters	  m_parameters		  = {};
 	};
 
 } // namespace Lina

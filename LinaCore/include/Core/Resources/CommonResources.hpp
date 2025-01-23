@@ -38,6 +38,8 @@ namespace Lina
 {
 	class Resource;
 
+#define PACKAGES_EOF UINT64_MAX - 1
+
 #define RESOURCE_ID_ENGINE_SPACE	 UINT64_MAX - 2000
 #define RESOURCE_ID_CUSTOM_SPACE	 UINT64_MAX - 10000
 #define RESOURCE_ID_CUSTOM_SPACE_MAX RESOURCE_ID_ENGINE_SPACE
@@ -106,6 +108,7 @@ namespace Lina
 #define ENGINE_SHADER_GUI_DEFAULT_PATH				   "Resources/Core/Shaders/World/GUIDefault.linashader"
 #define ENGINE_SHADER_GUI_TEXT_PATH					   "Resources/Core/Shaders/World/GUIText.linashader"
 #define ENGINE_SHADER_GUI_SDFTEXT_PATH				   "Resources/Core/Shaders/World/GUISDFText.linashader"
+#define ENGINE_SHADER_SWAPCHAIN_PATH				   "Resources/Core/Shaders/Swapchain.linashader"
 
 #define ENGINE_SHADER_DEFAULT_OPAQUE_SURFACE_ID		 RESOURCE_ID_ENGINE_SHADERS + 0
 #define ENGINE_SHADER_DEFAULT_TRANSPARENT_SURFACE_ID RESOURCE_ID_ENGINE_SHADERS + 1
@@ -117,6 +120,7 @@ namespace Lina
 #define ENGINE_SHADER_GUI_DEFAULT_ID				 RESOURCE_ID_ENGINE_SPACE + 7
 #define ENGINE_SHADER_GUI_TEXT_ID					 RESOURCE_ID_ENGINE_SPACE + 8
 #define ENGINE_SHADER_GUI_SDFTEXT_ID				 RESOURCE_ID_ENGINE_SPACE + 9
+#define ENGINE_SHADER_SWAPCHAIN_ID					 RESOURCE_ID_ENGINE_SPACE + 10
 
 // Materials
 #define ENGINE_MATERIAL_DEFAULT_OPAQUE_OBJECT_PATH		"DefaultOpaqueMaterial"
@@ -159,6 +163,16 @@ namespace Lina
 		bool operator==(const ResourceDef& other) const
 		{
 			return id == other.id;
+		}
+
+		void SaveToStream(OStream& stream) const
+		{
+			stream << id << name << tid;
+		}
+
+		void LoadFromStream(IStream& stream)
+		{
+			stream >> id >> name >> tid;
 		}
 	};
 

@@ -31,6 +31,7 @@ SOFTWARE.
 #include "EditorAction.hpp"
 #include "Common/Data/String.hpp"
 #include "Core/Physics/CommonPhysics.hpp"
+#include "Core/World/CommonWorld.hpp"
 
 namespace Lina
 {
@@ -160,6 +161,22 @@ namespace Lina::Editor
 		Vector<EntityPhysicsSettings> m_oldSettings;
 		Vector<EntityPhysicsSettings> m_newSettings;
 		uint64						  m_worldId = 0;
+	};
+
+	class EditorActionEntityParamsChanged : public EditorAction
+	{
+	public:
+		EditorActionEntityParamsChanged()		   = default;
+		virtual ~EditorActionEntityParamsChanged() = default;
+
+		static EditorActionEntityParamsChanged* Create(Editor* editor, EntityWorld* world, const Vector<Entity*>& entities, const Vector<EntityParameters>& previousParams);
+		virtual void							Execute(Editor* editor, ExecType type) override;
+
+	private:
+		Vector<EntityID>		 m_guids;
+		Vector<EntityParameters> m_oldParams;
+		Vector<EntityParameters> m_newParams;
+		uint64					 m_worldId = 0;
 	};
 
 } // namespace Lina::Editor

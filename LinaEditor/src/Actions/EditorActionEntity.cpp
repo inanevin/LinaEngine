@@ -413,4 +413,55 @@ namespace Lina::Editor
 			editor->GetWorldManager().BroadcastEntityPhysicsSettingsChanged(world);
 	}
 
+	EditorActionEntityParamsChanged* EditorActionEntityParamsChanged::Create(Editor* editor, EntityWorld* world, const Vector<Entity*>& entities, const Vector<EntityParameters>& previousParams)
+	{
+		EditorActionEntityParamsChanged* action = new EditorActionEntityParamsChanged();
+
+		for (Entity* e : entities)
+		{
+			action->m_guids.push_back(e->GetGUID());
+			action->m_newParams.push_back(e->GetParams());
+		}
+
+		action->m_worldId	= world->GetID();
+		action->m_oldParams = previousParams;
+		editor->GetEditorActionManager().AddToStack(action);
+		return action;
+	}
+
+	void EditorActionEntityParamsChanged::Execute(Editor* editor, ExecType type)
+	{
+		EntityWorld* world = editor->GetWorldManager().GetWorld(m_worldId);
+		if (!world)
+			return;
+
+		Vector<Entity*> entities;
+		entities.reserve(m_guids.size());
+
+		for (EntityID id : m_guids)
+			entities.push_back(world->GetEntity(id));
+
+		if (type == ExecType::Redo)
+		{
+			size_t i = 0;
+			for (Entity* e : entities)
+			{
+				e->GetParams() = m_newParams.at(i);
+				i++;
+			}
+		}
+		else if (type == ExecType::Undo)
+		{
+			size_t i = 0;
+			for (Entity* e : entities)
+			{
+				e->GetParams() = m_oldParams.at(i);
+				i++;
+			}
+		}
+
+		if (type != ExecType::Create)
+			editor->GetWorldManager().BroadcastEntityParamsChanged(world);
+	}
+
 } // namespace Lina::Editor

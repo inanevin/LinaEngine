@@ -96,7 +96,7 @@ namespace Lina
 		uint32 m_alSource  = 0;
 	};
 
-	LINA_COMPONENT_BEGIN(CompAudio, "Graphics")
+	LINA_COMPONENT_BEGIN(CompAudio, "Audio")
 	LINA_FIELD(CompAudio, m_audio, "Widget", FieldType::ResourceID, GetTypeID<Audio>())
 	LINA_FIELD(CompAudio, m_is3D, "Is 3D", FieldType::Boolean, 0)
 	LINA_FIELD(CompAudio, m_isLooping, "Loop", FieldType::Boolean, 0)

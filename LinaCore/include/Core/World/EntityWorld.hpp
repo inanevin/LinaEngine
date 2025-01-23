@@ -240,6 +240,11 @@ namespace Lina
 			return m_lvgDrawer;
 		}
 
+		inline const Vector<ResourceDef>& GetNeededResourceDefinitions() const
+		{
+			return m_neededResourceDefinitions;
+		}
+
 	private:
 		void				BeginPlay();
 		void				EndPlay();
@@ -276,10 +281,10 @@ namespace Lina
 		float				 m_elapsedTime		  = 0.0f;
 		float				 m_interpolationAlpha = 0.0f;
 		PlayMode			 m_playMode			  = PlayMode::None;
-		HashSet<ResourceID>	 m_loadedResourceNeeds;
+		Vector<ResourceDef>	 m_neededResourceDefinitions;
 		WorldPhysicsSettings m_physicsSettings = {};
 		WorldRenderer*		 m_worldRenderer   = nullptr;
-		LinaVG::Drawer		 m_lvgDrawer = {};
+		LinaVG::Drawer		 m_lvgDrawer	   = {};
 	};
 
 	LINA_RESOURCE_BEGIN(EntityWorld)

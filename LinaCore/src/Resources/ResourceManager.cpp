@@ -208,6 +208,7 @@ namespace Lina
 		CheckLock();
 
 		HashSet<Resource*> loaded;
+		HashSet<Resource*> allRequested;
 
 		uint32 idx = 0;
 		for (ResourceID id : resources)
@@ -225,7 +226,6 @@ namespace Lina
 				if (onProgress)
 					onProgress(++idx, nullptr);
 
-
 				continue;
 			}
 
@@ -240,7 +240,7 @@ namespace Lina
 
 				HashSet<Resource*>& space = GetSpace(resourceSpace);
 				space.insert(res);
-
+				allRequested.insert(res);
 				continue;
 			}
 
@@ -249,7 +249,7 @@ namespace Lina
 			HashSet<Resource*>& space = GetSpace(resourceSpace);
 			space.insert(res);
 
-			IStream stream = Serialization::LoadFromFile(project->GetResourcePath(id).c_str());
+			IStream stream = GetResourceStream(project, dir);
 
 			if (stream.Empty())
 			{
@@ -268,6 +268,7 @@ namespace Lina
 
 			res->GenerateHW();
 			loaded.insert(res);
+			allRequested.insert(res);
 
 			if (onProgress)
 				onProgress(++idx, res);
@@ -278,7 +279,7 @@ namespace Lina
 		for (ResourceManagerListener* l : m_listeners)
 			l->OnResourceManagerGeneratedHW(loaded);
 
-		return loaded;
+		return allRequested;
 	}
 
 	void ResourceManagerV2::UnloadResources(const ResourceDefinitionList& resources)
@@ -311,6 +312,35 @@ namespace Lina
 
 		for (ResourceManagerListener* l : m_listeners)
 			l->OnResourceManagerDestroyedResources(destroyedList);
+	}
+
+	IStream ResourceManagerV2::GetResourceStream(ProjectData* project, ResourceDirectory* dir)
+	{
+		if (!m_usePackages)
+			return Serialization::LoadFromFile(project->GetResourcePath(dir->resourceID).c_str());
+
+		IStream			 package1 = Serialization::LoadFromFile(m_packagePath1.c_str());
+		ResourceID		 resID	  = 0;
+		uint32			 resSize  = 0;
+		const ResourceID eof	  = static_cast<ResourceID>(PACKAGES_EOF);
+
+		while (resID != eof)
+		{
+			package1 >> resID;
+			package1 >> resSize;
+
+			if (resID != dir->resourceID)
+			{
+				package1.SkipBy(static_cast<size_t>(resSize));
+				continue;
+			}
+
+			IStream resStream;
+			resStream.Create(package1.GetDataCurrent(), static_cast<size_t>(resSize));
+			return resStream;
+		}
+
+		return {};
 	}
 
 	ResourceCacheBase* ResourceManagerV2::GetCache(TypeID tid)

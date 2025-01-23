@@ -156,6 +156,12 @@ namespace Lina::Editor
 			l->OnWorldManagerEntityPhysicsSettingsChanged(world);
 	}
 
+	void EditorWorldManager::BroadcastEntityParamsChanged(EntityWorld* world)
+	{
+		for (EditorWorldManagerListener* l : m_listeners)
+			l->OnWorldManagerEntityParamsChanged(world);
+	}
+
 	void EditorWorldManager::BroadcastComponentsChanged(EntityWorld* world)
 	{
 		for (EditorWorldManagerListener* l : m_listeners)

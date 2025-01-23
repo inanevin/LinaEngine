@@ -134,6 +134,7 @@ namespace Lina::Editor
 		static InputField* BuildFloatField(Widget* src, void* ptr, uint8 bits, bool isInt, bool isUnsigned, bool hasLimits, float minLimit = 0.0f, float maxLimit = 1.0f, float step = 0.1f, bool canSelectThemeValues = false, uint32 decimals = 0);
 
 		static Widget*	   BuildResourceField(Widget* src, ResourceID* currentResourceID, TypeID targetType);
+		static Widget*	   BuildEntityField(Widget* src, EntityID* currentEntityID);
 		static Widget*	   BuildFieldLayout(Widget* src, uint32 dependencies, const String& title, bool isFoldLayout, bool* foldVal = nullptr);
 		static Widget*	   BuildField(Widget* src, const String& title, void* variablePtr, const FieldProperties& props);
 		static FoldLayout* BuildFoldTitle(Widget* src, const String& title, bool* foldValue);

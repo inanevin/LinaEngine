@@ -116,7 +116,7 @@ namespace Lina
 		LinaGX::Config.logLevel		 = LinaGX::LogLevel::Verbose;
 		LinaGX::Config.errorCallback = LinaGX_ErrorCallback;
 		LinaGX::Config.infoCallback	 = LinaGX_LogCallback;
-		LinaGX::BackendAPI api = LinaGX::BackendAPI::Vulkan;
+		LinaGX::BackendAPI api		 = LinaGX::BackendAPI::Vulkan;
 
 #ifdef LINA_PLATFORM_APPLE
 		api = LinaGX::BackendAPI::Metal;
@@ -251,7 +251,18 @@ namespace Lina
 
 			return {.bindings = {binding0, binding1, binding2, binding3, binding4}};
 		}
-		
+		else if (type == RenderPassType::RENDER_PASS_SWAPCHAIN)
+		{
+			LinaGX::DescriptorBinding binding0 = {
+				.type	= LinaGX::DescriptorType::UBO,
+				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+			};
+
+			return {
+				.bindings = {binding0},
+			};
+		}
+
 		LINA_ASSERT(false, "");
 		return {};
 	}
@@ -420,6 +431,24 @@ namespace Lina
 							.bufferType	  = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
 							.debugName	  = "Forward Pass Data",
 							.size		  = sizeof(GPUDataForwardPass),
+							.stagingOnly  = true,
+							.bindingIndex = 0,
+							.ident		  = "PassData"_hs,
+						},
+					},
+				.setDescription = setDesc,
+			};
+		}
+
+		if (type == RenderPassType::RENDER_PASS_SWAPCHAIN)
+		{
+			return {
+				.buffers =
+					{
+						{
+							.bufferType	  = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
+							.debugName	  = "Swapchain Pass Data",
+							.size		  = sizeof(GPUDataSwapchainPass),
 							.stagingOnly  = true,
 							.bindingIndex = 0,
 							.ident		  = "PassData"_hs,

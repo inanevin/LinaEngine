@@ -46,6 +46,7 @@ namespace Lina
 	struct SystemInitializationInfo;
 	class CoreResourcesRegistry;
 	class ApplicationDelegate;
+	class WorldRenderer;
 
 	class Application
 	{
@@ -53,7 +54,7 @@ namespace Lina
 		Application() : m_executor(2) {};
 		~Application() {};
 
-		bool Initialize(const SystemInitializationInfo& initInfo);
+		bool Initialize(const SystemInitializationInfo& initInfo, String& errString);
 		void Tick();
 		void JoinRender();
 		void Shutdown();
@@ -61,6 +62,9 @@ namespace Lina
 		void			DestroyApplicationWindow(StringID sid);
 		LinaGX::Window* CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, uint32 style, LinaGX::Window* parentWindow = nullptr);
 		LinaGX::Window* GetApplicationWindow(StringID sid);
+
+		WorldRenderer* CreateAndLoadWorld(ProjectData* project, ResourceID id, LinaGX::Window* window);
+		void		   UnloadWorld(WorldRenderer* wr);
 
 		inline void Quit(const String& quitReason = "")
 		{
@@ -116,6 +120,11 @@ namespace Lina
 		inline PhysicsBackend& GetPhysicsBackend()
 		{
 			return m_physicsBackend;
+		}
+
+		inline static Log* GetLog()
+		{
+			return &s_log;
 		}
 
 	private:

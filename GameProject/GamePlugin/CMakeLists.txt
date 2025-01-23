@@ -33,8 +33,6 @@ project(GamePlugin)
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;DebugFAST;DebugASAN;DebugProfile;" CACHE STRING "" FORCE)
 set_property(GLOBAL PROPERTY DEBUG_CONFIGURATIONS "Debug;DebugFAST;DebugASAN;DebugProfile;")
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $<1:${CMAKE_SOURCE_DIR}/bin>)
-
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
@@ -80,6 +78,7 @@ PUBLIC Lina::Core
 #--------------------------------------------------------------------
 include(${CMAKE_SOURCE_DIR}/CMake/CommonFunctions.cmake)
 group_sources(HEADERS SOURCES)
+
 
 
 

@@ -73,13 +73,14 @@ namespace Lina::Editor
 {
 	Editor* Editor::s_editor = nullptr;
 
-	bool Editor::PreInitialize()
+	bool Editor::PreInitialize(String& errString)
 	{
 		Shader::SetVariantInjectionCallback(ShaderImport::InjectShaderVariant);
 
 		if (!m_editorResources.LoadPriorityResources(m_app->GetResourceManager()))
 		{
 			LINA_ERR("Loading priority editor resources went bad, aborting!");
+			errString = "Loading priority editor resources went bad, aborting!";
 			return false;
 		}
 
@@ -89,7 +90,7 @@ namespace Lina::Editor
 		return true;
 	}
 
-	bool Editor::Initialize()
+	bool Editor::Initialize(String& errString)
 	{
 		s_editor = this;
 		m_app->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->AddListener(this);

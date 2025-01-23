@@ -364,6 +364,10 @@ namespace Lina::Editor
 					.id	  = ENGINE_SHADER_GUI_TEXT_ID,
 				},
 				{
+					.path = ENGINE_SHADER_SWAPCHAIN_PATH,
+					.id	  = ENGINE_SHADER_SWAPCHAIN_ID,
+				},
+				{
 					.path = ENGINE_SHADER_GUI_SDFTEXT_PATH,
 					.id	  = ENGINE_SHADER_GUI_SDFTEXT_ID,
 				},
@@ -512,7 +516,6 @@ namespace Lina::Editor
 				if (dir)
 					dir->userData.directoryType = static_cast<uint32>(ResourceDirectoryType::EngineResource);
 			}
-
 
 			if (root->FindResourceDirectory(ENGINE_MATERIAL_GUI_DEFAULT_ID) == nullptr)
 			{

@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/Actions/EditorActionSettings.hpp"
+#include "Editor/Widgets/Popups/NotificationDisplayer.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
@@ -38,6 +39,8 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/Platform/PlatformProcess.hpp"
+#include "Common/FileSystem/FileSystem.hpp"
+#include "Common/Serialization/Serialization.hpp"
 
 namespace Lina::Editor
 {
@@ -90,6 +93,7 @@ namespace Lina::Editor
 		m_foldPackaging->GetCallbacks().onEditStarted = [this]() { m_oldSettingsPackaging = m_settingsPackaging; };
 		m_foldPackaging->GetCallbacks().onEditEnded	  = [this]() {
 			  EditorActionSettingsPackaging::Create(m_editor, m_oldSettingsPackaging, m_settingsPackaging);
+			  m_editor->GetProjectManager().GetProjectData()->GetSettingsPackaging() = m_settingsPackaging;
 			  m_editor->GetProjectManager().SaveProjectChanges();
 		};
 		m_layout->AddChild(m_foldPackaging);
@@ -103,31 +107,117 @@ namespace Lina::Editor
 		buttonPackage->SetAnchorX(Anchor::Center);
 		buttonPackage->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		buttonPackage->GetText()->UpdateTextAndCalcSize(Locale::GetStr(LocaleStr::BuildPackage));
-		buttonPackage->GetProps().onClicked = [this]() {
-			const String& path = PlatformProcess::SaveDialog({
-				.title		   = Locale::GetStr(LocaleStr::ChooseWhereToPackage),
-				.primaryButton = Locale::GetStr(LocaleStr::Select),
-				.mode		   = PlatformProcess::DialogMode::SelectDirectory,
-			});
-
-			PackageProjectToPath(path);
-		};
+		buttonPackage->GetProps().onClicked = [this]() { PackageProject(); };
 		m_foldPackaging->AddChild(buttonPackage);
 
 		m_foldPackaging->Initialize();
 	}
 
-	void PanelProjectSettings::PackageProjectToPath(const String& directory)
+	void PanelProjectSettings::PackageProject()
 	{
 		EditorTask* task   = m_editor->GetTaskManager().CreateTask();
 		task->ownerWindow  = GetWindow();
 		task->title		   = Locale::GetStr(LocaleStr::Packaging);
 		task->progressText = Locale::GetStr(LocaleStr::Working);
 
-		task->task = [task]() { std::this_thread::sleep_for(std::chrono::microseconds(5000000)); };
+		ProjectData* pj = m_editor->GetProjectManager().GetProjectData();
 
-		task->onComplete = [task]() {
+		const String folder = FileSystem::GetFilePath(pj->GetPath());
 
+		const String configuration = LINA_CONFIGURATION;
+
+#ifdef LINA_PLATFORM_WINDOWS
+		const String gameProjectFolder = folder + "GameProject/bin/" + configuration + "/";
+#else
+		const String gameProjectFolder = folder + "GameProject/bin/" + configuration + "/";
+#endif
+
+		if (!FileSystem::FileOrPathExists(gameProjectFolder))
+		{
+			NotificationDisplayer* notificationDisplayer = m_editor->GetWindowPanelManager().GetNotificationDisplayer(m_editor->GetWindowPanelManager().GetMainWindow());
+			notificationDisplayer->AddNotification({
+				.icon				= NotificationIcon::Err,
+				.title				= Locale::GetStr(LocaleStr::GameProjectOutDoesntExist),
+				.autoDestroySeconds = 5,
+			});
+			return;
+		}
+
+		task->task = [task, pj, gameProjectFolder]() {
+			OStream package0Stream;
+			OStream package1Stream;
+
+			OStream projectDataStream;
+			pj->SaveToStream(projectDataStream);
+
+			// Write project data first.
+			const uint32 pjSize = static_cast<uint32>(projectDataStream.GetCurrentSize());
+			package0Stream << pjSize;
+			package0Stream.WriteRaw(projectDataStream.GetDataRaw(), projectDataStream.GetCurrentSize());
+			projectDataStream.Destroy();
+
+			const PackagingSettings& packagingSettings = pj->GetSettingsPackaging();
+
+			ResourceDefinitionList allResourceNeeds;
+
+			for (ResourceID id : packagingSettings.worldIDsToPack)
+			{
+				const String path = pj->GetResourcePath(id);
+				if (!FileSystem::FileOrPathExists(path))
+					continue;
+
+				EntityWorld w(0, "");
+				w.LoadFromFile(path);
+
+				OStream worldStream;
+				w.SaveToStream(worldStream);
+
+				const ResourceID wid	   = w.GetID();
+				const uint32	 worldSize = static_cast<uint32>(worldStream.GetCurrentSize());
+				package1Stream << wid;
+				package1Stream << worldSize;
+				package1Stream.WriteRaw(worldStream.GetDataRaw(), worldStream.GetCurrentSize());
+				worldStream.Destroy();
+				LINA_TRACE("Writing resource to package: {0} {1}", w.GetID(), w.GetName());
+
+				const Vector<ResourceDef>& needs = w.GetNeededResourceDefinitions();
+				for (const ResourceDef& def : needs)
+					allResourceNeeds.insert(def);
+			}
+
+			for (const ResourceDef& def : allResourceNeeds)
+			{
+				const String& path = pj->GetResourcePath(def.id);
+				if (!FileSystem::FileOrPathExists(path))
+					continue;
+				IStream		 istream = Serialization::LoadFromFile(path.c_str());
+				const uint32 sz		 = static_cast<uint32>(istream.GetSize());
+
+				package1Stream << def.id;
+				package1Stream << sz;
+				package1Stream.WriteRaw(istream.GetDataRaw(), istream.GetSize());
+				istream.Destroy();
+
+				LINA_TRACE("Writing resource to package: {0} {1}", def.id, def.name);
+			}
+
+			const ResourceID eof = static_cast<ResourceID>(PACKAGES_EOF);
+			package0Stream << eof;
+			package1Stream << eof;
+
+			const String file0 = gameProjectFolder + "LinaPackage0.linapkg";
+			const String file1 = gameProjectFolder + "LinaPackage1.linapkg";
+			Serialization::SaveToFile(file0.c_str(), package0Stream);
+			Serialization::SaveToFile(file1.c_str(), package1Stream);
+		};
+
+		task->onComplete = [task, this, gameProjectFolder]() {
+			NotificationDisplayer* notificationDisplayer = m_editor->GetWindowPanelManager().GetNotificationDisplayer(m_editor->GetWindowPanelManager().GetMainWindow());
+			notificationDisplayer->AddNotification({
+				.icon				= NotificationIcon::OK,
+				.title				= Locale::GetStr(LocaleStr::SuccessfullyPackagedProject) + ": " + gameProjectFolder,
+				.autoDestroySeconds = 5,
+			});
 		};
 
 		m_editor->GetTaskManager().AddTask(task);

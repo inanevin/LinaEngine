@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Core/CommonCore.hpp"
 #include "Core/Reflection/CommonReflection.hpp"
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
+#include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 
 namespace Lina
@@ -43,7 +44,7 @@ namespace Lina
 	LinaGX::Instance* Application::s_lgx = nullptr;
 	Log				  Application::s_log = {};
 
-	bool Application::Initialize(const SystemInitializationInfo& initInfo)
+	bool Application::Initialize(const SystemInitializationInfo& initInfo, String& errString)
 	{
 		Log::SetLog(&s_log);
 		PlatformTime::Initialize();
@@ -79,9 +80,11 @@ namespace Lina
 		m_gfxContext.Initialize(this);
 		m_guiBackend.Initialize(&m_resourceManager);
 
-		const bool preInitOK = GetAppDelegate()->PreInitialize();
+		const bool preInitOK = GetAppDelegate()->PreInitialize(errString);
 		if (!preInitOK)
 		{
+			m_gfxContext.Shutdown();
+			m_guiBackend.Shutdown();
 			GfxHelpers::ShutdownLinaVG();
 			delete s_lgx;
 			s_lgx = nullptr;
@@ -94,11 +97,14 @@ namespace Lina
 		window->SetVisible(true);
 
 		// Initialization
-		const bool initOK = GetAppDelegate()->Initialize();
+		const bool initOK = GetAppDelegate()->Initialize(errString);
 
 		if (!initOK)
 		{
+			m_gfxContext.Shutdown();
+			m_guiBackend.Shutdown();
 			GfxHelpers::ShutdownLinaVG();
+			DestroyApplicationWindow(LINA_MAIN_SWAPCHAIN);
 			delete s_lgx;
 			s_lgx = nullptr;
 			return false;
@@ -106,6 +112,8 @@ namespace Lina
 
 		m_physicsBackend.Initialize();
 		m_audioBackend.Initialize();
+
+		GetAppDelegate()->PostInitialize();
 		return true;
 	}
 
@@ -215,6 +223,35 @@ namespace Lina
 	LinaGX::Window* Application::GetApplicationWindow(StringID sid)
 	{
 		return s_lgx->GetWindowManager().GetWindow(sid);
+	}
+
+	WorldRenderer* Application::CreateAndLoadWorld(ProjectData* project, ResourceID id, LinaGX::Window* window)
+	{
+		m_resourceManager.LoadResourcesFromProject(project, {id}, {}, id);
+		EntityWorld* world = m_resourceManager.GetResource<EntityWorld>(id);
+		world->Initialize(&m_resourceManager, window);
+		world->LoadMissingResources(m_resourceManager, project, {});
+		WorldRenderer* wr = new WorldRenderer(&m_gfxContext, &m_resourceManager, world, window->GetSize(), world->GetName());
+		m_appDelegate->OnWorldLoaded(wr);
+		world->SetPlayMode(PlayMode::Play);
+		return wr;
+	}
+
+	void Application::UnloadWorld(WorldRenderer* wr)
+	{
+		EntityWorld* world = wr->GetWorld();
+		world->SetPlayMode(PlayMode::None);
+
+		const ResourceID id = world->GetID();
+		m_resourceManager.UnloadResourceSpace(world->GetID());
+		delete wr;
+		m_appDelegate->OnWorldUnloaded(id);
+		/*m_resourceManager.UnloadResources({{
+			.id	  = world->GetID(),
+			.name = world->GetName(),
+			.tid  = world->GetTID(),
+		}});
+		*/
 	}
 
 	void Application::Render()

@@ -68,7 +68,7 @@ namespace Lina::Editor
 
 	private:
 	public:
-		Editor(){};
+		Editor() {};
 		virtual ~Editor() = default;
 		static Editor* Get()
 		{
@@ -76,8 +76,8 @@ namespace Lina::Editor
 		}
 
 		// Application delegate
-		virtual bool	PreInitialize() override;
-		virtual bool	Initialize() override;
+		virtual bool	PreInitialize(String& errString) override;
+		virtual bool	Initialize(String& errString) override;
 		virtual void	PreTick() override;
 		virtual void	Tick(float delta) override;
 		virtual void	PreShutdown() override;

@@ -57,7 +57,7 @@ namespace Lina::Editor
 		void OnEntitySelectionChanged(const Vector<Entity*>& entities, bool applySelection);
 		void DropPayload(Entity* e);
 
-		inline ItemController* GetController() const
+		inline ItemController* GetItemController() const
 		{
 			return m_controller;
 		}

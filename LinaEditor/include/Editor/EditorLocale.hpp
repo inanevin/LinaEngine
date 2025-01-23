@@ -233,6 +233,10 @@ namespace Lina::Editor
 		Icon,
 		DirectionalLayout,
 		Button,
+		GameProjectOutDoesntExist,
+		SuccessfullyPackagedProject,
+		Parameters,
+		SavedWorld,
 	};
 
 	class Locale

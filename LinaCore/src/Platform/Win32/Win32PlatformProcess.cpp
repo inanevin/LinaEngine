@@ -74,12 +74,12 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	Lina_InitializeWinPlatform();
 
-	Lina::SystemInitializationInfo initInfo = Lina::Lina_GetInitInfo();
-	Lina::Application*			   app		= new Lina::Application();
-
-	if (!app->Initialize(initInfo))
+	Lina::SystemInitializationInfo initInfo	 = Lina::Lina_GetInitInfo();
+	Lina::Application*			   app		 = new Lina::Application();
+	Lina::String				   errString = "";
+	if (!app->Initialize(initInfo, errString))
 	{
-		MessageBox(nullptr, "Initializing Lina Application went bad, aborting.", "Error", MB_OK | MB_ICONERROR);
+		MessageBox(nullptr, errString.c_str(), "Error", MB_OK | MB_ICONERROR);
 		delete app;
 		FreeConsole();
 		return 0;
@@ -159,7 +159,6 @@ namespace Lina
 
 		plugin->OnDetached();
 		hinstLib = static_cast<HINSTANCE>(plugin->GetPlatformHandle());
-		plugin->OnDetached();
 
 		if (hinstLib == NULL)
 		{

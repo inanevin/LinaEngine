@@ -77,6 +77,15 @@ namespace Lina
 	{
 		m_rm = rm;
 		m_screen.SetOwnerWindow(window);
+
+		m_entityBucket.View([this, rm](Entity* e, uint32 idx) -> bool {
+			Vector<Component*> comps;
+			GetComponents(e, comps);
+			for (Component* c : comps)
+				c->m_resourceManager = rm;
+
+			return false;
+		});
 	}
 
 	void EntityWorld::Tick(float delta)
@@ -139,11 +148,7 @@ namespace Lina
 		Vector<Entity*> entities;
 		WorldUtility::LoadEntitiesFromStream(stream, this, entities);
 
-		Vector<ResourceID> resourcesToLoad;
-		stream >> resourcesToLoad;
-
-		for (ResourceID id : resourcesToLoad)
-			m_loadedResourceNeeds.insert(id);
+		stream >> m_neededResourceDefinitions;
 	}
 
 	void EntityWorld::SaveToStream(OStream& stream) const
@@ -167,55 +172,26 @@ namespace Lina
 
 		WorldUtility::SaveEntitiesToStream(stream, this, roots);
 
-
-		HashSet<ResourceID> worldResources;
-		CollectResourceNeeds(worldResources);
-
-		if (m_rm)
-			m_rm->FillResourcesOfSpace(m_id, worldResources);
-
-		Vector<ResourceID> worldResourcesToSave;
-		worldResourcesToSave.reserve(worldResources.size());
-		for (ResourceID id : worldResources)
-			worldResourcesToSave.push_back(id);
-		stream << worldResourcesToSave;
+		// Collect maybe.
+		stream << m_neededResourceDefinitions;
 	}
 
 	void EntityWorld::CollectResourceNeeds(HashSet<ResourceID>& outResources) const
 	{
-		outResources.insert(ENGINE_MODEL_CUBE_ID);
-		outResources.insert(ENGINE_MODEL_SPHERE_ID);
-		outResources.insert(ENGINE_MODEL_CYLINDER_ID);
-		outResources.insert(ENGINE_MODEL_CAPSULE_ID);
-		outResources.insert(ENGINE_MODEL_PLANE_ID);
-		outResources.insert(ENGINE_MODEL_QUAD_ID);
-		outResources.insert(ENGINE_MODEL_SKYSPHERE_ID);
-		outResources.insert(ENGINE_MODEL_SKYCUBE_ID);
 		outResources.insert(ENGINE_SHADER_LIGHTING_QUAD_ID);
 		outResources.insert(ENGINE_SHADER_WORLD_DEBUG_LINE_ID);
 		outResources.insert(ENGINE_SHADER_WORLD_DEBUG_TRIANGLE_ID);
-		outResources.insert(ENGINE_SHADER_DEFAULT_SKY_ID);
-		outResources.insert(ENGINE_SHADER_DEFAULT_OPAQUE_SURFACE_ID);
-		outResources.insert(ENGINE_SHADER_DEFAULT_TRANSPARENT_SURFACE_ID);
-		outResources.insert(ENGINE_SHADER_GUI_DEFAULT_ID);
-		outResources.insert(ENGINE_SHADER_GUI_TEXT_ID);
-		outResources.insert(ENGINE_SHADER_GUI_SDFTEXT_ID);
-		outResources.insert(ENGINE_TEXTURE_EMPTY_AO_ID);
-		outResources.insert(ENGINE_TEXTURE_EMPTY_ALBEDO_ID);
-		outResources.insert(ENGINE_TEXTURE_EMPTY_METALLIC_ROUGHNESS_ID);
-		outResources.insert(ENGINE_TEXTURE_EMPTY_NORMAL_ID);
-		outResources.insert(ENGINE_TEXTURE_EMPTY_EMISSIVE_ID);
+		outResources.insert(ENGINE_SHADER_SWAPCHAIN_ID);
 		outResources.insert(ENGINE_SAMPLER_DEFAULT_ID);
 		outResources.insert(ENGINE_SAMPLER_GUI_ID);
 		outResources.insert(ENGINE_SAMPLER_GUI_TEXT_ID);
 		outResources.insert(ENGINE_FONT_ROBOTO_ID);
-		outResources.insert(ENGINE_MATERIAL_DEFAULT_SKY_ID);
-		outResources.insert(ENGINE_MATERIAL_DEFAULT_OPAQUE_OBJECT_ID);
-		outResources.insert(ENGINE_MATERIAL_DEFAULT_TRANSPARENT_OBJECT_ID);
-		outResources.insert(ENGINE_MATERIAL_GUI_DEFAULT_ID);
-		outResources.insert(ENGINE_MATERIAL_GUI_TEXT_ID);
-		outResources.insert(ENGINE_MATERIAL_GUI_SDFTEXT_ID);
-		outResources.insert(ENGINE_PHY_MATERIAL_DEFAULT_ID);
+		outResources.insert(ENGINE_MODEL_QUAD_ID);
+
+		m_entityBucket.View([&](Entity* e, uint32 idx) -> bool {
+			outResources.insert(e->GetPhysicsSettings().material);
+			return false;
+		});
 
 		for (const ComponentCachePair& pair : m_componentCaches)
 			pair.cache->ForEach([&](Component* c) { c->CollectReferences(outResources); });
@@ -229,8 +205,8 @@ namespace Lina
 		HashSet<ResourceID> resources = extraResources;
 		CollectResourceNeeds(resources);
 
-		for (ResourceID id : m_loadedResourceNeeds)
-			resources.insert(id);
+		for (const ResourceDef& def : m_neededResourceDefinitions)
+			resources.insert(def.id);
 
 		HashSet<Resource*> allLoaded;
 
@@ -281,6 +257,23 @@ namespace Lina
 		});
 		HashSet<Resource*> matNeeds = rm.LoadResourcesFromProject(project, materialDependencies, [](uint32 loaded, Resource* current) {}, m_id);
 		allLoaded.insert(matNeeds.begin(), matNeeds.end());
+
+		for (Resource* res : allLoaded)
+		{
+			const ResourceID id = res->GetID();
+
+			const ResourceDef def = {
+				.id	  = id,
+				.name = res->GetName(),
+				.tid  = res->GetTID(),
+			};
+
+			// ->ConsumeResourceID spaces.
+			if (id > RESOURCE_ID_CUSTOM_SPACE && id < RESOURCE_ID_ENGINE_SPACE)
+				continue;
+
+			m_neededResourceDefinitions.push_back(def);
+		}
 
 		RefreshAllComponentReferences();
 		return allLoaded;

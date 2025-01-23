@@ -178,6 +178,13 @@ namespace Lina::Editor
 		CommonWidgets::BuildClassReflection(phySettingsLayout, &phySettings, ReflectionSystem::Get().Resolve<EntityPhysicsSettings>());
 		m_layout->AddChild(phySettingsLayout);
 
+		FoldLayout* paramsLayout				   = CommonWidgets::BuildFoldTitle(m_layout, Locale::GetStr(LocaleStr::Parameters), &m_paramsFold);
+		paramsLayout->GetCallbacks().onEditStarted = [this]() { StartEditingEntityParams(); };
+		paramsLayout->GetCallbacks().onEditEnded   = [this]() { StopEditingEntityParams(); };
+		EntityParameters& params				   = m_selectedEntities.at(0)->GetParams();
+		CommonWidgets::BuildClassReflection(paramsLayout, &params, ReflectionSystem::Get().Resolve<EntityParameters>());
+		m_layout->AddChild(paramsLayout);
+
 		Vector<Component*> comps;
 		m_world->GetComponents(m_selectedEntities.at(0), comps);
 
@@ -310,6 +317,20 @@ namespace Lina::Editor
 	void EntityDetails::StopEditingEntityPhyiscsSettings()
 	{
 		EditorActionEntityPhysicsSettingsChanged::Create(m_editor, m_world, {m_selectedEntities.at(0)}, m_storedPhysicsSettings);
+	}
+
+	void EntityDetails::StartEditingEntityParams()
+	{
+		m_storedParams = {m_selectedEntities.at(0)->GetParams()};
+	}
+
+	void EntityDetails::StopEditingEntityParams()
+	{
+		EntityParameters& params = m_selectedEntities.at(0)->GetParams();
+		for (EntityParameter& p : params.params)
+			p._sid = TO_SID(p.name);
+
+		EditorActionEntityParamsChanged::Create(m_editor, m_world, {m_selectedEntities.at(0)}, m_storedParams);
 	}
 
 } // namespace Lina::Editor
