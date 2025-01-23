@@ -59,15 +59,15 @@ namespace Lina
 			{
 				const float newBarPosition	= m_manager->GetMousePosition().x - m_pressDiff;
 				const float barPositionDiff = newBarPosition - m_barRect.pos.x;
-				const float ratio			= barPositionDiff / m_barRect.size.x;
-				m_scrollAmount				= m_scrollAmount + ratio * m_maxScroll;
+				// const float ratio			= barPositionDiff / m_barRect.size.x;
+				m_scrollAmount += barPositionDiff;
 			}
 			else
 			{
 				const float newBarPosition	= m_manager->GetMousePosition().y - m_pressDiff;
 				const float barPositionDiff = newBarPosition - m_barRect.pos.y;
-				const float ratio			= barPositionDiff / m_barRect.size.y;
-				m_scrollAmount				= m_scrollAmount + ratio * m_maxScroll;
+				// const float ratio			= barPositionDiff / m_totalChildSize;
+				m_scrollAmount += barPositionDiff;
 			}
 
 			if (m_props.tryKeepAtEnd)
@@ -220,7 +220,7 @@ namespace Lina
 			return false;
 
 #ifdef LINA_PLATFORM_APPLE
-		amt *= 0.01f; // :)
+			// amt *= 0.01f; // :)
 #endif
 		m_scrollAmount -= amt * m_totalChildSize * m_props.mouseWheelMultiplier;
 
