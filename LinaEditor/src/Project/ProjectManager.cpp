@@ -302,7 +302,6 @@ namespace Lina::Editor
 
 		task->task = [task, this, projectFile]() {
 			const String folder = FileSystem::GetFilePath(projectFile);
-
 			if (!FileSystem::FileOrPathExists(folder + "/GameProject"))
 			{
 				task->progressText = Locale::GetStr(LocaleStr::CopyingGameProjectFiles);
