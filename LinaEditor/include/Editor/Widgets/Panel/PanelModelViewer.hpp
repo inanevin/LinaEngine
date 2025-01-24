@@ -30,10 +30,10 @@ SOFTWARE.
 
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Editor/Widgets/Panel/PanelResourceViewer.hpp"
+#include "Core/Graphics/Resource/Model.hpp"
 
 namespace Lina
 {
-	class Model;
 	class Text;
 	class DirectionalLayout;
 	class Button;
