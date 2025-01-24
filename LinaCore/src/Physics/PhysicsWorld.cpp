@@ -70,8 +70,6 @@ namespace Lina
 	void PhysicsWorld::Begin()
 	{
 		EnsurePhysicsBodies();
-		AddAllBodies();
-
 		m_physicsSystem.OptimizeBroadPhase();
 	}
 
@@ -85,35 +83,46 @@ namespace Lina
 
 	void PhysicsWorld::EnsurePhysicsBodies()
 	{
+		Vector<Entity*> newBodies;
+
 		m_world->ViewEntities([&](Entity* e, uint32 idx) -> bool {
 			const EntityPhysicsSettings& phySettings = e->GetPhysicsSettings();
 			if (phySettings.bodyType == PhysicsBodyType::None)
 			{
 				if (e->GetPhysicsBody())
+				{
+					auto it = linatl::find_if(m_addedBodies.begin(), m_addedBodies.end(), [e](Entity* ent) -> bool { return e == ent; });
+					if (it != m_addedBodies.end())
+					{
+						m_physicsSystem.GetBodyInterface().RemoveBody(e->GetPhysicsBody()->GetID());
+						m_addedBodies.erase(it);
+					}
 					DestroyBodyForEntity(e);
+				}
 				return false;
 			}
-
 			if (e->GetPhysicsBody() == nullptr)
+			{
 				CreateBodyForEntity(e);
+				newBodies.push_back(e);
+			}
+
 			return false;
 		});
+
+		AddBodies(newBodies);
 	}
 
-	void PhysicsWorld::AddAllBodies()
+	void PhysicsWorld::AddBodies(const Vector<Entity*>& entities)
 	{
+		if (entities.empty())
+			return;
+
 		JPH::BodyInterface& bodyInterface = m_physicsSystem.GetBodyInterface();
 
-		m_addedBodies.resize(0);
-		m_world->ViewEntities([&](Entity* e, uint32 idx) -> bool {
-			if (e->GetPhysicsBody())
-			{
-				m_addedBodies.push_back(e);
-			}
-			return false;
-		});
+		m_addedBodies.insert(m_addedBodies.end(), entities.begin(), entities.end());
 
-		const size_t bodySz = m_addedBodies.size();
+		const size_t bodySz = entities.size();
 		if (bodySz == 0)
 			return;
 
@@ -122,13 +131,12 @@ namespace Lina
 
 		for (size_t i = 0; i < bodySz; i++)
 		{
-			JPH::Body* body = m_addedBodies.at(i)->GetPhysicsBody();
+			JPH::Body* body = entities.at(i)->GetPhysicsBody();
 			bodyIDs[i]		= body->GetID();
 		}
 
 		const JPH::BodyInterface::AddState addState = bodyInterface.AddBodiesPrepare(bodyIDs.data(), static_cast<int32>(bodySz));
 		bodyInterface.AddBodiesFinalize(bodyIDs.data(), static_cast<int32>(bodySz), addState, JPH::EActivation::Activate);
-
 		LINA_TRACE("Added bodies to world! {0}", bodyIDs.size());
 	}
 

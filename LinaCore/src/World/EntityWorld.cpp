@@ -191,6 +191,7 @@ namespace Lina
 		outResources.insert(ENGINE_MODEL_QUAD_ID);
 		outResources.insert(ENGINE_MODEL_SKYSPHERE_ID);
 		outResources.insert(ENGINE_MODEL_SKYCUBE_ID);
+		outResources.insert(ENGINE_SHADER_SWAPCHAIN_ID);
 		outResources.insert(ENGINE_SHADER_LIGHTING_QUAD_ID);
 		outResources.insert(ENGINE_SHADER_WORLD_DEBUG_LINE_ID);
 		outResources.insert(ENGINE_SHADER_WORLD_DEBUG_TRIANGLE_ID);
@@ -373,10 +374,10 @@ namespace Lina
 		Vector<Entity*> ents = tmp->CreateFromStream(this);
 		WorldUtility::FixEntityIDsToNew(this, ents);
 		LoadMissingResources(*m_rm, m_projectData, {});
-
 		if (ents.empty())
 			return nullptr;
 
+		m_physicsWorld->EnsurePhysicsBodies();
 		return ents.at(0);
 	}
 

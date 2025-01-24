@@ -46,7 +46,7 @@ namespace Lina
 	{
 	public:
 		WorldInput() = delete;
-		WorldInput(LinaGX::Input* inp, Screen* sc, EntityWorld* world) : m_lgxInput(inp), m_screen(sc) {};
+		WorldInput(LinaGX::Input* inp, Screen* sc, EntityWorld* world) : m_lgxInput(inp), m_screen(sc), m_world(world){};
 
 		bool	GetKey(int32 button);
 		bool	GetKeyDown(int32 button);

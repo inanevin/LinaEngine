@@ -55,9 +55,10 @@ namespace Lina
 		void SetPhysicsSettings(const WorldPhysicsSettings& opts);
 		void Begin();
 		void End();
+		void AddEntities(const Vector<Entity*>& e);
 		void EnsurePhysicsBodies();
 
-		void AddAllBodies();
+		void AddBodies(const Vector<Entity*>& e);
 		void RemoveAllBodies();
 		void Simulate(float dt);
 
