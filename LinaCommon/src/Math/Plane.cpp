@@ -1,11 +1,11 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
 Author: Inan Evin
 http://www.inanevin.com
 
-Copyright (c) [2018-2020] [Inan Evin]
+Copyright (c) [2018-] [Inan Evin]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,20 +26,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Math/Plane.hpp"
-#include "Math/Math.hpp"
-#include "Log/Log.hpp"
+#include "Common/Math/Plane.hpp"
+#include "Common/Math/Math.hpp"
+#include "Common/Log/Log.hpp"
 
 namespace Lina
 {
-    void Plane::Normalize()
-    {
-        m_normal = m_normal.Normalized();
-        LINA_TRACE("Normalized {0}", m_normal.ToString());
-    }
+	void Plane::Normalize()
+	{
+		normal = normal.Normalized();
+	}
 
-    float Plane::GetSignedDistance(const Vector3& point) const
-    {
-        return m_normal.Dot(point) - m_distance;
-    }
+	float Plane::GetSignedDistance(const Vector3& point) const
+	{
+		return normal.Dot(point) - distance;
+	}
 } // namespace Lina

@@ -12,13 +12,13 @@
 
 #Project Files
 [Gg]enerated_project_files
-[Bb]uild
-LinaEngineBuildLauncher
-[Bb]uild_Win32
 [Bb]uild_x64
+_[Bb]in
 
 #Lina Engine Tools
 *.jar
+
+*.DS_Store
 
 # Build results
 
@@ -71,11 +71,11 @@ artifacts/
 *.svclog
 *.scc
 *.resx
-*.ico
 *.sln
 *.vcxproj
 *.vcxproj.user
 *.vcxproj.filters
+*.linameta
 
 # Chutzpah Test files
 _Chutzpah*

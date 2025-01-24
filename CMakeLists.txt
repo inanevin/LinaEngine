@@ -1,85 +1,74 @@
-#linaenginebuildlauncherentrypointv100
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# This file is a part of: Lina Engine
+# https://github.com/inanevin/LinaEngine
+# 
 # Author: Inan Evin
-# www.inanevin.com
+# http://www.inanevin.com
 # 
-# Copyright (C) 2018 Inan Evin
+# Copyright (c) [2018-] [Inan Evin]
 # 
-# Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, 
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
-# and limitations under the License.
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-cmake_minimum_required (VERSION 3.6)
+cmake_minimum_required (VERSION 3.10...3.31)
+
 project (Lina)
 
+set(CMAKE_CONFIGURATION_TYPES "Debug;Release;DebugFAST;DebugASAN;DebugProfile;" CACHE STRING "" FORCE)
+set_property(GLOBAL PROPERTY DEBUG_CONFIGURATIONS "Debug;DebugFAST;DebugASAN;DebugProfile;")
+
+set(CMAKE_EXE_LINKER_FLAGS_DEBUGFAST ${CMAKE_EXE_LINKER_FLAGS})
+set(CMAKE_EXE_LINKER_FLAGS_DEBUGPROFILE ${CMAKE_EXE_LINKER_FLAGS})
+set(CMAKE_EXE_LINKER_FLAGS_DEBUGASAN ${CMAKE_EXE_LINKER_FLAGS})
+
+set(TARGET_ARCHITECTURE "x64")
+set(CMAKE_CXX_STANDARD 23)
+
+
+if(MSVC)
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
+	add_compile_definitions(_SILENCE_ALL_MS_EXT_DEPRECATION_WARNINGS)
+endif()
 
 #--------------------------------------------------------------------
 # Options & Definitions
 #--------------------------------------------------------------------
-#set(CMAKE_C_COMPILER /c/MinGW/bin/gcc.exe)
-#set(CMAKE_CXX_COMPILER /c/MinGW/bin/g++.exe)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_SUPPRESS_REGENERATION true)
 
-option(LINA_ENABLE_LOGGING "Enables console logging" ON)
-option(LINA_ENABLE_PROFILING "Enables profiling" ON)
-option(LINA_PRODUCTION_BUILD "Enable distribution ready build." OFF)
-
-if(LINA_ENABLE_LOGGING)
-	add_compile_definitions(LINA_ENABLE_LOGGING)
-endif()
-
-if(LINA_ENABLE_PROFILING)
-	add_compile_definitions(LINA_ENABLE_PROFILING)
-endif()
-
-if(LINA_PRODUCTION_BUILD)
-	add_compile_definitions(LINA_PRODUCTION_BUILD)
-endif()
-
-add_compile_definitions(LINA_AUDIO_OPENAL)
-add_compile_definitions(LINA_GRAPHICS_OPENGL)
-add_compile_definitions(LINA_INPUT_GLFW)
-# add_compile_definitions(LINA_PHYSICS_BULLET)
-add_compile_definitions(LINA_PHYSICS_PHYSX)
-
-set(TARGET_ARCHITECTURE "x64")
-
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
-
-#--------------------------------------------------------------------
-# Set source & header dirs
-#--------------------------------------------------------------------
-set(LINAENGINE_SOURCE_DIR LinaEngine/src)
-set(LINAENGINE_HEADER_DIR LinaEngine/include)
-set(LINAENGINE_VENDOR_DIR LinaEngine/vendor)
-set(LINASANDBOX_SOURCE_DIR Sandbox/src)
-set(LINASANDBOX_HEADER_DIR Sandbox/include)
+include(CMake/CommonDefs.cmake)
 
 #--------------------------------------------------------------------
 # Sub directories
 #--------------------------------------------------------------------
 
-add_subdirectory(LinaAudio)
+include(Dependencies/Dependencies.cmake)
 add_subdirectory(LinaCommon)
-add_subdirectory(LinaGraphics)
-add_subdirectory(LinaInput)
-add_subdirectory(LinaPhysics)
-add_subdirectory(LinaEngine)
+add_subdirectory(LinaCore)
 add_subdirectory(LinaEditor)
-add_subdirectory(LinaResource)
-add_subdirectory(Sandbox)
 
-
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Sandbox)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CustomTargets")
+set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT LinaEditor)
 

@@ -1,0 +1,163 @@
+/*
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
+
+Author: Inan Evin
+http://www.inanevin.com
+
+Copyright (c) [2018-] [Inan Evin]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+
+/*
+
+// Vertex output definition
+struct LinaVertexOutput
+{
+   vec4 clipPosition;
+};
+
+// Fragment output definition
+struct LinaFragOutput
+{
+   vec4 color;
+};
+
+*/
+
+#lina_variant
+#name : Default
+#blend: LINA_BLEND_NONE
+#depth: LINA_DEPTH_NONE
+#depth_target: LINA_TARGET_D32
+#target: LINA_TARGET_HDR
+#cull: LINA_CULL_NONE
+#lina_end
+
+#lina_vs
+
+#include "Resources/Core/Shaders/Common/GlobalData.linashader"
+#include "Resources/Core/Shaders/Common/RenderPass_Forward.linashader"
+
+layout(location = 0) out vec2 outUV;
+
+layout( push_constant ) uniform constants
+{
+	uint value0;
+} PushConstants;
+
+void main()
+{
+   outUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
+   gl_Position =  vec4(outUV * 2.0f + -1.0f, 0.0f, 1.0f);
+   outUV.y = 1.0f - outUV.y;
+}
+
+#lina_end
+
+#lina_fs
+
+#include "Resources/Core/Shaders/Common/GlobalData.linashader"
+#include "Resources/Core/Shaders/Common/RenderPass_Forward.linashader"
+
+layout (location = 0) in vec2 inUV;
+layout (location = 0) out vec4 outFragColor;
+
+float sqr(float r)
+{
+   return r*r;
+}
+float attenuate(float d, float radius,
+    float intensity, float falloff)
+{
+    float s = d / radius;
+
+    if (s >= 1.0)
+        return 0.0;
+
+    float s2 = sqr(s);
+    return intensity * sqr(1 - s2) / (1 + falloff * s);
+}
+
+void main()
+{
+   vec4 albedo = texture(sampler2D(LINA_TEXTURES[LINA_VIEW.gBufColorMaterialID], LINA_SAMPLERS[LINA_VIEW.gBufSampler]), inUV);
+   vec4 normals = texture(sampler2D(LINA_TEXTURES[LINA_VIEW.gBufNormal], LINA_SAMPLERS[LINA_VIEW.gBufSampler]), inUV);
+   vec4 worldPos = texture(sampler2D(LINA_TEXTURES[LINA_VIEW.gBufPosition], LINA_SAMPLERS[LINA_VIEW.gBufSampler]), inUV);
+   vec3 finalColor = albedo.xyz;
+
+   float ambientIntensity = LINA_VIEW.ambientTop.w;
+   vec3 norm = normals.xyz;
+   float dotTop = dot(norm, vec3(0.0, 1.0, 0.0));
+
+   float topMultiplier = max(dotTop, 0.0);
+   float botMultiplier = -1.0 * min(dotTop, 0.0);
+   float midMultiplier = 1.0 - abs(dotTop);
+
+   vec3 atop = LINA_VIEW.ambientTop.xyz * topMultiplier;
+   vec3 abot = LINA_VIEW.ambientBot.xyz * botMultiplier;
+   vec3 amid = LINA_VIEW.ambientMid.xyz * midMultiplier;
+
+   vec3 lightColor = (atop + abot + amid) * ambientIntensity;
+
+   for(uint i = 0; i < LINA_VIEW.lightCount; i++)
+   {
+      LinaLight light = LINA_LIGHTS.data[i];
+      LinaEntity entity = LINA_GET_ENTITY(light.entityIndex);
+
+      if(light.type == 0)
+      {
+         // Directional
+         vec3 lightDir = -(entity.forward.xyz);
+         lightColor += max(dot(norm, lightDir), 0.0) * light.colorAndIntensity.xyz * light.colorAndIntensity.w;
+      }
+      else if(light.type == 1)
+      {
+         // Point
+         vec3 lightPos = entity.position.xyz;
+         vec3 lightDir = lightPos - worldPos.xyz;
+         float dist = length(lightDir);
+
+         float attenuation = attenuate(dist, light.radius, light.colorAndIntensity.w, light.falloff);
+         float diffuse = max(dot(norm, normalize(lightDir)), 0.0);
+         lightColor += diffuse * light.colorAndIntensity.xyz * attenuation;
+      }
+      else if(light.type == 2)
+      {
+         // Spot
+         vec3 lightPos = entity.position.xyz;
+         vec3 lightDir = lightPos - worldPos.xyz;
+         float dist = length(lightDir);
+         float attenuation = attenuate(dist, light.radius, light.colorAndIntensity.w, light.falloff);
+
+         float theta     = dot(normalize(lightDir), normalize(-entity.forward.xyz));
+         float epsilon   = light.cutoff - light.outerCutoff;
+         float intensity = clamp((theta - light.outerCutoff) / epsilon, 0.0, 1.0); 
+         lightColor += light.colorAndIntensity.xyz * intensity * attenuation;
+      }
+   }
+
+    finalColor *= lightColor;
+    outFragColor = vec4(finalColor.rgb, 1.0);
+
+}
+
+#lina_end

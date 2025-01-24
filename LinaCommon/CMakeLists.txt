@@ -12,229 +12,288 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 # and limitations under the License.
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-cmake_minimum_required (VERSION 3.6)
-project(LinaCommon CXX)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+cmake_minimum_required (VERSION 3.10...3.31)
+project(LinaCommon)
 
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
-set (LINACOMMON_SOURCES
+set (SOURCES
 
-	src/Core/Common.cpp
-    src/Core/Timer.cpp
+	src/Common.cpp
+	src/StringID.cpp
 	
-	#Utility
-	src/Utility/UtilityFunctions.cpp
-	
+	# FileSystem
+	src/FileSystem/FileSystem.cpp
+
 	# Log
 	src/Log/Log.cpp
 	
+	# Data
+	src/Data/Streams.cpp
+	src/Data/SyncQueue.cpp
+	src/Data/ActionQueue.cpp
+	src/Data/DelegateQueue.cpp
+	src/Data/String.cpp
+	src/Data/CommonData.cpp
+	src/Data/ParameterCollection.cpp
+
 	# Events
-	src/EventSystem/EventSystem.cpp
-	
+	src/Event/Event.cpp
+	src/Event/SystemEventListener.cpp
+	src/Event/GameEventListener.cpp
+	src/Event/SystemEventDispatcher.cpp
+	src/Event/GameEventDispatcher.cpp
+
 	#Math
 	src/Math/Matrix.cpp
 	src/Math/Quaternion.cpp
 	src/Math/Transformation.cpp
 	src/Math/Vector.cpp
+	src/Math/Rect.cpp
 	src/Math/Color.cpp
 	src/Math/Frustum.cpp
 	src/Math/AABB.cpp
 	src/Math/Plane.cpp
+
+	# Serialization
+	src/Serialization/Serialization.cpp
+	src/Serialization/Serializable.cpp
+	src/Serialization/Endianness.cpp
+	src/Serialization/Compressor.cpp
+
+	# Reflection
+	src/Reflection/ReflectionSystem.cpp
 	
 	# Memory
-	src/Memory/StackAllocator.cpp
-	src/Memory/FrameAllocator.cpp
-	src/Memory/PoolAllocator.cpp
-	src/Memory/FreeListAllocator.cpp
 	src/Memory/Memory.cpp
-	
-	#src/Utility/FileUtility.cpp
-	src/Utility/StringID.cpp
-	
-	# ECS 
-	src/ECS/SystemList.cpp
-	src/ECS/System.cpp
-	src/ECS/Registry.cpp
-	src/ECS/Components/EntityDataComponent.cpp
-	src/ECS/Components/PhysicsComponent.cpp
-	
-	# Reosurces
-	src/Resources/ResourceStorage.cpp
+	src/Memory/MemoryAllocatorPool.cpp
+	src/Memory/AllocatorBucket.cpp
 
+	# Profiling
+	src/Profiling/Profiler.cpp
+	src/Profiling/MemoryTracer.cpp
+	
+	# Job System
+	src/JobSystem/JobSystem.cpp
+	src/JobSystem/TaskRunner.cpp
+
+	# System
+	src/System/SystemInfo.cpp
+
+	# Platform
+	src/Platform/LinaGXIncl.cpp
+
+	# Tween
+	src/Tween/Tween.cpp
 )
 
 
 #--------------------------------------------------------------------
 # Set headers
 #--------------------------------------------------------------------
-set(LINACOMMON_HEADERS
+set(HEADERS
 
 	#CORE
-	include/Core/CommonApplication.hpp
-	include/Core/CommonWindow.hpp
-	include/Core/CommonInput.hpp
-	include/Core/CommonPhysics.hpp
-	include/Core/CommonResources.hpp
-	include/Core/CommonECS.hpp
-	include/Core/CommonUtility.hpp
-	include/Core/CommonReflection.hpp
-	include/Core/SizeDefinitions.hpp
-	include/Core/Timer.hpp
-	include/Core/PlatformMacros.hpp
+	include/Common/Common.hpp
+	include/Common/ClassMacros.hpp
+	include/Common/SizeDefinitions.hpp
+	include/Common/StringID.hpp
+	include/Common/ObjectWrapper.hpp
 	
+	# FileSystem
+	include/Common/FileSystem/FileSystem.hpp
+
 	# Job System
-	include/JobSystem/JobSystem.hpp
+	include/Common/JobSystem/JobSystem.hpp
+	include/Common/JobSystem/TaskRunner.hpp
 
 	# Profiler
-	include/Profiling/Profiler.hpp
-	
-	# Memory
-	include/Memory/MemoryAllocator.hpp
-	include/Memory/StackAllocator.hpp
-	include/Memory/MemoryUtility.hpp
-	include/Memory/FrameAllocator.hpp
-	include/Memory/PoolAllocator.hpp
-	include/Memory/StackLinkedList.hpp
-	include/Memory/SinglyLinkedList.hpp
-	include/Memory/FreeListAllocator.hpp	
-	include/Memory/Memory.hpp
+	include/Common/Profiling/Profiler.hpp
+	include/Common/Profiling/MemoryTracer.hpp
 	
 	# Events
-	include/EventSystem/EventCommon.hpp
-	include/EventSystem/PhysicsEvents.hpp
-	include/EventSystem/WindowEvents.hpp
-	include/EventSystem/InputEvents.hpp
-	include/EventSystem/LevelEvents.hpp
-	include/EventSystem/GraphicsEvents.hpp
-	include/EventSystem/MainLoopEvents.hpp
-	include/EventSystem/ApplicationEvents.hpp
-	include/EventSystem/ResourceEvents.hpp
-	include/EventSystem/ECSEvents.hpp
-	include/EventSystem/EventSystem.hpp
+	include/Common/Event/Event.hpp
+	include/Common/Event/SystemEventListener.hpp
+	include/Common/Event/GameEventListener.hpp
+	include/Common/Event/SystemEventDispatcher.hpp
+	include/Common/Event/GameEventDispatcher.hpp
 
-	# Log
-	include/Log/Log.hpp
+	# Data
+	include/Common/Data/Functional.hpp
+	include/Common/Data/ActionQueue.hpp
+	include/Common/Data/GPUCommand.hpp
+	include/Common/Data/SimpleArray.hpp
+	include/Common/Data/Array.hpp
+	include/Common/Data/Stack.hpp
+	include/Common/Data/Vector.hpp
+	include/Common/Data/Map.hpp
+	include/Common/Data/MallocAllocator.hpp
+	include/Common/Data/List.hpp
+	include/Common/Data/Ringbuffer.hpp
+	include/Common/Data/IDList.hpp
+	include/Common/Data/HashMap.hpp
+	include/Common/Data/Set.hpp
+	include/Common/Data/HashSet.hpp
+	include/Common/Data/Queue.hpp
+	include/Common/Data/PriorityQueue.hpp
+	include/Common/Data/Deque.hpp
+	include/Common/Data/ParameterCollection.hpp
+
+	include/Common/Data/String.hpp
+	include/Common/Data/CommonData.hpp
+	include/Common/Data/Bitmask.hpp
+	include/Common/Data/Mutex.hpp
+	include/Common/Data/Streams.hpp
+	include/Common/Data/SyncQueue.hpp
+	include/Common/Data/DelegateQueue.hpp
+
+	# Memory
+	include/Common/Memory/Memory.hpp
+	include/Common/Memory/MemoryAllocatorPool.hpp
+	include/Common/Memory/AllocatorBucket.hpp
+	include/Common/Memory/CommonMemory.hpp
 	
-	# Utility
-	include/Utility/UtilityFunctions.hpp
+	# Log
+	include/Common/Log/Log.hpp
+
+	# Serialization
+	include/Common/Serialization/CommonSerialization.hpp
+	include/Common/Serialization/Compressor.hpp
+	include/Common/Serialization/Endianness.hpp
+	include/Common/Serialization/Serialization.hpp
+	include/Common/Serialization/Serializable.hpp
+
+	# Reflection
+	include/Common/Reflection/ReflectionSystem.hpp
+	include/Common/Reflection/ClassReflection.hpp
 
 	# Math
-	include/Math/Color.hpp
-	include/Math/Math.hpp
-	include/Math/Matrix.hpp
-	include/Math/Quaternion.hpp
-	include/Math/Transformation.hpp
-	include/Math/Vector.hpp
-	include/Math/AABB.hpp
-	include/Math/Frustum.hpp
-	include/Math/Plane.hpp
-	
-	#ECS
-	include/ECS/Components/EntityDataComponent.hpp
-	include/ECS/Components/PhysicsComponent.hpp
-	include/ECS/Registry.hpp
-	include/ECS/Component.hpp
-	include/ECS/System.hpp
-	include/ECS/SystemList.hpp
-	
-	# Resources
-	include/Resources/IResource.hpp
-	include/Resources/ResourceStorage.hpp
-	include/Resources/ResourceHandle.hpp
-	
-	#include/Utility/FileUtility.hpp
-	include/Utility/StringID.hpp
+	include/Common/Math/Color.hpp
+	include/Common/Math/Math.hpp
+	include/Common/Math/Matrix.hpp
+	include/Common/Math/Quaternion.hpp
+	include/Common/Math/Transformation.hpp
+	include/Common/Math/Vector.hpp
+	include/Common/Math/Rect.hpp
+	include/Common/Math/AABB.hpp
+	include/Common/Math/Frustum.hpp
+	include/Common/Math/Plane.hpp
+
+	# System
+	include/Common/System/SystemInfo.hpp
+
+	# Platform
+	include/Common/Platform/LinaGXIncl.hpp
+	include/Common/Platform/LinaVGIncl.hpp
+    include/Common/Platform/PlatformTime.hpp
+	include/Common/Platform/PlatformInclude.hpp
+
+	# Tween
+	include/Common/Tween/Tween.hpp
+
 )
+
+if(WIN32)
+
+set (PLATFORM_HEADERS
+)
+
+set (PLATFORM_SOURCES 
+src/Platform/Win32/Win32PlatformTime.cpp
+)
+
+endif()
+
+if(APPLE)
+
+set (PLATFORM_HEADERS
+)
+
+set (PLATFORM_SOURCES 
+src/Platform/Apple/ApplePlatformTime.mm
+)
+
+endif()
 
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
-add_library(${PROJECT_NAME} ${LINACOMMON_SOURCES} ${LINACOMMON_HEADERS})
+add_library(${PROJECT_NAME} ${SOURCES} ${HEADERS} ${PLATFORM_HEADERS} ${PLATFORM_SOURCES})
 add_library(Lina::Common ALIAS ${PROJECT_NAME}) 
-set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ON)
-set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
 
-target_precompile_headers(${PROJECT_NAME}
-  PUBLIC
-	include/Memory/MemoryAllocator.hpp
-	include/Memory/StackAllocator.hpp
-	include/Memory/MemoryUtility.hpp
-	include/Memory/FrameAllocator.hpp
-	include/Memory/PoolAllocator.hpp
-	include/Memory/StackLinkedList.hpp
-	include/Memory/SinglyLinkedList.hpp
-	include/Memory/FreeListAllocator.hpp	
-	include/Memory/Memory.hpp
-	include/Core/SizeDefinitions.hpp
-	include/Core/Timer.hpp
-	include/Core/PlatformMacros.hpp
-	include/JobSystem/JobSystem.hpp
-	include/Profiling/Profiler.hpp
-	include/Log/Log.hpp
-	include/ECS/Component.hpp
-	include/ECS/System.hpp
-	include/ECS/SystemList.hpp
-	include/Utility/StringID.hpp
-)
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions
 #--------------------------------------------------------------------
 include(../CMake/ProjectSettings.cmake)
 
+target_precompile_headers(${PROJECT_NAME}
+PUBLIC
+	<algorithm>
+	<functional>
+	<chrono>
+	<assert.h>
+	<string>
+	<exception>
+	<filesystem>
+	<memory>
+	<type_traits>
+	include/Common/Math/Matrix.hpp
+	include/Common/Math/Vector.hpp
+	include/Common/Math/Quaternion.hpp
+	include/Common/Data/String.hpp
+	include/Common/Data/HashMap.hpp
+	include/Common/Data/Vector.hpp
+	include/Common/JobSystem/JobSystem.hpp
+	include/Common/Serialization/Endianness.hpp
+	include/Common/Data/Streams.hpp
+	include/Common/Log/Log.hpp
+)
+
 #--------------------------------------------------------------------
 # Set include directories
 #--------------------------------------------------------------------
-
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glm/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/fmt/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/cereal/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/taskflow/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/easy_profiler/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/entt/src)
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glfw/include)
+set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "LinaEngine")
 
 #--------------------------------------------------------------------
 # Subdirectories & linking
 #--------------------------------------------------------------------
 
-target_link_libraries(${PROJECT_NAME} 
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/glm/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glm_static.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/fmt/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/fmt.lib
-	PUBLIC ${CMAKE_SOURCE_DIR}/vendor/easy_profiler/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/easy_profiler.lib
-	PRIVATE ${CMAKE_SOURCE_DIR}/vendor/glfw/lib/${TARGET_ARCHITECTURE}/$<CONFIGURATION>/glfw3.lib
+target_link_libraries(${PROJECT_NAME}
+    PUBLIC Lina::GX
+	PUBLIC Lina::VG
 )
 
-#--------------------------------------------------------------------
-# Packages
-#--------------------------------------------------------------------
+include(../Dependencies/phmap/link.cmake)
+include(../Dependencies/taskflow/link.cmake)
+link_phmap()
+link_taskflow()
 
+target_link_libraries(${PROJECT_NAME} 
+PUBLIC memory-allocators
+PUBLIC lz4
+PUBLIC fmt
+PUBLIC glm_static
+)
 
-#--------------------------------------------------------------------
-# Generate export header for this dll project 
-#--------------------------------------------------------------------
-# include (GenerateExportHeader)
-#	GENERATE_EXPORT_HEADER (LinaCommon
-#	BASE_NAME LinaCommon
-#	EXPORT_MACRO_NAME LINA_API
-#	EXPORT_FILE_NAME Common.hpp
-#)
+message("LinaCommon -> memory-allocators has been linked.")
+message("LinaCommon -> lz4 has been linked.")
+message("LinaCommon -> fmt has been linked.")
+message("LinaCommon -> glm has been linked.")
+
+# timeBeginPeriod for adjusting timer precision requires Winmm.lib
+if(WIN32)
+target_link_libraries(${PROJECT_NAME} 
+	PUBLIC Winmm.lib
+)
+message("LinaCommon -> Winmm Linked.")
+endif()
 
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio
 #--------------------------------------------------------------------
-if(MSVC_IDE)
-	foreach(source IN LISTS LINACOMMON_HEADERS LINACOMMON_SOURCES)
-		get_filename_component(source_path "${source}" PATH)
-		string(REPLACE "${LinaCommon_SOURCE_DIR}" "" relative_source_path "${source_path}")
-		string(REPLACE "/" "\\" source_path_msvc "${relative_source_path}")
-				source_group("${source_path_msvc}" FILES "${source}")
-	endforeach()
-endif()
-
-
+include(../CMake/CommonFunctions.cmake)
+group_sources(HEADERS SOURCES PLATFORM_HEADERS PLATFORM_SOURCES)

@@ -1,11 +1,11 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
 Author: Inan Evin
 http://www.inanevin.com
 
-Copyright (c) [2018-2020] [Inan Evin]
+Copyright (c) [2018-] [Inan Evin]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,70 +26,89 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Math/Frustum.hpp"
-#include "Math/Vector.hpp"
-#include "Math/Matrix.hpp"
-#include "Math/AABB.hpp"
-#include "Log/Log.hpp"
+#include "Common/Math/Frustum.hpp"
+#include "Common/Math/Vector.hpp"
+#include "Common/Math/Matrix.hpp"
+#include "Common/Math/AABB.hpp"
+#include "Common/Log/Log.hpp"
 
 namespace Lina
 {
-    void Frustum::Calculate(const Matrix& matrix, bool normalize)
-    {
-        Matrix  m      = matrix.Transpose();
-        Vector4 left   = m[3] + m[0];
-        Vector4 right  = m[3] - m[0];
-        Vector4 top    = m[3] - m[1];
-        Vector4 bottom = m[3] + m[1];
-        Vector4 nearP  = m[3] + m[2];
-        Vector4 farP   = m[3] - m[2];
+	void Frustum::Calculate(const Matrix4& matrix, bool normalize)
+	{
+		Matrix4 m		= matrix.Transpose();
+		Vector4 vleft	= m[3] + m[0];
+		Vector4 vright	= m[3] - m[0];
+		Vector4 vtop	= m[3] - m[1];
+		Vector4 vbottom = m[3] + m[1];
+		Vector4 vnearP	= m[3] + m[2];
+		Vector4 vfarP	= m[3] - m[2];
 
-        m_left.m_normal   = left.XYZ();
-        m_left.m_distance = left.w;
+		m_left.normal	= vleft.XYZ();
+		m_left.distance = vleft.w;
 
-        m_right.m_normal   = right.XYZ();
-        m_right.m_distance = right.w;
+		m_right.normal	 = vright.XYZ();
+		m_right.distance = vright.w;
 
-        m_top.m_normal   = top.XYZ();
-        m_top.m_distance = top.w;
+		m_top.normal   = vtop.XYZ();
+		m_top.distance = vtop.w;
 
-        m_bottom.m_normal   = bottom.XYZ();
-        m_bottom.m_distance = bottom.w;
+		m_bottom.normal	  = vbottom.XYZ();
+		m_bottom.distance = vbottom.w;
 
-        m_near.m_normal   = nearP.XYZ();
-        m_near.m_distance = nearP.w;
+		m_near.normal	= vnearP.XYZ();
+		m_near.distance = vnearP.w;
 
-        m_far.m_normal   = farP.XYZ();
-        m_far.m_distance = farP.w;
+		m_far.normal   = vfarP.XYZ();
+		m_far.distance = vfarP.w;
 
-        if (normalize)
-        {
-            m_left.m_normal.Normalize();
-            m_right.m_normal.Normalize();
-            m_top.m_normal.Normalize();
-            m_bottom.m_normal.Normalize();
-            m_near.m_normal.Normalize();
-            m_far.m_normal.Normalize();
-        }
-    }
-    FrustumTest Frustum::TestIntersection(const AABB& aabb)
-    {
-        FrustumTest test = FrustumTest::Inside;
+		if (normalize)
+		{
+			m_left.normal.Normalize();
+			m_right.normal.Normalize();
+			m_top.normal.Normalize();
+			m_bottom.normal.Normalize();
+			m_near.normal.Normalize();
+			m_far.normal.Normalize();
+		}
+	}
+	FrustumTest Frustum::TestIntersection(const AABB& aabb) const
+	{
+		FrustumTest test = FrustumTest::Inside;
 
-        std::vector<Plane*> planes = {&m_left, &m_right, &m_top, &m_bottom, &m_near, &m_far};
+		auto performTest = [&](const Plane& p) {
+			const float	  pos	 = p.distance;
+			const Vector3 normal = p.normal;
 
-        for (auto* p : planes)
-        {
-            const float   pos    = p->m_distance;
-            const Vector3 normal = p->m_normal;
+			if (normal.Dot(aabb.GetPositive(normal)) + pos < 0.0f)
+				test = FrustumTest::Outside;
 
-            if (normal.Dot(aabb.GetPositive(normal)) + pos < 0.0f)
-                return FrustumTest::Outside;
+			if (normal.Dot(aabb.GetNegative(normal)) + pos < 0.0f)
+				test = FrustumTest::Intersects;
+		};
 
-            if (normal.Dot(aabb.GetNegative(normal)) + pos < 0.0f)
-                test = FrustumTest::Intersects;
-        }
+		performTest(m_left);
+		if (test == FrustumTest::Outside)
+			return test;
 
-        return test;
-    }
+		performTest(m_right);
+		if (test == FrustumTest::Outside)
+			return test;
+
+		performTest(m_top);
+		if (test == FrustumTest::Outside)
+			return test;
+
+		performTest(m_bottom);
+		if (test == FrustumTest::Outside)
+			return test;
+
+		performTest(m_near);
+		if (test == FrustumTest::Outside)
+			return test;
+
+		performTest(m_far);
+
+		return test;
+	}
 } // namespace Lina

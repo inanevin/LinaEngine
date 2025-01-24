@@ -12,200 +12,279 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 # and limitations under the License.
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-cmake_minimum_required (VERSION 3.6)
+cmake_minimum_required (VERSION 3.10...3.31)
 project(LinaEditor)
 
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
 
-set(LINAEDITOR_SOURCES 
+set(HEADERS
 
 # Core
-src/Core/EditorApplication.cpp
-src/Core/GUILayer.cpp
-src/Core/EditorCommon.cpp
-src/Core/CentralDockingSpace.cpp
-src/Core/ShortcutManager.cpp
-src/Core/ImGuiCommon.cpp
+include/Editor/CommonEditor.hpp
+Include/Editor/CommonSettings.hpp
+include/Editor/PayloadListener.hpp
+include/Editor/EditorLocale.hpp
+include/Editor/Editor.hpp
+include/Editor/EditorTaskManager.hpp
+include/Editor/Actions/EditorActionManager.hpp
+include/Editor/Actions/EditorAction.hpp
+include/Editor/Actions/EditorActionResources.hpp
+include/Editor/Actions/EditorActionEntity.hpp
+include/Editor/Actions/EditorActionWidget.hpp
+include/Editor/Actions/EditorActionComponent.hpp
+include/Editor/Actions/EditorActionWorld.hpp
+include/Editor/Actions/EditorActionSettings.hpp
+include/Editor/WindowPanelManager.hpp
+include/Editor/World/CommonEditorWorld.hpp
+include/Editor/World/EditorWorldManager.hpp
+include/Editor/World/EditorWorldUserData.hpp
 
+# Project
+include/Editor/Project/ProjectManager.hpp
 
-# ECS
-src/ECS/Systems/EditorCameraSystem.cpp
+# Atlas
+include/Editor/Atlas/AtlasManager.hpp
 
-#Drawers
-src/Drawers/EntityDrawer.cpp
-src/Drawers/ComponentDrawer.cpp
-src/Drawers/ClassDrawer.cpp
-src/Drawers/MaterialDrawer.cpp
-src/Drawers/ModelDrawer.cpp
-src/Drawers/TextureDrawer.cpp
+# Graphics
+include/Editor/Graphics/EditorRenderer.hpp
+include/Editor/Graphics/SurfaceRenderer.hpp
+include/Editor/Graphics/EditorGfxHelpers.hpp
+include/Editor/Graphics/EditorWorldRenderer.hpp
+include/Editor/Graphics/GizmoRenderer.hpp
+include/Editor/Graphics/OutlineSelectionRenderer.hpp
+include/Editor/Graphics/MousePickRenderer.hpp
 
-
-# Panels
-src/Panels/EditorPanel.cpp
-src/Panels/EntitiesPanel.cpp
-src/Panels/SystemsPanel.cpp
-src/Panels/ResourcesPanel.cpp
-src/Panels/LevelPanel.cpp
-src/Panels/PropertiesPanel.cpp
-src/Panels/LogPanel.cpp
-src/Panels/HeaderPanel.cpp
-src/Panels/ProfilerPanel.cpp
-src/Panels/GlobalSettingsPanel.cpp
-src/Panels/MainToolbarPanel.cpp
-src/Panels/ResourceSelectorPanel.cpp
-src/Panels/ProgressPanel.cpp
-src/Panels/PreviewPanel.cpp
-src/Panels/TextEditorPanel.cpp
-
-# Utility
-src/Utility/EditorUtility.cpp
+# IO
+include/Editor/IO/ThumbnailGenerator.hpp
+include/Editor/IO/ExtensionSupport.hpp
 
 # Widgets
-src/Widgets/MenuButton.cpp
-src/Widgets/WidgetsUtility.cpp
-src/Widgets/ToolbarItem.cpp
-src/Widgets/Snackbar.cpp
+include/Editor/Widgets/CommonWidgets.hpp
+include/Editor/Widgets/Testbed.hpp
+include/Editor/Widgets/DockTestbed.hpp
+include/Editor/Widgets/EditorRoot.hpp
+include/Editor/Widgets/Graph/LineGraph.hpp
+include/Editor/Widgets/Graph/CircleGauge.hpp
+include/Editor/Widgets/Compound/ColorWheelCompound.hpp
+include/Editor/Widgets/Compound/Tab.hpp
+include/Editor/Widgets/Compound/Table.hpp
+include/Editor/Widgets/Compound/TabRow.hpp
+include/Editor/Widgets/Compound/IconTabs.hpp
+include/Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp
+include/Editor/Widgets/Compound/EntityBrowser.hpp
+include/Editor/Widgets/Compound/WidgetBrowser.hpp
+include/Editor/Widgets/Compound/EntityDetails.hpp
+include/Editor/Widgets/Compound/WindowBar.hpp
+include/Editor/Widgets/Docking/DockArea.hpp
+include/Editor/Widgets/Docking/DockBorder.hpp
+include/Editor/Widgets/Docking/DockWidget.hpp
+include/Editor/Widgets/Docking/DockPreview.hpp
+include/Editor/Widgets/Popups/NotificationDisplayer.hpp
+include/Editor/Widgets/Popups/InfoTooltip.hpp
+include/Editor/Widgets/Panel/Panel.hpp
+include/Editor/Widgets/Panel/PanelWorld.hpp
+include/Editor/Widgets/Panel/PanelLog.hpp
+include/Editor/Widgets/Panel/PanelWidgetEditor.hpp
+include/Editor/Widgets/Panel/PanelWidgetEditorProperties.hpp
+include/Editor/Widgets/Panel/PanelPerformance.hpp
+include/Editor/Widgets/Panel/PanelEntities.hpp
+include/Editor/Widgets/Panel/PanelDetails.hpp
+include/Editor/Widgets/Panel/PanelTextureViewer.hpp
+include/Editor/Widgets/Panel/PanelFontViewer.hpp
+include/Editor/Widgets/Panel/PanelModelViewer.hpp
+include/Editor/Widgets/Panel/PanelShaderViewer.hpp
+include/Editor/Widgets/Panel/PanelSamplerViewer.hpp
+include/Editor/Widgets/Panel/PanelPhysicsMaterialViewer.hpp
+include/Editor/Widgets/Panel/PanelMaterialViewer.hpp
+include/Editor/Widgets/Panel/PanelAudioViewer.hpp
+include/Editor/Widgets/Panel/PanelResourceBrowser.hpp
+include/Editor/Widgets/Panel/PanelColorWheel.hpp
+include/Editor/Widgets/Panel/PanelGenericSelector.hpp
+include/Editor/Widgets/Panel/PanelFactory.hpp
+include/Editor/Widgets/Panel/PanelResourceViewer.hpp
+include/Editor/Widgets/Panel/PanelProjectSettings.hpp
+include/Editor/Widgets/Panel/PanelEditorSettings.hpp
+include/Editor/Widgets/FX/LinaLoading.hpp
+include/Editor/Widgets/FX/ColorWheel.hpp
+include/Editor/Widgets/FX/ProgressCircleFill.hpp
+include/Editor/Widgets/Layout/ItemController.hpp
+include/Editor/Widgets/World/WorldDisplayer.hpp
+include/Editor/Widgets/World/WorldController.hpp
 
-# ImGui
-src/imgui/imgui_impl_opengl3.cpp
-src/imgui/imgui_impl_glfw.cpp
-src/imgui/imgui.cpp
-src/imgui/imgui_demo.cpp
-src/imgui/imgui_draw.cpp
-src/imgui/imgui_widgets.cpp
-src/imgui/imgui_tables.cpp
-src/imgui/imguizmo/ImCurveEdit.cpp
-src/imgui/imguizmo/ImGradient.cpp
-src/imgui/imguizmo/ImGuizmo.cpp
-src/imgui/imguizmo/ImSequencer.cpp
-src/imgui/implot/implot_demo.cpp
-src/imgui/implot/implot.cpp
-src/imgui/implot/implot_items.cpp
-src/imgui/imguicolortextedit/TextEditor.cpp
+# World
+include/Editor/World/EditorCamera.hpp
+include/Editor/World/EditorWorldUtility.hpp
 
+# Meta
+include/Editor/Meta/EditorSettings.hpp
+include/Editor/Meta/EditorLayout.hpp
+
+# Resources
+include/Editor/Resources/ResourcePipeline.hpp
+include/Editor/Resources/EditorResources.hpp
+include/Editor/Resources/ShaderImport.hpp
 )
 
-set_source_files_properties( src/imgui/imgui_impl_opengl3.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
-set_source_files_properties( src/imgui/imgui_impl_glfw.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
-set_source_files_properties( src/imgui/imgui.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
-set_source_files_properties( src/imgui/imgui_demo.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
-set_source_files_properties( src/imgui/imgui_draw.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
-set_source_files_properties( src/imgui/imgui_widgets.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
-set_source_files_properties( src/imgui/imgui_tables.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
-set_source_files_properties( src/imgui/imguizmo/ImCurveEdit.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
-set_source_files_properties( src/imgui/imguizmo/ImGradient.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
-set_source_files_properties( src/imgui/imguizmo/ImGuizmo.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
-set_source_files_properties( src/imgui/imguizmo/ImSequencer.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
-set_source_files_properties( src/imgui/implot/implot_demo.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
-set_source_files_properties( src/imgui/implot/implot.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
-set_source_files_properties( src/imgui/implot/implot_items.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON )
-
-set(LINAEDITOR_HEADERS
-
+set(SOURCES
 # Core
-include/Core/GUILayer.hpp
-include/Core/EditorCommon.hpp
-include/Core/EditorApplication.hpp
-include/Core/CustomFontIcons.hpp
-include/Core/CentralDockingSpace.hpp
-include/Core/ShortcutManager.hpp
-include/Core/ImGuiCommon.hpp
+src/CommonEditor.cpp
+src/Actions/EditorActionManager.cpp
+src/Actions/EditorAction.cpp
+src/Actions/EditorActionResources.cpp
+src/Actions/EditorActionEntity.cpp
+src/Actions/EditorActionWidget.cpp
+src/Actions/EditorActionComponent.cpp
+src/Actions/EditorActionWorld.cpp
+src/Actions/EditorActionSettings.cpp
+src/EditorLocale.cpp
+src/Editor.cpp
+src/EditorTaskManager.cpp
+src/WindowPanelManager.cpp
 
-# ECS
-include/ECS/Systems/EditorCameraSystem.hpp
+# Project
+src/Project/ProjectManager.cpp
 
-#Drawers
-include/Drawers/EntityDrawer.hpp
-include/Drawers/ComponentDrawer.hpp
-include/Drawers/ClassDrawer.hpp
-include/Drawers/MaterialDrawer.hpp
-include/Drawers/ModelDrawer.hpp
-include/Drawers/TextureDrawer.hpp
+# Atlas
+src/Atlas/AtlasManager.cpp
 
-# Panels
-include/Panels/MainToolbarPanel.hpp
-include/Panels/EditorPanel.hpp
-include/Panels/EntitiesPanel.hpp
-include/Panels/SystemsPanel.hpp
-include/Panels/ResourcesPanel.hpp
-include/Panels/LevelPanel.hpp
-include/Panels/PropertiesPanel.hpp
-include/Panels/LogPanel.hpp
-include/Panels/HeaderPanel.hpp
-include/Panels/ProfilerPanel.hpp
-include/Panels/GlobalSettingsPanel.hpp
-include/Panels/ResourceSelectorPanel.hpp
-include/Panels/ProgressPanel.hpp
-include/Panels/ProgressPanel.hpp
-include/Panels/TextEditorPanel.hpp
+# Graphics
+src/Graphics/EditorRenderer.cpp
+src/Graphics/SurfaceRenderer.cpp
+src/Graphics/EditorGfxHelpers.cpp
+src/Graphics/EditorWorldRenderer.cpp
+src/Graphics/GizmoRenderer.cpp
+src/Graphics/OutlineSelectionRenderer.cpp
+src/Graphics/MousePickRenderer.cpp
 
 
-# Utility
-include/Utility/EditorUtility.hpp
+# IO
+src/IO/ThumbnailGenerator.cpp
+src/IO/ExtensionSupport.cpp
 
 # Widgets
-include/Widgets/MenuButton.hpp
-include/Widgets/WidgetsUtility.hpp
-include/Widgets/ToolbarItem.hpp
-include/Widgets/Snackbar.hpp
+src/Widgets/CommonWidgets.cpp
+src/Widgets/Testbed.cpp
+src/Widgets/DockTestbed.cpp
+src/Widgets/EditorRoot.cpp
+src/Widgets/Graph/LineGraph.cpp
+src/Widgets/Graph/CircleGauge.cpp
+src/Widgets/Compound/ColorWheelCompound.cpp
+src/Widgets/Compound/TabRow.cpp
+src/Widgets/Compound/Tab.cpp
+src/Widgets/Compound/Table.cpp
+src/Widgets/Compound/IconTabs.cpp
+src/Widgets/Compound/ResourceDirectoryBrowser.cpp
+src/Widgets/Compound/EntityBrowser.cpp
+src/Widgets/Compound/WidgetBrowser.cpp
+src/Widgets/Compound/EntityDetails.cpp
+src/Widgets/Compound/WindowBar.cpp
+src/Widgets/Docking/DockWidget.cpp
+src/Widgets/Docking/DockBorder.cpp
+src/Widgets/Docking/DockArea.cpp
+src/Widgets/Docking/DockPreview.cpp
+src/Widgets/Popups/NotificationDisplayer.cpp
+src/Widgets/Popups/InfoTooltip.cpp
+src/Widgets/Panel/Panel.cpp
+src/Widgets/Panel/PanelPerformance.cpp
+src/Widgets/Panel/PanelWorld.cpp
+src/Widgets/Panel/PanelLog.cpp
+src/Widgets/Panel/PanelWidgetEditor.cpp
+src/Widgets/Panel/PanelWidgetEditorProperties.cpp
+src/Widgets/Panel/PanelEntities.cpp
+src/Widgets/Panel/PanelDetails.cpp
+src/Widgets/Panel/PanelTextureViewer.cpp
+src/Widgets/Panel/PanelFontViewer.cpp
+src/Widgets/Panel/PanelModelViewer.cpp
+src/Widgets/Panel/PanelShaderViewer.cpp
+src/Widgets/Panel/PanelSamplerViewer.cpp
+src/Widgets/Panel/PanelPhysicsMaterialViewer.cpp
+src/Widgets/Panel/PanelMaterialViewer.cpp
+src/Widgets/Panel/PanelAudioViewer.cpp
+src/Widgets/Panel/PanelResourceBrowser.cpp
+src/Widgets/Panel/PanelColorWheel.cpp
+src/Widgets/Panel/PanelGenericSelector.cpp
+src/Widgets/Panel/PanelFactory.cpp
+src/Widgets/Panel/PanelResourceViewer.cpp
+src/Widgets/Panel/PanelProjectSettings.cpp
+src/Widgets/Panel/PanelEditorSettings.cpp
+src/Widgets/FX/LinaLoading.cpp
+src/Widgets/FX/ColorWheel.cpp
+src/Widgets/FX/ProgressCircleFill.cpp
+src/Widgets/Layout/ItemController.cpp
+src/Widgets/World/WorldDisplayer.cpp
+src/Widgets/World/WorldController.cpp
 
-# ImGui
-include/imgui/dirent.h
-include/imgui/imconfig.h
-include/imgui/imgui.h
-include/imgui/imgui_impl_glfw.h
-include/imgui/imgui_impl_opengl3.h
-include/imgui/imgui_impl_opengl3_loader.h
-include/imgui/imgui_internal.h
-include/imgui/imstb_rectpack.h
-include/imgui/imstb_textedit.h
-include/imgui/imstb_truetype.h
-include/imgui/imguizmo/ImCurveEdit.h
-include/imgui/imguizmo/ImGradient.h
-include/imgui/imguizmo/ImGuizmo.h
-include/imgui/imguizmo/ImSequencer.h
-include/imgui/implot/implot.h
-include/imgui/implot/implot_internal.h
-include/imgui/imguicolortextedit/TextEditor.h
+# World
+src/World/EditorCamera.cpp
+src/World/EditorWorldUtility.cpp
+src/World/EditorWorldManager.cpp
+src/World/CommonEditorWorld.cpp
+src/World/EditorWorldUserData.cpp
 
-CMakeLists.txt
+# Meta
+src/Meta/EditorSettings.cpp
+src/Meta/EditorLayout.cpp
 
+# Resources
+src/Resources/ResourcePipeline.cpp
+src/Resources/EditorResources.cpp
+src/Resources/ShaderImport.cpp
 )
 
 #--------------------------------------------------------------------
 # Create executable project
 #--------------------------------------------------------------------
-add_library(${PROJECT_NAME} ${LINAEDITOR_SOURCES} ${LINAEDITOR_HEADERS})
-add_library(Lina::Editor ALIAS ${PROJECT_NAME}) 
-set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ON)
-set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
+
+if(WIN32)
+set(ICON ${PROJECT_SOURCE_DIR}/_Resources/${PROJECT_NAME}.rc)
+endif()
+
+if(APPLE)
+set(ICON ${PROJECT_SOURCE_DIR}/_Resources/${PROJECT_NAME}.icns)
+endif()
+
+# WIN32 Console Subsystem
+if(WIN32)
+	add_executable(${PROJECT_NAME} WIN32 ${SOURCES} ${HEADERS} ${ICON})
+else()
+	add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCES} ${HEADERS} ${ICON})
+endif()
+
+set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER LinaEngine)
+
 
 #--------------------------------------------------------------------
-# Options & Definitions
+# Config & Options & Compile Definitions
+#--------------------------------------------------------------------
+include(${CMAKE_SOURCE_DIR}/CMake/ProjectSettings.cmake)
+include(${CMAKE_SOURCE_DIR}/CMake/ExecutableSettings.cmake)
+target_compile_definitions(LinaCommon PUBLIC LINA_ENABLE_PROFILER)
+target_compile_definitions(LinaCore PUBLIC LINA_ENABLE_PROFILER)
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_ENABLE_PROFILER)
+
+#--------------------------------------------------------------------
+# Set include directories
 #--------------------------------------------------------------------
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/vendor/IconFontCPPHeaders/include)
-
-include(../CMake/ProjectSettings.cmake)
-
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCore/include)
 
 #--------------------------------------------------------------------
 # Links
 #--------------------------------------------------------------------
 target_link_libraries(${PROJECT_NAME} 
-PRIVATE Engine
+PUBLIC Lina::Core
 )
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio
 #--------------------------------------------------------------------
-if(MSVC_IDE)
-	foreach(source IN LISTS LINAEDITOR_HEADERS LINAEDITOR_SOURCES)
-		get_filename_component(source_path "${source}" PATH)
-		string(REPLACE "${LINAEDITOR_SOURCE_DIR}" "" relative_source_path "${source_path}")
-		string(REPLACE "/" "\\" source_path_msvc "${relative_source_path}")
-				source_group("${source_path_msvc}" FILES "${source}")
-	endforeach()
-endif()
+
+include(${CMAKE_SOURCE_DIR}/CMake/CommonFunctions.cmake)
+group_sources(HEADERS SOURCES)
+
+# Copy Lina libraries to output for game dll
+# include(${CMAKE_SOURCE_DIR}/Dependencies/DependenciesEditorPackaging.cmake)
+
+

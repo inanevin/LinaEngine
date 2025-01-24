@@ -1,0 +1,102 @@
+/*
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
+
+Author: Inan Evin
+http://www.inanevin.com
+
+Copyright (c) [2018-] [Inan Evin]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+#lina_shader_gui
+
+#lina_variant
+#name : 3D
+#vertex: Resources/Core/Shaders/Common/MainVertexGUI.linashader
+#frag: Resources/Core/Shaders/Common/MainFragSimple.linashader
+#pass: Resources/Core/Shaders/Common/RenderPass_Forward.linashader
+#blend: LINA_BLEND_ALPHA
+#depth: LINA_DEPTH_LESS
+#depth_target: LINA_TARGET_D32
+#target: LINA_TARGET_HDR
+#cull: LINA_CULL_NONE
+#face: LINA_FACE_CCW
+#lina_end
+
+#lina_variant
+#name : 2D
+#vertex: Resources/Core/Shaders/Common/MainVertexGUI.linashader
+#frag: Resources/Core/Shaders/Common/MainFragSimple.linashader
+#pass: Resources/Core/Shaders/Common/RenderPass_Forward.linashader
+#blend: LINA_BLEND_ALPHA
+#depth: LINA_DEPTH_NONE
+#depth_target: LINA_TARGET_D32
+#target: LINA_TARGET_HDR
+#cull: LINA_CULL_NONE
+#face: LINA_FACE_CCW
+#lina_end
+
+#lina_vs
+
+layout (location = 0) out vec4 outCol;
+layout (location = 1) out vec2 outUV;
+layout (location = 2) flat out uint outMaterialIndex;
+
+void LINA_VERTEX_MAIN(in LinaVertexInput inVertex, out LinaVertexOutput outVertex)
+{
+   outCol = inVertex.col;
+   outUV = inVertex.uv;
+   outMaterialIndex = inVertex.drawArguments.argument0;
+   if(inVertex.drawArguments.argument2 == 1)
+   {
+      LinaEntity entity = LINA_GET_ENTITY(inVertex.drawArguments.argument1);
+      vec3 worldPos = vec3(entity.modelMatrix * vec4(-inVertex.pos.x , -inVertex.pos.y, 0.0, 1.0));
+      outVertex.clipPosition = LINA_VIEW.viewProj * vec4(worldPos, 1.0);
+   }
+   else
+   {
+      outVertex.clipPosition = LINA_VIEW.projOrtho * vec4(inVertex.pos.x, inVertex.pos.y, 0.0f, 1.0);
+   }
+}
+
+#lina_end
+
+#lina_fs
+
+
+layout (location = 0) in vec4 inCol;
+layout (location = 1) in vec2 inUV;
+layout (location = 2) flat in uint inMaterialIndex;
+
+
+struct LinaMaterial
+{
+   LinaTexture2D diffuse;
+};
+
+void LINA_FRAG_MAIN(out LinaFragOutput outFrag)
+{
+   LinaMaterial material = LINA_GET_MATERIAL(inMaterialIndex);
+   outFrag.color = vec4(inCol.rgb, LINA_SAMPLE_TEXTURE(material.diffuse, inUV).r * inCol.a);
+}
+
+
+#lina_end

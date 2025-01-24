@@ -1,0 +1,2 @@
+using std::swap & swap() functionality inside phmap.h has been refactored to use std::swap explicitly,
+in order to avoid clashes with eastl::swap

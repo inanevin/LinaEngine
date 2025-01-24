@@ -1,0 +1,121 @@
+/*
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
+
+Author: Inan Evin
+http://www.inanevin.com
+
+Copyright (c) [2018-] [Inan Evin]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+#lina_variant
+
+#name : Default
+#vertex: Resources/Core/Shaders/Common/MainVertexStatic.linashader
+#frag: Resources/Core/Shaders/Common/MainFragSimple.linashader
+#pass: Resources/Editor/Shaders/Common/RenderPass_World.linashader
+#blend: LINA_BLEND_ALPHA
+#depth: LINA_DEPTH_ALWAYS
+#depth_target: LINA_TARGET_D32
+#target: LINA_TARGET_LDR_MS
+#cull: LINA_CULL_NONE
+
+#lina_end
+
+#lina_vs
+
+layout (location = 0) out flat uint outMaterialIndex;
+layout (location = 1) out vec3 outVtxPos;
+
+void LINA_VERTEX_MAIN(in LinaVertexInput inVertex, out LinaVertexOutput outVertex)
+{
+   LinaEntity entity = LINA_GET_ENTITY(inVertex.drawArguments.argument0);
+
+   // Transform cube's world position to view space
+   vec4 cubeViewPos = LINA_VIEW.view * vec4(entity.modelMatrix[3].xyz, 1.0);
+   float distance = abs(cubeViewPos.z); // Distance from camera in view space (z-axis)
+
+    // Screen size and aspect ratio adjustments
+    float screenAspectRatio = LINA_VIEW.size.x / LINA_VIEW.size.y;
+    float adjustedDesiredSizeNDC = 180 * float(inVertex.drawArguments.argument3) / LINA_VIEW.size.y;
+
+    // Calculate the scale factor to counteract perspective
+    float scale = adjustedDesiredSizeNDC * distance;
+
+   // Scale vertex positions relative to cube center
+   vec3 scaledVertexPos = inVertex.pos.xyz * scale;
+
+   // Transform scaled vertex positions back to world space
+   vec4 finalWorldPos = entity.modelMatrix * vec4(scaledVertexPos, 1.0);
+
+   // Compute final clip-space position
+   outVertex.clipPosition = LINA_VIEW.viewProj * finalWorldPos;
+
+   // Pass the material index to the fragment shader
+   outMaterialIndex = inVertex.drawArguments.argument1;
+
+   outVtxPos = normalize(inVertex.pos.xyz);
+}
+
+#lina_end
+
+#lina_fs
+
+layout(location = 0) flat in uint inMaterialIndex;
+layout(location = 1) in vec3 inVtxPos;
+
+struct LinaMaterial
+{
+   vec4 color;
+   float angle0;
+   float angle1;
+};
+
+void LINA_FRAG_MAIN(out LinaFragOutput outFrag)
+{
+    LinaMaterial material = LINA_GET_MATERIAL(inMaterialIndex);
+
+    // Calculate the angle of the vertex position
+    float angle = atan(inVtxPos.y, inVtxPos.x);
+
+    // Normalize the angle to [0, 2π]
+    angle = mod(angle + 6.28318530718, 6.28318530718);
+
+   float alpha = 1.0;
+   // Check if the angle is between angle0 and angle1
+    if (material.angle0 < material.angle1) {
+        // Normal case
+        if (angle < material.angle0 || angle > material.angle1) {
+            alpha = 0.1;
+        }
+    } else {
+        // Wrap-around case (angle0 > angle1)
+        if (angle > material.angle1 && angle < material.angle0) {
+         alpha = 0.1;
+        }
+    }
+
+    // Assign the material color
+    outFrag.color = material.color;
+    outFrag.color.a *= alpha;
+}
+
+#lina_end

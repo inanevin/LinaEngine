@@ -1,0 +1,134 @@
+/*
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
+
+Author: Inan Evin
+http://www.inanevin.com
+
+Copyright (c) [2018-] [Inan Evin]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+/*
+
+// Vertex input definition
+struct LinaVertexInput
+{
+   vec4 pos;
+   vec3 normal;
+   vec2 uv;
+   DrawArguments drawArguments;
+};
+
+// Vertex output definition
+
+struct LinaVertexOutput
+{
+   vec4 clipPosition;
+};
+
+// Fragment output definition
+
+struct LinaFragOutput
+{
+   vec4 color;
+   vec3 normal;
+   vec3 worldPos;
+   uint isUnlit;
+};
+
+*/
+
+#lina_shader_forward
+
+#lina_variant
+
+#name : Static
+#vertex: Resources/Core/Shaders/Common/MainVertexStatic.linashader
+#frag: Resources/Core/Shaders/Common/MainFragSimple.linashader
+#pass: Resources/Core/Shaders/Common/RenderPass_Forward.linashader
+#blend: LINA_BLEND_ALPHA
+#depth: LINA_DEPTH_LESS
+#depth_target: LINA_TARGET_D32
+#target: LINA_TARGET_HDR
+#cull: LINA_CULL_BACK
+
+#lina_end
+
+#lina_variant
+
+#name : Skinned
+#vertex: Resources/Core/Shaders/Common/MainVertexSkinned.linashader
+#frag: Resources/Core/Shaders/Common/MainFragSimple.linashader
+#pass: Resources/Core/Shaders/Common/RenderPass_Forward.linashader
+#blend: LINA_BLEND_ALPHA
+#depth: LINA_DEPTH_LESS
+#depth_target: LINA_TARGET_D32
+#target: LINA_TARGET_HDR
+#cull: LINA_CULL_BACK
+
+#lina_end
+
+#lina_vs
+
+layout (location = 0) out flat uint outMaterialIndex;
+layout (location = 1) out vec2 outUV;
+layout (location = 2) out vec3 outNormal;
+layout (location = 3) out vec3 outWorldPos;
+
+void LINA_VERTEX_MAIN(in LinaVertexInput inVertex, out LinaVertexOutput outVertex)
+{
+   LinaEntity entity = LINA_GET_ENTITY(inVertex.drawArguments.argument0);
+   vec3 worldPos = vec3(entity.modelMatrix * inVertex.pos);
+   outVertex.clipPosition = LINA_VIEW.viewProj * vec4(worldPos, 1.0);
+   outMaterialIndex = inVertex.drawArguments.argument1;
+   outUV = inVertex.uv;
+   outNormal = inVertex.normal;
+   outWorldPos = worldPos;
+}
+
+#lina_end
+
+#lina_fs
+
+layout (location = 0) in flat uint inMaterialIndex;
+layout (location = 1) in vec2 inUV;
+layout (location = 2) in vec3 inNormal;
+layout (location = 3) in vec3 inWorldPos;
+
+struct LinaMaterial
+{
+   vec4 color;
+   vec4 tilingAndOffset;
+   LinaTexture2D txtAlbedo;
+   LinaTexture2D txtNormal;
+};
+
+void LINA_FRAG_MAIN(out LinaFragOutput outFrag)
+{
+   LinaMaterial material = LINA_GET_MATERIAL(inMaterialIndex);
+   vec2 uv = inUV * material.tilingAndOffset.xy + material.tilingAndOffset.zw;
+   outFrag.color = LINA_SAMPLE_TEXTURE(material.txtAlbedo, uv) * material.color;
+   outFrag.normal = vec3(0.0);
+   outFrag.worldPos = vec3(0.0);
+   outFrag.isUnlit = 0;
+}
+
+#lina_end
