@@ -110,24 +110,27 @@ namespace Lina
 			return this->hash_value;
 		}
 	};
-	template <typename T, typename = void> struct HasSharedTID : std::false_type
-	{
-	};
 
-	template <typename T> struct HasSharedTID<T, std::void_t<decltype(T::SHARED_TID)>> : std::true_type
-	{
-	};
+	template <typename T>
+	concept HasSharedTID = requires { T::SHARED_TID; };
 
-	// Primary template
-	template <typename T, typename std::enable_if<!HasSharedTID<T>::value, int>::type = 0> constexpr TypeID GetTypeID()
-	{
-		return FnvHash(typeid(T).name());
-	}
+	template <typename T>
+	concept HasSharedTIDBase = requires { T::SHARED_TID_BASE; };
 
-	// Specialization for types that have SHARED_TID
-	template <typename T, typename std::enable_if<HasSharedTID<T>::value, int>::type = 0> constexpr TypeID GetTypeID()
+	class Widget;
+
+	template <typename T> constexpr TypeID GetTypeID()
 	{
-		return T::SHARED_TID;
+		if constexpr (std::is_same_v<T, Widget>)
+		{
+			return 500;
+		}
+		if constexpr (HasSharedTID<T>)
+			return T::SHARED_TID; // Highest priority
+		else if constexpr (HasSharedTIDBase<T>)
+			return T::SHARED_TID_BASE; // Fallback
+		else
+			return FnvHash(typeid(T).name()); // Default
 	}
 
 	constexpr StringID operator"" _hs(const char* str, std::size_t) noexcept

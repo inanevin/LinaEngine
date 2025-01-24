@@ -40,7 +40,6 @@ namespace Lina
 		GUIWidget(ResourceID id = 0, const String& name = "") : Resource(id, GetTypeID<GUIWidget>(), name) {};
 
 		static constexpr uint32 VERSION	   = 0;
-		static constexpr TypeID SHARED_TID = 103;
 
 		virtual ~GUIWidget();
 		virtual bool		LoadFromFile(const String& path) override;

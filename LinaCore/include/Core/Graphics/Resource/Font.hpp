@@ -67,7 +67,6 @@ namespace Lina
 		};
 
 		static constexpr uint32 VERSION	   = 0;
-		static constexpr TypeID SHARED_TID = 102;
 
 		Font(ResourceID id, const String& name) : Resource(id, GetTypeID<Font>(), name) {};
 		virtual ~Font();
