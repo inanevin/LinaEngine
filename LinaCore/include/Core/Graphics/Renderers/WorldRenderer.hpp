@@ -249,7 +249,7 @@ namespace Lina
 
 		inline void SetDrawPhysics(bool df)
 		{
-			m_drawPhysics = true;
+            m_drawPhysics = df;
 		}
 
 	private:

@@ -50,6 +50,18 @@ namespace Lina
 		m_bufferRequests.clear();
 	}
 
+	void ResourceUploadQueue::DestroyingTexture(Texture* txt)
+	{
+		auto it = linatl::find_if(m_textureRequests.begin(), m_textureRequests.end(), [txt](const TextureUploadRequest& req) -> bool { return req.txt == txt; });
+		if (it != m_textureRequests.end())
+		{
+			for (LinaGX::TextureBuffer& buf : it->buffers)
+				delete[] buf.pixels;
+			it->buffers.clear();
+			m_textureRequests.erase(it);
+		}
+	}
+
 	void ResourceUploadQueue::AddTextureRequest(Texture* txt)
 	{
 		// No duplicates allowed, override if existing
@@ -74,6 +86,10 @@ namespace Lina
 			req.buffers.push_back(newBuf);
 		}
 
+		if (req.txt->GetName().compare("WorldRenderer:  GBufAlbedo 0") == 0)
+		{
+			int a = 5;
+		}
 		m_textureRequests.push_back(req);
 	}
 
@@ -120,6 +136,12 @@ namespace Lina
 
 		for (auto& req : m_textureRequests)
 		{
+			if (req.txt->GetID() > RESOURCE_ID_CUSTOM_SPACE && req.txt->GetID() < RESOURCE_ID_ENGINE_SPACE)
+			{
+				// LINA_ASSERT(false, "");
+				int a = 5;
+			}
+
 			Vector<LinaGX::TextureBuffer>&	  allBuffers = req.buffers;
 			LinaGX::CMDCopyBufferToTexture2D* cmd		 = copyStream->AddCommand<LinaGX::CMDCopyBufferToTexture2D>();
 			cmd->destTexture							 = req.txt->GetGPUHandle();

@@ -256,6 +256,8 @@ namespace Lina
 			{
 				join		  = true;
 				bindlessDirty = true;
+
+				m_uploadQueue.DestroyingTexture(static_cast<Texture*>(res));
 			}
 			else if (res->GetTID() == GetTypeID<TextureSampler>())
 			{

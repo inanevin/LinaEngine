@@ -360,9 +360,6 @@ namespace Lina::Editor
 		layout->GetProps().direction			  = DirectionOrientation::Vertical;
 		fgItem->AddChild(layout);
 
-		m_overlayControls.cameraSettings.movementBoost = m_camera->GetMovementBoost();
-		m_overlayControls.cameraSettings.angularBoost  = m_camera->GetAngularBoost();
-
 		CommonWidgets::BuildClassReflection(layout, &m_overlayControls.cameraSettings, ReflectionSystem::Get().Meta<WorldCameraSettings>());
 
 		layout->GetCallbacks().onEditStarted = [this]() { m_overlayControls.oldCameraOptions = m_overlayControls.cameraSettings; };
@@ -465,7 +462,13 @@ namespace Lina::Editor
 		m_ewr			= ewr;
 		m_world			= renderer ? m_worldRenderer->GetWorld() : nullptr;
 		m_overlayControls.baseWidget->GetFlags().Set(WF_HIDE, m_world == nullptr);
-
+       
+        m_selectedEntities.clear();
+        m_selectedRoots.clear();
+        m_selectionControls.visible = false;
+        m_selectionControls.isParenting = false;
+        m_selectionControls.rectSelectionPressed = false;
+        
 		if (m_worldRenderer)
 		{
 			m_world->AddListener(this);

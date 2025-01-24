@@ -173,6 +173,7 @@ namespace Lina::Editor
 		m_world->SaveToFileAsBinary(m_editor->GetProjectManager().GetProjectData()->GetResourcePath(m_world->GetID()));
 		m_editor->GetWorldManager().DestroyEditorWorld(m_world);
 		m_world = nullptr;
+		m_worldDisplayer->GetController()->SetWorld(nullptr, nullptr, WorldCameraType::FreeMove);
 
 		GetWidgetProps().debugName = Locale::GetStr(LocaleStr::World) + ": None";
 		RefreshTab();

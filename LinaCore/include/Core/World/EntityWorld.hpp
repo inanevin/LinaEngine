@@ -251,7 +251,6 @@ namespace Lina
 	private:
 		void				BeginPlay();
 		void				EndPlay();
-		void				TickPlay(float deltaTime);
 		void				DestroyEntityData(Entity* e);
 		void				OnCreateComponent(Component* c, Entity* e);
 		void				OnDestroyComponent(Component* c, Entity* e);

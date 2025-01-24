@@ -92,14 +92,18 @@ namespace Lina
 
 	void EntityWorld::Tick(float delta)
 	{
-		for (EntityWorldListener* l : m_listeners)
-			l->OnWorldTick(delta, m_playMode);
 
 		if (m_playMode == PlayMode::Play)
-			TickPlay(delta);
-
-		if (m_playMode == PlayMode::Physics)
+		{
 			m_physicsWorld->Simulate(delta);
+		}
+		else if (m_playMode == PlayMode::Physics)
+		{
+			m_physicsWorld->Simulate(delta);
+		}
+
+		for (EntityWorldListener* l : m_listeners)
+			l->OnWorldTick(delta, m_playMode);
 
 		GetCache<CompModel>()->GetBucket().View([delta](CompModel* comp, uint32 idx) -> bool {
 			comp->GetAnimationController().TickAnimation(delta);
@@ -455,10 +459,6 @@ namespace Lina
 		{
 			pair.cache->ForEach([](Component* c) { c->EndPlay(); });
 		}
-	}
-
-	void EntityWorld::TickPlay(float deltaTime)
-	{
 	}
 
 	void EntityWorld::DestroyEntityData(Entity* e)

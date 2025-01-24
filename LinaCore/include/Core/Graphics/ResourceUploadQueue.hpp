@@ -63,6 +63,7 @@ namespace Lina
 		void AddTextureRequest(Texture* txt);
 		void AddBufferRequest(Buffer* buf);
 		bool FlushAll(LinaGX::CommandStream* copyStream);
+		void DestroyingTexture(Texture* txt);
 
 	private:
 		Vector<TextureUploadRequest>  m_textureRequests;

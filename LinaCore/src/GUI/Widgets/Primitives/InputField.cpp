@@ -54,6 +54,7 @@ namespace Lina
 		m_text->GetProps().fetchCustomClipFromParent = true;
 		m_text->GetFlags().Set(WF_POS_ALIGN_Y);
 		m_text->SetAlignedPosY(0.5f);
+		m_text->GetWidgetProps().drawOrderIncrement = 1;
 		m_text->SetAnchorY(Anchor::Center);
 
 		m_placeholderText						= m_manager->Allocate<Text>("InputFieldPlaceholder");
@@ -97,6 +98,9 @@ namespace Lina
 		// Cursor status.
 		if (m_isHovered && m_isEditing)
 			m_manager->SetCursorOverride(static_cast<uint8>(LinaGX::CursorType::Caret));
+
+		if (m_isEditing && m_manager->GetControlsOwner() != this)
+			EndEditing(true);
 
 		if (m_middlePressed && m_props.isNumberField && !m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_MIDDLE))
 		{
@@ -226,7 +230,7 @@ namespace Lina
 			const Vector2 end	= m_rect.GetEnd() - Vector2(m_props.outlineThickness, m_props.outlineThickness);
 			const Vector2 sz	= end - start;
 
-			m_lvg->DrawRect(start.AsLVG(), Vector2(start.x + sz.x * perc, end.y).AsLVG(), fill, 0.0f, m_drawOrder);
+			m_lvg->DrawRect(start.AsLVG(), Vector2(start.x + sz.x * perc, end.y).AsLVG(), fill, 0.0f, m_drawOrder + 1);
 		}
 
 		if (m_isEditing)
@@ -270,7 +274,7 @@ namespace Lina
 
 				topLeft.x	  = Math::Clamp(topLeft.x, m_rect.pos.x, m_rect.GetEnd().x);
 				bottomRight.x = Math::Clamp(bottomRight.x, m_rect.pos.x, m_rect.GetEnd().x);
-				m_lvg->DrawRect(topLeft.AsLVG(), bottomRight.AsLVG(), highlight, 0, m_drawOrder);
+				m_lvg->DrawRect(topLeft.AsLVG(), bottomRight.AsLVG(), highlight, 0, m_drawOrder + 1);
 			}
 		}
 	}
