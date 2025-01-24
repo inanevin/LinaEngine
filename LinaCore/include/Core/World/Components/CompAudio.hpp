@@ -36,6 +36,8 @@ namespace Lina
 	class CompAudio : public Component
 	{
 	public:
+
+		static constexpr TypeID SHARED_TID = 300;
 		CompAudio() : Component(GetTypeID<CompAudio>(), 0){};
 		virtual ~CompAudio();
 

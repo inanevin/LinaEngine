@@ -38,6 +38,8 @@ namespace Lina
 	class CompWidget : public Component
 	{
 	public:
+		static constexpr TypeID SHARED_TID = 303;
+
 		CompWidget() : Component(GetTypeID<CompWidget>(), 0) {};
 		virtual ~CompWidget();
 

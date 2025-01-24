@@ -47,6 +47,9 @@ namespace Lina
 	class CompModel : public Component
 	{
 	public:
+
+		static constexpr TypeID SHARED_TID = 302;
+
 		CompModel() : Component(GetTypeID<CompModel>(), 0), m_animationController(this){};
 
 		void		 SetModel(Model* model);
