@@ -462,13 +462,13 @@ namespace Lina::Editor
 		m_ewr			= ewr;
 		m_world			= renderer ? m_worldRenderer->GetWorld() : nullptr;
 		m_overlayControls.baseWidget->GetFlags().Set(WF_HIDE, m_world == nullptr);
-       
-        m_selectedEntities.clear();
-        m_selectedRoots.clear();
-        m_selectionControls.visible = false;
-        m_selectionControls.isParenting = false;
-        m_selectionControls.rectSelectionPressed = false;
-        
+
+		m_selectedEntities.clear();
+		m_selectedRoots.clear();
+		m_selectionControls.visible				 = false;
+		m_selectionControls.isParenting			 = false;
+		m_selectionControls.rectSelectionPressed = false;
+
 		if (m_worldRenderer)
 		{
 			m_world->AddListener(this);
