@@ -67,6 +67,7 @@ namespace Lina::Editor
 		virtual void PreTick() override;
 		void		 SetWorld(EntityWorld* w);
 		void		 OnEntitySelectionChanged(const Vector<Entity*>& entities);
+		void		 OnParamsChanged();
 		void		 RefreshDetails();
 
 	private:

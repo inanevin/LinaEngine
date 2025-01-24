@@ -64,9 +64,10 @@ namespace Lina
 			Vector<ResourceID> materials;
 		};
 
-		static constexpr uint32 VERSION = 0;
+		static constexpr uint32 VERSION	   = 0;
+		static constexpr TypeID SHARED_TID = 105;
 
-		Model(ResourceID id, const String& name) : Resource(id, GetTypeID<Model>(), name){};
+		Model(ResourceID id, const String& name) : Resource(id, GetTypeID<Model>(), name) {};
 		virtual ~Model();
 
 		virtual bool   LoadFromFile(const String& path) override;

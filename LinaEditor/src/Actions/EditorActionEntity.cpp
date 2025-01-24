@@ -462,6 +462,7 @@ namespace Lina::Editor
 
 		if (type != ExecType::Create)
 			editor->GetWorldManager().BroadcastEntityParamsChanged(world);
+
 	}
 
 } // namespace Lina::Editor

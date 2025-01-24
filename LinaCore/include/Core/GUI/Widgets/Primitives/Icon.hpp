@@ -43,7 +43,8 @@ namespace Lina
 		Icon() : Widget()
 		{
 		}
-		virtual ~Icon() = default;
+		virtual ~Icon()					   = default;
+		static constexpr TypeID SHARED_TID = 202;
 
 		struct Properties
 		{

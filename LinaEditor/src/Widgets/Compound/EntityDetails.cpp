@@ -112,6 +112,14 @@ namespace Lina::Editor
 		RefreshDetails();
 	}
 
+	void EntityDetails::OnParamsChanged()
+	{
+		if (m_world)
+			m_world->LoadMissingResources(m_editor->GetApp()->GetResourceManager(), m_editor->GetProjectManager().GetProjectData(), {});
+
+		RefreshDetails();
+	}
+
 	void EntityDetails::RefreshDetails()
 	{
 		m_noDetailsText->GetFlags().Set(WF_HIDE, !m_selectedEntities.empty() && m_world);

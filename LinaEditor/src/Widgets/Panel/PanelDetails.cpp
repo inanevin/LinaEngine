@@ -111,7 +111,7 @@ namespace Lina::Editor
 	{
 		if (w->GetID() == 0)
 			return;
-		m_entityDetails->RefreshDetails();
+		m_entityDetails->OnParamsChanged();
 	}
 
 	void PanelDetails::OnWorldManagerComponentsDataChanged(EntityWorld* w)

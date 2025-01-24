@@ -41,7 +41,8 @@ namespace Lina
 	{
 	public:
 		Text() : Widget() {};
-		virtual ~Text() = default;
+		virtual ~Text()					   = default;
+		static constexpr TypeID SHARED_TID = 201;
 
 		struct Properties
 		{

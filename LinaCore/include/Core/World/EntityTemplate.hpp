@@ -39,7 +39,8 @@ namespace Lina
 	class EntityTemplate : public Resource
 	{
 	public:
-		static constexpr uint32 VERSION = 0;
+		static constexpr uint32 VERSION	   = 0;
+		static constexpr TypeID SHARED_TID = 109;
 
 		EntityTemplate(ResourceID id, const String& name) : Resource(id, GetTypeID<EntityTemplate>(), name) {};
 		~EntityTemplate() = default;

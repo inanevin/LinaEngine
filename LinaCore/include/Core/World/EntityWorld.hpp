@@ -62,7 +62,8 @@ namespace Lina
 			uint32 targetUpdateTicks = 60;
 		};
 
-		static constexpr uint32 VERSION = 0;
+		static constexpr uint32 VERSION	   = 0;
+		static constexpr TypeID SHARED_TID = 110;
 
 		EntityWorld(const EntityWorld& other) = delete;
 		EntityWorld(ResourceID id, const String& name);
@@ -246,6 +247,11 @@ namespace Lina
 		inline const Vector<ResourceDef>& GetNeededResourceDefinitions() const
 		{
 			return m_neededResourceDefinitions;
+		}
+
+		inline ProjectData* GetProjectData()
+		{
+			return m_projectData;
 		}
 
 	private:
