@@ -59,20 +59,6 @@ namespace Lina::Editor
 		uint64			  m_worldId			= 0;
 	};
 
-	class EditorActionWorldCameraSettingsChanged : public EditorAction
-	{
-	public:
-		EditorActionWorldCameraSettingsChanged()		  = default;
-		virtual ~EditorActionWorldCameraSettingsChanged() = default;
-
-		static EditorActionWorldCameraSettingsChanged* Create(Editor* editor, EntityWorld* world, const WorldCameraSettings& prevSettings, const WorldCameraSettings& currentSettings);
-		virtual void								   Execute(Editor* editor, ExecType type) override;
-
-	private:
-		WorldCameraSettings m_prevSettings	  = {};
-		WorldCameraSettings m_currentSettings = {};
-		uint64				m_worldId		  = 0;
-	};
 
 	class EditorActionWorldGfxChanged : public EditorAction
 	{

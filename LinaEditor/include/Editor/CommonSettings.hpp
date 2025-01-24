@@ -33,5 +33,32 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+	struct EditorInputSettings
+	{
+		float cameraMovePower = 0.2f;
+		float cameraMoveSpeed = 5.0f;
 
+		float cameraAngularPower = 10.0f;
+		float cameraAngularSpeed = 30.0f;
+		float mouseWheelBoost	 = 1.0f;
+
+		void SaveToStream(OStream& stream) const
+		{
+			stream << cameraMovePower << cameraMoveSpeed << cameraAngularPower << cameraAngularSpeed;
+		}
+
+		void LoadFromStream(IStream& stream)
+		{
+			stream >> cameraMovePower >> cameraMoveSpeed >> cameraAngularPower >> cameraAngularSpeed;
+		}
+	};
+
+	LINA_CLASS_BEGIN(EditorInputSettings);
+	LINA_FIELD(EditorInputSettings, cameraMovePower, "Camera Move Power", FieldType::Float, 0)
+	LINA_FIELD(EditorInputSettings, cameraMoveSpeed, "Camera Move Speed", FieldType::Float, 0)
+	LINA_FIELD(EditorInputSettings, cameraAngularPower, "Camera Angular Power", FieldType::Float, 0)
+	LINA_FIELD(EditorInputSettings, cameraAngularSpeed, "Camera Angular Speed", FieldType::Float, 0)
+	LINA_FIELD(EditorInputSettings, mouseWheelBoost, "Mouse Wheel Boost", FieldType::Float, 0)
+	LINA_FIELD_LIMITS(EditorInputSettings, mouseWheelBoost, 0.0f, 5.0f, 0.1f);
+	LINA_CLASS_END(EditorInputSettings);
 } // namespace Lina::Editor

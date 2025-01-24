@@ -111,6 +111,7 @@ namespace Lina::Editor
 		}
 
 		float wheel = m_wheelActive ? input.GetMouseScroll() : 0.0f;
+		wheel *= m_wheelBoost;
 
 #ifdef LINA_PLATFORM_APPLE
 		// wheel *= 0.01f;
@@ -173,7 +174,7 @@ namespace Lina::Editor
 
 		const float shiftBoost = input.GetKey(LINAGX_KEY_LSHIFT) ? m_shiftBoost : 1.0f;
 
-		const Vector2 mouseDelta = (m_controlsActive ? input.GetMouseDelta() : Vector2::Zero) * m_angularPower * 0.01f * m_angularBoost;
+		const Vector2 mouseDelta = (m_controlsActive ? input.GetMouseDelta() : Vector2::Zero) * m_angularPower * 0.01f;
 
 		m_yawPrev	= m_yaw;
 		m_pitchPrev = m_pitch;
@@ -191,8 +192,10 @@ namespace Lina::Editor
 		const Vector2 axis = m_controlsActive ? Vector2(input.GetKey(LINAGX_KEY_A) ? -1.0f : (input.GetKey(LINAGX_KEY_D) ? 1.0f : 0.0f), input.GetKey(LINAGX_KEY_S) ? -1.0f : (input.GetKey(LINAGX_KEY_W) ? 1.0f : 0.0f)) : Vector2::Zero;
 		Vector2		  vel  = axis - m_movementAxis;
 
-		m_movementAxis.x = Math::SmoothDamp(m_movementAxis.x, axis.x * 0.25f * m_movementBoost * shiftBoost, &vel.x, 0.0075f, 2.5f, delta);
-		m_movementAxis.y = Math::SmoothDamp(m_movementAxis.y, axis.y * 0.25f * m_movementBoost * shiftBoost, &vel.y, 0.0075f, 2.5f, delta);
+		// m_movementAxis.x = Math::SmoothDamp(m_movementAxis.x, axis.x * 0.25f * m_movementBoost * shiftBoost, &vel.x, 0.0075f, 2.5f, delta);
+		// m_movementAxis.y = Math::SmoothDamp(m_movementAxis.y, axis.y * 0.25f * m_movementBoost * shiftBoost, &vel.y, 0.0075f, 2.5f, delta);
+
+		m_movementAxis = Math::Lerp(m_movementAxis, axis * shiftBoost * m_movementPower, delta * m_movementSpeed);
 
 		const Vector3 move = (m_absRotation.GetForward() * m_movementAxis.y + m_absRotation.GetRight() * m_movementAxis.x);
 

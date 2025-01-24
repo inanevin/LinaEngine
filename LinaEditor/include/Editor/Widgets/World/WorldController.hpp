@@ -114,17 +114,14 @@ namespace Lina::Editor
 
 		struct OverlayControls
 		{
-			Widget*			   baseWidget		   = nullptr;
-			DirectionalLayout* topToolbar		   = nullptr;
-			Button*			   buttonSnapOptions   = nullptr;
-			Button*			   buttonWorldOptions  = nullptr;
-			Button*			   buttonCameraOptions = nullptr;
+			Widget*			   baseWidget		  = nullptr;
+			DirectionalLayout* topToolbar		  = nullptr;
+			Button*			   buttonSnapOptions  = nullptr;
+			Button*			   buttonWorldOptions = nullptr;
 
-			WorldSnapSettings	snappingSettings = {};
-			WorldCameraSettings cameraSettings	 = {};
+			WorldSnapSettings snappingSettings = {};
 
 			WorldSnapSettings	 oldSnappingSettings = {};
-			WorldCameraSettings	 oldCameraOptions	 = {};
 			WorldGfxSettings	 oldGfxSettings		 = {};
 			WorldPhysicsSettings oldPhysicsOptions	 = {};
 		};
@@ -136,7 +133,7 @@ namespace Lina::Editor
 			bool   enableDragAndDrop = true;
 		};
 
-		WorldController() : Widget(WF_CONTROLLABLE){};
+		WorldController() : Widget(WF_CONTROLLABLE) {};
 		virtual ~WorldController() = default;
 
 		virtual void			Construct() override;
@@ -169,7 +166,6 @@ namespace Lina::Editor
 		void SelectGizmoSnap(GizmoSnapping snapping);
 
 		// World
-		void SetCameraSettings(const WorldCameraSettings& settings);
 		void SetSnappingSettings(const WorldSnapSettings& settings);
 
 		inline EditorCamera* GetWorldCamera()
@@ -191,7 +187,6 @@ namespace Lina::Editor
 		void BuildOverlayItems();
 		void BuildSelectionCircle();
 		void BuildSnappingOptions();
-		void BuildCameraOptions();
 		void BuildWorldOptions();
 
 		void DuplicateSelection();

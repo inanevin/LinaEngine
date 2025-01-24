@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Editor/Actions/EditorActionSettings.hpp"
 #include "Editor/Widgets/Panel/PanelProjectSettings.hpp"
+#include "Editor/Widgets/Panel/PanelEditorSettings.hpp"
 #include "Editor/Editor.hpp"
 
 namespace Lina::Editor
@@ -55,6 +56,29 @@ namespace Lina::Editor
 		else if (type == ExecType::Redo)
 		{
 			static_cast<PanelProjectSettings*>(panel)->SetSettingsPackaging(m_currentSettings);
+		}
+	}
+	EditorActionSettingsEditorInput* EditorActionSettingsEditorInput::Create(Editor* editor, const EditorInputSettings& prevSettings, const EditorInputSettings& currentSettings)
+	{
+		EditorActionSettingsEditorInput* action = new EditorActionSettingsEditorInput();
+		action->m_prevSettings					= prevSettings;
+		action->m_currentSettings				= currentSettings;
+		editor->GetEditorActionManager().AddToStack(action);
+		return action;
+	}
+	void EditorActionSettingsEditorInput::Execute(Editor* editor, ExecType type)
+	{
+		Panel* panel = editor->GetWindowPanelManager().FindPanelOfType(PanelType::EditorSettings, 0);
+		if (!panel)
+			return;
+
+		if (type == ExecType::Undo)
+		{
+			static_cast<PanelEditorSettings*>(panel)->SetSettingsInput(m_prevSettings);
+		}
+		else if (type == ExecType::Redo)
+		{
+			static_cast<PanelEditorSettings*>(panel)->SetSettingsInput(m_currentSettings);
 		}
 	}
 } // namespace Lina::Editor

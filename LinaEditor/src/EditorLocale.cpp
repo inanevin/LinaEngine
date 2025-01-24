@@ -235,6 +235,8 @@ namespace Lina::Editor
 		{LocaleStr::SuccessfullyPackagedProject, "Successfully packaged project!"},
 		{LocaleStr::Parameters, "Parameters"},
 		{LocaleStr::SavedWorld, "World saved successfully."},
+		{LocaleStr::InputSettings, "Input Settings"},
+		{LocaleStr::EditorSettings, "Editor Settings"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

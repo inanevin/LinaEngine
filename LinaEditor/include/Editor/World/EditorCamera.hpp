@@ -80,24 +80,29 @@ namespace Lina::Editor
 			m_wheelActive = act;
 		}
 
-		inline void SetMovementBoost(float boost)
+		inline void SetMovementPower(float pw)
 		{
-			m_movementBoost = boost;
+			m_movementPower = pw;
 		}
 
-		inline void SetAngularBoost(float boost)
+		inline void SetMovementSpeed(float sp)
 		{
-			m_angularBoost = boost;
+			m_movementSpeed = sp;
 		}
 
-		inline float GetMovementBoost() const
+		inline void SetAngularPower(float pw)
 		{
-			return m_movementBoost;
+			m_angularPower = pw;
 		}
 
-		inline float GetAngularBoost() const
+		inline void SetAngularSpeed(float sp)
 		{
-			return m_angularBoost;
+			m_angularSpeed = sp;
+		}
+
+		inline void SetWheelBoost(float boost)
+		{
+			m_wheelBoost = boost;
 		}
 
 		inline void SetCalculateCamera(bool calculateCamera)
@@ -113,8 +118,12 @@ namespace Lina::Editor
 		}
 
 	protected:
-		float			 m_angularBoost	   = 1.0f;
-		float			 m_movementBoost   = 1.0f;
+		float m_movementPower = 0.2f;
+		float m_angularPower  = 5.0f;
+		float m_movementSpeed = 10.0f;
+		float m_angularSpeed  = 30.0f;
+
+		float			 m_wheelBoost	   = 1.0f;
 		EntityWorld*	 m_world		   = nullptr;
 		CameraProperties m_props		   = {};
 		Vector3			 m_absPosition	   = Vector3::Zero;
@@ -174,8 +183,6 @@ namespace Lina::Editor
 
 		float	   m_yaw			= 0.0f;
 		float	   m_pitch			= 0.0f;
-		float	   m_angularPower	= 10.0f;
-		float	   m_angularSpeed	= 40.0f;
 		float	   m_yawPrev		= 0.0f;
 		float	   m_pitchPrev		= 0.0f;
 		bool	   m_controlsActive = false;

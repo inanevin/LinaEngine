@@ -73,39 +73,6 @@ namespace Lina::Editor
 		}
 	}
 
-	EditorActionWorldCameraSettingsChanged* EditorActionWorldCameraSettingsChanged::Create(Editor* editor, EntityWorld* world, const WorldCameraSettings& prevOptions, const WorldCameraSettings& currentOptions)
-	{
-
-		EditorActionWorldCameraSettingsChanged* action = new EditorActionWorldCameraSettingsChanged();
-		action->m_worldId							   = world->GetID();
-		action->m_prevSettings						   = prevOptions;
-		action->m_currentSettings					   = currentOptions;
-		editor->GetEditorActionManager().AddToStack(action);
-		return action;
-	}
-
-	void EditorActionWorldCameraSettingsChanged::Execute(Editor* editor, ExecType type)
-	{
-		EntityWorld* world = editor->GetWorldManager().GetWorld(m_worldId);
-		if (!world)
-			return;
-
-		Panel* panel = editor->GetWindowPanelManager().FindPanelOfType(PanelType::World, 0);
-		if (!panel)
-			return;
-
-		WorldController* wc = static_cast<PanelWorld*>(panel)->GetDisplayer()->GetController();
-
-		if (type == ExecType::Undo)
-		{
-			wc->SetCameraSettings(m_prevSettings);
-		}
-		else if (type == ExecType::Redo)
-		{
-			wc->SetCameraSettings(m_currentSettings);
-		}
-	}
-
 	EditorActionWorldGfxChanged* EditorActionWorldGfxChanged::Create(Editor* editor, EntityWorld* world, const WorldGfxSettings& prevOptions, const WorldGfxSettings& currentOptions)
 	{
 

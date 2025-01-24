@@ -28,46 +28,46 @@ SOFTWARE.
 
 #pragma once
 
-#include "EditorAction.hpp"
-#include "Core/Meta/ProjectData.hpp"
+#include "Editor/Widgets/Panel/Panel.hpp"
 #include "Editor/CommonSettings.hpp"
 
 namespace Lina
 {
-	class Entity;
-	class EntityWorld;
-}; // namespace Lina
+	class DirectionalLayout;
+	class FoldLayout;
+} // namespace Lina
 
 namespace Lina::Editor
 {
 	class Editor;
 
-	class EditorActionSettingsPackaging : public EditorAction
+	class PanelEditorSettings : public Panel
 	{
 	public:
-		EditorActionSettingsPackaging()			 = default;
-		virtual ~EditorActionSettingsPackaging() = default;
-
-		static EditorActionSettingsPackaging* Create(Editor* editor, const PackagingSettings& prevSettings, const PackagingSettings& currentSettings);
-		virtual void						  Execute(Editor* editor, ExecType type) override;
-
-	private:
-		PackagingSettings m_prevSettings	= {};
-		PackagingSettings m_currentSettings = {};
-	};
-
-	class EditorActionSettingsEditorInput : public EditorAction
-	{
 	public:
-		EditorActionSettingsEditorInput()		   = default;
-		virtual ~EditorActionSettingsEditorInput() = default;
+		PanelEditorSettings() : Panel(PanelType::EditorSettings) {};
+		virtual ~PanelEditorSettings() = default;
 
-		static EditorActionSettingsEditorInput* Create(Editor* editor, const EditorInputSettings& prevSettings, const EditorInputSettings& currentSettings);
-		virtual void							Execute(Editor* editor, ExecType type) override;
+		virtual void Construct() override;
+
+		void SetSettingsInput(const EditorInputSettings& settings);
 
 	private:
-		EditorInputSettings m_prevSettings	  = {};
-		EditorInputSettings m_currentSettings = {};
+		void BuildSettingsInput();
+
+	private:
+		LINA_REFLECTION_ACCESS(PanelEditorSettings);
+
+		Editor*				m_editor		   = nullptr;
+		DirectionalLayout*	m_layout		   = nullptr;
+		FoldLayout*			m_foldInput		   = nullptr;
+		bool				m_foldValueInput   = true;
+		EditorInputSettings m_settingsInput	   = {};
+		EditorInputSettings m_oldSettingsInput = {};
 	};
+
+	LINA_WIDGET_BEGIN(PanelEditorSettings, Hidden)
+
+	LINA_CLASS_END(PanelEditorSettings)
 
 } // namespace Lina::Editor

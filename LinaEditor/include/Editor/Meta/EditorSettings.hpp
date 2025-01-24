@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Common/Data/ParameterCollection.hpp"
 #include "Common/Serialization/Serializable.hpp"
 #include "EditorLayout.hpp"
+#include "Editor/CommonSettings.hpp"
 
 namespace Lina::Editor
 {
@@ -75,12 +76,18 @@ namespace Lina::Editor
 			return m_paramCollection;
 		}
 
+		inline EditorInputSettings& GetInputSettings()
+		{
+			return m_inputSettings;
+		}
+
 	private:
 		String		 m_lastProjectPath = "";
 		ResourceID	 m_lastWorldID	   = 0;
 		EditorLayout m_layout		   = {};
 
 		ParameterCollection m_paramCollection;
+		EditorInputSettings m_inputSettings;
 	};
 
 } // namespace Lina::Editor

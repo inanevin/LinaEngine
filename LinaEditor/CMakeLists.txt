@@ -105,6 +105,7 @@ include/Editor/Widgets/Panel/PanelGenericSelector.hpp
 include/Editor/Widgets/Panel/PanelFactory.hpp
 include/Editor/Widgets/Panel/PanelResourceViewer.hpp
 include/Editor/Widgets/Panel/PanelProjectSettings.hpp
+include/Editor/Widgets/Panel/PanelEditorSettings.hpp
 include/Editor/Widgets/FX/LinaLoading.hpp
 include/Editor/Widgets/FX/ColorWheel.hpp
 include/Editor/Widgets/FX/ProgressCircleFill.hpp
@@ -207,6 +208,7 @@ src/Widgets/Panel/PanelGenericSelector.cpp
 src/Widgets/Panel/PanelFactory.cpp
 src/Widgets/Panel/PanelResourceViewer.cpp
 src/Widgets/Panel/PanelProjectSettings.cpp
+src/Widgets/Panel/PanelEditorSettings.cpp
 src/Widgets/FX/LinaLoading.cpp
 src/Widgets/FX/ColorWheel.cpp
 src/Widgets/FX/ProgressCircleFill.cpp

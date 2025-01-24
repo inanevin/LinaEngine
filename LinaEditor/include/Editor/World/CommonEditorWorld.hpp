@@ -96,17 +96,5 @@ namespace Lina::Editor
 	LINA_FIELD(WorldSnapSettings, angularSnap, "Angular Snap", FieldType::Float, 0)
 	LINA_CLASS_END(SnappingOptions);
 
-	struct WorldCameraSettings
-	{
-		float movementBoost = 1.0f;
-		float angularBoost	= 1.0f;
-	};
-
-	LINA_CLASS_BEGIN(CameraOptions);
-	LINA_FIELD(WorldCameraSettings, movementBoost, "Movement Boost", FieldType::Float, 0)
-	LINA_FIELD(WorldCameraSettings, angularBoost, "Angular Boost", FieldType::Float, 0)
-	LINA_FIELD_LIMITS(WorldCameraSettings, movementBoost, 0.1f, 3.0f, 0.1f)
-	LINA_FIELD_LIMITS(WorldCameraSettings, angularBoost, 0.1f, 3.0f, 0.1f)
-	LINA_CLASS_END(CameraOptions);
 
 } // namespace Lina::Editor

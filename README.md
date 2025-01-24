@@ -1,6 +1,6 @@
 <br/>
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/3519379/173830836-d390e164-fe59-4b9d-950a-c28fa3ebc037.png">
+  <img src="Extra/Images/LinaLogoTitle.png" width="600">
 </p>
 <br/>
 
@@ -17,136 +17,72 @@
 
  </div>
   
-Lina Engine is a lightweight and ECS based open-source game engine. Initially it's a research project and is aimed to be a basis of development for more open-source game engine projects. Lina's architecture is designed to be as modular as possible and it focuses on creating replacable modules to customize for project-specific needs, rather than stacking thousands of features into one framework.
+Lina Engine is a cross-platform, lightweight, straight to the point open-source 3D game engine. I've started making Lina as a research project during my Bachelors, and kept on developing as a personal engine. The reasoning behind Lina is first personal learning, and creating a library of tools for myself like [LinaVG](https://github.com/inanevin/LinaVG), a vector graphics library used in Lina's GUI and editor systems, or like [LinaGX](https://github.com/inanevin/LinaGX), a complete Vulkan, DX12 and Metal graphics backend. Secondly I'm making Lina to create a game engine that is free of today's existing bloat in variety of available game engines. It's designed to make highly customizable, small and performant games. 
 
-[Visit the project page on my website for more information](https://www.inanevin.com/gameprojects/linaengine)
+![Lina](Extra/Images/LinaSS.png)
 
-![Lina](Docs/Images/lina_ss.png)
-![Lina](Docs/Images/linass1.png)
+Lina Engine is still under active development, so any contributions and discussions are welcome!
 
-## Announcements / Notes
 
-- Lina Engine is currently compatible to be compiled only with x64 architecture on Windows. If you would like to use it on different architectures & platforms, you need to compile the vendors for your target architecture and platform include them manually.
+## Used Projects
 
-- Lina is currently in active development so it's not stable on all platforms. It's being developed in Visual Studio 2019 in Windows 10 with x64 architecture, so that's the best setup to contribute to the project for now.
-
-## Lina Engine Tools
-
-- [Lina Engine Build Launcher](https://github.com/inanevin/Lina-Engine-Build-Launcher) (deprecated)
-
-## External Dependencies
-
--  [assimp](https://github.com/assimp/assimp)
--  [alut](http://distro.ibiblio.org/rootlinux/rootlinux-ports/more/freealut/freealut-1.1.0/doc/alut.html)
+-  [LinaGX](https://github.com/inanevin/LinaGX)
+-  [LinaVG](https://github.com/inanevin/LinaVX)
 -  [fmt](https://github.com/fmtlib/fmt)
+-  [lz4](https://github.com/lz4/lz4)
+-  [phmap](https://github.com/greg7mdp/parallel-hashmap)
 -  [glm](https://github.com/g-truc/glm)
--  [Nvidia PhysX](https://developer.nvidia.com/physx-sdk)
+-  [Jolt Physics](https://github.com/jrouwe/JoltPhysics)
 -  [openal](https://www.openal.org)
 -  [stb](https://github.com/nothings/stb)
 -  [taskflow](https://github.com/taskflow/taskflow)
 
-## Installation
+## Building LinaEngine & Editor
 
--  Clone Lina Engine git repository
+- Clone Lina Engine main repository.
+- Init submodules and update them, this will download LinaVG and LinaGX.
+- Use CMake to generate project files and build.
 
-```shell
-# Initialize git in your desired directory.
-git init
-
-# Clone Lina Engine
-git clone https://github.com/inanevin/LinaEngine
-
-# Alternatively you can clone recursively, this will download all the submodules if there exists any along with Lina Engine source code.
-git clone --recursive https://github.com/inanevin/LinaEngine
-
-```
--  You can generate the project files and build using; ~~**Lina Engine Build Launcher (deprecated)**~~, **CMake with Shell** or **CMake GUI**
-
-#### Using Lina Engine Build Launcher (deprecated)
-
--  You need to have JavaFX Runtime library installed on your computer & environment paths set for it. For more information visit [Java FX](https://openjfx.io/).
--  Download a binary release from [Lina Engine Build Launcher Repository](https://github.com/inanevin/Lina-Engine-Build-Launcher).
--  Run the .jar file, launcher will open.
-
-![](Docs/Images/buildlauncher.png)
-
--  Select the directory where you downloaded Lina Engine's source. (this repository)
--  Select your desired build directory for project files.
--  Select your target generator & desired build options.
--  Hit "Generate Project Files" to generate only the project files, hit "Generate and Build" to generate project files and then build the binaries using the generated files.
+## Using LinaEditor
+- Download a release binary.
+- Try to enjoy :).
 
 
-#### Using CMake with Shell
+# [License (BSD 2-clause)](http://opensource.org/licenses/BSD-2-Clause)
 
--  Run your shell, command line or terminal in the repository directory. Afterwards, execute generation / build commands.
+<a href="http://opensource.org/licenses/BSD-2-Clause" target="_blank">
+<img align="right" src="https://opensource.org/wp-content/uploads/2022/10/osi-badge-dark.svg" width="100" height="130">
+</a>
 
-```shell
-# You can define any options before generating project files.
-cmake -DLINA_ENABLE_LOGGING=OFF
+	Copyright [2018-] Inan Evin
+	
+	Redistribution and use in source and binary forms, with or without modification,
+	are permitted provided that the following conditions are met:
+	
+	   1. Redistributions of source code must retain the above copyright notice, this
+	      list of conditions and the following disclaimer.
+	
+	   2. Redistributions in binary form must reproduce the above copyright notice,
+	      this list of conditions and the following disclaimer in the documentation
+	      and/or other materials provided with the distribution.
+	
+	THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+	ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+	WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+	IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+	INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+	BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+	DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+	OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+	OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+	OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# You can define multiple options sequentially.
-cmake -DLINA_ENABLE_LOGGING=OFF -DLINA_ENABLE_PROFILING=OFF
+# Contributing
 
-# It is recommended to declare the type of the option if multiple options are defined
-cmake -DLINA_ENABLE_LOGGING:BOOL=OFF -DLINA_ENABLE_PROFILING:BOOL=OFF -DCMAKE_CONFIGURATION_TYPES:STRING="Debug,Release"
+Any contributions and PR are welcome.
 
-# Above commands will generate project files with default generator, you can specify a generator if you want.
-cmake -DLINA_ENABLE_LOGGING=OFF -G "Visual Studio 15 2017"
+# Support
 
-```
--  After generating project files you can either open your IDE and build the ALL_BUILD project which will build all the targets or you can build the binaries from shell.
+[![Lina Discord](https://badgen.net/discord/members/QYeTkEtRMB)](https://discord.gg/QYeTkEtRMB)
 
-```shell
-# Create a directory for binaries
-mkdir bin
-
-# Navigate to directory
-cd bin
-
-# Build the root project
-cmake ../ -G "Visual Studio 16 2019" -A "x64"
-
-# After the project files are built, you can build the project via
-cmake --build . --target ALL_BUILD
-
-```
--  Check out [CMake Documentation](https://cmake.org/cmake/help/v3.2/manual/cmake.1.html) for specifying more options and configurations like project file generation directories and more.
-
-#### Using CMake GUI
-
--  Choose the directory where the repository is as the source directory.
--  Choose a build directory, this can be the same as the source directory or anywhere you like.
--  Hit configure, select the IDE you want to generate the project files for and x64 architecture.
--  Select options, you can leave them as default.
--  Hit generate, this will generate the project files for your desired IDE.
-
-## Build Options
-
-| Option  | Description | Default |
-| ------------- | ------------- | ------------- |
-| LINA_ENABLE_EDITOR | Launches the sandbox in editor mode.  | ON  |
-| LINA_ENABLE_LOGGING | Enables log features for core modules.  | ON |
-| LINA_ENABLE_PROFILING  | Enables profiler integration & profile data serialization. | ON |
-| LINA_PRODUCTION_BUILD | Disable debug error checking & reporting. | OFF |
-| CMAKE_CONFIGURATION_TYPES | Config types that will be available on the IDE. | Debug, Release, MinSizeRel, RelWithDebInfo  
-
-## License
-
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT) 
-Check out [Licence](LICENSE) file.
-
-## Contributing
-
-Please check out [Contributing](CONTRIBUTING.md) for further information.
-
-## Design Diagrams
-
-### System Architecture
-![Diagram 1](Docs/Images/SCS.png?raw=true "Title")
-
-### Design Document
-
-[Link to the Software Design Document of Lina Engine (PDF)](https://www.inanevin.com/docs/lina_sdd.pdf)
-
-[Lina Engine Project Report (PDF)](https://www.inanevin.com/docs/lina_postmortem.pdf)
-
+You can join [Lina Engine's Discord channel](https://discord.gg/QYeTkEtRMB) to talk about the Lina Project.

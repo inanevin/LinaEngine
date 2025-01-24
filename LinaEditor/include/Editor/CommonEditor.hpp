@@ -237,6 +237,7 @@ namespace Lina::Editor
 		Details,
 		GenericSelector,
 		ProjectSettings,
+		EditorSettings,
 	};
 
 	enum class ResourceDirectoryType

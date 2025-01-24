@@ -238,6 +238,8 @@ namespace Lina::Editor
 		SuccessfullyPackagedProject,
 		Parameters,
 		SavedWorld,
+		InputSettings,
+		EditorSettings,
 	};
 
 	class Locale

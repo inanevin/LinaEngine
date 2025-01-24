@@ -73,11 +73,9 @@ namespace Lina::Editor
 		m_editor	= Editor::Get();
 		m_worldFont = m_editor->GetApp()->GetResourceManager().GetResource<Font>(EDITOR_FONT_PLAY_BIG_ID);
 		m_editor->GetWindowPanelManager().AddPayloadListener(this);
-		m_gizmoControls.type						   = static_cast<GizmoMode>(m_editor->GetSettings().GetParams().GetParamUint8("GizmoType"_hs, 0));
-		m_gizmoControls.locality					   = static_cast<GizmoLocality>(m_editor->GetSettings().GetParams().GetParamUint8("GizmoLocality"_hs, 0));
-		m_gizmoControls.snapping					   = static_cast<GizmoSnapping>(m_editor->GetSettings().GetParams().GetParamUint8("GizmoSnapping"_hs, 0));
-		m_overlayControls.cameraSettings.movementBoost = m_editor->GetSettings().GetParams().GetParamFloat("CamMoveBoost"_hs, 1.0f);
-		m_overlayControls.cameraSettings.angularBoost  = m_editor->GetSettings().GetParams().GetParamFloat("CamAngBoost"_hs, 1.0f);
+		m_gizmoControls.type	 = static_cast<GizmoMode>(m_editor->GetSettings().GetParams().GetParamUint8("GizmoType"_hs, 0));
+		m_gizmoControls.locality = static_cast<GizmoLocality>(m_editor->GetSettings().GetParams().GetParamUint8("GizmoLocality"_hs, 0));
+		m_gizmoControls.snapping = static_cast<GizmoSnapping>(m_editor->GetSettings().GetParams().GetParamUint8("GizmoSnapping"_hs, 0));
 
 		GetWidgetProps().childMargins.left	 = Theme::GetDef().baseIndent;
 		GetWidgetProps().childMargins.top	 = Theme::GetDef().baseIndent;
@@ -151,12 +149,6 @@ namespace Lina::Editor
 		world->GetProps().onClicked		= [this]() { BuildWorldOptions(); };
 		m_overlayControls.topToolbar->AddChild(world);
 		m_overlayControls.buttonWorldOptions = world;
-
-		Button* camera					 = CommonWidgets::BuildIconButton(this, ICON_VIDEO);
-		camera->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::CameraOptions);
-		camera->GetProps().onClicked	 = [this]() { BuildCameraOptions(); };
-		m_overlayControls.topToolbar->AddChild(camera);
-		m_overlayControls.buttonCameraOptions = camera;
 
 		Button* play					  = CommonWidgets::BuildIconButton(this, ICON_PLAY);
 		play->GetWidgetProps().tooltip	  = Locale::GetStr(LocaleStr::Play);
@@ -340,39 +332,6 @@ namespace Lina::Editor
 		fgItem->AddChild(popup);
 	}
 
-	void WorldController::BuildCameraOptions()
-	{
-		ForegroundItem* fgItem = m_manager->Allocate<ForegroundItem>("FgItem");
-		fgItem->GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_SIZE_Y_TOTAL_CHILDREN | WF_SIZE_AFTER_CHILDREN);
-		fgItem->SetAlignedSize(Vector2::One);
-		m_manager->AddToForeground(fgItem);
-
-		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
-		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_Y_TOTAL_CHILDREN);
-		layout->SetAlignedPos(Vector2::Zero);
-		layout->SetAlignedSizeY(1.0f);
-		layout->GetWidgetProps().childMargins	  = TBLR::Eq(Theme::GetDef().baseIndent);
-		layout->GetWidgetProps().childPadding	  = Theme::GetDef().baseIndent;
-		layout->GetWidgetProps().drawBackground	  = true;
-		layout->GetWidgetProps().colorBackground  = Theme::GetDef().background1;
-		layout->GetWidgetProps().outlineThickness = 0.0f;
-		layout->GetWidgetProps().rounding		  = 0.05f;
-		layout->GetProps().direction			  = DirectionOrientation::Vertical;
-		fgItem->AddChild(layout);
-
-		CommonWidgets::BuildClassReflection(layout, &m_overlayControls.cameraSettings, ReflectionSystem::Get().Meta<WorldCameraSettings>());
-
-		layout->GetCallbacks().onEditStarted = [this]() { m_overlayControls.oldCameraOptions = m_overlayControls.cameraSettings; };
-		layout->GetCallbacks().onEditEnded	 = [this]() {
-			  SetCameraSettings(m_overlayControls.cameraSettings);
-			  EditorActionWorldCameraSettingsChanged::Create(m_editor, m_world, m_overlayControls.oldCameraOptions, m_overlayControls.cameraSettings);
-		};
-
-		const float startY = m_overlayControls.topToolbar->GetPosY() + m_overlayControls.topToolbar->GetSizeY() + m_overlayControls.topToolbar->GetWidgetProps().outlineThickness + Theme::GetDef().baseIndentInner * 0.5f;
-		fgItem->SetPos(Vector2(m_overlayControls.topToolbar->GetPosX(), startY));
-		layout->SetSizeX(m_overlayControls.topToolbar->GetSizeX());
-	}
-
 	void WorldController::BuildWorldOptions()
 	{
 		ForegroundItem* fgItem = m_manager->Allocate<ForegroundItem>("FgItem");
@@ -496,6 +455,15 @@ namespace Lina::Editor
 	{
 		if (m_worldRenderer == nullptr)
 			return;
+
+		if (m_camera)
+		{
+			const EditorInputSettings& settings = m_editor->GetSettings().GetInputSettings();
+			m_camera->SetMovementPower(settings.cameraMovePower);
+			m_camera->SetMovementSpeed(settings.cameraMoveSpeed);
+			m_camera->SetAngularPower(settings.cameraAngularPower);
+			m_camera->SetAngularSpeed(settings.cameraAngularSpeed);
+		}
 
 		// Input setup
 		const bool worldHasFocus = m_manager->GetControlsOwner() == this && m_lgxWindow->HasFocus();
@@ -1519,16 +1487,6 @@ namespace Lina::Editor
 
 		m_selectionControls.localityButton->GetIcon()->GetProps().icon = m_gizmoControls.usedLocality == GizmoLocality::World ? ICON_GLOBE : ICON_CUBE;
 		m_selectionControls.localityButton->GetWidgetProps().tooltip   = m_gizmoControls.usedLocality == GizmoLocality::World ? Locale::GetStr(LocaleStr::LocalityWorld) : Locale::GetStr(LocaleStr::LocalityLocal);
-	}
-
-	void WorldController::SetCameraSettings(const WorldCameraSettings& settings)
-	{
-		m_overlayControls.cameraSettings = settings;
-		m_editor->GetSettings().GetParams().SetParamFloat("CamMoveBoost"_hs, m_overlayControls.cameraSettings.movementBoost);
-		m_editor->GetSettings().GetParams().SetParamFloat("CamAngBoost"_hs, m_overlayControls.cameraSettings.angularBoost);
-		m_camera->SetMovementBoost(m_overlayControls.cameraSettings.movementBoost);
-		m_camera->SetAngularBoost(m_overlayControls.cameraSettings.angularBoost);
-		m_editor->SaveSettings();
 	}
 
 	void WorldController::SetSnappingSettings(const WorldSnapSettings& settings)

@@ -251,6 +251,12 @@ namespace Lina::Editor
 			return true;
 		}
 
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::EditorSettings)))
+		{
+			Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::EditorSettings, 0, this);
+			return true;
+		}
+
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Entities)))
 		{
 			Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::Entities, 0, this);
@@ -343,6 +349,14 @@ namespace Lina::Editor
 					.text		= Locale::GetStr(LocaleStr::LoadGamePlugin),
 					.headerIcon = ICON_CODE,
 				},
+				FileMenuItem::Data{
+					.text		= Locale::GetStr(LocaleStr::EditorSettings),
+					.headerIcon = ICON_LINA_LOGO,
+				},
+				FileMenuItem::Data{
+					.text		= Locale::GetStr(LocaleStr::ProjectSettings),
+					.headerIcon = ICON_COG,
+				},
 				FileMenuItem::Data{.isDivider = true},
 				FileMenuItem::Data{
 					.text = Locale::GetStr(LocaleStr::Exit),
@@ -378,10 +392,7 @@ namespace Lina::Editor
 					.text		= Locale::GetStr(LocaleStr::Log),
 					.headerIcon = ICON_SCROLL,
 				},
-				FileMenuItem::Data{
-					.text		= Locale::GetStr(LocaleStr::ProjectSettings),
-					.headerIcon = ICON_COG,
-				},
+
 				FileMenuItem::Data{.isDivider = true},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::ResetLayout)},
 			};

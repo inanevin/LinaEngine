@@ -43,6 +43,7 @@ namespace Lina::Editor
 		in >> m_lastProjectPath;
 		in >> m_lastWorldID;
 		in >> m_layout;
+		in >> m_inputSettings;
 		in >> m_paramCollection;
 	}
 
@@ -52,6 +53,7 @@ namespace Lina::Editor
 		out << m_lastProjectPath;
 		out << m_lastWorldID;
 		out << m_layout;
+		out << m_inputSettings;
 		out << m_paramCollection;
 	}
 } // namespace Lina::Editor
