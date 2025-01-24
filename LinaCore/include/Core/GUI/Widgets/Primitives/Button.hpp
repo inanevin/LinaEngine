@@ -40,8 +40,6 @@ namespace Lina
 	class Button : public Widget
 	{
 	public:
-		static constexpr TypeID SHARED_TID = 203;
-
 		struct Properties
 		{
 			Delegate<void()> onClicked;
@@ -55,7 +53,7 @@ namespace Lina
 			}
 		};
 
-		Button() : Widget(WF_CONTROLLABLE) {};
+		Button() : Widget(WF_CONTROLLABLE){};
 		virtual ~Button() = default;
 
 		virtual void Construct() override;

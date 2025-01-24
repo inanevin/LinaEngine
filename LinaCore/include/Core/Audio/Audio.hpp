@@ -41,11 +41,10 @@ namespace Lina
 			void LoadFromStream(IStream& in);
 		};
 
-		Audio(ResourceID id, const String& name) : Resource(id, GetTypeID<Audio>(), name) {};
+		Audio(ResourceID id, const String& name) : Resource(id, GetTypeID<Audio>(), name){};
 		virtual ~Audio();
 
-		static constexpr uint32 VERSION	   = 0;
-		static constexpr TypeID SHARED_TID = 101;
+		static constexpr uint32 VERSION = 0;
 
 		virtual bool   LoadFromFile(const String& path) override;
 		virtual void   LoadFromStream(IStream& stream) override;

@@ -62,8 +62,7 @@ namespace Lina
 			uint32 targetUpdateTicks = 60;
 		};
 
-		static constexpr uint32 VERSION	   = 0;
-		static constexpr TypeID SHARED_TID = 110;
+		static constexpr uint32 VERSION = 0;
 
 		EntityWorld(const EntityWorld& other) = delete;
 		EntityWorld(ResourceID id, const String& name);

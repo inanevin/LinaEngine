@@ -50,7 +50,7 @@ namespace Lina
 		ShaderPropertyDefinition propDef;
 		Span<uint8>				 data;
 
-		MaterialProperty() {};
+		MaterialProperty(){};
 		MaterialProperty(const MaterialProperty& other)		 = delete;
 		MaterialProperty& operator=(MaterialProperty const&) = delete;
 
@@ -85,10 +85,9 @@ namespace Lina
 	{
 
 	public:
-		static constexpr uint32 VERSION	   = 0;
-		static constexpr TypeID SHARED_TID = 104;
+		static constexpr uint32 VERSION = 0;
 
-		Material(ResourceID id, const String& name) : Resource(id, GetTypeID<Material>(), name) {};
+		Material(ResourceID id, const String& name) : Resource(id, GetTypeID<Material>(), name){};
 		virtual ~Material();
 		virtual bool   LoadFromFile(const String& path) override;
 		virtual void   SaveToStream(OStream& stream) const override;

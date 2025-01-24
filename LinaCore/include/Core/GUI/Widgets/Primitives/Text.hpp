@@ -40,9 +40,8 @@ namespace Lina
 	class Text : public Widget
 	{
 	public:
-		Text() : Widget() {};
-		virtual ~Text()					   = default;
-		static constexpr TypeID SHARED_TID = 201;
+		Text() : Widget(){};
+		virtual ~Text() = default;
 
 		struct Properties
 		{

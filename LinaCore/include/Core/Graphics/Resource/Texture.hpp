@@ -55,10 +55,9 @@ namespace Lina
 			void LoadFromStream(IStream& in);
 		};
 
-		static constexpr uint32 VERSION	   = 0;
-		static constexpr TypeID SHARED_TID = 100;
+		static constexpr uint32 VERSION = 0;
 
-		Texture(ResourceID id, const String& name) : Resource(id, GetTypeID<Texture>(), name) {};
+		Texture(ResourceID id, const String& name) : Resource(id, GetTypeID<Texture>(), name){};
 		virtual ~Texture();
 
 		virtual void   SaveToStream(OStream& stream) const override;

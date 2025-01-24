@@ -111,26 +111,9 @@ namespace Lina
 		}
 	};
 
-	template <typename T>
-	concept HasSharedTID = requires { T::SHARED_TID; };
-
-	template <typename T>
-	concept HasSharedTIDBase = requires { T::SHARED_TID_BASE; };
-
-	class Widget;
-
 	template <typename T> constexpr TypeID GetTypeID()
 	{
-		if constexpr (std::is_same_v<T, Widget>)
-		{
-			return 500;
-		}
-		if constexpr (HasSharedTID<T>)
-			return T::SHARED_TID; // Highest priority
-		else if constexpr (HasSharedTIDBase<T>)
-			return T::SHARED_TID_BASE; // Fallback
-		else
-			return FnvHash(typeid(T).name()); // Default
+		return FnvHash(typeid(T).name()); // Default
 	}
 
 	constexpr StringID operator"" _hs(const char* str, std::size_t) noexcept

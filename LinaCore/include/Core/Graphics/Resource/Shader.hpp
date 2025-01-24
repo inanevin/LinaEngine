@@ -70,10 +70,9 @@ namespace Lina
 		};
 
 	public:
-		static constexpr uint32 VERSION	   = 0;
-		static constexpr TypeID SHARED_TID = 106;
+		static constexpr uint32 VERSION = 0;
 
-		Shader(ResourceID id, const String& name) : Resource(id, GetTypeID<Shader>(), name) {};
+		Shader(ResourceID id, const String& name) : Resource(id, GetTypeID<Shader>(), name){};
 		virtual ~Shader();
 
 		virtual bool LoadFromFile(const String& path) override;

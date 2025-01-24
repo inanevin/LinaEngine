@@ -42,9 +42,7 @@ namespace Lina
 	class CompLight : public Component
 	{
 	public:
-		static constexpr TypeID SHARED_TID = 301;
-
-		CompLight() : Component(GetTypeID<CompLight>(), 0) {};
+		CompLight() : Component(GetTypeID<CompLight>(), 0){};
 
 		inline void SetType(LightType type)
 		{

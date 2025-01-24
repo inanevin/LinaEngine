@@ -66,9 +66,9 @@ namespace Lina
 			void LoadFromStream(IStream& in);
 		};
 
-		static constexpr uint32 VERSION	   = 0;
+		static constexpr uint32 VERSION = 0;
 
-		Font(ResourceID id, const String& name) : Resource(id, GetTypeID<Font>(), name) {};
+		Font(ResourceID id, const String& name) : Resource(id, GetTypeID<Font>(), name){};
 		virtual ~Font();
 
 		LinaVG::Font*  GetFont(float scaleFactor);
