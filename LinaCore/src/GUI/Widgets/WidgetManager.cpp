@@ -322,11 +322,11 @@ namespace Lina
 
 		Widget* co = GetControlsOwner();
 
-		if (co)
-		{
-			if (PassMouse(co, button, inputAction))
-				return;
-		}
+		//if (co)
+		//{
+		//	if (PassMouse(co, button, inputAction))
+		//		return;
+		//}
 
 		PassMouse(m_rootWidget, button, inputAction);
 	}

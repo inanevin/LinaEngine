@@ -50,6 +50,8 @@ namespace Lina
 	class MetaType;
 	class InputField;
 	class ProjectData;
+	class Entity;
+
 } // namespace Lina
 
 namespace LinaGX
@@ -107,14 +109,14 @@ namespace Lina::Editor
 
 		struct EntityItemProperties
 		{
-			String icon			  = "";
-			Color  iconColor	  = Color::White;
-			String visibilityIcon = "";
-			String title		  = "";
-			bool   hasChildren	  = false;
-			float  margin		  = 0.0f;
-			bool*  unfoldValue	  = nullptr;
-			void*  userData		  = nullptr;
+			Entity* entity		= nullptr;
+			String	icon		= "";
+			Color	iconColor	= Color::White;
+			String	title		= "";
+			bool	hasChildren = false;
+			float	margin		= 0.0f;
+			bool*	unfoldValue = nullptr;
+			void*	userData	= nullptr;
 		};
 
 		static DirectionalLayout* BuildWindowButtons(Widget* source);

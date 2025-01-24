@@ -125,6 +125,9 @@ namespace Lina
 
 	void GameLauncher::Tick(float delta)
 	{
+		if(m_world)
+			m_world->Tick(delta);
+
 		if (m_wr)
 			m_wr->Tick(delta);
 		m_swapchainRenderer->Tick();
@@ -211,18 +214,38 @@ namespace Lina
 
 	void GameLauncher::OnWindowKey(LinaGX::Window* window, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
 	{
+		if(window != m_window)
+			return;
+
+		if(m_world)
+			m_world->GetInput().OnKey(keycode, scancode, inputAction);
 	}
 
 	void GameLauncher::OnWindowMouse(LinaGX::Window* window, uint32 button, LinaGX::InputAction inputAction)
 	{
+		if(window != m_window)
+			return;
+
+		if(m_world)
+			m_world->GetInput().OnMouse(button, inputAction);
 	}
 
 	void GameLauncher::OnWindowMouseWheel(LinaGX::Window* window, float amt)
 	{
+		if(window != m_window)
+			return;
+
+		if(m_world)
+			m_world->GetInput().OnMouseWheel(amt);
 	}
 
-	void GameLauncher::OnWindowMouseMove(LinaGX::Window* window, const LinaGX::LGXVector2&)
+	void GameLauncher::OnWindowMouseMove(LinaGX::Window* window, const LinaGX::LGXVector2& move)
 	{
+		if(window != m_window)
+			return;
+
+		if(m_world)
+			m_world->GetInput().OnMouseMove(move);
 	}
 
 	void GameLauncher::OnWindowFocus(LinaGX::Window* window, bool gainedFocus)

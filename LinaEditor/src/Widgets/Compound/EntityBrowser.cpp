@@ -243,6 +243,7 @@ namespace Lina::Editor
 		const Vector<Entity*>& children = e->GetChildren();
 
 		const CommonWidgets::EntityItemProperties props = {
+			.entity		 = e,
 			.icon		 = ICON_CUBE,
 			.iconColor	 = Theme::GetDef().foreground0,
 			.title		 = e->GetName(),

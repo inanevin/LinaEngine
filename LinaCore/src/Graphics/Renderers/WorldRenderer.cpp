@@ -500,6 +500,7 @@ namespace Lina
 			m_forwardPass.GetView().SetPosition(camera.GetPosition());
 			m_deferredPass.GetView().SetView(camera.GetView());
 			m_deferredPass.GetView().SetPosition(camera.GetPosition());
+			m_cpuDrawData.worldCamera = camera;
 		}
 
 		m_compModels.resize(0);
@@ -690,6 +691,7 @@ namespace Lina
 		m_cpuDrawData.lvgIndices.resize(0);
 		m_cpuDrawData.lvgVertices.resize(0);
 		m_cpuDrawData.lights.resize(0);
+		m_cpuDrawData.worldCamera = {};
 		m_debugLines.resize(0);
 
 		m_shapeRenderer.SyncRender();
@@ -721,7 +723,7 @@ namespace Lina
 
 		// Pass data.
 		{
-			Camera& worldCam = m_world->GetWorldCamera();
+			Camera& worldCam = m_gpuDrawData.worldCamera;
 			// const Vector2ui sz		 = m_world->GetScreen().GetRenderSize();
 			// 	worldCam.Calculate(m_size);
 

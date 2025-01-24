@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Core/Graphics/ResourceUploadQueue.hpp"
 #include "Core/Graphics/MeshManager.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
+#include "Core/World/Camera.hpp"
 
 namespace LinaGX
 {
@@ -102,6 +103,7 @@ namespace Lina
 			Vector<LinaVG::Vertex>	 lvgVertices;
 			Vector<LinaVG::Index>	 lvgIndices;
 			Vector<GPULight>		 lights;
+			Camera					 worldCamera;
 		};
 
 	public:

@@ -124,11 +124,8 @@ namespace Lina
 		window->FreeMouse();
 	}
 
-	void WorldInput::OnKey(LinaGX::Window* window, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
+	void WorldInput::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
 	{
-		if (window != m_screen->GetOwnerWindow())
-			return;
-
 		m_world->GetCache<CompWidget>()->GetBucket().View([&](CompWidget* widget, uint32 idx) -> bool {
 			if (widget->GetIs3D() || !widget->GetEntity()->GetVisible())
 				return false;
@@ -138,7 +135,7 @@ namespace Lina
 		});
 	}
 
-	void WorldInput::OnMouse(LinaGX::Window* window, uint32 button, LinaGX::InputAction inputAction)
+	void WorldInput::OnMouse(uint32 button, LinaGX::InputAction inputAction)
 	{
 		m_world->GetCache<CompWidget>()->GetBucket().View([&](CompWidget* widget, uint32 idx) -> bool {
 			if (widget->GetIs3D() || !widget->GetEntity()->GetVisible())
@@ -148,7 +145,7 @@ namespace Lina
 			return false;
 		});
 	}
-	void WorldInput::OnMouseWheel(LinaGX::Window* window, float amt)
+	void WorldInput::OnMouseWheel(float amt)
 	{
 		m_world->GetCache<CompWidget>()->GetBucket().View([&](CompWidget* widget, uint32 idx) -> bool {
 			if (widget->GetIs3D() || !widget->GetEntity()->GetVisible())
@@ -159,7 +156,7 @@ namespace Lina
 			return false;
 		});
 	}
-	void WorldInput::OnMouseMove(LinaGX::Window* window, const LinaGX::LGXVector2& move)
+	void WorldInput::OnMouseMove(const LinaGX::LGXVector2& move)
 	{
 		m_world->GetCache<CompWidget>()->GetBucket().View([&](CompWidget* widget, uint32 idx) -> bool {
 			if (widget->GetIs3D() || !widget->GetEntity()->GetVisible())

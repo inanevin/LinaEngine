@@ -502,6 +502,35 @@ namespace Lina::Editor
 		text->SetAlignedPosY(0.5f);
 		text->SetAnchorY(Anchor::Center);
 		layout->AddChild(text);
+
+		Icon* vis = wm->Allocate<Icon>("Vis");
+		vis->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+		vis->SetAlignedPos(Vector2(1.0f, 0.5f));
+		vis->SetAnchorX(Anchor::End);
+		vis->SetAnchorY(Anchor::Center);
+		vis->GetProps().icon				= ICON_EYE;
+		vis->GetProps().dynamicSizeScale	= 0.7f;
+		vis->GetProps().dynamicSizeToParent = true;
+
+		if (props.entity)
+		{
+			vis->GetProps().color						  = props.entity->GetVisible() ? Theme::GetDef().foreground1 : Theme::GetDef().silent1;
+			vis->GetProps().onClicked					  = [props, vis]() {
+				if (props.entity->GetVisible())
+				{
+					props.entity->SetVisible(false);
+					vis->GetProps().color = Theme::GetDef().silent1;
+				}
+				else
+				{
+					props.entity->SetVisible(true);
+					vis->GetProps().color = Theme::GetDef().foreground1;
+				}
+			};
+		}
+
+		layout->AddChild(vis);
+
 		fold->Initialize();
 		return fold;
 	}
@@ -1077,8 +1106,8 @@ namespace Lina::Editor
 		Panel*		   panel		 = Editor::Get()->GetWindowPanelManager().FindPanelOfType(PanelType::World, 0);
 		if (panel)
 		{
-			world			   = static_cast<PanelWorld*>(panel)->GetWorld();
-			currentEntity	   = world ? world->GetEntity(*currentEntityID) : nullptr;
+			world		  = static_cast<PanelWorld*>(panel)->GetWorld();
+			currentEntity = world ? world->GetEntity(*currentEntityID) : nullptr;
 		}
 
 		Button* btn = wm->Allocate<Button>();

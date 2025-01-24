@@ -333,58 +333,6 @@ namespace Lina::Editor
 			return true;
 		}
 
-		/*
-		if (sid == TO_SID(Locale::GetStr(LocaleStr::PointLight)))
-		{
-			Entity* e = m_world->CreateEntity(m_world->ConsumeEntityGUID(), Locale::GetStr(LocaleStr::PointLight));
-			e->SetPosition(createPos);
-			CompLight* comp = m_world->AddComponent<CompLight>(e);
-			comp->SetType(LightType::Point);
-
-			EditorActionEntitiesCreated::Create(m_editor, m_world, {e});
-			EditorActionEntitySelection::Create(m_editor, m_world->GetID(), {e}, true, true);
-			EditorActionCollective::Create(m_editor, 2);
-			return true;
-		}
-
-		if (sid == TO_SID(Locale::GetStr(LocaleStr::Entity)))
-		{
-			Entity* e = m_world->CreateEntity(m_world->ConsumeEntityGUID(), Locale::GetStr(LocaleStr::PointLight));
-			e->SetPosition(createPos);
-			EditorActionEntitiesCreated::Create(m_editor, m_world, {e});
-			EditorActionEntitySelection::Create(m_editor, m_world->GetID(), {e}, true, true);
-			EditorActionCollective::Create(m_editor, 2);
-			return true;
-		}
-
-		if (sid == TO_SID(Locale::GetStr(LocaleStr::SpotLight)))
-		{
-			Entity* e = m_world->CreateEntity(m_world->ConsumeEntityGUID(), Locale::GetStr(LocaleStr::SpotLight));
-			e->SetPosition(createPos);
-			CompLight* comp = m_world->AddComponent<CompLight>(e);
-			comp->SetType(LightType::Spot);
-
-			EditorActionEntitiesCreated::Create(m_editor, m_world, {e});
-			EditorActionEntitySelection::Create(m_editor, m_world->GetID(), {e}, true, true);
-			EditorActionCollective::Create(m_editor, 2);
-			return true;
-		}
-
-		if (sid == TO_SID(Locale::GetStr(LocaleStr::DirectionalLight)))
-		{
-
-			Entity* e = m_world->CreateEntity(m_world->ConsumeEntityGUID(), Locale::GetStr(LocaleStr::DirectionalLight));
-			e->SetPosition(createPos);
-			CompLight* comp = m_world->AddComponent<CompLight>(e);
-			comp->SetType(LightType::Directional);
-
-			EditorActionEntitiesCreated::Create(m_editor, m_world, {e});
-			EditorActionEntitySelection::Create(m_editor, m_world->GetID(), {e}, true, true);
-			EditorActionCollective::Create(m_editor, 2);
-			return true;
-		}
-		*/
-
 		return false;
 	}
 
@@ -436,7 +384,7 @@ namespace Lina::Editor
 				.userData	= userData,
 			});
 
-			outData.push_back(FileMenuItem::Data{.isDivider = true});
+			// outData.push_back(FileMenuItem::Data{.isDivider = true});
 		}
 		else if (sid == TO_SID(Locale::GetStr(LocaleStr::Create)))
 		{

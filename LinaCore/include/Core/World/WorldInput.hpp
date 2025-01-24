@@ -62,10 +62,10 @@ namespace Lina
 		void	ConfineMouse();
 		void	ReleaseMouse();
 
-		void OnKey(LinaGX::Window* window, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction);
-		void OnMouse(LinaGX::Window* window, uint32 button, LinaGX::InputAction inputAction);
-		void OnMouseWheel(LinaGX::Window* window, float amt);
-		void OnMouseMove(LinaGX::Window* window, const LinaGX::LGXVector2&);
+		void OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction inputAction);
+		void OnMouse(uint32 button, LinaGX::InputAction inputAction);
+		void OnMouseWheel(float amt);
+		void OnMouseMove(const LinaGX::LGXVector2&);
 
 		inline LinaGX::Input* GetRawLGXInput()
 		{

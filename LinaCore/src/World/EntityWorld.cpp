@@ -92,7 +92,6 @@ namespace Lina
 
 	void EntityWorld::Tick(float delta)
 	{
-
 		if (m_playMode == PlayMode::Play)
 		{
 			m_physicsWorld->Simulate(delta);
