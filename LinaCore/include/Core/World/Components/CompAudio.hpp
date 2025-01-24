@@ -36,7 +36,7 @@ namespace Lina
 	class CompAudio : public Component
 	{
 	public:
-		CompAudio() : Component(GetTypeID<CompAudio>(), 0) {};
+		CompAudio() : Component(GetTypeID<CompAudio>(), 0){};
 		virtual ~CompAudio();
 
 		virtual void BeginPlay() override;
@@ -48,12 +48,12 @@ namespace Lina
 		void Pause();
 		void Rewind();
 
-		virtual void SaveToStream(OStream& stream) const
+		virtual void SaveToStream(OStream& stream) const override
 		{
 			stream << m_audio << m_is3D << m_isLooping << m_pitch << m_gain << m_playOnBegin;
 		}
 
-		virtual void LoadFromStream(IStream& stream)
+		virtual void LoadFromStream(IStream& stream) override
 		{
 			stream >> m_audio >> m_is3D >> m_isLooping >> m_pitch >> m_gain >> m_playOnBegin;
 		}
@@ -98,8 +98,8 @@ namespace Lina
 	};
 
 	LINA_COMPONENT_BEGIN(CompAudio, "Audio")
-	LINA_FIELD(CompAudio, m_audio, "Widget", FieldType::ResourceID, GetTypeID<Audio>())
-	LINA_FIELD(CompAudio, m_playOnBegin, "Widget", FieldType::Boolean, GetTypeID<Audio>())
+	LINA_FIELD(CompAudio, m_audio, "Audio", FieldType::ResourceID, GetTypeID<Audio>())
+	LINA_FIELD(CompAudio, m_playOnBegin, "Play On Begin", FieldType::Boolean, 0)
 	LINA_FIELD(CompAudio, m_is3D, "Is 3D", FieldType::Boolean, 0)
 	LINA_FIELD(CompAudio, m_isLooping, "Loop", FieldType::Boolean, 0)
 	LINA_FIELD(CompAudio, m_pitch, "Pitch", FieldType::Float, 0)
