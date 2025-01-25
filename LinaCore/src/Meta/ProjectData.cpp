@@ -31,9 +31,25 @@ SOFTWARE.
 #include "Core/World/EntityWorld.hpp"
 
 #include "Common/FileSystem/FileSystem.hpp"
+#include <random>
 
 namespace Lina
 {
+
+	ResourceID ProjectData::ConsumeResourceID()
+	{
+		static std::random_device rd;
+		static std::mt19937_64	  generator(rd()); // 64-bit Mersenne Twister
+		return generator() % RESOURCE_ID_CUSTOM_SPACE;
+	}
+
+	ResourceID ProjectData::ConsumeGlobalGUID()
+	{
+		static std::random_device rd;
+		static std::mt19937_64	  generator(rd()); // 64-bit Mersenne Twister
+		return generator() % RESOURCE_ID_CUSTOM_SPACE;
+	}
+
 	void ProjectData::LoadFromStream(IStream& in)
 	{
 		uint32 version = 0;

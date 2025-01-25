@@ -67,6 +67,8 @@ namespace Lina
 		ResourceDirectory* DuplicateResourceDirectory(ResourceDirectory* parent, ResourceDirectory* dir);
 		void			   DestroyChildDirectories(ResourceDirectory* dir);
 		void			   MoveResourceDirectory(ResourceDirectory* dir, ResourceDirectory* newParent);
+		ResourceID		   ConsumeResourceID();
+		ResourceID		   ConsumeGlobalGUID();
 
 		inline void SetProjectName(const String& name)
 		{
@@ -81,20 +83,6 @@ namespace Lina
 		inline ResourceDirectory& GetResourceRoot()
 		{
 			return m_rootDirectory;
-		}
-
-		inline ResourceID ConsumeResourceID()
-		{
-			const ResourceID id = m_resourceIDCounter;
-			m_resourceIDCounter++;
-			return id;
-		}
-
-		inline GUID ConsumeGlobalGUID()
-		{
-			const GUID guid = m_globalGUIDCounter;
-			m_globalGUIDCounter++;
-			return guid;
 		}
 
 		inline PackagingSettings& GetSettingsPackaging()
