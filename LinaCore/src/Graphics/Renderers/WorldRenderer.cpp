@@ -469,8 +469,8 @@ namespace Lina
 			.pushConstant  = PushArgument(args),
 			.clip		   = Recti(buf->clip.x, buf->clip.y, buf->clip.z, buf->clip.w),
 			.useScissors   = true,
-			.sortOrder	   = m_currentLVGDraw3D,
-			.sortPosition  = m_currentLVGDrawEntity->GetPosition(),
+			.sortOrder	   = true,
+			.sortPosition  = m_currentLVGDraw3D ? m_currentLVGDrawEntity->GetPosition() : (m_gpuDrawData.worldCamera.GetPosition()),
 		};
 
 		m_forwardPass.AddDrawCall(drawCall);
