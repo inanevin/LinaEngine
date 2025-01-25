@@ -459,7 +459,7 @@ namespace Lina
 					&m_pfd[1].lvgIdxBuffer,
 				},
 			.vertexSize	   = sizeof(LinaVG::Vertex),
-			.shaderHandle  = m_currentLVGDraw3D ? shader->GetGPUHandle() : shader->GetGPUHandle(DepthTesting::None),
+			.shaderHandle  = m_currentLVGDraw3D ? shader->GetGPUHandle() : shader->GetGPUHandle(DepthTesting::Always),
 			.baseVertex	   = static_cast<uint32>(m_cpuDrawData.lvgVertices.size()),
 			.vertexCount   = vtxCount,
 			.baseIndex	   = static_cast<uint32>(m_cpuDrawData.lvgIndices.size()),

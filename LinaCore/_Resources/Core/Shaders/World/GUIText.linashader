@@ -34,7 +34,7 @@ SOFTWARE.
 #frag: Resources/Core/Shaders/Common/MainFragSimple.linashader
 #pass: Resources/Core/Shaders/Common/RenderPass_Forward.linashader
 #blend: LINA_BLEND_ALPHA
-#depth: LINA_DEPTH_LESS
+#depth: LINA_DEPTH_ALWAYS
 #depth_target: LINA_TARGET_D32
 #target: LINA_TARGET_HDR
 #cull: LINA_CULL_NONE
