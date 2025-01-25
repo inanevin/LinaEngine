@@ -369,7 +369,7 @@ namespace Lina
 		return entity;
 	}
 
-	Entity* EntityWorld::SpawnTemplate(EntityTemplate* tmp)
+	Entity* EntityWorld::SpawnTemplate(EntityTemplate* tmp, const Vector3& position, const Quaternion& rotation)
 	{
 		Vector<Entity*> ents = tmp->CreateFromStream(this);
 		WorldUtility::FixEntityIDsToNew(this, ents);
@@ -377,8 +377,11 @@ namespace Lina
 		if (ents.empty())
 			return nullptr;
 
+		Entity* e = ents.at(0);
+		e->SetPosition(position);
+		e->SetRotation(rotation);
 		m_physicsWorld->EnsurePhysicsBodies();
-		return ents.at(0);
+		return e;
 	}
 
 	void EntityWorld::GetComponents(Entity* e, Vector<Component*>& outComponents) const

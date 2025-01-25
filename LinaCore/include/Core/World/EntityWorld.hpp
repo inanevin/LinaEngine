@@ -84,7 +84,7 @@ namespace Lina
 		Entity* GetEntity(EntityID guid);
 		void	DestroyEntity(Entity* e);
 		Entity* FindEntity(const String& name);
-		Entity* SpawnTemplate(EntityTemplate* tmp);
+		Entity* SpawnTemplate(EntityTemplate* tmp, const Vector3& pos = Vector3::Zero, const Quaternion& q = Quaternion::Identity());
 
 		// Components
 		void	   GetComponents(Entity* e, Vector<Component*>& outComponents) const;
