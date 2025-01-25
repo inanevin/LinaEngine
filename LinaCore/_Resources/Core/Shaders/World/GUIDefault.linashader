@@ -98,13 +98,9 @@ void LINA_FRAG_MAIN(out LinaFragOutput outFrag)
 
    vec4 color = inCol;
 
-   if(material.hasTexture == 1)
-   {
-      vec2 uv = inUV * material.tilingAndOffset.rg + material.tilingAndOffset.ba;
-      vec4 sampledTexture = LINA_SAMPLE_TEXTURE(material.diffuse, uv);
-      color *= sampledTexture;
-   }
-
+   vec2 uv = inUV * material.tilingAndOffset.rg + material.tilingAndOffset.ba;
+   vec4 sampledTexture = LINA_SAMPLE_TEXTURE(material.diffuse, uv);
+   color *= sampledTexture;
    outFrag.color = color;
 }
 
