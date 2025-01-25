@@ -47,6 +47,7 @@ namespace Lina
 		void Stop();
 		void Pause();
 		void Rewind();
+		void SetupProperties();
 
 		virtual void SaveToStream(OStream& stream) const override
 		{
@@ -114,8 +115,6 @@ namespace Lina
 		}
 
 	private:
-		void SetupProperties();
-
 	private:
 		LINA_REFLECTION_ACCESS(CompAudio);
 		ResourceID m_audio = 0;
