@@ -87,7 +87,7 @@ namespace Lina
 				.binding   = 3,
 			};
 
-			data.copyStream	   = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, 50, 12000, 4096, 32, "Engine: Copy Stream"});
+			data.copyStream	   = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, 50, 18000, 20000, 32, "Engine: Copy Stream"});
 			data.copySemaphore = SemaphoreData(m_lgx->CreateUserSemaphore());
 		}
 	}

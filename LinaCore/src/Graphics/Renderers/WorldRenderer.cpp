@@ -101,8 +101,8 @@ namespace Lina
 
 			const String cmdStreamName	= name + " Gfx Stream " + TO_STRING(i);
 			const String cmdStreamName2 = name + " Copy Stream " + TO_STRING(i);
-			data.gfxStream				= m_lgx->CreateCommandStream({LinaGX::CommandType::Graphics, MAX_GFX_COMMANDS, 24000, 4096, 32, cmdStreamName.c_str()});
-			data.copyStream				= m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, MAX_COPY_COMMANDS, 4000, 4096, 32, cmdStreamName2.c_str()});
+			data.gfxStream				= m_lgx->CreateCommandStream({LinaGX::CommandType::Graphics, MAX_GFX_COMMANDS, 24000, 10000, 32, cmdStreamName.c_str()});
+			data.copyStream				= m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, MAX_COPY_COMMANDS, 8000, 10000, 32, cmdStreamName2.c_str()});
 			data.signalSemaphore		= SemaphoreData(m_lgx->CreateUserSemaphore());
 			data.copySemaphore			= SemaphoreData(m_lgx->CreateUserSemaphore());
 
