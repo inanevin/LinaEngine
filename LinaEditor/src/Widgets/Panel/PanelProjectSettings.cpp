@@ -113,6 +113,16 @@ namespace Lina::Editor
 		m_foldPackaging->Initialize();
 	}
 
+	namespace
+	{
+		void CollectDirs(HashSet<ResourceDirectory*>& out, ResourceDirectory* root)
+		{
+			out.insert(root);
+			for (ResourceDirectory* c : root->children)
+				CollectDirs(out, c);
+		}
+	} // namespace
+
 	void PanelProjectSettings::PackageProject()
 	{
 		EditorTask* task   = m_editor->GetTaskManager().CreateTask();
@@ -143,7 +153,7 @@ namespace Lina::Editor
 			return;
 		}
 
-		task->task = [task, pj, gameProjectFolder]() {
+		task->task = [task, pj, gameProjectFolder, this]() {
 			OStream package0Stream;
 			OStream package1Stream;
 
@@ -159,6 +169,20 @@ namespace Lina::Editor
 			const PackagingSettings& packagingSettings = pj->GetSettingsPackaging();
 
 			ResourceDefinitionList allResourceNeeds;
+
+			ResourceDirectory* root = &m_editor->GetProjectManager().GetProjectData()->GetResourceRoot();
+
+			HashSet<ResourceDirectory*> all;
+			CollectDirs(all, root);
+
+			for (ResourceDirectory* d : all)
+			{
+				ResourceDef def = {};
+				def.name		= d->name;
+				def.id			= d->resourceID;
+				def.tid			= d->resourceTID;
+				allResourceNeeds.insert(def);
+			}
 
 			for (ResourceID id : packagingSettings.worldIDsToPack)
 			{
@@ -179,10 +203,6 @@ namespace Lina::Editor
 				package1Stream.WriteRaw(worldStream.GetDataRaw(), worldStream.GetCurrentSize());
 				worldStream.Destroy();
 				LINA_TRACE("Writing resource to package: {0} {1}", w.GetID(), w.GetName());
-
-				const Vector<ResourceDef>& needs = w.GetNeededResourceDefinitions();
-				for (const ResourceDef& def : needs)
-					allResourceNeeds.insert(def);
 			}
 
 			for (const ResourceDef& def : allResourceNeeds)
@@ -190,8 +210,13 @@ namespace Lina::Editor
 				const String& path = pj->GetResourcePath(def.id);
 				if (!FileSystem::FileOrPathExists(path))
 					continue;
-				IStream		 istream = Serialization::LoadFromFile(path.c_str());
-				const uint32 sz		 = static_cast<uint32>(istream.GetSize());
+
+				IStream istream = Serialization::LoadFromFile(path.c_str());
+
+				if (istream.Empty())
+					continue;
+
+				const uint32 sz = static_cast<uint32>(istream.GetSize());
 
 				package1Stream << def.id;
 				package1Stream << sz;
