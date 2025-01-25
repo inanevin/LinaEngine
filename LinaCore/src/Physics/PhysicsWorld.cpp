@@ -274,10 +274,10 @@ namespace Lina
 		if (m_contactListeners.empty())
 			return;
 
-		Entity*		   e1 = GetEntityFromBodyID(inBody1.GetID());
-		Entity*		   e2 = GetEntityFromBodyID(inBody2.GetID());
-		const Vector3& p1 = FromJoltVec3(inManifold.GetWorldSpaceContactPointOn1(inBody1.GetID().GetIndex()));
-		const Vector3& p2 = FromJoltVec3(inManifold.GetWorldSpaceContactPointOn2(inBody2.GetID().GetIndex()));
+		Entity*		  e1 = GetEntityFromBodyID(inBody1.GetID());
+		Entity*		  e2 = GetEntityFromBodyID(inBody2.GetID());
+		const Vector3 p1 = Vector3::Zero;
+		const Vector3 p2 = Vector3::Zero;
 
 		for (PhysicsContactListener* list : m_contactListeners)
 			list->OnContactBegin(e1, e2, p1, p2);
@@ -288,10 +288,10 @@ namespace Lina
 		if (m_contactListeners.empty())
 			return;
 
-		Entity*		   e1 = GetEntityFromBodyID(inBody1.GetID());
-		Entity*		   e2 = GetEntityFromBodyID(inBody2.GetID());
-		const Vector3& p1 = FromJoltVec3(inManifold.GetWorldSpaceContactPointOn1(inBody1.GetID().GetIndex()));
-		const Vector3& p2 = FromJoltVec3(inManifold.GetWorldSpaceContactPointOn2(inBody2.GetID().GetIndex()));
+		Entity*		  e1 = GetEntityFromBodyID(inBody1.GetID());
+		Entity*		  e2 = GetEntityFromBodyID(inBody2.GetID());
+		const Vector3 p1 = Vector3::Zero;
+		const Vector3 p2 = Vector3::Zero;
 
 		for (PhysicsContactListener* list : m_contactListeners)
 			list->OnContact(e1, e2, p1, p2);
