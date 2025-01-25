@@ -97,6 +97,8 @@ namespace Lina
 		void AddListener(EntityWorldListener* listener);
 		void RemoveListener(EntityWorldListener* listener);
 
+		EntityID ConsumeEntityGUID();
+
 		template <typename T> T* GetComponent(Entity* e)
 		{
 			return static_cast<T*>(GetCache<T>()->Get(e));
@@ -191,11 +193,6 @@ namespace Lina
 		inline WorldInput& GetInput()
 		{
 			return m_worldInput;
-		}
-
-		inline EntityID ConsumeEntityGUID()
-		{
-			return m_entityGUIDCounter++;
 		}
 
 		inline Camera& GetWorldCamera()

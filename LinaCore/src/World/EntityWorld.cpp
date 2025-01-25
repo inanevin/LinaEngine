@@ -542,4 +542,11 @@ namespace Lina
 		return it->cache;
 	}
 
+	EntityID EntityWorld::ConsumeEntityGUID()
+	{
+		static std::random_device rd;
+		static std::mt19937_64	  generator(rd()); // 64-bit Mersenne Twister
+		return generator();
+	}
+
 } // namespace Lina
