@@ -55,6 +55,7 @@ namespace Lina
 
 	bool Audio::LoadFromFile(const String& path)
 	{
+		m_audioBuffer.resize(0);
 		AudioFile<int16> file;
 		file.load(path.c_str());
 
@@ -102,6 +103,7 @@ namespace Lina
 
 	void Audio::LoadFromStream(IStream& stream)
 	{
+		m_audioBuffer.resize(0);
 		Resource::LoadFromStream(stream);
 		uint32 version = 0;
 		stream >> version;
