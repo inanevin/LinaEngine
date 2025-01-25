@@ -194,7 +194,7 @@ namespace Lina
 				// 	texture = rm->GetIfExists<Texture>(ENGINE_TEXTURE_EMPTY_ALBEDO_ID);
 				// if (!sampler)
 				// 	sampler = rm->GetIfExists<TextureSampler>(ENGINE_SAMPLER_DEFAULT_ID);
-				LINA_ASSERT(texture != nullptr && sampler != nullptr, "");
+				// LINA_ASSERT(texture != nullptr && sampler != nullptr, "");
 
 				LinaTexture2DBinding binding = {
 					.textureIndex = texture ? texture->GetBindlessIndex() : 0,
