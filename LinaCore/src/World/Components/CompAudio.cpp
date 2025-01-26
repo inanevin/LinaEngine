@@ -78,11 +78,10 @@ namespace Lina
 
 	void CompAudio::Play()
 	{
-		int err = 0;
-
 		CheckSource();
 		SetupProperties();
 		alSourcePlay(m_alSource);
+		int err = 0;
 		AL_CHECK_ERR(err);
 	}
 
@@ -130,6 +129,7 @@ namespace Lina
 			if (!m_audioPtr)
 				return;
 
+			int err		= 0;
 			m_generated = true;
 			alGenSources((ALuint)1, &m_alSource);
 			AL_CHECK_ERR(err);
