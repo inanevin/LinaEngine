@@ -94,6 +94,16 @@ namespace Lina
 			return m_falloff;
 		}
 
+		inline void SetColor(const Color& col)
+		{
+			m_color = col;
+		}
+
+		inline void SetIntensity(float i)
+		{
+			m_intensity = i;
+		}
+
 	private:
 		LINA_REFLECTION_ACCESS(CompLight);
 
