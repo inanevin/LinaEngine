@@ -115,6 +115,8 @@ namespace Lina
 		}
 
 	private:
+		void CheckSource();
+
 	private:
 		LINA_REFLECTION_ACCESS(CompAudio);
 		ResourceID m_audio = 0;
