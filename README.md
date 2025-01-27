@@ -20,6 +20,7 @@
 Lina Engine is a cross-platform, lightweight, straight to the point open-source 3D game engine. I've started making Lina as a research project during my Bachelors, and kept on developing as a personal engine. The reasoning behind Lina is first personal learning, and creating a library of tools for myself like [LinaVG](https://github.com/inanevin/LinaVG), a vector graphics library used in Lina's GUI and editor systems, or like [LinaGX](https://github.com/inanevin/LinaGX), a complete Vulkan, DX12 and Metal graphics backend. Secondly I'm making Lina to create a game engine that is free of today's existing bloat in variety of available game engines. It's designed to make highly customizable, small and performant games. 
 
 ![Lina](Extra/Images/LinaSS.png)
+![Lina](Extra/Images/saunastein.png)
 
 Lina Engine is still under active development, so any contributions and discussions are welcome!
 
