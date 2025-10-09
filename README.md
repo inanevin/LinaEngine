@@ -28,7 +28,7 @@ Lina Engine is still under active development, so any contributions and discussi
 ## Used Projects
 
 -  [LinaGX](https://github.com/inanevin/LinaGX)
--  [LinaVG](https://github.com/inanevin/LinaVX)
+-  [LinaVG](https://github.com/inanevin/LinaVG)
 -  [fmt](https://github.com/fmtlib/fmt)
 -  [lz4](https://github.com/lz4/lz4)
 -  [phmap](https://github.com/greg7mdp/parallel-hashmap)
